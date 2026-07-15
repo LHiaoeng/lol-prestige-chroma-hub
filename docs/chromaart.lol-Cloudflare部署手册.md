@@ -273,7 +273,7 @@ data/prestige-chromas.json
 assets/chromas/{instanceId}/site3.jpg
 assets/chromas/{instanceId}/site4.jpg
 assets/chromas/{instanceId}/site5.jpg
-assets/tags/{tagId}.png
+assets/tags/{tagImgUrl 中的实际安全 PNG 文件名}
 ```
 
 原始输入文件若包含不需要提交的内部字段，应由导入脚本规范化后再写入 `data/prestige-chromas.json`，不要直接复制未经校验的数据库导出文件。
@@ -355,13 +355,13 @@ curl.exe "https://chromaart.lol/api/chromas?page=1&pageSize=1"
 
 ### 9.3 R2 图片
 
-从 JSON 中选择一个真实 `instanceId` 和 `tagId`：
+从 JSON 中选择一个真实 `instanceId`，并直接复制该记录 `images.tag` 的实际文件名（例如 `x-2.png`）：
 
 ```powershell
 curl.exe -I https://img.chromaart.lol/chromas/<instanceId>/site3.jpg
 curl.exe -I https://img.chromaart.lol/chromas/<instanceId>/site4.jpg
 curl.exe -I https://img.chromaart.lol/chromas/<instanceId>/site5.jpg
-curl.exe -I https://img.chromaart.lol/tags/<tagId>.png
+curl.exe -I https://img.chromaart.lol/tags/<实际标签文件名>.png
 ```
 
 四个对象都应成功返回图片 Content-Type。不要只验证 R2 Dashboard 中“对象存在”。

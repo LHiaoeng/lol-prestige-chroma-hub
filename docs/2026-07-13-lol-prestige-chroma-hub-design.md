@@ -42,7 +42,7 @@
        ├─ chromas/{instanceId}/site3.jpg
        ├─ chromas/{instanceId}/site4.jpg
        ├─ chromas/{instanceId}/site5.jpg
-       └─ tags/{tagId}.png
+       └─ tags/{实际标签文件名}.png
             ↓ GitHub Actions
        ├─ 校验数据与图片
        ├─ 增量同步图片到 R2
@@ -124,7 +124,7 @@
     "large": "assets/chromas/example-instance-id/site3.jpg",
     "small": "assets/chromas/example-instance-id/site4.jpg",
     "medium": "assets/chromas/example-instance-id/site5.jpg",
-    "tag": "assets/tags/example-tag-id.png"
+    "tag": "assets/tags/x-example-tag-id.png"
   }
 }
 ```
@@ -134,7 +134,7 @@
 - 统一使用 `/`，禁止 Windows 反斜杠。
 - 必须是仓库相对路径，禁止盘符、绝对路径和 `..`。
 - 臻彩图片必须位于 `assets/chromas/{instanceId}/`。
-- Tag 图片必须位于 `assets/tags/`。
+- Tag 图片必须位于 `assets/tags/`，并保留有效源地址中的实际安全 PNG 文件名；不得仅用 `tagId` 改写文件名。
 - JSON 引用的文件必须存在。
 - 未被 JSON 引用的孤立图片必须在校验报告中列出。
 

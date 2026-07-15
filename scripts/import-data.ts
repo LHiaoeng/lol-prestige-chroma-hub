@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseCatalog, sourceImageUrl, type ChromaSource, type ImageKind } from '../src/domain/chroma';
 
-type ImportRecord = Omit<ChromaSource, 'images'> & { tagImageUrl?: string };
+type ImportRecord = Omit<ChromaSource, 'images'> & { images?: ChromaSource['images']; tagImageUrl?: string };
 export interface ImportOptions {
   root: string;
   input: unknown;
@@ -24,6 +24,15 @@ export function validateImage(bytes: Uint8Array, contentType: string | null, ext
   if (bytes.byteLength < 16 || bytes.byteLength > 20 * 1024 * 1024) throw new Error('Invalid image size');
 }
 
+function tagRepositoryPath(item: ImportRecord): string {
+  if (item.images?.tag) return item.images.tag;
+  const sourceUrl = item.tagImageUrl?.trim();
+  if (!sourceUrl) return `assets/tags/x-${item.tagId}.png`;
+  const filename = new URL(sourceUrl.startsWith('//') ? `https:${sourceUrl}` : sourceUrl).pathname.split('/').pop();
+  if (!filename || !/^[A-Za-z0-9_-]{1,128}\.png$/.test(filename)) throw new Error('Tag image URL must end with a safe PNG filename');
+  return `assets/tags/${filename}`;
+}
+
 function normalizedRecord(item: ImportRecord): ChromaSource {
   return {
     ...item,
@@ -31,7 +40,7 @@ function normalizedRecord(item: ImportRecord): ChromaSource {
       large: `assets/chromas/${item.instanceId}/site3.jpg`,
       small: `assets/chromas/${item.instanceId}/site4.jpg`,
       medium: `assets/chromas/${item.instanceId}/site5.jpg`,
-      tag: `assets/tags/${item.tagId}.png`,
+      tag: tagRepositoryPath(item),
     },
   };
 }
@@ -101,8 +110,15 @@ export async function importData(options: ImportOptions): Promise<ImportResult> 
     const kinds: Array<[ImageKind, string, 'jpg']> = [['large', 'site3.jpg', 'jpg'], ['small', 'site4.jpg', 'jpg'], ['medium', 'site5.jpg', 'jpg']];
     for (const [kind, filename, ext] of kinds) jobs.push({ path: join(stage, 'assets', 'chromas', item.instanceId, filename), existing: join(root, 'assets', 'chromas', item.instanceId, filename), url: sourceImageUrl(kind, item.instanceId), ext });
   }
-  const tags = new Map(items.map((item) => [item.tagId, item.tagImageUrl || sourceImageUrl('tag', item.tagId)]));
-  for (const [tagId, url] of tags) jobs.push({ path: join(stage, 'assets', 'tags', `${tagId}.png`), existing: join(root, 'assets', 'tags', `${tagId}.png`), url, ext: 'png' });
+  const tags = new Map<string, string>();
+  for (const item of items) {
+    const path = tagRepositoryPath(item);
+    const url = item.tagImageUrl || sourceImageUrl('tag', item.tagId);
+    const existingUrl = tags.get(path);
+    if (existingUrl && existingUrl !== url) throw new Error(`Different tag image URLs resolve to ${path}`);
+    tags.set(path, url);
+  }
+  for (const [path, url] of tags) jobs.push({ path: join(stage, path), existing: join(root, path), url, ext: 'png' });
   try {
     for (const job of jobs) {
       await mkdir(dirname(job.path), { recursive: true });

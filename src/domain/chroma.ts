@@ -5,12 +5,16 @@ const assetPath = z.string().refine(
   (value) => !value.includes('\\') && !value.includes('..') && !/^(?:[A-Za-z]:|\/)/.test(value),
   'must be a safe repository-relative path',
 );
+const tagAssetPath = assetPath.refine(
+  (value) => /^assets\/tags\/[A-Za-z0-9_-]{1,128}\.png$/.test(value),
+  'must use the actual safe tag PNG filename under assets/tags',
+);
 
 const imageSchema = z.object({
   large: assetPath,
   small: assetPath,
   medium: assetPath,
-  tag: assetPath,
+  tag: tagAssetPath,
 });
 
 const relationSchema = z.object({
@@ -78,7 +82,6 @@ function assertImagePaths(item: ChromaSource): void {
     large: `${base}site3.jpg`,
     small: `${base}site4.jpg`,
     medium: `${base}site5.jpg`,
-    tag: `assets/tags/${item.tagId}.png`,
   } as const;
   for (const key of Object.keys(expected) as Array<keyof typeof expected>) {
     if (item.images[key] !== expected[key]) throw new Error(`Invalid ${key} image path`);

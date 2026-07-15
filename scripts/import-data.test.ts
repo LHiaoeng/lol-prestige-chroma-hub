@@ -27,6 +27,7 @@ describe('data importer', () => {
     expect(fetcher).toHaveBeenCalledTimes(7);
     const catalog = JSON.parse(readFileSync(join(root, 'data/prestige-chromas.json'), 'utf8'));
     expect(catalog[0].images.medium).toBe('assets/chromas/abc/site5.jpg');
+    expect(catalog[0].images.tag).toBe('assets/tags/x-mythic.png');
     expect(catalog[0].sourceSkinId).toBe(1001);
     expect(catalog[0].skinSets).toEqual(input[0].skinSets);
     expect(catalog[0].universes).toEqual(input[0].universes);
@@ -58,7 +59,7 @@ describe('data importer', () => {
         large: 'assets/chromas/abc/site3.jpg',
         small: 'assets/chromas/abc/site4.jpg',
         medium: 'assets/chromas/abc/site5.jpg',
-        tag: 'assets/tags/mythic.png',
+        tag: 'assets/tags/x-mythic.png',
       },
     }];
     const fetcher = vi.fn();
@@ -66,5 +67,6 @@ describe('data importer', () => {
     expect(result).toMatchObject({ records: 1, downloaded: 0, dryRun: true });
     expect(fetcher).not.toHaveBeenCalled();
     expect(finalCatalog[0].images.medium).toBe('assets/chromas/abc/site5.jpg');
+    expect(finalCatalog[0].images.tag).toBe('assets/tags/x-mythic.png');
   });
 });

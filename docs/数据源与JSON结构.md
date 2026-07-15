@@ -109,7 +109,7 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
       "large": "assets/chromas/0dc7b925-be59-4904-ae5c-cad7502efbad/site3.jpg",
       "small": "assets/chromas/0dc7b925-be59-4904-ae5c-cad7502efbad/site4.jpg",
       "medium": "assets/chromas/0dc7b925-be59-4904-ae5c-cad7502efbad/site5.jpg",
-      "tag": "assets/tags/2.png"
+      "tag": "assets/tags/x-2.png"
     }
   }
 ]
@@ -165,9 +165,9 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
 | `large` | string | `assets/chromas/{instanceId}/site3.jpg` |
 | `small` | string | `assets/chromas/{instanceId}/site4.jpg` |
 | `medium` | string | `assets/chromas/{instanceId}/site5.jpg` |
-| `tag` | string | `assets/tags/{tagId}.png` |
+| `tag` | string | `assets/tags/{tagImgUrl 中的实际安全 PNG 文件名}` |
 
-前三个路径只由 `instanceId` 计算。`tag` 路径由 `tagId` 计算；`tagImgUrl` 仍用于校验标签源图片必须是安全的 HTTPS PNG。所有路径必须是安全的仓库相对路径，不能包含反斜杠、`..`、盘符或以 `/` 开头。
+前三个路径只由 `instanceId` 计算。`tag` 路径保留管理记录 `tagImgUrl` 中的实际 PNG 文件名，例如源地址以 `x-2.png` 结尾时输出 `assets/tags/x-2.png`，与管理后端同步到 R2 的对象键 `tags/x-2.png` 一致。`tagImgUrl` 缺失时，生成器按 `x-{tagId}.png` 计算源文件名。文件名必须是安全 PNG 文件名；所有路径必须是安全的仓库相对路径，不能包含反斜杠、`..`、盘符或以 `/` 开头。
 
 ## 6. 修改 JSON 结构时的同步位置
 

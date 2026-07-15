@@ -37,7 +37,7 @@ const record = {
     large: 'assets/chromas/abc-123/site3.jpg',
     small: 'assets/chromas/abc-123/site4.jpg',
     medium: 'assets/chromas/abc-123/site5.jpg',
-    tag: 'assets/tags/mythic.png',
+    tag: 'assets/tags/x-mythic.png',
   },
 };
 
@@ -67,6 +67,10 @@ describe('chroma catalog', () => {
   it('rejects unsafe and misplaced asset paths', () => {
     expect(() => parseCatalog([{ ...record, images: { ...record.images, large: '../secret.jpg' } }])).toThrow(/large/i);
     expect(() => parseCatalog([{ ...record, images: { ...record.images, tag: 'assets/chromas/tag.png' } }])).toThrow(/tag/i);
+  });
+
+  it('accepts the actual safe PNG filename used by R2 tags', () => {
+    expect(() => parseCatalog([{ ...record, images: { ...record.images, tag: 'assets/tags/custom-source-name.png' } }])).not.toThrow();
   });
 
   it('requires valid source skin metadata', () => {
