@@ -33,6 +33,7 @@
 | 设置 | 值 |
 | --- | --- |
 | Production branch | `main` |
+| Root directory | 留空（仓库根目录） |
 | Build command | `pnpm release:build` |
 | Deploy command | `pnpm exec wrangler deploy` |
 
