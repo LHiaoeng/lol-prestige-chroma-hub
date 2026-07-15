@@ -11,10 +11,28 @@
 ```bash
 pnpm install
 pnpm data:validate
-pnpm dev
 ```
 
 `data/prestige-chromas.json` 是唯一目录数据源。首次没有数据时它是空数组；不要把完整 JSON 放入 `public/`。
+
+### 开发模式（推荐日常使用）
+
+```bash
+pnpm dev
+```
+
+浏览器打开 `http://localhost:4321`。Astro 会监听源码和 JSON 变化并自动刷新；如果端口被占用，请使用终端实际输出的地址。
+
+### 生产产物预览（发布前检查）
+
+```bash
+pnpm build
+pnpm preview
+```
+
+`pnpm build` 先生成 `dist/`，`pnpm preview` 再通过当前项目配置的 `wrangler dev` 提供这些静态产物，行为更接近 Cloudflare Workers Static Assets。浏览器访问 Wrangler 在终端输出的本地地址。
+
+两种模式下的图片都会从 `https://img.chromaart.lol` 加载，本地仓库不保存图片文件。断网或远程对象不存在时，页面会尝试外部回退图片，最终显示本地占位图。
 
 可选的导入器用于处理不符合最终契约的外部导出；管理后台已生成标准 JSON 时，直接覆盖目标文件即可。
 
