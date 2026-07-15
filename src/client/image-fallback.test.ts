@@ -1,0 +1,45 @@
+import { describe, expect, it } from 'vitest';
+import { bindImageFallbacks } from './image-fallback';
+
+class TestImage {
+  dataset: Record<string, string> = {};
+  src = 'primary.jpg';
+  private listeners: EventListener[] = [];
+
+  addEventListener(type: string, listener: EventListener): void {
+    if (type === 'error') this.listeners.push(listener);
+  }
+
+  fail(): void {
+    this.listeners.forEach((listener) => listener(new Event('error')));
+  }
+
+  get listenerCount(): number { return this.listeners.length; }
+}
+
+class TestRoot {
+  constructor(private readonly images: TestImage[]) {}
+
+  querySelectorAll(): TestImage[] { return this.images; }
+}
+
+describe('image fallbacks', () => {
+  it('binds each image once and stops after fallback then placeholder', () => {
+    const image = new TestImage();
+    image.dataset.fallback = 'fallback.jpg';
+    image.dataset.placeholder = 'placeholder.svg';
+    const root = new TestRoot([image]);
+
+    bindImageFallbacks(root as unknown as ParentNode);
+    bindImageFallbacks(root as unknown as ParentNode);
+
+    expect(image.dataset.bound).toBe('1');
+    expect(image.listenerCount).toBe(1);
+    image.fail();
+    expect(image.src).toBe('fallback.jpg');
+    image.fail();
+    expect(image.src).toBe('placeholder.svg');
+    image.fail();
+    expect(image.src).toBe('placeholder.svg');
+  });
+});

@@ -32,4 +32,16 @@ describe('static site build', () => {
     expect(files.some((file) => file.endsWith('.map'))).toBe(false);
     expect(files.some((file) => file.includes('prestige-chromas.json'))).toBe(false);
   });
+
+  it('bundles browser scripts instead of publishing the legacy app script', () => {
+    const files = readdirSync(dist, { recursive: true }).map(String);
+    const html = files
+      .filter((file) => file.endsWith('.html'))
+      .map((file) => readFileSync(join(dist, file), 'utf8'))
+      .join('\n');
+
+    expect(existsSync(join(dist, 'app.js'))).toBe(false);
+    expect(html).not.toContain('src="/app.js"');
+    expect(files.some((file) => /^_astro[\\/].+\.js$/.test(file))).toBe(true);
+  });
 });

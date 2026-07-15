@@ -1,3 +1,4 @@
+import { bindImageFallbacks } from '../client/image-fallback';
 import { sourceImageUrl } from '../domain/chroma';
 import {
   parseCatalogQuery,
@@ -23,21 +24,6 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
   const pagination = document.querySelector<HTMLElement>('[data-pagination]');
   const template = document.querySelector<HTMLTemplateElement>('[data-chroma-card-template]');
   const catalogData = document.querySelector<HTMLScriptElement>('#catalog-data');
-
-  function bindImageFallback(image: HTMLImageElement): void {
-    if (image.dataset.fallbackBound) return;
-    image.dataset.fallbackBound = 'true';
-    image.addEventListener('error', () => {
-      if (image.dataset.fallbackStage === 'placeholder') return;
-      if (image.dataset.fallbackStage !== 'fallback') {
-        image.dataset.fallbackStage = 'fallback';
-        image.src = image.dataset.fallback ?? image.dataset.placeholder ?? '/placeholder.svg';
-        return;
-      }
-      image.dataset.fallbackStage = 'placeholder';
-      image.src = image.dataset.placeholder ?? '/placeholder.svg';
-    });
-  }
 
   function createCard(item: BrowserCatalogItem): HTMLElement {
     if (!template) throw new Error('Missing catalog card template');
@@ -66,8 +52,6 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     nameZh.textContent = item.nameZh;
     nameEn.textContent = item.nameEn;
     category.textContent = item.categoryName;
-    bindImageFallback(image);
-
     return card;
   }
 
@@ -115,6 +99,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     if (!list || !status || !count) throw new Error('Missing catalog page elements');
     const result = queryCatalog(items, parseCatalogQuery(params));
     list.replaceChildren(...result.items.map(createCard));
+    bindImageFallbacks(document);
     count.textContent = `${result.pagination.total} 件藏品`;
     status.className = 'status';
     status.hidden = false;
@@ -151,7 +136,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
   }
 
   function start(): void {
-    document.querySelectorAll<HTMLImageElement>('img[data-fallback]').forEach(bindImageFallback);
+    bindImageFallbacks(document);
     if (!form || !list || !status || !count || !pagination || !template || !catalogData) {
       showError();
       return;

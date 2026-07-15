@@ -38,5 +38,9 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
     </header>
     <main><slot /></main>
     <footer><p>Chroma Art 是非官方玩家资料站。游戏素材版权归 Riot Games 与腾讯游戏所有。</p></footer>
+    <script>
+      import { bindImageFallbacks } from '../client/image-fallback';
+      bindImageFallbacks();
+    </script>
   </body>
 </html>
