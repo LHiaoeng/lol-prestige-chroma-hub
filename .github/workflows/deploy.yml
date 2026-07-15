@@ -1,0 +1,70 @@
+name: Deploy Chroma Art
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: lol-prestige-chroma-hub-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      R2_BUCKET: lol-prestige-chroma-hub-images
+      SMOKE_BASE_URL: https://chromaart.lol
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm typecheck
+      - run: pnpm data:validate
+      - run: pnpm release:prepare
+      - name: Export release ID
+        shell: bash
+        run: echo "RELEASE_ID=$(tr -d '\n' < .release/release-id.txt)" >> "$GITHUB_ENV"
+      - run: pnpm r2:sync
+      - name: Import release into D1
+        run: pnpm wrangler d1 execute lol-prestige-chroma-hub-db --remote --file .release/import.sql
+      - run: pnpm build
+      - run: pnpm audit:build
+      - name: Deploy Worker and static assets
+        id: deploy
+        shell: bash
+        run: pnpm wrangler deploy --var RELEASE_ID:${RELEASE_ID}
+      - name: Production smoke tests
+        id: smoke
+        run: pnpm smoke
+      - name: Roll back Worker when smoke tests fail
+        if: ${{ failure() && steps.deploy.outcome == 'success' && steps.smoke.outcome == 'failure' }}
+        run: pnpm wrangler rollback --message "Automatic rollback after failed production smoke tests"
+      - name: Remove failed D1 release
+        if: ${{ failure() && steps.smoke.outcome == 'failure' }}
+        run: >-
+          pnpm wrangler d1 execute lol-prestige-chroma-hub-db --remote --command
+          "DELETE FROM chromas WHERE release_id = '${RELEASE_ID}';
+          DELETE FROM releases WHERE release_id = '${RELEASE_ID}';"
+      - name: Mark successful release active
+        if: ${{ success() }}
+        run: >-
+          pnpm wrangler d1 execute lol-prestige-chroma-hub-db --remote --command
+          "UPDATE releases SET status = 'active', deployed_at = CURRENT_TIMESTAMP WHERE release_id = '${RELEASE_ID}';"
+      - name: Keep the newest two successful D1 releases
+        if: ${{ success() }}
+        run: >-
+          pnpm wrangler d1 execute lol-prestige-chroma-hub-db --remote --command
+          "DELETE FROM chromas WHERE release_id NOT IN (SELECT release_id FROM releases WHERE status = 'active' ORDER BY deployed_at DESC LIMIT 2);
+          DELETE FROM releases WHERE release_id NOT IN (SELECT release_id FROM releases WHERE status = 'active' ORDER BY deployed_at DESC LIMIT 2);"

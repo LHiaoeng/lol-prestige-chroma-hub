@@ -1,0 +1,18 @@
+---
+import type { Chroma } from '../domain/chroma';
+interface Props { catalog: Chroma[] }
+const { catalog } = Astro.props;
+const heroes = [...new Map(catalog.map((item) => [item.heroId, item.heroNameZh])).entries()].sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
+const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
+---
+<form class="filters" data-filters role="search">
+  <label class="search-field"><span>搜索名称</span><input name="q" type="search" maxlength="64" placeholder="搜索臻彩中英文名称" /></label>
+  <label><span>英雄</span><select name="hero"><option value="">全部英雄</option>{heroes.map(([id, name]) => <option value={id}>{name}</option>)}</select></label>
+  <label><span>版本</span><select name="version"><option value="">全部版本</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
+  <label><span>分类</span><select name="category"><option value="">全部分类</option>{categories.map(([id, name]) => <option value={id}>{name}</option>)}</select></label>
+  <label><span>新增状态</span><select name="isNew"><option value="">全部</option><option value="true">本期新增</option><option value="false">非新增</option></select></label>
+  <label><span>排序</span><select name="sort"><option value="rank_desc">推荐优先</option><option value="rank_asc">推荐倒序</option><option value="skin_desc">皮肤 ID 降序</option><option value="skin_asc">皮肤 ID 升序</option><option value="version_desc">版本降序</option></select></label>
+  <button type="submit">应用筛选</button>
+  <button type="reset" class="ghost">清除</button>
+</form>

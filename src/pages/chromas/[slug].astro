@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ChromaCard from '../../components/ChromaCard.astro';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl } from '../../domain/chroma';
+
+export function getStaticPaths() { return catalog.map((chroma) => ({ params: { slug: chroma.slug }, props: { chroma } })); }
+const { chroma } = Astro.props;
+const canonical = `https://chromaart.lol/chromas/${chroma.slug}/`;
+const image = imageUrl(chroma.images.large);
+const description = `${chroma.heroNameZh}「${chroma.nameZh}」臻彩皮肤高清原画、英文名称、分类与 ${chroma.gameVer} 版本信息。`;
+const related = catalog.filter((item) => item.slug !== chroma.slug && (item.heroId === chroma.heroId || item.categoryId === chroma.categoryId)).slice(0, 4);
+const jsonLd = [
+  { '@context': 'https://schema.org', '@type': 'ImageObject', name: chroma.nameZh, contentUrl: image, description },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: 'https://chromaart.lol/' },
+    { '@type': 'ListItem', position: 2, name: chroma.nameZh, item: canonical },
+  ] },
+];
+---
+<BaseLayout title={`${chroma.nameZh} · ${chroma.heroNameZh} | Chroma Art`} {description} {canonical} {image} {jsonLd}>
+  <nav class="breadcrumbs" aria-label="面包屑"><a href="/">首页</a><span>/</span><span>{chroma.heroNameZh}</span><span>/</span><span aria-current="page">{chroma.nameZh}</span></nav>
+  <article class="detail">
+    <div class="detail-image"><img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} width="1920" height="1080" /></div>
+    <div class="detail-copy"><p class="kicker">{chroma.categoryName} · PATCH {chroma.gameVer}</p><h1>{chroma.nameZh}</h1><p class="detail-en">{chroma.nameEn}</p>
+      <dl><div><dt>英雄</dt><dd>{chroma.heroNameZh} · {chroma.heroNameEn}</dd></div><div><dt>原皮</dt><dd>{chroma.skinNameZh} · {chroma.skinNameEn}</dd></div><div><dt>游戏版本</dt><dd>{chroma.gameVer}</dd></div><div><dt>状态</dt><dd>{chroma.isNew ? '本期新增' : '已收录'}</dd></div></dl>
+    </div>
+  </article>
+  {related.length > 0 && <section class="related"><div class="section-heading"><h2>相关臻彩</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
+  <script is:inline src="/app.js" defer></script>
+</BaseLayout>

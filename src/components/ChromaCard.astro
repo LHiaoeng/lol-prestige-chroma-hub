@@ -1,0 +1,26 @@
+---
+import type { Chroma } from '../domain/chroma';
+import { imageUrl, sourceImageUrl } from '../domain/chroma';
+interface Props { chroma: Chroma; eager?: boolean }
+const { chroma, eager = false } = Astro.props;
+---
+<article class="chroma-card">
+  <a href={`/chromas/${chroma.slug}/`} aria-label={`查看 ${chroma.nameZh} 详情`}>
+    <div class="card-image">
+      <img
+        src={imageUrl(chroma.images.medium)}
+        data-fallback={sourceImageUrl('medium', chroma.instanceId)}
+        data-placeholder="/placeholder.svg"
+        alt={`${chroma.heroNameZh} ${chroma.nameZh} 臻彩皮肤`}
+        width="960" height="540" loading={eager ? 'eager' : 'lazy'} decoding="async"
+      />
+      {chroma.isNew && <span class="new-badge">NEW</span>}
+    </div>
+    <div class="card-body">
+      <p class="eyebrow">{chroma.heroNameZh} · {chroma.gameVer}</p>
+      <h2>{chroma.nameZh}</h2>
+      <p>{chroma.nameEn}</p>
+      <span class="category">{chroma.categoryName}</span>
+    </div>
+  </a>
+</article>

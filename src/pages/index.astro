@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChromaCard from '../components/ChromaCard.astro';
+import Filters from '../components/Filters.astro';
+import { catalog } from '../data/catalog';
+const firstPage = catalog.slice(0, 24);
+const description = '浏览英雄联盟臻彩皮肤高清原画，按英雄、版本与分类搜索筛选。';
+const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Chroma Art', description, url: 'https://chromaart.lol/' };
+---
+<BaseLayout title="Chroma Art · 英雄联盟臻彩皮肤图鉴" {description} canonical="https://chromaart.lol/" {jsonLd}>
+  <section class="hero-section">
+    <p class="kicker">LEAGUE OF LEGENDS · PRESTIGE CHROMAS</p>
+    <h1>在色彩与光影之间，<br /><em>收藏每一种传奇。</em></h1>
+    <p>汇集英雄联盟臻彩皮肤高清原画、版本信息与分类资料。</p>
+  </section>
+  <section class="catalog-section" aria-labelledby="catalog-title">
+    <div class="section-heading"><div><p class="kicker">THE ARCHIVE</p><h2 id="catalog-title">臻彩图鉴</h2></div><p data-result-count>{catalog.length} 件藏品</p></div>
+    <Filters {catalog} />
+    <div class="status" data-status aria-live="polite" hidden></div>
+    <div class="chroma-grid" data-chroma-list>
+      {firstPage.map((chroma, index) => <ChromaCard {chroma} eager={index < 4} />)}
+    </div>
+    {catalog.length === 0 && <div class="empty" data-initial-empty><h3>资料库等待导入</h3><p>运行数据导入命令后，臻彩内容会在这里出现。</p></div>}
+    <nav class="pagination" data-pagination aria-label="分页"></nav>
+  </section>
+  <script is:inline src="/app.js" defer></script>
+</BaseLayout>

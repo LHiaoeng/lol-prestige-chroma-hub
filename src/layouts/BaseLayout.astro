@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+import { safeJsonLd } from '../domain/chroma';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  image?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+const { title, description, canonical, image = 'https://chromaart.lol/placeholder.svg', jsonLd } = Astro.props;
+const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#090b15" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Chroma Art" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{title}</title>
+    {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Chroma Art 首页"><span>CHROMA</span> ART</a>
+      <span class="header-note">英雄联盟臻彩皮肤图鉴</span>
+    </header>
+    <main><slot /></main>
+    <footer><p>Chroma Art 是非官方玩家资料站。游戏素材版权归 Riot Games 与腾讯游戏所有。</p></footer>
+  </body>
+</html>
