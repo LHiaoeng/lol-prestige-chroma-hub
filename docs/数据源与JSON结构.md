@@ -78,6 +78,25 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
     "heroId": "887",
     "heroNameZh": "灵罗娃娃 格温",
     "heroNameEn": "The Hallowed Seamstress Gwen",
+    "sourceSkinId": 887030,
+    "skinSets": [
+      {
+        "id": 137,
+        "nameZh": "女帝无双",
+        "nameEn": "Battle Queens",
+        "descriptionZh": null,
+        "descriptionEn": null
+      }
+    ],
+    "universes": [
+      {
+        "id": 40,
+        "nameZh": "女帝无双",
+        "nameEn": "Battle Queens",
+        "descriptionZh": "女帝无双宇宙中文描述",
+        "descriptionEn": "Battle Queens universe description"
+      }
+    ],
     "skinNameZh": "女帝 格温",
     "skinNameEn": "Battle Queen Gwen",
     "categoryId": "2",
@@ -110,6 +129,9 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
 | `heroId` | string | `heroId` | 管理系统中为正整数，生成时转换成字符串 |
 | `heroNameZh` | string | `heroName` | 非空，英雄中文名称 |
 | `heroNameEn` | string | `heroNameEng` | 非空，英雄英文名称；参与详情页 slug 计算 |
+| `sourceSkinId` | number | `sourceSkinId` | 正整数，原皮肤业务 ID |
+| `skinSets` | object[] | `sourceSkinSkinlineIdSet` + 皮肤套装表 | 按业务 ID 升序、去重；没有关联时输出空数组 |
+| `universes` | object[] | `sourceSkinUniverseIdSet` + 皮肤宇宙表 | 按业务 ID 升序、去重；没有关联时输出空数组 |
 | `skinNameZh` | string | `sourceSkinName` | 非空，原皮肤中文名称 |
 | `skinNameEn` | string | `sourceSkinNameEng` | 非空，原皮肤英文名称 |
 | `categoryId` | string | `categoryId` | 非空安全标识 |
@@ -122,22 +144,36 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
 
 展示站还会根据 `heroNameEn`、`nameEn` 和 `skinId` 计算 slug。生成管理系统和展示站使用相同规则，并校验文件内 slug 不重复；slug 本身不写入 JSON。
 
-## 4. `images` 结构
+## 4. `skinSets` 与 `universes` 对象结构
+
+两个数组使用相同的对象结构：
+
+| 字段 | 类型 | 规则与来源 |
+| --- | --- | --- |
+| `id` | number | 正整数业务 ID；`skinSets` 使用皮肤套装表的 `riotSkinlineId`，`universes` 使用皮肤宇宙表的 `lolUniverseId` |
+| `nameZh` | string | 对应数据库记录的中文名称，必填且非空 |
+| `nameEn` | string | 对应数据库记录的英文名称，必填且非空 |
+| `descriptionZh` | string \| null | 对应数据库记录的中文描述；数据库为空或空白时固定输出 JSON `null` |
+| `descriptionEn` | string \| null | 对应数据库记录的英文描述；数据库为空或空白时固定输出 JSON `null` |
+
+生成器会先解析臻彩记录保存的关联 ID，再批量从对应数据库表补全名称和描述。关联 ID 在对应表中不存在、业务 ID 重复、名称缺失时停止生成，不使用展示站默认值补全。
+
+## 5. `images` 结构
 
 | 字段 | 类型 | 固定路径规则 |
 | --- | --- | --- |
 | `large` | string | `assets/chromas/{instanceId}/site3.jpg` |
 | `small` | string | `assets/chromas/{instanceId}/site4.jpg` |
 | `medium` | string | `assets/chromas/{instanceId}/site5.jpg` |
-| `tag` | string | `assets/tags/{分类图标源文件名}.png` |
+| `tag` | string | `assets/tags/{tagId}.png` |
 
-前三个路径只由 `instanceId` 计算。`tag` 路径由管理记录的 `tagImgUrl` 和 `tagId` 计算：优先保留安全的源 PNG 文件名；缺少可用源文件名时按生成器规则回退。所有路径必须是安全的仓库相对路径，不能包含反斜杠、`..`、盘符或以 `/` 开头。
+前三个路径只由 `instanceId` 计算。`tag` 路径由 `tagId` 计算；`tagImgUrl` 仍用于校验标签源图片必须是安全的 HTTPS PNG。所有路径必须是安全的仓库相对路径，不能包含反斜杠、`..`、盘符或以 `/` 开头。
 
-## 5. 修改 JSON 结构时的同步位置
+## 6. 修改 JSON 结构时的同步位置
 
 JSON 是两个系统之间的契约。新增、删除、改名或改变字段类型时，应在同一次结构变更中同步更新以下位置。
 
-### 5.1 管理系统：JSON 生产方
+### 6.1 管理系统：JSON 生产方
 
 项目：
 
@@ -151,12 +187,13 @@ D:\IdeaProjects\light-shadow-wallpaper-admin
 | --- | --- |
 | `admin/src/main/java/com/breadj/lightshadowwallpaper/admin/lol/prestige/hub/model/PrestigeChromaHubItem.java` | 顶层记录字段、Java 类型和 JSON 字段顺序 |
 | `admin/src/main/java/com/breadj/lightshadowwallpaper/admin/lol/prestige/hub/model/PrestigeChromaHubImagePaths.java` | `images` 字段结构和顺序 |
+| `admin/src/main/java/com/breadj/lightshadowwallpaper/admin/lol/prestige/hub/model/PrestigeChromaHubRelation.java` | 皮肤套装、皮肤宇宙的中英文名称与描述结构 |
 | `admin/src/main/java/com/breadj/lightshadowwallpaper/admin/lol/prestige/hub/PrestigeChromaHubCatalogService.java` | 数据库字段映射、格式转换、唯一性与必填校验 |
 | `admin/src/test/java/com/breadj/lightshadowwallpaper/admin/lol/prestige/hub/PrestigeChromaHubCatalogServiceTest.java` | 字段映射、序列化稳定性和非法数据测试 |
 
 如果生成接口或写入参数也发生变化，再同步修改 `LolPrestigeChromaAdminController`；单纯调整 JSON 字段时无需修改接口路径。
 
-### 5.2 展示系统：JSON 消费方
+### 6.2 展示系统：JSON 消费方
 
 项目：
 
@@ -174,7 +211,7 @@ D:\WebstormProjects\lol-prestige-chroma-hub
 | `scripts/import-data.test.ts`、`src/domain/chroma.test.ts` | 导入契约与结构校验测试 |
 | 使用具体字段的 `src/components/`、`src/pages/`、`worker/` | 字段改名、删除或语义变化时同步修改消费代码 |
 
-### 5.3 推荐修改顺序
+### 6.3 推荐修改顺序
 
 1. 先确定新 JSON 示例和兼容策略。
 2. 同步修改管理系统的数据模型、映射和测试。

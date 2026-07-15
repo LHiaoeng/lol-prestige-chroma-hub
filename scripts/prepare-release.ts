@@ -16,7 +16,10 @@ export function createReleaseId(value: unknown): string {
 
 export function sqlString(value: string): string { return `'${value.replaceAll("'", "''")}'`; }
 
-type ReleaseRecord = Omit<ChromaSource, 'id' | 'tagId'> & { slug: string };
+type ReleaseRecord = Pick<ChromaSource,
+  'skinId' | 'instanceId' | 'nameZh' | 'nameEn' | 'heroId' | 'heroNameZh' | 'heroNameEn'
+  | 'skinNameZh' | 'skinNameEn' | 'categoryId' | 'categoryName' | 'gameVer' | 'isNew' | 'rank' | 'images'
+> & { slug: string };
 
 export function createReleaseSql(records: ReleaseRecord[], releaseId: string): string {
   const columns = ['release_id','slug','skin_id','instance_id','name_zh','name_en','hero_id','hero_name_zh','hero_name_en','skin_name_zh','skin_name_en','category_id','category_name','game_ver','is_new','rank','image_large','image_medium','image_small','image_tag'];
