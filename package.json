@@ -13,11 +13,9 @@
     "typecheck": "astro check && tsc --noEmit",
     "data:import": "tsx scripts/import-data.ts",
     "data:validate": "tsx scripts/validate-data.ts",
-    "release:prepare": "tsx scripts/prepare-release.ts",
-    "r2:sync": "tsx scripts/sync-r2.ts",
+    "release:build": "pnpm test && pnpm typecheck && pnpm data:validate && pnpm build && pnpm audit:build",
     "audit:build": "tsx scripts/audit-build.ts",
-    "smoke": "tsx scripts/smoke.ts",
-    "cloudflare:init": "tsx scripts/cloudflare-init.ts"
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "astro": "7.0.7",
@@ -25,7 +23,6 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
-    "@cloudflare/workers-types": "5.20260713.1",
     "@types/node": "24.0.13",
     "tsx": "4.20.3",
     "typescript": "6.0.3",
