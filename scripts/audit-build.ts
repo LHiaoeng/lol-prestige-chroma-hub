@@ -2,6 +2,14 @@ import { readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+export function isSensitiveDeploymentArtifact(file: string): boolean {
+  return /\.map$/i.test(file)
+    || /(^|\/)prestige-chromas\.json$/i.test(file)
+    || /(^|\/)(data|assets|migrations?)\//i.test(file)
+    || /\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm|journal))?$/i.test(file)
+    || /\.sql(?:\.(?:gz|br|zip))?$/i.test(file);
+}
+
 export function auditBuild(root: string): string[] {
   const files: string[] = [];
   const visit = (directory: string) => {
@@ -11,12 +19,7 @@ export function auditBuild(root: string): string[] {
     }
   };
   visit(root);
-  const sensitive = files.filter((file) =>
-    /\.map$/i.test(file)
-    || /(^|\/)prestige-chromas\.json$/i.test(file)
-    || /(^|\/)(data|assets|migrations?)\//i.test(file)
-    || /\.(?:db|sqlite|sqlite3|sql)$/i.test(file)
-  );
+  const sensitive = files.filter(isSensitiveDeploymentArtifact);
   if (sensitive.length) throw new Error(`Sensitive deployment artifacts detected: ${sensitive.join(', ')}`);
   if (!files.includes('index.html') || !files.includes('404.html')) throw new Error('Required static pages are missing');
   return files;

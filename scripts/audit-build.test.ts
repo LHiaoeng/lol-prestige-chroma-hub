@@ -29,6 +29,12 @@ describe('build audit', () => {
     '_astro/page.D4gH3x.js.MAP',
     'migrations/0001_create_chromas.sql',
     'database/chromas.sqlite',
+    'database/chromas.sqlite-wal',
+    'database/chromas.SQLITE-SHM',
+    'database/chromas.db-journal',
+    'database/export.sql.gz',
+    'database/export.SQL.BR',
+    'database/export.sql.zip',
   ])('rejects sensitive deployment artifact %s', (artifact) => {
     const root = createBuild();
     const path = join(root, artifact);

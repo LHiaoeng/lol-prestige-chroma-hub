@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { isSensitiveDeploymentArtifact } from './audit-build';
 
 const root = process.cwd();
 const dist = join(root, 'dist');
@@ -41,7 +42,7 @@ describe('static site build', () => {
       .join('\n');
 
     expect(files.some((file) => /(^|[\\/])api([\\/]|$)/i.test(file))).toBe(false);
-    expect(files.some((file) => /(^|[\\/])migrations?([\\/]|$)|\.(?:db|sqlite|sqlite3|sql)$/i.test(file))).toBe(false);
+    expect(files.some((file) => isSensitiveDeploymentArtifact(file.replaceAll('\\', '/')))).toBe(false);
     expect(deployedCode).not.toContain('/api/');
   });
 
