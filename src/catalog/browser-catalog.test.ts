@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Chroma } from '../domain/chroma';
 import {
   parseCatalogQuery,
@@ -120,6 +120,22 @@ describe('catalog querying', () => {
   ] as const)('filters by %s', (_label, filter, expected) => {
     const result = queryCatalog([item(), other], { ...defaultQuery, ...filter });
     expect(result.items.map(({ slug }) => slug)).toEqual(expected);
+  });
+
+  it('matches lowercase ASCII queries against uppercase English names independent of runtime locale', () => {
+    const localeLower = String.prototype.toLocaleLowerCase;
+    const localeSpy = vi.spyOn(String.prototype, 'toLocaleLowerCase')
+      .mockImplementation(function localeAwareLower(this: string) {
+        return localeLower.call(this, 'tr');
+      });
+
+    const result = queryCatalog(
+      [item({ slug: 'irelia', nameEn: 'PRESTIGE IRELIA' })],
+      { ...defaultQuery, q: 'irelia' },
+    );
+    localeSpy.mockRestore();
+
+    expect(result.items.map(({ slug }) => slug)).toEqual(['irelia']);
   });
 
   it('combines all filters and reports pagination metadata', () => {

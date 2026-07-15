@@ -128,9 +128,9 @@ function compareCatalog(left: BrowserCatalogItem, right: BrowserCatalogItem, sor
 }
 
 export function queryCatalog(items: BrowserCatalogItem[], query: CatalogQuery): CatalogResult {
-  const keyword = query.q?.toLocaleLowerCase();
+  const keyword = query.q?.toLowerCase();
   const filtered = items.filter((item) => (
-    (!keyword || item.nameZh.toLocaleLowerCase().includes(keyword) || item.nameEn.toLocaleLowerCase().includes(keyword))
+    (!keyword || item.nameZh.toLowerCase().includes(keyword) || item.nameEn.toLowerCase().includes(keyword))
     && (!query.hero || item.heroId === query.hero)
     && (!query.version || item.gameVer === query.version)
     && (!query.category || item.categoryId === query.category)
