@@ -2,8 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromaCard from '../components/ChromaCard.astro';
 import Filters from '../components/Filters.astro';
+import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
+import { safeJsonLd } from '../domain/chroma';
 const firstPage = catalog.slice(0, 24);
+const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 const description = '浏览英雄联盟臻彩皮肤高清原画，按英雄、版本与分类搜索筛选。';
 const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Chroma Art', description, url: 'https://chromaart.lol/' };
 ---
@@ -20,8 +23,27 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
     <div class="chroma-grid" data-chroma-list>
       {firstPage.map((chroma, index) => <ChromaCard {chroma} eager={index < 4} />)}
     </div>
+    <template data-chroma-card-template>
+      <article class="chroma-card">
+        <a href="/">
+          <div class="card-image">
+            <img src="/placeholder.svg" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt="" width="960" height="540" loading="lazy" decoding="async" />
+            <span class="new-badge">NEW</span>
+          </div>
+          <div class="card-body">
+            <p class="eyebrow"></p>
+            <h2></h2>
+            <p data-name-en></p>
+            <span class="category"></span>
+          </div>
+        </a>
+      </article>
+    </template>
     {catalog.length === 0 && <div class="empty" data-initial-empty><h3>资料库等待导入</h3><p>运行数据导入命令后，臻彩内容会在这里出现。</p></div>}
     <nav class="pagination" data-pagination aria-label="分页"></nav>
   </section>
-  <script is:inline src="/app.js" defer></script>
+  <script is:inline id="catalog-data" type="application/json" set:html={browserCatalogJson}></script>
+  <script>
+    import '../catalog/browser-app';
+  </script>
 </BaseLayout>

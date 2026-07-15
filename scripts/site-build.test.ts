@@ -21,6 +21,10 @@ describe('static site build', () => {
     expect(home).toContain('<link rel="canonical" href="https://chromaart.lol/">');
     expect(home).toContain('application/ld+json');
     expect(home).toContain('data-chroma-list');
+    expect(home).toContain('id="catalog-data"');
+    expect(home).toContain('data-chroma-card-template');
+    expect(home).not.toContain('/api/chromas');
+    expect(home).not.toContain('prestige-chromas.json');
   });
 
   it('does not publish source data or source maps', () => {
