@@ -33,6 +33,18 @@ describe('static site build', () => {
     expect(files.some((file) => file.includes('prestige-chromas.json'))).toBe(false);
   });
 
+  it('does not publish API routes or database artifacts', () => {
+    const files = readdirSync(dist, { recursive: true }).map(String);
+    const deployedCode = files
+      .filter((file) => /\.(?:html|js)$/i.test(file))
+      .map((file) => readFileSync(join(dist, file), 'utf8'))
+      .join('\n');
+
+    expect(files.some((file) => /(^|[\\/])api([\\/]|$)/i.test(file))).toBe(false);
+    expect(files.some((file) => /(^|[\\/])migrations?([\\/]|$)|\.(?:db|sqlite|sqlite3|sql)$/i.test(file))).toBe(false);
+    expect(deployedCode).not.toContain('/api/');
+  });
+
   it('bundles browser scripts instead of publishing the legacy app script', () => {
     const files = readdirSync(dist, { recursive: true }).map(String);
     const html = files

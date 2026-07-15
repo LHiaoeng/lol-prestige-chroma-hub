@@ -11,7 +11,12 @@ export function auditBuild(root: string): string[] {
     }
   };
   visit(root);
-  const sensitive = files.filter((file) => file.endsWith('.map') || /(^|\/)prestige-chromas\.json$/i.test(file) || /(^|\/)(data|assets)\//i.test(file));
+  const sensitive = files.filter((file) =>
+    /\.map$/i.test(file)
+    || /(^|\/)prestige-chromas\.json$/i.test(file)
+    || /(^|\/)(data|assets|migrations?)\//i.test(file)
+    || /\.(?:db|sqlite|sqlite3|sql)$/i.test(file)
+  );
   if (sensitive.length) throw new Error(`Sensitive deployment artifacts detected: ${sensitive.join(', ')}`);
   if (!files.includes('index.html') || !files.includes('404.html')) throw new Error('Required static pages are missing');
   return files;
