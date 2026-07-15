@@ -13,22 +13,24 @@
 
 ## 2. 首次部署并连接 GitHub
 
-### 2.1 一键部署
+私有仓库的推荐方式是从 Cloudflare Dashboard 使用已登录的 GitHub 身份连接 Workers Builds；这不要求公开仓库。
 
-打开以下入口并按页面提示授权 Cloudflare 与 GitHub：
+### 2.1 Deploy to Cloudflare（仅公开仓库）
+
+Deploy to Cloudflare 按钮只能读取公开仓库。只有将 `LHiaoeng/lol-prestige-chroma-hub` 设为 public 后才能使用；仓库保持 private 时跳过本节，使用第 2.2 节的 Dashboard Git integration。
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/LHiaoeng/lol-prestige-chroma-hub)
 
-确认目标仓库和 Cloudflare Account 后完成首次构建。若页面创建了仓库副本，后续应以该副本的 `main` 为生产分支。
+确认目标仓库和 Cloudflare Account。首次部署前必须在配置确认页把 Build command 设置为 `pnpm release:build`、Deploy command 设置为 `pnpm exec wrangler deploy`；不要接受自动检测出的 package script `build`。若页面创建了仓库副本，后续应以该副本的 `main` 为生产分支。
 
 ### 2.2 从 Dashboard 手工连接
 
-如需连接现有仓库：
+仓库为 private 时使用此方式：
 
 1. 登录 Cloudflare Dashboard，进入 **Workers & Pages**。
 2. 创建 Worker，选择从 Git 仓库导入，授权 GitHub 后选择 `LHiaoeng/lol-prestige-chroma-hub`。
-3. 将 Worker 名称设置为 `lol-prestige-chroma-hub`。它必须与 `wrangler.jsonc` 的 `name` 完全一致，否则构建会部署到另一个 Worker。
-4. 保存以下构建设置并开始首次部署。
+3. 将 Worker 名称设置为 `lol-prestige-chroma-hub`。它必须与 `wrangler.jsonc` 的 `name` 完全一致，否则构建或部署会失败。
+4. 首次部署前核对并保存以下构建设置。不要接受把 package script `build` 自动识别为 Build command 的结果。
 
 | 设置 | 值 |
 | --- | --- |
@@ -84,14 +86,19 @@
 
 ### 4.1 站点域名
 
-在 Worker **Settings > Domains & Routes** 中添加：
+在 Worker **Settings > Domains & Routes** 中只添加 apex Custom Domain：
 
 - `chromaart.lol`
-- `www.chromaart.lol`
 
-Worker Custom Domain 会自动创建所需 DNS 记录并签发证书。添加前先移除冲突的同名 A/CNAME；无需手工创建占位记录。参考 [Worker Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/)。
+Worker Custom Domain 会自动创建 apex 所需 DNS 记录并签发证书。添加前先移除 `chromaart.lol` 的冲突 A/CNAME；无需手工创建 apex 占位记录。参考 [Worker Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/)。
 
-若产品要求 `www` 永久跳转到根域名，应在 Cloudflare Redirect Rules 中配置保留路径和查询参数的 301；当前静态 Worker 本身不处理重定向逻辑。
+`www` 不绑定到 Worker。按以下方式配置重定向入口：
+
+1. 在 Cloudflare DNS 创建 `AAAA` 记录：Name 为 `www`，IPv6 address 为 `100::`，Proxy status 为 **Proxied**。
+2. 在 **Rules > Redirect Rules** 创建 Single Redirect，匹配 Hostname equals `www.chromaart.lol`。
+3. 选择 301，动态目标表达式使用 `concat("https://chromaart.lol", http.request.uri.path)`，并启用保留查询字符串。
+
+这样 `https://www.chromaart.lol/a?b=1` 会跳转到 `https://chromaart.lol/a?b=1`，且 `www` 请求不会进入静态 Worker。
 
 ### 4.2 图片域名
 
@@ -161,7 +168,7 @@ curl.exe -I https://www.chromaart.lol/
 
 - 根域名和真实详情页返回成功响应，TLS 有效。
 - 不存在路径（例如 `/404`）返回站点 404 页面和 HTTP 404。
-- 如果配置了 `www` 重定向，响应为 301 且目标为根域名对应路径。
+- `www` 返回 301，目标为根域名的相同路径和查询字符串。
 
 ### 7.2 图片
 
@@ -192,7 +199,7 @@ curl.exe -I https://img.chromaart.lol/prestige-chromas.json
 ## 8. 常见故障
 
 - **构建失败**：先在同一提交本地运行 `pnpm release:build`，检查 Node.js 版本、锁文件和 JSON 校验输出。
-- **部署到错误 Worker**：确认 Dashboard Worker 名称和 `wrangler.jsonc` 的 `name` 都是 `lol-prestige-chroma-hub`。
+- **Workers Build 或部署报告名称不匹配**：确认 Dashboard Worker 名称和 `wrangler.jsonc` 的 `name` 都是 `lol-prestige-chroma-hub`；名称不一致会使构建或部署失败。
 - **Zone 长期 Pending**：核对 NameSilo 只保留 Cloudflare 分配的两条 Nameserver，并确认旧 DS 已清除。
 - **域名返回 `SERVFAIL`**：优先检查父区 DS 是否仍指向旧 DNSSEC 配置。
 - **Custom Domain 添加失败**：移除冲突的 A/CNAME 后重试。
@@ -202,12 +209,13 @@ curl.exe -I https://img.chromaart.lol/prestige-chromas.json
 ## 9. 首次上线清单
 
 - [ ] Workers Builds 已连接正确 GitHub 仓库，生产分支为 `main`。
+- [ ] 仓库为 private 时使用 Dashboard Git integration；只有仓库为 public 时才使用 Deploy to Cloudflare 按钮。
 - [ ] Build command 为 `pnpm release:build`，Deploy command 为 `pnpm exec wrangler deploy`。
 - [ ] Worker 名称为 `lol-prestige-chroma-hub`，且没有 Secrets 或 bindings。
 - [ ] Cloudflare Zone 为 Active，NameSilo Nameserver 与当前 Zone 一致。
 - [ ] 旧 DS 已清除，新的 DNSSEC DS 已正确生效。
 - [ ] `chromaart.lol` 和真实详情页正常，未知路径返回 HTTP 404。
-- [ ] 如启用 `www` 跳转，301 目标正确。
+- [ ] `www` 的代理 AAAA `100::` 与 Redirect Rule 已生效，301 保留路径和查询字符串。
 - [ ] `img.chromaart.lol` 的真实图片对象可访问，图片责任人已确认对象完整。
 - [ ] 完整 JSON 路径和站点本地图片猜测路径返回 404。
 - [ ] 推送一次仅修改 JSON 的提交后，Workers Builds 自动完成生产部署。

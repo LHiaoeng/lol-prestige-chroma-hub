@@ -46,12 +46,16 @@ pnpm release:build
 
 ## 部署到 Cloudflare
 
+私有仓库应在 Cloudflare Dashboard 中使用已登录的 GitHub 身份连接 `LHiaoeng/lol-prestige-chroma-hub`，创建 Workers Builds 项目。Deploy to Cloudflare 按钮只支持公开仓库；只有将仓库设为 public 后才能使用：
+
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/LHiaoeng/lol-prestige-chroma-hub)
 
-也可以在 Cloudflare Dashboard 中连接 GitHub 仓库 `LHiaoeng/lol-prestige-chroma-hub` 并创建 Workers Builds 项目，使用以下设置：
+无论使用 Dashboard 连接还是按钮，都必须在首次部署前核对并设置：
 
 - Production branch：`main`
 - Build command：`pnpm release:build`
 - Deploy command：`pnpm exec wrangler deploy`
 
-Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致。项目是纯静态部署，不需要添加 Secrets、环境变量或运行时 bindings。详细步骤见 [Cloudflare 部署手册](docs/chromaart.lol-Cloudflare部署手册.md)。
+不要接受把 package script `build` 自动识别为发布构建的结果。Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致，否则 Workers Build 会失败。项目是纯静态部署，不需要添加 Secrets、环境变量或运行时 bindings。
+
+生产域名只把 `chromaart.lol` 绑定为 Worker Custom Domain；`www.chromaart.lol` 使用代理的占位 DNS 记录和 Redirect Rule 301 到根域名，`img.chromaart.lol` 继续使用现有 R2 Custom Domain。详细步骤见 [Cloudflare 部署手册](docs/chromaart.lol-Cloudflare部署手册.md)。
