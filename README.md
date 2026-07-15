@@ -1,6 +1,8 @@
 # LOL Prestige Chroma Hub
 
-面向公众的英雄联盟臻彩皮肤只读展示站。Astro 生成首页、详情页和 SEO 文件；Cloudflare Worker + D1 提供受限的筛选分页 API；R2 承载图片。
+面向公众的英雄联盟臻彩皮肤只读展示站。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
+
+图片由管理后台上传和维护在 R2，通过 `https://img.chromaart.lol` 公开；本仓库只保存 JSON 中的图片相对路径，不保存图片文件。
 
 ## 本地开发
 
@@ -12,40 +14,44 @@ pnpm data:validate
 pnpm dev
 ```
 
-`data/prestige-chromas.json` 是构建时唯一数据源。首次没有数据时它是空数组；不要把数据库导出的原始 JSON 放到 `public/`。
+`data/prestige-chromas.json` 是唯一目录数据源。首次没有数据时它是空数组；不要把完整 JSON 放入 `public/`。
 
-## 导入数据
-
-输入数组使用设计文档中的字段，但不需要 `images`；导入器会计算路径并下载三种尺寸和去重后的 Tag 图片。
+可选的导入器用于处理不符合最终契约的外部导出；管理后台已生成标准 JSON 时，直接覆盖目标文件即可。
 
 ```bash
 pnpm data:import --input ./exports/prestige-chromas.json --dry-run
 pnpm data:import --input ./exports/prestige-chromas.json
-pnpm data:import --input ./exports/prestige-chromas.json --refresh
 ```
 
-所有文件先写入 `.tmp/`，图片状态、Content-Type、大小和魔数全部通过后才替换正式 `data/` 与 `assets/`。输入项可用 `tagImageUrl` 覆盖默认 Tag 来源。
+## 日常更新
 
-## 验证与构建
+每次目录更新按以下流程执行：
+
+1. 用管理后台生成的文件覆盖 `data/prestige-chromas.json`。
+2. 运行 `pnpm data:validate`；发布前运行 `pnpm release:build`。
+3. 提交 JSON 并推送到 `main`，Cloudflare Workers Builds 会自动重新构建和部署。
+
+图片不随 Git 更新；新增或替换图片应先由管理后台同步到 `img.chromaart.lol` 对应的 R2 对象路径。
+
+## 验证与发布构建
 
 ```bash
 pnpm test
 pnpm typecheck
 pnpm data:validate
-pnpm release:prepare
-pnpm build
-pnpm audit:build
+pnpm release:build
 ```
 
-`release:prepare` 生成 `.release/release-id.txt` 和幂等的 `.release/import.sql`。发布产物审计会阻止原始 JSON、`assets/` 数据目录或 source map 被部署。
+`release:build` 会依次运行测试、类型检查、JSON 校验、Astro 构建和产物审计。审计会阻止完整目录 JSON、源数据路径或 source map 进入部署产物。
 
-## Cloudflare
+## 部署到 Cloudflare
 
-复制 `.env.example` 配置本地变量，在 `wrangler.jsonc` 中替换 D1 database ID。首次部署需创建 `lol-prestige-chroma-hub-db` D1 数据库、`lol-prestige-chroma-hub-images` R2 Bucket、自定义域名与最小权限 API Token，然后运行迁移：
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/LHiaoeng/lol-prestige-chroma-hub)
 
-```bash
-pnpm cloudflare:init
-pnpm wrangler d1 migrations apply lol-prestige-chroma-hub-db --remote
-```
+也可以在 Cloudflare Dashboard 中连接 GitHub 仓库 `LHiaoeng/lol-prestige-chroma-hub` 并创建 Workers Builds 项目，使用以下设置：
 
-GitHub 仓库需配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN` Secrets。推送 `main` 后流水线依次执行测试、校验、R2 增量同步、D1 新版本导入、静态构建、产物审计、Worker 部署、生产烟测和旧 D1 版本清理。烟测失败时流水线自动执行 `wrangler rollback` 恢复上一个 Worker 版本；D1 会保留最近两个发布版本。
+- Production branch：`main`
+- Build command：`pnpm release:build`
+- Deploy command：`pnpm exec wrangler deploy`
+
+Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致。项目是纯静态部署，不需要添加 Secrets、环境变量或运行时 bindings。详细步骤见 [Cloudflare 部署手册](docs/chromaart.lol-Cloudflare部署手册.md)。

@@ -206,10 +206,12 @@ D:\WebstormProjects\lol-prestige-chroma-hub
 | 文件 | 作用 |
 | --- | --- |
 | `src/domain/chroma.ts` | Zod Schema、TypeScript 类型、路径约束、唯一性与 slug 校验 |
-| `src/data/catalog.ts` | 构建时加载 `data/prestige-chromas.json` |
-| `scripts/import-data.ts` | 外部 JSON 导入、结构规范化和 `images` 生成；结构变化影响导入时需要同步修改 |
-| `scripts/import-data.test.ts`、`src/domain/chroma.test.ts` | 导入契约与结构校验测试 |
-| 使用具体字段的 `src/components/`、`src/pages/`、`worker/` | 字段改名、删除或语义变化时同步修改消费代码 |
+| `src/data/catalog.ts` | 构建时直接加载并校验 `data/prestige-chromas.json` |
+| `scripts/validate-data.ts`、`src/domain/chroma.test.ts` | 发布前数据契约与结构校验 |
+| `scripts/import-data.ts`、`scripts/import-data.test.ts` | 可选的外部 JSON 规范化工具；只有导入器仍需兼容新结构时才同步修改 |
+| 使用具体字段的 `src/components/`、`src/pages/` | 字段改名、删除或语义变化时同步修改消费代码 |
+
+管理后台已经输出最终契约时，正常更新方式是直接完整覆盖 `data/prestige-chromas.json`，不需要运行导入器，也不需要在本地保存 `images` 所指向的图片文件。`pnpm data:validate` 与 `pnpm release:build` 会在构建时校验 JSON；推送 `main` 后 Cloudflare Workers Builds 自动重新构建和部署。图片由管理后台维护在 `img.chromaart.lol` 对应的 R2 Bucket 中。
 
 ### 6.3 推荐修改顺序
 
@@ -217,6 +219,7 @@ D:\WebstormProjects\lol-prestige-chroma-hub
 2. 同步修改管理系统的数据模型、映射和测试。
 3. 同步修改展示系统的 Schema、类型、消费代码和测试。
 4. 从管理系统重新生成 `data/prestige-chromas.json`。
-5. 在展示系统执行 `pnpm.cmd data:validate`，确认新契约可被读取。
+5. 在展示系统执行 `pnpm data:validate` 和 `pnpm release:build`，确认新契约可被读取且发布产物安全。
+6. 提交 JSON 并推送到 `main`，等待 Workers Builds 完成重新部署。
 
 不要只手工修改生成后的 JSON 来引入长期字段；否则下次从管理系统生成时，手工字段会被覆盖。
