@@ -75,4 +75,10 @@ describe('Cloudflare static deployment configuration', () => {
       'scripts/**/*.ts',
     ]);
   });
+
+  it('does not keep runtime release state in the static catalog module', () => {
+    const catalogSource = readFileSync('src/data/catalog.ts', 'utf8');
+
+    expect(catalogSource).not.toMatch(/RELEASE_ID|releaseId/);
+  });
 });
