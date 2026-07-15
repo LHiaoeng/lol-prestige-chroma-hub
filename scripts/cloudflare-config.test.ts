@@ -1,9 +1,39 @@
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const readJson = (path: string) => JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
+const stripJsonComments = (jsonc: string): string => {
+  const stringOrComment = /("(?:\\.|[^"\\])*")|\/\/[^\r\n]*|\/\*[\s\S]*?\*\//g;
+  return jsonc.replace(stringOrComment, (match, quotedString: string | undefined) =>
+    quotedString ?? match.replace(/[^\r\n]/g, ' '),
+  );
+};
+
+const readJson = (path: string) =>
+  JSON.parse(stripJsonComments(readFileSync(path, 'utf8'))) as Record<string, unknown>;
 
 describe('Cloudflare static deployment configuration', () => {
+  it('parses JSONC comments without stripping URL-like string content', () => {
+    const root = mkdtempSync(join(tmpdir(), 'jsonc-'));
+    const path = join(root, 'config.jsonc');
+    writeFileSync(path, `{
+      // line comment
+      "schema": "https://example.com/schema.json",
+      /* block comment */
+      "enabled": true
+    }`);
+
+    try {
+      expect(readJson(path)).toEqual({
+        schema: 'https://example.com/schema.json',
+        enabled: true,
+      });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('serves dist as static Worker assets without runtime bindings', () => {
     const wrangler = readJson('wrangler.jsonc');
 
