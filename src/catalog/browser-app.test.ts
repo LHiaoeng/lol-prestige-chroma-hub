@@ -130,8 +130,8 @@ class TestDocument {
 function catalogItem(index: number): BrowserCatalogItem {
   return {
     slug: `item-${index}`, skinId: index, instanceId: `instance-${index}`,
-    nameZh: `名称 ${index}`, nameEn: `Name ${index}`, heroId: 'hero', heroNameZh: '英雄',
-    categoryId: 'category', categoryName: '分类', gameVer: '26.13', isNew: index === 1,
+    nameZh: `名称 ${index}`, nameEn: `Name ${index}`, heroId: 'hero', heroNameZh: '英雄', heroNameEn: 'Champion',
+    categoryId: 'category', categoryName: '分类', categoryNameEn: 'Category', gameVer: '26.13', isNew: index === 1,
     rank: 4 - index, imageMedium: `https://img.example/${index}.jpg`,
   };
 }

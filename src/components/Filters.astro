@@ -1,18 +1,19 @@
 ---
 import type { Chroma } from '../domain/chroma';
+import { categoryName } from '../i18n';
 interface Props { catalog: Chroma[] }
 const { catalog } = Astro.props;
-const heroes = [...new Map(catalog.map((item) => [item.heroId, item.heroNameZh])).entries()].sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
+const heroes = [...new Map(catalog.map((item) => [item.heroId, { en: item.heroNameEn, zh: item.heroNameZh }])).entries()].sort((a, b) => a[1].en.localeCompare(b[1].en));
 const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
 ---
 <form class="filters" data-filters role="search">
-  <label class="search-field"><span>搜索名称</span><input name="q" type="search" maxlength="64" placeholder="搜索臻彩中英文名称" /></label>
-  <label><span>英雄</span><select name="hero"><option value="">全部英雄</option>{heroes.map(([id, name]) => <option value={id}>{name}</option>)}</select></label>
-  <label><span>版本</span><select name="version"><option value="">全部版本</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
-  <label><span>分类</span><select name="category"><option value="">全部分类</option>{categories.map(([id, name]) => <option value={id}>{name}</option>)}</select></label>
-  <label><span>新增状态</span><select name="isNew"><option value="">全部</option><option value="true">本期新增</option><option value="false">非新增</option></select></label>
-  <label><span>排序</span><select name="sort"><option value="rank_desc">推荐优先</option><option value="rank_asc">推荐倒序</option><option value="skin_desc">皮肤 ID 降序</option><option value="skin_asc">皮肤 ID 升序</option><option value="version_desc">版本降序</option></select></label>
-  <button type="submit">应用筛选</button>
-  <button type="reset" class="ghost">清除</button>
+  <label class="search-field"><span data-en="Search" data-zh="搜索名称">Search</span><input name="q" type="search" maxlength="64" placeholder="Search chroma names" data-placeholder-en="Search chroma names" data-placeholder-zh="搜索臻彩中英文名称" /></label>
+  <label><span data-en="Champion" data-zh="英雄">Champion</span><select name="hero"><option value="" data-en="All champions" data-zh="全部英雄">All champions</option>{heroes.map(([id, name]) => <option value={id} data-en={name.en} data-zh={name.zh}>{name.en}</option>)}</select></label>
+  <label><span data-en="Patch" data-zh="版本">Patch</span><select name="version"><option value="" data-en="All patches" data-zh="全部版本">All patches</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
+  <label><span data-en="Category" data-zh="分类">Category</span><select name="category"><option value="" data-en="All categories" data-zh="全部分类">All categories</option>{categories.map(([id]) => <option value={id} data-en={categoryName(id, 'en')} data-zh={categoryName(id, 'zh')}>{categoryName(id, 'en')}</option>)}</select></label>
+  <label><span data-en="Status" data-zh="新增状态">Status</span><select name="isNew"><option value="" data-en="All" data-zh="全部">All</option><option value="true" data-en="New" data-zh="本期新增">New</option><option value="false" data-en="Archived" data-zh="非新增">Archived</option></select></label>
+  <label><span data-en="Sort" data-zh="排序">Sort</span><select name="sort"><option value="rank_desc" data-en="Recommended" data-zh="推荐优先">Recommended</option><option value="rank_asc" data-en="Recommended (reverse)" data-zh="推荐倒序">Recommended (reverse)</option><option value="skin_desc" data-en="Skin ID descending" data-zh="皮肤 ID 降序">Skin ID descending</option><option value="skin_asc" data-en="Skin ID ascending" data-zh="皮肤 ID 升序">Skin ID ascending</option><option value="version_desc" data-en="Patch descending" data-zh="版本降序">Patch descending</option></select></label>
+  <button type="submit" data-en="Apply" data-zh="应用筛选">Apply</button>
+  <button type="reset" class="ghost" data-en="Clear" data-zh="清除">Clear</button>
 </form>

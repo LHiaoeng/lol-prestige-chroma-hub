@@ -1,5 +1,6 @@
 import type { Chroma } from '../domain/chroma';
 import { imageUrl } from '../domain/chroma';
+import { categoryName } from '../i18n';
 
 export interface BrowserCatalogItem {
   slug: string;
@@ -9,8 +10,10 @@ export interface BrowserCatalogItem {
   nameEn: string;
   heroId: string;
   heroNameZh: string;
+  heroNameEn: string;
   categoryId: string;
   categoryName: string;
+  categoryNameEn: string;
   gameVer: string;
   isNew: boolean;
   rank: number;
@@ -59,8 +62,10 @@ export function toBrowserCatalog(catalog: Chroma[]): BrowserCatalogItem[] {
     nameEn: item.nameEn,
     heroId: item.heroId,
     heroNameZh: item.heroNameZh,
+    heroNameEn: item.heroNameEn,
     categoryId: item.categoryId,
     categoryName: item.categoryName,
+    categoryNameEn: categoryName(item.categoryId, 'en'),
     gameVer: item.gameVer,
     isNew: item.isNew,
     rank: item.rank,

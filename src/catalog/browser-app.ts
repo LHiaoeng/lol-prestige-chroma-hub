@@ -1,5 +1,7 @@
 import { bindImageFallbacks } from '../client/image-fallback';
 import { sourceImageUrl } from '../domain/chroma';
+import { currentLanguage } from '../client/language';
+import { localized } from '../i18n';
 import {
   parseCatalogQuery,
   queryCatalog,
@@ -34,24 +36,25 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     const image = card.querySelector<HTMLImageElement>('img');
     const badge = card.querySelector<HTMLElement>('.new-badge');
     const eyebrow = card.querySelector<HTMLElement>('.eyebrow');
-    const nameZh = card.querySelector<HTMLElement>('h2');
-    const nameEn = card.querySelector<HTMLElement>('[data-name-en]');
+    const name = card.querySelector<HTMLElement>('h2');
     const category = card.querySelector<HTMLElement>('.category');
-    if (!link || !image || !badge || !eyebrow || !nameZh || !nameEn || !category) {
+    if (!link || !image || !badge || !eyebrow || !name || !category) {
       throw new Error('Invalid catalog card template');
     }
 
     link.href = `/chromas/${encodeURIComponent(item.slug)}/`;
-    link.setAttribute('aria-label', `查看 ${item.nameZh} 详情`);
+    const language = currentLanguage(document);
+    const itemName = localized(language, { en: item.nameEn, zh: item.nameZh });
+    const heroName = localized(language, { en: item.heroNameEn, zh: item.heroNameZh });
+    link.setAttribute('aria-label', localized(language, { en: `View ${itemName} details`, zh: `查看 ${itemName} 详情` }));
     image.src = item.imageMedium;
     image.dataset.fallback = sourceImageUrl('medium', item.instanceId);
     image.dataset.placeholder = '/placeholder.svg';
-    image.alt = `${item.heroNameZh} ${item.nameZh} 臻彩皮肤`;
+    image.alt = localized(language, { en: `${heroName} ${itemName} chroma splash art`, zh: `${heroName} ${itemName} 臻彩皮肤` });
     badge.hidden = !item.isNew;
-    eyebrow.textContent = `${item.heroNameZh} · ${item.gameVer}`;
-    nameZh.textContent = item.nameZh;
-    nameEn.textContent = item.nameEn;
-    category.textContent = item.categoryName;
+    eyebrow.textContent = `${heroName} · ${item.gameVer}`;
+    name.textContent = itemName;
+    category.textContent = localized(language, { en: item.categoryNameEn, zh: item.categoryName });
     return card;
   }
 
@@ -100,11 +103,18 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     const result = queryCatalog(items, parseCatalogQuery(params));
     list.replaceChildren(...result.items.map(createCard));
     bindImageFallbacks(document);
-    count.textContent = `${result.pagination.total} 件藏品`;
+    const language = currentLanguage(document);
+    count.textContent = localized(language, { en: `${result.pagination.total} items`, zh: `${result.pagination.total} 件藏品` });
     status.className = 'status';
     status.hidden = false;
-    const announcement = `${result.pagination.total} 件藏品，第 ${result.pagination.page} / ${Math.max(result.pagination.pages, 1)} 页`;
-    status.textContent = result.items.length > 0 ? announcement : `没有符合条件的臻彩。请清除筛选后重试。${announcement}`;
+    const announcement = localized(language, {
+      en: `${result.pagination.total} items, page ${result.pagination.page} of ${Math.max(result.pagination.pages, 1)}`,
+      zh: `${result.pagination.total} 件藏品，第 ${result.pagination.page} / ${Math.max(result.pagination.pages, 1)} 页`,
+    });
+    status.textContent = result.items.length > 0 ? announcement : localized(language, {
+      en: `No chromas match these filters. Clear the filters and try again. ${announcement}`,
+      zh: `没有符合条件的臻彩。请清除筛选后重试。${announcement}`,
+    });
     renderPagination(result, focusPagination);
 
     const normalized = new URLSearchParams(params);
@@ -119,7 +129,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     if (!status) return;
     status.hidden = false;
     status.className = 'status error';
-    status.textContent = '加载失败，请稍后重试。';
+    status.textContent = localized(currentLanguage(document), { en: 'Unable to load. Please try again later.', zh: '加载失败，请稍后重试。' });
   }
 
   function formQuery(): URLSearchParams {
@@ -170,6 +180,9 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
         const params = new URLSearchParams(location.search);
         syncForm(params);
         try { render(items, params, 'replace'); } catch { showError(); }
+      });
+      document.addEventListener('languagechange', () => {
+        try { render(items, new URLSearchParams(location.search), null); } catch { showError(); }
       });
     } catch {
       showError();

@@ -1,26 +1,32 @@
 ---
 import type { Chroma } from '../domain/chroma';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
+import { categoryName } from '../i18n';
 interface Props { chroma: Chroma; eager?: boolean }
 const { chroma, eager = false } = Astro.props;
 ---
 <article class="chroma-card">
-  <a href={`/chromas/${chroma.slug}/`} aria-label={`查看 ${chroma.nameZh} 详情`}>
+  <a href={`/chromas/${chroma.slug}/`} aria-label={`View ${chroma.nameEn} details`} data-aria-en={`View ${chroma.nameEn} details`} data-aria-zh={`查看 ${chroma.nameZh} 详情`}>
     <div class="card-image">
       <img
         src={imageUrl(chroma.images.medium)}
         data-fallback={sourceImageUrl('medium', chroma.instanceId)}
         data-placeholder="/placeholder.svg"
-        alt={`${chroma.heroNameZh} ${chroma.nameZh} 臻彩皮肤`}
+        alt={`${chroma.heroNameEn} ${chroma.nameEn} chroma splash art`}
+        data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} chroma splash art`}
+        data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 臻彩皮肤`}
         width="960" height="540" loading={eager ? 'eager' : 'lazy'} decoding="async"
       />
-      {chroma.isNew && <span class="new-badge">NEW</span>}
+      {chroma.isNew && <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>}
     </div>
     <div class="card-body">
-      <p class="eyebrow">{chroma.heroNameZh} · {chroma.gameVer}</p>
-      <h2>{chroma.nameZh}</h2>
-      <p>{chroma.nameEn}</p>
-      <span class="category">{chroma.categoryName}</span>
+      <p class="eyebrow" data-en={`${chroma.heroNameEn} · ${chroma.gameVer}`} data-zh={`${chroma.heroNameZh} · ${chroma.gameVer}`}>{chroma.heroNameEn} · {chroma.gameVer}</p>
+      <h2 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h2>
+      <span class="category" data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</span>
     </div>
   </a>
 </article>
+<style is:global>
+  .card-image { aspect-ratio: 1; }
+  .card-image img { object-position: center top; }
+</style>

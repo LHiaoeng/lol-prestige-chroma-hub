@@ -3,28 +3,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ChromaCard from '../../components/ChromaCard.astro';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
+import { categoryName } from '../../i18n';
 
-export function getStaticPaths() { return catalog.map((chroma) => ({ params: { slug: chroma.slug }, props: { chroma } })); }
+export function getStaticPaths() {
+  return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
+    .map((slug) => ({ params: { slug }, props: { chroma } })));
+}
 const { chroma } = Astro.props;
 const canonical = `https://chromaart.lol/chromas/${chroma.slug}/`;
 const image = imageUrl(chroma.images.large);
-const description = `${chroma.heroNameZh}「${chroma.nameZh}」臻彩皮肤高清原画、英文名称、分类与 ${chroma.gameVer} 版本信息。`;
+const description = `View high-resolution splash art and patch ${chroma.gameVer} details for ${chroma.nameEn}, a ${chroma.heroNameEn} chroma.`;
 const related = catalog.filter((item) => item.slug !== chroma.slug && (item.heroId === chroma.heroId || item.categoryId === chroma.categoryId)).slice(0, 4);
 const jsonLd = [
-  { '@context': 'https://schema.org', '@type': 'ImageObject', name: chroma.nameZh, contentUrl: image, description },
+  { '@context': 'https://schema.org', '@type': 'ImageObject', name: chroma.nameEn, contentUrl: image, description },
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-    { '@type': 'ListItem', position: 1, name: '首页', item: 'https://chromaart.lol/' },
-    { '@type': 'ListItem', position: 2, name: chroma.nameZh, item: canonical },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chromaart.lol/' },
+    { '@type': 'ListItem', position: 2, name: chroma.nameEn, item: canonical },
   ] },
 ];
 ---
-<BaseLayout title={`${chroma.nameZh} · ${chroma.heroNameZh} | Chroma Art`} {description} {canonical} {image} {jsonLd}>
-  <nav class="breadcrumbs" aria-label="面包屑"><a href="/">首页</a><span>/</span><span>{chroma.heroNameZh}</span><span>/</span><span aria-current="page">{chroma.nameZh}</span></nav>
+<BaseLayout title={`${chroma.nameEn} · ${chroma.heroNameEn} | Chroma Art`} {description} {canonical} {image} {jsonLd}>
+  <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</span><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
-    <div class="detail-image"><img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} width="1920" height="1080" /></div>
-    <div class="detail-copy"><p class="kicker">{chroma.categoryName} · PATCH {chroma.gameVer}</p><h1>{chroma.nameZh}</h1><p class="detail-en">{chroma.nameEn}</p>
-      <dl><div><dt>英雄</dt><dd>{chroma.heroNameZh} · {chroma.heroNameEn}</dd></div><div><dt>原皮</dt><dd>{chroma.skinNameZh} · {chroma.skinNameEn}</dd></div><div><dt>游戏版本</dt><dd>{chroma.gameVer}</dd></div><div><dt>状态</dt><dd>{chroma.isNew ? '本期新增' : '已收录'}</dd></div></dl>
+    <div class="detail-image"><img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.heroNameEn} ${chroma.nameEn} splash art`} data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} splash art`} data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} width="1920" height="1080" /></div>
+    <div class="detail-copy"><p class="kicker" data-en={`${categoryName(chroma.categoryId, 'en')} · PATCH ${chroma.gameVer}`} data-zh={`${categoryName(chroma.categoryId, 'zh')} · 版本 ${chroma.gameVer}`}>{categoryName(chroma.categoryId, 'en')} · PATCH {chroma.gameVer}</p><h1 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h1>
+      <dl><div><dt data-en="Champion" data-zh="英雄">Champion</dt><dd data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</dd></div><div><dt data-en="Base skin" data-zh="原皮">Base skin</dt><dd data-en={chroma.skinNameEn} data-zh={chroma.skinNameZh}>{chroma.skinNameEn}</dd></div><div><dt data-en="Patch" data-zh="游戏版本">Patch</dt><dd>{chroma.gameVer}</dd></div><div><dt data-en="Status" data-zh="状态">Status</dt><dd data-en={chroma.isNew ? 'New' : 'Archived'} data-zh={chroma.isNew ? '本期新增' : '已收录'}>{chroma.isNew ? 'New' : 'Archived'}</dd></div></dl>
     </div>
   </article>
-  {related.length > 0 && <section class="related"><div class="section-heading"><h2>相关臻彩</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
+  {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related Chromas" data-zh="相关臻彩">Related Chromas</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
 </BaseLayout>

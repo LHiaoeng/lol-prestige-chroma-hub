@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { safeJsonLd } from '../domain/chroma';
+import { defaultLanguage, supportedLanguages } from '../i18n';
 
 interface Props {
   title: string;
@@ -11,15 +12,16 @@ interface Props {
 }
 const { title, description, canonical, image = 'https://chromaart.lol/placeholder.svg', jsonLd } = Astro.props;
 const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
+const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=${JSON.stringify(defaultLanguage)},v=localStorage.getItem('chroma-art-language');document.documentElement.dataset.language=s.includes(v)?v:d}catch{document.documentElement.dataset.language=${JSON.stringify(defaultLanguage)}}`;
 ---
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en" data-language="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#090b15" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Chroma Art" />
@@ -29,18 +31,34 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
     <meta property="og:image" content={image} />
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
+    <script is:inline set:html={languageBootstrap} />
     {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="Chroma Art 首页"><span>CHROMA</span> ART</a>
-      <span class="header-note">英雄联盟臻彩皮肤图鉴</span>
+      <a class="brand" href="/" aria-label="Chroma Art home" data-aria-en="Chroma Art home" data-aria-zh="Chroma Art 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>CHROMA</span> ART</span></a>
+      <div class="header-actions">
+        <span class="header-note" data-en="League of Legends Chroma Archive" data-zh="英雄联盟臻彩皮肤图鉴">League of Legends Chroma Archive</span>
+        <button class="language-toggle" type="button" data-language-toggle data-en="中文" data-zh="EN" aria-label="切换到中文" data-aria-en="Switch to Chinese" data-aria-zh="切换到英文">中文</button>
+      </div>
     </header>
     <main><slot /></main>
-    <footer><p>Chroma Art 是非官方玩家资料站。游戏素材版权归 Riot Games 与腾讯游戏所有。</p></footer>
+    <footer><p><span data-language-content="en">Chroma Art was created under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</span><span data-language-content="zh">Chroma Art 根据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策创建，并使用 Riot Games 所拥有的素材。Riot Games 不对此项目提供认可或赞助。</span></p></footer>
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
+      import { initializeLanguage } from '../client/language';
+      initializeLanguage(document, localStorage);
       bindImageFallbacks();
     </script>
+    <style is:global>
+      html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }
+      html[data-language="en"] [data-language-content="zh"], html[data-language="zh"] [data-language-content="en"] { display: none; }
+      .header-actions { display: flex; align-items: center; gap: 16px; }
+      .brand { display: flex; align-items: center; gap: 10px; }
+      .brand img { display: block; width: 32px; height: 32px; }
+      .brand > .brand-text { color: var(--text); }
+      .language-toggle { border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 6px 12px; cursor: pointer; }
+      footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+    </style>
   </body>
 </html>

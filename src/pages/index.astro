@@ -7,17 +7,17 @@ import { catalog } from '../data/catalog';
 import { safeJsonLd } from '../domain/chroma';
 const firstPage = catalog.slice(0, 24);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
-const description = '浏览英雄联盟臻彩皮肤高清原画，按英雄、版本与分类搜索筛选。';
+const description = 'Explore high-resolution League of Legends chroma splash art and filter the archive by champion, patch, and category.';
 const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Chroma Art', description, url: 'https://chromaart.lol/' };
 ---
-<BaseLayout title="Chroma Art · 英雄联盟臻彩皮肤图鉴" {description} canonical="https://chromaart.lol/" {jsonLd}>
+<BaseLayout title="Chroma Art · League of Legends Chroma Archive" {description} canonical="https://chromaart.lol/" {jsonLd}>
   <section class="hero-section">
     <p class="kicker">LEAGUE OF LEGENDS · PRESTIGE CHROMAS</p>
-    <h1>在色彩与光影之间，<br /><em>收藏每一种传奇。</em></h1>
-    <p>汇集英雄联盟臻彩皮肤高清原画、版本信息与分类资料。</p>
+    <h1><span data-language-content="en">Between color and light,<br /><em>collect every legend.</em></span><span data-language-content="zh">在色彩与光影之间，<br /><em>收藏每一种传奇。</em></span></h1>
+    <p data-en="A curated archive of League of Legends chroma splash art, patch details, and categories." data-zh="汇集英雄联盟臻彩皮肤高清原画、版本信息与分类资料。">A curated archive of League of Legends chroma splash art, patch details, and categories.</p>
   </section>
   <section class="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-heading"><div><p class="kicker">THE ARCHIVE</p><h2 id="catalog-title">臻彩图鉴</h2></div><p data-result-count>{catalog.length} 件藏品</p></div>
+    <div class="section-heading"><div><p class="kicker">THE ARCHIVE</p><h2 id="catalog-title" data-en="Chroma Archive" data-zh="臻彩图鉴">Chroma Archive</h2></div><p data-result-count>{catalog.length} items</p></div>
     <Filters {catalog} />
     <div class="status" data-status aria-live="polite" hidden></div>
     <div class="chroma-grid" data-chroma-list>
@@ -28,19 +28,18 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
         <a href="/">
           <div class="card-image">
             <img src="/placeholder.svg" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt="" width="960" height="540" loading="lazy" decoding="async" />
-            <span class="new-badge">NEW</span>
+            <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>
           </div>
           <div class="card-body">
             <p class="eyebrow"></p>
             <h2></h2>
-            <p data-name-en></p>
             <span class="category"></span>
           </div>
         </a>
       </article>
     </template>
-    {catalog.length === 0 && <div class="empty" data-initial-empty><h3>资料库等待导入</h3><p>运行数据导入命令后，臻彩内容会在这里出现。</p></div>}
-    <nav class="pagination" data-pagination aria-label="分页"></nav>
+    {catalog.length === 0 && <div class="empty" data-initial-empty><h3 data-en="The archive is waiting for data" data-zh="资料库等待导入">The archive is waiting for data</h3><p data-en="Chromas will appear here after the data import runs." data-zh="运行数据导入命令后，臻彩内容会在这里出现。">Chromas will appear here after the data import runs.</p></div>}
+    <nav class="pagination" data-pagination aria-label="Pagination" data-aria-en="Pagination" data-aria-zh="分页"></nav>
   </section>
   <script is:inline id="catalog-data" type="application/json" set:html={browserCatalogJson}></script>
   <script>
