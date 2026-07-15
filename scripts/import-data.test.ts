@@ -7,7 +7,7 @@ import { importData, validateImage } from './import-data';
 const roots: string[] = [];
 const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...new Array(40).fill(0), 0xff, 0xd9]);
 const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, ...new Array(40).fill(0)]);
-const input = [{ id: 1, skinId: 101, instanceId: 'abc', nameZh: '至臻赛娜', nameEn: 'Prestige Senna', heroId: 'senna', heroNameZh: '赛娜', heroNameEn: 'Senna', skinNameZh: '赛娜', skinNameEn: 'Senna', categoryId: 'prestige', categoryName: '至臻', tagId: 'mythic', gameVer: '26.13', isNew: true, rank: 2 }];
+const input = [{ id: 1, skinId: 101, instanceId: 'abc', nameZh: '至臻赛娜', nameEn: 'Prestige Senna', heroId: 'senna', heroNameZh: '赛娜', heroNameEn: 'Senna', sourceSkinId: 1001, skinSets: [{ id: 10, nameZh: '星之守护者', nameEn: 'Star Guardian', descriptionZh: '中文描述', descriptionEn: null }], universes: [{ id: 8, nameZh: '星之守护者', nameEn: 'Star Guardian', descriptionZh: null, descriptionEn: 'Universe description' }], skinNameZh: '赛娜', skinNameEn: 'Senna', categoryId: 'prestige', categoryName: '至臻', tagId: 'mythic', gameVer: '26.13', isNew: true, rank: 2 }];
 
 afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
 
@@ -27,6 +27,9 @@ describe('data importer', () => {
     expect(fetcher).toHaveBeenCalledTimes(7);
     const catalog = JSON.parse(readFileSync(join(root, 'data/prestige-chromas.json'), 'utf8'));
     expect(catalog[0].images.medium).toBe('assets/chromas/abc/site5.jpg');
+    expect(catalog[0].sourceSkinId).toBe(1001);
+    expect(catalog[0].skinSets).toEqual(input[0].skinSets);
+    expect(catalog[0].universes).toEqual(input[0].universes);
   });
 
   it('does not mutate production files during dry-run or failed downloads', async () => {

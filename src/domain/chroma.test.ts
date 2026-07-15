@@ -10,6 +10,21 @@ const record = {
   heroId: 'senna',
   heroNameZh: '赛娜',
   heroNameEn: 'Senna',
+  sourceSkinId: 1001,
+  skinSets: [{
+    id: 10,
+    nameZh: '星之守护者',
+    nameEn: 'Star Guardian',
+    descriptionZh: '中文描述',
+    descriptionEn: null,
+  }],
+  universes: [{
+    id: 8,
+    nameZh: '星之守护者',
+    nameEn: 'Star Guardian',
+    descriptionZh: null,
+    descriptionEn: 'Universe description',
+  }],
   skinNameZh: '月蚀骑士 赛娜',
   skinNameEn: 'Lunar Eclipse Senna',
   categoryId: 'prestige',
@@ -52,6 +67,21 @@ describe('chroma catalog', () => {
   it('rejects unsafe and misplaced asset paths', () => {
     expect(() => parseCatalog([{ ...record, images: { ...record.images, large: '../secret.jpg' } }])).toThrow(/large/i);
     expect(() => parseCatalog([{ ...record, images: { ...record.images, tag: 'assets/chromas/tag.png' } }])).toThrow(/tag/i);
+  });
+
+  it('requires valid source skin metadata', () => {
+    const { sourceSkinId: _sourceSkinId, ...withoutSourceSkinId } = record;
+    expect(() => parseCatalog([withoutSourceSkinId])).toThrow(/sourceSkinId/i);
+    expect(() => parseCatalog([{ ...record, sourceSkinId: 0 }])).toThrow(/sourceSkinId/i);
+    expect(() => parseCatalog([{ ...record, skinSets: [{ ...record.skinSets[0], id: 0 }] }])).toThrow(/skinSets/i);
+    expect(() => parseCatalog([{ ...record, skinSets: [{ ...record.skinSets[0], nameEn: ' ' }] }])).toThrow(/skinSets/i);
+    expect(() => parseCatalog([{ ...record, universes: [{ ...record.universes[0], descriptionZh: ' ' }] }])).toThrow(/universes/i);
+  });
+
+  it('requires relation IDs to be unique and sorted', () => {
+    const relation = record.skinSets[0];
+    expect(() => parseCatalog([{ ...record, skinSets: [relation, { ...relation }] }])).toThrow(/sorted/i);
+    expect(() => parseCatalog([{ ...record, skinSets: [{ ...relation, id: 20 }, relation] }])).toThrow(/sorted/i);
   });
 
   it('maps source and R2 image locations', () => {

@@ -13,6 +13,26 @@ const imageSchema = z.object({
   tag: assetPath,
 });
 
+const relationSchema = z.object({
+  id: z.number().int().positive(),
+  nameZh: z.string().trim().min(1),
+  nameEn: z.string().trim().min(1),
+  descriptionZh: z.string().trim().min(1).nullable(),
+  descriptionEn: z.string().trim().min(1).nullable(),
+});
+
+const relationArraySchema = z.array(relationSchema).superRefine((items, context) => {
+  for (let index = 1; index < items.length; index += 1) {
+    if (items[index - 1].id >= items[index].id) {
+      context.addIssue({
+        code: 'custom',
+        path: [index, 'id'],
+        message: 'relation IDs must be unique and sorted',
+      });
+    }
+  }
+});
+
 export const chromaSourceSchema = z.object({
   id: z.number().int().nonnegative(),
   skinId: z.number().int().positive(),
@@ -22,6 +42,9 @@ export const chromaSourceSchema = z.object({
   heroId: safeId,
   heroNameZh: z.string().trim().min(1),
   heroNameEn: z.string().trim().min(1),
+  sourceSkinId: z.number().int().positive(),
+  skinSets: relationArraySchema,
+  universes: relationArraySchema,
   skinNameZh: z.string().trim().min(1),
   skinNameEn: z.string().trim().min(1),
   categoryId: safeId,
