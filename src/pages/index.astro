@@ -7,17 +7,17 @@ import { catalog } from '../data/catalog';
 import { safeJsonLd } from '../domain/chroma';
 const firstPage = catalog.slice(0, 24);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
-const description = 'Explore high-resolution League of Legends chroma splash art and filter the archive by champion, patch, and category.';
-const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Chroma Art', description, url: 'https://chromaart.lol/' };
+const description = 'Explore the China Exclusive Chroma Splash Arts archive for League of Legends, featuring high-resolution artwork, champions, patches, and categories.';
+const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'China Exclusive Chroma Splash Arts | Chroma Art', description, url: 'https://chromaart.lol/' };
 ---
-<BaseLayout title="Chroma Art · League of Legends Chroma Archive" {description} canonical="https://chromaart.lol/" {jsonLd}>
+<BaseLayout title="China Exclusive Chroma Splash Arts | Chroma Art" {description} canonical="https://chromaart.lol/" {jsonLd}>
   <section class="hero-section">
-    <p class="kicker">LEAGUE OF LEGENDS · PRESTIGE CHROMAS</p>
-    <h1><span data-language-content="en">Between color and light,<br /><em>collect every legend.</em></span><span data-language-content="zh">在色彩与光影之间，<br /><em>收藏每一种传奇。</em></span></h1>
-    <p data-en="A curated archive of League of Legends chroma splash art, patch details, and categories." data-zh="汇集英雄联盟臻彩皮肤高清原画、版本信息与分类资料。">A curated archive of League of Legends chroma splash art, patch details, and categories.</p>
+    <p class="kicker" data-en="LEAGUE OF LEGENDS · CHINA EXCLUSIVE CHROMAS" data-zh="LEAGUE OF LEGENDS · PRESTIGE CHROMAS">LEAGUE OF LEGENDS · CHINA EXCLUSIVE CHROMAS</p>
+    <h1><span data-language-content="en">China Exclusive<br /><em>Chroma Splash Arts</em></span><span data-language-content="zh">在色彩与光影之间，<br /><em>收藏每一种传奇。</em></span></h1>
+    <p data-en="Discover high-resolution China Exclusive Chroma Splash Arts with champion, patch, and category details." data-zh="汇集英雄联盟臻彩皮肤高清原画、版本信息与分类资料。">Discover high-resolution China Exclusive Chroma Splash Arts with champion, patch, and category details.</p>
   </section>
   <section class="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-heading"><div><p class="kicker">THE ARCHIVE</p><h2 id="catalog-title" data-en="Chroma Archive" data-zh="臻彩图鉴">Chroma Archive</h2></div><p data-result-count>{catalog.length} items</p></div>
+    <div class="section-heading"><div><p class="kicker">THE ARCHIVE</p><h2 id="catalog-title" data-en="China Exclusive Chroma Archive" data-zh="臻彩图鉴">China Exclusive Chroma Archive</h2></div><p data-result-count>{catalog.length} items</p></div>
     <Filters {catalog} />
     <div class="status" data-status aria-live="polite" hidden></div>
     <div class="chroma-grid" data-chroma-list>

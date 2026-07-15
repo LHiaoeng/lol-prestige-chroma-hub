@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'About China Exclusive Chroma Splash Arts | Chroma Art';
+const description = 'Learn what China Exclusive Chroma Splash Arts are, when they release, how they are priced, and how players can obtain them.';
+const canonical = 'https://chromaart.lol/about/';
+const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: title, description, url: canonical };
+---
+<BaseLayout {title} {description} {canonical} {jsonLd}>
+  <article class="about-page" data-language-content="en">
+    <p class="kicker">ABOUT THE ARCHIVE</p>
+    <h1>What Are China Exclusive Chroma Splash Arts in League of Legends?</h1>
+    <p>China Exclusive Chroma Splash Arts are unique splash images made specifically for chroma versions of champion skins that are available only on the League of Legends Chinese servers. Unlike standard chroma recolors that use existing splash art backgrounds or minimal adjustments, these splash arts receive fully custom visuals.</p>
+
+    <section>
+      <h2>Release Date for the China Exclusive Chroma Splash Arts</h2>
+      <p>The Chinese server of "League of Legends" typically updates a new batch of exquisite original artworks to the "Exquisite Collection" during version updates, and the main way to obtain them is through recharge activities.</p>
+    </section>
+
+    <section>
+      <h2>Price</h2>
+      <p>Because these are premium chroma arcs accompanied by custom splash art, they will likely be priced higher than standard chromas. Historically, region-exclusive chroma packs in China have been sold as part of bundles or event pass rewards rather than as single chroma slots. Players should prepare for a price tier similar to other high-end cosmetic bundles on the Chinese server, potentially costing more in equivalent Riot Points than global chroma packs. Riot tends to use tiered pricing based on rarity and artistic complexity, so expect these to be valued accordingly.</p>
+    </section>
+
+    <section>
+      <h2>How to Get China Exclusive Chroma Splash Arts</h2>
+      <p>Acquiring these exclusive splash arts will require access to the Chinese League of Legends client and participation in the relevant in-game events or store purchases. Players usually obtain them by purchasing specific skin chroma bundles during limited-time events, completing event missions, or unlocking them through regional passes tied to celebrations and seasonal releases. Since they are regional exclusives, standard accounts outside China will not receive them through the global client. Players who truly want them must either have a China server account or wait to see if Riot introduces similar versions globally at a later date.</p>
+    </section>
+  </article>
+
+  <article class="about-page" data-language-content="zh">
+    <p class="kicker">关于图鉴</p>
+    <h1>什么是《英雄联盟》中国服务器专属臻彩原画？</h1>
+    <p>中国服务器专属臻彩原画是为仅在《英雄联盟》中国服务器提供的英雄皮肤臻彩版本特别制作的独立原画。与沿用现有原画背景或仅作少量调整的普通臻彩不同，这些臻彩拥有完全定制的视觉画面。</p>
+
+    <section>
+      <h2>中国服务器专属臻彩原画的发布时间</h2>
+      <p>《英雄联盟》中国服务器通常会在版本更新期间，向“臻彩藏品”更新一批精美原创画作，主要获取方式为充值活动。</p>
+    </section>
+
+    <section>
+      <h2>价格</h2>
+      <p>由于这些高品质臻彩配有定制原画，其价格很可能高于普通臻彩。以往，中国服务器的地区专属臻彩通常会作为礼包或活动通行证奖励出售，而不是单独的臻彩选项。玩家可以预期其价格档位与中国服务器上的其他高端外观礼包接近，折算后的点券成本可能高于全球服务器的臻彩礼包。Riot 通常会根据稀有度和艺术复杂程度采用分级定价，因此这些臻彩预计会获得相应的较高定价。</p>
+    </section>
+
+    <section>
+      <h2>如何获得中国服务器专属臻彩原画</h2>
+      <p>要获得这些专属臻彩原画，需要访问《英雄联盟》中国服务器客户端，并参与相关游戏内活动或商店购买。玩家通常可在限时活动期间购买指定皮肤臻彩礼包、完成活动任务，或通过节庆和赛季发布相关的地区通行证解锁。由于它们属于地区专属内容，中国大陆以外的普通账号无法通过全球客户端获得。真正想要这些内容的玩家需要拥有中国服务器账号，或等待 Riot 未来是否会在全球推出类似版本。</p>
+    </section>
+  </article>
+
+  <style>
+    .about-page { width: min(860px, calc(100% - 48px)); margin: 0 auto; padding: clamp(72px, 9vw, 120px) 0 100px; }
+    .about-page h1 { font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.08; margin: .45em 0 .6em; font-weight: 500; }
+    .about-page section { border-top: 1px solid var(--line); margin-top: 42px; padding-top: 34px; }
+    .about-page h2 { font-family: Georgia, "Noto Serif SC", serif; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 16px; }
+    .about-page p:not(.kicker) { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; margin: 0; }
+    @media (max-width: 680px) { .about-page { width: calc(100% - 28px); padding-top: 56px; } }
+  </style>
+</BaseLayout>
