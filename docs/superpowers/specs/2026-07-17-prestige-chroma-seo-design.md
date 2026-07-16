@@ -10,7 +10,8 @@ Improve `https://chromaart.lol` search visibility for both broad English-languag
 - `Prestige Chroma` is the site's canonical English translation of 臻彩.
 - A Prestige Chroma is described for external audiences as a China-exclusive League of Legends chroma variant with unique splash art.
 - `Prestige Chroma` must not be described as the same product type as a traditional `Prestige Skin`.
-- `League of Legends`, `LoL`, `Riot Games`, `chroma`, `skin`, `China-exclusive`, and `unique splash art` are supporting phrases used naturally where relevant, not repeated as keyword lists.
+- `China Exclusive` is a primary discovery phrase rather than a secondary qualifier. Use the grammatically correct `China-Exclusive` form before nouns while retaining the unhyphenated form in selected natural-language copy so both visible variants occur on the site.
+- `League of Legends`, `LoL`, `Riot Games`, `chroma`, `skin`, and `unique splash art` are supporting phrases used naturally where relevant, not repeated as keyword lists.
 
 ## Search Intent Architecture
 
@@ -20,7 +21,9 @@ The home page targets broad discovery searches such as:
 
 - League of Legends Prestige Chromas
 - LoL Prestige Chroma splash arts
+- LoL China Exclusive Prestige Chromas
 - China-exclusive League of Legends chromas
+- China Exclusive chroma splash arts
 - unique chroma splash art
 
 The home page remains the catalog route at `/`. Its title, description, H1, introductory copy, CollectionPage data, and catalog heading use consistent terminology.
@@ -55,18 +58,18 @@ Create a focused `src/seo/` area:
 
 ### Home page
 
-- Preferred title: `League of Legends Prestige Chroma Splash Arts | CHROMA ART`.
-- Description must mention China-exclusive Prestige Chromas, unique splash art, League of Legends, and continuously updated patch information in natural prose.
-- The visible H1 defines the archive as China-exclusive League of Legends Prestige Chroma splash art.
+- Preferred title: `LoL China Exclusive Prestige Chroma Splash Arts | CHROMA ART`.
+- Description must mention China Exclusive Prestige Chromas, unique splash art, League of Legends, Riot Games, and continuously updated patch information in natural prose.
+- The visible H1 is `League of Legends China Exclusive Prestige Chroma Splash Arts`, keeping both the full game name and the primary regional phrase in the most prominent page heading.
 - A short visible paragraph explains that these are chromas of existing skins with unique splash art, not traditional Prestige Skins.
 
 ### Detail pages
 
-- Titles prioritize the record name and `Prestige Chroma Splash Art`, followed by the brand.
+- Titles prioritize the record name and `China Exclusive Prestige Chroma`, followed by the brand. `Splash Art` remains in the title whenever the complete title stays concise.
 - The generator uses a shorter natural variant when a full title would become excessively long; it must not cut text mid-word.
 - Descriptions include `nameEn`, `skinNameEn`, `League of Legends`, `China-exclusive Prestige Chroma`, `unique splash art`, and `gameVer` when the resulting sentence remains natural.
 - Existing editorial `descriptionEn` remains visible page content, but it does not replace the search description because many supplied descriptions are skin lore and do not explain the page.
-- Image alt text names the chroma and describes it as a China-exclusive Prestige Chroma splash art. Decorative background and category images retain empty alt text.
+- Image alt text names the chroma and describes it as a China Exclusive Prestige Chroma splash art. Decorative background and category images retain empty alt text.
 
 ## Structured Data
 
@@ -112,8 +115,10 @@ No hard-coded catalog count, list of champions, or page-specific SEO override is
 Extend the existing Vitest and build-audit coverage to verify:
 
 - Home title, description, canonical, WebSite, and CollectionPage output.
+- Home title and H1 contain the exact visible phrase `China Exclusive`.
 - Every canonical detail page has a non-empty, record-specific title and description.
 - Detail titles contain `CHROMA ART`; descriptions contain `League of Legends` and `Prestige Chroma`.
+- Every canonical detail page contains `China Exclusive` or the grammatical `China-Exclusive` variant in its search metadata and primary image alt text.
 - Detail pages no longer use `prestige chroma` alt text without the China-exclusive context.
 - Canonical detail URLs are unique.
 - The sitemap contains `/`, `/about/`, and exactly one descriptive URL plus one large image URL for each catalog record.
