@@ -8,7 +8,17 @@ const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) =
 const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
 ---
 <details class="filter-disclosure">
-<summary><span data-en="Filter & sort" data-zh="筛选与排序">Filter & sort</span><span class="filter-disclosure-icon" aria-hidden="true">＋</span></summary>
+<summary>
+  <span class="filter-disclosure-label" data-en="Filter & sort" data-zh="筛选与排序">Filter & sort</span>
+  <span class="filter-disclosure-icon" aria-hidden="true">＋</span>
+  <span class="filter-shortcuts" aria-hidden="true">
+    <span data-en="Search" data-zh="搜索">Search</span>
+    <span data-en="Champion" data-zh="英雄">Champion</span>
+    <span data-en="Patch" data-zh="版本">Patch</span>
+    <span data-en="Category" data-zh="分类">Category</span>
+    <span data-en="Sort" data-zh="排序">Sort</span>
+  </span>
+</summary>
 <form class="filters" data-filters role="search">
   <label class="search-field"><span data-en="Search" data-zh="搜索名称">Search</span><input name="q" type="search" maxlength="64" placeholder="Search prestige chroma names" data-placeholder-en="Search prestige chroma names" data-placeholder-zh="搜索臻彩中英文名称" /></label>
   <label><span data-en="Champion" data-zh="英雄">Champion</span><select name="hero"><option value="" data-en="All champions" data-zh="全部英雄">All champions</option>{heroes.map(([id, name]) => <option value={id} data-en={name.en} data-zh={name.zh}>{name.en}</option>)}</select></label>
