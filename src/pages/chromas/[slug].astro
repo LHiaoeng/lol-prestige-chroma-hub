@@ -77,7 +77,7 @@ const jsonLd = [
       </div>
     </div>
     <div class="detail-copy">
-      <details class="detail-info-disclosure">
+      <details class="detail-info-disclosure" open>
       <summary><span data-en="Details" data-zh="详细资料">Details</span><span class="detail-info-icon" aria-hidden="true">＋</span></summary>
       <div class="detail-info-body">
       <div class="detail-title-row"><p class="detail-display-title" data-en={chroma.nameEn} data-zh={chroma.nameZh} aria-hidden="true">{chroma.nameEn}</p><DetailActionMenu actions={prestigeChromaActions} /></div>
@@ -99,6 +99,13 @@ const jsonLd = [
   </article>
   {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related Prestige Chromas" data-zh="相关臻彩">Related Prestige Chromas</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
 </BaseLayout>
+<script>
+  const detailDisclosure = document.querySelector<HTMLDetailsElement>('.detail-info-disclosure');
+  const desktop = matchMedia('(min-width: 768px)');
+  const syncDetailDisclosure = () => detailDisclosure?.toggleAttribute('open', desktop.matches);
+  syncDetailDisclosure();
+  desktop.addEventListener('change', syncDetailDisclosure);
+</script>
 <style>
   .detail-poster-copy{display:none}
   .detail-info-disclosure>summary{display:none}

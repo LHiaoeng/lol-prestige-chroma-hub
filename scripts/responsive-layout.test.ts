@@ -11,7 +11,9 @@ describe('responsive layout contract', () => {
     expect(layout).toContain('class="desktop-nav"');
     expect(layout).toContain('mobileNav.contains');
     const filters = source('src/components/Filters.astro');
-    expect(filters).toContain('class="filter-disclosure"');
+    expect(filters).toContain('<details class="filter-disclosure" open>');
+    expect(filters).toContain("matchMedia('(min-width: 768px)')");
+    expect(filters).toContain("toggleAttribute('open', desktop.matches)");
     expect(filters).not.toContain('filter-shortcuts');
     for (const name of ['q', 'hero', 'version', 'category', 'isNew', 'sort']) {
       expect(filters).toContain(`name="${name}"`);
@@ -24,7 +26,9 @@ describe('responsive layout contract', () => {
   it('keeps the complete detail list visible on desktop and collapsible on mobile', () => {
     const detail = source('src/pages/chromas/[slug].astro');
     expect(detail).toContain('class="detail-poster-copy"');
-    expect(detail).toContain('class="detail-info-disclosure"');
+    expect(detail).toContain('<details class="detail-info-disclosure" open>');
+    expect(detail).toContain("matchMedia('(min-width: 768px)')");
+    expect(detail).toContain("toggleAttribute('open', desktop.matches)");
     expect(detail).toContain('class="sr-only detail-accessible-title"');
     expect(detail).toContain('.detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}');
     expect(detail).toMatch(/@media\(max-width:767px\)[\s\S]*?\.detail-info-disclosure:not\(\[open\]\)>\.detail-info-body\{display:none\}/);

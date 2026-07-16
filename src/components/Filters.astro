@@ -7,7 +7,7 @@ const heroes = [...new Map(catalog.map((item) => [item.heroId, { en: item.heroNa
 const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
 ---
-<details class="filter-disclosure">
+<details class="filter-disclosure" open>
 <summary><span class="filter-disclosure-label" data-en="Filter & sort" data-zh="筛选与排序">Filter & sort</span><span class="filter-disclosure-icon" aria-hidden="true">＋</span></summary>
 <form class="filters" data-filters role="search">
   <label class="search-field"><span data-en="Search" data-zh="搜索名称">Search</span><input name="q" type="search" maxlength="64" placeholder="Search prestige chroma names" data-placeholder-en="Search prestige chroma names" data-placeholder-zh="搜索臻彩中英文名称" /></label>
@@ -20,3 +20,10 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
   <button type="reset" class="ghost" data-en="Clear" data-zh="清除">Clear</button>
 </form>
 </details>
+<script>
+  const filterDisclosure = document.querySelector<HTMLDetailsElement>('.filter-disclosure');
+  const desktop = matchMedia('(min-width: 768px)');
+  const syncFilterDisclosure = () => filterDisclosure?.toggleAttribute('open', desktop.matches);
+  syncFilterDisclosure();
+  desktop.addEventListener('change', syncFilterDisclosure);
+</script>
