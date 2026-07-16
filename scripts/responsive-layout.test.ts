@@ -5,29 +5,39 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('responsive layout contract', () => {
-  it('provides semantic collapsible mobile navigation and filters', () => {
+  it('keeps complete filters visible on desktop and collapsible on mobile', () => {
     const layout = source('src/layouts/BaseLayout.astro');
     expect(layout).toContain('class="mobile-nav"');
     expect(layout).toContain('class="desktop-nav"');
     expect(layout).toContain('mobileNav.contains');
     const filters = source('src/components/Filters.astro');
     expect(filters).toContain('class="filter-disclosure"');
-    expect(filters).toContain('class="filter-shortcuts"');
-    expect(filters).toContain('data-filter-target="q"');
+    expect(filters).not.toContain('filter-shortcuts');
+    for (const name of ['q', 'hero', 'version', 'category', 'isNew', 'sort']) {
+      expect(filters).toContain(`name="${name}"`);
+    }
+    const css = source('src/styles/global.css');
+    expect(css).toContain('.filter-disclosure:not([open])>.filters,.filters{display:grid}');
+    expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.filter-disclosure:not\(\[open\]\)>\.filters\{display:none\}/);
   });
 
-  it('provides poster overlay and collapsible detail metadata', () => {
+  it('keeps the complete detail list visible on desktop and collapsible on mobile', () => {
     const detail = source('src/pages/chromas/[slug].astro');
     expect(detail).toContain('class="detail-poster-copy"');
     expect(detail).toContain('class="detail-info-disclosure"');
     expect(detail).toContain('class="sr-only detail-accessible-title"');
+    expect(detail).toContain('.detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}');
+    expect(detail).toMatch(/@media\(max-width:767px\)[\s\S]*?\.detail-info-disclosure:not\(\[open\]\)>\.detail-info-body\{display:none\}/);
+    for (const label of ['Category', 'Category icon', 'Colors', 'Description', 'Base skin', 'Skinlines', 'Universes', 'Champions', 'Patch']) {
+      expect(detail).toContain(label);
+    }
   });
 
   it('uses the approved one, two, and three-column gallery progression', () => {
     const css = source('src/styles/global.css');
     expect(css).toContain('--touch-target:44px');
     expect(css).not.toContain('min-width:320px');
-    expect(css).toContain('.filter-shortcuts>button{flex:none;min-height:var(--touch-target)');
+    expect(css).not.toContain('.filter-shortcuts');
     expect(css).toMatch(/\.chroma-grid\{[^}]*grid-template-columns:repeat\(3/);
     expect(css).toMatch(/@media\(max-width:1023px\)[\s\S]*?\.chroma-grid\{grid-template-columns:repeat\(2/);
     expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.chroma-grid\{grid-template-columns:1fr/);
