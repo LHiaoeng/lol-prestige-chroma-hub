@@ -9,3 +9,4 @@ dist/
 .worktrees/
 coverage/
 *.log
+/.idea/
