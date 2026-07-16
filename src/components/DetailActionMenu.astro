@@ -11,28 +11,46 @@ interface Props {
 
 const { actions } = Astro.props;
 ---
-{actions.length > 0 && (
+{actions.length === 1 ? (
+  <a class="detail-action-link" href={actions[0].href} target="_blank" rel="noopener noreferrer" aria-label={actions[0].ariaLabel ?? actions[0].label} title={actions[0].label}>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
+    </svg>
+  </a>
+) : actions.length > 1 && (
   <details class="detail-action-menu">
-    <summary aria-label="Actions" data-aria-en="Actions" data-aria-zh="操作">
-      <span data-en="Actions" data-zh="操作">Actions</span>
+    <summary aria-label="External actions" data-aria-en="External actions" data-aria-zh="外部操作" title="External actions">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
+      </svg>
     </summary>
-    <div class="detail-action-list">
+    <nav class="detail-action-list" aria-label="External actions" data-aria-en="External actions" data-aria-zh="外部操作">
       {actions.map((action) => (
         <a href={action.href} target="_blank" rel="noopener noreferrer" aria-label={action.ariaLabel ?? action.label}>
           {action.label}
         </a>
       ))}
-    </div>
+    </nav>
   </details>
 )}
 
 <style>
   .detail-action-menu { position: relative; flex: 0 0 auto; }
-  summary { cursor: pointer; color: var(--gold); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; list-style: none; }
+  .detail-action-link, summary { display: grid; place-items: center; width: 30px; height: 30px; cursor: pointer; color: var(--gold); border: 1px solid var(--line); border-radius: 6px; list-style: none; }
   summary::-webkit-details-marker { display: none; }
-  summary::after { content: " ▾"; }
-  [open] summary::after { content: " ▴"; }
-  .detail-action-list { position: absolute; z-index: 5; right: 0; top: calc(100% + 8px); width: max-content; min-width: 250px; display: grid; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); box-shadow: 0 16px 36px #0008; }
-  a { padding: 10px 12px; border-radius: 5px; color: var(--text); font-size: .72rem; font-weight: 700; letter-spacing: .05em; }
-  a:hover, a:focus-visible { color: var(--gold); background: #ffffff0a; }
+  .detail-action-link:hover, .detail-action-link:focus-visible, summary:hover, summary:focus-visible, [open] summary { border-color: var(--gold); background: #ffffff0a; }
+  .detail-action-link svg, summary svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .detail-action-menu > .detail-action-list { position: absolute; z-index: 5; right: 0; top: calc(100% + 8px); width: max-content; min-width: 250px; display: grid; grid-template-columns: 1fr; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); box-shadow: 0 16px 36px #0008; }
+  .detail-action-list > a { display: block; width: 100%; padding: 10px 12px; border-radius: 5px; color: var(--text); font-size: .72rem; font-weight: 700; letter-spacing: .05em; }
+  .detail-action-list > a:hover, .detail-action-list > a:focus-visible { color: var(--gold); background: #ffffff0a; }
 </style>
+
+<script>
+  const closeMenusOutside = (target?: Node | null) => {
+    document.querySelectorAll<HTMLDetailsElement>('.detail-action-menu[open]').forEach((menu) => {
+      if (!target || !menu.contains(target)) menu.removeAttribute('open');
+    });
+  };
+
+  document.addEventListener('pointerdown', (event) => closeMenusOutside(event.target as Node));
+</script>
