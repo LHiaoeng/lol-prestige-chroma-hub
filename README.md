@@ -1,4 +1,4 @@
-# LOL Prestige Chroma Hub
+p# LOL Prestige Chroma Hub
 
 面向公众的英雄联盟臻彩皮肤只读展示站。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
 
