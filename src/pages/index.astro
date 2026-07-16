@@ -4,20 +4,25 @@ import ChromaCard from '../components/ChromaCard.astro';
 import Filters from '../components/Filters.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
-import { safeJsonLd } from '../domain/chroma';
+import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
+import { selectFeaturedChroma } from '../domain/featured-chroma';
 const firstPage = catalog.slice(0, 24);
+const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
-const description = 'Explore the China Exclusive Chroma Splash Arts archive for League of Legends, featuring high-resolution artwork, champions, patches, and categories.';
+const description = 'Discover high-resolution China Exclusive Chroma Splash Arts, updated as soon as each new patch goes live.';
 const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'China Exclusive Chroma Splash Arts | Chroma Art', description, url: 'https://chromaart.lol/' };
 ---
 <BaseLayout title="China Exclusive Chroma Splash Arts | Chroma Art" {description} canonical="https://chromaart.lol/" {jsonLd}>
   <section class="hero-section">
-    <p class="kicker" data-en="LEAGUE OF LEGENDS · CHINA EXCLUSIVE PRESTIGE CHROMAS" data-zh="英雄联盟 · 中国独家臻彩">LEAGUE OF LEGENDS · CHINA EXCLUSIVE PRESTIGE CHROMAS</p>
-    <h1><span data-language-content="en">China Exclusive<br /><em>Chroma Splash Arts</em></span><span data-language-content="zh">在色彩与光影之间，<br /><em>收藏每一种传奇。</em></span></h1>
-    <p data-en="Discover high-resolution China Exclusive Chroma Splash Arts with champion, patch, and category details." data-zh="汇集英雄联盟臻彩皮肤高清原画、版本信息与分类资料。">Discover high-resolution China Exclusive Chroma Splash Arts with champion, patch, and category details.</p>
+    {featuredChroma && <img class="hero-background" src={imageUrl(featuredChroma.images.large)} data-fallback={sourceImageUrl('large', featuredChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" aria-hidden="true" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />}
+    <div class="hero-content">
+      <p class="kicker" data-en="LEAGUE OF LEGENDS" data-zh="英雄联盟">LEAGUE OF LEGENDS</p>
+      <h1><span data-language-content="en">China Exclusive<br /><em>Chroma Splash Arts</em></span><span data-language-content="zh">中国独家<br /><em>臻彩皮肤原画</em></span></h1>
+      <p data-en="Discover high-resolution China Exclusive Chroma Splash Arts, updated as soon as each new patch goes live." data-zh="每次新版本上线后，第一时间更新英雄联盟中国独家臻彩高清原画。">Discover high-resolution China Exclusive Chroma Splash Arts, updated as soon as each new patch goes live.</p>
+    </div>
   </section>
   <section class="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-heading"><div><p class="kicker">THE ARCHIVE</p><h2 id="catalog-title" data-en="China Exclusive Prestige Chroma Archive" data-zh="臻彩图鉴">China Exclusive Prestige Chroma Archive</h2></div><p data-result-count>{catalog.length} items</p></div>
+    <div class="section-heading"><div><h2 id="catalog-title" data-en="Prestige Chromas" data-zh="臻彩图鉴">Prestige Chromas</h2></div></div>
     <Filters {catalog} />
     <div class="status" data-status aria-live="polite" hidden></div>
     <div class="chroma-grid" data-chroma-list>
@@ -46,3 +51,19 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
     import '../catalog/browser-app';
   </script>
 </BaseLayout>
+<style>
+  .hero-section { position: relative; isolation: isolate; width: 100%; max-width: none; min-height: clamp(480px, 68vh, 720px); display: grid; align-items: center; overflow: hidden; padding: 80px 0; }
+  .hero-background { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; transform: scale(1.025); animation: hero-drift 18s ease-in-out infinite alternate; }
+  .hero-section::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(4,6,12,.96) 0%, rgba(4,6,12,.76) 38%, rgba(4,6,12,.3) 68%, rgba(4,6,12,.12) 100%), linear-gradient(0deg, rgba(9,11,21,.72), transparent 45%); }
+  .hero-content { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
+  .hero-content > p:last-child { max-width: 650px; color: #d4d6df; font-size: 1.05rem; text-shadow: 0 2px 18px #000; }
+  .hero-content h1 { text-shadow: 0 5px 30px #000b; }
+  @keyframes hero-drift { from { transform: scale(1.025); } to { transform: scale(1.065); } }
+  @media (max-width: 680px) {
+    .hero-section { min-height: 520px; padding: 64px 0; }
+    .hero-background { object-position: 62% top; }
+    .hero-section::after { background: linear-gradient(90deg, rgba(4,6,12,.92), rgba(4,6,12,.48)), linear-gradient(0deg, rgba(9,11,21,.9), rgba(9,11,21,.12) 75%); }
+    .hero-content { width: min(100% - 28px, 1240px); }
+  }
+  @media (prefers-reduced-motion: reduce) { .hero-background { animation: none; transform: none; } }
+</style>
