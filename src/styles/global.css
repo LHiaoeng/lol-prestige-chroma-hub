@@ -79,7 +79,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   .section-heading>p{font-size:.8rem}
   .filter-shortcuts{display:flex;gap:6px;max-width:100%;margin-bottom:8px;overflow-x:auto;scrollbar-width:none}
   .filter-shortcuts::-webkit-scrollbar{display:none}
-  .filter-shortcuts>button{flex:none;min-height:36px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted);font-size:.72rem;font-weight:600;cursor:pointer}
+  .filter-shortcuts>button{flex:none;min-height:var(--touch-target);padding:0 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted);font-size:.72rem;font-weight:600;cursor:pointer}
   .filter-shortcuts>button:focus-visible{border-color:var(--gold);color:var(--gold);outline:none}
   .filter-disclosure{margin-bottom:22px}
   .filter-disclosure>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;min-height:var(--touch-target);align-items:center;padding:10px 12px;border:1px solid var(--gold);border-radius:9px;color:var(--gold);background:#111526d9;font-size:.82rem;font-weight:700;list-style:none;cursor:pointer}

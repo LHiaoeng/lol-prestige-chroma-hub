@@ -27,6 +27,7 @@ describe('responsive layout contract', () => {
     const css = source('src/styles/global.css');
     expect(css).toContain('--touch-target:44px');
     expect(css).not.toContain('min-width:320px');
+    expect(css).toContain('.filter-shortcuts>button{flex:none;min-height:var(--touch-target)');
     expect(css).toMatch(/\.chroma-grid\{[^}]*grid-template-columns:repeat\(3/);
     expect(css).toMatch(/@media\(max-width:1023px\)[\s\S]*?\.chroma-grid\{grid-template-columns:repeat\(2/);
     expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.chroma-grid\{grid-template-columns:1fr/);
