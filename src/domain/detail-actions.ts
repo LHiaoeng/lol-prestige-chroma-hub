@@ -16,10 +16,10 @@ export function khadaModelUrl(skinId: number, chromaId?: number): string {
   return url.toString();
 }
 
-export function khadaChampionUrl(championId: number): string {
+export function khadaChampionUrl(championId: string): string {
   const url = new URL('https://modelviewer.lol/model-viewer');
   // Temporary fallback until the source provides each champion's base skin ID.
-  url.searchParams.set('id', String(championId * 1000));
+  url.searchParams.set('id', String(Number(championId) * 1000));
   return url.toString();
 }
 

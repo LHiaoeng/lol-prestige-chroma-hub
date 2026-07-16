@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { googleSearchUrl, khadaModelUrl, skinSpotlightsSearchUrl } from './detail-actions';
+import { googleSearchUrl, khadaChampionUrl, khadaModelUrl, skinSpotlightsSearchUrl } from './detail-actions';
 
 describe('detail action URLs', () => {
   it('searches SkinSpotlights with only the skin name', () => {
@@ -17,6 +17,12 @@ describe('detail action URLs', () => {
   it('builds a KHADA prestige chroma model URL from base and chroma IDs', () => {
     expect(khadaModelUrl(99072, 99080)).toBe(
       'https://modelviewer.lol/model-viewer?id=99072&lang=en-US&chroma=99080',
+    );
+  });
+
+  it('builds a KHADA champion model URL from the catalog string ID', () => {
+    expect(khadaChampionUrl('876')).toBe(
+      'https://modelviewer.lol/model-viewer?id=876000',
     );
   });
 
