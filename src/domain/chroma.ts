@@ -10,6 +10,10 @@ const tagAssetPath = assetPath.refine(
   (value) => /^assets\/tags\/[A-Za-z0-9_-]{1,128}\.png$/.test(value),
   'must use the actual safe tag PNG filename under assets/tags',
 );
+const optionalDescription = z.preprocess(
+  (value) => typeof value === 'string' && value.trim() === '' ? null : value,
+  z.string().trim().min(1).nullable(),
+).default(null);
 
 const imageSchema = z.object({
   large: assetPath,
@@ -44,8 +48,8 @@ export const chromaSourceSchema = z.object({
   instanceId: safeId,
   nameZh: z.string().trim().min(1),
   nameEn: z.string().trim().min(1),
-  descriptionZh: z.string().trim().min(1).nullable().default(null),
-  descriptionEn: z.string().trim().min(1).nullable().default(null),
+  descriptionZh: optionalDescription,
+  descriptionEn: optionalDescription,
   colors: z.array(hexColor).default([]),
   heroId: safeId,
   heroNameZh: z.string().trim().min(1),

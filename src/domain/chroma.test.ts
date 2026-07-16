@@ -63,6 +63,12 @@ describe('chroma catalog', () => {
     expect(() => parseCatalog([{ ...record, colors: ['red'] }])).toThrow(/colors/i);
   });
 
+  it('normalizes empty chroma descriptions from the data source', () => {
+    const [parsed] = parseCatalog([{ ...record, descriptionZh: '', descriptionEn: '   ' }]);
+    expect(parsed.descriptionZh).toBeNull();
+    expect(parsed.descriptionEn).toBeNull();
+  });
+
   it('rejects duplicate instance IDs and duplicate slugs', () => {
     expect(() => parseCatalog([record, { ...record, id: 2, skinId: 102 }])).toThrow(/instanceId/i);
     const other = {
