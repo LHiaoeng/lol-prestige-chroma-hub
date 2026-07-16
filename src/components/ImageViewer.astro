@@ -13,7 +13,7 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
     <img class="viewer-image" {src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} width="1920" height="1080" />
   </button>
   <dialog class="viewer-dialog" data-image-viewer-dialog aria-label="Full-size image preview" data-aria-en="Full-size image preview" data-aria-zh="大图预览">
-    <button class="viewer-close" type="button" data-image-viewer-close data-en="Close" data-zh="关闭">Close</button>
+    <div class="viewer-close-row"><button class="viewer-close" type="button" data-image-viewer-close data-en="Close" data-zh="关闭">Close</button></div>
     <img class="viewer-full" {src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} />
   </dialog>
 </div>
@@ -25,8 +25,9 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
   .image-viewer,.viewer-trigger{display:block;width:100%;height:100%}
   .viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}
   .viewer-image{display:block;width:100%;height:100%;object-fit:cover}
-  .viewer-dialog{width:min(calc(100vw - 16px),1600px);max-width:none;height:auto;max-height:calc(100dvh - 16px);margin:auto;padding:max(58px,calc(env(safe-area-inset-top) + 52px)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));border:1px solid #5d5138;border-radius:10px;background:#090b15;color:#f4f0e6;overflow:auto;overscroll-behavior:contain}
+  .viewer-dialog{width:min(calc(100vw - 16px),1600px);max-width:none;height:auto;max-height:calc(100dvh - 16px);margin:auto;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));border:1px solid #5d5138;border-radius:10px;background:#090b15;color:#f4f0e6;overflow:auto;overscroll-behavior:contain}
   .viewer-dialog::backdrop{background:#000c;backdrop-filter:blur(6px)}
-  .viewer-close{position:absolute;z-index:2;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));min-width:var(--touch-target);min-height:var(--touch-target);padding:7px 14px;border:1px solid #d7b56d;border-radius:999px;background:#111526;color:#d7b56d;cursor:pointer}
+  .viewer-close-row{position:sticky;z-index:2;top:0;display:flex;justify-content:flex-end;margin-bottom:8px;pointer-events:none}
+  .viewer-close{min-width:var(--touch-target);min-height:var(--touch-target);padding:7px 14px;border:1px solid #d7b56d;border-radius:999px;background:#111526;color:#d7b56d;cursor:pointer;pointer-events:auto}
   .viewer-dialog .viewer-full{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100dvh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin:auto;object-fit:contain}
 </style>

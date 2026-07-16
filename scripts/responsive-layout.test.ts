@@ -9,15 +9,18 @@ describe('responsive layout contract', () => {
     const layout = source('src/layouts/BaseLayout.astro');
     expect(layout).toContain('class="mobile-nav"');
     expect(layout).toContain('class="desktop-nav"');
+    expect(layout).toContain('mobileNav.contains');
     const filters = source('src/components/Filters.astro');
     expect(filters).toContain('class="filter-disclosure"');
     expect(filters).toContain('class="filter-shortcuts"');
+    expect(filters).toContain('data-filter-target="q"');
   });
 
   it('provides poster overlay and collapsible detail metadata', () => {
     const detail = source('src/pages/chromas/[slug].astro');
     expect(detail).toContain('class="detail-poster-copy"');
     expect(detail).toContain('class="detail-info-disclosure"');
+    expect(detail).toContain('class="sr-only detail-accessible-title"');
   });
 
   it('uses the approved one, two, and three-column gallery progression', () => {
@@ -35,6 +38,8 @@ describe('responsive layout contract', () => {
     const actions = source('src/components/DetailActionMenu.astro');
     expect(viewer).toContain('100dvh');
     expect(viewer).toContain('safe-area-inset-top');
+    expect(viewer).toContain('class="viewer-close-row"');
+    expect(viewer).toContain('position:sticky');
     expect(about).toContain('var(--page-gutter)');
     expect(actions).toContain('calc(100vw - 28px)');
   });
