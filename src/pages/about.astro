@@ -1,5 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { catalog } from '../data/catalog';
+import { imageUrl, sourceImageUrl } from '../domain/chroma';
+
+const firstChroma = catalog.reduce((lowest, item) => item.rank < lowest.rank ? item : lowest);
+const jadeSwordChroma = catalog.find((item) => item.nameZh === '玉剑传说 无极 白虎');
 
 const title = 'About China Exclusive Chroma Splash Arts | Chroma Art';
 const description = 'Learn what China Exclusive Chroma Splash Arts are, when they release, how they are priced, and how players can obtain them.';
@@ -11,10 +16,16 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
     <p class="kicker">ABOUT THE ARCHIVE</p>
     <h1>What Are China Exclusive Chroma Splash Arts in League of Legends?</h1>
     <p>China Exclusive Chroma Splash Arts are unique splash images made specifically for chroma versions of champion skins that are available only on the League of Legends Chinese servers. Unlike standard chroma recolors that use existing splash art backgrounds or minimal adjustments, these splash arts receive fully custom visuals.</p>
+    <figure class="about-art">
+      <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+    </figure>
 
     <section>
       <h2>Release Date for the China Exclusive Chroma Splash Arts</h2>
       <p>The Chinese server of "League of Legends" typically updates a new batch of exquisite original artworks to the "Exquisite Collection" during version updates, and the main way to obtain them is through recharge activities.</p>
+      {jadeSwordChroma && <figure class="about-art">
+        <img src={imageUrl(jadeSwordChroma.images.large)} data-fallback={sourceImageUrl('large', jadeSwordChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>}
     </section>
 
     <section>
@@ -32,10 +43,16 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
     <p class="kicker">关于图鉴</p>
     <h1>什么是《英雄联盟》中国服务器专属臻彩原画？</h1>
     <p>中国服务器专属臻彩原画是为仅在《英雄联盟》中国服务器提供的英雄皮肤臻彩版本特别制作的独立原画。与沿用现有原画背景或仅作少量调整的普通臻彩不同，这些臻彩拥有完全定制的视觉画面。</p>
+    <figure class="about-art">
+      <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+    </figure>
 
     <section>
       <h2>中国服务器专属臻彩原画的发布时间</h2>
       <p>《英雄联盟》中国服务器通常会在版本更新期间，向“臻彩藏品”更新一批精美原创画作，主要获取方式为充值活动。</p>
+      {jadeSwordChroma && <figure class="about-art">
+        <img src={imageUrl(jadeSwordChroma.images.large)} data-fallback={sourceImageUrl('large', jadeSwordChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>}
     </section>
 
     <section>
@@ -55,6 +72,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
     .about-page section { border-top: 1px solid var(--line); margin-top: 42px; padding-top: 34px; }
     .about-page h2 { font-family: Georgia, "Noto Serif SC", serif; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 16px; }
     .about-page p:not(.kicker) { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; margin: 0; }
+    .about-art { width: 100%; margin: 32px 0 0; overflow: hidden; border: 1px solid var(--line); background: #090b15; box-shadow: 0 18px 48px #0008; }
+    .about-art img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: center top; }
     @media (max-width: 767px) {
       .about-page { padding: 52px 0 72px; }
       .about-page h1 { font-size: clamp(2.15rem, 10vw, 3rem); }

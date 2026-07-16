@@ -27,29 +27,35 @@ const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
 const universesZh = chroma.universes.map((item) => item.nameZh).join('、');
 const prestigeChromaKeyword = chroma.nameEn;
 const baseSkinKeyword = chroma.skinNameEn;
+const actionLabels = {
+  skinSpotlights: { labelEn: 'VIEW ON SKINSPOTLIGHTS', labelZh: '在 SKINSPOTLIGHTS 查看' },
+  khada: { labelEn: 'VIEW 3D MODEL ON KHADA', labelZh: '在 KHADA 查看 3D 模型' },
+  google: { labelEn: 'GOOGLE SEARCH', labelZh: '谷歌搜索' },
+  patch: { labelEn: 'VIEW PATCH NOTES', labelZh: '查看版本公告' },
+};
 const prestigeChromaActions = [
-  { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(prestigeChromaKeyword) },
-  { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
-  { label: 'GOOGLE SEARCH', href: googleSearchUrl(prestigeChromaKeyword) },
+  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(prestigeChromaKeyword) },
+  { ...actionLabels.khada, href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
+  { ...actionLabels.google, href: googleSearchUrl(prestigeChromaKeyword) },
 ];
 const baseSkinActions = [
-  { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(baseSkinKeyword) },
-  { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.sourceSkinId) },
-  { label: 'GOOGLE SEARCH', href: googleSearchUrl(baseSkinKeyword) },
+  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(baseSkinKeyword) },
+  { ...actionLabels.khada, href: khadaModelUrl(chroma.sourceSkinId) },
+  { ...actionLabels.google, href: googleSearchUrl(baseSkinKeyword) },
 ];
 const championActions = [
-  { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(chroma.heroNameEn) },
-  { label: 'VIEW 3D MODEL ON KHADA', href: khadaChampionUrl(chroma.heroId) },
-  { label: 'GOOGLE SEARCH', href: googleSearchUrl(chroma.heroNameEn) },
+  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(chroma.heroNameEn) },
+  { ...actionLabels.khada, href: khadaChampionUrl(chroma.heroId) },
+  { ...actionLabels.google, href: googleSearchUrl(chroma.heroNameEn) },
 ];
 const skinlineActions = [
-  { label: 'GOOGLE SEARCH', href: googleSearchUrl(`${skinSetsEn} Skinlines`) },
+  { ...actionLabels.google, href: googleSearchUrl(`${skinSetsEn} Skinlines`) },
 ];
 const universeActions = [
-  { label: 'GOOGLE SEARCH', href: googleSearchUrl(`${universesEn} Universes`) },
+  { ...actionLabels.google, href: googleSearchUrl(`${universesEn} Universes`) },
 ];
 const patchActions = [
-  { label: 'VIEW PATCH NOTES', href: patchNotesUrl(chroma.gameVer) },
+  { ...actionLabels.patch, href: patchNotesUrl(chroma.gameVer) },
 ];
 const jsonLd = [
   { '@context': 'https://schema.org', '@type': 'ImageObject', name: chroma.nameEn, contentUrl: image, description },
@@ -61,7 +67,10 @@ const jsonLd = [
 ];
 ---
 <BaseLayout title={`${chroma.nameEn} · ${chroma.heroNameEn} | Chroma Art`} {description} {canonical} {image} {jsonLd}>
-  <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span data-en={chroma.skinNameEn} data-zh={chroma.skinNameZh}>{chroma.skinNameEn}</span><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
+  <div class="detail-background" aria-hidden="true">
+    <img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+  </div>
+  <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
     <h1 class="sr-only detail-accessible-title" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h1>
     <div class="detail-image">
@@ -107,6 +116,10 @@ const jsonLd = [
   desktop.addEventListener('change', syncDetailDisclosure);
 </script>
 <style>
+  :global(main){position:relative;isolation:isolate}
+  .detail-background{position:absolute;z-index:-1;inset:0 0 auto;height:min(70vw,760px);overflow:hidden;pointer-events:none}
+  .detail-background::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#090b15f2 0%,#090b15a8 45%,#090b1566 75%),linear-gradient(0deg,#090b15 0%,transparent 52%,#090b1570 100%)}
+  .detail-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.52;filter:saturate(.85)}
   .detail-poster-copy{display:none}
   .detail-info-disclosure>summary{display:none}
   .detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}
@@ -117,6 +130,9 @@ const jsonLd = [
   .description-row dd{color:var(--muted);line-height:1.7}
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   @media(max-width:767px){
+    .detail-background{height:540px}
+    .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
+    .detail-background img{opacity:.42;object-position:center top}
     .detail-poster-copy{display:block;position:absolute;z-index:2;left:0;right:0;bottom:0;padding:120px max(var(--page-gutter),env(safe-area-inset-left)) 24px;background:linear-gradient(transparent,#090b15e8 55%,#090b15);pointer-events:none}
     .detail-poster-copy .eyebrow{margin:0 0 8px}
     .detail-poster-title{margin:0;color:var(--text);font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2rem,10vw,3.25rem);line-height:1.02;text-wrap:balance}

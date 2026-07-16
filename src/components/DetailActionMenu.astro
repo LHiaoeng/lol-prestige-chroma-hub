@@ -1,8 +1,8 @@
 ---
 export interface DetailAction {
-  label: string;
+  labelEn: string;
+  labelZh: string;
   href: string;
-  ariaLabel?: string;
 }
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 const { actions } = Astro.props;
 ---
 {actions.length === 1 ? (
-  <a class="detail-action-link" href={actions[0].href} target="_blank" rel="noopener noreferrer" aria-label={actions[0].ariaLabel ?? actions[0].label} title={actions[0].label}>
+  <a class="detail-action-link" href={actions[0].href} target="_blank" rel="noopener noreferrer" aria-label={actions[0].labelEn} data-aria-en={actions[0].labelEn} data-aria-zh={actions[0].labelZh} title={actions[0].labelEn}>
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
     </svg>
@@ -26,8 +26,8 @@ const { actions } = Astro.props;
     </summary>
     <nav class="detail-action-list" aria-label="External actions" data-aria-en="External actions" data-aria-zh="外部操作">
       {actions.map((action) => (
-        <a href={action.href} target="_blank" rel="noopener noreferrer" aria-label={action.ariaLabel ?? action.label}>
-          {action.label}
+        <a href={action.href} target="_blank" rel="noopener noreferrer" aria-label={action.labelEn} data-aria-en={action.labelEn} data-aria-zh={action.labelZh} data-en={action.labelEn} data-zh={action.labelZh}>
+          {action.labelEn}
         </a>
       ))}
     </nav>

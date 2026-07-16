@@ -101,12 +101,12 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     historyMode: 'push' | 'replace' | null,
     focusPagination = false,
   ): void {
-    if (!list || !status || !count) throw new Error('Missing catalog page elements');
+    if (!list || !status) throw new Error('Missing catalog page elements');
     const result = queryCatalog(items, parseCatalogQuery(params));
     list.replaceChildren(...result.items.map(createCard));
     bindImageFallbacks(document);
     const language = currentLanguage(document);
-    count.textContent = localized(language, { en: `${result.pagination.total} items`, zh: `${result.pagination.total} 件藏品` });
+    if (count) count.textContent = localized(language, { en: `${result.pagination.total} items`, zh: `${result.pagination.total} 件藏品` });
     status.className = 'status';
     status.hidden = false;
     const announcement = localized(language, {
@@ -149,7 +149,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
 
   function start(): void {
     bindImageFallbacks(document);
-    if (!form || !list || !status || !count || !pagination || !template || !catalogData) {
+    if (!form || !list || !status || !pagination || !template || !catalogData) {
       showError();
       return;
     }

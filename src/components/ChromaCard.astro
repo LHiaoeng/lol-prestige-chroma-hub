@@ -2,7 +2,6 @@
 import type { Chroma } from '../domain/chroma';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { categoryName } from '../i18n';
-import ChromaColorCircle from './ChromaColorCircle.astro';
 interface Props { chroma: Chroma; eager?: boolean }
 const { chroma, eager = false } = Astro.props;
 ---
@@ -20,7 +19,6 @@ const { chroma, eager = false } = Astro.props;
       />
       {chroma.isNew && <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>}
       <img class="category-icon" src={sourceImageUrl('tag', chroma.tagId)} alt="" aria-hidden="true" />
-      <span class="card-colors"><ChromaColorCircle colors={chroma.colors} /></span>
     </div>
     <div class="card-body">
       <h2 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h2>
@@ -34,8 +32,6 @@ const { chroma, eager = false } = Astro.props;
 <style is:global>
   .card-image { aspect-ratio: 1; }
   .card-image img { object-position: center top; }
-  .card-colors { position: absolute; right: 12px; bottom: 12px; }
-  .related .card-colors { display: none; }
   .card-image .category-icon { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%) scale(.6); transform-origin: center bottom; width: auto; height: auto; max-width: none; max-height: none; object-fit: initial; }
   .card-tags { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
   .version-tag { display: inline-flex; color: var(--gold); border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }

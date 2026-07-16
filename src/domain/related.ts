@@ -4,7 +4,7 @@ function relationIds(items: Chroma['skinSets']): Set<number> {
   return new Set(items.map((item) => item.id));
 }
 
-export function findRelatedChromas(catalog: Chroma[], current: Chroma, limit = 4): Chroma[] {
+export function findRelatedChromas(catalog: Chroma[], current: Chroma, limit = 6): Chroma[] {
   const currentSkinSets = relationIds(current.skinSets);
   const currentUniverses = relationIds(current.universes);
   const priority = (candidate: Chroma): number => {
