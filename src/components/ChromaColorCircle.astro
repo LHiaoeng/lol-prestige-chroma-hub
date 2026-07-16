@@ -1,0 +1,16 @@
+---
+interface Props { colors?: string[] }
+const colors = [...new Set(Astro.props.colors ?? [])];
+const size = colors.length ? 100 / colors.length : 100;
+const stops = colors.map((color, index) => `${color} ${index * size}% ${(index + 1) * size}%`);
+const background = colors.length === 1 ? colors[0] : colors.length ? `conic-gradient(from 45deg, ${stops.join(', ')})` : 'transparent';
+---
+<span class="color-wrap" tabindex={colors.length ? 0 : undefined}>
+  <span class:list={['color-circle', { empty: !colors.length }]} style={`background:${background}`} aria-label={colors.join(', ')} />
+  {colors.length > 0 && <span class="color-tooltip" role="tooltip">
+    {colors.map((color) => <span class="color-row"><i style={`background:${color}`} /><code>{color}</code></span>)}
+  </span>}
+</span>
+<style>
+  .color-wrap{display:inline-flex;position:relative;align-items:center}.color-circle{display:block;width:30px;height:30px;border:2px solid #d7b56d;border-radius:50%;box-shadow:0 1px 5px #0008}.color-circle.empty{opacity:.5}.color-tooltip{display:none;position:absolute;z-index:20;bottom:calc(100% + 8px);left:50%;min-width:126px;padding:9px;border:1px solid #2b3045;border-radius:6px;background:#111526;transform:translateX(-50%);box-shadow:0 8px 24px #0008}.color-wrap:hover .color-tooltip,.color-wrap:focus .color-tooltip{display:grid;gap:7px}.color-row{display:flex;gap:8px;align-items:center;white-space:nowrap}.color-row i{width:18px;height:18px;border:1px solid #ffffff55;border-radius:50%}.color-row code{color:#f4f0e6;font-size:.75rem}
+</style>

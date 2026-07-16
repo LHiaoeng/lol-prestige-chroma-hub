@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ChromaCard from '../../components/ChromaCard.astro';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { categoryName } from '../../i18n';
@@ -12,7 +13,8 @@ export function getStaticPaths() {
 const { chroma } = Astro.props;
 const canonical = `https://chromaart.lol/chromas/${chroma.slug}/`;
 const image = imageUrl(chroma.images.large);
-const description = `View high-resolution splash art and patch ${chroma.gameVer} details for ${chroma.nameEn}, a ${chroma.heroNameEn} chroma.`;
+const description = chroma.descriptionEn
+  ?? `View high-resolution splash art and patch ${chroma.gameVer} details for ${chroma.nameEn}, a ${chroma.heroNameEn} chroma.`;
 const related = catalog.filter((item) => item.slug !== chroma.slug && (item.heroId === chroma.heroId || item.categoryId === chroma.categoryId)).slice(0, 4);
 const jsonLd = [
   { '@context': 'https://schema.org', '@type': 'ImageObject', name: chroma.nameEn, contentUrl: image, description },
@@ -25,6 +27,7 @@ const jsonLd = [
 <BaseLayout title={`${chroma.nameEn} · ${chroma.heroNameEn} | Chroma Art`} {description} {canonical} {image} {jsonLd}>
   <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</span><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
+    <span class="detail-colors"><ChromaColorCircle colors={chroma.colors} /></span>
     <div class="detail-image"><img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.heroNameEn} ${chroma.nameEn} splash art`} data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} splash art`} data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} width="1920" height="1080" /></div>
     <div class="detail-copy"><p class="kicker" data-en={`${categoryName(chroma.categoryId, 'en')} · PATCH ${chroma.gameVer}`} data-zh={`${categoryName(chroma.categoryId, 'zh')} · 版本 ${chroma.gameVer}`}>{categoryName(chroma.categoryId, 'en')} · PATCH {chroma.gameVer}</p><h1 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h1>
       <dl><div><dt data-en="Champion" data-zh="英雄">Champion</dt><dd data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</dd></div><div><dt data-en="Base skin" data-zh="原皮">Base skin</dt><dd data-en={chroma.skinNameEn} data-zh={chroma.skinNameZh}>{chroma.skinNameEn}</dd></div><div><dt data-en="Patch" data-zh="游戏版本">Patch</dt><dd>{chroma.gameVer}</dd></div><div><dt data-en="Status" data-zh="状态">Status</dt><dd data-en={chroma.isNew ? 'New' : 'Archived'} data-zh={chroma.isNew ? '本期新增' : '已收录'}>{chroma.isNew ? 'New' : 'Archived'}</dd></div></dl>
@@ -32,3 +35,4 @@ const jsonLd = [
   </article>
   {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related Chromas" data-zh="相关臻彩">Related Chromas</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
 </BaseLayout>
+<style>.detail{position:relative}.detail-colors{position:absolute;right:0;top:0}</style>

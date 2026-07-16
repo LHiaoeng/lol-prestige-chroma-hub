@@ -7,6 +7,9 @@ const record = {
   instanceId: 'abc-123',
   nameZh: '至臻 月蚀骑士 赛娜',
   nameEn: 'Prestige Lunar Eclipse Senna',
+  descriptionZh: '臻彩中文描述',
+  descriptionEn: 'Prestige chroma description',
+  colors: ['#E58BA5'],
   heroId: 'senna',
   heroNameZh: '赛娜',
   heroNameEn: 'Senna',
@@ -45,7 +48,19 @@ describe('chroma catalog', () => {
   it('parses a valid record and creates a stable slug', () => {
     const [parsed] = parseCatalog([record]);
     expect(parsed.slug).toBe('senna-prestige-lunar-eclipse-senna-101');
+    expect(parsed.descriptionZh).toBe('臻彩中文描述');
+    expect(parsed.descriptionEn).toBe('Prestige chroma description');
+    expect(parsed.colors).toEqual(['#E58BA5']);
     expect(createSlug(' Kai’Sa ', 'Prestige K/DA', 42)).toBe('kai-sa-prestige-k-da-42');
+  });
+
+  it('normalizes missing metadata and rejects invalid colors', () => {
+    const { descriptionZh: _zh, descriptionEn: _en, colors: _colors, ...legacy } = record;
+    const [parsed] = parseCatalog([legacy]);
+    expect(parsed.descriptionZh).toBeNull();
+    expect(parsed.descriptionEn).toBeNull();
+    expect(parsed.colors).toEqual([]);
+    expect(() => parseCatalog([{ ...record, colors: ['red'] }])).toThrow(/colors/i);
   });
 
   it('rejects duplicate instance IDs and duplicate slugs', () => {

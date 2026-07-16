@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const safeId = z.string().trim().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/);
+const hexColor = z.string().regex(/^#[0-9A-F]{6}(?:[0-9A-F]{2})?$/);
 const assetPath = z.string().refine(
   (value) => !value.includes('\\') && !value.includes('..') && !/^(?:[A-Za-z]:|\/)/.test(value),
   'must be a safe repository-relative path',
@@ -43,6 +44,9 @@ export const chromaSourceSchema = z.object({
   instanceId: safeId,
   nameZh: z.string().trim().min(1),
   nameEn: z.string().trim().min(1),
+  descriptionZh: z.string().trim().min(1).nullable().default(null),
+  descriptionEn: z.string().trim().min(1).nullable().default(null),
+  colors: z.array(hexColor).default([]),
   heroId: safeId,
   heroNameZh: z.string().trim().min(1),
   heroNameEn: z.string().trim().min(1),

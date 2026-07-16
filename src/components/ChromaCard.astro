@@ -2,6 +2,7 @@
 import type { Chroma } from '../domain/chroma';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { categoryName } from '../i18n';
+import ChromaColorCircle from './ChromaColorCircle.astro';
 interface Props { chroma: Chroma; eager?: boolean }
 const { chroma, eager = false } = Astro.props;
 ---
@@ -18,6 +19,7 @@ const { chroma, eager = false } = Astro.props;
         width="960" height="540" loading={eager ? 'eager' : 'lazy'} decoding="async"
       />
       {chroma.isNew && <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>}
+      <span class="card-colors"><ChromaColorCircle colors={chroma.colors} /></span>
     </div>
     <div class="card-body">
       <p class="eyebrow" data-en={`${chroma.heroNameEn} · ${chroma.gameVer}`} data-zh={`${chroma.heroNameZh} · ${chroma.gameVer}`}>{chroma.heroNameEn} · {chroma.gameVer}</p>
@@ -29,4 +31,5 @@ const { chroma, eager = false } = Astro.props;
 <style is:global>
   .card-image { aspect-ratio: 1; }
   .card-image img { object-position: center top; }
+  .card-colors { position: absolute; right: 12px; bottom: 12px; }
 </style>
