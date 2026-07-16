@@ -23,4 +23,14 @@ describe('responsive layout contract', () => {
     expect(css).toMatch(/@media\(max-width:1023px\)[\s\S]*?\.chroma-grid\{grid-template-columns:repeat\(2/);
     expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.chroma-grid\{grid-template-columns:1fr/);
   });
+
+  it('keeps overlays and reading pages inside mobile dynamic viewports', () => {
+    const viewer = source('src/components/ImageViewer.astro');
+    const about = source('src/pages/about.astro');
+    const actions = source('src/components/DetailActionMenu.astro');
+    expect(viewer).toContain('100dvh');
+    expect(viewer).toContain('safe-area-inset-top');
+    expect(about).toContain('var(--page-gutter)');
+    expect(actions).toContain('calc(100vw - 28px)');
+  });
 });

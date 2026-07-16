@@ -50,11 +50,16 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
   </article>
 
   <style>
-    .about-page { width: min(860px, calc(100% - 48px)); margin: 0 auto; padding: clamp(72px, 9vw, 120px) 0 100px; }
+    .about-page { width: min(860px, calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding: clamp(72px, 9vw, 120px) 0 100px; }
     .about-page h1 { font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.08; margin: .45em 0 .6em; font-weight: 500; }
     .about-page section { border-top: 1px solid var(--line); margin-top: 42px; padding-top: 34px; }
     .about-page h2 { font-family: Georgia, "Noto Serif SC", serif; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 16px; }
     .about-page p:not(.kicker) { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; margin: 0; }
-    @media (max-width: 680px) { .about-page { width: calc(100% - 28px); padding-top: 56px; } }
+    @media (max-width: 767px) {
+      .about-page { padding: 52px 0 72px; }
+      .about-page h1 { font-size: clamp(2.15rem, 10vw, 3rem); }
+      .about-page section { margin-top: 34px; padding-top: 28px; }
+      .about-page p:not(.kicker) { font-size: 1rem; line-height: 1.75; }
+    }
   </style>
 </BaseLayout>

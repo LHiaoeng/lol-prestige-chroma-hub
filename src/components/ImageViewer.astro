@@ -22,5 +22,11 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
   bindImageViewers();
 </script>
 <style>
-  .image-viewer,.viewer-trigger{display:block;width:100%;height:100%}.viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}.viewer-image{display:block;width:100%;height:100%;object-fit:cover}.viewer-dialog{width:min(96vw,1600px);max-width:none;height:auto;max-height:94vh;margin:auto;padding:52px 18px 18px;border:1px solid #5d5138;border-radius:10px;background:#090b15;color:#f4f0e6;overflow:auto}.viewer-dialog::backdrop{background:#000c;backdrop-filter:blur(6px)}.viewer-close{position:absolute;top:12px;right:12px;padding:7px 12px;border:1px solid #d7b56d;border-radius:999px;background:#111526;color:#d7b56d;cursor:pointer}.viewer-dialog .viewer-full{display:block;width:auto;height:auto;max-width:100%;max-height:calc(94vh - 72px);margin:auto;object-fit:contain}
+  .image-viewer,.viewer-trigger{display:block;width:100%;height:100%}
+  .viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}
+  .viewer-image{display:block;width:100%;height:100%;object-fit:cover}
+  .viewer-dialog{width:min(calc(100vw - 16px),1600px);max-width:none;height:auto;max-height:calc(100dvh - 16px);margin:auto;padding:max(58px,calc(env(safe-area-inset-top) + 52px)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));border:1px solid #5d5138;border-radius:10px;background:#090b15;color:#f4f0e6;overflow:auto;overscroll-behavior:contain}
+  .viewer-dialog::backdrop{background:#000c;backdrop-filter:blur(6px)}
+  .viewer-close{position:absolute;z-index:2;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));min-width:var(--touch-target);min-height:var(--touch-target);padding:7px 14px;border:1px solid #d7b56d;border-radius:999px;background:#111526;color:#d7b56d;cursor:pointer}
+  .viewer-dialog .viewer-full{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100dvh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin:auto;object-fit:contain}
 </style>
