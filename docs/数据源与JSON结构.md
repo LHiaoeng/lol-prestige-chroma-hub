@@ -126,6 +126,9 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
 | `instanceId` | string | `instanceId` | 非空安全标识；文件内唯一；只允许字母、数字、下划线和连字符 |
 | `nameZh` | string | `itemName` | 非空，臻彩中文名称 |
 | `nameEn` | string | `itemNameEng` | 非空，臻彩英文名称；参与详情页 slug 计算 |
+| `descriptionZh` | string \| null | `description` | 臻彩中文描述；数据库为空或空白时输出 `null` |
+| `descriptionEn` | string \| null | `descriptionEng` | 臻彩英文描述；数据库为空或空白时输出 `null` |
+| `colors` | string[] | `colors` | 去重后的大写 HEX 颜色数组；数据库为空时输出空数组 |
 | `heroId` | string | `heroId` | 管理系统中为正整数，生成时转换成字符串 |
 | `heroNameZh` | string | `heroName` | 非空，英雄中文名称 |
 | `heroNameEn` | string | `heroNameEng` | 非空，英雄英文名称；参与详情页 slug 计算 |
@@ -172,6 +175,8 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
 ## 6. 修改 JSON 结构时的同步位置
 
 JSON 是两个系统之间的契约。新增、删除、改名或改变字段类型时，应在同一次结构变更中同步更新以下位置。
+
+本次新增的 `descriptionZh`、`descriptionEn`、`colors` 由管理系统同步 CommunityDragon 数据后入库；管理前端可人工编辑，Hub 生成器负责把空白描述规范化为 `null`，并把数据库中的颜色 JSON 转换为数组。
 
 ### 6.1 管理系统：JSON 生产方
 

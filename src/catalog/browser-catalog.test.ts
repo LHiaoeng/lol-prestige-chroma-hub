@@ -77,8 +77,8 @@ describe('browser catalog projection', () => {
 
     expect(projected).toEqual(item());
     expect(Object.keys(projected)).toEqual([
-      'slug', 'skinId', 'instanceId', 'nameZh', 'nameEn', 'heroId', 'heroNameZh',
-      'categoryId', 'categoryName', 'gameVer', 'isNew', 'rank', 'imageMedium',
+      'slug', 'skinId', 'instanceId', 'nameZh', 'nameEn', 'heroId', 'heroNameZh', 'heroNameEn',
+      'categoryId', 'categoryName', 'categoryNameEn', 'gameVer', 'isNew', 'rank', 'imageMedium',
     ]);
   });
 });

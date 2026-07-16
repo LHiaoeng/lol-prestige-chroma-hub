@@ -112,6 +112,9 @@ class TestTemplate extends TestElement {
 class TestDocument {
   activeElement: TestElement | null = null;
   roots: TestElement[] = [];
+  documentElement = { dataset: { language: 'zh' } };
+
+  addEventListener(): void {}
 
   createElement(tagName: string): TestElement { return new TestElement(tagName, this); }
 
