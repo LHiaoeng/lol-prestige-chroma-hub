@@ -2,15 +2,16 @@
 import '../styles/global.css';
 import { safeJsonLd } from '../domain/chroma';
 import { defaultLanguage, supportedLanguages } from '../i18n';
+import { SITE } from '../seo/site';
 
 interface Props {
   title: string;
   description: string;
   canonical: string;
   image?: string;
-  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  jsonLd?: Record<string, unknown> | readonly Record<string, unknown>[];
 }
-const { title, description, canonical, image = 'https://chromaart.lol/placeholder.svg', jsonLd } = Astro.props;
+const { title, description, canonical, image = SITE.defaultImage, jsonLd } = Astro.props;
 const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
 const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=${JSON.stringify(defaultLanguage)},v=localStorage.getItem('chroma-art-language');document.documentElement.dataset.language=s.includes(v)?v:d}catch{document.documentElement.dataset.language=${JSON.stringify(defaultLanguage)}}`;
 ---
@@ -24,19 +25,22 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Chroma Art" />
+    <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
     <title>{title}</title>
     <script is:inline set:html={languageBootstrap} />
     {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="Chroma Art home" data-aria-en="Chroma Art home" data-aria-zh="Chroma Art 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>CHROMA</span> ART</span></a>
+      <a class="brand" href="/" aria-label="CHROMA ART home" data-aria-en="CHROMA ART home" data-aria-zh="CHROMA ART 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>CHROMA</span> ART</span></a>
       <div class="header-controls">
         <nav class="desktop-nav" aria-label="Primary navigation" data-aria-en="Primary navigation" data-aria-zh="主导航">
           <a class="header-link" href="/about/" data-en="About" data-zh="关于">About</a>
@@ -45,7 +49,7 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
         <details class="mobile-nav">
           <summary aria-label="Open menu" data-aria-en="Open menu" data-aria-zh="打开菜单"><span></span><span></span><span></span></summary>
           <nav class="mobile-nav-panel" aria-label="Mobile navigation" data-aria-en="Mobile navigation" data-aria-zh="移动导航">
-            <span class="header-note" data-en="China Exclusive Chroma Splash Arts" data-zh="英雄联盟臻彩皮肤图鉴">China Exclusive Chroma Splash Arts</span>
+            <span class="header-note" data-en="China Exclusive Prestige Chroma Splash Arts" data-zh="英雄联盟臻彩皮肤图鉴">China Exclusive Prestige Chroma Splash Arts</span>
             <a class="header-link" href="/about/" data-en="About" data-zh="关于">About</a>
           </nav>
         </details>

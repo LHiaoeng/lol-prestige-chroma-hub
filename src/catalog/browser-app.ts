@@ -2,6 +2,7 @@ import { bindImageFallbacks } from '../client/image-fallback';
 import { sourceImageUrl } from '../domain/chroma';
 import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
+import { chromaImageAlt } from '../seo/chroma-seo';
 import {
   parseCatalogQuery,
   queryCatalog,
@@ -51,7 +52,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     image.src = item.imageMedium;
     image.dataset.fallback = sourceImageUrl('medium', item.instanceId);
     image.dataset.placeholder = '/placeholder.svg';
-    image.alt = localized(language, { en: `${heroName} ${itemName} prestige chroma splash art`, zh: `${heroName} ${itemName} 臻彩皮肤` });
+    image.alt = localized(language, { en: chromaImageAlt(item.nameEn), zh: `${heroName} ${itemName} 臻彩皮肤` });
     categoryIcon.src = item.imageTag;
     badge.hidden = !item.isNew;
     versionTag.textContent = item.gameVer;

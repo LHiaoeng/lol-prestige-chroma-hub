@@ -2,6 +2,7 @@
 import type { Chroma } from '../domain/chroma';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { categoryName } from '../i18n';
+import { chromaImageAlt } from '../seo/chroma-seo';
 interface Props { chroma: Chroma; eager?: boolean }
 const { chroma, eager = false } = Astro.props;
 ---
@@ -12,8 +13,8 @@ const { chroma, eager = false } = Astro.props;
         src={imageUrl(chroma.images.medium)}
         data-fallback={sourceImageUrl('medium', chroma.instanceId)}
         data-placeholder="/placeholder.svg"
-        alt={`${chroma.heroNameEn} ${chroma.nameEn} prestige chroma splash art`}
-        data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} prestige chroma splash art`}
+        alt={chromaImageAlt(chroma.nameEn)}
+        data-alt-en={chromaImageAlt(chroma.nameEn)}
         data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 臻彩皮肤`}
         width="960" height="540" loading={eager ? 'eager' : 'lazy'} decoding="async"
       />

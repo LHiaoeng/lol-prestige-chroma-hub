@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { isSensitiveDeploymentArtifact } from './audit-build';
+import { catalog } from '../src/data/catalog';
 
 const root = process.cwd();
 const dist = join(root, 'dist');
@@ -26,6 +27,42 @@ describe('static site build', () => {
     expect(home).toContain('data-chroma-card-template');
     expect(home).not.toContain('/api/chromas');
     expect(home).not.toContain('prestige-chromas.json');
+    expect(home).toContain('<title>LoL China Exclusive Prestige Chroma Splash Arts | CHROMA ART</title>');
+    expect(home).toContain('<meta property="og:site_name" content="CHROMA ART">');
+    expect(home).toContain('<meta name="twitter:title" content="LoL China Exclusive Prestige Chroma Splash Arts | CHROMA ART">');
+    expect(home).toContain('League of Legends');
+    expect(home).toContain('China Exclusive Prestige Chroma Splash Arts');
+    expect(home).toContain('not traditional Prestige Skins');
+    expect(home).toContain('"@type":"WebSite"');
+    expect(home).toContain('"@type":"CollectionPage"');
+  });
+
+  it('emits record-specific prestige chroma metadata', () => {
+    const sample = catalog[0];
+    const detail = readFileSync(join(dist, 'chromas', sample.slug, 'index.html'), 'utf8');
+    expect(detail).toContain(`${sample.nameEn} China Exclusive Prestige Chroma Splash Art | CHROMA ART`);
+    expect(detail).toContain('China Exclusive Prestige Chroma in League of Legends');
+    expect(detail).toContain(`${sample.nameEn} China Exclusive Prestige Chroma splash art`);
+    expect(detail).toContain('CHINA EXCLUSIVE PRESTIGE CHROMA');
+    expect(detail).toContain('Related China Exclusive Prestige Chromas');
+    expect(detail).toContain('"representativeOfPage":true');
+  });
+
+  it('uses factual informational SEO copy', () => {
+    const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
+    expect(about).toContain('<title>What Are LoL China Exclusive Prestige Chromas? | CHROMA ART</title>');
+    expect(about).toContain('not traditional Prestige Skins');
+    expect(about).toContain('Availability varies by event and patch');
+    expect(about).not.toContain('will likely be priced higher');
+    expect(about).not.toContain('Players should prepare');
+  });
+
+  it('emits one image sitemap entry per canonical catalog page', () => {
+    const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
+    expect(sitemap.match(/<image:image>/g)).toHaveLength(catalog.length);
+    expect(sitemap.match(/<image:loc>/g)).toHaveLength(catalog.length);
+    expect(sitemap).toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].slug}/</loc>`);
+    expect(sitemap).not.toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].skinId}/</loc>`);
   });
 
   it('does not publish source data or source maps', () => {
