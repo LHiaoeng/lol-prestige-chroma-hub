@@ -1,5 +1,220 @@
 [
   {
+    "id" : 478,
+    "skinId" : 876023,
+    "instanceId" : "7c9c05ca-5288-48f0-9f79-e6ef4d28e86b",
+    "nameZh" : "山海绘卷 莉莉娅 湘妃",
+    "nameEn" : "Shan Hai Scrolls Lillia (Rose Quartz)",
+    "heroId" : "876",
+    "heroNameZh" : "含羞蓓蕾 莉莉娅",
+    "heroNameEn" : "the Bashful Bloom Lillia",
+    "sourceSkinId" : 876019,
+    "skinSets" : [
+      {
+        "id" : 139,
+        "nameZh" : "山海绘卷",
+        "nameEn" : "Shan Hai Scrolls",
+        "descriptionZh" : "在传说中的山海绘卷中，神明们和神话生物们在各个神奇的土地上游荡，挥舞着元素的力量。有些人满足于接受给定的调色板，而另一些人则希望跳出界限，用一支新的画笔描绘他们的生活。",
+        "descriptionEn" : "Within the fabled Shan Hai Scrolls, gods and mythical creatures roam magical lands, wielding the power of the elements. Some are content to live with the palette they've been given, while others wish to jump beyond the borders and paint their lives with a new brush."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 42,
+        "nameZh" : "山海绘卷",
+        "nameEn" : "Shan Hai Scrolls",
+        "descriptionZh" : "没有人能说出神秘的山海绘卷是何人或在何时创作的。只需要一眼就可以看出这幅画是通向魔法和奇迹世界的一扇窗户，但也许它更像是一扇门扉？",
+        "descriptionEn" : "No one can say who created the mysterious Shan Hai Scrolls, or when. All it takes is one glimpse to see the painting is a window to a world of magic and wonder, but perhaps it is more of a doorway?"
+      }
+    ],
+    "skinNameZh" : "山海绘卷 莉莉娅",
+    "skinNameEn" : "Shan Hai Scrolls Lillia",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.14",
+    "isNew" : true,
+    "rank" : 455,
+    "images" : {
+      "large" : "assets/chromas/7c9c05ca-5288-48f0-9f79-e6ef4d28e86b/site3.jpg",
+      "small" : "assets/chromas/7c9c05ca-5288-48f0-9f79-e6ef4d28e86b/site4.jpg",
+      "medium" : "assets/chromas/7c9c05ca-5288-48f0-9f79-e6ef4d28e86b/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 477,
+    "skinId" : 103092,
+    "instanceId" : "a7699a24-8688-4a93-b0fd-65aff78a8a4c",
+    "nameZh" : "莲华温泉 阿狸 雁来",
+    "nameEn" : "Spirit Blossom Springs Ahri (Catseye)",
+    "heroId" : "103",
+    "heroNameZh" : "九尾妖狐 阿狸",
+    "heroNameEn" : "the Nine-Tailed Fox Ahri",
+    "sourceSkinId" : 103088,
+    "skinSets" : [
+      {
+        "id" : 218,
+        "nameZh" : "莲华温泉",
+        "nameEn" : "Spirit Blossom Springs",
+        "descriptionZh" : "在高山之上，有一家神奇的温泉馆，能为客人消解一切的世间烦恼。这家店名叫“莲华温泉”，是一片祥和、疗愈的绿洲。热情的工作人员和神奇的蒸汽会洗去战争的负担和那些“忘掉反而最好”的记忆。这里没有英雄或反派——只有得到充分休息并焕发活力的客人。",
+        "descriptionEn" : "High in the mountains lies a bathhouse where guests go to melt away their worldly cares. This themed retreat, called \"Spirit Blossom Springs,\" is an oasis free of drama. Its welcoming staff and magical steam wash away the burdens of battle and memories best forgotten. There are no heroes or villains here—only the restful and the rejuvenated."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 58,
+        "nameZh" : "清凉盛夏",
+        "nameEn" : "Sunkissed Summer",
+        "descriptionZh" : "夏天到了，宝贝！太阳出来啦，微风暖洋洋，海水凉爽爽。每个人都将他们的竞争与积怨留在家里，并且只带着泳衣和正能量。以后有的是时间去争斗与大吼。现在只需坐下来，享受音乐，感受快乐。",
+        "descriptionEn" : "It's summer, baby! The sun's out, the breeze's warm, and the water's cool. Everybody's leaving their rivalries and grudges at home, and bringing only swimsuits and good vibes. There'll be plenty of time for punching and yelling later. Just sit back, enjoy the music, and soak up the fun."
+      }
+    ],
+    "skinNameZh" : "莲华温泉 阿狸",
+    "skinNameEn" : "Spirit Blossom Springs Ahri",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.14",
+    "isNew" : true,
+    "rank" : 454,
+    "images" : {
+      "large" : "assets/chromas/a7699a24-8688-4a93-b0fd-65aff78a8a4c/site3.jpg",
+      "small" : "assets/chromas/a7699a24-8688-4a93-b0fd-65aff78a8a4c/site4.jpg",
+      "medium" : "assets/chromas/a7699a24-8688-4a93-b0fd-65aff78a8a4c/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 476,
+    "skinId" : 711036,
+    "instanceId" : "910dd6a4-a82c-425d-8b24-fdc78bbcf54c",
+    "nameZh" : "惊悚派对 薇古丝 吓走你的沮丧！",
+    "nameEn" : "Surprise Party Vex (Pearl)",
+    "heroId" : "711",
+    "heroNameZh" : "愁云使者 薇古丝",
+    "heroNameEn" : "the Gloomist Vex",
+    "sourceSkinId" : 711029,
+    "skinSets" : [
+      {
+        "id" : 169,
+        "nameZh" : "惊悚派对",
+        "nameEn" : "Surprise Party",
+        "descriptionZh" : "谁不喜欢惊悚派对呢？ 嘉宾名单已经完成，每个人都买了礼物，并且食物会很棒。我们甚至有一个小丑！这将是一场值得铭记的派对。只是别告诉阿木木。",
+        "descriptionEn" : "Who doesn't like a surprise party? The guest list is done, everybody's bought their presents, and the food's going to be great. We even got a clown! This'll be one to remember. Just don't tell Amumu."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 61,
+        "nameZh" : "磨砺",
+        "nameEn" : "The Grind",
+        "descriptionZh" : "磨砺之路不仅仅是工作。它是斗争，是喧嚣，有时令人振奋，有时令人沮丧。它是一个为期一周的过山车，有喜剧性的过弯和悲惨的急落，只会在周一重新开始。我们是努力工作还是几乎不工作？在磨砺之路上，一切都一样。",
+        "descriptionEn" : "The grind isn't just work. It's the struggle, the hustle, sometimes invigorating, sometimes demoralizing. It's a weeklong rollercoaster with comedic bends and tragic drops, only to start all over again on Monday. Are we working hard or hardly working? It's all the same on the grind."
+      }
+    ],
+    "skinNameZh" : "惊悚派对 薇古丝",
+    "skinNameEn" : "Surprise Party Vex",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.14",
+    "isNew" : true,
+    "rank" : 453,
+    "images" : {
+      "large" : "assets/chromas/910dd6a4-a82c-425d-8b24-fdc78bbcf54c/site3.jpg",
+      "small" : "assets/chromas/910dd6a4-a82c-425d-8b24-fdc78bbcf54c/site4.jpg",
+      "medium" : "assets/chromas/910dd6a4-a82c-425d-8b24-fdc78bbcf54c/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
+    "id" : 475,
+    "skinId" : 266036,
+    "instanceId" : "0745a936-f477-408b-a743-870f9d6e96d8",
+    "nameZh" : "海魔至尊 亚托克斯 无情背袭",
+    "nameEn" : "Primordian Aatrox (Sapphire)",
+    "heroId" : "266",
+    "heroNameZh" : "暗裔剑魔 亚托克斯",
+    "heroNameEn" : "the Darkin Blade Aatrox",
+    "sourceSkinId" : 266033,
+    "skinSets" : [
+      {
+        "id" : 206,
+        "nameZh" : "海魔人",
+        "nameEn" : "Primordian",
+        "descriptionZh" : "海魔人被从陆地上赶出来，蛰伏于深海中，等待了数个世纪之久……直到他们再也无法忍受地表居民们，以及地表居民们对这个星球的破坏。于是，海魔女王做出了判决：人类在太阳下的时代已经结束，海魔人的时代才刚刚开始。",
+        "descriptionEn" : "Cast from dry land, the Primordians bided their time deep beneath the sea, biding their time for centuries… until they could no longer abide the surface-dwellers any longer, nor their abuses of the planet. Thus the Primordian Queen's judgment was made: humanity's era in the sun is over, and that of the Primordians has only just begun."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 56,
+        "nameZh" : "幻灵科技",
+        "nameEn" : "AnimaTech",
+        "descriptionZh" : "人类濒临绝境，几乎被名为原初星人的深海入侵者的一支高科技军队击败。加入幻灵战队：精英战士们使用打捞来的原初星科技来抵抗世界的终结。为了拯救人类，他们将不得不像动物一样战斗。",
+        "descriptionEn" : "Humankind is on its last legs, nearly defeated by a high-tech army of deep-sea invaders called the Primordians. Enter Anima Squad: elite fighters using salvaged Primordian tech to push back against the end of the world. To save humanity, they will have to fight like an animal."
+      }
+    ],
+    "skinNameZh" : "海魔至尊 亚托克斯",
+    "skinNameEn" : "Primordian Aatrox",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.14",
+    "isNew" : true,
+    "rank" : 452,
+    "images" : {
+      "large" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site3.jpg",
+      "small" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site4.jpg",
+      "medium" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
+    "id" : 474,
+    "skinId" : 266034,
+    "instanceId" : "04d46cbd-375b-406b-9038-c5c3455f2a9e",
+    "nameZh" : "海魔至尊 亚托克斯 威慑嘶吼",
+    "nameEn" : "Primordian Aatrox (Ruby)",
+    "heroId" : "266",
+    "heroNameZh" : "暗裔剑魔 亚托克斯",
+    "heroNameEn" : "the Darkin Blade Aatrox",
+    "sourceSkinId" : 266033,
+    "skinSets" : [
+      {
+        "id" : 206,
+        "nameZh" : "海魔人",
+        "nameEn" : "Primordian",
+        "descriptionZh" : "海魔人被从陆地上赶出来，蛰伏于深海中，等待了数个世纪之久……直到他们再也无法忍受地表居民们，以及地表居民们对这个星球的破坏。于是，海魔女王做出了判决：人类在太阳下的时代已经结束，海魔人的时代才刚刚开始。",
+        "descriptionEn" : "Cast from dry land, the Primordians bided their time deep beneath the sea, biding their time for centuries… until they could no longer abide the surface-dwellers any longer, nor their abuses of the planet. Thus the Primordian Queen's judgment was made: humanity's era in the sun is over, and that of the Primordians has only just begun."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 56,
+        "nameZh" : "幻灵科技",
+        "nameEn" : "AnimaTech",
+        "descriptionZh" : "人类濒临绝境，几乎被名为原初星人的深海入侵者的一支高科技军队击败。加入幻灵战队：精英战士们使用打捞来的原初星科技来抵抗世界的终结。为了拯救人类，他们将不得不像动物一样战斗。",
+        "descriptionEn" : "Humankind is on its last legs, nearly defeated by a high-tech army of deep-sea invaders called the Primordians. Enter Anima Squad: elite fighters using salvaged Primordian tech to push back against the end of the world. To save humanity, they will have to fight like an animal."
+      }
+    ],
+    "skinNameZh" : "海魔至尊 亚托克斯",
+    "skinNameEn" : "Primordian Aatrox",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.14",
+    "isNew" : true,
+    "rank" : 451,
+    "images" : {
+      "large" : "assets/chromas/04d46cbd-375b-406b-9038-c5c3455f2a9e/site3.jpg",
+      "small" : "assets/chromas/04d46cbd-375b-406b-9038-c5c3455f2a9e/site4.jpg",
+      "medium" : "assets/chromas/04d46cbd-375b-406b-9038-c5c3455f2a9e/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
     "id" : 473,
     "skinId" : 887034,
     "instanceId" : "0dc7b925-be59-4904-ae5c-cad7502efbad",
@@ -33,7 +248,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.13",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 450,
     "images" : {
       "large" : "assets/chromas/0dc7b925-be59-4904-ae5c-cad7502efbad/site3.jpg",
@@ -76,7 +291,7 @@
     "categoryName" : "生肖限定臻彩",
     "tagId" : "13",
     "gameVer" : "26.13",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 449,
     "images" : {
       "large" : "assets/chromas/2a7fc550-cabc-4cd8-9bd5-e92615fca52d/site3.jpg",
@@ -119,7 +334,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.13",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 448,
     "images" : {
       "large" : "assets/chromas/6366e9e2-6b21-4216-afec-ebc7dac380e7/site3.jpg",
@@ -162,7 +377,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.13",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 447,
     "images" : {
       "large" : "assets/chromas/2884ce57-2702-4a04-a7b6-4502d3317b40/site3.jpg",
@@ -205,7 +420,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.13",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 446,
     "images" : {
       "large" : "assets/chromas/0472b236-f655-4e51-9621-b2c52621efcc/site3.jpg",
