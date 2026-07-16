@@ -37,11 +37,14 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
   <body>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Chroma Art home" data-aria-en="Chroma Art home" data-aria-zh="Chroma Art 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>CHROMA</span> ART</span></a>
-      <div class="header-actions">
-        <span class="header-note" data-en="China Exclusive Chroma Splash Arts" data-zh="英雄联盟臻彩皮肤图鉴">China Exclusive Chroma Splash Arts</span>
-        <a class="header-link" href="/about/" data-en="About" data-zh="关于">About</a>
-        <button class="language-toggle" type="button" data-language-toggle data-en="中文" data-zh="EN" aria-label="切换到中文" data-aria-en="Switch to Chinese" data-aria-zh="切换到英文">中文</button>
-      </div>
+      <details class="mobile-nav">
+        <summary aria-label="Open menu" data-aria-en="Open menu" data-aria-zh="打开菜单"><span></span><span></span><span></span></summary>
+        <nav class="mobile-nav-panel" aria-label="Primary navigation" data-aria-en="Primary navigation" data-aria-zh="主导航">
+          <span class="header-note" data-en="China Exclusive Chroma Splash Arts" data-zh="英雄联盟臻彩皮肤图鉴">China Exclusive Chroma Splash Arts</span>
+          <a class="header-link" href="/about/" data-en="About" data-zh="关于">About</a>
+          <button class="language-toggle" type="button" data-language-toggle data-en="中文" data-zh="EN" aria-label="切换到中文" data-aria-en="Switch to Chinese" data-aria-zh="切换到英文">中文</button>
+        </nav>
+      </details>
     </header>
     <main><slot /></main>
     <footer><p><span data-language-content="en">Chroma Art was created under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</span><span data-language-content="zh">Chroma Art 根据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策创建，并使用 Riot Games 所拥有的素材。Riot Games 不对此项目提供认可或赞助。</span></p></footer>
@@ -54,13 +57,25 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
     <style is:global>
       html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }
       html[data-language="en"] [data-language-content="zh"], html[data-language="zh"] [data-language-content="en"] { display: none; }
-      .header-actions { display: flex; align-items: center; gap: 16px; }
       .brand { display: flex; align-items: center; gap: 10px; }
       .brand img { display: block; width: 32px; height: 32px; }
       .brand > .brand-text { color: var(--text); }
       .header-link { color: var(--muted); font-size: .86rem; }
       .header-link:hover, .header-link:focus-visible { color: var(--gold); }
-      .language-toggle { border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 6px 12px; cursor: pointer; }
+      .language-toggle { min-height: var(--touch-target); border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 6px 14px; cursor: pointer; }
+      .mobile-nav { position: relative; }
+      .mobile-nav > summary { display: none; }
+      .mobile-nav:not([open]) > .mobile-nav-panel, .mobile-nav-panel { display: flex; align-items: center; gap: 16px; }
+      @media (max-width: 767px) {
+        .mobile-nav > summary { display: grid; width: var(--touch-target); height: var(--touch-target); padding: 11px 9px; border: 1px solid var(--line); border-radius: 8px; list-style: none; cursor: pointer; align-content: space-between; }
+        .mobile-nav > summary::-webkit-details-marker { display: none; }
+        .mobile-nav > summary span { display: block; width: 100%; height: 2px; border-radius: 2px; background: var(--gold); }
+        .mobile-nav:not([open]) > .mobile-nav-panel { display: none; }
+        .mobile-nav-panel { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; width: min(260px, calc(100vw - 28px)); padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); box-shadow: 0 18px 50px #000a; align-items: stretch; flex-direction: column; }
+        .mobile-nav-panel .header-note { display: block; padding: 10px; line-height: 1.45; }
+        .mobile-nav-panel .header-link { display: flex; min-height: var(--touch-target); align-items: center; padding: 0 10px; border-radius: 7px; }
+        .mobile-nav-panel .language-toggle { width: 100%; }
+      }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
     </style>
   </body>
