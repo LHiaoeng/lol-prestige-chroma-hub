@@ -17,6 +17,8 @@ Add external action menus for the prestige chroma title and the Base skin row on
 
 Keep URL construction in a small tested TypeScript helper. Render the menu through a reusable Astro component using native `details` and `summary` elements, so it works without client-side JavaScript and remains keyboard accessible.
 
+The component receives an action array instead of hard-coding destinations. Each detail item independently chooses which actions to pass, and an item with no configured actions renders no menu. Each action provides its label, URL, and optional accessibility label. This keeps the current two destinations simple while allowing more menu entries and different action subsets per detail item later.
+
 ## Error Handling
 
 URL construction uses `URL` and `URLSearchParams` to encode search keywords. IDs come from the validated catalog schema, so the component does not render fallback or disabled actions.
