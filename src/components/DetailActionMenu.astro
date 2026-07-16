@@ -1,0 +1,38 @@
+---
+export interface DetailAction {
+  label: string;
+  href: string;
+  ariaLabel?: string;
+}
+
+interface Props {
+  actions: DetailAction[];
+}
+
+const { actions } = Astro.props;
+---
+{actions.length > 0 && (
+  <details class="detail-action-menu">
+    <summary aria-label="Actions" data-aria-en="Actions" data-aria-zh="操作">
+      <span data-en="Actions" data-zh="操作">Actions</span>
+    </summary>
+    <div class="detail-action-list">
+      {actions.map((action) => (
+        <a href={action.href} target="_blank" rel="noopener noreferrer" aria-label={action.ariaLabel ?? action.label}>
+          {action.label}
+        </a>
+      ))}
+    </div>
+  </details>
+)}
+
+<style>
+  .detail-action-menu { position: relative; flex: 0 0 auto; }
+  summary { cursor: pointer; color: var(--gold); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: " ▾"; }
+  [open] summary::after { content: " ▴"; }
+  .detail-action-list { position: absolute; z-index: 5; right: 0; top: calc(100% + 8px); width: max-content; min-width: 250px; display: grid; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); box-shadow: 0 16px 36px #0008; }
+  a { padding: 10px 12px; border-radius: 5px; color: var(--text); font-size: .72rem; font-weight: 700; letter-spacing: .05em; }
+  a:hover, a:focus-visible { color: var(--gold); background: #ffffff0a; }
+</style>
