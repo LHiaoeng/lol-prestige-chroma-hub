@@ -40,9 +40,10 @@ const { actions } = Astro.props;
   summary::-webkit-details-marker { display: none; }
   .detail-action-link:hover, .detail-action-link:focus-visible, summary:hover, summary:focus-visible, [open] summary { border-color: var(--gold); background: #ffffff0a; }
   .detail-action-link svg, summary svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .detail-action-menu > .detail-action-list { position: absolute; z-index: 5; right: 0; top: calc(100% + 8px); width: max-content; min-width: 250px; display: grid; grid-template-columns: 1fr; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); box-shadow: 0 16px 36px #0008; }
-  .detail-action-list > a { display: block; width: 100%; padding: 10px 12px; border-radius: 5px; color: var(--text); font-size: .72rem; font-weight: 700; letter-spacing: .05em; }
+  .detail-action-menu > .detail-action-list { position: absolute; z-index: 5; right: 0; top: calc(100% + 8px); width: min(250px, calc(100vw - 28px)); display: grid; grid-template-columns: 1fr; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); box-shadow: 0 16px 36px #0008; }
+  .detail-action-list > a { display: flex; width: 100%; min-height: 40px; align-items: center; padding: 10px 12px; border-radius: 5px; color: var(--text); font-size: .72rem; font-weight: 700; letter-spacing: .05em; overflow-wrap: anywhere; }
   .detail-action-list > a:hover, .detail-action-list > a:focus-visible { color: var(--gold); background: #ffffff0a; }
+  @media(max-width:767px){.detail-action-link,summary{width:var(--touch-target);height:var(--touch-target)}.detail-action-list>a{min-height:var(--touch-target)}}
 </style>
 
 <script>

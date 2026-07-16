@@ -88,6 +88,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   .card-body{padding:14px 16px 16px}
   .card-body h2{font-size:1.08rem}
   .breadcrumbs{padding:18px 0}
+  .detail{width:100%;gap:0}
+  .detail-image{width:100%;height:clamp(420px,72svh,680px);aspect-ratio:auto;border-inline:0;box-shadow:none}
   .related{padding:64px 0}
   .not-found{padding:12vh 0}
 }
