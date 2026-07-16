@@ -56,11 +56,12 @@ function item(overrides: Partial<BrowserCatalogItem> = {}): BrowserCatalogItem {
     heroNameEn: 'Gwen',
     categoryId: '2',
     categoryName: '至臻',
-    categoryNameEn: 'Crystalis Motus Chroma',
+    categoryNameEn: 'Diamond Prestige Chroma',
     gameVer: '26.13',
     isNew: true,
     rank: 20,
     imageMedium: 'https://img.chromaart.lol/chromas/rose-887034/site5.jpg',
+    imageTag: 'https://game.gtimg.cn/images/lol/act/a20230715chromahub/tag/x-prestige.png',
     ...overrides,
   };
 }
@@ -78,7 +79,7 @@ describe('browser catalog projection', () => {
     expect(projected).toEqual(item());
     expect(Object.keys(projected)).toEqual([
       'slug', 'skinId', 'instanceId', 'nameZh', 'nameEn', 'heroId', 'heroNameZh', 'heroNameEn',
-      'categoryId', 'categoryName', 'categoryNameEn', 'gameVer', 'isNew', 'rank', 'imageMedium',
+      'categoryId', 'categoryName', 'categoryNameEn', 'gameVer', 'isNew', 'rank', 'imageMedium', 'imageTag',
     ]);
   });
 });

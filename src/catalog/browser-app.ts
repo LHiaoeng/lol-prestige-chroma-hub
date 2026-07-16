@@ -34,11 +34,12 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
 
     const link = card.querySelector<HTMLAnchorElement>('a');
     const image = card.querySelector<HTMLImageElement>('img');
+    const categoryIcon = card.querySelector<HTMLImageElement>('.category-icon');
     const badge = card.querySelector<HTMLElement>('.new-badge');
-    const eyebrow = card.querySelector<HTMLElement>('.eyebrow');
+    const versionTag = card.querySelector<HTMLElement>('.version-tag');
     const name = card.querySelector<HTMLElement>('h2');
     const category = card.querySelector<HTMLElement>('.category');
-    if (!link || !image || !badge || !eyebrow || !name || !category) {
+    if (!link || !image || !categoryIcon || !badge || !versionTag || !name || !category) {
       throw new Error('Invalid catalog card template');
     }
 
@@ -50,9 +51,10 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     image.src = item.imageMedium;
     image.dataset.fallback = sourceImageUrl('medium', item.instanceId);
     image.dataset.placeholder = '/placeholder.svg';
-    image.alt = localized(language, { en: `${heroName} ${itemName} chroma splash art`, zh: `${heroName} ${itemName} 臻彩皮肤` });
+    image.alt = localized(language, { en: `${heroName} ${itemName} prestige chroma splash art`, zh: `${heroName} ${itemName} 臻彩皮肤` });
+    categoryIcon.src = item.imageTag;
     badge.hidden = !item.isNew;
-    eyebrow.textContent = `${heroName} · ${item.gameVer}`;
+    versionTag.textContent = item.gameVer;
     name.textContent = itemName;
     category.textContent = localized(language, { en: item.categoryNameEn, zh: item.categoryName });
     return card;
@@ -112,7 +114,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       zh: `${result.pagination.total} 件藏品，第 ${result.pagination.page} / ${Math.max(result.pagination.pages, 1)} 页`,
     });
     status.textContent = result.items.length > 0 ? announcement : localized(language, {
-      en: `No chromas match these filters. Clear the filters and try again. ${announcement}`,
+      en: `No prestige chromas match these filters. Clear the filters and try again. ${announcement}`,
       zh: `没有符合条件的臻彩。请清除筛选后重试。${announcement}`,
     });
     renderPagination(result, focusPagination);

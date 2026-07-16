@@ -8,9 +8,15 @@ describe('detail action URLs', () => {
     );
   });
 
-  it('builds a KHADA model URL from the requested skin ID', () => {
-    expect(khadaModelUrl(99080)).toBe(
-      'https://modelviewer.lol/model-viewer?id=99080&lang=en-US',
+  it('builds a KHADA base skin model URL', () => {
+    expect(khadaModelUrl(99072)).toBe(
+      'https://modelviewer.lol/model-viewer?id=99072&lang=en-US',
+    );
+  });
+
+  it('builds a KHADA prestige chroma model URL from base and chroma IDs', () => {
+    expect(khadaModelUrl(99072, 99080)).toBe(
+      'https://modelviewer.lol/model-viewer?id=99072&lang=en-US&chroma=99080',
     );
   });
 

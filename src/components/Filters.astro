@@ -8,7 +8,7 @@ const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) =
 const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
 ---
 <form class="filters" data-filters role="search">
-  <label class="search-field"><span data-en="Search" data-zh="搜索名称">Search</span><input name="q" type="search" maxlength="64" placeholder="Search chroma names" data-placeholder-en="Search chroma names" data-placeholder-zh="搜索臻彩中英文名称" /></label>
+  <label class="search-field"><span data-en="Search" data-zh="搜索名称">Search</span><input name="q" type="search" maxlength="64" placeholder="Search prestige chroma names" data-placeholder-en="Search prestige chroma names" data-placeholder-zh="搜索臻彩中英文名称" /></label>
   <label><span data-en="Champion" data-zh="英雄">Champion</span><select name="hero"><option value="" data-en="All champions" data-zh="全部英雄">All champions</option>{heroes.map(([id, name]) => <option value={id} data-en={name.en} data-zh={name.zh}>{name.en}</option>)}</select></label>
   <label><span data-en="Patch" data-zh="版本">Patch</span><select name="version"><option value="" data-en="All patches" data-zh="全部版本">All patches</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
   <label><span data-en="Category" data-zh="分类">Category</span><select name="category"><option value="" data-en="All categories" data-zh="全部分类">All categories</option>{categories.map(([id]) => <option value={id} data-en={categoryName(id, 'en')} data-zh={categoryName(id, 'zh')}>{categoryName(id, 'en')}</option>)}</select></label>

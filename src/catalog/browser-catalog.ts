@@ -1,5 +1,5 @@
 import type { Chroma } from '../domain/chroma';
-import { imageUrl } from '../domain/chroma';
+import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { categoryName } from '../i18n';
 
 export interface BrowserCatalogItem {
@@ -18,6 +18,7 @@ export interface BrowserCatalogItem {
   isNew: boolean;
   rank: number;
   imageMedium: string;
+  imageTag: string;
 }
 
 export type CatalogSort = 'rank_desc' | 'rank_asc' | 'skin_desc' | 'skin_asc' | 'version_desc';
@@ -70,6 +71,7 @@ export function toBrowserCatalog(catalog: Chroma[]): BrowserCatalogItem[] {
     isNew: item.isNew,
     rank: item.rank,
     imageMedium: imageUrl(item.images.medium),
+    imageTag: sourceImageUrl('tag', item.tagId),
   }));
 }
 

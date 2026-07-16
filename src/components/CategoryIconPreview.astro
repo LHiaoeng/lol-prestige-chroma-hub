@@ -1,0 +1,11 @@
+---
+interface Props { src: string }
+const { src } = Astro.props;
+---
+<span class="category-icon-wrap" tabindex="0" aria-label="Preview category icon" data-aria-en="Preview category icon" data-aria-zh="预览分类图标">
+  <img class="category-icon-thumb" {src} alt="" aria-hidden="true" />
+  <span class="category-icon-tooltip" role="tooltip" aria-hidden="true"><img {src} alt="" /></span>
+</span>
+<style>
+  .category-icon-wrap{display:inline-flex;position:relative;align-items:center;flex:none;outline:none}.category-icon-thumb{display:block;width:36px;height:36px;object-fit:contain;cursor:zoom-in}.category-icon-tooltip{display:none;position:absolute;z-index:30;bottom:calc(100% + 8px);left:50%;padding:10px;border:1px solid #5d5138;border-radius:8px;background:#090b15;transform:translateX(-50%);box-shadow:0 12px 36px #000b;pointer-events:none}.category-icon-tooltip img{display:block;width:auto;height:auto;max-width:none;max-height:none;object-fit:initial}.category-icon-wrap:hover .category-icon-tooltip,.category-icon-wrap:focus .category-icon-tooltip{display:block}
+</style>

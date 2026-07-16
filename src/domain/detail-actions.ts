@@ -8,10 +8,11 @@ export function skinSpotlightsSearchUrl(keyword: string): string {
   return searchUrl('https://www.youtube.com/c/SkinSpotlights/search', 'query', keyword);
 }
 
-export function khadaModelUrl(skinId: number): string {
+export function khadaModelUrl(skinId: number, chromaId?: number): string {
   const url = new URL('https://modelviewer.lol/model-viewer');
   url.searchParams.set('id', String(skinId));
   url.searchParams.set('lang', 'en-US');
+  if (chromaId !== undefined) url.searchParams.set('chroma', String(chromaId));
   return url.toString();
 }
 

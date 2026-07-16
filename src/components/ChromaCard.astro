@@ -13,18 +13,21 @@ const { chroma, eager = false } = Astro.props;
         src={imageUrl(chroma.images.medium)}
         data-fallback={sourceImageUrl('medium', chroma.instanceId)}
         data-placeholder="/placeholder.svg"
-        alt={`${chroma.heroNameEn} ${chroma.nameEn} chroma splash art`}
-        data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} chroma splash art`}
+        alt={`${chroma.heroNameEn} ${chroma.nameEn} prestige chroma splash art`}
+        data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} prestige chroma splash art`}
         data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 臻彩皮肤`}
         width="960" height="540" loading={eager ? 'eager' : 'lazy'} decoding="async"
       />
       {chroma.isNew && <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>}
+      <img class="category-icon" src={sourceImageUrl('tag', chroma.tagId)} alt="" aria-hidden="true" />
       <span class="card-colors"><ChromaColorCircle colors={chroma.colors} /></span>
     </div>
     <div class="card-body">
-      <p class="eyebrow" data-en={`${chroma.heroNameEn} · ${chroma.gameVer}`} data-zh={`${chroma.heroNameZh} · ${chroma.gameVer}`}>{chroma.heroNameEn} · {chroma.gameVer}</p>
       <h2 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h2>
-      <span class="category" data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</span>
+      <div class="card-tags">
+        <span class="category" data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</span>
+        <span class="version-tag">{chroma.gameVer}</span>
+      </div>
     </div>
   </a>
 </article>
@@ -32,4 +35,8 @@ const { chroma, eager = false } = Astro.props;
   .card-image { aspect-ratio: 1; }
   .card-image img { object-position: center top; }
   .card-colors { position: absolute; right: 12px; bottom: 12px; }
+  .related .card-colors { display: none; }
+  .card-image .category-icon { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%) scale(.6); transform-origin: center bottom; width: auto; height: auto; max-width: none; max-height: none; object-fit: initial; }
+  .card-tags { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .version-tag { display: inline-flex; color: var(--gold); border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 </style>

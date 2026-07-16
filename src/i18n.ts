@@ -3,10 +3,10 @@ export type Language = typeof supportedLanguages[number];
 export const defaultLanguage: Language = 'en';
 
 const categoryNames: Record<string, Record<Language, string>> = {
-  '1': { en: 'Lunar Revel Mythic Chroma', zh: '生肖限定臻彩' },
-  '2': { en: 'Crystalis Motus Chroma', zh: '钻石臻彩' },
-  '3': { en: 'Golden Chroma', zh: '炫金臻彩' },
-  '4': { en: 'Mythic Chroma', zh: '臻彩' },
+  '1': { en: 'Lunar Revel Prestige Chroma', zh: '生肖限定臻彩' },
+  '2': { en: 'Diamond Prestige Chroma', zh: '钻石臻彩' },
+  '3': { en: 'Golden Prestige Chroma', zh: '炫金臻彩' },
+  '4': { en: 'Prestige Chroma', zh: '臻彩' },
   '7': { en: 'LPL 10th Anniversary', zh: 'LPL十周年纪念' },
 };
 
@@ -24,5 +24,5 @@ export function localized(language: Language, values: Record<Language, string>):
 }
 
 export function categoryName(categoryId: string, language: Language): string {
-  return categoryNames[categoryId]?.[language] ?? categoryNames[categoryId]?.[defaultLanguage] ?? 'Chroma';
+  return categoryNames[categoryId]?.[language] ?? categoryNames[categoryId]?.[defaultLanguage] ?? 'Prestige Chroma';
 }

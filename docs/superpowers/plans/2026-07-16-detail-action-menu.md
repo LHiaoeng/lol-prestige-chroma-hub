@@ -29,9 +29,15 @@ describe('detail action URLs', () => {
     );
   });
 
-  it('builds a KHADA model URL from the requested skin ID', () => {
-    expect(khadaModelUrl(99080)).toBe(
-      'https://modelviewer.lol/model-viewer?id=99080&lang=en-US',
+  it('builds a KHADA base skin model URL', () => {
+    expect(khadaModelUrl(99072)).toBe(
+      'https://modelviewer.lol/model-viewer?id=99072&lang=en-US',
+    );
+  });
+
+  it('builds a KHADA prestige chroma model URL from base and chroma IDs', () => {
+    expect(khadaModelUrl(99072, 99080)).toBe(
+      'https://modelviewer.lol/model-viewer?id=99072&lang=en-US&chroma=99080',
     );
   });
 
@@ -62,10 +68,11 @@ export function skinSpotlightsSearchUrl(keyword: string): string {
   return searchUrl('https://www.youtube.com/c/SkinSpotlights/search', 'query', keyword);
 }
 
-export function khadaModelUrl(skinId: number): string {
+export function khadaModelUrl(skinId: number, chromaId?: number): string {
   const url = new URL('https://modelviewer.lol/model-viewer');
   url.searchParams.set('id', String(skinId));
   url.searchParams.set('lang', 'en-US');
+  if (chromaId !== undefined) url.searchParams.set('chroma', String(chromaId));
   return url.toString();
 }
 
@@ -78,7 +85,7 @@ export function googleSearchUrl(keyword: string): string {
 
 Run: `pnpm.cmd vitest run src/domain/detail-actions.test.ts`
 
-Expected: 3 tests pass.
+Expected: 4 tests pass.
 
 - [ ] **Step 5: Commit the helper**
 
@@ -171,7 +178,7 @@ const prestigeChromaKeyword = `${chroma.heroNameEn} ${chroma.nameEn}`;
 const baseSkinKeyword = `${chroma.heroNameEn} ${chroma.skinNameEn}`;
 const prestigeChromaActions = [
   { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(prestigeChromaKeyword) },
-  { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.skinId) },
+  { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
   { label: 'GOOGLE SEARCH', href: googleSearchUrl(prestigeChromaKeyword) },
 ];
 const baseSkinActions = [
@@ -220,7 +227,7 @@ Extend the page style with:
 
 Run: `pnpm.cmd vitest run src/domain/detail-actions.test.ts`
 
-Expected: 3 tests pass.
+Expected: 4 tests pass.
 
 Run: `pnpm.cmd typecheck`
 

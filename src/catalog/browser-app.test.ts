@@ -135,7 +135,7 @@ function catalogItem(index: number): BrowserCatalogItem {
     slug: `item-${index}`, skinId: index, instanceId: `instance-${index}`,
     nameZh: `名称 ${index}`, nameEn: `Name ${index}`, heroId: 'hero', heroNameZh: '英雄', heroNameEn: 'Champion',
     categoryId: 'category', categoryName: '分类', categoryNameEn: 'Category', gameVer: '26.13', isNew: index === 1,
-    rank: 4 - index, imageMedium: `https://img.example/${index}.jpg`,
+    rank: 4 - index, imageMedium: `https://img.example/${index}.jpg`, imageTag: `https://img.example/tag-${index}.png`,
   };
 }
 
@@ -161,14 +161,15 @@ function fixture(search = '') {
   const link = new TestElement('a', document);
   const imageWrap = new TestElement('div', document);
   const image = new TestElement('img', document); image.dataset.fallback = ''; image.dataset.placeholder = '';
+  const categoryIcon = new TestElement('img', document); categoryIcon.className = 'category-icon';
   const badge = new TestElement('span', document); badge.className = 'new-badge';
-  imageWrap.append(image, badge);
+  imageWrap.append(image, categoryIcon, badge);
   const body = new TestElement('div', document);
-  const eyebrow = new TestElement('p', document); eyebrow.className = 'eyebrow';
+  const versionTag = new TestElement('span', document); versionTag.className = 'version-tag';
   const heading = new TestElement('h2', document);
   const english = new TestElement('p', document); english.dataset.nameEn = '';
   const category = new TestElement('span', document); category.className = 'category';
-  body.append(eyebrow, heading, english, category);
+  body.append(versionTag, heading, english, category);
   link.append(imageWrap, body); card.append(link); template.content.append(card);
   document.roots.push(form, list, status, count, pagination, template, data);
 
@@ -214,6 +215,9 @@ describe('catalog browser adapter', () => {
     expect(page.replaceCalls).toEqual(['/?page=3&pageSize=1']);
     expect(page.location.search).toBe('?page=3&pageSize=1');
     expect(page.list.children[0].querySelector('h2')?.textContent).toBe('名称 3');
+    expect(page.list.children[0].querySelector('.version-tag')?.textContent).toBe('26.13');
+    expect(page.list.children[0].querySelector('.category-icon')?.src).toBe('https://img.example/tag-3.png');
+    expect(page.list.children[0].textContent).not.toContain('英雄');
     expect(page.status.hidden).toBe(false);
     expect(page.status.textContent).toContain('3 件藏品');
     expect(page.status.textContent).toContain('3 / 3');

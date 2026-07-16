@@ -2,8 +2,13 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ChromaCard from '../../components/ChromaCard.astro';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import CategoryIconPreview from '../../components/CategoryIconPreview.astro';
+import DetailActionMenu from '../../components/DetailActionMenu.astro';
+import ImageViewer from '../../components/ImageViewer.astro';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
+import { googleSearchUrl, khadaModelUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
+import { findRelatedChromas } from '../../domain/related';
 import { categoryName } from '../../i18n';
 
 export function getStaticPaths() {
@@ -14,25 +19,52 @@ const { chroma } = Astro.props;
 const canonical = `https://chromaart.lol/chromas/${chroma.slug}/`;
 const image = imageUrl(chroma.images.large);
 const description = chroma.descriptionEn
-  ?? `View high-resolution splash art and patch ${chroma.gameVer} details for ${chroma.nameEn}, a ${chroma.heroNameEn} chroma.`;
-const related = catalog.filter((item) => item.slug !== chroma.slug && (item.heroId === chroma.heroId || item.categoryId === chroma.categoryId)).slice(0, 4);
+  ?? `View high-resolution splash art and patch ${chroma.gameVer} details for ${chroma.nameEn}, a ${chroma.heroNameEn} prestige chroma.`;
+const related = findRelatedChromas(catalog, chroma);
+const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
+const skinSetsZh = chroma.skinSets.map((item) => item.nameZh).join('、');
+const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
+const universesZh = chroma.universes.map((item) => item.nameZh).join('、');
+const prestigeChromaKeyword = `${chroma.heroNameEn} ${chroma.nameEn}`;
+const baseSkinKeyword = `${chroma.heroNameEn} ${chroma.skinNameEn}`;
+const prestigeChromaActions = [
+  { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(prestigeChromaKeyword) },
+  { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
+  { label: 'GOOGLE SEARCH', href: googleSearchUrl(prestigeChromaKeyword) },
+];
+const baseSkinActions = [
+  { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(baseSkinKeyword) },
+  { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.sourceSkinId) },
+  { label: 'GOOGLE SEARCH', href: googleSearchUrl(baseSkinKeyword) },
+];
 const jsonLd = [
   { '@context': 'https://schema.org', '@type': 'ImageObject', name: chroma.nameEn, contentUrl: image, description },
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chromaart.lol/' },
-    { '@type': 'ListItem', position: 2, name: chroma.nameEn, item: canonical },
+    { '@type': 'ListItem', position: 2, name: chroma.skinNameEn },
+    { '@type': 'ListItem', position: 3, name: chroma.nameEn, item: canonical },
   ] },
 ];
 ---
 <BaseLayout title={`${chroma.nameEn} · ${chroma.heroNameEn} | Chroma Art`} {description} {canonical} {image} {jsonLd}>
-  <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</span><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
+  <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span data-en={chroma.skinNameEn} data-zh={chroma.skinNameZh}>{chroma.skinNameEn}</span><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
-    <span class="detail-colors"><ChromaColorCircle colors={chroma.colors} /></span>
-    <div class="detail-image"><img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.heroNameEn} ${chroma.nameEn} splash art`} data-alt-en={`${chroma.heroNameEn} ${chroma.nameEn} splash art`} data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} width="1920" height="1080" /></div>
-    <div class="detail-copy"><p class="kicker" data-en={`${categoryName(chroma.categoryId, 'en')} · PATCH ${chroma.gameVer}`} data-zh={`${categoryName(chroma.categoryId, 'zh')} · 版本 ${chroma.gameVer}`}>{categoryName(chroma.categoryId, 'en')} · PATCH {chroma.gameVer}</p><h1 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h1>
-      <dl><div><dt data-en="Champion" data-zh="英雄">Champion</dt><dd data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</dd></div><div><dt data-en="Base skin" data-zh="原皮">Base skin</dt><dd data-en={chroma.skinNameEn} data-zh={chroma.skinNameZh}>{chroma.skinNameEn}</dd></div><div><dt data-en="Patch" data-zh="游戏版本">Patch</dt><dd>{chroma.gameVer}</dd></div><div><dt data-en="Status" data-zh="状态">Status</dt><dd data-en={chroma.isNew ? 'New' : 'Archived'} data-zh={chroma.isNew ? '本期新增' : '已收录'}>{chroma.isNew ? 'New' : 'Archived'}</dd></div></dl>
+    <div class="detail-image"><ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} altEn={`${chroma.heroNameEn} ${chroma.nameEn} prestige chroma splash art`} altZh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} /></div>
+    <div class="detail-copy"><div class="detail-title-row"><h1 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h1><DetailActionMenu actions={prestigeChromaActions} /></div>
+      <dl>
+        <div><dt data-en="Category" data-zh="分类">Category</dt><dd data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</dd></div>
+        <div><dt data-en="Category icon" data-zh="分类图标">Category icon</dt><dd><CategoryIconPreview src={sourceImageUrl('tag', chroma.tagId)} /></dd></div>
+        {chroma.colors.length > 0 && <div><dt data-en="Colors" data-zh="颜色">Colors</dt><dd><ChromaColorCircle colors={chroma.colors} /></dd></div>}
+        {chroma.descriptionEn && <div class="description-row" data-language-content="en"><dt>Description</dt><dd>{chroma.descriptionEn}</dd></div>}
+        {chroma.descriptionZh && <div class="description-row" data-language-content="zh"><dt>描述</dt><dd>{chroma.descriptionZh}</dd></div>}
+        <div><dt data-en="Base skin" data-zh="原皮">Base skin</dt><dd class="detail-value-with-actions"><span data-en={chroma.skinNameEn} data-zh={chroma.skinNameZh}>{chroma.skinNameEn}</span><DetailActionMenu actions={baseSkinActions} /></dd></div>
+        {chroma.skinSets.length > 0 && <div><dt data-en="Skinlines" data-zh="皮肤系列">Skinlines</dt><dd data-en={skinSetsEn} data-zh={skinSetsZh}>{skinSetsEn}</dd></div>}
+        {chroma.universes.length > 0 && <div><dt data-en="Universes" data-zh="皮肤宇宙">Universes</dt><dd data-en={universesEn} data-zh={universesZh}>{universesEn}</dd></div>}
+        <div><dt data-en="Champions" data-zh="英雄">Champions</dt><dd data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</dd></div>
+        <div><dt data-en="Patch" data-zh="游戏版本">Patch</dt><dd>{chroma.gameVer}</dd></div>
+      </dl>
     </div>
   </article>
-  {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related Chromas" data-zh="相关臻彩">Related Chromas</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
+  {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related Prestige Chromas" data-zh="相关臻彩">Related Prestige Chromas</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
 </BaseLayout>
-<style>.detail{position:relative}.detail-colors{position:absolute;right:0;top:0}</style>
+<style>.detail h1{font-size:clamp(2rem,4vw,3.4rem)}.description-row dd{color:var(--muted);line-height:1.7}.detail-title-row,.detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}.detail-title-row h1{min-width:0}</style>

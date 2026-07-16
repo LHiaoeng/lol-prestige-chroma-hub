@@ -1,0 +1,26 @@
+---
+interface Props {
+  src: string;
+  fallback?: string;
+  placeholder?: string;
+  altEn: string;
+  altZh: string;
+}
+const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.props;
+---
+<div class="image-viewer" data-image-viewer>
+  <button class="viewer-trigger" type="button" data-image-viewer-open aria-label="Open full-size image" data-aria-en="Open full-size image" data-aria-zh="查看大图">
+    <img class="viewer-image" {src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} width="1920" height="1080" />
+  </button>
+  <dialog class="viewer-dialog" data-image-viewer-dialog aria-label="Full-size image preview" data-aria-en="Full-size image preview" data-aria-zh="大图预览">
+    <button class="viewer-close" type="button" data-image-viewer-close data-en="Close" data-zh="关闭">Close</button>
+    <img class="viewer-full" {src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} />
+  </dialog>
+</div>
+<script>
+  import { bindImageViewers } from '../client/image-viewer';
+  bindImageViewers();
+</script>
+<style>
+  .image-viewer,.viewer-trigger{display:block;width:100%;height:100%}.viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}.viewer-image{display:block;width:100%;height:100%;object-fit:cover}.viewer-dialog{width:min(96vw,1600px);max-width:none;height:auto;max-height:94vh;margin:auto;padding:52px 18px 18px;border:1px solid #5d5138;border-radius:10px;background:#090b15;color:#f4f0e6;overflow:auto}.viewer-dialog::backdrop{background:#000c;backdrop-filter:blur(6px)}.viewer-close{position:absolute;top:12px;right:12px;padding:7px 12px;border:1px solid #d7b56d;border-radius:999px;background:#111526;color:#d7b56d;cursor:pointer}.viewer-dialog .viewer-full{display:block;width:auto;height:auto;max-width:100%;max-height:calc(94vh - 72px);margin:auto;object-fit:contain}
+</style>
