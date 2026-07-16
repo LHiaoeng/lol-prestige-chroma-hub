@@ -6,12 +6,12 @@ Add external action menus for the prestige chroma title and the Base skin row on
 
 ## Behavior
 
-- The prestige chroma menu searches SkinSpotlights with the English champion and prestige chroma names, and opens KHADA with `sourceSkinId` as `id` plus `skinId` as `chroma`.
-- The Base skin menu searches SkinSpotlights with the English champion and base skin names, and opens KHADA with `sourceSkinId`.
+- The prestige chroma menu searches SkinSpotlights with only the English prestige chroma name, and opens KHADA with `sourceSkinId` as `id` plus `skinId` as `chroma`.
+- The Base skin menu searches SkinSpotlights with only the English base skin name, and opens KHADA with `sourceSkinId`.
 - SkinSpotlights URL: `https://www.youtube.com/c/SkinSpotlights/search?query={encoded keyword}`.
 - KHADA base-skin URL: `https://modelviewer.lol/model-viewer?id={sourceSkinId}&lang=en-US`.
 - KHADA prestige-chroma URL: `https://modelviewer.lol/model-viewer?id={sourceSkinId}&lang=en-US&chroma={skinId}`.
-- Google URL: `https://www.google.com/search?q={encoded keyword}`. It is always the final configured menu item.
+- Google URL: `https://www.google.com/search?q={encoded "LEAGUE OF LEGENDS " prefix plus skin name}`. It is always the final configured menu item.
 - All destinations open in a new tab with safe external-link attributes.
 - The compact trigger sits at the end of the applicable row. Brand action labels remain English in both site languages.
 

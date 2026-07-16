@@ -17,5 +17,5 @@ export function khadaModelUrl(skinId: number, chromaId?: number): string {
 }
 
 export function googleSearchUrl(keyword: string): string {
-  return searchUrl('https://www.google.com/search', 'q', keyword);
+  return searchUrl('https://www.google.com/search', 'q', `LEAGUE OF LEGENDS ${keyword}`);
 }

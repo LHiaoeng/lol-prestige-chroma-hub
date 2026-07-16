@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { googleSearchUrl, khadaModelUrl, skinSpotlightsSearchUrl } from './detail-actions';
 
 describe('detail action URLs', () => {
-  it('encodes a SkinSpotlights keyword', () => {
-    expect(skinSpotlightsSearchUrl('Gwen Soul Fighter')).toBe(
-      'https://www.youtube.com/c/SkinSpotlights/search?query=Gwen+Soul+Fighter',
+  it('searches SkinSpotlights with only the skin name', () => {
+    expect(skinSpotlightsSearchUrl('Panda Pal Lux (Obsidian)')).toBe(
+      'https://www.youtube.com/c/SkinSpotlights/search?query=Panda+Pal+Lux+%28Obsidian%29',
     );
   });
 
@@ -20,9 +20,9 @@ describe('detail action URLs', () => {
     );
   });
 
-  it('encodes a Google keyword', () => {
-    expect(googleSearchUrl('Gwen Soul Fighter')).toBe(
-      'https://www.google.com/search?q=Gwen+Soul+Fighter',
+  it('prefixes a Google skin search with LEAGUE OF LEGENDS', () => {
+    expect(googleSearchUrl('Panda Pal Lux (Obsidian)')).toBe(
+      'https://www.google.com/search?q=LEAGUE+OF+LEGENDS+Panda+Pal+Lux+%28Obsidian%29',
     );
   });
 });

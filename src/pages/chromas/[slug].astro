@@ -25,8 +25,8 @@ const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
 const skinSetsZh = chroma.skinSets.map((item) => item.nameZh).join('、');
 const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
 const universesZh = chroma.universes.map((item) => item.nameZh).join('、');
-const prestigeChromaKeyword = `${chroma.heroNameEn} ${chroma.nameEn}`;
-const baseSkinKeyword = `${chroma.heroNameEn} ${chroma.skinNameEn}`;
+const prestigeChromaKeyword = chroma.nameEn;
+const baseSkinKeyword = chroma.skinNameEn;
 const prestigeChromaActions = [
   { label: 'VIEW ON SKINSPOTLIGHTS', href: skinSpotlightsSearchUrl(prestigeChromaKeyword) },
   { label: 'VIEW 3D MODEL ON KHADA', href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
