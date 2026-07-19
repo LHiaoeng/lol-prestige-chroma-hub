@@ -34,14 +34,14 @@ const { src, fallback, mobileSrc, mobileFallback, placeholder = '/placeholder.sv
   .image-viewer,.viewer-trigger,.viewer-trigger picture{display:block;width:100%;height:100%}
   .viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}
   .viewer-image{display:block;width:100%;height:100%;object-fit:cover}
-  .viewer-dialog{box-sizing:border-box;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));border:0;border-radius:0;background:#030409d9;color:#fff;overflow:hidden}
+  .viewer-dialog{box-sizing:border-box;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:#030409d9;color:#fff;overflow:hidden}
   .viewer-dialog[open]{display:flex;align-items:center;justify-content:center}
   .viewer-dialog::backdrop{background:#0009;backdrop-filter:blur(3px)}
   .viewer-controls{position:fixed;z-index:2;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));display:flex;gap:8px}
   .viewer-control{display:grid;width:44px;height:44px;padding:0;place-items:center;border:0;border-radius:50%;background:#090b15b8;color:#fff;font-size:1.65rem;font-weight:300;line-height:1;cursor:pointer;backdrop-filter:blur(8px)}
   .viewer-control:hover,.viewer-control:focus-visible{background:#d7b56d;color:#090b15}
   .viewer-control:disabled{opacity:.35;cursor:default}
-  .viewer-dialog .viewer-full{--viewer-x:0px;--viewer-y:0px;--viewer-scale:1;display:block;width:min(100%,calc(100dvh * 16 / 9));height:auto;max-height:100%;aspect-ratio:16/9;margin:auto;object-fit:contain;transform:translate3d(var(--viewer-x),var(--viewer-y),0) scale(var(--viewer-scale));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
+  .viewer-dialog .viewer-full{--viewer-x:0px;--viewer-y:0px;--viewer-scale:1;display:block;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;object-fit:contain;transform:translate3d(var(--viewer-x),var(--viewer-y),0) scale(var(--viewer-scale));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
   .viewer-dialog .viewer-full[data-dragging="true"]{cursor:grabbing;transition:none}
   .viewer-dialog .viewer-full[data-pinching="true"]{cursor:grabbing;transition:none}
 </style>

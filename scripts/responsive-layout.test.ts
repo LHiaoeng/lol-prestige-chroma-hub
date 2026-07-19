@@ -48,6 +48,9 @@ describe('responsive layout contract', () => {
     const about = source('src/pages/about.astro');
     const actions = source('src/components/DetailActionMenu.astro');
     expect(viewer).toContain('100dvh');
+    expect(viewer).toContain('width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0');
+    expect(viewer).toContain('width:100vw;height:100dvh;max-width:none;max-height:none');
+    expect(viewer).not.toContain('aspect-ratio:16/9');
     expect(viewer).toContain('safe-area-inset-top');
     expect(viewer).toContain('class="viewer-controls"');
     expect(viewer).toContain('position:fixed');
