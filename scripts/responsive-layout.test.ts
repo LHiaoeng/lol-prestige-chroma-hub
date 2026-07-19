@@ -16,7 +16,7 @@ describe('responsive layout contract', () => {
     }
     const css = source('src/styles/global.css');
     expect(css).toContain('.filter-disclosure:not([open])>.filters,.filters{display:grid}');
-    expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.filter-disclosure:not\(\[open\]\)>\.filters\{display:none\}/);
+    expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.filter-disclosure:not\(\[open]\)>\.filters\{display:none}/);
   });
 
   it('keeps the complete detail list visible on desktop and collapsible on mobile', () => {
@@ -27,7 +27,7 @@ describe('responsive layout contract', () => {
     expect(detail).toContain("toggleAttribute('open', desktop.matches)");
     expect(detail).toContain('class="sr-only detail-accessible-title"');
     expect(detail).toContain('.detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}');
-    expect(detail).toMatch(/@media\(max-width:767px\)[\s\S]*?\.detail-info-disclosure:not\(\[open\]\)>\.detail-info-body\{display:none\}/);
+    expect(detail).toMatch(/@media\(max-width:767px\)[\s\S]*?\.detail-info-disclosure:not\(\[open]\)>\.detail-info-body\{display:none}/);
     for (const label of ['Category', 'Category icon', 'Colors', 'Description', 'Base skin', 'Skinlines', 'Universes', 'Champions', 'Patch']) {
       expect(detail).toContain(label);
     }

@@ -10,7 +10,7 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
 ---
 <div class="image-viewer" data-image-viewer>
   <button class="viewer-trigger" type="button" data-image-viewer-open aria-label="Open full-size image" data-aria-en="Open full-size image" data-aria-zh="查看大图">
-    <img class="viewer-image" {src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} width="1920" height="1080" />
+    <img class="viewer-image" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} width="1920" height="1080" />
   </button>
   <dialog class="viewer-dialog" data-image-viewer-dialog aria-label="Full-size image preview" data-aria-en="Full-size image preview" data-aria-zh="大图预览">
     <div class="viewer-controls">
@@ -18,7 +18,7 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
       <button class="viewer-control" type="button" data-image-viewer-zoom-in aria-label="Zoom in" data-aria-en="Zoom in" data-aria-zh="放大">+</button>
       <button class="viewer-control viewer-close" type="button" data-image-viewer-close aria-label="Close image preview" data-aria-en="Close image preview" data-aria-zh="关闭图片预览">×</button>
     </div>
-    <img class="viewer-full" {src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} draggable="false" />
+    <img class="viewer-full" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} draggable="false" />
   </dialog>
 </div>
 <script>
@@ -36,7 +36,7 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
   .viewer-control{display:grid;width:44px;height:44px;padding:0;place-items:center;border:0;border-radius:50%;background:#090b15b8;color:#fff;font-size:1.65rem;font-weight:300;line-height:1;cursor:pointer;backdrop-filter:blur(8px)}
   .viewer-control:hover,.viewer-control:focus-visible{background:#d7b56d;color:#090b15}
   .viewer-control:disabled{opacity:.35;cursor:default}
-  .viewer-dialog .viewer-full{display:block;width:min(100%,calc(100dvh * 16 / 9));height:auto;max-height:100%;aspect-ratio:16/9;margin:auto;object-fit:contain;transform:translate3d(var(--viewer-x,0),var(--viewer-y,0),0) scale(var(--viewer-scale,1));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
+  .viewer-dialog .viewer-full{--viewer-x:0px;--viewer-y:0px;--viewer-scale:1;display:block;width:min(100%,calc(100dvh * 16 / 9));height:auto;max-height:100%;aspect-ratio:16/9;margin:auto;object-fit:contain;transform:translate3d(var(--viewer-x),var(--viewer-y),0) scale(var(--viewer-scale));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
   .viewer-dialog .viewer-full[data-dragging="true"]{cursor:grabbing;transition:none}
   .viewer-dialog .viewer-full[data-pinching="true"]{cursor:grabbing;transition:none}
 </style>
