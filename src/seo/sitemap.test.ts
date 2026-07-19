@@ -17,6 +17,8 @@ describe('SEO sitemap', () => {
     expect(xml).toContain('<image:title>Ahri Catseye &amp; Pearl China Exclusive Prestige Chroma splash art</image:title>');
     expect(xml).toContain('<loc>https://chromaart.lol/about/</loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/privacy/</loc>');
+    expect(xml).toContain('<loc>https://chromaart.lol/blog/</loc>');
+    expect(xml).toContain('<loc>https://chromaart.lol/blog/what-is-league-of-legends/</loc>');
     expect(xml).not.toContain('<loc>https://chromaart.lol/chromas/1/</loc>');
   });
 });

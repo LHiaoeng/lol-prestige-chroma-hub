@@ -79,11 +79,13 @@ browser-app.ts 读取嵌入目录
 | `/chromas/{slug}/` | 规范详情页 | 原画、完整资料、外部操作、相关推荐 |
 | `/chromas/{skinId}/` | 数字兼容入口 | 与对应规范详情页相同，Canonical 指向描述性 slug |
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
+| `/blog/` | 博客列表 | 大图精选文章、摘要、日期与阅读时间 |
+| `/blog/what-is-league-of-legends/` | 博客文章 | 中英文《英雄联盟》入门图文指南 |
 | `/404/` | 未找到状态 | 错误说明和返回目录入口 |
 | `/sitemap.xml` | 搜索引擎入口 | 页面及详情原画索引 |
 | `/robots.txt` | 抓取规则 | Sitemap 和抓取声明 |
 
-页面顶部统一使用 `BaseLayout.astro`。品牌链接返回首页，桌面导航提供 About 和语言切换；手机使用语言切换与汉堡菜单，菜单当前仅包含 About。
+页面顶部统一使用 `BaseLayout.astro`。品牌链接返回首页；Header 在全端常显博客入口与语言切换，Footer 同时提供 About、博客和隐私说明入口。
 
 ## 5. 视觉语言
 
@@ -133,6 +135,14 @@ browser-app.ts 读取嵌入目录
 - 全局中英文内容显示规则。
 
 Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `env(safe-area-inset-*)`。移动菜单必须限制在视口宽度内，链接触控高度不得低于 44px。
+
+### 6.1 博客布局与内容
+
+博客保持纯静态：`src/blog/articles.ts` 只维护列表需要的 slug、双语标题与摘要、日期、阅读时间、封面和来源；首版正文直接放在 Astro 文章页中，不引入 Content Collections、MDX、分类、搜索或分页。
+
+列表页采用单篇大图精选布局：桌面为图片与正文横向组合，平板压缩间距，`≤767px` 改为上下单列。文章页使用窄版正文、宽幅图片与来源图注，支持 320px 手机到宽屏桌面，不产生页面级横向滚动。中英文继续共用 URL，并由全站语言切换控制。
+
+博客图片只引用 Riot Games 官方公开页面及 CDN，不提交远程副本。图片声明宽高、替代文本、懒加载策略、来源链接与 `/placeholder.svg` 降级。列表输出 `CollectionPage`，文章输出 `BlogPosting` 与 `BreadcrumbList`，两个路由均进入 Sitemap。
 
 ## 7. 首页设计
 
@@ -397,6 +407,9 @@ img.chromaart.lol 规范图片
 | `src/pages/index.astro` | 首页静态结构、Hero、首批目录、模板和目录数据注入 |
 | `src/pages/chromas/[slug].astro` | 详情静态生成、字段编排、背景、响应式资料面板和相关推荐 |
 | `src/pages/about.astro` | 中英文概念说明和示例原画 |
+| `src/blog/articles.ts` | 博客列表元数据与官方封面来源 |
+| `src/pages/blog/index.astro` | 双语博客列表与大图精选布局 |
+| `src/pages/blog/what-is-league-of-legends.astro` | 双语图文文章、文章 SEO 与响应式阅读样式 |
 | `src/components/Filters.astro` | 筛选选项生成、表单 DOM 契约和响应式开合 |
 | `src/components/ChromaCard.astro` | 静态及动态卡片共同遵循的视觉结构 |
 | `src/components/ImageViewer.astro` | 响应式页面展示图、固定大图预览、查看器控件和样式 |

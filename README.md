@@ -1,8 +1,12 @@
 p# LOL Prestige Chroma Hub
 
-面向公众的英雄联盟臻彩皮肤只读展示站。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
+面向公众的英雄联盟臻彩皮肤只读展示站。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
 
 图片由管理后台上传和维护在 R2，通过 `https://img.chromaart.lol` 公开；本仓库只保存 JSON 中的图片相对路径，不保存图片文件。
+
+## 博客
+
+博客列表位于 `/blog/`，首篇中英文图文文章位于 `/blog/what-is-league-of-legends/`。首版文章正文直接由 Astro 页面静态维护，列表元数据集中在 `src/blog/articles.ts`；博客不读取目录 JSON，也不增加运行时内容接口。文章配图引用 Riot Games 官方公开 CDN，并保留来源链接和本地占位图降级，不在仓库中保存远程图片副本。
 
 ## 本地开发
 
