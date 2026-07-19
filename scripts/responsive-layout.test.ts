@@ -68,4 +68,12 @@ describe('responsive layout contract', () => {
     expect(viewer).toContain('<source media="(max-width: 767px)" srcset={mobileSrc}');
     expect(viewer).toContain('<img class="viewer-full" src={src}');
   });
+
+  it('uses medium home hero artwork on mobile while keeping the large desktop image', () => {
+    const home = source('src/pages/index.astro');
+    expect(home).toContain('<picture>');
+    expect(home).toContain('<source media="(max-width: 767px)" srcset={imageUrl(featuredChroma.images.medium)}');
+    expect(home).toContain("data-fallback={sourceImageUrl('medium', featuredChroma.instanceId)}");
+    expect(home).toContain('<img class="hero-background" src={imageUrl(featuredChroma.images.large)}');
+  });
 });

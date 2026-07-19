@@ -13,7 +13,10 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 ---
 <BaseLayout title={HOME_SEO.title} description={HOME_SEO.description} canonical={HOME_SEO.canonical} jsonLd={HOME_SEO.jsonLd}>
   <section class="hero-section">
-    {featuredChroma && <img class="hero-background" src={imageUrl(featuredChroma.images.large)} data-fallback={sourceImageUrl('large', featuredChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" aria-hidden="true" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />}
+    {featuredChroma && <picture>
+      <source media="(max-width: 767px)" srcset={imageUrl(featuredChroma.images.medium)} data-fallback={sourceImageUrl('medium', featuredChroma.instanceId)} />
+      <img class="hero-background" src={imageUrl(featuredChroma.images.large)} data-fallback={sourceImageUrl('large', featuredChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" aria-hidden="true" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
+    </picture>}
     <div class="hero-content">
       <h1><span data-language-content="en">League of Legends<br /><em>China Exclusive Prestige Chroma Splash Arts</em></span><span data-language-content="zh">英雄联盟中国独家<br /><em>臻彩皮肤原画</em></span></h1>
       <p data-en="Explore China Exclusive Prestige Chromas for League of Legends, featuring unique splash arts from Riot Games and updates for every new LoL patch. These are chromas of existing skins, not traditional Prestige Skins." data-zh="探索《英雄联盟》中国服务器独家臻彩皮肤原画。臻彩是拥有独立原画的皮肤炫彩，并非传统至臻皮肤。">Explore China Exclusive Prestige Chromas for League of Legends, featuring unique splash arts from Riot Games and updates for every new LoL patch. These are chromas of existing skins, not traditional Prestige Skins.</p>
@@ -92,7 +95,7 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 </BaseLayout>
 <style>
   .hero-section { position: relative; isolation: isolate; width: 100%; max-width: none; min-height: clamp(480px, 68vh, 720px); display: grid; align-items: center; overflow: hidden; padding: 80px 0; }
-  .hero-background { position: absolute; z-index: -2; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; object-position: center top; transform: translate3d(var(--hero-x, 0), var(--hero-y, 0), 0) scale(1.025); animation: hero-drift 18s ease-in-out infinite alternate; will-change: transform; }
+  .hero-background { position: absolute; z-index: -2; inset: -12px; display: block; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; object-position: center top; transform: translate3d(var(--hero-x, 0), var(--hero-y, 0), 0) scale(1.025); animation: hero-drift 18s ease-in-out infinite alternate; will-change: transform; }
   .hero-section::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(4,6,12,.96) 0%, rgba(4,6,12,.76) 38%, rgba(4,6,12,.3) 68%, rgba(4,6,12,.12) 100%), linear-gradient(0deg, rgba(9,11,21,.72), transparent 45%); }
   .hero-content { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
   .hero-content > p:last-child { max-width: 650px; color: #d4d6df; font-size: 1.05rem; text-shadow: 0 2px 18px #000; }

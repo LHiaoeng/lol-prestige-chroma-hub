@@ -109,14 +109,15 @@ describe('image viewer', () => {
     expect(viewer.fullImage.dataset.pinching).toBeUndefined();
   });
 
-  it('clamps every zoom path to 1–4x and recenters at 1x', () => {
+  it('clamps every zoom path to 0.5–4x and recenters at or below 1x', () => {
     const viewer = new TestViewer();
     bindImageViewers(new TestRoot([viewer]) as unknown as ParentNode);
     viewer.open.click();
 
+    expect(viewer.zoomOut.disabled).toBe(false);
+    for (let index = 0; index < 20; index += 1) viewer.zoomOut.click();
+    expect(viewer.fullImage.style.getPropertyValue('--viewer-scale')).toBe('0.5');
     expect(viewer.zoomOut.disabled).toBe(true);
-    viewer.zoomOut.click();
-    expect(viewer.fullImage.style.getPropertyValue('--viewer-scale')).toBe('1');
 
     for (let index = 0; index < 20; index += 1) viewer.zoomIn.click();
     expect(viewer.fullImage.style.getPropertyValue('--viewer-scale')).toBe('4');
@@ -126,7 +127,7 @@ describe('image viewer', () => {
     viewer.fullImage.dispatch('pointermove', { pointerId: 1, clientX: 150, clientY: 120, pointerType: 'touch' });
     for (let index = 0; index < 20; index += 1) viewer.zoomOut.click();
 
-    expect(viewer.fullImage.style.getPropertyValue('--viewer-scale')).toBe('1');
+    expect(viewer.fullImage.style.getPropertyValue('--viewer-scale')).toBe('0.5');
     expect(viewer.fullImage.style.getPropertyValue('--viewer-x')).toBe('0px');
     expect(viewer.fullImage.style.getPropertyValue('--viewer-y')).toBe('0px');
   });

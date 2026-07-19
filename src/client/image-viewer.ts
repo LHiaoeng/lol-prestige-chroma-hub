@@ -12,7 +12,9 @@ interface PinchBaseline {
   scale: number;
 }
 
-const clampScale = (scale: number): number => Math.min(4, Math.max(1, scale));
+const MIN_SCALE = .5;
+const MAX_SCALE = 4;
+const clampScale = (scale: number): number => Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
 const midpoint = (a: Point, b: Point): Point => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 const distance = (a: Point, b: Point): number => Math.hypot(b.x - a.x, b.y - a.y);
 
@@ -45,8 +47,8 @@ export function bindImageViewers(root: ParentNode = document): void {
       fullImage.style.setProperty('--viewer-x', `${panX}px`);
       fullImage.style.setProperty('--viewer-y', `${panY}px`);
       fullImage.dataset.zoomed = String(scale > 1);
-      zoomOut.disabled = scale <= 1;
-      zoomIn.disabled = scale >= 4;
+      zoomOut.disabled = scale <= MIN_SCALE;
+      zoomIn.disabled = scale >= MAX_SCALE;
     };
 
     const clearGestureFlags = () => {
