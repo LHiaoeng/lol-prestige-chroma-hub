@@ -41,7 +41,7 @@ const { src, fallback, mobileSrc, mobileFallback, placeholder = '/placeholder.sv
   .viewer-control{display:grid;width:44px;height:44px;padding:0;place-items:center;border:0;border-radius:50%;background:#090b15b8;color:#fff;font-size:1.65rem;font-weight:300;line-height:1;cursor:pointer;backdrop-filter:blur(8px)}
   .viewer-control:hover,.viewer-control:focus-visible{background:#d7b56d;color:#090b15}
   .viewer-control:disabled{opacity:.35;cursor:default}
-  .viewer-dialog .viewer-full{--viewer-x:0px;--viewer-y:0px;--viewer-scale:1;display:block;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;object-fit:contain;transform:translate3d(var(--viewer-x),var(--viewer-y),0) scale(var(--viewer-scale));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
+  .viewer-dialog .viewer-full{--viewer-x:0px;--viewer-y:0px;--viewer-scale:1;display:block;width:auto;height:auto;max-width:100vw;max-height:100dvh;margin:auto;object-fit:contain;transform:translate3d(var(--viewer-x),var(--viewer-y),0) scale(var(--viewer-scale));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
   .viewer-dialog .viewer-full[data-dragging="true"]{cursor:grabbing;transition:none}
   .viewer-dialog .viewer-full[data-pinching="true"]{cursor:grabbing;transition:none}
 </style>
