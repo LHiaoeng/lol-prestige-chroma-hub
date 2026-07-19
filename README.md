@@ -76,4 +76,6 @@ pnpm release:build
 
 不要接受把 package script `build` 自动识别为发布构建的结果。Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致，否则 Workers Build 会失败。项目是纯静态部署，不需要添加 Secrets、环境变量或运行时 bindings。
 
+站点的中英文隐私说明位于 `/privacy/`，涵盖本地语言偏好、Cloudflare 托管信息以及预计接入的 Google AdSense。正式启用广告时，还需根据投放地区在 AdSense 中配置适用的同意管理平台（CMP）。
+
 生产域名只把 `chromaart.lol` 绑定为 Worker Custom Domain；`www.chromaart.lol` 使用代理的占位 DNS 记录和 Redirect Rule 301 到根域名，`img.chromaart.lol` 继续使用现有 R2 Custom Domain。详细步骤见 [Cloudflare 部署手册](docs/chromaart.lol-Cloudflare部署手册.md)。

@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Privacy Policy | CHROMA ART';
+const description = 'Learn how CHROMA ART handles browser preferences, hosting data, third-party links, and advertising information.';
+const canonical = 'https://chromaart.lol/privacy/';
+const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical };
+---
+<BaseLayout {title} {description} {canonical} {jsonLd}>
+  <article class="privacy-page" data-language-content="en">
+    <p class="kicker">PRIVACY</p>
+    <h1>Privacy Policy</h1>
+    <p class="effective-date">Effective: July 19, 2026</p>
+    <p>CHROMA ART is a static, read-only League of Legends art archive. You can browse it without creating an account or directly providing personal information.</p>
+
+    <section>
+      <h2>Information used by this site</h2>
+      <p>CHROMA ART stores your language choice in your browser's local storage so the site can remember whether to display English or Chinese. This preference stays on your device and is not sent to a CHROMA ART database.</p>
+      <p>The site and its images are delivered through Cloudflare services. Like most hosting and security providers, Cloudflare may automatically process technical information such as your IP address, request time, requested URL, browser or device information, and security signals to deliver the site, prevent abuse, and maintain service reliability.</p>
+    </section>
+
+    <section>
+      <h2>Google AdSense and advertising cookies</h2>
+      <p>CHROMA ART expects to use Google AdSense in the future. When advertising is enabled, Google and other third-party vendors may place or read cookies, use web beacons, or process IP addresses and information about visits to this and other websites to serve, personalize, and measure ads and to prevent fraud.</p>
+      <p>Google's advertising cookies enable Google and its partners to show ads based on visits to CHROMA ART and other sites. You can manage or opt out of personalized advertising in <a href="https://adssettings.google.com/" target="_blank" rel="noreferrer">Google's Ads Settings</a>. Learn more about <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noreferrer">how Google uses information from partner sites</a>.</p>
+      <p>Where required, a consent message will provide choices before advertising cookies or similar technologies are used. The available choices may vary by region.</p>
+    </section>
+
+    <section>
+      <h2>Third-party links</h2>
+      <p>CHROMA ART links to websites operated by Riot Games, Google, and others. Their privacy practices are governed by their own policies, and this policy does not cover information they collect after you follow an external link.</p>
+    </section>
+
+    <section>
+      <h2>Children's privacy</h2>
+      <p>CHROMA ART is intended for a general audience and does not knowingly collect personal information from children. If you believe a child has provided personal information through a service connected to this site, please contact us so the concern can be reviewed.</p>
+    </section>
+
+    <section>
+      <h2>Your choices and contact</h2>
+      <p>You can clear the saved language preference through your browser's site-data controls and manage advertising preferences through the links above. Privacy questions or requests may be submitted through the project's <a href="https://github.com/LHiaoeng/lol-prestige-chroma-hub/issues" target="_blank" rel="noreferrer">GitHub issue tracker</a>; do not include sensitive personal information in a public issue.</p>
+      <p>This policy may be updated when the site's services or legal requirements change. Material revisions will be reflected by the effective date shown above.</p>
+    </section>
+  </article>
+
+  <article class="privacy-page" data-language-content="zh">
+    <p class="kicker">隐私</p>
+    <h1>隐私说明</h1>
+    <p class="effective-date">生效日期：2026 年 7 月 19 日</p>
+    <p>CHROMA ART 是一个静态、只读的《英雄联盟》原画图鉴。你无需创建账户，也无需直接提供个人信息即可浏览本站。</p>
+
+    <section>
+      <h2>本站使用的信息</h2>
+      <p>CHROMA ART 会在浏览器的本地存储中保存你的语言选择，以便记住显示英文还是中文。该偏好保留在你的设备上，不会发送到 CHROMA ART 数据库。</p>
+      <p>本站及其图片通过 Cloudflare 服务提供。与多数托管和安全服务商一样，Cloudflare 可能自动处理 IP 地址、请求时间、访问网址、浏览器或设备信息以及安全信号等技术信息，用于提供网站、防止滥用并维持服务可靠性。</p>
+    </section>
+
+    <section>
+      <h2>Google AdSense 与广告 Cookie</h2>
+      <p>CHROMA ART 预计未来接入 Google AdSense。启用广告后，Google 及其他第三方供应商可能放置或读取 Cookie、使用网络信标，或处理 IP 地址及你访问本站和其他网站的信息，用于投放、个性化和衡量广告，以及防范欺诈。</p>
+      <p>Google 的广告 Cookie 使 Google 及其合作伙伴可以根据你对 CHROMA ART 和其他网站的访问情况展示广告。你可以前往 <a href="https://adssettings.google.com/" target="_blank" rel="noreferrer">Google 广告设置</a>管理或停用个性化广告，并查看 <a href="https://policies.google.com/technologies/partner-sites?hl=zh-CN" target="_blank" rel="noreferrer">Google 如何使用合作伙伴网站提供的信息</a>。</p>
+      <p>在适用法律要求的地区，本站将在使用广告 Cookie 或类似技术前通过同意提示提供选择；具体选项可能因地区而异。</p>
+    </section>
+
+    <section>
+      <h2>第三方链接</h2>
+      <p>CHROMA ART 包含由 Riot Games、Google 及其他主体运营的网站链接。你访问外部链接后产生的信息由相应网站自己的隐私政策约束，不适用本说明。</p>
+    </section>
+
+    <section>
+      <h2>儿童隐私</h2>
+      <p>CHROMA ART 面向一般受众，不会故意收集儿童的个人信息。如果你认为儿童通过与本站相关的服务提供了个人信息，请联系我们进行核查。</p>
+    </section>
+
+    <section>
+      <h2>你的选择与联系我们</h2>
+      <p>你可以通过浏览器的网站数据设置清除已保存的语言偏好，并通过上述链接管理广告偏好。如有隐私问题或请求，可通过项目的 <a href="https://github.com/LHiaoeng/lol-prestige-chroma-hub/issues" target="_blank" rel="noreferrer">GitHub 问题跟踪器</a>联系；请勿在公开问题中填写敏感个人信息。</p>
+      <p>当本站使用的服务或适用要求发生变化时，本说明可能更新；重要修订将通过上方的生效日期体现。</p>
+    </section>
+  </article>
+
+  <style>
+    .privacy-page { width: min(860px, calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding: clamp(72px, 9vw, 120px) 0 100px; }
+    .privacy-page h1 { font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.08; margin: .45em 0 .35em; font-weight: 500; }
+    .privacy-page .effective-date { color: var(--muted); font-size: .9rem; margin-bottom: 28px; }
+    .privacy-page section { border-top: 1px solid var(--line); margin-top: 42px; padding-top: 34px; }
+    .privacy-page h2 { font-family: Georgia, "Noto Serif SC", serif; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 16px; }
+    .privacy-page p { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; margin: 0; }
+    .privacy-page p + p { margin-top: 16px; }
+    .privacy-page .kicker { color: var(--gold); }
+    .privacy-page a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 767px) {
+      .privacy-page { padding: 52px 0 72px; }
+      .privacy-page h1 { font-size: clamp(2.15rem, 10vw, 3rem); }
+      .privacy-page section { margin-top: 34px; padding-top: 28px; }
+      .privacy-page p { font-size: 1rem; line-height: 1.75; }
+    }
+  </style>
+</BaseLayout>

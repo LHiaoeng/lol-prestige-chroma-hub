@@ -16,7 +16,7 @@ function page(location: string, image?: { location: string; title: string }): st
 }
 
 export function renderSitemap(catalog: Chroma[]): string {
-  const fixed = [page(`${SITE.origin}/`), page(`${SITE.origin}/about/`)];
+  const fixed = [page(`${SITE.origin}/`), page(`${SITE.origin}/about/`), page(`${SITE.origin}/privacy/`)];
   const details = catalog.map((chroma) => page(
     `${SITE.origin}/chromas/${chroma.slug}/`,
     { location: imageUrl(chroma.images.large), title: chromaImageAlt(chroma.nameEn) },

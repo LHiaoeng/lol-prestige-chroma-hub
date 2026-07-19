@@ -57,6 +57,23 @@ describe('static site build', () => {
     expect(about).not.toContain('Players should prepare');
   });
 
+  it('publishes a bilingual privacy policy for future Google AdSense use', () => {
+    const privacy = readFileSync(join(dist, 'privacy', 'index.html'), 'utf8');
+    expect(privacy).toContain('<title>Privacy Policy | CHROMA ART</title>');
+    expect(privacy).toContain('Google AdSense');
+    expect(privacy).toContain('adssettings.google.com');
+    expect(privacy).toContain('data-language-content="zh"');
+
+    const home = readFileSync(join(dist, 'index.html'), 'utf8');
+    const header = home.match(/<header[\s\S]*?<\/header>/)?.[0] ?? '';
+    const footer = home.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? '';
+    expect(header).not.toContain('href="/about/"');
+    expect(header).not.toContain('href="/privacy/"');
+    expect(footer).toContain('href="/about/"');
+    expect(footer).toContain('href="/privacy/"');
+    expect(footer).toContain('class="footer-separator" aria-hidden="true"');
+  });
+
   it('emits one image sitemap entry per canonical catalog page', () => {
     const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
     expect(sitemap.match(/<image:image>/g)).toHaveLength(catalog.length);

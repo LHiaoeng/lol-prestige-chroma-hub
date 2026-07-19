@@ -42,31 +42,16 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
     <header class="site-header">
       <a class="brand" href="/" aria-label="CHROMA ART home" data-aria-en="CHROMA ART home" data-aria-zh="CHROMA ART 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>CHROMA</span> ART</span></a>
       <div class="header-controls">
-        <nav class="desktop-nav" aria-label="Primary navigation" data-aria-en="Primary navigation" data-aria-zh="主导航">
-          <a class="header-link" href="/about/" data-en="About" data-zh="关于">About</a>
-        </nav>
         <button class="language-toggle" type="button" data-language-toggle data-en="中文" data-zh="EN" aria-label="切换到中文" data-aria-en="Switch to Chinese" data-aria-zh="切换到英文">中文</button>
-        <details class="mobile-nav">
-          <summary aria-label="Open menu" data-aria-en="Open menu" data-aria-zh="打开菜单"><span></span><span></span><span></span></summary>
-          <nav class="mobile-nav-panel" aria-label="Mobile navigation" data-aria-en="Mobile navigation" data-aria-zh="移动导航">
-            <a class="header-link" href="/about/" data-en="About" data-zh="关于">About</a>
-          </nav>
-        </details>
       </div>
     </header>
     <main><slot /></main>
-    <footer><p><span data-language-content="en">Chroma Art was created under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</span><span data-language-content="zh">Chroma Art 根据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策创建，并使用 Riot Games 所拥有的素材。Riot Games 不对此项目提供认可或赞助。</span></p></footer>
+    <footer><p><span data-language-content="en">Chroma Art was created under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</span><span data-language-content="zh">Chroma Art 根据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策创建，并使用 Riot Games 所拥有的素材。Riot Games 不对此项目提供认可或赞助。</span></p><p class="footer-links"><a href="/about/" data-en="About" data-zh="关于">About</a><span class="footer-separator" aria-hidden="true">·</span><a href="/privacy/" data-en="Privacy Policy" data-zh="隐私说明">Privacy Policy</a></p></footer>
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
       import { initializeLanguage } from '../client/language';
       initializeLanguage(document, localStorage);
       bindImageFallbacks();
-      const mobileNav = document.querySelector<HTMLDetailsElement>('.mobile-nav');
-      document.addEventListener('pointerdown', (event) => {
-        if (mobileNav?.open && event.target instanceof Node && !mobileNav.contains(event.target)) {
-          mobileNav.removeAttribute('open');
-        }
-      });
     </script>
     <style is:global>
       html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }
@@ -74,24 +59,14 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
       .brand { display: flex; align-items: center; gap: 10px; }
       .brand img { display: block; width: 32px; height: 32px; }
       .brand > .brand-text { color: var(--text); }
-      .header-controls, .desktop-nav { display: flex; align-items: center; gap: 16px; }
-      .header-link { color: var(--muted); font-size: .86rem; }
-      .header-link:hover, .header-link:focus-visible { color: var(--gold); }
+      .header-controls { display: flex; align-items: center; }
       .language-toggle { min-height: var(--touch-target); border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 6px 14px; cursor: pointer; }
-      .mobile-nav { display: none; position: relative; }
       @media (max-width: 767px) {
-        .header-controls { gap: 8px; }
-        .desktop-nav { display: none; }
         .language-toggle { padding-inline: 12px; }
-        .mobile-nav { display: block; }
-        .mobile-nav > summary { display: grid; width: var(--touch-target); height: var(--touch-target); padding: 11px 9px; border: 1px solid var(--line); border-radius: 8px; list-style: none; cursor: pointer; align-content: space-between; }
-        .mobile-nav > summary::-webkit-details-marker { display: none; }
-        .mobile-nav > summary span { display: block; width: 100%; height: 2px; border-radius: 2px; background: var(--gold); }
-        .mobile-nav:not([open]) > .mobile-nav-panel { display: none; }
-        .mobile-nav-panel { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; width: min(260px, calc(100vw - 28px)); padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); box-shadow: 0 18px 50px #000a; align-items: stretch; flex-direction: column; }
-        .mobile-nav-panel .header-link { display: flex; min-height: var(--touch-target); align-items: center; padding: 0 10px; border-radius: 7px; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+      .footer-links { display: flex; justify-content: center; align-items: center; gap: 12px; }
+      .footer-separator { color: color-mix(in srgb, var(--muted) 55%, transparent); font-size: 1rem; }
     </style>
   </body>
 </html>

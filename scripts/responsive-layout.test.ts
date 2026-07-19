@@ -6,10 +6,6 @@ const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
 
 describe('responsive layout contract', () => {
   it('keeps complete filters visible on desktop and collapsible on mobile', () => {
-    const layout = source('src/layouts/BaseLayout.astro');
-    expect(layout).toContain('class="mobile-nav"');
-    expect(layout).toContain('class="desktop-nav"');
-    expect(layout).toContain('mobileNav.contains');
     const filters = source('src/components/Filters.astro');
     expect(filters).toContain('<details class="filter-disclosure" open>');
     expect(filters).toContain("matchMedia('(min-width: 768px)')");
