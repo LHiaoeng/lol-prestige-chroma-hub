@@ -26,6 +26,17 @@ describe('blog feature contract', () => {
     expect(page).toContain('@media (max-width: 767px)');
   });
 
+  it('uses the rank-one chroma artwork as a responsive full-page atmosphere layer', () => {
+    const page = source('src/pages/blog/index.astro');
+    expect(page).toContain("const backgroundChroma = catalog.find((item) => item.rank === 1)");
+    expect(page).toContain('<div class="blog-backdrop" aria-hidden="true">');
+    expect(page).toContain('<source media="(max-width: 767px)" srcset={imageUrl(backgroundChroma.images.medium)}');
+    expect(page).toContain('<img src={imageUrl(backgroundChroma.images.large)} data-fallback={sourceImageUrl(\'large\', backgroundChroma.instanceId)}');
+    expect(page).toContain('.blog-page::after');
+    expect(page).toContain('.blog-backdrop img');
+    expect(page).toMatch(/@media \(max-width: 767px\)[\s\S]*?\.blog-backdrop/);
+  });
+
   it('renders a complete bilingual illustrated article', () => {
     const page = source('src/pages/blog/what-is-league-of-legends.astro');
     expect(page).toContain("'@type': 'BlogPosting'");

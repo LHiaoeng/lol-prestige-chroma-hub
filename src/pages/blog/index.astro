@@ -1,9 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { blogArticles } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { SITE } from '../../seo/site';
 
 const article = blogArticles[0];
+const backgroundChroma = catalog.find((item) => item.rank === 1);
+if (!backgroundChroma) throw new Error('The blog background requires a rank-one chroma');
 const title = `League of Legends Blog | ${SITE.name}`;
 const description = 'Explore League of Legends guides and stories about champions, Summoner’s Rift, gameplay, art, and the world of Runeterra.';
 const canonical = `${SITE.origin}/blog/`;
@@ -17,7 +21,14 @@ const jsonLd = {
 };
 ---
 <BaseLayout {title} {description} {canonical} image={article.coverUrl} {jsonLd}>
-  <section class="blog-index">
+  <div class="blog-page">
+    <div class="blog-backdrop" aria-hidden="true">
+      <picture>
+        <source media="(max-width: 767px)" srcset={imageUrl(backgroundChroma.images.medium)} data-fallback={sourceImageUrl('medium', backgroundChroma.instanceId)} />
+        <img src={imageUrl(backgroundChroma.images.large)} data-fallback={sourceImageUrl('large', backgroundChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+      </picture>
+    </div>
+    <section class="blog-index">
     <header class="blog-heading">
       <div data-language-content="en">
         <p class="kicker">CHROMA ART JOURNAL</p>
@@ -49,10 +60,16 @@ const jsonLd = {
         </div>
       </a>
     </article>
-  </section>
+    </section>
+  </div>
 
   <style>
-    .blog-index { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding:clamp(72px,9vw,120px) 0 110px; }
+    .blog-page { position:relative; isolation:isolate; overflow:hidden; }
+    .blog-page::after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(180deg,#090b1538 0%,#090b158f 62%,#090b15db 100%),linear-gradient(90deg,#090b157a 0%,transparent 58%,#090b154d 100%); }
+    .blog-backdrop { position:absolute; z-index:-2; inset:0; overflow:hidden; background:#090b15; }
+    .blog-backdrop picture { display:block; width:100%; height:100%; }
+    .blog-backdrop img { display:block; width:100%; height:100%; object-fit:cover; object-position:center top; opacity:.7; filter:saturate(.95) contrast(1.05); transform:scale(1.02); }
+    .blog-index { position:relative; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding:clamp(72px,9vw,120px) 0 110px; }
     .blog-heading { max-width:780px; margin-bottom:clamp(38px,6vw,64px); }
     .blog-heading h1 { font-family:Georgia,"Noto Serif SC",serif; font-size:clamp(2.8rem,6vw,5.2rem); line-height:1.04; margin:.28em 0 .32em; font-weight:500; overflow-wrap:anywhere; }
     .blog-heading>div>p:last-child { color:var(--muted); font-size:1.08rem; line-height:1.7; margin:0; }
@@ -69,6 +86,8 @@ const jsonLd = {
     @media (hover:hover) and (pointer:fine) { .featured-post-link:hover .featured-post-art img { transform:scale(1.025); } }
     @media (max-width: 1023px) { .featured-post-link { grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr); min-height:380px; } }
     @media (max-width: 767px) {
+      .blog-page::after { background:linear-gradient(180deg,#090b1545 0%,#090b159e 60%,#090b15e0 100%); }
+      .blog-backdrop img { object-position:center top; opacity:.62; filter:saturate(.9) contrast(1.04); transform:scale(1.01); }
       .blog-index { padding:54px 0 76px; }
       .blog-heading { margin-bottom:32px; }
       .blog-heading h1 { font-size:clamp(2.35rem,12vw,3.5rem); }
