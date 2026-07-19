@@ -49,8 +49,8 @@ describe('responsive layout contract', () => {
     const actions = source('src/components/DetailActionMenu.astro');
     expect(viewer).toContain('100dvh');
     expect(viewer).toContain('safe-area-inset-top');
-    expect(viewer).toContain('class="viewer-close-row"');
-    expect(viewer).toContain('position:sticky');
+    expect(viewer).toContain('class="viewer-controls"');
+    expect(viewer).toContain('position:fixed');
     expect(about).toContain('var(--page-gutter)');
     expect(actions).toContain('calc(100vw - 28px)');
   });

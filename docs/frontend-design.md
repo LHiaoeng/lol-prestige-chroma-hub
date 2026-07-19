@@ -253,11 +253,16 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 点击详情主图打开原生 `<dialog>`：
 
-- 支持关闭、放大、缩小和拖拽；
+- 支持关闭、按钮缩放、滚轮缩放、单指/指针拖拽和移动端双指缩放；
+- 所有缩放入口统一限制在 `1×–4×`，回到 `1×` 时自动清除位移并居中；
+- 双指缩放以两指中点为视觉锚点，手指移动时同步计算缩放与平移，避免画面从触点下跳开；
+- 双指变为单指且当前倍率大于 `1×` 时，无缝切换为拖拽；重新形成双指时以当前画面状态建立新的缩放基线；
+- `pointerup`、`pointercancel`、关闭和重新打开必须清理活动指针与手势状态，防止残留缩放或拖拽；
 - 对话框使用动态视口高度和安全区内边距；
 - 控制按钮为 44×44px；
 - 完整图保持 16:9 并在视口中 `contain`；
-- 拖动期间禁用过渡并使用抓取光标；
+- 拖动或双指缩放期间禁用过渡并使用抓取光标；
+- 图片区域使用 `touch-action:none`，手势由 Pointer Events 状态机统一处理，不引入第三方手势库；
 - 行为实现在 `src/client/image-viewer.ts`，Astro 组件只提供结构和样式。
 
 ### 8.6 相关推荐
@@ -399,7 +404,7 @@ img.chromaart.lol 规范图片
 | `src/catalog/browser-app.ts` | 首页浏览器状态、DOM 更新和 History API |
 | `src/client/language.ts` | 语言读取、应用、持久化和事件 |
 | `src/client/image-fallback.ts` | 图片三级回退 |
-| `src/client/image-viewer.ts` | Dialog、缩放、拖拽和关闭行为 |
+| `src/client/image-viewer.ts` | Dialog、按钮/滚轮缩放、Pointer Events 双指缩放、拖拽、手势重置和关闭行为 |
 | `src/domain/detail-actions.ts` | 外部动作 URL 生成 |
 | `src/domain/featured-chroma.ts` | 首页 Hero 数据选择 |
 | `src/domain/related.ts` | 相关推荐计算 |
@@ -415,7 +420,7 @@ img.chromaart.lol 规范图片
 
 - 领域单元测试：数据模型、详情动作、Hero 选择和相关推荐；
 - 目录单元测试：查询解析、筛选、排序、分页和浏览器状态；
-- 客户端测试：图片回退、查看器和语言相关行为；
+- 客户端测试：图片回退、查看器开关、双指中点缩放、`1×–4×` 边界、单指拖拽接续、手势取消/重置和语言相关行为；
 - 响应式契约测试：导航、折叠结构、完整字段和网格断点；
 - 构建测试：静态路由、SEO、Sitemap、Cloudflare 配置和产物审计；
 - Smoke：关键页面和资源的生产形态检查。
@@ -454,6 +459,7 @@ pnpm release:build
 - 手机筛选和详情默认折叠且可展开；
 - 中英文切换后没有错位、旧文案或错误 Alt；
 - 菜单、Dialog 和触控目标不越界；
+- 手机图片查看器可围绕双指中点平滑缩放，抬起一指后可继续拖拽，关闭重开后恢复 `1×` 居中；
 - 减少动效设置有效。
 
 ## 17. 修改检查表
@@ -467,6 +473,7 @@ pnpm release:build
 - [ ] `<768px` 初始化后默认折叠，Summary 可通过键盘和触摸操作；
 - [ ] 320px 无页面级横向滚动；
 - [ ] 所有重要触控目标至少 44px；
+- [ ] 手机图片查看器双指缩放限制在 `1×–4×`，手势切换、取消、关闭和重开均无状态残留；
 - [ ] 新增文案、ARIA、Placeholder 和 Alt 同时支持中英文；
 - [ ] 动态目录在语言切换、前进/后退、清除和分页后保持一致；
 - [ ] 图片继续遵守规范源、腾讯源、占位图三级回退；
@@ -510,4 +517,3 @@ pnpm release:build
 - `docs/superpowers/specs/2026-07-16-latest-chroma-hero-background-design.md`：首页 Hero 决策；
 - `docs/superpowers/specs/2026-07-16-detail-action-menu-design.md`：详情操作菜单决策；
 - `docs/superpowers/specs/2026-07-17-prestige-chroma-seo-design.md`：SEO 术语、路由和数据生成规则。
-

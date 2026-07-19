@@ -38,4 +38,5 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
   .viewer-control:disabled{opacity:.35;cursor:default}
   .viewer-dialog .viewer-full{display:block;width:min(100%,calc(100dvh * 16 / 9));height:auto;max-height:100%;aspect-ratio:16/9;margin:auto;object-fit:contain;transform:translate3d(var(--viewer-x,0),var(--viewer-y,0),0) scale(var(--viewer-scale,1));transition:transform .15s ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
   .viewer-dialog .viewer-full[data-dragging="true"]{cursor:grabbing;transition:none}
+  .viewer-dialog .viewer-full[data-pinching="true"]{cursor:grabbing;transition:none}
 </style>
