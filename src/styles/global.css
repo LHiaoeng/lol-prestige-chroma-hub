@@ -9,7 +9,6 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .site-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 max(var(--page-gutter),calc((100vw - var(--content-width))/2));padding-left:max(var(--page-gutter),env(safe-area-inset-left));padding-right:max(var(--page-gutter),env(safe-area-inset-right));border-bottom:1px solid var(--line);background:#090b15e8;backdrop-filter:blur(14px);position:sticky;top:0;z-index:10}
 .brand{font-family:Georgia,serif;font-weight:700;letter-spacing:.18em;white-space:nowrap}
 .brand span{color:var(--gold)}
-.header-note{color:var(--muted);font-size:.86rem}
 .hero-section,.catalog-section,.related,.breadcrumbs,.detail,.not-found{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}
 .hero-section{padding:clamp(72px,10vw,148px) 0 96px;min-height:460px}
 .kicker,.eyebrow{color:var(--gold);font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
