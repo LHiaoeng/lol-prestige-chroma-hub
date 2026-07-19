@@ -21,6 +21,7 @@
 - 遵循邻近文件风格，不引入无关重构。
 - 领域规则优先写成可独立测试的纯函数；页面和组件只负责组装与展示。
 - 新增或修改行为时补充相邻的 `*.test.ts`；仅在需要浏览器状态或事件时新增客户端脚本。
+- 功能改动必须同步更新 README、`docs/` 或其他受影响的相关文档。
 - 面向用户的改动同时考虑中英文、移动端、无障碍与 SEO。
 - 验证范围与风险匹配：文档运行 `git diff --check`；代码先运行相关测试；数据变更运行 `pnpm data:validate`；发布改动运行 `pnpm release:build`。
 - 常用命令：`pnpm dev`、`pnpm test`、`pnpm typecheck`、`pnpm data:validate`、`pnpm release:build`。
