@@ -54,4 +54,15 @@ describe('responsive layout contract', () => {
     expect(about).toContain('var(--page-gutter)');
     expect(actions).toContain('calc(100vw - 28px)');
   });
+
+  it('uses medium detail artwork on mobile while keeping the large preview', () => {
+    const detail = source('src/pages/chromas/[slug].astro');
+    const viewer = source('src/components/ImageViewer.astro');
+    expect(detail).toContain('const mobileImage = imageUrl(chroma.images.medium)');
+    expect(detail).toContain('<source media="(max-width: 767px)" srcset={mobileImage}');
+    expect(detail).toContain("data-fallback={sourceImageUrl('medium', chroma.instanceId)}");
+    expect(detail).toContain('mobileSrc={mobileImage}');
+    expect(viewer).toContain('<source media="(max-width: 767px)" srcset={mobileSrc}');
+    expect(viewer).toContain('<img class="viewer-full" src={src}');
+  });
 });

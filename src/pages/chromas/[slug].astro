@@ -6,7 +6,7 @@ import CategoryIconPreview from '../../components/CategoryIconPreview.astro';
 import DetailActionMenu from '../../components/DetailActionMenu.astro';
 import ImageViewer from '../../components/ImageViewer.astro';
 import { catalog } from '../../data/catalog';
-import { sourceImageUrl } from '../../domain/chroma';
+import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { googleSearchUrl, khadaChampionUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
 import { findRelatedChromas } from '../../domain/related';
 import { categoryName } from '../../i18n';
@@ -19,6 +19,7 @@ export function getStaticPaths() {
 const { chroma } = Astro.props;
 const seo = createChromaSeo(chroma);
 const image = seo.image;
+const mobileImage = imageUrl(chroma.images.medium);
 const related = findRelatedChromas(catalog, chroma);
 const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
 const skinSetsZh = chroma.skinSets.map((item) => item.nameZh).join('、');
@@ -59,13 +60,16 @@ const patchActions = [
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd}>
   <div class="detail-background" aria-hidden="true">
-    <img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+    <picture>
+      <source media="(max-width: 767px)" srcset={mobileImage} data-fallback={sourceImageUrl('medium', chroma.instanceId)} />
+      <img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+    </picture>
   </div>
   <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
     <h1 class="sr-only detail-accessible-title" data-en={`${chroma.nameEn} China Exclusive Prestige Chroma Splash Art`} data-zh={`${chroma.nameZh} 臻彩皮肤原画`}>{chroma.nameEn} China Exclusive Prestige Chroma Splash Art</h1>
     <div class="detail-image">
-      <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} altEn={seo.imageAlt} altZh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} />
+      <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} mobileSrc={mobileImage} mobileFallback={sourceImageUrl('medium', chroma.instanceId)} altEn={seo.imageAlt} altZh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} />
       <div class="detail-poster-copy" aria-hidden="true">
         <p class="eyebrow">CHINA EXCLUSIVE PRESTIGE CHROMA</p>
         <p class="detail-poster-title" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</p>
@@ -110,6 +114,7 @@ const patchActions = [
   :global(main){position:relative;isolation:isolate}
   .detail-background{position:absolute;z-index:-1;inset:0 0 auto;height:min(70vw,760px);overflow:hidden;pointer-events:none}
   .detail-background::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#090b15f2 0%,#090b15a8 45%,#090b1566 75%),linear-gradient(0deg,#090b15 0%,transparent 52%,#090b1570 100%)}
+  .detail-background picture{display:block;width:100%;height:100%}
   .detail-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.52;filter:saturate(.85)}
   .detail-poster-copy{display:none}
   .detail-info-disclosure>summary{display:none}

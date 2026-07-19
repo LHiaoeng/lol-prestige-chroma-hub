@@ -1,9 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { bindImageFallbacks } from './image-fallback';
+
+class TestSource {
+  dataset: Record<string, string> = {};
+  media = '(max-width: 767px)';
+  srcset = 'medium-primary.jpg';
+}
+
+class TestPicture {
+  constructor(private readonly sources: TestSource[]) {}
+  querySelectorAll(): TestSource[] { return this.sources; }
+}
 
 class TestImage {
   dataset: Record<string, string> = {};
   src = 'primary.jpg';
+  parentElement: TestPicture | null = null;
   private listeners: EventListener[] = [];
 
   addEventListener(type: string, listener: EventListener): void {
@@ -16,6 +28,8 @@ class TestImage {
 
   get listenerCount(): number { return this.listeners.length; }
 }
+
+afterEach(() => vi.unstubAllGlobals());
 
 class TestRoot {
   constructor(private readonly images: TestImage[]) {}
@@ -41,5 +55,24 @@ describe('image fallbacks', () => {
     expect(image.src).toBe('placeholder.svg');
     image.fail();
     expect(image.src).toBe('placeholder.svg');
+  });
+
+  it('falls back the active responsive source before using the placeholder', () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    const source = new TestSource();
+    source.dataset.fallback = 'medium-fallback.jpg';
+    const image = new TestImage();
+    image.dataset.fallback = 'large-fallback.jpg';
+    image.dataset.placeholder = 'placeholder.svg';
+    image.parentElement = new TestPicture([source]);
+
+    bindImageFallbacks(new TestRoot([image]) as unknown as ParentNode);
+    image.fail();
+    expect(source.srcset).toBe('medium-fallback.jpg');
+    expect(image.src).toBe('primary.jpg');
+    image.fail();
+    expect(source.srcset).toBe('placeholder.svg');
+    image.fail();
+    expect(source.srcset).toBe('placeholder.svg');
   });
 });

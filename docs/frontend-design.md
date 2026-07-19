@@ -215,6 +215,7 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 小于 768px 时：
 
 - 主图扩展到页面宽度，采用 420–680px 的海报高度；
+- 页面氛围背景和页面内主图通过 `<picture>` 使用中图，降低移动端首屏图片体积；桌面展示和全屏预览继续使用大图；
 - 标题、分类、英雄和版本叠加在图片底部渐变层；
 - 完整资料放在图片下方独立面板；
 - 资料面板默认折叠，用户通过至少 44px 高的 Summary 展开；
@@ -328,6 +329,8 @@ img.chromaart.lol 规范图片
 
 图片元素使用 `data-fallback` 和 `data-placeholder`，由 `bindImageFallbacks` 绑定错误处理。新增图片组件时应复用该契约，不应在各组件内编写独立 `onerror`。
 
+响应式图片的 `<source>` 可使用 `data-fallback` 声明同尺寸源站地址。当前媒体查询匹配时，回退顺序为该尺寸规范图、该尺寸源站图、占位图；不匹配时继续使用 `<img>` 自身的大图回退链路。详情页移动端背景与页面内展示使用中图，但打开图片查看器后的全屏图固定使用大图。
+
 主要原画提供明确尺寸或宽高比，防止布局跳动。装饰背景和分类图标使用空 `alt`；内容原画的英文 Alt 由 SEO 模块生成，中文 Alt 随语言切换。
 
 ## 12. SEO 与语义
@@ -396,14 +399,14 @@ img.chromaart.lol 规范图片
 | `src/pages/about.astro` | 中英文概念说明和示例原画 |
 | `src/components/Filters.astro` | 筛选选项生成、表单 DOM 契约和响应式开合 |
 | `src/components/ChromaCard.astro` | 静态及动态卡片共同遵循的视觉结构 |
-| `src/components/ImageViewer.astro` | 图片查看器结构、控件和样式 |
+| `src/components/ImageViewer.astro` | 响应式页面展示图、固定大图预览、查看器控件和样式 |
 | `src/components/DetailActionMenu.astro` | 单外链按钮和多动作菜单 |
 | `src/components/CategoryIconPreview.astro` | 分类图标展示与预览 |
 | `src/components/ChromaColorCircle.astro` | 颜色数据可视化 |
 | `src/catalog/browser-catalog.ts` | 查询参数解析、筛选、排序和分页纯逻辑 |
 | `src/catalog/browser-app.ts` | 首页浏览器状态、DOM 更新和 History API |
 | `src/client/language.ts` | 语言读取、应用、持久化和事件 |
-| `src/client/image-fallback.ts` | 图片三级回退 |
+| `src/client/image-fallback.ts` | 普通图片及 `<picture>` 活动响应式源的三级回退 |
 | `src/client/image-viewer.ts` | Dialog、按钮/滚轮缩放、Pointer Events 双指缩放、拖拽、手势重置和关闭行为 |
 | `src/domain/detail-actions.ts` | 外部动作 URL 生成 |
 | `src/domain/featured-chroma.ts` | 首页 Hero 数据选择 |

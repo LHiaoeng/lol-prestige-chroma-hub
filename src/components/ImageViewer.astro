@@ -2,15 +2,20 @@
 interface Props {
   src: string;
   fallback?: string;
+  mobileSrc?: string;
+  mobileFallback?: string;
   placeholder?: string;
   altEn: string;
   altZh: string;
 }
-const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.props;
+const { src, fallback, mobileSrc, mobileFallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.props;
 ---
 <div class="image-viewer" data-image-viewer>
   <button class="viewer-trigger" type="button" data-image-viewer-open aria-label="Open full-size image" data-aria-en="Open full-size image" data-aria-zh="查看大图">
-    <img class="viewer-image" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} width="1920" height="1080" />
+    <picture>
+      {mobileSrc && <source media="(max-width: 767px)" srcset={mobileSrc} data-fallback={mobileFallback} />}
+      <img class="viewer-image" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={altEn} data-alt-en={altEn} data-alt-zh={altZh} width="1920" height="1080" />
+    </picture>
   </button>
   <dialog class="viewer-dialog" data-image-viewer-dialog aria-label="Full-size image preview" data-aria-en="Full-size image preview" data-aria-zh="大图预览">
     <div class="viewer-controls">
@@ -26,7 +31,7 @@ const { src, fallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.
   bindImageViewers();
 </script>
 <style>
-  .image-viewer,.viewer-trigger{display:block;width:100%;height:100%}
+  .image-viewer,.viewer-trigger,.viewer-trigger picture{display:block;width:100%;height:100%}
   .viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}
   .viewer-image{display:block;width:100%;height:100%;object-fit:cover}
   .viewer-dialog{box-sizing:border-box;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));border:0;border-radius:0;background:#030409d9;color:#fff;overflow:hidden}
