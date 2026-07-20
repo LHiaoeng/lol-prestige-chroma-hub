@@ -75,6 +75,8 @@ describe('static site build', () => {
     expect(privacy).toContain('Google AdSense');
     expect(privacy).toContain('adssettings.google.com');
     expect(privacy).toContain('data-language-content="zh"');
+    expect(privacy).toContain('href="mailto:lolchromaart@outlook.com"');
+    expect(privacy).not.toContain('github.com/LHiaoeng/lol-prestige-chroma-hub/issues');
 
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
     const header = home.match(/<header[\s\S]*?<\/header>/)?.[0] ?? '';
