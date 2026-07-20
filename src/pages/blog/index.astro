@@ -42,24 +42,28 @@ const jsonLd = {
       </div>
     </header>
 
+    <div class="post-list">
+    {blogArticles.map((entry, index) => (
     <article class="featured-post">
-      <a class="featured-post-link" href={article.href}>
+      <a class="featured-post-link" href={entry.href}>
         <div class="featured-post-art">
-          <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="eager" decoding="async" />
+          <img src={entry.coverUrl} alt={entry.coverAltEn} data-alt-en={entry.coverAltEn} data-alt-zh={entry.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={index === 0 ? 1920 : 3288} height={index === 0 ? 944 : 2100} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
         </div>
         <div class="featured-post-copy">
-          <p class="eyebrow" data-en="FEATURED GUIDE" data-zh="精选指南">FEATURED GUIDE</p>
-          <h2 data-en={article.titleEn} data-zh={article.titleZh}>{article.titleEn}</h2>
-          <p class="post-summary" data-en={article.summaryEn} data-zh={article.summaryZh}>{article.summaryEn}</p>
+          <p class="eyebrow" data-en={index === 0 ? 'FEATURED STORY' : 'GUIDE'} data-zh={index === 0 ? '精选文章' : '指南'}>{index === 0 ? 'FEATURED STORY' : 'GUIDE'}</p>
+          <h2 data-en={entry.titleEn} data-zh={entry.titleZh}>{entry.titleEn}</h2>
+          <p class="post-summary" data-en={entry.summaryEn} data-zh={entry.summaryZh}>{entry.summaryEn}</p>
           <p class="post-meta">
-            <time datetime={article.publishedAt}>July 19, 2026</time>
+            <time datetime={entry.publishedAt}>July 19, 2026</time>
             <span aria-hidden="true">·</span>
-            <span data-en={`${article.readingMinutes} min read`} data-zh={`阅读约 ${article.readingMinutes} 分钟`}>{article.readingMinutes} min read</span>
+            <span data-en={`${entry.readingMinutes} min read`} data-zh={`阅读约 ${entry.readingMinutes} 分钟`}>{entry.readingMinutes} min read</span>
           </p>
           <span class="read-more" data-en="Read the story →" data-zh="阅读全文 →">Read the story →</span>
         </div>
       </a>
     </article>
+    ))}
+    </div>
     </section>
   </div>
 
@@ -73,6 +77,7 @@ const jsonLd = {
     .blog-heading { max-width:780px; margin-bottom:clamp(38px,6vw,64px); }
     .blog-heading h1 { font-family:Georgia,"Noto Serif SC",serif; font-size:clamp(2.8rem,6vw,5.2rem); line-height:1.04; margin:.28em 0 .32em; font-weight:500; overflow-wrap:anywhere; }
     .blog-heading>div>p:last-child { color:var(--muted); font-size:1.08rem; line-height:1.7; margin:0; }
+    .post-list { display:grid; gap:32px; }
     .featured-post { overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--panel); box-shadow:0 28px 80px #0007; }
     .featured-post-link { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(300px,.85fr); min-height:430px; }
     .featured-post-art { min-width:0; overflow:hidden; background:#15182a; }

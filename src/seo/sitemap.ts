@@ -2,17 +2,19 @@ import type { Chroma } from '../domain/chroma';
 import { imageUrl } from '../domain/chroma';
 import { chromaImageAlt } from './chroma-seo';
 import { SITE } from './site';
+import { blogArticles } from '../blog/articles';
 
 function escapeXml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;').replaceAll("'", '&apos;');
 }
 
-function page(location: string, image?: { location: string; title: string }): string {
+function page(location: string, image?: { location: string; title: string }, lastModified?: string): string {
   const imageXml = image
     ? `<image:image><image:loc>${escapeXml(image.location)}</image:loc><image:title>${escapeXml(image.title)}</image:title></image:image>`
     : '';
-  return `<url><loc>${escapeXml(location)}</loc>${imageXml}</url>`;
+  const lastModifiedXml = lastModified ? `<lastmod>${escapeXml(lastModified)}</lastmod>` : '';
+  return `<url><loc>${escapeXml(location)}</loc>${lastModifiedXml}${imageXml}</url>`;
 }
 
 export function renderSitemap(catalog: Chroma[]): string {
@@ -21,7 +23,14 @@ export function renderSitemap(catalog: Chroma[]): string {
     page(`${SITE.origin}/about/`),
     page(`${SITE.origin}/privacy/`),
     page(`${SITE.origin}/blog/`),
-    page(`${SITE.origin}/blog/what-is-league-of-legends/`),
+    ...blogArticles.map((article) => page(
+      `${SITE.origin}${article.href}`,
+      {
+        location: new URL(article.coverUrl, SITE.origin).toString(),
+        title: article.coverAltEn,
+      },
+      article.publishedAt,
+    )),
   ];
   const details = catalog.map((chroma) => page(
     `${SITE.origin}/chromas/${chroma.slug}/`,

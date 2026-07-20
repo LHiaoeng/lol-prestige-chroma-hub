@@ -9,9 +9,13 @@ interface Props {
   description: string;
   canonical: string;
   image?: string;
+  ogType?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
   jsonLd?: Record<string, unknown> | readonly Record<string, unknown>[];
 }
-const { title, description, canonical, image = SITE.defaultImage, jsonLd } = Astro.props;
+const { title, description, canonical, image = SITE.defaultImage, ogType = 'website', publishedTime, modifiedTime, jsonLd } = Astro.props;
+const socialImage = new URL(image, SITE.origin).toString();
 const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
 const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=${JSON.stringify(defaultLanguage)},v=localStorage.getItem('chroma-art-language');document.documentElement.dataset.language=s.includes(v)?v:d}catch{document.documentElement.dataset.language=${JSON.stringify(defaultLanguage)}}`;
 ---
@@ -24,16 +28,18 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
     <meta name="theme-color" content="#090b15" />
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="canonical" href={canonical} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={image} />
+    <meta property="og:image" content={socialImage} />
+    {ogType === 'article' && publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {ogType === 'article' && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image" content={socialImage} />
     <title>{title}</title>
     <script is:inline set:html={languageBootstrap} />
     {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}

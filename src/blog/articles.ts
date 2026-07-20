@@ -10,10 +10,23 @@ export interface BlogArticle {
   readonly coverUrl: string;
   readonly coverAltEn: string;
   readonly coverAltZh: string;
-  readonly sourceUrl: string;
+  readonly sourceUrl?: string;
 }
 
 export const blogArticles: readonly BlogArticle[] = [
+  {
+    slug: 'what-are-chroma-skins',
+    href: '/blog/what-are-chroma-skins/',
+    titleEn: 'What Are Chroma Skins?',
+    titleZh: '什么是炫彩皮肤？',
+    summaryEn: 'A guide to chroma backgrounds, colour schemes, purchase methods, and common questions.',
+    summaryZh: '介绍炫彩皮肤的推出背景、配色、购买方式与常见问题。',
+    publishedAt: '2026-07-20',
+    readingMinutes: 7,
+    coverUrl: '/images/blog/chroma-history/hero-en.png',
+    coverAltEn: 'Chroma Skins 1.1 banner with a lineup of League of Legends champions',
+    coverAltZh: '带有英雄阵容的英文 Chroma Skins 1.1 横幅',
+  },
   {
     slug: 'what-is-league-of-legends',
     href: '/blog/what-is-league-of-legends/',
