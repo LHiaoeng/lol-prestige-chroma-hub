@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import BackToTop from '../components/BackToTop.astro';
 import { safeJsonLd } from '../domain/chroma';
 import { defaultLanguage, supportedLanguages } from '../i18n';
 import { SITE } from '../seo/site';
@@ -53,6 +54,7 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
       </div>
     </header>
     <main><slot /></main>
+    <BackToTop />
     <footer><p><span data-language-content="en">LoL Chroma Art is an independent fan archive and is not affiliated with or endorsed by Riot Games or Tencent. League of Legends assets are used under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy.</span><span data-language-content="zh">LoL Chroma Art 是独立的爱好者图鉴，与 Riot Games 或腾讯不存在关联，也未获得其认可。本站依据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策使用《英雄联盟》素材。</span></p><p class="footer-links"><a href="/about/" data-en="About" data-zh="关于">About</a><span class="footer-separator" aria-hidden="true">·</span><a href="/blog/" data-en="Blog" data-zh="博客">Blog</a><span class="footer-separator" aria-hidden="true">·</span><a href="/privacy/" data-en="Privacy Policy" data-zh="隐私说明">Privacy Policy</a></p></footer>
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
