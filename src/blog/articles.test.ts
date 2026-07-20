@@ -7,15 +7,20 @@ describe('blog article metadata', () => {
     expect(formatBlogDate('2026-07-20', 'zh')).toBe('2026年7月20日');
   });
 
-  it('defines two bilingual articles with unique canonical routes', () => {
-    expect(blogArticles).toHaveLength(2);
+  it('defines three bilingual articles with unique canonical routes', () => {
+    expect(blogArticles).toHaveLength(3);
     expect(blogArticles[0]).toMatchObject({
+      slug: 'what-are-prestige-chromas',
+      href: '/blog/what-are-prestige-chromas/',
+      titleZh: '什么是臻彩？',
+    });
+    expect(blogArticles[1]).toMatchObject({
       slug: 'what-are-chroma-skins',
       href: '/blog/what-are-chroma-skins/',
       titleZh: '什么是炫彩皮肤？',
       coverUrl: '/images/blog/chroma-history/hero-en.png',
     });
-    expect(blogArticles[1]).toMatchObject({
+    expect(blogArticles[2]).toMatchObject({
       slug: 'what-is-league-of-legends',
       href: '/blog/what-is-league-of-legends/',
       titleEn: 'What Is League of Legends?',

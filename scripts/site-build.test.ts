@@ -38,14 +38,20 @@ describe('static site build', () => {
     expect(home).toContain('"@type":"CollectionPage"');
     expect(existsSync(join(dist, 'blog', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
+    const prestigeArticle = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     expect(blog).toContain('<link rel="canonical" href="https://chromaart.lol/blog/">');
     expect(blog).toContain('"@type":"CollectionPage"');
     expect(article).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-is-league-of-legends/">');
     expect(article).toContain('"@type":"BlogPosting"');
     expect(article).toContain('data-language-content="zh"');
     expect(article).toContain('召唤师峡谷与水晶枢纽');
+    expect(prestigeArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-are-prestige-chromas/">');
+    expect(prestigeArticle).toContain('"@type":"BlogPosting"');
+    expect(prestigeArticle).toContain('data-language-content="zh"');
+    expect(prestigeArticle).toContain('什么是臻彩');
   });
 
   it('emits record-specific chroma splash art metadata', () => {

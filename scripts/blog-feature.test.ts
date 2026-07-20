@@ -91,7 +91,7 @@ describe('blog feature contract', () => {
     expect(page).not.toContain('max-width:720px');
     for (const heading of [
       'A team strategy game',
-      'Summoner’s Rift and the Nexus',
+      'Summoner\u2019s Rift and the Nexus',
       'Five players, five positions',
       'How a match gains momentum',
       'A game that keeps evolving',
@@ -101,5 +101,39 @@ describe('blog feature contract', () => {
       '一场对局如何积累优势',
       '持续进化的游戏',
     ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete bilingual prestige chroma article', () => {
+    const page = source('src/pages/blog/what-are-prestige-chromas.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("inLanguage: ['en', 'zh']");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page).toContain('data-placeholder="/placeholder.svg"');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    for (const heading of [
+      'What are prestige chromas?',
+      'The chroma art showcase',
+      'What sets them apart',
+      'The collection system',
+      'How to obtain prestige chromas',
+      'Design philosophy',
+      'Cultural content and collaborations',
+      '什么是臻彩？',
+      '臻彩原画展示',
+      '与普通炫彩的区别',
+      '臻彩藏馆系统',
+      '获取方式',
+      '设计理念',
+      '文化内容与联动',
+    ]) expect(page).toContain(heading);
+    expect(page.match(/<details>/g)).toHaveLength(12);
   });
 });
