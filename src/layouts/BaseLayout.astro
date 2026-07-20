@@ -71,11 +71,12 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
       .header-controls { display: flex; align-items: center; gap: 14px; }
       .header-blog-link { display: inline-flex; align-items: center; min-height: var(--touch-target); color: var(--text); font-size: .86rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
       .header-blog-link:hover, .header-blog-link:focus-visible { color: var(--gold); }
-      .language-toggle { min-height: var(--touch-target); border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 6px 14px; cursor: pointer; }
+      .language-toggle { position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; }
+      .language-toggle::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
       @media (max-width: 767px) {
         .header-controls { gap: 8px; }
         .header-blog-link { font-size: .76rem; letter-spacing: .05em; }
-        .language-toggle { padding-inline: 12px; }
+        .language-toggle { padding-inline: 9px; font-size: .75rem; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       .footer-links { display: flex; justify-content: center; align-items: center; gap: 12px; }
