@@ -46,14 +46,14 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="CHROMA ART home" data-aria-en="CHROMA ART home" data-aria-zh="CHROMA ART 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>CHROMA</span> ART</span></a>
+      <a class="brand" href="/" aria-label="LoL Chroma Art home" data-aria-en="LoL Chroma Art home" data-aria-zh="LoL Chroma Art 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
         <a class="header-blog-link" href="/blog/" data-en="Blog" data-zh="博客">Blog</a>
         <button class="language-toggle" type="button" data-language-toggle data-en="中文" data-zh="EN" aria-label="切换到中文" data-aria-en="Switch to Chinese" data-aria-zh="切换到英文">中文</button>
       </div>
     </header>
     <main><slot /></main>
-    <footer><p><span data-language-content="en">Chroma Art was created under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</span><span data-language-content="zh">Chroma Art 根据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策创建，并使用 Riot Games 所拥有的素材。Riot Games 不对此项目提供认可或赞助。</span></p><p class="footer-links"><a href="/about/" data-en="About" data-zh="关于">About</a><span class="footer-separator" aria-hidden="true">·</span><a href="/blog/" data-en="Blog" data-zh="博客">Blog</a><span class="footer-separator" aria-hidden="true">·</span><a href="/privacy/" data-en="Privacy Policy" data-zh="隐私说明">Privacy Policy</a></p></footer>
+    <footer><p><span data-language-content="en">LoL Chroma Art is an independent fan archive and is not affiliated with or endorsed by Riot Games or Tencent. League of Legends assets are used under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy.</span><span data-language-content="zh">LoL Chroma Art 是独立的爱好者图鉴，与 Riot Games 或腾讯不存在关联，也未获得其认可。本站依据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策使用《英雄联盟》素材。</span></p><p class="footer-links"><a href="/about/" data-en="About" data-zh="关于">About</a><span class="footer-separator" aria-hidden="true">·</span><a href="/blog/" data-en="Blog" data-zh="博客">Blog</a><span class="footer-separator" aria-hidden="true">·</span><a href="/privacy/" data-en="Privacy Policy" data-zh="隐私说明">Privacy Policy</a></p></footer>
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
       import { initializeLanguage } from '../client/language';

@@ -67,7 +67,7 @@ const patchActions = [
   </div>
   <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
-    <h1 class="sr-only detail-accessible-title" data-en={`${chroma.nameEn} China Exclusive Prestige Chroma Splash Art`} data-zh={`${chroma.nameZh} 臻彩皮肤原画`}>{chroma.nameEn} China Exclusive Prestige Chroma Splash Art</h1>
+    <h1 class="sr-only detail-accessible-title" data-en={`${chroma.nameEn} China-Exclusive Chroma Splash Art`} data-zh={`${chroma.nameZh} 炫彩原画`}>{chroma.nameEn} China-Exclusive Chroma Splash Art</h1>
     <div class="detail-image">
       <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} mobileSrc={mobileImage} mobileFallback={sourceImageUrl('medium', chroma.instanceId)} altEn={seo.imageAlt} altZh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} />
       <div class="detail-poster-copy" aria-hidden="true">
@@ -101,7 +101,7 @@ const patchActions = [
       </details>
     </div>
   </article>
-  {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related China Exclusive Prestige Chromas" data-zh="相关臻彩">Related China Exclusive Prestige Chromas</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
+  {related.length > 0 && <section class="related"><div class="section-heading"><h2 data-en="Related Chroma Splash Arts" data-zh="相关炫彩原画">Related Chroma Splash Arts</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} />)}</div></section>}
 </BaseLayout>
 <script>
   const detailDisclosure = document.querySelector<HTMLDetailsElement>('.detail-info-disclosure');

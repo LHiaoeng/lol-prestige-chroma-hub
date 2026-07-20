@@ -6,23 +6,23 @@ import { imageUrl, sourceImageUrl } from '../domain/chroma';
 const firstChroma = catalog.reduce((lowest, item) => item.rank < lowest.rank ? item : lowest);
 const jadeSwordChroma = catalog.find((item) => item.nameZh === '玉剑传说 无极 白虎');
 
-const title = 'What Are LoL China Exclusive Prestige Chromas? | CHROMA ART';
-const description = 'Learn what China Exclusive Prestige Chromas are in League of Legends, why they have unique splash arts, and how CHROMA ART tracks new releases.';
+const title = 'What Are Chroma Splash Arts? | LoL Chroma Art';
+const description = 'Learn about unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent.';
 const canonical = 'https://chromaart.lol/about/';
 const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: title, description, url: canonical };
 ---
 <BaseLayout {title} {description} {canonical} {jsonLd}>
   <article class="about-page" data-language-content="en">
     <p class="kicker">ABOUT THE ARCHIVE</p>
-    <h1>What Are China Exclusive Prestige Chromas in League of Legends?</h1>
-    <p>China Exclusive Prestige Chromas are League of Legends chroma variants released for Chinese services with their own unique splash arts. They are chromas of existing skins, not traditional Prestige Skins.</p>
+    <h1>What Are Chroma Splash Arts in League of Legends?</h1>
+    <p>A chroma splash art is a unique splash artwork created for a specific chroma. Most chromas reuse their base skin's splash art and do not have one of their own.</p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </figure>
 
     <section>
-      <h2>Release Date for the China Exclusive Chroma Splash Arts</h2>
-      <p>The Chinese server of "League of Legends" typically updates a new batch of exquisite original artworks to the "Exquisite Collection" during version updates, and the main way to obtain them is through recharge activities.</p>
+      <h2>Chroma Splash Arts in the Chinese Version</h2>
+      <p>Selected chromas in the Chinese version of League of Legends, operated by Tencent, are presented with their own splash arts. Availability and release timing vary by event and patch.</p>
       {jadeSwordChroma && <figure class="about-art">
         <img src={imageUrl(jadeSwordChroma.images.large)} data-fallback={sourceImageUrl('large', jadeSwordChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
       </figure>}
@@ -30,26 +30,26 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
 
     <section>
       <h2>Availability and Release Tracking</h2>
-      <p>Availability varies by event and patch on the Chinese League of Legends servers. CHROMA ART records the patch associated with each catalog entry and adds new Prestige Chromas when verified source data becomes available. For current purchase requirements, players should consult the active Chinese server event or store information.</p>
+      <p>LoL Chroma Art records the patch associated with each catalog entry and adds new chroma splash arts when verified source data becomes available. For current purchase requirements, players should consult the active Chinese server event or store information.</p>
     </section>
 
     <section>
-      <h2>How to Get China Exclusive Chroma Splash Arts</h2>
-      <p>China Exclusive Prestige Chromas are associated with Chinese League of Legends services and regional promotions. They are not generally listed as standard chromas in the global client. Exact acquisition methods can change between events, so this archive focuses on identifying the chroma, its base skin, patch, category, and unique splash art.</p>
+      <h2>Prestige Chroma and Other Categories</h2>
+      <p>LoL Chroma Art uses Prestige Chroma as the English label for the Chinese 臻彩 category. A Prestige Chroma is still a chroma of an existing skin, not a traditional Prestige Skin. The archive may also include chroma splash arts from other categories, and focuses on identifying each chroma, its base skin, patch, category, and unique artwork.</p>
     </section>
   </article>
 
   <article class="about-page" data-language-content="zh">
     <p class="kicker">关于图鉴</p>
-    <h1>什么是《英雄联盟》中国服务器专属臻彩原画？</h1>
-    <p>中国服务器专属臻彩原画是为仅在《英雄联盟》中国服务器提供的英雄皮肤臻彩版本特别制作的独立原画。与沿用现有原画背景或仅作少量调整的普通臻彩不同，这些臻彩拥有完全定制的视觉画面。</p>
+    <h1>什么是《英雄联盟》中国服炫彩原画？</h1>
+    <p>炫彩原画是为特定炫彩单独创作的原画。普通炫彩通常沿用基础皮肤原画，并不拥有独立的炫彩原画。</p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </figure>
 
     <section>
-      <h2>中国服务器专属臻彩原画的发布时间</h2>
-      <p>《英雄联盟》中国服务器通常会在版本更新期间，向“臻彩藏品”更新一批精美原创画作，主要获取方式为充值活动。</p>
+      <h2>中国版本中的炫彩原画</h2>
+      <p>由腾讯运营的《英雄联盟》中国版本会为部分特定炫彩提供独立原画；具体上线时间和获取方式会随活动与版本变化。</p>
       {jadeSwordChroma && <figure class="about-art">
         <img src={imageUrl(jadeSwordChroma.images.large)} data-fallback={sourceImageUrl('large', jadeSwordChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
       </figure>}
@@ -57,12 +57,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
 
     <section>
       <h2>上架与更新追踪</h2>
-      <p>臻彩的上架方式会随中国服务器的活动和版本变化。CHROMA ART 记录每件藏品对应的游戏版本，并在获得可靠数据后更新图鉴；当前获取条件应以中国服务器正在进行的活动或商城信息为准。</p>
+      <p>LoL Chroma Art 记录每件藏品对应的游戏版本，并在获得可靠数据后更新图鉴；当前获取条件应以中国服务器正在进行的活动或商城信息为准。</p>
     </section>
 
     <section>
-      <h2>如何获得中国服务器专属臻彩原画</h2>
-      <p>中国独家臻彩与《英雄联盟》中国服务器服务及地区活动相关，通常不会作为普通炫彩出现在全球客户端。具体获取方式可能随活动变化，因此本站重点记录臻彩名称、原皮肤、版本、分类和独立原画。</p>
+      <h2>臻彩与其他分类</h2>
+      <p>本站将“臻彩”分类译作 Prestige Chroma。臻彩仍是现有皮肤的炫彩，并非传统至臻皮肤；本站也可能收录其他分类的炫彩原画，重点记录炫彩名称、基础皮肤、版本、分类和独立原画。</p>
     </section>
   </article>
 

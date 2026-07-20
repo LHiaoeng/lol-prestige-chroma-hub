@@ -216,7 +216,7 @@ describe('catalog browser adapter', () => {
     expect(page.replaceCalls).toEqual(['/?page=3&pageSize=1']);
     expect(page.location.search).toBe('?page=3&pageSize=1');
     expect(page.list.children[0].querySelector('h2')?.textContent).toBe('Name 3');
-    expect(page.list.children[0].querySelector('img')?.alt).toBe('Name 3 China Exclusive Prestige Chroma splash art');
+    expect(page.list.children[0].querySelector('img')?.alt).toBe('Name 3 China-Exclusive Chroma Splash Art');
     expect(page.list.children[0].querySelector('.version-tag')?.textContent).toBe('26.13');
     expect(page.list.children[0].querySelector('.category-icon')?.src).toBe('https://img.example/tag-3.png');
     expect(page.list.children[0].textContent).not.toContain('英雄');

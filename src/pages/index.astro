@@ -18,12 +18,12 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
       <img class="hero-background" src={imageUrl(featuredChroma.images.large)} data-fallback={sourceImageUrl('large', featuredChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" aria-hidden="true" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
     </picture>}
     <div class="hero-content">
-      <h1><span data-language-content="en">League of Legends<br /><em>China Exclusive Prestige Chroma Splash Arts</em></span><span data-language-content="zh">英雄联盟中国独家<br /><em>臻彩皮肤原画</em></span></h1>
-      <p data-en="Explore China Exclusive Prestige Chromas for League of Legends, featuring unique splash arts from Riot Games and updates for every new LoL patch. These are chromas of existing skins, not traditional Prestige Skins." data-zh="探索《英雄联盟》中国服务器独家臻彩皮肤原画。臻彩是拥有独立原画的皮肤炫彩，并非传统至臻皮肤。">Explore China Exclusive Prestige Chromas for League of Legends, featuring unique splash arts from Riot Games and updates for every new LoL patch. These are chromas of existing skins, not traditional Prestige Skins.</p>
+      <h1><span data-language-content="en">League of Legends<br /><em>China-Exclusive Chroma Splash Arts</em></span><span data-language-content="zh">英雄联盟中国服专属<br /><em>炫彩原画</em></span></h1>
+      <p data-en="Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent." data-zh="探索由腾讯运营的《英雄联盟》中国版本中，为特定炫彩单独创作的原画。">Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent.</p>
     </div>
   </section>
   <section class="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-heading"><div><h2 id="catalog-title" data-en="China Exclusive Prestige Chromas" data-zh="臻彩图鉴">China Exclusive Prestige Chromas</h2></div></div>
+    <div class="section-heading"><div><h2 id="catalog-title" data-en="China-Exclusive Chroma Splash Art Archive" data-zh="中国服炫彩原画图鉴">China-Exclusive Chroma Splash Art Archive</h2></div></div>
     <Filters {catalog} />
     <div class="status" data-status aria-live="polite" hidden></div>
     <div class="chroma-grid" data-chroma-list>
@@ -44,7 +44,7 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
         </a>
       </article>
     </template>
-    {catalog.length === 0 && <div class="empty" data-initial-empty><h3 data-en="The archive is waiting for data" data-zh="资料库等待导入">The archive is waiting for data</h3><p data-en="China Exclusive Prestige Chromas will appear here after the data import runs." data-zh="运行数据导入命令后，臻彩内容会在这里出现。">China Exclusive Prestige Chromas will appear here after the data import runs.</p></div>}
+    {catalog.length === 0 && <div class="empty" data-initial-empty><h3 data-en="The archive is waiting for data" data-zh="资料库等待导入">The archive is waiting for data</h3><p data-en="Chroma splash arts will appear here after the data import runs." data-zh="运行数据导入命令后，炫彩原画会在这里出现。">Chroma splash arts will appear here after the data import runs.</p></div>}
     <nav class="pagination" data-pagination aria-label="Pagination" data-aria-en="Pagination" data-aria-zh="分页"></nav>
   </section>
   <script is:inline id="catalog-data" type="application/json" set:html={browserCatalogJson}></script>

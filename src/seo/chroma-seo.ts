@@ -3,21 +3,15 @@ import { imageUrl } from '../domain/chroma';
 import { SITE } from './site';
 
 export function chromaImageAlt(name: string): string {
-  return `${name} China Exclusive Prestige Chroma splash art`;
-}
-
-function descriptionSubject(chroma: Chroma): string {
-  return chroma.nameEn.toLowerCase().includes(chroma.skinNameEn.toLowerCase())
-    ? chroma.nameEn
-    : `${chroma.nameEn} for ${chroma.skinNameEn}`;
+  return `${name} China-Exclusive Chroma Splash Art`;
 }
 
 export function createChromaSeo(chroma: Chroma) {
   const canonical = `${SITE.origin}/chromas/${chroma.slug}/`;
   const image = imageUrl(chroma.images.large);
-  const description = `Explore ${descriptionSubject(chroma)}, a China Exclusive Prestige Chroma in League of Legends, with unique splash art and patch ${chroma.gameVer} details.`;
+  const description = `See ${chroma.nameEn}, a ${chroma.skinNameEn} chroma with unique splash art in the Chinese version of League of Legends (patch ${chroma.gameVer}).`;
   return {
-    title: `${chroma.nameEn} China Exclusive Prestige Chroma Splash Art | ${SITE.name}`,
+    title: `${chroma.nameEn} China-Exclusive Chroma Splash Art | ${SITE.name}`,
     description,
     canonical,
     image,

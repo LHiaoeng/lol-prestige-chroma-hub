@@ -14,7 +14,7 @@ describe('SEO sitemap', () => {
     expect(xml).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
     expect(xml).toContain('<loc>https://chromaart.lol/chromas/ahri-cat-eye-1/</loc>');
     expect(xml).toContain('<image:loc>https://img.chromaart.lol/chromas/ahri/site3.jpg</image:loc>');
-    expect(xml).toContain('<image:title>Ahri Catseye &amp; Pearl China Exclusive Prestige Chroma splash art</image:title>');
+    expect(xml).toContain('<image:title>Ahri Catseye &amp; Pearl China-Exclusive Chroma Splash Art</image:title>');
     expect(xml).toContain('<loc>https://chromaart.lol/about/</loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/privacy/</loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/blog/</loc>');

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { isSensitiveDeploymentArtifact } from './audit-build';
 import { catalog } from '../src/data/catalog';
+import { blogArticles } from '../src/blog/articles';
 
 const root = process.cwd();
 const dist = join(root, 'dist');
@@ -27,12 +28,12 @@ describe('static site build', () => {
     expect(home).toContain('data-chroma-card-template');
     expect(home).not.toContain('/api/chromas');
     expect(home).not.toContain('prestige-chromas.json');
-    expect(home).toContain('<title>LoL China Exclusive Prestige Chroma Splash Arts | CHROMA ART</title>');
-    expect(home).toContain('<meta property="og:site_name" content="CHROMA ART">');
-    expect(home).toContain('<meta name="twitter:title" content="LoL China Exclusive Prestige Chroma Splash Arts | CHROMA ART">');
+    expect(home).toContain('<title>LoL China-Exclusive Chroma Splash Arts | LoL Chroma Art</title>');
+    expect(home).toContain('<meta property="og:site_name" content="LoL Chroma Art">');
+    expect(home).toContain('<meta name="twitter:title" content="LoL China-Exclusive Chroma Splash Arts | LoL Chroma Art">');
     expect(home).toContain('League of Legends');
-    expect(home).toContain('China Exclusive Prestige Chroma Splash Arts');
-    expect(home).toContain('not traditional Prestige Skins');
+    expect(home).toContain('China-Exclusive Chroma Splash Arts');
+    expect(home).toContain('operated by Tencent');
     expect(home).toContain('"@type":"WebSite"');
     expect(home).toContain('"@type":"CollectionPage"');
     expect(existsSync(join(dist, 'blog', 'index.html'))).toBe(true);
@@ -47,29 +48,30 @@ describe('static site build', () => {
     expect(article).toContain('召唤师峡谷与水晶枢纽');
   });
 
-  it('emits record-specific prestige chroma metadata', () => {
+  it('emits record-specific chroma splash art metadata', () => {
     const sample = catalog[0];
     const detail = readFileSync(join(dist, 'chromas', sample.slug, 'index.html'), 'utf8');
-    expect(detail).toContain(`${sample.nameEn} China Exclusive Prestige Chroma Splash Art | CHROMA ART`);
-    expect(detail).toContain('China Exclusive Prestige Chroma in League of Legends');
-    expect(detail).toContain(`${sample.nameEn} China Exclusive Prestige Chroma splash art`);
+    expect(detail).toContain(`${sample.nameEn} China-Exclusive Chroma Splash Art | LoL Chroma Art`);
+    expect(detail).toContain('the Chinese version of League of Legends');
+    expect(detail).toContain(`${sample.nameEn} China-Exclusive Chroma Splash Art`);
     expect(detail).toContain('CHINA EXCLUSIVE PRESTIGE CHROMA');
-    expect(detail).toContain('Related China Exclusive Prestige Chromas');
+    expect(detail).toContain('Related Chroma Splash Arts');
     expect(detail).toContain('"representativeOfPage":true');
   });
 
   it('uses factual informational SEO copy', () => {
     const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
-    expect(about).toContain('<title>What Are LoL China Exclusive Prestige Chromas? | CHROMA ART</title>');
-    expect(about).toContain('not traditional Prestige Skins');
-    expect(about).toContain('Availability varies by event and patch');
+    expect(about).toContain('<title>What Are Chroma Splash Arts? | LoL Chroma Art</title>');
+    expect(about).toContain("Most chromas reuse their base skin's splash art");
+    expect(about).toContain('operated by Tencent');
+    expect(about).toContain('Availability and release timing vary by event and patch');
     expect(about).not.toContain('will likely be priced higher');
     expect(about).not.toContain('Players should prepare');
   });
 
   it('publishes a bilingual privacy policy for future Google AdSense use', () => {
     const privacy = readFileSync(join(dist, 'privacy', 'index.html'), 'utf8');
-    expect(privacy).toContain('<title>Privacy Policy | CHROMA ART</title>');
+    expect(privacy).toContain('<title>Privacy Policy | LoL Chroma Art</title>');
     expect(privacy).toContain('Google AdSense');
     expect(privacy).toContain('adssettings.google.com');
     expect(privacy).toContain('data-language-content="zh"');
@@ -88,8 +90,9 @@ describe('static site build', () => {
 
   it('emits one image sitemap entry per canonical catalog page', () => {
     const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
-    expect(sitemap.match(/<image:image>/g)).toHaveLength(catalog.length);
-    expect(sitemap.match(/<image:loc>/g)).toHaveLength(catalog.length);
+    const expectedImageCount = catalog.length + blogArticles.length;
+    expect(sitemap.match(/<image:image>/g)).toHaveLength(expectedImageCount);
+    expect(sitemap.match(/<image:loc>/g)).toHaveLength(expectedImageCount);
     expect(sitemap).toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].slug}/</loc>`);
     expect(sitemap).not.toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].skinId}/</loc>`);
   });

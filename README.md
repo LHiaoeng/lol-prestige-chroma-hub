@@ -1,6 +1,8 @@
-p# LOL Prestige Chroma Hub
+# LoL Chroma Art
 
-面向公众的英雄联盟臻彩皮肤只读展示站。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
+面向海外用户、以英文为主要索引语言的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 **China-Exclusive Chroma Splash Art Archive**。中文作为辅助语言保留。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
+
+炫彩原画（Chroma Splash Art）是为特定炫彩单独创作的原画；普通炫彩通常沿用基础皮肤原画。站内将“臻彩”分类译作 `Prestige Chroma`，但不使用该词统称整个目录，也不将其描述为传统 `Prestige Skin`。
 
 图片由管理后台上传和维护在 R2，通过 `https://img.chromaart.lol` 公开；本仓库只保存 JSON 中的图片相对路径，不保存图片文件。
 
