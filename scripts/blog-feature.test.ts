@@ -39,8 +39,8 @@ describe('blog feature contract', () => {
     expect(page).toContain("inLanguage: ['en', 'zh']");
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
-    expect(page).toContain('What is a chroma skin?');
-    expect(page).toContain('什么是炫彩皮肤');
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain('推出背景');
     expect(page).toContain('皮肤展示');
     expect(page).toContain('购买方式');
@@ -51,7 +51,7 @@ describe('blog feature contract', () => {
     expect(page).toContain('/blue-essence-en.png');
     expect(page.match(/<details>/g)).toHaveLength(16);
     expect(page).toContain('.article-header,.blog-article>section,.blog-article>figure,.comparison,.showcase');
-    expect(page).toContain('/images/blog/chroma-history/');
+    expect(page).toContain("const mediaRoot = '/images/blog/chroma-history'");
     expect(page).toContain('loading="lazy"');
     expect(page).not.toContain('Baidu Baike');
     expect(page).not.toContain('百度百科');

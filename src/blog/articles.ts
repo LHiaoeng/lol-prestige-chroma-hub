@@ -14,9 +14,14 @@ export interface BlogArticle {
 }
 
 export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
-  return new Intl.DateTimeFormat(language === 'zh' ? 'zh-CN' : 'en-US', {
+  if (language === 'zh') {
+    const [year, month, day] = date.split('-').map(Number);
+    return `${year}年${month}月${day}日`;
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
-    month: language === 'zh' ? 'numeric' : 'long',
+    month: 'long',
     day: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${date}T00:00:00Z`));
