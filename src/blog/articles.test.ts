@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { blogArticles } from './articles';
+import { blogArticles, formatBlogDate } from './articles';
 
 describe('blog article metadata', () => {
+  it('formats ISO publication dates consistently in both languages', () => {
+    expect(formatBlogDate('2026-07-20', 'en')).toBe('July 20, 2026');
+    expect(formatBlogDate('2026-07-20', 'zh')).toBe('2026年7月20日');
+  });
+
   it('defines two bilingual articles with unique canonical routes', () => {
     expect(blogArticles).toHaveLength(2);
     expect(blogArticles[0]).toMatchObject({

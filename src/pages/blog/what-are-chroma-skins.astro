@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { blogArticles } from '../../blog/articles';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { SITE } from '../../seo/site';
 
 const article = blogArticles.find((entry) => entry.slug === 'what-are-chroma-skins');
@@ -34,7 +34,7 @@ const jsonLd = [
   </nav>
 
   <article class="blog-article" data-language-content="en">
-    <header class="article-header"><p class="kicker">CHROMA ART GUIDE</p><h1>{article.titleEn}</h1><p class="article-deck">Background, colour schemes, purchase methods, and common questions about chroma skins.</p><p class="article-meta"><time datetime={article.publishedAt}>July 20, 2026</time><span>·</span><span>{article.readingMinutes} min read</span></p></header>
+    <header class="article-header"><p class="kicker">CHROMA ART GUIDE</p><h1>{article.titleEn}</h1><p class="article-deck">Background, colour schemes, purchase methods, and common questions about chroma skins.</p><p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p></header>
     <figure><img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" /><figcaption>Chroma Skins 1.1.</figcaption></figure>
     <section><h2>Background</h2><p>Chroma skins launched in Patch 6.17 to give players more ways to personalise content they already owned, liked and used. Changes to art direction, pricing and packaging gave favourite skins more distinct colour options.</p></section>
     <section><h2>Skin showcase</h2></section>
@@ -50,7 +50,7 @@ const jsonLd = [
   </article>
 
   <article class="blog-article" data-language-content="zh">
-    <header class="article-header"><p class="kicker">CHROMA ART 指南</p><h1>{article.titleZh}</h1><p class="article-deck">介绍炫彩皮肤的推出背景、配色、购买方式与常见问题。</p><p class="article-meta"><time datetime={article.publishedAt}>2026 年 7 月 20 日</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p></header>
+    <header class="article-header"><p class="kicker">CHROMA ART 指南</p><h1>{article.titleZh}</h1><p class="article-deck">介绍炫彩皮肤的推出背景、配色、购买方式与常见问题。</p><p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p></header>
     <figure><img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" /><figcaption>炫彩皮肤 1.1。</figcaption></figure>
     <section><h2>推出背景</h2><p>炫彩皮肤于 6.17 版本上线，为玩家已经拥有、喜爱和使用的游戏内容提供更多个性化选择。经过美术设计、价格与包装方面的调整，长期喜爱的皮肤也能拥有更鲜明的不同配色。</p></section>
     <section><h2>皮肤展示</h2></section>
@@ -67,6 +67,7 @@ const jsonLd = [
 
   <style>
     .blog-breadcrumbs,.blog-article{width:min(760px,calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.comparison,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;object-fit:cover;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:42px}.comparison figure,.showcase figure{width:auto;margin:0}.comparison img{aspect-ratio:1}.comparison figcaption{text-align:center}.showcase{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:42px}.showcase img{aspect-ratio:1910/1080}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))}
     @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.comparison{gap:10px;margin-top:32px}.showcase{grid-template-columns:1fr;gap:26px;margin-top:32px}}
   </style>
 </BaseLayout>

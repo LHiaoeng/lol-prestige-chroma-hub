@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { blogArticles } from '../../blog/articles';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { SITE } from '../../seo/site';
 
 const article = blogArticles.find((entry) => entry.slug === 'what-is-league-of-legends');
@@ -47,7 +47,7 @@ const jsonLd = [
       <p class="kicker">BEGINNER’S GUIDE</p>
       <h1>{article.titleEn}</h1>
       <p class="article-deck">A journey through Summoner’s Rift, from choosing a champion to working with four teammates toward the enemy Nexus.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>July 19, 2026</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
     <figure>
       <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="eager" decoding="async" />
@@ -63,7 +63,7 @@ const jsonLd = [
   </article>
 
   <article class="blog-article" data-language-content="zh">
-    <header class="article-header"><p class="kicker">新手指南</p><h1>{article.titleZh}</h1><p class="article-deck">从选择英雄开始，走进召唤师峡谷，与四名队友一起向敌方水晶枢纽推进。</p><p class="article-meta"><time datetime={article.publishedAt}>2026 年 7 月 19 日</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p></header>
+    <header class="article-header"><p class="kicker">新手指南</p><h1>{article.titleZh}</h1><p class="article-deck">从选择英雄开始，走进召唤师峡谷，与四名队友一起向敌方水晶枢纽推进。</p><p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p></header>
     <figure><img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="eager" decoding="async" /><figcaption>蓝色方的水晶枢纽——每支队伍都必须守护的核心建筑。图片来源：<a href={sourceUrl} target="_blank" rel="noreferrer">Riot Games</a>。</figcaption></figure>
     <section><h2>团队策略游戏</h2><p>《英雄联盟》是一款强调团队协作的竞技策略游戏。双方各有五名玩家，每人控制一位拥有独特技能、优势与弱点的英雄。操作能力很重要，但观察地图、共享信息、分配资源与协同行动同样决定胜负。</p><p>大多数新玩家会从召唤师峡谷开始。英雄组合、临场选择与持续更新的规则让每场对局从开局到最终推进都可能出现不同局面。</p></section>
     <section><h2>召唤师峡谷与水晶枢纽</h2><p>双方基地都围绕水晶枢纽建立。胜利目标十分直接：在己方枢纽被摧毁之前攻入敌方基地并摧毁对方枢纽。三条分路连接两座基地，分路之间则是遍布中立野怪与通道的野区。</p><p>防御塔守护着每条分路，玩家通常需要跟随己方小兵推进。拆除建筑可以打开地图空间、创造更安全的前进路线，并把一次次小优势转化为进入敌方基地的机会。</p></section>
@@ -75,7 +75,7 @@ const jsonLd = [
   </article>
 
   <style>
-    .blog-breadcrumbs,.blog-article { width:min(760px,calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }
+    .blog-breadcrumbs,.blog-article { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }
     .blog-breadcrumbs { display:flex; gap:9px; padding:28px 0 0; color:var(--muted); font-size:.84rem; white-space:nowrap; overflow-x:auto; }
     .blog-article { padding:clamp(52px,8vw,90px) 0 110px; }
     .article-header { width:100%; margin-bottom:42px; }

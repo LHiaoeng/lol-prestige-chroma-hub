@@ -25,7 +25,8 @@ describe('blog feature contract', () => {
     expect(page).toContain('<article class="featured-post">');
     expect(page).toContain('blogArticles.map((entry, index)');
     expect(page).toContain('href={entry.href}');
-    expect(page).toContain('<time datetime={entry.publishedAt}>');
+    expect(page).toContain("formatBlogDate(entry.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(entry.publishedAt, 'zh')");
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain('@media (max-width: 1023px)');
     expect(page).toContain('@media (max-width: 767px)');
@@ -55,6 +56,9 @@ describe('blog feature contract', () => {
     expect(page).not.toContain('Baidu Baike');
     expect(page).not.toContain('百度百科');
     expect(page).toContain('炫彩皮肤于 6.17 版本上线');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
   });
 
   it('uses the rank-one chroma artwork as a responsive full-page atmosphere layer', () => {
@@ -80,7 +84,10 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-alt-zh=');
     expect(page).toContain('loading="lazy"');
     expect(page).toContain('data-placeholder="/placeholder.svg"');
-    expect(page).toContain('width:min(760px,calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).not.toContain('width:min(760px');
     expect(page).not.toContain('max-width:720px');
     for (const heading of [
       'A team strategy game',

@@ -13,6 +13,15 @@ export interface BlogArticle {
   readonly sourceUrl?: string;
 }
 
+export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
+  return new Intl.DateTimeFormat(language === 'zh' ? 'zh-CN' : 'en-US', {
+    year: 'numeric',
+    month: language === 'zh' ? 'numeric' : 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
 export const blogArticles: readonly BlogArticle[] = [
   {
     slug: 'what-are-chroma-skins',

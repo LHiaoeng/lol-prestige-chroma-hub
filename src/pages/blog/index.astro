@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { blogArticles } from '../../blog/articles';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { SITE } from '../../seo/site';
@@ -54,7 +54,7 @@ const jsonLd = {
           <h2 data-en={entry.titleEn} data-zh={entry.titleZh}>{entry.titleEn}</h2>
           <p class="post-summary" data-en={entry.summaryEn} data-zh={entry.summaryZh}>{entry.summaryEn}</p>
           <p class="post-meta">
-            <time datetime={entry.publishedAt}>July 19, 2026</time>
+            <time datetime={entry.publishedAt} data-en={formatBlogDate(entry.publishedAt, 'en')} data-zh={formatBlogDate(entry.publishedAt, 'zh')}>{formatBlogDate(entry.publishedAt, 'en')}</time>
             <span aria-hidden="true">·</span>
             <span data-en={`${entry.readingMinutes} min read`} data-zh={`阅读约 ${entry.readingMinutes} 分钟`}>{entry.readingMinutes} min read</span>
           </p>
