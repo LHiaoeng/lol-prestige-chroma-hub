@@ -60,7 +60,8 @@ describe('static site build', () => {
     expect(detail).toContain(`${sample.nameEn} China-Exclusive Chroma Splash Art | LoL Chroma Art`);
     expect(detail).toContain('the Chinese version of League of Legends');
     expect(detail).toContain(`${sample.nameEn} China-Exclusive Chroma Splash Art`);
-    expect(detail).toContain('CHINA EXCLUSIVE PRESTIGE CHROMA');
+    expect(detail).toContain('Click the image to preview');
+    expect(detail).toContain('点击图片预览');
     expect(detail).toContain('Related Chroma Splash Arts');
     expect(detail).toContain('"representativeOfPage":true');
   });

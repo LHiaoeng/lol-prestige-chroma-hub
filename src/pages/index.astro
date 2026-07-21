@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromaCard from '../components/ChromaCard.astro';
 import Filters from '../components/Filters.astro';
+import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
 import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
@@ -12,14 +13,13 @@ const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 ---
 <BaseLayout title={HOME_SEO.title} description={HOME_SEO.description} canonical={HOME_SEO.canonical} jsonLd={HOME_SEO.jsonLd}>
-  <section class="hero-section">
-    {featuredChroma && <div class="hero-backdrop" aria-hidden="true">
-      <picture>
-        <source media="(max-width: 767px)" srcset={imageUrl(featuredChroma.images.medium)} data-fallback={sourceImageUrl('medium', featuredChroma.instanceId)} />
-        <img class="hero-background" src={imageUrl(featuredChroma.images.large)} data-fallback={sourceImageUrl('large', featuredChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
-      </picture>
-      <div class="hero-backdrop-overlay"></div>
-    </div>}
+  <section class="hero-section" data-backdrop-scope>
+    {featuredChroma && <ResponsiveHeroBackdrop
+      largeSrc={imageUrl(featuredChroma.images.large)}
+      mediumSrc={imageUrl(featuredChroma.images.medium)}
+      largeFallback={sourceImageUrl('large', featuredChroma.instanceId)}
+      mediumFallback={sourceImageUrl('medium', featuredChroma.instanceId)}
+    />}
     <div class="hero-content">
       <h1><span data-language-content="en">League of Legends<br /><em>China-Exclusive Chroma Splash Arts</em></span><span data-language-content="zh">英雄联盟中国服专属<br /><em>炫彩原画</em></span></h1>
       <p data-en="Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent." data-zh="探索由腾讯运营的《英雄联盟》中国版本中，为特定炫彩单独创作的原画。">Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent.</p>
@@ -57,58 +57,14 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
   <script>
     import '../catalog/browser-app';
 
-    const hero = document.querySelector<HTMLElement>('.hero-section');
-    const heroBackground = hero?.querySelector<HTMLElement>('.hero-background');
-    const canParallax = matchMedia('(hover: hover) and (pointer: fine)').matches
-      && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (hero && heroBackground && canParallax) {
-      let currentX = 0;
-      let currentY = 0;
-      let targetX = 0;
-      let targetY = 0;
-      let frame = 0;
-
-      const render = () => {
-        currentX += (targetX - currentX) * .1;
-        currentY += (targetY - currentY) * .1;
-        heroBackground.style.setProperty('--hero-x', `${currentX.toFixed(2)}px`);
-        heroBackground.style.setProperty('--hero-y', `${currentY.toFixed(2)}px`);
-        if (Math.abs(targetX - currentX) > .05 || Math.abs(targetY - currentY) > .05) {
-          frame = requestAnimationFrame(render);
-        } else {
-          frame = 0;
-        }
-      };
-
-      const animate = () => {
-        if (!frame) frame = requestAnimationFrame(render);
-      };
-
-      hero.addEventListener('pointermove', (event) => {
-        const bounds = hero.getBoundingClientRect();
-        targetX = ((event.clientX - bounds.left) / bounds.width - .5) * -36;
-        targetY = ((event.clientY - bounds.top) / bounds.height - .5) * -24;
-        animate();
-      });
-      hero.addEventListener('pointerleave', () => {
-        targetX = 0;
-        targetY = 0;
-        animate();
-      });
-    }
-
     document.querySelector('.scroll-hint')?.addEventListener('click', () => {
-      document.querySelector('.catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+      const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+      document.querySelector('.catalog-section')?.scrollIntoView({ behavior });
     });
   </script>
 </BaseLayout>
 <style>
-  .hero-section { position: relative; width: 100%; max-width: none; height: 100vh; min-height: 480px; display: grid; align-items: center; overflow: hidden; padding: 80px 0; }
-  .hero-backdrop { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: 100vh; overflow: hidden; background: #090b15; }
-  .hero-backdrop picture { display: block; width: 100%; height: 100%; }
-  .hero-background { position: absolute; inset: -12px; display: block; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; object-position: center top; transform: translate3d(var(--hero-x, 0), var(--hero-y, 0), 0) scale(1.025); animation: hero-drift 18s ease-in-out infinite alternate; will-change: transform; }
-  .hero-backdrop-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(4,6,12,.96) 0%, rgba(4,6,12,.72) 36%, rgba(4,6,12,.28) 66%, rgba(4,6,12,.08) 100%), linear-gradient(180deg, transparent 0%, transparent 55vh, rgba(9,11,21,.4) 75vh, #090b15 95vh); pointer-events: none; }
+  .hero-section { position: relative; isolation:isolate; width:100%; max-width:none; height:calc(100svh - var(--site-header-height)); min-height:480px; display:grid; align-items:center; overflow:hidden; padding:80px 0; }
   .hero-content { position: relative; z-index: 1; width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
   .hero-content > p:last-child { max-width: 650px; color: #d4d6df; font-size: 1.05rem; text-shadow: 0 2px 18px #000; }
   .hero-content h1 { text-shadow: 0 5px 30px #000b; }
@@ -117,15 +73,9 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
   .scroll-wheel { display: block; width: 4px; height: 8px; background: var(--gold); border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scroll-wheel 2s ease-in-out infinite; }
   @keyframes scroll-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
   @keyframes scroll-wheel { 0% { opacity: 1; top: 8px; } 100% { opacity: 0; top: 22px; } }
-  @keyframes hero-drift {
-    from { transform: translate3d(var(--hero-x, 0), var(--hero-y, 0), 0) scale(1.025); }
-    to { transform: translate3d(var(--hero-x, 0), var(--hero-y, 0), 0) scale(1.065); }
-  }
   @media (max-width: 680px) {
-    .hero-section { height: 100svh; min-height: 480px; padding: 64px 0; }
-    .hero-background { object-position: 62% top; }
-    .hero-backdrop-overlay { background: linear-gradient(90deg, rgba(4,6,12,.6) 0%, rgba(4,6,12,.15) 60%, rgba(4,6,12,.05) 100%), linear-gradient(180deg, transparent 0%, transparent 40vh, rgba(9,11,21,.5) 60vh, #090b15 80vh); }
+    .hero-section { padding:64px 0; }
     .hero-content { width: min(100% - 28px, 1240px); }
   }
-  @media (prefers-reduced-motion: reduce) { .hero-background { animation: none; transform: none; } .scroll-hint { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .scroll-hint { animation:none; } }
 </style>

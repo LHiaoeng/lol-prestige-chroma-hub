@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResponsiveHeroBackdrop from '../../components/ResponsiveHeroBackdrop.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
@@ -22,87 +23,63 @@ const jsonLd = {
 ---
 <BaseLayout {title} {description} {canonical} image={article.coverUrl} {jsonLd}>
   <div class="blog-page">
-    <div class="blog-backdrop" aria-hidden="true">
-      <picture>
-        <source media="(max-width: 767px)" srcset={imageUrl(backgroundChroma.images.medium)} data-fallback={sourceImageUrl('medium', backgroundChroma.instanceId)} />
-        <img src={imageUrl(backgroundChroma.images.large)} data-fallback={sourceImageUrl('large', backgroundChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" />
-      </picture>
-      <div class="blog-backdrop-overlay"></div>
-    </div>
-    <section class="blog-index">
-    <header class="blog-heading">
-      <div data-language-content="en">
-        <p class="kicker">LoL CHROMA ART JOURNAL</p>
-        <h1>Stories from the Rift</h1>
-        <p>Guides and stories about the game, champions, and visual world behind League of Legends.</p>
+    <section class="blog-hero" data-backdrop-scope>
+      <div class="blog-backdrop">
+        <ResponsiveHeroBackdrop
+          largeSrc={imageUrl(backgroundChroma.images.large)}
+          mediumSrc={imageUrl(backgroundChroma.images.medium)}
+          largeFallback={sourceImageUrl('large', backgroundChroma.instanceId)}
+          mediumFallback={sourceImageUrl('medium', backgroundChroma.instanceId)}
+          opacity={.7}
+          mobileOpacity={.85}
+        />
       </div>
-      <div data-language-content="zh">
-        <p class="kicker">LoL CHROMA ART 博客</p>
-        <h1>峡谷内外的故事</h1>
-        <p>探索《英雄联盟》的游戏玩法、英雄角色与视觉世界。</p>
-      </div>
-    </header>
-
-    <div class="post-list">
-    {blogArticles.map((entry, index) => (
-    <article class="featured-post">
-      <a class="featured-post-link" href={entry.href}>
-        <div class="featured-post-art">
-          <img src={entry.coverUrl} alt={entry.coverAltEn} data-alt-en={entry.coverAltEn} data-alt-zh={entry.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={index === 0 ? 1920 : 3288} height={index === 0 ? 944 : 2100} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+      <header class="blog-heading">
+        <div data-language-content="en">
+          <p class="kicker">LoL CHROMA ART JOURNAL</p>
+          <h1>Stories from the Rift</h1>
+          <p>Guides and stories about the game, champions, and visual world behind League of Legends.</p>
         </div>
-        <div class="featured-post-copy">
-          <p class="eyebrow" data-en={index === 0 ? 'FEATURED STORY' : 'GUIDE'} data-zh={index === 0 ? '精选文章' : '指南'}>{index === 0 ? 'FEATURED STORY' : 'GUIDE'}</p>
-          <h2 data-en={entry.titleEn} data-zh={entry.titleZh}>{entry.titleEn}</h2>
-          <p class="post-summary" data-en={entry.summaryEn} data-zh={entry.summaryZh}>{entry.summaryEn}</p>
-          <p class="post-meta">
-            <time datetime={entry.publishedAt} data-en={formatBlogDate(entry.publishedAt, 'en')} data-zh={formatBlogDate(entry.publishedAt, 'zh')}>{formatBlogDate(entry.publishedAt, 'en')}</time>
-            <span aria-hidden="true">·</span>
-            <span data-en={`${entry.readingMinutes} min read`} data-zh={`阅读约 ${entry.readingMinutes} 分钟`}>{entry.readingMinutes} min read</span>
-          </p>
-          <span class="read-more" data-en="Read the story →" data-zh="阅读全文 →">Read the story →</span>
+        <div data-language-content="zh">
+          <p class="kicker">LoL CHROMA ART 博客</p>
+          <h1>峡谷内外的故事</h1>
+          <p>探索《英雄联盟》的游戏玩法、英雄角色与视觉世界。</p>
         </div>
-      </a>
-    </article>
-    ))}
-    </div>
+      </header>
+      <section class="blog-index">
+        <div class="post-list">
+        {blogArticles.map((entry, index) => (
+        <article class="featured-post">
+          <a class="featured-post-link" href={entry.href}>
+            <div class="featured-post-art">
+              <img src={entry.coverUrl} alt={entry.coverAltEn} data-alt-en={entry.coverAltEn} data-alt-zh={entry.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={index === 0 ? 1920 : 3288} height={index === 0 ? 944 : 2100} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+            </div>
+            <div class="featured-post-copy">
+              <p class="eyebrow" data-en={index === 0 ? 'FEATURED STORY' : 'GUIDE'} data-zh={index === 0 ? '精选文章' : '指南'}>{index === 0 ? 'FEATURED STORY' : 'GUIDE'}</p>
+              <h2 data-en={entry.titleEn} data-zh={entry.titleZh}>{entry.titleEn}</h2>
+              <p class="post-summary" data-en={entry.summaryEn} data-zh={entry.summaryZh}>{entry.summaryEn}</p>
+              <p class="post-meta">
+                <time datetime={entry.publishedAt} data-en={formatBlogDate(entry.publishedAt, 'en')} data-zh={formatBlogDate(entry.publishedAt, 'zh')}>{formatBlogDate(entry.publishedAt, 'en')}</time>
+                <span aria-hidden="true">·</span>
+                <span data-en={`${entry.readingMinutes} min read`} data-zh={`阅读约 ${entry.readingMinutes} 分钟`}>{entry.readingMinutes} min read</span>
+              </p>
+              <span class="read-more" data-en="Read the story →" data-zh="阅读全文 →">Read the story →</span>
+            </div>
+          </a>
+        </article>
+        ))}
+        </div>
+      </section>
     </section>
   </div>
 
-  <script>
-    const blogPage = document.querySelector<HTMLElement>('.blog-page');
-    const blogBg = blogPage?.querySelector<HTMLElement>('.blog-backdrop img');
-    const canParallax = matchMedia('(hover: hover) and (pointer: fine)').matches
-      && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (blogPage && blogBg && canParallax) {
-      let cx = 0, cy = 0, tx = 0, ty = 0, raf = 0;
-      const render = () => {
-        cx += (tx - cx) * .1;
-        cy += (ty - cy) * .1;
-        blogBg.style.setProperty('--blog-x', `${cx.toFixed(2)}px`);
-        blogBg.style.setProperty('--blog-y', `${cy.toFixed(2)}px`);
-        if (Math.abs(tx - cx) > .05 || Math.abs(ty - cy) > .05) raf = requestAnimationFrame(render);
-        else raf = 0;
-      };
-      const animate = () => { if (!raf) raf = requestAnimationFrame(render); };
-      blogPage.addEventListener('pointermove', (e) => {
-        const r = blogPage.getBoundingClientRect();
-        tx = ((e.clientX - r.left) / r.width - .5) * -36;
-        ty = ((e.clientY - r.top) / r.height - .5) * -24;
-        animate();
-      });
-      blogPage.addEventListener('pointerleave', () => { tx = 0; ty = 0; animate(); });
-    }
-  </script>
   <style>
-    .blog-page { position:relative; overflow:hidden; }
-    .blog-backdrop { position:absolute; z-index:0; top:0; left:0; right:0; height:100vh; overflow:hidden; background:#090b15; }
-    .blog-backdrop picture { display:block; width:100%; height:100%; }
-    .blog-backdrop img { position:absolute; inset:-12px; display:block; width:calc(100% + 24px); height:calc(100% + 24px); object-fit:cover; object-position:center top; opacity:.7; filter:saturate(.95) contrast(1.05); transform:translate3d(var(--blog-x,0),var(--blog-y,0),0) scale(1.025); animation:blog-drift 18s ease-in-out infinite alternate; will-change:transform; }
-    .blog-backdrop-overlay { position:absolute; inset:0; background:linear-gradient(90deg,rgba(9,11,21,.94) 0%,rgba(9,11,21,.72) 36%,rgba(9,11,21,.28) 66%,rgba(9,11,21,.08) 100%),linear-gradient(180deg,transparent 0%,transparent 55vh,rgba(9,11,21,.4) 75vh,#090b15 95vh); pointer-events:none; }
-    @keyframes blog-drift { from{transform:translate3d(var(--blog-x,0),var(--blog-y,0),0) scale(1.025)} to{transform:translate3d(var(--blog-x,0),var(--blog-y,0),0) scale(1.065)} }
-    .blog-index { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding:clamp(72px,9vw,120px) 0 110px; }
-    .blog-heading { max-width:780px; margin-bottom:clamp(38px,6vw,64px); }
+    .blog-page { background:#090b15; }
+    .blog-hero { position:relative; isolation:isolate; min-height:calc(100svh - var(--site-header-height)); padding:clamp(58px,7vw,88px) 0 110px; overflow:hidden; }
+    .blog-backdrop { position:absolute; z-index:-1; inset:0 0 auto; height:calc(100svh - var(--site-header-height)); min-height:480px; }
+    .blog-heading { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); max-width:1240px; margin-inline:auto; }
+    .blog-heading>div { max-width:780px; }
+    .blog-index { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding-top:clamp(32px,4vw,48px); }
     .blog-heading h1 { font-family:Georgia,"Noto Serif SC",serif; font-size:clamp(2.8rem,6vw,5.2rem); line-height:1.04; margin:.28em 0 .32em; font-weight:500; overflow-wrap:anywhere; text-shadow:0 5px 30px #000b; }
     .blog-heading>div>p:last-child { color:var(--muted); font-size:1.08rem; line-height:1.7; margin:0; text-shadow:0 2px 18px #000; }
     .post-list { display:grid; gap:32px; }
@@ -119,16 +96,14 @@ const jsonLd = {
     @media (hover:hover) and (pointer:fine) { .featured-post-link:hover .featured-post-art img { transform:scale(1.025); } }
     @media (max-width: 1023px) { .featured-post-link { grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr); min-height:380px; } }
     @media (max-width: 767px) {
-      .blog-backdrop-overlay { background:linear-gradient(90deg,rgba(9,11,21,.6) 0%,rgba(9,11,21,.15) 60%,rgba(9,11,21,.05) 100%),linear-gradient(180deg,transparent 0%,transparent 40vh,rgba(9,11,21,.5) 60vh,#090b15 80vh); }
-      .blog-backdrop img { object-position:62% top; opacity:.85; filter:saturate(.9) contrast(1.04); }
-      .blog-index { padding:54px 0 76px; }
-      .blog-heading { margin-bottom:32px; }
+      .blog-hero { padding:44px 0 76px; }
+      .blog-index { padding-top:32px; }
       .blog-heading h1 { font-size:clamp(2.35rem,12vw,3.5rem); }
       .blog-heading>div>p:last-child { font-size:1rem; }
       .featured-post-link { grid-template-columns:1fr; min-height:0; }
       .featured-post-art { aspect-ratio:16/10; }
       .featured-post-copy { padding:24px 20px 28px; }
     }
-    @media (prefers-reduced-motion:reduce) { .featured-post-art img { transition:none; } .blog-backdrop img { animation:none; transform:none; } }
+    @media (prefers-reduced-motion:reduce) { .featured-post-art img { transition:none; } }
   </style>
 </BaseLayout>

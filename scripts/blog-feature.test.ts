@@ -63,13 +63,16 @@ describe('blog feature contract', () => {
 
   it('uses the rank-one chroma artwork as a responsive full-page atmosphere layer', () => {
     const page = source('src/pages/blog/index.astro');
+    const backdrop = source('src/components/ResponsiveHeroBackdrop.astro');
     expect(page).toContain("const backgroundChroma = catalog.find((item) => item.rank === 1)");
-    expect(page).toContain('<div class="blog-backdrop" aria-hidden="true">');
-    expect(page).toContain('<source media="(max-width: 767px)" srcset={imageUrl(backgroundChroma.images.medium)}');
-    expect(page).toContain('<img src={imageUrl(backgroundChroma.images.large)} data-fallback={sourceImageUrl(\'large\', backgroundChroma.instanceId)}');
-    expect(page).toContain('.blog-page::after');
-    expect(page).toContain('.blog-backdrop img');
-    expect(page).toMatch(/@media \(max-width: 767px\)[\s\S]*?\.blog-backdrop/);
+    expect(page).toContain('<section class="blog-hero" data-backdrop-scope>');
+    expect(page).toContain('<div class="blog-backdrop">');
+    expect(page).toContain('largeSrc={imageUrl(backgroundChroma.images.large)}');
+    expect(page).toContain('mediumSrc={imageUrl(backgroundChroma.images.medium)}');
+    expect(page).toContain('height:calc(100svh - var(--site-header-height))');
+    expect(page.match(/<section class="blog-hero"[\s\S]*?<section class="blog-index">/)?.[0]).toBeDefined();
+    expect(backdrop).toContain('<source media="(max-width: 767px)" srcset={mediumSrc}');
+    expect(backdrop).toMatch(/<img\s+data-backdrop-image\s+src=\{largeSrc\}/);
   });
 
   it('renders a complete bilingual illustrated article', () => {

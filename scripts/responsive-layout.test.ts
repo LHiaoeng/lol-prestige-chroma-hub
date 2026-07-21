@@ -21,7 +21,8 @@ describe('responsive layout contract', () => {
 
   it('keeps the complete detail list visible on desktop and collapsible on mobile', () => {
     const detail = source('src/pages/chromas/[slug].astro');
-    expect(detail).toContain('class="detail-poster-copy"');
+    expect(detail).not.toContain('class="detail-poster-copy"');
+    expect(detail).toContain('class="detail-preview-hint"');
     expect(detail).toContain('<details class="detail-info-disclosure" open>');
     expect(detail).toContain("matchMedia('(min-width: 768px)')");
     expect(detail).toContain("toggleAttribute('open', desktop.matches)");
@@ -58,22 +59,42 @@ describe('responsive layout contract', () => {
     expect(actions).toContain('calc(100vw - 28px)');
   });
 
-  it('uses medium detail artwork on mobile while keeping the large preview', () => {
+  it('uses medium detail background artwork while keeping the content and preview large', () => {
     const detail = source('src/pages/chromas/[slug].astro');
     const viewer = source('src/components/ImageViewer.astro');
     expect(detail).toContain('const mobileImage = imageUrl(chroma.images.medium)');
     expect(detail).toContain('<source media="(max-width: 767px)" srcset={mobileImage}');
     expect(detail).toContain("data-fallback={sourceImageUrl('medium', chroma.instanceId)}");
-    expect(detail).toContain('mobileSrc={mobileImage}');
-    expect(viewer).toContain('<source media="(max-width: 767px)" srcset={mobileSrc}');
+    const viewerUsage = detail.match(/<ImageViewer[\s\S]*?\/>/)?.[0];
+    expect(viewerUsage).toBeDefined();
+    expect(viewerUsage).not.toContain('mobileSrc=');
+    expect(viewerUsage).not.toContain('mobileFallback=');
     expect(viewer).toContain('<img class="viewer-full" src={src}');
+    expect(detail).toContain('.detail-image :global(.viewer-image){height:auto;object-fit:contain}');
+  });
+
+  it('orders uncropped mobile detail content over a first-screen background', () => {
+    const detail = source('src/pages/chromas/[slug].astro');
+    const css = source('src/styles/global.css');
+    const hintIndex = detail.indexOf('class="detail-preview-hint"');
+    const titleIndex = detail.indexOf('class="detail-title-row"');
+    const detailsIndex = detail.indexOf('<details class="detail-info-disclosure"');
+    expect(css).toContain('.detail-image{width:100%;height:auto;aspect-ratio:auto;');
+    expect(detail).toContain('data-en="Click the image to preview"');
+    expect(hintIndex).toBeGreaterThan(-1);
+    expect(hintIndex).toBeLessThan(titleIndex);
+    expect(titleIndex).toBeLessThan(detailsIndex);
+    expect(detail).toContain('height:calc(100svh - var(--site-header-height))');
+    expect(detail).not.toContain('.detail-background{height:540px}');
   });
 
   it('uses medium home hero artwork on mobile while keeping the large desktop image', () => {
     const home = source('src/pages/index.astro');
-    expect(home).toContain('<picture>');
-    expect(home).toContain('<source media="(max-width: 767px)" srcset={imageUrl(featuredChroma.images.medium)}');
-    expect(home).toContain("data-fallback={sourceImageUrl('medium', featuredChroma.instanceId)}");
-    expect(home).toContain('<img class="hero-background" src={imageUrl(featuredChroma.images.large)}');
+    const backdrop = source('src/components/ResponsiveHeroBackdrop.astro');
+    expect(home).toContain('largeSrc={imageUrl(featuredChroma.images.large)}');
+    expect(home).toContain('mediumSrc={imageUrl(featuredChroma.images.medium)}');
+    expect(home).toContain("mediumFallback={sourceImageUrl('medium', featuredChroma.instanceId)}");
+    expect(backdrop).toContain('<source media="(max-width: 767px)" srcset={mediumSrc}');
+    expect(backdrop).toMatch(/<img\s+data-backdrop-image\s+src=\{largeSrc\}/);
   });
 });

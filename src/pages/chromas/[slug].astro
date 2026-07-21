@@ -68,23 +68,17 @@ const patchActions = [
   <nav class="breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑"><a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><span aria-current="page" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</span></nav>
   <article class="detail">
     <h1 class="sr-only detail-accessible-title" data-en={`${chroma.nameEn} China-Exclusive Chroma Splash Art`} data-zh={`${chroma.nameZh} 炫彩原画`}>{chroma.nameEn} China-Exclusive Chroma Splash Art</h1>
-    <div class="detail-image">
-      <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} mobileSrc={mobileImage} mobileFallback={sourceImageUrl('medium', chroma.instanceId)} altEn={seo.imageAlt} altZh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} />
-      <div class="detail-poster-copy" aria-hidden="true">
-        <p class="eyebrow">CHINA EXCLUSIVE PRESTIGE CHROMA</p>
-        <p class="detail-poster-title" data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</p>
-        <div class="detail-poster-tags">
-          <span data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</span>
-          <span data-en={chroma.heroNameEn} data-zh={chroma.heroNameZh}>{chroma.heroNameEn}</span>
-          <span>{chroma.gameVer}</span>
-        </div>
+    <div class="detail-media">
+      <div class="detail-image">
+        <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} altEn={seo.imageAlt} altZh={`${chroma.heroNameZh} ${chroma.nameZh} 高清原画`} />
       </div>
+      <p class="detail-preview-hint" data-en="Click the image to preview" data-zh="点击图片预览">Click the image to preview</p>
     </div>
     <div class="detail-copy">
+      <div class="detail-title-row"><p class="detail-display-title" data-en={chroma.nameEn} data-zh={chroma.nameZh} aria-hidden="true">{chroma.nameEn}</p><DetailActionMenu actions={prestigeChromaActions} /></div>
       <details class="detail-info-disclosure" open>
       <summary><span data-en="Details" data-zh="详细资料">Details</span><span class="detail-info-icon" aria-hidden="true">＋</span></summary>
       <div class="detail-info-body">
-      <div class="detail-title-row"><p class="detail-display-title" data-en={chroma.nameEn} data-zh={chroma.nameZh} aria-hidden="true">{chroma.nameEn}</p><DetailActionMenu actions={prestigeChromaActions} /></div>
       <dl>
         <div><dt data-en="Category" data-zh="分类">Category</dt><dd data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</dd></div>
         <div><dt data-en="Category icon" data-zh="分类图标">Category icon</dt><dd><CategoryIconPreview src={sourceImageUrl('tag', chroma.tagId)} /></dd></div>
@@ -112,11 +106,12 @@ const patchActions = [
 </script>
 <style>
   :global(main){position:relative;isolation:isolate}
-  .detail-background{position:absolute;z-index:-1;inset:0 0 auto;height:min(70vw,760px);overflow:hidden;pointer-events:none}
+  .detail-background{position:absolute;z-index:-1;inset:0 0 auto;height:calc(100svh - var(--site-header-height));overflow:hidden;pointer-events:none}
   .detail-background::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#090b15f2 0%,#090b15a8 45%,#090b1566 75%),linear-gradient(0deg,#090b15 0%,transparent 52%,#090b1570 100%)}
   .detail-background picture{display:block;width:100%;height:100%}
   .detail-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.52;filter:saturate(.85)}
-  .detail-poster-copy{display:none}
+  .detail-media{min-width:0}
+  .detail-preview-hint{margin:10px 0 0;color:var(--muted);font-size:.78rem;text-align:center}
   .detail-info-disclosure>summary{display:none}
   .detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}
   .detail-title-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap;margin-bottom:20px}
@@ -126,14 +121,11 @@ const patchActions = [
   .description-row dd{color:var(--muted);line-height:1.7}
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   @media(max-width:767px){
-    .detail-background{height:540px}
     .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
     .detail-background img{opacity:.42;object-position:center top}
-    .detail-poster-copy{display:block;position:absolute;z-index:2;left:0;right:0;bottom:0;padding:120px max(var(--page-gutter),env(safe-area-inset-left)) 24px;background:linear-gradient(transparent,#090b15e8 55%,#090b15);pointer-events:none}
-    .detail-poster-copy .eyebrow{margin:0 0 8px}
-    .detail-poster-title{margin:0;color:var(--text);font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2rem,10vw,3.25rem);line-height:1.02;text-wrap:balance}
-    .detail-poster-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
-    .detail-poster-tags span{padding:6px 9px;border:1px solid #ffffff30;border-radius:999px;background:#090b1566;color:#f4f0e6;font-size:.72rem;backdrop-filter:blur(8px)}
+    .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:auto}
+    .detail-image :global(.viewer-image){height:auto;object-fit:contain}
+    .detail-preview-hint{width:calc(100% - (var(--page-gutter) * 2));margin:10px auto 0}
     .detail-copy{width:calc(100% - (var(--page-gutter) * 2));margin:0 auto;padding:14px 0 24px}
     .detail-info-disclosure{border:1px solid var(--line);border-radius:10px;background:var(--panel)}
     .detail-info-disclosure>summary{display:flex;min-height:var(--touch-target);align-items:center;justify-content:space-between;padding:0 14px;color:var(--gold);font-size:.82rem;font-weight:700;list-style:none;cursor:pointer}

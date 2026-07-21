@@ -1,0 +1,63 @@
+---
+interface Props {
+  largeSrc: string;
+  mediumSrc: string;
+  largeFallback: string;
+  mediumFallback: string;
+  position?: string;
+  mobilePosition?: string;
+  opacity?: number;
+  mobileOpacity?: number;
+}
+
+const {
+  largeSrc,
+  mediumSrc,
+  largeFallback,
+  mediumFallback,
+  position = 'center top',
+  mobilePosition = '62% top',
+  opacity = 1,
+  mobileOpacity = opacity,
+} = Astro.props;
+const backdropStyle = `--backdrop-position:${position};--backdrop-mobile-position:${mobilePosition};--backdrop-opacity:${opacity};--backdrop-mobile-opacity:${mobileOpacity}`;
+---
+<div class="responsive-hero-backdrop" data-responsive-backdrop aria-hidden="true" style={backdropStyle}>
+  <picture>
+    <source media="(max-width: 767px)" srcset={mediumSrc} data-fallback={mediumFallback} />
+    <img
+      data-backdrop-image
+      src={largeSrc}
+      data-fallback={largeFallback}
+      data-placeholder="/placeholder.svg"
+      alt=""
+      width="1920"
+      height="1080"
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+    />
+  </picture>
+  <div class="backdrop-overlay"></div>
+</div>
+
+<script>
+  import { bindResponsiveBackdrops } from '../client/responsive-backdrop';
+  bindResponsiveBackdrops();
+</script>
+
+<style>
+  .responsive-hero-backdrop { position:absolute; z-index:0; inset:0; overflow:hidden; background:#090b15; pointer-events:none; }
+  picture { display:block; width:100%; height:100%; }
+  img { position:absolute; inset:-12px; display:block; width:calc(100% + 24px); height:calc(100% + 24px); object-fit:cover; object-position:var(--backdrop-position); opacity:var(--backdrop-opacity); transform:translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.025); animation:backdrop-drift 18s ease-in-out infinite alternate; will-change:transform; }
+  .backdrop-overlay { position:absolute; inset:0; background:linear-gradient(90deg,rgba(4,6,12,.94) 0%,rgba(4,6,12,.7) 36%,rgba(4,6,12,.26) 66%,rgba(4,6,12,.07) 100%),linear-gradient(180deg,transparent 0%,transparent 54%,rgba(9,11,21,.42) 78%,#090b15 100%); }
+  @keyframes backdrop-drift {
+    from { transform:translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.025); }
+    to { transform:translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.065); }
+  }
+  @media (max-width:767px) {
+    img { object-position:var(--backdrop-mobile-position); opacity:var(--backdrop-mobile-opacity); }
+    .backdrop-overlay { background:linear-gradient(90deg,rgba(4,6,12,.6) 0%,rgba(4,6,12,.15) 62%,rgba(4,6,12,.04) 100%),linear-gradient(180deg,transparent 0%,transparent 46%,rgba(9,11,21,.52) 72%,#090b15 100%); }
+  }
+  @media (prefers-reduced-motion:reduce) { img { animation:none; transform:none; } }
+</style>
