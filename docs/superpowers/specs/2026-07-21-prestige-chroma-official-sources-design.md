@@ -9,6 +9,8 @@ Add verified first-party sources to the bilingual prestige-chroma guide so acqui
 - Place three Tencent League of Legends activity links directly after the acquisition methods. Label the first as `Brilliant Prestige Summoning / 璀璨臻彩召唤` and the other two as dated `Lucky Gate / 幸运之门` activity examples.
 - Place the official Bilibili video for `如是歌` beside the theme-music statement in the design section.
 - Place the official Bilibili Dunhuang prestige-chroma showcase beside the Chinese-inspired design discussion.
+- Place the Tencent LPL tenth-anniversary page beside the commemorative prestige-chroma statement.
+- Place the official Panda Lux article beside the charitable-project statement.
 - Render equivalent English and Chinese link labels in their respective article variants.
 
 ## Link Behaviour
@@ -25,8 +27,10 @@ Add verified first-party sources to the bilingual prestige-chroma guide so acqui
 - `https://lol.qq.com/act/a202606117610prizewheel/index.html` — 幸运之门, Tencent-CP.
 - `https://www.bilibili.com/video/BV1EQF3z7ETt` — `如是歌` / 竹映梅香臻彩系列主题曲, published by 英雄联盟.
 - `https://www.bilibili.com/video/BV1w5E96ME4h` — 敦煌臻彩展示片, published by 英雄联盟.
+- `https://lol.qq.com/act/a2023lpl10celebration2s/index.html?pos=2` — LPL 十周年答谢及纪念臻彩, Tencent-CP.
+- `https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898` — 熊猫拉克丝臻彩系列 KV 原画 and the 守护者的奉献 charitable project, published by 英雄联盟官方.
 
 ## Verification
 
-- Static article tests require all five URLs, bilingual source labels, descriptive anchor text, and safe external-link attributes.
+- Static article tests require all seven URLs, bilingual source labels, descriptive anchor text, and safe external-link attributes.
 - Existing article heading, bilingual content, SEO, and release-build checks must continue to pass.
