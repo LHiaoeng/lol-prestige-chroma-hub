@@ -8,7 +8,7 @@
 
 ## 博客
 
-博客列表位于 `/blog/`，中英文图文文章包括 `/blog/what-is-league-of-legends/` 与 `/blog/what-are-chroma-skins/`。文章正文直接由 Astro 页面静态维护，列表元数据集中在 `src/blog/articles.ts`；博客不读取目录 JSON，也不增加运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
+博客列表位于 `/blog/`，中英文图文文章包括 `/blog/what-is-league-of-legends/` 与 `/blog/what-are-chroma-skins/`。文章正文直接由 Astro 页面静态维护，列表元数据集中在 `src/blog/articles.ts`；尚未发布的文章保存在 `src/blog/drafts/`，不会生成公开路由，也不会进入博客列表或 Sitemap。博客不读取目录 JSON，也不增加运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
 ## 本地开发
 

@@ -1,11 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { formatBlogDate } from '../../blog/articles';
+import { championsWithoutPrestigeChromaDraft as article } from './articles';
 import { SITE } from '../../seo/site';
 
-const article = blogArticles.find((entry) => entry.slug === 'champions-without-prestige-chroma');
-if (!article) throw new Error('Champions-without-prestige-chroma article metadata is missing');
 const title = `${article.titleEn} | ${SITE.name}`;
 const description = article.summaryEn;
 const canonical = `${SITE.origin}${article.href}`;
