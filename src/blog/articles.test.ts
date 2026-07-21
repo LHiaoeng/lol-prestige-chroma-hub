@@ -24,7 +24,7 @@ describe('blog article metadata', () => {
       slug: 'what-are-chroma-skins',
       href: '/blog/what-are-chroma-skins/',
       titleZh: '什么是炫彩皮肤？',
-      coverUrl: '/blog/chroma-history-hero-en.png',
+      coverUrl: '/img/blog/chroma-history-hero-en.png',
     });
     expect(blogArticles[3]).toMatchObject({
       slug: 'what-is-league-of-legends',

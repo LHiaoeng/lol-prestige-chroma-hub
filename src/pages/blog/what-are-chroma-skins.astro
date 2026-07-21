@@ -8,7 +8,7 @@ if (!article) throw new Error('Chroma explainer article metadata is missing');
 const title = `${article.titleEn} | ${SITE.name}`;
 const description = article.summaryEn;
 const canonical = `${SITE.origin}${article.href}`;
-const mediaRoot = '/blog/chroma-history-';
+const mediaRoot = '/img/blog/chroma-history-';
 const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.titleEn,
