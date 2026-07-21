@@ -9,7 +9,7 @@ export function chromaImageAlt(name: string): string {
 export function createChromaSeo(chroma: Chroma) {
   const canonical = `${SITE.origin}/chromas/${chroma.slug}/`;
   const image = imageUrl(chroma.images.large);
-  const description = `See ${chroma.nameEn}, a ${chroma.skinNameEn} chroma with unique splash art in the Chinese version of League of Legends (patch ${chroma.gameVer}).`;
+  const description = `${chroma.nameEn}: standalone splash art shown in the Chinese version of League of Legends (patch ${chroma.gameVer}); chroma availability may differ by region.`;
   return {
     title: `${chroma.nameEn} China-Exclusive Chroma Splash Art | ${SITE.name}`,
     description,

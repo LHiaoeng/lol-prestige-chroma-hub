@@ -5,9 +5,14 @@ export const SITE = {
   tagline: 'China-Exclusive Chroma Splash Art Archive',
 } as const;
 
+export const CHINA_EXCLUSIVE_DEFINITION = {
+  en: '“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.',
+  zh: '“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。',
+} as const;
+
 export const HOME_SEO = {
   title: `LoL China-Exclusive Chroma Splash Arts | ${SITE.name}`,
-  description: 'Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent.',
+  description: 'Explore standalone chroma splash arts shown on the Chinese League of Legends server. “China Exclusive” refers to the artwork, not necessarily the chromas’ regional availability.',
   canonical: `${SITE.origin}/`,
   jsonLd: [
     {
@@ -23,7 +28,7 @@ export const HOME_SEO = {
       '@type': 'CollectionPage',
       '@id': `${SITE.origin}/#collection`,
       name: 'League of Legends China-Exclusive Chroma Splash Arts',
-      description: 'An independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends.',
+      description: CHINA_EXCLUSIVE_DEFINITION.en,
       url: `${SITE.origin}/`,
       isPartOf: { '@id': `${SITE.origin}/#website` },
     },

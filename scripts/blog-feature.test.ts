@@ -5,6 +5,16 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('blog feature contract', () => {
+  it('defines China Exclusive as an artwork property in the prestige chroma FAQ', () => {
+    const page = source('src/pages/blog/what-are-prestige-chromas.astro');
+    expect(page).toContain("import { CHINA_EXCLUSIVE_DEFINITION, SITE } from '../../seo/site'");
+    expect(page).toContain('CHINA_EXCLUSIVE_DEFINITION.en');
+    expect(page).toContain('CHINA_EXCLUSIVE_DEFINITION.zh');
+    expect(page).toContain('The chroma itself may also be available in other regions');
+    expect(page).toContain('炫彩本身也可能在其他地区提供');
+    expect(page).not.toContain('Some prestige chromas are released for all regions, while others may be limited to the Chinese server');
+  });
+
   it('renders shared non-circular previous and next navigation on every article', () => {
     const component = source('src/components/BlogAdjacentNavigation.astro');
     expect(component).toContain('adjacentBlogArticles(currentSlug)');

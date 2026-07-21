@@ -7,10 +7,12 @@ import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
 import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
-import { HOME_SEO } from '../seo/site';
+import { CHINA_EXCLUSIVE_DEFINITION, HOME_SEO } from '../seo/site';
 const firstPage = catalog.slice(0, 24);
 const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
+const heroDescriptionEn = `${CHINA_EXCLUSIVE_DEFINITION.en} The Chinese service is operated by Tencent.`;
+const heroDescriptionZh = `${CHINA_EXCLUSIVE_DEFINITION.zh} 中国服务器由腾讯运营。`;
 ---
 <BaseLayout title={HOME_SEO.title} description={HOME_SEO.description} canonical={HOME_SEO.canonical} jsonLd={HOME_SEO.jsonLd}>
   <section class="hero-section" data-backdrop-scope>
@@ -22,7 +24,7 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
     />}
     <div class="hero-content">
       <h1><span data-language-content="en">League of Legends<br /><em>China-Exclusive Chroma Splash Arts</em></span><span data-language-content="zh">英雄联盟中国服专属<br /><em>炫彩原画</em></span></h1>
-      <p data-en="Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent." data-zh="探索由腾讯运营的《英雄联盟》中国版本中，为特定炫彩单独创作的原画。">Explore an independent archive of unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent.</p>
+      <p data-en={heroDescriptionEn} data-zh={heroDescriptionZh}>{heroDescriptionEn}</p>
     </div>
     <div class="scroll-hint" aria-hidden="true">
       <span class="scroll-mouse"><span class="scroll-wheel"></span></span>

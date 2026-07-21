@@ -20,7 +20,7 @@
 
 ## 2. 产品与体验目标
 
-LoL Chroma Art 是面向海外用户的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 `China-Exclusive Chroma Splash Art Archive`。前端承担以下职责：
+LoL Chroma Art 是面向海外用户的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 `China-Exclusive Chroma Splash Art Archive`。`China Exclusive` 仅描述中国服务器中提供的独立炫彩原画，不代表炫彩本身一定仅限中国服务器；中英文标准定义集中维护在 `src/seo/site.ts`。前端承担以下职责：
 
 - 用原画优先的暗色画廊界面展示炫彩原画目录；
 - 提供可分享、可索引的静态详情页；

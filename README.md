@@ -1,6 +1,6 @@
 # LoL Chroma Art
 
-面向海外用户、以英文为主要索引语言的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 **China-Exclusive Chroma Splash Art Archive**。中文作为辅助语言保留。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
+面向海外用户、以英文为主要索引语言的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 **China-Exclusive Chroma Splash Art Archive**。这里的“中国服专属”限定的是中国服务器中提供的独立炫彩原画，不表示炫彩本身一定仅限中国服务器。中文作为辅助语言保留。Astro 在构建时读取 `data/prestige-chromas.json`，生成静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
 
 炫彩原画（Chroma Splash Art）是为特定炫彩单独创作的原画；普通炫彩通常沿用基础皮肤原画。站内将“臻彩”分类译作 `Prestige Chroma`，但不使用该词统称整个目录，也不将其描述为传统 `Prestige Skin`。
 

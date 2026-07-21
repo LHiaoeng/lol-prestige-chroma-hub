@@ -68,8 +68,13 @@ describe('static site build', () => {
   });
 
   it('uses factual informational SEO copy', () => {
+    const home = readFileSync(join(dist, 'index.html'), 'utf8');
     const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
+    expect(home).toContain('“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.');
+    expect(home).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
     expect(about).toContain('<title>What Are Chroma Splash Arts? | LoL Chroma Art</title>');
+    expect(about).toContain('“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.');
+    expect(about).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
     expect(about).toContain("Most chromas reuse their base skin's splash art");
     expect(about).toContain('operated by Tencent');
     expect(about).toContain('Availability and release timing vary by event and patch');
