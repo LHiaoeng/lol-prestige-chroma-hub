@@ -51,7 +51,7 @@ describe('blog feature contract', () => {
     expect(page).toContain('${mediaRoot}blue-essence-en.png');
     expect(page.match(/<details>/g)).toHaveLength(16);
     expect(page).toContain('.article-header,.blog-article>section,.blog-article>figure,.comparison,.showcase');
-    expect(page).toContain("const mediaRoot = '/images/blog/chroma-history-'");
+    expect(page).toContain("const mediaRoot = '/blog/chroma-history-'");
     expect(page).toContain('loading="lazy"');
     expect(page).not.toContain('Baidu Baike');
     expect(page).not.toContain('百度百科');
