@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { SITE } from '../../seo/site';
 
@@ -73,6 +74,8 @@ const jsonLd = [
     <section><h2>一场对局如何积累优势</h2><p>英雄通过经验值提升等级，并使用金币购买装备。玩家可以从小兵、野怪、防御建筑与战斗中获得资源，再判断何时留在线上、回城补给、支援队友，或争夺巨龙与纳什男爵等地图目标。</p><p>击杀很重要，但它通常是争取时间与控制权的手段。成熟的团队会把一场胜利的团战转化为长期收益：防御塔、地图目标、更深入的视野，或通往水晶枢纽的最后一条道路。沟通与时机让个人操作真正汇聚成团队优势。</p></section>
     <section><h2>持续进化的游戏</h2><p>Riot Games 会持续调整英雄、装备、系统与赛季目标。在竞技之外，《英雄联盟》还通过符文之地的故事、音乐、动画、角色美术与全球电竞赛事不断扩展。玩家既可以把它当作策略竞技项目，也可以与朋友共同游玩，或把它视为进入宏大幻想世界的入口。</p><p>想了解当前版本的操作与基础规则，可以继续阅读 Riot Games 官方的<a href={sourceUrl} target="_blank" rel="noreferrer">新手玩法指南</a>。</p></section>
   </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} />
 
   <style>
     .blog-breadcrumbs,.blog-article { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }

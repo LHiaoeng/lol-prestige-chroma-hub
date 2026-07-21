@@ -1,10 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { blogArticles, formatBlogDate } from './articles';
+import { adjacentBlogArticles, blogArticles, formatBlogDate } from './articles';
 
 describe('blog article metadata', () => {
   it('formats ISO publication dates consistently in both languages', () => {
     expect(formatBlogDate('2026-07-20', 'en')).toBe('July 20, 2026');
     expect(formatBlogDate('2026-07-20', 'zh')).toBe('2026年7月20日');
+  });
+
+  it('returns non-circular adjacent articles in newest-first order', () => {
+    expect(adjacentBlogArticles(blogArticles[0].slug)).toEqual({
+      newer: undefined,
+      older: blogArticles[1],
+    });
+    expect(adjacentBlogArticles(blogArticles[1].slug)).toEqual({
+      newer: blogArticles[0],
+      older: blogArticles[2],
+    });
+    expect(adjacentBlogArticles(blogArticles.at(-1)!.slug)).toEqual({
+      newer: blogArticles.at(-2),
+      older: undefined,
+    });
+    expect(adjacentBlogArticles('missing')).toEqual({ newer: undefined, older: undefined });
   });
 
   it('defines four bilingual articles with unique canonical routes', () => {

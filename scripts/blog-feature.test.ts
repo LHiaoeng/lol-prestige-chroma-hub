@@ -5,6 +5,30 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('blog feature contract', () => {
+  it('renders shared non-circular previous and next navigation on every article', () => {
+    const component = source('src/components/BlogAdjacentNavigation.astro');
+    expect(component).toContain('adjacentBlogArticles(currentSlug)');
+    expect(component).toContain('Previous article');
+    expect(component).toContain('Next article');
+    expect(component).toContain('上一篇');
+    expect(component).toContain('下一篇');
+    expect(component).toContain('href={older.href}');
+    expect(component).toContain('href={newer.href}');
+    expect(component).toContain('aria-label=');
+    expect(component).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(component).toContain('grid-template-columns:repeat(2,minmax(0,1fr))');
+    expect(component).toContain('@media (max-width:767px)');
+    for (const pagePath of [
+      'src/pages/blog/champions-without-prestige-chroma.astro',
+      'src/pages/blog/what-are-prestige-chromas.astro',
+      'src/pages/blog/what-are-chroma-skins.astro',
+      'src/pages/blog/what-is-league-of-legends.astro',
+    ]) {
+      const page = source(pagePath);
+      expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \/>/g)).toHaveLength(1);
+    }
+  });
+
   it('links the blog from the header and footer on every page', () => {
     const layout = source('src/layouts/BaseLayout.astro');
     expect(layout.match(/href="\/blog\/"/g)).toHaveLength(2);
@@ -135,8 +159,31 @@ describe('blog feature contract', () => {
       '臻彩藏馆系统',
       '获取方式',
       '设计理念',
-      '文化内容与联动',
+      '文化内容与合作',
     ]) expect(page).toContain(heading);
+    for (const fact of [
+      'January 13, 2023',
+      '2023 年 1 月 13 日',
+      'Splendid Treasure Summoning',
+      '华彩秘宝·召唤',
+      'theme music',
+      '主题音乐',
+      'charitable',
+      '公益',
+      'LPL tenth anniversary',
+      'LPL 十周年',
+    ]) expect(page).toContain(fact);
+    expect(page).not.toMatch(/\[[0-9]+(?:-[0-9]+)?\]/);
+    expect(page).toContain("e26f28ec-534a-442a-b4be-3406116f93da");
+    expect(page).toContain("9c393600-64bc-402b-8b02-f57f3211d9c3");
+    expect(page).toContain('天龙之子 伊泽瑞尔 飞天 — 东方配色、纹样与装饰细节');
+    expect(page).toContain('无畏竞巅峰 薇恩 — LPL 十周年纪念臻彩');
+    expect(page).toContain('href={`/chromas/${chroma.slug}/`}');
+    expect(page).toContain('href={`/chromas/${designChroma.slug}/`}');
+    expect(page).toContain('href={`/chromas/${cultureChroma.slug}/`}');
+    expect(page).toContain('class="chroma-art-link"');
+    expect(page).toContain('data-aria-en=');
+    expect(page).toContain('data-aria-zh=');
     expect(page.match(/<details>/g)).toHaveLength(12);
   });
 });

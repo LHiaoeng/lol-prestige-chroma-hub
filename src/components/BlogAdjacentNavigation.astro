@@ -1,0 +1,38 @@
+---
+import { adjacentBlogArticles, formatBlogDate } from '../blog/articles';
+
+interface Props {
+  currentSlug: string;
+}
+
+const { currentSlug } = Astro.props;
+const { newer, older } = adjacentBlogArticles(currentSlug);
+const navigationClass = `blog-adjacent${newer && !older ? ' only-newer' : ''}${older && !newer ? ' only-older' : ''}`;
+---
+{(newer || older) && (
+  <nav class={navigationClass} aria-label="More blog articles" data-aria-en="More blog articles" data-aria-zh="更多博客文章">
+    <div data-language-content="en" class="adjacent-grid">
+      {older && <a class="adjacent-card older" href={older.href} aria-label={`Previous article: ${older.titleEn}`}><span class="direction">← Previous article</span><strong>{older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, 'en')}</time></a>}
+      {newer && <a class="adjacent-card newer" href={newer.href} aria-label={`Next article: ${newer.titleEn}`}><span class="direction">Next article →</span><strong>{newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, 'en')}</time></a>}
+    </div>
+    <div data-language-content="zh" class="adjacent-grid">
+      {older && <a class="adjacent-card older" href={older.href} aria-label={`上一篇：${older.titleZh}`}><span class="direction">← 上一篇</span><strong>{older.titleZh}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, 'zh')}</time></a>}
+      {newer && <a class="adjacent-card newer" href={newer.href} aria-label={`下一篇：${newer.titleZh}`}><span class="direction">下一篇 →</span><strong>{newer.titleZh}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, 'zh')}</time></a>}
+    </div>
+  </nav>
+)}
+
+<style>
+  .blog-adjacent { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin:0 auto clamp(76px,9vw,120px); }
+  .adjacent-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+  .only-newer .newer { grid-column:2; }
+  .adjacent-card { display:flex; min-width:0; min-height:170px; flex-direction:column; justify-content:center; gap:12px; padding:clamp(24px,3vw,36px); border:1px solid var(--line); border-radius:14px; background:var(--panel); transition:border-color .2s ease,transform .2s ease,background-color .2s ease; }
+  .adjacent-card.newer { text-align:right; }
+  .direction { color:var(--gold); font-size:.76rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .adjacent-card strong { color:var(--text); font-family:Georgia,"Noto Serif SC",serif; font-size:clamp(1.25rem,2.2vw,1.75rem); line-height:1.25; overflow-wrap:anywhere; }
+  .adjacent-card time { color:var(--muted); font-size:.78rem; }
+  .adjacent-card:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
+  @media (hover:hover) and (pointer:fine) { .adjacent-card:hover { border-color:var(--gold); background:var(--panel2); transform:translateY(-3px); } }
+  @media (max-width:767px) { .adjacent-grid { grid-template-columns:1fr; gap:14px; } .only-newer .newer { grid-column:auto; } .adjacent-card { min-height:0; } }
+  @media (prefers-reduced-motion:reduce) { .adjacent-card { transition:none; } }
+</style>

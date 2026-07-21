@@ -82,3 +82,15 @@ export const blogArticles: readonly BlogArticle[] = [
     sourceUrl: 'https://www.leagueoflegends.com/en-us/how-to-play/',
   },
 ] as const;
+
+export function adjacentBlogArticles(currentSlug: string): {
+  newer: BlogArticle | undefined;
+  older: BlogArticle | undefined;
+} {
+  const index = blogArticles.findIndex((article) => article.slug === currentSlug);
+  if (index < 0) return { newer: undefined, older: undefined };
+  return {
+    newer: blogArticles[index - 1],
+    older: blogArticles[index + 1],
+  };
+}
