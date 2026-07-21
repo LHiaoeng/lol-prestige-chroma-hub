@@ -29,6 +29,19 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'champions-without-prestige-chroma',
+    href: '/blog/champions-without-prestige-chroma/',
+    titleEn: 'Which Champions Still Lack Prestige Chroma Splash Art?',
+    titleZh: '哪些英雄还没有臻彩原画？',
+    summaryEn: 'A complete list of the 68 League of Legends champions that have not yet received prestige chroma splash art, updated for Patch 26.14.',
+    summaryZh: '截至 26.14 版本，完整盘点尚未获得臻彩原画的 68 位英雄。',
+    publishedAt: '2026-07-22',
+    readingMinutes: 5,
+    coverUrl: '/images/blog/cover-champions-without-prestige-chroma.jpg',
+    coverAltEn: 'Prestige chroma splash art showcase in the League of Legends client',
+    coverAltZh: '《英雄联盟》客户端中的臻彩原画展示',
+  },
+  {
     slug: 'what-are-prestige-chromas',
     href: '/blog/what-are-prestige-chromas/',
     titleEn: 'What Are Prestige Chromas?',
@@ -37,7 +50,7 @@ export const blogArticles: readonly BlogArticle[] = [
     summaryZh: '了解《英雄联盟》中的珍稀限定炫彩——臻彩的获取方式、收藏系统与独特之处。',
     publishedAt: '2026-07-21',
     readingMinutes: 6,
-    coverUrl: '/images/blog/what-are-prestige-chromas/cover.png',
+    coverUrl: '/images/blog/prestige-chromas-cover.png',
     coverAltEn: 'Prestige Chroma Collection interface in the League of Legends client',
     coverAltZh: '《英雄联盟》客户端中的臻彩藏馆界面',
   },
@@ -50,7 +63,7 @@ export const blogArticles: readonly BlogArticle[] = [
     summaryZh: '介绍炫彩皮肤的推出背景、配色、购买方式与常见问题。',
     publishedAt: '2026-07-20',
     readingMinutes: 7,
-    coverUrl: '/images/blog/chroma-history/hero-en.png',
+    coverUrl: '/images/blog/chroma-history-hero-en.png',
     coverAltEn: 'Chroma Skins 1.1 banner with a lineup of League of Legends champions',
     coverAltZh: '带有英雄阵容的英文 Chroma Skins 1.1 横幅',
   },
