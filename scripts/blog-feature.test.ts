@@ -5,6 +5,42 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('blog feature contract', () => {
+  it('links every verified official prestige chroma source in both languages', () => {
+    const page = source('src/pages/blog/what-are-prestige-chromas.astro');
+    const officialUrls = [
+      'https://lol.qq.com/act/a202607034771tendraws31/index.html',
+      'https://lol.qq.com/act/a202606264151prizewheel/index.html',
+      'https://lol.qq.com/act/a202606117610prizewheel/index.html',
+      'https://www.bilibili.com/video/BV1EQF3z7ETt',
+      'https://www.bilibili.com/video/BV1w5E96ME4h',
+      'https://lol.qq.com/act/a2023lpl10celebration2s/index.html?pos=2',
+      'https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898',
+    ];
+    for (const url of officialUrls) expect(page.split(url)).toHaveLength(3);
+    expect(page.match(/class="official-source-link"/g)).toHaveLength(14);
+    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(14);
+    for (const label of [
+      'Official acquisition sources',
+      'Official cultural sources',
+      'Brilliant Prestige Summoning — July 2026',
+      'Lucky Gate — June 26, 2026',
+      'Lucky Gate — June 11, 2026',
+      '“Rushi Ge” — Bamboo and Plum Prestige Chroma theme song',
+      'Dunhuang Prestige Chroma showcase',
+      'LPL 10th Anniversary commemorative Prestige Chromas',
+      'Panda Lux Prestige Chroma charity project',
+      '官方获取来源',
+      '官方文化来源',
+      '璀璨臻彩召唤 — 2026 年 7 月',
+      '幸运之门 — 2026 年 6 月 26 日',
+      '幸运之门 — 2026 年 6 月 11 日',
+      '《如是歌》— 竹映梅香臻彩系列主题曲',
+      '敦煌臻彩展示片',
+      'LPL 十周年纪念臻彩',
+      '熊猫拉克丝臻彩公益项目',
+    ]) expect(page).toContain(label);
+  });
+
   it('defines China Exclusive as an artwork property in the prestige chroma FAQ', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     expect(page).toContain("import { CHINA_EXCLUSIVE_DEFINITION, SITE } from '../../seo/site'");
