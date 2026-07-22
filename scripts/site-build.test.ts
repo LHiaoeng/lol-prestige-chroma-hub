@@ -43,12 +43,17 @@ describe('static site build', () => {
     expect(home).toContain('"@type":"WebSite"');
     expect(home).toContain('"@type":"CollectionPage"');
     expect(existsSync(join(dist, 'blog', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'kaisa-prestige-chroma', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'champions-without-prestige-chroma', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
     const prestigeArticle = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
+    const kaisaArticle = readFileSync(join(dist, 'blog', 'kaisa-prestige-chroma', 'index.html'), 'utf8');
+    expect(kaisaArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/kaisa-prestige-chroma/">');
+    expect(kaisaArticle).toContain('"@type":"BlogPosting"');
+    expect(kaisaArticle).not.toContain('卡莎与臻彩');
     const coverageArticle = readFileSync(join(dist, 'blog', 'champions-without-prestige-chroma', 'index.html'), 'utf8');
     expect(blog).toContain('<link rel="canonical" href="https://chromaart.lol/blog/">');
     expect(blog).toContain('"@type":"CollectionPage"');
@@ -110,6 +115,10 @@ describe('static site build', () => {
     const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
     const chineseDetail = readFileSync(join(dist, 'zh-cn', 'chromas', sample.slug, 'index.html'), 'utf8');
     const chineseBlog = readFileSync(join(dist, 'zh-cn', 'blog', 'index.html'), 'utf8');
+    const chineseKaisa = readFileSync(join(dist, 'zh-cn', 'blog', 'kaisa-prestige-chroma', 'index.html'), 'utf8');
+    expect(chineseKaisa).toContain('<html lang="zh-CN"');
+    expect(chineseKaisa).toContain('卡莎与臻彩');
+    expect(chineseKaisa).not.toContain('data-language-content="en"');
     const chineseArticle = readFileSync(join(dist, 'zh-cn', 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
     const chineseCoverage = readFileSync(join(dist, 'zh-cn', 'blog', 'champions-without-prestige-chroma', 'index.html'), 'utf8');
     expect(chineseHome).toContain('<html lang="zh-CN"');

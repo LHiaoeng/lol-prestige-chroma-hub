@@ -65,6 +65,7 @@ describe('blog feature contract', () => {
     expect(component).toContain('grid-template-columns:repeat(2,minmax(0,1fr))');
     expect(component).toContain('@media (max-width:767px)');
     for (const pagePath of [
+      'src/pages/blog/kaisa-prestige-chroma.astro',
       'src/pages/blog/champions-without-prestige-chroma.astro',
       'src/pages/blog/what-are-prestige-chromas.astro',
       'src/pages/blog/what-are-chroma-skins.astro',
@@ -98,6 +99,10 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain('@media (max-width: 1023px)');
     expect(page).toContain('@media (max-width: 767px)');
+    expect(page).toContain('grid-template-columns:minmax(0,1fr) minmax(320px,1fr)');
+    expect(page).toContain('height:360px');
+    expect(page).toContain('-webkit-line-clamp:3');
+    expect(page).toContain('.featured-post-link { grid-template-columns:1fr; height:auto; min-height:0; }');
   });
 
   it('renders the localized chroma history article from portable local media', () => {
@@ -227,6 +232,55 @@ describe('blog feature contract', () => {
     expect(page).toContain('href={localizedPath(locale, `/chromas/${cultureChroma.slug}/`)}');
     expect(page).toContain('class="chroma-art-link"');
     expect(page.match(/<details>/g)).toHaveLength(12);
+  });
+
+  it('renders a complete localized Kai\'Sa prestige chroma spotlight', () => {
+    const page = source('src/pages/blog/kaisa-prestige-chroma.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page).toContain('data-placeholder="/placeholder.svg"');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("const kaisaHeroId = '145'");
+    expect(page).toContain('kaisaChromas');
+    expect(page).toContain('kaisaSkinGroups');
+    expect(page).toContain('chroma-grid');
+    expect(page).toContain('imageUrl(chroma.images.medium)');
+    expect(page).toContain('sourceImageUrl');
+    for (const heading of [
+      'Champion profile: Kai\'Sa',
+      'Kai\'Sa\'s prestige chroma collection',
+      'What are prestige chromas?',
+      'How to obtain Kai\'Sa\'s prestige chromas',
+      '英雄简介：卡莎',
+      '卡莎的臻彩收藏',
+      '什么是臻彩？',
+      '如何获取卡莎的臻彩',
+    ]) expect(page).toContain(heading);
+    expect(page.match(/<details>/g)).toHaveLength(10);
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(2);
+    expect(page).toContain('aspect-ratio:16/9');
+    expect(page).toContain('grid-template-columns:repeat(6,minmax(0,1fr))');
+    expect(page).toContain('left:50%;bottom:7px;transform:translateX(-50%)');
+    expect(page).toContain('display:inline-flex;line-height:0');
+    expect(page).toContain('justify-content:center;text-align:center');
+    expect(page).toContain('.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:');
+    expect(page).toContain('.chroma-card-img-wrap img{display:block;width:100%;height:auto}');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).not.toContain('most played and most banned');
+    expect(page).not.toContain('出场率和禁率最高');
+    expect(page).not.toContain('may rotate into the Mythic Shop');
+    expect(page).not.toContain('会不定期进入神话商店');
+    expect(page).not.toContain("Heavenscale Kai\\'a");
   });
 
   it('derives and refreshes every champion coverage fact', () => {

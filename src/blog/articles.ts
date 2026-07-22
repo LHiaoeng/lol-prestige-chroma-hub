@@ -35,6 +35,19 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'kaisa-prestige-chroma',
+    href: '/blog/kaisa-prestige-chroma/',
+    titleEn: 'Kai\u2019Sa Prestige Chroma Gallery',
+    titleZh: '\u5361\u838e\u81fb\u5f69\u539f\u753b\u56fe\u9274',
+    summaryEn: 'Browse Kai\u2019Sa prestige chroma artwork by skin, with names, colour palettes, and release details.',
+    summaryZh: '\u6309\u76ae\u80a4\u67e5\u770b\u5361\u838e\u7684\u81fb\u5f69\u539f\u753b\uff0c\u4ee5\u53ca\u6bcf\u6b3e\u81fb\u5f69\u7684\u540d\u79f0\u3001\u914d\u8272\u4e0e\u83b7\u53d6\u4fe1\u606f\u3002',
+    publishedAt: '2026-07-22',
+    readingMinutes: 5,
+    coverUrl: '/img/blog/kaisa-prestige-chroma-cover.png',
+    coverAltEn: 'Kai\u2019Sa prestige chroma splash art concept showcase',
+    coverAltZh: '\u5361\u838e\u81fb\u5f69\u539f\u753b\u6982\u5ff5\u5c55\u793a',
+  },
+  {
     slug: 'champions-without-prestige-chroma',
     href: '/blog/champions-without-prestige-chroma/',
     titleEn: 'Which Champions Still Lack Prestige Chroma Splash Art?',

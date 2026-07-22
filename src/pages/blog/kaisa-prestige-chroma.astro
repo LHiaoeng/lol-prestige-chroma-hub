@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'kaisa-prestige-chroma');
+if (!article) throw new Error('Kai\'Sa prestige chroma article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const kaisaHeroId = '145';
+const kaisaChromas: Chroma[] = catalog.filter((item) => item.heroId === kaisaHeroId);
+const kaisaSkinGroups = (() => {
+  const map = new Map<string, { skinNameEn: string; skinNameZh: string; chromas: Chroma[] }>();
+  for (const chroma of kaisaChromas) {
+    const key = chroma.skinNameEn;
+    if (!map.has(key)) map.set(key, { skinNameEn: chroma.skinNameEn, skinNameZh: chroma.skinNameZh, chromas: [] });
+    map.get(key)!.chromas.push(chroma);
+  }
+  return [...map.values()];
+})();
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '卡莎与臻彩' : 'Kai\'Sa & Prestige Chromas'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LoL PRESTIGE CHROMA CHAMPION SPOTLIGHT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">Kai'Sa, Daughter of the Void, has {kaisaChromas.length} prestige chromas across {kaisaSkinGroups.length} skins. A complete guide to her chroma collection.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Kai'Sa prestige chroma artwork. Collection count: {kaisaChromas.length}.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Champion profile: Kai'Sa</h2>
+      <p>Kai'Sa, Daughter of the Void, is a marksman released in Patch 8.5 in March 2018. Her kit combines evolving abilities, mobility, and short windows of concentrated damage; Icathian Rain is her close-range multi-missile attack.</p>
+    </section>
+
+    <section>
+      <h2>Kai'Sa's prestige chroma collection</h2>
+      <p>Kai'Sa has {kaisaChromas.length} prestige chromas across {kaisaSkinGroups.length} different skins. Her chromas span multiple categories — from Diamond Prestige Chromas to Zodiac Limited editions and LPL anniversary commemoratives.</p>
+    </section>
+
+    {kaisaSkinGroups.map((group) => (
+    <section>
+      <h2>{group.skinNameEn}</h2>
+      <p>{group.skinNameEn} has {group.chromas.length} prestige chroma{group.chromas.length !== 1 ? 's' : ''}:</p>
+      <ul class={`chroma-grid${group.chromas.length >= 3 ? ' chroma-grid-wide' : ''}`}>
+        {group.chromas.map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+    </section>
+    ))}
+
+    <section>
+      <h2>What are prestige chromas?</h2>
+      <p>Prestige chromas pair a chroma with its own splash artwork. For the terminology and verified release history, see <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>What Are Prestige Chromas?</a>.</p>
+      <p>Regular <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma skins</a> recolour a skin model; this catalogue focuses on the separate artwork attached to prestige chromas.</p>
+    </section>
+
+    <section>
+      <h2>How to obtain Kai'Sa's prestige chromas</h2>
+      <p>Kai'Sa's prestige chromas have been distributed through various channels over time:</p>
+      <h3>Summoning events</h3>
+      <p>Many of Kai'Sa's Heavenscale chromas were available through Brilliant Prestige Summoning and similar events.</p>
+      <h3>Event token exchange</h3>
+      <p>Some chromas, including the iG Kai'Sa (Tenfold Triumph) LPL anniversary commemorative, were distributed through event token exchanges.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details><summary>How many prestige chromas does Kai'Sa have?</summary><p>Kai'Sa has {kaisaChromas.length} prestige chromas across {kaisaSkinGroups.length} different skins: {kaisaSkinGroups.map((g) => g.skinNameEn).join(', ')}.</p></details>
+      <details><summary>Which Kai'Sa skin has the most prestige chromas?</summary><p>Heavenscale Kai'Sa (天龙之子 卡莎) has the most with {kaisaSkinGroups.find((g) => g.skinNameEn === 'Heavenscale Kai\'Sa')?.chromas.length ?? 0} prestige chromas, spanning Diamond Prestige and Zodiac Limited categories.</p></details>
+      <details><summary>What is the rarest Kai'Sa prestige chroma?</summary><p>The iG Kai'Sa (Tenfold Triumph) / 无畏猎手 卡莎 极境飞跃 is an LPL tenth anniversary commemorative, making it one of the most limited releases.</p></details>
+      <details><summary>What is the difference between prestige chromas and regular chromas?</summary><p>Prestige chromas include exclusive splash art displayed in champion select and the loading screen. Regular chromas only change the colour palette. See our <a href="/blog/what-are-prestige-chromas/">prestige chroma guide</a> for the full breakdown.</p></details>
+      <details><summary>How does the Prestige Chroma Collection system work?</summary><p>The in-client Collection system lets you view, organise, and showcase your prestige chromas. You can curate a personal gallery and compare progress on the server ranking. See our <a href="/blog/what-are-prestige-chromas/">detailed guide</a> for how it works.</p></details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LoL 臻彩英雄聚焦</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">虚空之女卡莎目前拥有 {kaisaChromas.length} 款臻彩，涵盖 {kaisaSkinGroups.length} 款皮肤。本文全面梳理她的臻彩收藏。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>卡莎臻彩原画，目录当前收录 {kaisaChromas.length} 款。</figcaption>
+    </figure>
+
+    <section>
+      <h2>英雄简介：卡莎</h2>
+      <p>卡莎（虚空之女）是 2018 年 3 月随 8.5 版本登场的射手。她的技能组以进化机制、机动性和短时间集中输出为特点；Q 技能“艾卡西亚暴雨”会在近距离发射多枚弹体。</p>
+    </section>
+
+    <section>
+      <h2>卡莎的臻彩收藏</h2>
+      <p>卡莎目前拥有 {kaisaChromas.length} 款臻彩，涵盖 {kaisaSkinGroups.length} 款不同皮肤。她的臻彩横跨多个类别——从钻石臻彩到生肖限定臻彩，再到 LPL 十周年纪念。</p>
+    </section>
+
+    {kaisaSkinGroups.map((group) => (
+    <section>
+      <h2>{group.skinNameZh}</h2>
+      <p>{group.skinNameZh}拥有 {group.chromas.length} 款臻彩：</p>
+      <ul class={`chroma-grid${group.chromas.length >= 3 ? ' chroma-grid-wide' : ''}`}>
+        {group.chromas.map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+    </section>
+    ))}
+
+    <section>
+      <h2>什么是臻彩？</h2>
+      <p>臻彩是带有独立原画的炫彩。术语说明及经核实的上线沿革，详见<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>什么是臻彩？</a></p>
+      <p>普通<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩皮肤</a>主要改变皮肤模型配色；本站目录记录的是臻彩对应的独立原画。</p>
+    </section>
+
+    <section>
+      <h2>如何获取卡莎的臻彩</h2>
+      <p>卡莎的臻彩通过多种渠道发放：</p>
+      <h3>召唤活动</h3>
+      <p>天龙之子系列的多款臻彩通过璀璨臻彩召唤等活动获得。</p>
+      <h3>活动代币兑换</h3>
+      <p>部分臻彩如 iG 卡莎（无畏猎手）LPL 十周年纪念臻彩通过活动代币兑换获得。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      <details><summary>卡莎有多少款臻彩？</summary><p>卡莎目前拥有 {kaisaChromas.length} 款臻彩，涵盖 {kaisaSkinGroups.length} 款皮肤：{kaisaSkinGroups.map((g) => g.skinNameZh).join('、')}。</p></details>
+      <details><summary>卡莎哪款皮肤的臻彩最多？</summary><p>天龙之子 卡莎拥有最多的 {kaisaSkinGroups.find((g) => g.skinNameEn === 'Heavenscale Kai\'Sa')?.chromas.length ?? 0} 款臻彩，涵盖钻石臻彩和生肖限定臻彩。</p></details>
+      <details><summary>卡莎最稀有的臻彩是哪款？</summary><p>无畏猎手 卡莎 极境飞跃（iG Kai'Sa Tenfold Triumph）是 LPL 十周年纪念臻彩，属于最限量的版本之一。</p></details>
+      <details><summary>臻彩和普通炫彩有什么区别？</summary><p>臻彩拥有专属原画，在选英雄和载入界面中展示；普通炫彩仅改变配色。详见我们的<a href="/blog/what-are-prestige-chromas/">臻彩专题</a>。</p></details>
+      <details><summary>臻彩藏馆系统怎么用？</summary><p>客户端内打开臻彩藏馆即可查看、整理和展示你的收藏，还能自定义个人主页的臻彩展示。详见我们的<a href="/blog/what-are-prestige-chromas/">详细介绍</a>。</p></details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>
