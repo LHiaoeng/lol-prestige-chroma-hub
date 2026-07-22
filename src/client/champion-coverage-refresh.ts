@@ -26,12 +26,6 @@ export async function refreshChampionCoverage(options: RefreshOptions): Promise<
   }
 }
 
-function setCoverageStatus(document: Document, en: string, zh: string): void {
-  document.querySelectorAll<HTMLElement>('[data-coverage-status]').forEach((element) => {
-    element.textContent = element.dataset.coverageLanguage === 'zh' ? zh : en;
-  });
-}
-
 export function applyChampionCoverage(document: Document, snapshot: ChampionCoverageSnapshot): void {
   const copy = championCoverageCopy(snapshot);
   document.querySelectorAll<HTMLElement>('[data-coverage-text]').forEach((element) => {
@@ -89,28 +83,22 @@ export function initializeChampionCoverageRefresh(
   try {
     config = readClientConfig(document);
   } catch {
-    setCoverageStatus(
-      document,
-      'Live refresh unavailable; showing the build snapshot.',
-      '实时刷新暂不可用，当前显示构建快照。',
-    );
     return Promise.resolve(false);
   }
 
-  return refreshChampionCoverage({
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-coverage-refresh]');
+  const refresh = () => refreshChampionCoverage({
     load: () => fetchChampionCoverage(fetcher, config.coveredHeroIds, config.patchVersion),
-    apply: (snapshot) => {
-      applyChampionCoverage(document, snapshot);
-      setCoverageStatus(
-        document,
-        'Live data refreshed from CommunityDragon.',
-        '已从 CommunityDragon 刷新实时数据。',
-      );
-    },
-    fallback: () => setCoverageStatus(
-      document,
-      'Live refresh unavailable; showing the build snapshot.',
-      '实时刷新暂不可用，当前显示构建快照。',
-    ),
+    apply: (snapshot) => applyChampionCoverage(document, snapshot),
   });
+  const manualRefresh = async () => {
+    buttons.forEach((button) => { button.disabled = true; });
+    try {
+      await refresh();
+    } finally {
+      buttons.forEach((button) => { button.disabled = false; });
+    }
+  };
+  buttons.forEach((button) => button.addEventListener('click', () => { void manualRefresh(); }));
+  return refresh();
 }
