@@ -6,9 +6,9 @@ Make `/blog/champions-without-prestige-chroma/` derive every visible champion-co
 
 ## Data sources
 
-- League champion summary: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json`
+- English League champion summary: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json`
+- Simplified Chinese League champion summary: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/champion-summary.json`
 - Prestige chroma coverage: the unique `heroId` values from the build-time-only `data/prestige-chromas.json` catalog
-- Chinese champion names: a small local ID-to-name presentation map. If a new CommunityDragon champion has no Chinese entry yet, display its English name rather than dropping the champion.
 - Patch label: the highest `gameVer` in the local prestige chroma catalog. It updates whenever the catalog is replaced and the site is rebuilt.
 
 The full prestige chroma JSON remains private to the build and must not be copied into `public/` or serialized into the page.
@@ -31,19 +31,20 @@ Every `squarePortraitPath` from champion-summary data must pass through this uti
 
 Introduce pure, independently tested functions for:
 
-- validating the champion-summary response with Zod;
+- validating both champion-summary responses with Zod;
 - excluding placeholder records where `id <= 0`;
 - deduplicating and matching champions by decimal string hero ID;
+- using the default summary `name` as the English display name and the `zh_cn` summary `description` as the Chinese champion name;
+- joining localized records by champion ID, with the English name as a fallback when CommunityDragon has not yet published a matching Chinese record;
 - computing total champions, covered champions, missing champions, and coverage percentage;
 - producing the missing list in case-insensitive English-name A-Z order;
-- attaching Chinese display names with English fallback;
 - converting every portrait path through the shared URL utility.
 
 The same calculation function must be used for both build-time HTML and browser refreshes so counts and prose cannot diverge.
 
 ## Build-time rendering
 
-The Astro page fetches and validates the CommunityDragon champion summary during the build. A failed request, timeout, invalid schema, duplicate positive champion ID, or invalid asset path fails the build. This prevents publishing an empty or misleading article; the previously deployed static site remains available.
+The Astro page fetches and validates both CommunityDragon champion summaries during the build. A failed request, timeout, invalid schema, duplicate positive champion ID, or invalid asset path fails the build. This prevents publishing an empty or misleading article; the previously deployed static site remains available. The default-language response defines membership and English A-Z ordering. The Chinese response enriches matching IDs but cannot add or remove champions on its own.
 
 The computed snapshot supplies all visible data-dependent content in both languages, including:
 
@@ -57,7 +58,7 @@ The blog card summary, page meta description, and other SEO copy will not contai
 
 ## Browser refresh
 
-A minimal script in `src/client/` requests the same champion-summary URL after page load. The page embeds only the data needed to recompute coverage: covered hero IDs, the Chinese name map, and the local patch label.
+A minimal script in `src/client/` requests both champion-summary URLs after page load. The page embeds only the data needed to recompute coverage: covered hero IDs and the local patch label.
 
 After successful validation and calculation, the script updates every marked data-dependent element in both language versions as one operation. This includes prose, statistics, list rows, names, portrait URLs, and accessible labels. If the request or validation fails, the script leaves the complete build-time snapshot untouched. It must not clear existing content while loading.
 
@@ -76,7 +77,7 @@ Runtime refresh can immediately account for newly added League champions. Change
 Follow test-driven development:
 
 1. URL utility tests cover asset paths, plugin paths, official full URLs, lowercasing, traversal, arbitrary external URLs, and blank values.
-2. Domain tests cover placeholder filtering, deduplication, coverage math, missing-list membership, A-Z sorting, Chinese fallback, and invalid payloads.
+2. Domain tests cover placeholder filtering, deduplication, bilingual ID joins, use of the Chinese `description` field, coverage math, missing-list membership, A-Z sorting, Chinese fallback, and invalid payloads.
 3. Page feature tests verify that all data-dependent text is marked for refresh, no fixed `173`, `105`, `68`, or `60.7%` literals remain in page source, and the full catalog is not serialized.
 4. Client tests verify successful replacement and failure fallback through pure rendering/update inputs; DOM-specific behavior is kept minimal.
 5. Run relevant Vitest files first, then `pnpm release:build` because the change affects data, SEO, browser behavior, and release output.
