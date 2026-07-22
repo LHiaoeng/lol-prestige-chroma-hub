@@ -26,3 +26,12 @@ export function localized(language: Language, values: Record<Language, string>):
 export function categoryName(categoryId: string, language: Language): string {
   return categoryNames[categoryId]?.[language] ?? categoryNames[categoryId]?.[defaultLanguage] ?? 'Prestige Chroma';
 }
+
+export {
+  SITE_LOCALES,
+  alternateUrls,
+  localeConfig,
+  localizedPath,
+  resolveLocale,
+  type Locale,
+} from './i18n/config';

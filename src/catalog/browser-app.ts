@@ -27,6 +27,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
   const pagination = document.querySelector<HTMLElement>('[data-pagination]');
   const template = document.querySelector<HTMLTemplateElement>('[data-chroma-card-template]');
   const catalogData = document.querySelector<HTMLScriptElement>('#catalog-data');
+  const pagePath = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
 
   function createCard(item: BrowserCatalogItem): HTMLElement {
     if (!template) throw new Error('Missing catalog card template');
@@ -44,7 +45,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       throw new Error('Invalid catalog card template');
     }
 
-    link.href = `/chromas/${encodeURIComponent(item.slug)}/`;
+    link.href = `${pagePath}chromas/${encodeURIComponent(item.slug)}/`;
     const language = currentLanguage(document);
     const itemName = localized(language, { en: item.nameEn, zh: item.nameZh });
     const heroName = localized(language, { en: item.heroNameEn, zh: item.heroNameZh });
@@ -124,7 +125,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     if (normalized.has('page')) normalized.set('page', String(result.pagination.page));
     if (historyMode && (historyMode === 'push' || normalized.toString() !== params.toString())) {
       const query = normalized.toString();
-      history[`${historyMode}State`]({}, '', query ? `/?${query}` : '/');
+      history[`${historyMode}State`]({}, '', query ? `${pagePath}?${query}` : pagePath);
     }
   }
 
@@ -183,9 +184,6 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
         const params = new URLSearchParams(location.search);
         syncForm(params);
         try { render(items, params, 'replace'); } catch { showError(); }
-      });
-      document.addEventListener('languagechange', () => {
-        try { render(items, new URLSearchParams(location.search), null); } catch { showError(); }
       });
     } catch {
       showError();

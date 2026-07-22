@@ -13,6 +13,8 @@ describe('build audit', () => {
     roots.push(root);
     writeFileSync(join(root, 'index.html'), '<html></html>');
     writeFileSync(join(root, '404.html'), '<html></html>');
+    mkdirSync(join(root, 'zh-cn'));
+    writeFileSync(join(root, 'zh-cn', 'index.html'), '<html></html>');
     mkdirSync(join(root, '_astro'));
     writeFileSync(join(root, '_astro', 'page.D4gH3x.js'), 'console.log("static")');
     return root;
@@ -21,6 +23,13 @@ describe('build audit', () => {
   it('allows Astro hashed assets', () => {
     const root = createBuild();
     expect(() => auditBuild(root)).not.toThrow();
+  });
+
+  it('rejects an English canonical page without its Simplified Chinese counterpart', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'blog'));
+    writeFileSync(join(root, 'blog', 'index.html'), '<link rel="canonical" href="https://chromaart.lol/blog/">');
+    expect(() => auditBuild(root)).toThrow(/Simplified Chinese counterpart/i);
   });
 
   it.each([

@@ -2,38 +2,53 @@
 import '../styles/global.css';
 import BackToTop from '../components/BackToTop.astro';
 import { safeJsonLd } from '../domain/chroma';
-import { defaultLanguage, supportedLanguages } from '../i18n';
+import { alternateUrls, localeConfig, localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import { SITE } from '../seo/site';
 
 interface Props {
   title: string;
   description: string;
-  canonical: string;
+  canonical?: string;
   image?: string;
   ogType?: 'website' | 'article';
   publishedTime?: string;
   modifiedTime?: string;
   jsonLd?: Record<string, unknown> | readonly Record<string, unknown>[];
+  locale?: Locale;
+  noindex?: boolean;
 }
-const { title, description, canonical, image = SITE.defaultImage, ogType = 'website', publishedTime, modifiedTime, jsonLd } = Astro.props;
+const { title, description, canonical: canonicalInput, image = SITE.defaultImage, ogType = 'website', publishedTime, modifiedTime, jsonLd } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const currentLocale = localeConfig[locale];
+const isZh = locale === 'zh-cn';
+const canonical = canonicalInput ? new URL(localizedPath(locale, new URL(canonicalInput).pathname), SITE.origin).toString() : undefined;
+const alternates = canonical ? alternateUrls(canonical) : [];
+const alternateOgLocales = Object.entries(localeConfig)
+  .filter(([key]) => key !== locale)
+  .map(([, config]) => config.ogLocale);
+const otherLocale: Locale = isZh ? 'en' : 'zh-cn';
+const languageHref = localizedPath(otherLocale, `${Astro.url.pathname}${Astro.url.search}`);
 const socialImage = new URL(image, SITE.origin).toString();
 const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
-const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=${JSON.stringify(defaultLanguage)},v=localStorage.getItem('chroma-art-language');document.documentElement.dataset.language=s.includes(v)?v:d}catch{document.documentElement.dataset.language=${JSON.stringify(defaultLanguage)}}`;
 ---
 <!doctype html>
-<html lang="en" data-language="en">
+<html lang={currentLocale.htmlLang} data-language={isZh ? 'zh' : 'en'} data-language-ready>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    {Astro.props.noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="theme-color" content="#090b15" />
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
-    <link rel="canonical" href={canonical} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {alternates.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.url} />)}
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={currentLocale.ogLocale} />
+    {alternateOgLocales.map((alternate) => <meta property="og:locale:alternate" content={alternate} />)}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {canonical && <meta property="og:url" content={canonical} />}
     <meta property="og:image" content={socialImage} />
     {ogType === 'article' && publishedTime && <meta property="article:published_time" content={publishedTime} />}
     {ogType === 'article' && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
@@ -42,24 +57,21 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
     <title>{title}</title>
-    <script is:inline set:html={languageBootstrap} />
     {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="LoL Chroma Art home" data-aria-en="LoL Chroma Art home" data-aria-zh="LoL Chroma Art 首页"><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
+      <a class="brand" href={localizedPath(locale, '/')} aria-label={isZh ? 'LoL Chroma Art 首页' : 'LoL Chroma Art home'}><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
-        <a class="header-blog-link" href="/blog/" data-en="Blog" data-zh="博客">Blog</a>
-        <button class="language-toggle" type="button" data-language-toggle data-en="中文" data-zh="EN" aria-label="切换到中文" data-aria-en="Switch to Chinese" data-aria-zh="切换到英文">中文</button>
+        <a class="header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
+        {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'}>{isZh ? 'EN' : '简体中文'}</a>}
       </div>
     </header>
     <main><slot /></main>
     <BackToTop />
-    <footer><p><span data-language-content="en">LoL Chroma Art is an independent fan archive and is not affiliated with or endorsed by Riot Games or Tencent. League of Legends assets are used under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy.</span><span data-language-content="zh">LoL Chroma Art 是独立的爱好者图鉴，与 Riot Games 或腾讯不存在关联，也未获得其认可。本站依据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策使用《英雄联盟》素材。</span></p><p class="footer-links"><a href="/about/" data-en="About" data-zh="关于">About</a><span class="footer-separator" aria-hidden="true">·</span><a href="/blog/" data-en="Blog" data-zh="博客">Blog</a><span class="footer-separator" aria-hidden="true">·</span><a href="/privacy/" data-en="Privacy Policy" data-zh="隐私说明">Privacy Policy</a></p></footer>
+    <footer><p>{isZh ? <>LoL Chroma Art 是独立的爱好者图鉴，与 Riot Games 或腾讯不存在关联，也未获得其认可。本站依据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策使用《英雄联盟》素材。</> : <>LoL Chroma Art is an independent fan archive and is not affiliated with or endorsed by Riot Games or Tencent. League of Legends assets are used under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> policy.</>}</p><p class="footer-links"><a href={localizedPath(locale, '/about/')}>{isZh ? '关于' : 'About'}</a><span class="footer-separator" aria-hidden="true">·</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span class="footer-separator" aria-hidden="true">·</span><a href={localizedPath(locale, '/privacy/')}>{isZh ? '隐私说明' : 'Privacy Policy'}</a></p></footer>
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
-      import { initializeLanguage } from '../client/language';
-      initializeLanguage(document, localStorage);
       bindImageFallbacks();
     </script>
     <style is:global>
@@ -71,7 +83,7 @@ const languageBootstrap = `try{const s=${JSON.stringify(supportedLanguages)},d=$
       .header-controls { display: flex; align-items: center; gap: 14px; }
       .header-blog-link { display: inline-flex; align-items: center; min-height: var(--touch-target); color: var(--text); font-size: .86rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
       .header-blog-link:hover, .header-blog-link:focus-visible { color: var(--gold); }
-      .language-toggle { position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; }
+      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; }
       .language-toggle::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
       @media (max-width: 767px) {
         .header-controls { gap: 8px; }

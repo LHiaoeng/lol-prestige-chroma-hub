@@ -58,8 +58,8 @@ describe('blog feature contract', () => {
     expect(component).toContain('Next article');
     expect(component).toContain('上一篇');
     expect(component).toContain('下一篇');
-    expect(component).toContain('href={older.href}');
-    expect(component).toContain('href={newer.href}');
+    expect(component).toContain('href={articleHref(older, locale)}');
+    expect(component).toContain('href={articleHref(newer, locale)}');
     expect(component).toContain('aria-label=');
     expect(component).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(component).toContain('grid-template-columns:repeat(2,minmax(0,1fr))');
@@ -71,15 +71,15 @@ describe('blog feature contract', () => {
       'src/pages/blog/what-is-league-of-legends.astro',
     ]) {
       const page = source(pagePath);
-      expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \/>/g)).toHaveLength(1);
+      expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
     }
   });
 
   it('links the blog from the header and footer on every page', () => {
     const layout = source('src/layouts/BaseLayout.astro');
-    expect(layout.match(/href="\/blog\/"/g)).toHaveLength(2);
+    expect(layout.match(/localizedPath\(locale, '\/blog\/'\)/g)).toHaveLength(2);
     expect(layout).toContain('class="header-blog-link"');
-    expect(layout).toContain('data-en="Blog" data-zh="博客"');
+    expect(layout).toContain("isZh ? '博客' : 'Blog'");
     expect(layout).toContain('min-height: var(--touch-target)');
     expect(layout).toContain("ogType?: 'website' | 'article'");
     expect(layout).toContain('const socialImage = new URL(image, SITE.origin).toString()');
@@ -87,26 +87,24 @@ describe('blog feature contract', () => {
     expect(layout).toContain('property="article:modified_time"');
   });
 
-  it('renders a bilingual responsive featured blog list', () => {
+  it('renders a locale-aware responsive featured blog list', () => {
     const page = source('src/pages/blog/index.astro');
     expect(page).toContain("'@type': 'CollectionPage'");
-    expect(page).toContain('data-language-content="en"');
-    expect(page).toContain('data-language-content="zh"');
+    expect(page).toContain("const isZh = locale === 'zh-cn'");
     expect(page).toContain('<article class="featured-post">');
     expect(page).toContain('blogArticles.map((entry, index)');
-    expect(page).toContain('href={entry.href}');
-    expect(page).toContain("formatBlogDate(entry.publishedAt, 'en')");
-    expect(page).toContain("formatBlogDate(entry.publishedAt, 'zh')");
+    expect(page).toContain('href={articleHref(entry, locale)}');
+    expect(page).toContain("formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')");
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain('@media (max-width: 1023px)');
     expect(page).toContain('@media (max-width: 767px)');
   });
 
-  it('renders the bilingual chroma history article from portable local media', () => {
+  it('renders the localized chroma history article from portable local media', () => {
     const page = source('src/pages/blog/what-are-chroma-skins.astro');
     expect(page).toContain("'@type': 'BlogPosting'");
     expect(page).toContain("'@type': 'BreadcrumbList'");
-    expect(page).toContain("inLanguage: ['en', 'zh']");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
     expect(page).toContain('<h1>{article.titleEn}</h1>');
@@ -145,11 +143,11 @@ describe('blog feature contract', () => {
     expect(backdrop).toMatch(/<img\s+data-backdrop-image\s+src=\{largeSrc\}/);
   });
 
-  it('renders a complete bilingual illustrated article', () => {
+  it('renders a complete localized illustrated article', () => {
     const page = source('src/pages/blog/what-is-league-of-legends.astro');
     expect(page).toContain("'@type': 'BlogPosting'");
     expect(page).toContain("'@type': 'BreadcrumbList'");
-    expect(page).toContain("inLanguage: ['en', 'zh']");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
     expect(page.match(/<figure>/g)?.length).toBeGreaterThanOrEqual(3);
@@ -176,11 +174,11 @@ describe('blog feature contract', () => {
     ]) expect(page).toContain(heading);
   });
 
-  it('renders a complete bilingual prestige chroma article', () => {
+  it('renders a complete localized prestige chroma article', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     expect(page).toContain("'@type': 'BlogPosting'");
     expect(page).toContain("'@type': 'BreadcrumbList'");
-    expect(page).toContain("inLanguage: ['en', 'zh']");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
     expect(page).toContain('<h1>{article.titleEn}</h1>');
@@ -224,12 +222,10 @@ describe('blog feature contract', () => {
     expect(page).toContain("9c393600-64bc-402b-8b02-f57f3211d9c3");
     expect(page).toContain('天龙之子 伊泽瑞尔 飞天 — 东方配色、纹样与装饰细节');
     expect(page).toContain('无畏竞巅峰 薇恩 — LPL 十周年纪念臻彩');
-    expect(page).toContain('href={`/chromas/${chroma.slug}/`}');
-    expect(page).toContain('href={`/chromas/${designChroma.slug}/`}');
-    expect(page).toContain('href={`/chromas/${cultureChroma.slug}/`}');
+    expect(page).toContain('href={localizedPath(locale, `/chromas/${chroma.slug}/`)}');
+    expect(page).toContain('href={localizedPath(locale, `/chromas/${designChroma.slug}/`)}');
+    expect(page).toContain('href={localizedPath(locale, `/chromas/${cultureChroma.slug}/`)}');
     expect(page).toContain('class="chroma-art-link"');
-    expect(page).toContain('data-aria-en=');
-    expect(page).toContain('data-aria-zh=');
     expect(page.match(/<details>/g)).toHaveLength(12);
   });
 

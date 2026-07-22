@@ -1,27 +1,33 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ResponsiveHeroBackdrop from '../../components/ResponsiveHeroBackdrop.astro';
-import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { articleHref, blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { SITE } from '../../seo/site';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
 
 const article = blogArticles[0];
 const backgroundChroma = catalog.find((item) => item.rank === 1);
 if (!backgroundChroma) throw new Error('The blog background requires a rank-one chroma');
-const title = `League of Legends Blog | ${SITE.name}`;
-const description = 'Explore League of Legends guides and stories about champions, Summoner’s Rift, gameplay, art, and the world of Runeterra.';
-const canonical = `${SITE.origin}/blog/`;
+const title = isZh ? `英雄联盟博客 | ${SITE.name}` : `League of Legends Blog | ${SITE.name}`;
+const description = isZh ? '阅读关于《英雄联盟》玩法、英雄、符文之地与炫彩原画的指南和故事。' : 'Explore League of Legends guides and stories about champions, Summoner’s Rift, gameplay, art, and the world of Runeterra.';
+const canonical = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: title,
   description,
   url: canonical,
-  isPartOf: { '@type': 'WebSite', name: SITE.name, url: `${SITE.origin}/` },
+  inLanguage: isZh ? 'zh-CN' : 'en',
+  isPartOf: { '@type': 'WebSite', name: SITE.name, url: new URL(localizedPath(locale, '/'), SITE.origin).toString() },
 };
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} {jsonLd}>
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} {jsonLd} {locale}>
   <div class="blog-page">
     <section class="blog-hero" data-backdrop-scope>
       <div class="blog-backdrop">
@@ -35,35 +41,34 @@ const jsonLd = {
         />
       </div>
       <header class="blog-heading">
-        <div data-language-content="en">
-          <p class="kicker">LoL CHROMA ART JOURNAL</p>
-          <h1>Stories from the Rift</h1>
-          <p>Guides and stories about the game, champions, and visual world behind League of Legends.</p>
-        </div>
-        <div data-language-content="zh">
+        {isZh ? <div>
           <p class="kicker">LoL CHROMA ART 博客</p>
           <h1>峡谷内外的故事</h1>
           <p>探索《英雄联盟》的游戏玩法、英雄角色与视觉世界。</p>
-        </div>
+        </div> : <div>
+          <p class="kicker">LoL CHROMA ART JOURNAL</p>
+          <h1>Stories from the Rift</h1>
+          <p>Guides and stories about the game, champions, and visual world behind League of Legends.</p>
+        </div>}
       </header>
       <section class="blog-index">
         <div class="post-list">
         {blogArticles.map((entry, index) => (
         <article class="featured-post">
-          <a class="featured-post-link" href={entry.href}>
+          <a class="featured-post-link" href={articleHref(entry, locale)}>
             <div class="featured-post-art">
-              <img src={entry.coverUrl} alt={entry.coverAltEn} data-alt-en={entry.coverAltEn} data-alt-zh={entry.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={index === 0 ? 1920 : 3288} height={index === 0 ? 944 : 2100} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+              <img src={entry.coverUrl} alt={isZh ? entry.coverAltZh : entry.coverAltEn} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={index === 0 ? 1920 : 3288} height={index === 0 ? 944 : 2100} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
             </div>
             <div class="featured-post-copy">
-              <p class="eyebrow" data-en={index === 0 ? 'FEATURED STORY' : 'GUIDE'} data-zh={index === 0 ? '精选文章' : '指南'}>{index === 0 ? 'FEATURED STORY' : 'GUIDE'}</p>
-              <h2 data-en={entry.titleEn} data-zh={entry.titleZh}>{entry.titleEn}</h2>
-              <p class="post-summary" data-en={entry.summaryEn} data-zh={entry.summaryZh}>{entry.summaryEn}</p>
+              <p class="eyebrow">{isZh ? (index === 0 ? '精选文章' : '指南') : (index === 0 ? 'FEATURED STORY' : 'GUIDE')}</p>
+              <h2>{isZh ? entry.titleZh : entry.titleEn}</h2>
+              <p class="post-summary">{isZh ? entry.summaryZh : entry.summaryEn}</p>
               <p class="post-meta">
-                <time datetime={entry.publishedAt} data-en={formatBlogDate(entry.publishedAt, 'en')} data-zh={formatBlogDate(entry.publishedAt, 'zh')}>{formatBlogDate(entry.publishedAt, 'en')}</time>
+                <time datetime={entry.publishedAt}>{formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')}</time>
                 <span aria-hidden="true">·</span>
-                <span data-en={`${entry.readingMinutes} min read`} data-zh={`阅读约 ${entry.readingMinutes} 分钟`}>{entry.readingMinutes} min read</span>
+                <span>{isZh ? `阅读约 ${entry.readingMinutes} 分钟` : `${entry.readingMinutes} min read`}</span>
               </p>
-              <span class="read-more" data-en="Read the story →" data-zh="阅读全文 →">Read the story →</span>
+              <span class="read-more">{isZh ? '阅读全文 →' : 'Read the story →'}</span>
             </div>
           </a>
         </article>

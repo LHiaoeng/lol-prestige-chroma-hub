@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjacentBlogArticles, blogArticles, formatBlogDate } from './articles';
+import { adjacentBlogArticles, articleHref, blogArticles, formatBlogDate } from './articles';
 
 describe('blog article metadata', () => {
   it('formats ISO publication dates consistently in both languages', () => {
@@ -56,6 +56,12 @@ describe('blog article metadata', () => {
       expect(article.readingMinutes).toBeGreaterThan(0);
       if (article.sourceUrl) expect(article.sourceUrl).toMatch(/^https:\/\//);
     }
+  });
+
+  it('derives crawlable article routes for each locale', () => {
+    const article = blogArticles[0];
+    expect(articleHref(article, 'en')).toBe(`/blog/${article.slug}/`);
+    expect(articleHref(article, 'zh-cn')).toBe(`/zh-cn/blog/${article.slug}/`);
   });
 
   it('keeps live coverage article metadata free of stale counts and patch numbers', () => {

@@ -1,13 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
+import { SITE } from '../seo/site';
 
-const title = 'Privacy Policy | LoL Chroma Art';
-const description = 'Learn how LoL Chroma Art handles browser preferences, hosting data, third-party links, and advertising information.';
-const canonical = 'https://chromaart.lol/privacy/';
-const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical };
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const title = isZh ? '隐私说明 | LoL Chroma Art' : 'Privacy Policy | LoL Chroma Art';
+const description = isZh ? '了解 LoL Chroma Art 的静态托管、第三方链接与广告相关信息。' : 'Learn how LoL Chroma Art handles hosting data, third-party links, and advertising information.';
+const canonical = new URL(localizedPath(locale, '/privacy/'), SITE.origin).toString();
+const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: isZh ? 'zh-CN' : 'en' };
 ---
-<BaseLayout {title} {description} {canonical} {jsonLd}>
-  <article class="privacy-page" data-language-content="en">
+<BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
+  {!isZh && <article class="privacy-page">
     <p class="kicker">PRIVACY</p>
     <h1>Privacy Policy</h1>
     <p class="effective-date">Effective: July 19, 2026</p>
@@ -15,7 +20,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>Information used by this site</h2>
-      <p>LoL Chroma Art stores your language choice in your browser's local storage so the site can remember whether to display English or Chinese. This preference stays on your device and is not sent to a LoL Chroma Art database.</p>
+      <p>English and Simplified Chinese are published at separate URLs. Choosing a language follows an ordinary page link; LoL Chroma Art does not send a language preference to a database.</p>
       <p>The site and its images are delivered through Cloudflare services. Like most hosting and security providers, Cloudflare may automatically process technical information such as your IP address, request time, requested URL, browser or device information, and security signals to deliver the site, prevent abuse, and maintain service reliability.</p>
     </section>
 
@@ -38,12 +43,12 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>Your choices and contact</h2>
-      <p>You can clear the saved language preference through your browser's site-data controls and manage advertising preferences through the links above. For privacy questions or requests, contact <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>.</p>
+      <p>You can manage advertising preferences through the links above. For privacy questions or requests, contact <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>.</p>
       <p>This policy may be updated when the site's services or legal requirements change. Material revisions will be reflected by the effective date shown above.</p>
     </section>
-  </article>
+  </article>}
 
-  <article class="privacy-page" data-language-content="zh">
+  {isZh && <article class="privacy-page">
     <p class="kicker">隐私</p>
     <h1>隐私说明</h1>
     <p class="effective-date">生效日期：2026 年 7 月 19 日</p>
@@ -51,7 +56,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>本站使用的信息</h2>
-      <p>LoL Chroma Art 会在浏览器的本地存储中保存你的语言选择，以便记住显示英文还是中文。该偏好保留在你的设备上，不会发送到 LoL Chroma Art 数据库。</p>
+      <p>英文和简体中文发布在不同网址。选择语言时只会打开普通页面链接；LoL Chroma Art 不会把语言偏好发送到数据库。</p>
       <p>本站及其图片通过 Cloudflare 服务提供。与多数托管和安全服务商一样，Cloudflare 可能自动处理 IP 地址、请求时间、访问网址、浏览器或设备信息以及安全信号等技术信息，用于提供网站、防止滥用并维持服务可靠性。</p>
     </section>
 
@@ -74,10 +79,10 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>你的选择与联系我们</h2>
-      <p>你可以通过浏览器的网站数据设置清除已保存的语言偏好，并通过上述链接管理广告偏好。如有隐私问题或请求，请发送邮件至 <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>。</p>
+      <p>你可以通过上述链接管理广告偏好。如有隐私问题或请求，请发送邮件至 <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>。</p>
       <p>当本站使用的服务或适用要求发生变化时，本说明可能更新；重要修订将通过上方的生效日期体现。</p>
     </section>
-  </article>
+  </article>}
 
   <style>
     .privacy-page { width: min(860px, calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding: clamp(72px, 9vw, 120px) 0 100px; }

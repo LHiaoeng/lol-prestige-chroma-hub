@@ -59,6 +59,11 @@ describe('responsive layout contract', () => {
     expect(actions).toContain('calc(100vw - 28px)');
   });
 
+  it('centers the header language toggle label in both axes', () => {
+    const layout = source('src/layouts/BaseLayout.astro');
+    expect(layout).toContain('.language-toggle { display: inline-flex; align-items: center; justify-content: center;');
+  });
+
   it('uses medium detail background artwork while keeping the content and preview large', () => {
     const detail = source('src/pages/chromas/[slug].astro');
     const viewer = source('src/components/ImageViewer.astro');
@@ -80,7 +85,7 @@ describe('responsive layout contract', () => {
     const titleIndex = detail.indexOf('class="detail-title-row"');
     const detailsIndex = detail.indexOf('<details class="detail-info-disclosure"');
     expect(css).toContain('.detail-image{width:100%;height:auto;aspect-ratio:auto;');
-    expect(detail).toContain('data-en="Click the image to preview"');
+    expect(detail).toContain("{isZh ? '点击图片预览' : 'Click the image to preview'}");
     expect(hintIndex).toBeGreaterThan(-1);
     expect(hintIndex).toBeLessThan(titleIndex);
     expect(titleIndex).toBeLessThan(detailsIndex);

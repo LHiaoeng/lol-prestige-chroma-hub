@@ -7,27 +7,31 @@ export interface DetailAction {
 
 interface Props {
   actions: DetailAction[];
+  locale?: import('../i18n/config').Locale;
 }
 
 const { actions } = Astro.props;
+import { resolveLocale } from '../i18n/config';
+const isZh = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) === 'zh-cn';
+const label = (action: DetailAction) => isZh ? action.labelZh : action.labelEn;
 ---
 {actions.length === 1 ? (
-  <a class="detail-action-link" href={actions[0].href} target="_blank" rel="noopener noreferrer" aria-label={actions[0].labelEn} data-aria-en={actions[0].labelEn} data-aria-zh={actions[0].labelZh} title={actions[0].labelEn}>
+  <a class="detail-action-link" href={actions[0].href} target="_blank" rel="noopener noreferrer" aria-label={label(actions[0])} title={label(actions[0])}>
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
     </svg>
   </a>
 ) : actions.length > 1 && (
   <details class="detail-action-menu">
-    <summary aria-label="External actions" data-aria-en="External actions" data-aria-zh="外部操作" title="External actions">
+    <summary aria-label={isZh ? '外部操作' : 'External actions'} title={isZh ? '外部操作' : 'External actions'}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
       </svg>
     </summary>
-    <nav class="detail-action-list" aria-label="External actions" data-aria-en="External actions" data-aria-zh="外部操作">
+    <nav class="detail-action-list" aria-label={isZh ? '外部操作' : 'External actions'}>
       {actions.map((action) => (
-        <a href={action.href} target="_blank" rel="noopener noreferrer" aria-label={action.labelEn} data-aria-en={action.labelEn} data-aria-zh={action.labelZh} data-en={action.labelEn} data-zh={action.labelZh}>
-          {action.labelEn}
+        <a href={action.href} target="_blank" rel="noopener noreferrer" aria-label={label(action)}>
+          {label(action)}
         </a>
       ))}
     </nav>

@@ -50,8 +50,19 @@ describe('chroma SEO', () => {
     expect(seo.imageAlt).toBe(`${chroma.nameEn} China-Exclusive Chroma Splash Art`);
   });
 
+  it('derives Simplified Chinese metadata on the localized canonical route', () => {
+    const chroma = catalog[0];
+    const seo = createChromaSeo(chroma, 'zh-cn');
+    expect(seo.canonical).toBe(`https://chromaart.lol/zh-cn/chromas/${chroma.slug}/`);
+    expect(seo.title).toBe(`${chroma.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`);
+    expect(seo.description).toContain(chroma.nameZh);
+    expect(seo.description).toContain(`版本 ${chroma.gameVer}`);
+    expect(seo.imageAlt).toBe(`${chroma.nameZh} 中国服专属炫彩原画`);
+    expect(seo.jsonLd[0]).toMatchObject({ inLanguage: 'zh-CN', url: seo.canonical });
+  });
+
   it('keeps the growing catalog unique and concise', () => {
-    const values = catalog.map(createChromaSeo);
+    const values = catalog.map((chroma) => createChromaSeo(chroma));
     expect(new Set(values.map(({ canonical }) => canonical)).size).toBe(catalog.length);
     expect(new Set(values.map(({ title }) => title)).size).toBe(catalog.length);
     expect(values.every(({ title }) => title.length <= 110)).toBe(true);

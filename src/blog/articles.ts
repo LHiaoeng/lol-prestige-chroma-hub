@@ -1,3 +1,5 @@
+import { localizedPath, type Locale } from '../i18n/config';
+
 export interface BlogArticle {
   readonly slug: string;
   readonly href: string;
@@ -11,6 +13,10 @@ export interface BlogArticle {
   readonly coverAltEn: string;
   readonly coverAltZh: string;
   readonly sourceUrl?: string;
+}
+
+export function articleHref(article: Pick<BlogArticle, 'slug'>, locale: Locale): string {
+  return localizedPath(locale, `/blog/${article.slug}/`);
 }
 
 export function formatBlogDate(date: string, language: 'en' | 'zh'): string {

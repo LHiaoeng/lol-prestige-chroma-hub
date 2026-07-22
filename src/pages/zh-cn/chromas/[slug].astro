@@ -1,0 +1,12 @@
+---
+import ChromaPage from '../../chromas/[slug].astro';
+import { catalog } from '../../../data/catalog';
+
+export function getStaticPaths() {
+  return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
+    .map((slug) => ({ params: { slug }, props: { chroma } })));
+}
+
+const { chroma } = Astro.props;
+---
+<ChromaPage {chroma} locale="zh-cn" />

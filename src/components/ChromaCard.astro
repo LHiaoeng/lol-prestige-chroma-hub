@@ -2,29 +2,31 @@
 import type { Chroma } from '../domain/chroma';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { categoryName } from '../i18n';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import { chromaImageAlt } from '../seo/chroma-seo';
-interface Props { chroma: Chroma; eager?: boolean }
+interface Props { chroma: Chroma; eager?: boolean; locale?: Locale }
 const { chroma, eager = false } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const name = isZh ? chroma.nameZh : chroma.nameEn;
 ---
 <article class="chroma-card">
-  <a href={`/chromas/${chroma.slug}/`} aria-label={`View ${chroma.nameEn} details`} data-aria-en={`View ${chroma.nameEn} details`} data-aria-zh={`查看 ${chroma.nameZh} 详情`}>
+  <a href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={isZh ? `查看 ${chroma.nameZh} 详情` : `View ${chroma.nameEn} details`}>
     <div class="card-image">
       <img
         src={imageUrl(chroma.images.medium)}
         data-fallback={sourceImageUrl('medium', chroma.instanceId)}
         data-placeholder="/placeholder.svg"
-        alt={chromaImageAlt(chroma.nameEn)}
-        data-alt-en={chromaImageAlt(chroma.nameEn)}
-        data-alt-zh={`${chroma.heroNameZh} ${chroma.nameZh} 臻彩皮肤`}
+        alt={chromaImageAlt(name, locale)}
         width="960" height="540" loading={eager ? 'eager' : 'lazy'} decoding="async"
       />
-      {chroma.isNew && <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>}
+      {chroma.isNew && <span class="new-badge">{isZh ? '新增' : 'NEW'}</span>}
       <img class="category-icon" src={sourceImageUrl('tag', chroma.tagId)} alt="" aria-hidden="true" />
     </div>
     <div class="card-body">
-      <h2 data-en={chroma.nameEn} data-zh={chroma.nameZh}>{chroma.nameEn}</h2>
+      <h2>{name}</h2>
       <div class="card-tags">
-        <span class="category" data-en={categoryName(chroma.categoryId, 'en')} data-zh={categoryName(chroma.categoryId, 'zh')}>{categoryName(chroma.categoryId, 'en')}</span>
+        <span class="category">{categoryName(chroma.categoryId, isZh ? 'zh' : 'en')}</span>
         <span class="version-tag">{chroma.gameVer}</span>
       </div>
     </div>

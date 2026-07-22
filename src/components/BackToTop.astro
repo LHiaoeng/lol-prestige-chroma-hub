@@ -1,10 +1,12 @@
+---
+import { resolveLocale } from '../i18n/config';
+const isZh = resolveLocale(Astro.currentLocale) === 'zh-cn';
+---
 <button
   class="back-to-top"
   type="button"
   data-back-to-top
-  aria-label="Back to top"
-  data-aria-en="Back to top"
-  data-aria-zh="返回顶部"
+  aria-label={isZh ? '返回顶部' : 'Back to top'}
   aria-hidden="true"
   tabindex="-1"
 >

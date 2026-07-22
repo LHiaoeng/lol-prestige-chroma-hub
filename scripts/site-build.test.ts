@@ -21,7 +21,13 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'robots.txt'))).toBe(true);
     expect(existsSync(join(dist, 'sitemap.xml'))).toBe(true);
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
+    expect(home).toContain('<html lang="en"');
     expect(home).toContain('<link rel="canonical" href="https://chromaart.lol/">');
+    expect(home).toContain('<link rel="alternate" hreflang="en" href="https://chromaart.lol/">');
+    expect(home).toContain('<link rel="alternate" hreflang="zh-CN" href="https://chromaart.lol/zh-cn/">');
+    expect(home).toContain('<link rel="alternate" hreflang="x-default" href="https://chromaart.lol/">');
+    expect(home).toContain('<meta property="og:locale" content="en_US">');
+    expect(home).toContain('<meta property="og:locale:alternate" content="zh_CN">');
     expect(home).toContain('application/ld+json');
     expect(home).toContain('data-chroma-list');
     expect(home).toContain('id="catalog-data"');
@@ -48,18 +54,16 @@ describe('static site build', () => {
     expect(blog).toContain('"@type":"CollectionPage"');
     expect(article).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-is-league-of-legends/">');
     expect(article).toContain('"@type":"BlogPosting"');
-    expect(article).toContain('data-language-content="zh"');
-    expect(article).toContain('召唤师峡谷与水晶枢纽');
+    expect(article).not.toContain('召唤师峡谷与水晶枢纽');
     expect(prestigeArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-are-prestige-chromas/">');
     expect(prestigeArticle).toContain('"@type":"BlogPosting"');
-    expect(prestigeArticle).toContain('data-language-content="zh"');
-    expect(prestigeArticle).toContain('什么是臻彩');
+    expect(prestigeArticle).not.toContain('什么是臻彩');
     expect(coverageArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/champions-without-prestige-chroma/">');
     expect(coverageArticle).toContain('data-coverage-list="en"');
-    expect(coverageArticle).toContain('data-coverage-list="zh"');
+    expect(coverageArticle).not.toContain('data-coverage-list="zh"');
     expect(coverageArticle).toContain('id="champion-coverage-config"');
     expect(coverageArticle).toContain('https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/');
-    expect(coverageArticle).toContain('按英文英雄名 A–Z 排列');
+    expect(coverageArticle).not.toContain('按英文英雄名 A–Z 排列');
     expect(coverageArticle).not.toContain('prestige-chromas.json');
     expect(coverageArticle).not.toContain('按上线时间从早到晚排列');
     const configJson = coverageArticle.match(/<script[^>]*id="champion-coverage-config"[^>]*>([\s\S]*?)<\/script>/)?.[1];
@@ -76,19 +80,24 @@ describe('static site build', () => {
     expect(detail).toContain('the Chinese version of League of Legends');
     expect(detail).toContain(`${sample.nameEn} China-Exclusive Chroma Splash Art`);
     expect(detail).toContain('Click the image to preview');
-    expect(detail).toContain('点击图片预览');
+    expect(detail).not.toContain('点击图片预览');
     expect(detail).toContain('Related Chroma Splash Arts');
     expect(detail).toContain('"representativeOfPage":true');
   });
 
   it('uses factual informational SEO copy', () => {
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
+    const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
     const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
+    const chineseAbout = readFileSync(join(dist, 'zh-cn', 'about', 'index.html'), 'utf8');
     expect(home).toContain('“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.');
-    expect(home).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(home).not.toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(chineseHome).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
     expect(about).toContain('<title>What Are Chroma Splash Arts? | LoL Chroma Art</title>');
     expect(about).toContain('“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.');
-    expect(about).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(about).not.toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(chineseAbout).toContain('<title>什么是《英雄联盟》中国服炫彩原画？ | LoL Chroma Art</title>');
+    expect(chineseAbout).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
     expect(about).toContain("Most chromas reuse their base skin's splash art");
     expect(about).toContain('operated by Tencent');
     expect(about).toContain('Availability and release timing vary by event and patch');
@@ -96,18 +105,56 @@ describe('static site build', () => {
     expect(about).not.toContain('Players should prepare');
   });
 
-  it('publishes a bilingual privacy policy for future Google AdSense use', () => {
+  it('emits Simplified Chinese canonical routes as server-rendered pages', () => {
+    const sample = catalog[0];
+    const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
+    const chineseDetail = readFileSync(join(dist, 'zh-cn', 'chromas', sample.slug, 'index.html'), 'utf8');
+    const chineseBlog = readFileSync(join(dist, 'zh-cn', 'blog', 'index.html'), 'utf8');
+    const chineseArticle = readFileSync(join(dist, 'zh-cn', 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
+    const chineseCoverage = readFileSync(join(dist, 'zh-cn', 'blog', 'champions-without-prestige-chroma', 'index.html'), 'utf8');
+    expect(chineseHome).toContain('<html lang="zh-CN"');
+    expect(chineseHome).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/">');
+    expect(chineseHome).toContain('英雄联盟中国服专属');
+    expect(chineseHome).not.toContain('data-language-content="en"');
+    expect(chineseDetail).toContain(`<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${sample.slug}/">`);
+    expect(chineseDetail).toContain(`${sample.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`);
+    expect(chineseDetail).toContain(`href="/zh-cn/chromas/`);
+    expect(chineseBlog).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/">');
+    expect(chineseBlog).toContain('峡谷内外的故事');
+    expect(chineseBlog).toContain('href="/zh-cn/blog/what-is-league-of-legends/"');
+    expect(chineseArticle).toContain('<html lang="zh-CN"');
+    expect(chineseArticle).toContain('召唤师峡谷与水晶枢纽');
+    expect(chineseArticle).not.toContain('data-language-content="en"');
+    expect(chineseCoverage).toContain('data-coverage-list="zh"');
+    expect(chineseCoverage).not.toContain('data-coverage-list="en"');
+  });
+
+  it('supports legacy numeric chroma detail URLs in Simplified Chinese', () => {
+    const chroma = catalog.find((item) => item.skinId === 147063);
+    expect(chroma).toBeDefined();
+    const numericDetail = readFileSync(join(dist, 'zh-cn', 'chromas', '147063', 'index.html'), 'utf8');
+    expect(numericDetail).toContain(`<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${chroma!.slug}/">`);
+    expect(numericDetail).toContain(`${chroma!.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`);
+  });
+
+  it('publishes separate localized privacy policies for future Google AdSense use', () => {
     const privacy = readFileSync(join(dist, 'privacy', 'index.html'), 'utf8');
+    const chinesePrivacy = readFileSync(join(dist, 'zh-cn', 'privacy', 'index.html'), 'utf8');
     expect(privacy).toContain('<title>Privacy Policy | LoL Chroma Art</title>');
     expect(privacy).toContain('Google AdSense');
     expect(privacy).toContain('adssettings.google.com');
-    expect(privacy).toContain('data-language-content="zh"');
+    expect(privacy).not.toContain('隐私说明');
+    expect(chinesePrivacy).toContain('<title>隐私说明 | LoL Chroma Art</title>');
+    expect(chinesePrivacy).toContain('Google AdSense');
+    expect(chinesePrivacy).toContain('href="mailto:lolchromaart@outlook.com"');
     expect(privacy).toContain('href="mailto:lolchromaart@outlook.com"');
     expect(privacy).not.toContain('github.com/LHiaoeng/lol-prestige-chroma-hub/issues');
 
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
     const header = home.match(/<header[\s\S]*?<\/header>/)?.[0] ?? '';
     const footer = home.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? '';
+    expect(header).toContain('href="/zh-cn/"');
+    expect(header).toContain('hreflang="zh-CN"');
     expect(header).not.toContain('href="/about/"');
     expect(header).not.toContain('href="/privacy/"');
     expect(footer).toContain('href="/about/"');
@@ -117,9 +164,18 @@ describe('static site build', () => {
     expect(footer).toContain('class="footer-separator" aria-hidden="true"');
   });
 
+  it('keeps the 404 page out of the localized canonical index', () => {
+    const notFound = readFileSync(join(dist, '404.html'), 'utf8');
+    expect(notFound).toContain('<meta name="robots" content="noindex, nofollow">');
+    expect(notFound).not.toContain('rel="canonical"');
+    expect(notFound).not.toContain('hreflang=');
+    expect(notFound).toContain('href="/"');
+    expect(notFound).toContain('href="/zh-cn/"');
+  });
+
   it('emits one image sitemap entry per canonical catalog page', () => {
     const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
-    const expectedImageCount = catalog.length + blogArticles.length;
+    const expectedImageCount = (catalog.length + blogArticles.length) * 2;
     expect(sitemap.match(/<image:image>/g)).toHaveLength(expectedImageCount);
     expect(sitemap.match(/<image:loc>/g)).toHaveLength(expectedImageCount);
     expect(sitemap).toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].slug}/</loc>`);

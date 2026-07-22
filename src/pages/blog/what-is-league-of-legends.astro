@@ -2,13 +2,19 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'what-is-league-of-legends');
 if (!article) throw new Error('League of Legends introduction article metadata is missing');
-const title = `${article.titleEn} A Beginner’s Guide | ${SITE.name}`;
-const description = article.summaryEn;
-const canonical = `${SITE.origin}${article.href}`;
+const title = isZh ? `${article.titleZh} | ${SITE.name}` : `${article.titleEn} A Beginner’s Guide | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 const sourceUrl = article.sourceUrl;
 const jungleImage = 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/ed4bef5c2369044d76cf535e038b6c1f8d323f13-3288x2100.png?accountingTag=LoL';
 const laneImage = 'https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/fc8d0c8c803a8e91a1912df9054b3be90211a2d9-3288x2100.png?accountingTag=LoL';
@@ -16,34 +22,34 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: article.titleEn,
+    headline: isZh ? article.titleZh : article.titleEn,
     description,
     image: article.coverUrl,
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
     mainEntityOfPage: canonical,
-    inLanguage: ['en', 'zh'],
+    inLanguage: isZh ? 'zh-CN' : 'en',
     articleSection: 'League of Legends Guides',
-    author: { '@type': 'Organization', name: SITE.name, url: `${SITE.origin}/` },
-    publisher: { '@type': 'Organization', name: SITE.name, url: `${SITE.origin}/` },
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE.origin}/` },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE.origin}/blog/` },
-      { '@type': 'ListItem', position: 3, name: article.titleEn, item: canonical },
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
     ],
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd}>
-  <nav class="blog-breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑">
-    <a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><a href="/blog/" data-en="Blog" data-zh="博客">Blog</a><span>/</span><span aria-current="page" data-en="Guide" data-zh="指南">Guide</span>
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '指南' : 'Guide'}</span>
   </nav>
 
-  <article class="blog-article" data-language-content="en">
+  {!isZh && <article class="blog-article">
     <header class="article-header">
       <p class="kicker">BEGINNER’S GUIDE</p>
       <h1>{article.titleEn}</h1>
@@ -61,9 +67,9 @@ const jsonLd = [
     <figure><img src={laneImage} alt="A top lane champion on Summoner’s Rift" data-alt-en="A top lane champion on Summoner’s Rift" data-alt-zh="召唤师峡谷上路的一名英雄" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="lazy" decoding="async" /><figcaption>Different positions favour different responsibilities and champion styles. Image: <a href={sourceUrl} target="_blank" rel="noreferrer">Riot Games</a>.</figcaption></figure>
     <section><h2>How a match gains momentum</h2><p>Champions earn experience to level up and gold to buy items. Players gather those resources from minions, monsters, structures, and combat, then decide when to stay in lane, return to base, help a teammate, or contest an objective such as a dragon or Baron Nashor.</p><p>Kills matter, but they are usually a means to gain time and control. Strong teams convert a won fight into something lasting: a turret, an objective, deeper vision, or the final route to the Nexus. Communication and timing make individual plays add up.</p></section>
     <section><h2>A game that keeps evolving</h2><p>Riot Games regularly adjusts champions, items, systems, and seasonal goals. Beyond competition, League has grown through Runeterra’s stories, music, animation, character art, and a global esports scene. Players can enjoy it as a strategic sport, a social game with friends, or a doorway into a much larger fictional world.</p><p>If you want to learn the controls and current basics, continue with Riot Games’ official <a href={sourceUrl} target="_blank" rel="noreferrer">How to Play guide</a>.</p></section>
-  </article>
+  </article>}
 
-  <article class="blog-article" data-language-content="zh">
+  {isZh && <article class="blog-article">
     <header class="article-header"><p class="kicker">新手指南</p><h1>{article.titleZh}</h1><p class="article-deck">从选择英雄开始，走进召唤师峡谷，与四名队友一起向敌方水晶枢纽推进。</p><p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p></header>
     <figure><img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="eager" decoding="async" /><figcaption>蓝色方的水晶枢纽——每支队伍都必须守护的核心建筑。图片来源：<a href={sourceUrl} target="_blank" rel="noreferrer">Riot Games</a>。</figcaption></figure>
     <section><h2>团队策略游戏</h2><p>《英雄联盟》是一款强调团队协作的竞技策略游戏。双方各有五名玩家，每人控制一位拥有独特技能、优势与弱点的英雄。操作能力很重要，但观察地图、共享信息、分配资源与协同行动同样决定胜负。</p><p>大多数新玩家会从召唤师峡谷开始。英雄组合、临场选择与持续更新的规则让每场对局从开局到最终推进都可能出现不同局面。</p></section>
@@ -73,9 +79,9 @@ const jsonLd = [
     <figure><img src={laneImage} alt="召唤师峡谷上路的一名英雄" data-alt-en="A top lane champion on Summoner’s Rift" data-alt-zh="召唤师峡谷上路的一名英雄" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="lazy" decoding="async" /><figcaption>不同位置承担不同职责，也适合不同类型的英雄。图片来源：<a href={sourceUrl} target="_blank" rel="noreferrer">Riot Games</a>。</figcaption></figure>
     <section><h2>一场对局如何积累优势</h2><p>英雄通过经验值提升等级，并使用金币购买装备。玩家可以从小兵、野怪、防御建筑与战斗中获得资源，再判断何时留在线上、回城补给、支援队友，或争夺巨龙与纳什男爵等地图目标。</p><p>击杀很重要，但它通常是争取时间与控制权的手段。成熟的团队会把一场胜利的团战转化为长期收益：防御塔、地图目标、更深入的视野，或通往水晶枢纽的最后一条道路。沟通与时机让个人操作真正汇聚成团队优势。</p></section>
     <section><h2>持续进化的游戏</h2><p>Riot Games 会持续调整英雄、装备、系统与赛季目标。在竞技之外，《英雄联盟》还通过符文之地的故事、音乐、动画、角色美术与全球电竞赛事不断扩展。玩家既可以把它当作策略竞技项目，也可以与朋友共同游玩，或把它视为进入宏大幻想世界的入口。</p><p>想了解当前版本的操作与基础规则，可以继续阅读 Riot Games 官方的<a href={sourceUrl} target="_blank" rel="noreferrer">新手玩法指南</a>。</p></section>
-  </article>
+  </article>}
 
-  <BlogAdjacentNavigation currentSlug={article.slug} />
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
 
   <style>
     .blog-breadcrumbs,.blog-article { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }

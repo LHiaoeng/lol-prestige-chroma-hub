@@ -1,8 +1,10 @@
 ---
 interface Props { src: string }
+import { resolveLocale } from '../i18n/config';
 const { src } = Astro.props;
+const isZh = resolveLocale(Astro.currentLocale) === 'zh-cn';
 ---
-<span class="category-icon-wrap" tabindex="0" aria-label="Preview category icon" data-aria-en="Preview category icon" data-aria-zh="预览分类图标">
+<span class="category-icon-wrap" tabindex="0" aria-label={isZh ? '预览分类图标' : 'Preview category icon'}>
   <img class="category-icon-thumb" {src} alt="" aria-hidden="true" />
   <span class="category-icon-tooltip" role="tooltip" aria-hidden="true"><img {src} alt="" /></span>
 </span>

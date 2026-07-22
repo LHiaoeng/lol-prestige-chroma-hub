@@ -139,7 +139,7 @@ function catalogItem(index: number): BrowserCatalogItem {
   };
 }
 
-function fixture(search = '') {
+function fixture(search = '', pathname = '/') {
   const document = new TestDocument();
   const form = new TestForm('form', document);
   form.dataset.filters = '';
@@ -173,7 +173,7 @@ function fixture(search = '') {
   link.append(imageWrap, body); card.append(link); template.content.append(card);
   document.roots.push(form, list, status, count, pagination, template, data);
 
-  const location = { search };
+  const location = { search, pathname };
   const pushCalls: string[] = [];
   const replaceCalls: string[] = [];
   const updateLocation = (url: string) => { location.search = url.includes('?') ? url.slice(url.indexOf('?')) : ''; };
@@ -254,5 +254,18 @@ describe('catalog browser adapter', () => {
     expect(page.document.activeElement?.getAttribute('aria-current')).toBe('page');
     expect(page.status.hidden).toBe(false);
     expect(page.status.textContent).toContain('2 / 3');
+  });
+
+  it('keeps the Simplified Chinese pathname when updating filters', async () => {
+    const page = fixture('?pageSize=1', '/zh-cn/');
+    page.document.documentElement.dataset.language = 'zh';
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+
+    page.form.controls.get('q')!.value = '名称 2';
+    page.form.dispatch('submit');
+
+    expect(page.pushCalls).toEqual(['/zh-cn/?pageSize=1&q=%E5%90%8D%E7%A7%B0+2&sort=rank_desc']);
+    expect(page.list.children[0].querySelector('a')?.href).toContain('/zh-cn/chromas/');
   });
 });

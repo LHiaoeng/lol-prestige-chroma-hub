@@ -3,38 +3,46 @@ import { imageUrl } from '../domain/chroma';
 import { chromaImageAlt } from './chroma-seo';
 import { SITE } from './site';
 import { blogArticles } from '../blog/articles';
+import { SITE_LOCALES, alternateUrls, localizedPath, type Locale } from '../i18n/config';
 
 function escapeXml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;').replaceAll("'", '&apos;');
 }
 
-function page(location: string, image?: { location: string; title: string }, lastModified?: string): string {
+function page(pathname: string, locale: Locale, image?: { location: string; title: string }, lastModified?: string): string {
+  const location = new URL(localizedPath(locale, pathname), SITE.origin).toString();
   const imageXml = image
     ? `<image:image><image:loc>${escapeXml(image.location)}</image:loc><image:title>${escapeXml(image.title)}</image:title></image:image>`
     : '';
   const lastModifiedXml = lastModified ? `<lastmod>${escapeXml(lastModified)}</lastmod>` : '';
-  return `<url><loc>${escapeXml(location)}</loc>${lastModifiedXml}${imageXml}</url>`;
+  const alternateXml = alternateUrls(pathname)
+    .map((alternate) => `<xhtml:link rel="alternate" hreflang="${alternate.hreflang}" href="${escapeXml(alternate.url)}"/>`)
+    .join('');
+  return `<url><loc>${escapeXml(location)}</loc>${lastModifiedXml}${alternateXml}${imageXml}</url>`;
 }
 
 export function renderSitemap(catalog: Chroma[]): string {
-  const fixed = [
-    page(`${SITE.origin}/`),
-    page(`${SITE.origin}/about/`),
-    page(`${SITE.origin}/privacy/`),
-    page(`${SITE.origin}/blog/`),
+  const fixedPaths = ['/', '/about/', '/privacy/', '/blog/'];
+  const fixed = SITE_LOCALES.flatMap((locale) => [
+    ...fixedPaths.map((pathname) => page(pathname, locale)),
     ...blogArticles.map((article) => page(
-      `${SITE.origin}${article.href}`,
+      article.href,
+      locale,
       {
         location: new URL(article.coverUrl, SITE.origin).toString(),
-        title: article.coverAltEn,
+        title: locale === 'zh-cn' ? article.coverAltZh : article.coverAltEn,
       },
       article.publishedAt,
     )),
-  ];
-  const details = catalog.map((chroma) => page(
-    `${SITE.origin}/chromas/${chroma.slug}/`,
-    { location: imageUrl(chroma.images.large), title: chromaImageAlt(chroma.nameEn) },
-  ));
-  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${[...fixed, ...details].join('')}</urlset>`;
+  ]);
+  const details = SITE_LOCALES.flatMap((locale) => catalog.map((chroma) => page(
+    `/chromas/${chroma.slug}/`,
+    locale,
+    {
+      location: imageUrl(chroma.images.large),
+      title: chromaImageAlt(locale === 'zh-cn' ? chroma.nameZh : chroma.nameEn, locale),
+    },
+  )));
+  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">${[...fixed, ...details].join('')}</urlset>`;
 }

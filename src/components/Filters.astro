@@ -1,23 +1,26 @@
 ---
 import type { Chroma } from '../domain/chroma';
 import { categoryName } from '../i18n';
-interface Props { catalog: Chroma[] }
+import { resolveLocale, type Locale } from '../i18n/config';
+interface Props { catalog: Chroma[]; locale?: Locale }
 const { catalog } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
 const heroes = [...new Map(catalog.map((item) => [item.heroId, { en: item.heroNameEn, zh: item.heroNameZh }])).entries()].sort((a, b) => a[1].en.localeCompare(b[1].en));
 const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
 ---
 <details class="filter-disclosure" open>
-<summary><span class="filter-disclosure-label" data-en="Filter & sort" data-zh="筛选与排序">Filter & sort</span><span class="filter-disclosure-icon" aria-hidden="true">＋</span></summary>
+<summary><span class="filter-disclosure-label">{isZh ? '筛选与排序' : 'Filter & sort'}</span><span class="filter-disclosure-icon" aria-hidden="true">＋</span></summary>
 <form class="filters" data-filters role="search">
-  <label class="search-field"><span data-en="Search" data-zh="搜索名称">Search</span><input name="q" type="search" maxlength="64" placeholder="Search prestige chroma names" data-placeholder-en="Search prestige chroma names" data-placeholder-zh="搜索臻彩中英文名称" /></label>
-  <label><span data-en="Champion" data-zh="英雄">Champion</span><select name="hero"><option value="" data-en="All champions" data-zh="全部英雄">All champions</option>{heroes.map(([id, name]) => <option value={id} data-en={name.en} data-zh={name.zh}>{name.en}</option>)}</select></label>
-  <label><span data-en="Patch" data-zh="版本">Patch</span><select name="version"><option value="" data-en="All patches" data-zh="全部版本">All patches</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
-  <label><span data-en="Category" data-zh="分类">Category</span><select name="category"><option value="" data-en="All categories" data-zh="全部分类">All categories</option>{categories.map(([id]) => <option value={id} data-en={categoryName(id, 'en')} data-zh={categoryName(id, 'zh')}>{categoryName(id, 'en')}</option>)}</select></label>
-  <label><span data-en="Status" data-zh="新增状态">Status</span><select name="isNew"><option value="" data-en="All" data-zh="全部">All</option><option value="true" data-en="New" data-zh="本期新增">New</option><option value="false" data-en="Archived" data-zh="非新增">Archived</option></select></label>
-  <label><span data-en="Sort" data-zh="排序">Sort</span><select name="sort"><option value="rank_desc" data-en="Recommended" data-zh="推荐优先">Recommended</option><option value="rank_asc" data-en="Recommended (reverse)" data-zh="推荐倒序">Recommended (reverse)</option><option value="skin_desc" data-en="Skin ID descending" data-zh="皮肤 ID 降序">Skin ID descending</option><option value="skin_asc" data-en="Skin ID ascending" data-zh="皮肤 ID 升序">Skin ID ascending</option><option value="version_desc" data-en="Patch descending" data-zh="版本降序">Patch descending</option></select></label>
-  <button type="submit" data-en="Apply" data-zh="应用筛选">Apply</button>
-  <button type="reset" class="ghost" data-en="Clear" data-zh="清除">Clear</button>
+  <label class="search-field"><span>{isZh ? '搜索名称' : 'Search'}</span><input name="q" type="search" maxlength="64" placeholder={isZh ? '搜索臻彩中英文名称' : 'Search prestige chroma names'} /></label>
+  <label><span>{isZh ? '英雄' : 'Champion'}</span><select name="hero"><option value="">{isZh ? '全部英雄' : 'All champions'}</option>{heroes.map(([id, name]) => <option value={id}>{isZh ? name.zh : name.en}</option>)}</select></label>
+  <label><span>{isZh ? '版本' : 'Patch'}</span><select name="version"><option value="">{isZh ? '全部版本' : 'All patches'}</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
+  <label><span>{isZh ? '分类' : 'Category'}</span><select name="category"><option value="">{isZh ? '全部分类' : 'All categories'}</option>{categories.map(([id]) => <option value={id}>{categoryName(id, isZh ? 'zh' : 'en')}</option>)}</select></label>
+  <label><span>{isZh ? '新增状态' : 'Status'}</span><select name="isNew"><option value="">{isZh ? '全部' : 'All'}</option><option value="true">{isZh ? '本期新增' : 'New'}</option><option value="false">{isZh ? '非新增' : 'Archived'}</option></select></label>
+  <label><span>{isZh ? '排序' : 'Sort'}</span><select name="sort"><option value="rank_desc">{isZh ? '推荐优先' : 'Recommended'}</option><option value="rank_asc">{isZh ? '推荐倒序' : 'Recommended (reverse)'}</option><option value="skin_desc">{isZh ? '皮肤 ID 降序' : 'Skin ID descending'}</option><option value="skin_asc">{isZh ? '皮肤 ID 升序' : 'Skin ID ascending'}</option><option value="version_desc">{isZh ? '版本降序' : 'Patch descending'}</option></select></label>
+  <button type="submit">{isZh ? '应用筛选' : 'Apply'}</button>
+  <button type="reset" class="ghost">{isZh ? '清除' : 'Clear'}</button>
 </form>
 </details>
 <script>

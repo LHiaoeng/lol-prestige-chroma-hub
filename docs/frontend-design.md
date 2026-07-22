@@ -76,10 +76,12 @@ browser-app.ts 读取嵌入目录
 | 路由 | 作用 | 主要内容 |
 | --- | --- | --- |
 | `/` | 首页和完整目录 | Hero、筛选、状态、卡片、分页 |
+| `/zh-cn/` | 简体中文首页和完整目录 | 中文 Hero、筛选、状态、卡片、分页 |
 | `/chromas/{slug}/` | 规范详情页 | 原画、完整资料、外部操作、相关推荐 |
 | `/chromas/{skinId}/` | 数字兼容入口 | 与对应规范详情页相同，Canonical 指向描述性 slug |
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
 | `/blog/` | 博客列表 | 大图精选文章、摘要、日期与阅读时间 |
+| `/zh-cn/blog/` | 简体中文博客列表 | 简体中文文章摘要、日期与阅读时间 |
 | `/blog/what-is-league-of-legends/` | 博客文章 | 中英文《英雄联盟》入门图文指南 |
 | `/blog/champions-without-prestige-chroma/` | 博客文章 | 自动计算并实时刷新的未获得臻彩原画英雄清单 |
 | `/blog/what-are-chroma-skins/` | 博客文章 | 站点自有的炫彩皮肤科普与完整 FAQ |
@@ -313,25 +315,23 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 ## 10. 国际化
 
-当前中英文共用同一 URL，不生成 `/zh/` 路由或 `hreflang`。
+英文使用无前缀 canonical URL，简体中文使用 `/zh-cn/` 前缀。每个页面输出自引用 canonical、互相对应的 `en` 与 `zh-CN` hreflang，以及指向英文页的 `x-default`。未来繁体中文预留 `/zh-tw/`，不使用含义不明确的 `/zh/`。
 
 ### 10.1 内容契约
 
-- 短文本：`data-en` / `data-zh`；
-- 完整语言区块：`data-language-content="en|zh"`；
-- ARIA：`data-aria-en` / `data-aria-zh`；
-- 输入提示：`data-placeholder-en` / `data-placeholder-zh`；
-- 图片替代文本：`data-alt-en` / `data-alt-zh`。
+- `src/i18n/config.ts` 集中维护 locale、URL、HTML lang、hreflang 与 Open Graph 映射；
+- 页面在构建时按 locale 输出当前语言正文、ARIA、Placeholder 与图片 Alt；
+- 共享组件接收 locale 或读取 Astro 当前 locale，站内链接必须保持当前语言前缀；
+- 已发布语言缺少必要文案时构建失败，不在浏览器中静默回退。
 
-### 10.2 状态流
+### 10.2 路由与状态流
 
-1. Head 内联引导脚本在首屏前读取 `localStorage`；
-2. `documentElement.dataset.language` 决定初始语言；
-3. `initializeLanguage` 更新文案、ARIA、Placeholder、Alt 和 `<html lang>`；
-4. 用户切换后写入 `chroma-art-language`；
-5. 页面派发 `languagechange`，目录重新渲染动态卡片。
+1. URL 与 Astro locale 决定页面语言；
+2. `BaseLayout` 输出当前语言 metadata、导航与普通语言链接；
+3. 目录和动态文章脚本只更新当前页面语言内容；
+4. 不根据浏览器语言、IP、请求头或本地偏好自动跳转。
 
-英文是默认且主要索引语言。任何新增动态内容必须响应语言切换，不能只更新静态 DOM。
+英文是默认语言。所有可索引英文页面都必须拥有简体中文对应页，且主要内容不依赖 JavaScript 才能显示。
 
 ## 11. 图片策略
 
@@ -534,14 +534,15 @@ pnpm release:build
 
 首页当前嵌入完整精简目录以支持纯浏览器筛选。目录增长时，应监测 HTML 体积、解析成本和交互启动时间；在没有实测瓶颈前，不恢复历史 D1/Worker 方案。
 
-### 18.4 中英文共用 URL
+### 18.4 独立语言 URL
 
-语言状态保存在本地，不形成独立可索引页面。若未来引入 `/zh/` 或 `hreflang`，需要作为信息架构和 SEO 项目单独设计，不能只修改语言按钮。
+英文与简体中文形成独立可索引静态页面。新增 locale 必须同时扩展路由注册、页面 wrapper、canonical/hreflang、JSON-LD、sitemap、构建审计和文档，不能只修改语言入口。
 
 ## 19. 相关文档
 
 - `docs/design-system.md`：主题色与视觉使用规则；
 - `docs/数据源与JSON结构.md`：目录数据来源和 JSON 字段；
+- `docs/国际化与多语言SEO.md`：语言路由、canonical/hreflang 与新增 locale 流程；
 - `docs/superpowers/specs/2026-07-16-responsive-mobile-design.md`：移动响应式历史决策；
 - `docs/superpowers/specs/2026-07-16-visible-desktop-collapsible-mobile-content-design.md`：桌面常显、手机折叠决策；
 - `docs/superpowers/specs/2026-07-16-latest-chroma-hero-background-design.md`：首页 Hero 决策；

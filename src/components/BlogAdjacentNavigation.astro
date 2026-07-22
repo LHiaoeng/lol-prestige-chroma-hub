@@ -1,23 +1,23 @@
 ---
-import { adjacentBlogArticles, formatBlogDate } from '../blog/articles';
+import { adjacentBlogArticles, articleHref, formatBlogDate } from '../blog/articles';
+import { resolveLocale, type Locale } from '../i18n/config';
 
 interface Props {
   currentSlug: string;
+  locale?: Locale;
 }
 
 const { currentSlug } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
 const { newer, older } = adjacentBlogArticles(currentSlug);
 const navigationClass = `blog-adjacent${newer && !older ? ' only-newer' : ''}${older && !newer ? ' only-older' : ''}`;
 ---
 {(newer || older) && (
-  <nav class={navigationClass} aria-label="More blog articles" data-aria-en="More blog articles" data-aria-zh="更多博客文章">
-    <div data-language-content="en" class="adjacent-grid">
-      {older && <a class="adjacent-card older" href={older.href} aria-label={`Previous article: ${older.titleEn}`}><span class="direction">← Previous article</span><strong>{older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, 'en')}</time></a>}
-      {newer && <a class="adjacent-card newer" href={newer.href} aria-label={`Next article: ${newer.titleEn}`}><span class="direction">Next article →</span><strong>{newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, 'en')}</time></a>}
-    </div>
-    <div data-language-content="zh" class="adjacent-grid">
-      {older && <a class="adjacent-card older" href={older.href} aria-label={`上一篇：${older.titleZh}`}><span class="direction">← 上一篇</span><strong>{older.titleZh}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, 'zh')}</time></a>}
-      {newer && <a class="adjacent-card newer" href={newer.href} aria-label={`下一篇：${newer.titleZh}`}><span class="direction">下一篇 →</span><strong>{newer.titleZh}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, 'zh')}</time></a>}
+  <nav class={navigationClass} aria-label={isZh ? '更多博客文章' : 'More blog articles'}>
+    <div class="adjacent-grid">
+      {older && <a class="adjacent-card older" href={articleHref(older, locale)} aria-label={isZh ? `上一篇：${older.titleZh}` : `Previous article: ${older.titleEn}`}><span class="direction">{isZh ? '← 上一篇' : '← Previous article'}</span><strong>{isZh ? older.titleZh : older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
+      {newer && <a class="adjacent-card newer" href={articleHref(newer, locale)} aria-label={isZh ? `下一篇：${newer.titleZh}` : `Next article: ${newer.titleEn}`}><span class="direction">{isZh ? '下一篇 →' : 'Next article →'}</span><strong>{isZh ? newer.titleZh : newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
     </div>
   </nav>
 )}

@@ -7,14 +7,26 @@ import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
 import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import { CHINA_EXCLUSIVE_DEFINITION, HOME_SEO } from '../seo/site';
+import { SITE } from '../seo/site';
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
 const firstPage = catalog.slice(0, 24);
 const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 const heroDescriptionEn = `${CHINA_EXCLUSIVE_DEFINITION.en} The Chinese service is operated by Tencent.`;
 const heroDescriptionZh = `${CHINA_EXCLUSIVE_DEFINITION.zh} 中国服务器由腾讯运营。`;
+const title = isZh ? '英雄联盟中国服专属炫彩原画 | LoL Chroma Art' : HOME_SEO.title;
+const description = isZh ? heroDescriptionZh : HOME_SEO.description;
+const canonical = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const jsonLd = isZh ? [
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: canonical, inLanguage: 'zh-CN' },
+  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: '英雄联盟中国服专属炫彩原画图鉴', description, url: canonical, inLanguage: 'zh-CN' },
+] : HOME_SEO.jsonLd;
 ---
-<BaseLayout title={HOME_SEO.title} description={HOME_SEO.description} canonical={HOME_SEO.canonical} jsonLd={HOME_SEO.jsonLd}>
+<BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
   <section class="hero-section" data-backdrop-scope>
     {featuredChroma && <ResponsiveHeroBackdrop
       largeSrc={imageUrl(featuredChroma.images.large)}
@@ -23,19 +35,19 @@ const heroDescriptionZh = `${CHINA_EXCLUSIVE_DEFINITION.zh} 中国服务器由�
       mediumFallback={sourceImageUrl('medium', featuredChroma.instanceId)}
     />}
     <div class="hero-content">
-      <h1><span data-language-content="en">League of Legends<br /><em>China-Exclusive Chroma Splash Arts</em></span><span data-language-content="zh">英雄联盟中国服专属<br /><em>炫彩原画</em></span></h1>
-      <p data-en={heroDescriptionEn} data-zh={heroDescriptionZh}>{heroDescriptionEn}</p>
+      <h1>{isZh ? <>英雄联盟中国服专属<br /><em>炫彩原画</em></> : <>League of Legends<br /><em>China-Exclusive Chroma Splash Arts</em></>}</h1>
+      <p>{isZh ? heroDescriptionZh : heroDescriptionEn}</p>
     </div>
     <div class="scroll-hint" aria-hidden="true">
       <span class="scroll-mouse"><span class="scroll-wheel"></span></span>
     </div>
   </section>
   <section class="catalog-section" aria-labelledby="catalog-title">
-    <div class="section-heading"><div><h2 id="catalog-title" data-en="China-Exclusive Chroma Splash Art Archive" data-zh="中国服炫彩原画图鉴">China-Exclusive Chroma Splash Art Archive</h2></div></div>
-    <Filters {catalog} />
+    <div class="section-heading"><div><h2 id="catalog-title">{isZh ? '中国服炫彩原画图鉴' : 'China-Exclusive Chroma Splash Art Archive'}</h2></div></div>
+    <Filters {catalog} {locale} />
     <div class="status" data-status aria-live="polite" hidden></div>
     <div class="chroma-grid" data-chroma-list>
-      {firstPage.map((chroma, index) => <ChromaCard {chroma} eager={index < 4} />)}
+      {firstPage.map((chroma, index) => <ChromaCard {chroma} eager={index < 4} {locale} />)}
     </div>
     <template data-chroma-card-template>
       <article class="chroma-card">
@@ -43,7 +55,7 @@ const heroDescriptionZh = `${CHINA_EXCLUSIVE_DEFINITION.zh} 中国服务器由�
           <div class="card-image">
             <img src="/placeholder.svg" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt="" width="960" height="540" loading="lazy" decoding="async" />
             <img class="category-icon" src="/placeholder.svg" alt="" aria-hidden="true" />
-            <span class="new-badge" data-en="NEW" data-zh="新增">NEW</span>
+            <span class="new-badge">{isZh ? '新增' : 'NEW'}</span>
           </div>
           <div class="card-body">
             <h2></h2>
@@ -52,8 +64,8 @@ const heroDescriptionZh = `${CHINA_EXCLUSIVE_DEFINITION.zh} 中国服务器由�
         </a>
       </article>
     </template>
-    {catalog.length === 0 && <div class="empty" data-initial-empty><h3 data-en="The archive is waiting for data" data-zh="资料库等待导入">The archive is waiting for data</h3><p data-en="Chroma splash arts will appear here after the data import runs." data-zh="运行数据导入命令后，炫彩原画会在这里出现。">Chroma splash arts will appear here after the data import runs.</p></div>}
-    <nav class="pagination" data-pagination aria-label="Pagination" data-aria-en="Pagination" data-aria-zh="分页"></nav>
+    {catalog.length === 0 && <div class="empty" data-initial-empty><h3>{isZh ? '资料库等待导入' : 'The archive is waiting for data'}</h3><p>{isZh ? '运行数据导入命令后，炫彩原画会在这里出现。' : 'Chroma splash arts will appear here after the data import runs.'}</p></div>}
+    <nav class="pagination" data-pagination aria-label={isZh ? '分页' : 'Pagination'}></nav>
   </section>
   <script is:inline id="catalog-data" type="application/json" set:html={browserCatalogJson}></script>
   <script>
