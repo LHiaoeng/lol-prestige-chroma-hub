@@ -8,7 +8,7 @@
 
 ## 博客
 
-博客列表位于 `/blog/`，中英文图文文章包括 `/blog/what-is-league-of-legends/` 与 `/blog/what-are-chroma-skins/`。文章正文直接由 Astro 页面静态维护，列表元数据集中在 `src/blog/articles.ts`；尚未发布的文章保存在 `src/blog/drafts/`，不会生成公开路由，也不会进入博客列表或 Sitemap。博客不读取目录 JSON，也不增加运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
+博客列表位于 `/blog/`，中英文图文文章包括 `/blog/what-is-league-of-legends/`、`/blog/what-are-chroma-skins/`、`/blog/what-are-prestige-chromas/` 与 `/blog/champions-without-prestige-chroma/`。文章正文直接由 Astro 页面维护，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章在构建时请求 CommunityDragon 的 `default` 与 `zh_cn` 英雄摘要，并与本地臻彩目录中的英雄 ID 计算差集；浏览器打开页面后再次请求两份摘要刷新全文数据，请求失败时保留完整静态快照。公开页面只嵌入已覆盖英雄 ID 与本地版本号，不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
 ## 本地开发
 

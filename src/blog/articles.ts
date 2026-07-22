@@ -29,6 +29,19 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'champions-without-prestige-chroma',
+    href: '/blog/champions-without-prestige-chroma/',
+    titleEn: 'Which Champions Still Lack Prestige Chroma Splash Art?',
+    titleZh: '哪些英雄还没有臻彩原画？',
+    summaryEn: 'A live League of Legends tracker showing every champion that still lacks prestige chroma splash art.',
+    summaryZh: '动态追踪《英雄联盟》中仍未获得臻彩原画的全部英雄。',
+    publishedAt: '2026-07-22',
+    readingMinutes: 5,
+    coverUrl: '/img/blog/cover-champions-without-prestige-chroma.jpg',
+    coverAltEn: 'Prestige chroma splash art showcase in the League of Legends client',
+    coverAltZh: '《英雄联盟》客户端中的臻彩原画展示',
+  },
+  {
     slug: 'what-are-prestige-chromas',
     href: '/blog/what-are-prestige-chromas/',
     titleEn: 'What Are Prestige Chromas?',

@@ -228,3 +228,15 @@ D:\WebstormProjects\lol-prestige-chroma-hub
 6. 提交 JSON 并推送到 `main`，等待 Workers Builds 完成重新部署。
 
 不要只手工修改生成后的 JSON 来引入长期字段；否则下次从管理系统生成时，手工字段会被覆盖。
+
+### 6.4 博客英雄覆盖率数据
+
+`/blog/champions-without-prestige-chroma/` 使用两类数据计算尚未获得臻彩原画的英雄：
+
+- CommunityDragon `global/default/v1/champion-summary.json` 提供英雄 ID、英文名和头像相对路径；
+- CommunityDragon `global/zh_cn/v1/champion-summary.json` 提供按英雄 ID 对应的中文名；
+- `data/prestige-chromas.json` 的唯一 `heroId` 集合表示已有臻彩原画的英雄。
+
+Astro 构建时请求两份 CommunityDragon 摘要，校验后与本地 `heroId` 求差集，生成完整静态正文。浏览器会重复请求 CommunityDragon 并刷新可见数据；CommunityDragon 已公开跨域访问，因此不需要本站增加代理 API。构建请求或校验失败时发布失败，浏览器请求失败时继续显示构建快照。
+
+CommunityDragon 响应中的 `/lol-game-data/assets/...` 等相对资源路径必须由 `src/domain/communitydragon-url.ts` 转换，不得在页面或客户端代码中自行拼接。公开 HTML 只包含计算所需的已覆盖英雄 ID 和本地最高 `gameVer`；完整 `prestige-chromas.json` 仍然不得进入 `public/` 或 `dist/`。

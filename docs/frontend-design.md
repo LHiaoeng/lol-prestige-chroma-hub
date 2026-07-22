@@ -81,6 +81,7 @@ browser-app.ts 读取嵌入目录
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
 | `/blog/` | 博客列表 | 大图精选文章、摘要、日期与阅读时间 |
 | `/blog/what-is-league-of-legends/` | 博客文章 | 中英文《英雄联盟》入门图文指南 |
+| `/blog/champions-without-prestige-chroma/` | 博客文章 | 自动计算并实时刷新的未获得臻彩原画英雄清单 |
 | `/blog/what-are-chroma-skins/` | 博客文章 | 站点自有的炫彩皮肤科普与完整 FAQ |
 | `/404/` | 未找到状态 | 错误说明和返回目录入口 |
 | `/sitemap.xml` | 搜索引擎入口 | 页面及详情原画索引 |
@@ -143,11 +144,13 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 ### 6.1 博客布局与内容
 
-博客保持纯静态：`src/blog/articles.ts` 只维护已发布文章列表需要的 slug、双语标题与摘要、日期、阅读时间和封面；正文直接放在 Astro 文章页中，不引入 Content Collections、MDX、分类、搜索或分页。列表按元数据顺序渲染多篇文章卡片。未发布正文与元数据保存在 `src/blog/drafts/`，该目录不参与 Astro 页面路由，也不进入博客列表或 Sitemap。
+博客保持静态优先：`src/blog/articles.ts` 只维护已发布文章列表需要的 slug、双语标题与摘要、日期、阅读时间和封面；正文直接放在 Astro 文章页中，不引入 Content Collections、MDX、分类、搜索或分页。列表按元数据顺序渲染多篇文章卡片。
 
 列表页采用单篇大图精选布局，并使用目录中 `rank = 1` 的臻彩原画作为整页氛围背景，以深色渐变保证文字与卡片对比度；桌面为图片与正文横向组合，平板压缩间距，`≤767px` 改为上下单列、加载中图并降低背景存在感。所有文章页统一使用 760px 版心，标题、正文、图片、对比图与 FAQ 和容器等宽；支持 320px 手机到宽屏桌面，不产生页面级横向滚动。中英文继续共用 URL，并由全站语言切换控制。
 
 博客图片可引用公开 CDN，或将文章实际使用的素材保存到 `public/images/blog/<article>/` 以便迁移。图片声明宽高、替代文本、懒加载策略与 `/placeholder.svg` 降级。列表输出 `CollectionPage`，文章输出 `BlogPosting` 与 `BreadcrumbList`，并使用文章类型 Open Graph、绝对分享图地址、发布日期和修改日期。所有路由均进入 Sitemap，文章条目同时包含更新时间与封面图。
+
+`champions-without-prestige-chroma` 是渐进增强例外：Astro 构建时请求 CommunityDragon 的 `global/default` 与 `global/zh_cn` 英雄摘要，并与私有目录的唯一 `heroId` 求差集，输出可独立索引的双语正文；浏览器再请求相同数据源并刷新数字、说明、名单和头像。CommunityDragon 的相对资源路径只能通过 `src/domain/communitydragon-url.ts` 转换。页面仅嵌入已覆盖英雄 ID 和本地版本号；构建请求或校验失败会停止发布，浏览器请求失败则保留构建快照，完整目录 JSON 不进入公开产物。
 
 ## 7. 首页设计
 
@@ -417,6 +420,7 @@ img.chromaart.lol 规范图片
 | `src/blog/articles.ts` | 博客列表元数据与官方封面来源 |
 | `src/pages/blog/index.astro` | 双语博客列表与大图精选布局 |
 | `src/pages/blog/what-is-league-of-legends.astro` | 双语图文文章、文章 SEO 与响应式阅读样式 |
+| `src/pages/blog/champions-without-prestige-chroma.astro` | 英雄覆盖率静态快照、双语全文绑定与客户端刷新配置 |
 | `src/components/Filters.astro` | 筛选选项生成、表单 DOM 契约和响应式开合 |
 | `src/components/ChromaCard.astro` | 静态及动态卡片共同遵循的视觉结构 |
 | `src/components/ImageViewer.astro` | 响应式页面展示图、固定大图预览、查看器控件和样式 |
@@ -426,10 +430,13 @@ img.chromaart.lol 规范图片
 | `src/catalog/browser-catalog.ts` | 查询参数解析、筛选、排序和分页纯逻辑 |
 | `src/catalog/browser-app.ts` | 首页浏览器状态、DOM 更新和 History API |
 | `src/client/language.ts` | 语言读取、应用、持久化和事件 |
+| `src/client/champion-coverage-refresh.ts` | CommunityDragon 双语摘要的浏览器刷新和失败降级 |
 | `src/client/image-fallback.ts` | 普通图片及 `<picture>` 活动响应式源的三级回退 |
 | `src/client/image-viewer.ts` | Dialog、按钮/滚轮缩放、Pointer Events 双指缩放、拖拽、手势重置和关闭行为 |
 | `src/domain/detail-actions.ts` | 外部动作 URL 生成 |
 | `src/domain/featured-chroma.ts` | 首页 Hero 数据选择 |
+| `src/domain/communitydragon-url.ts` | CommunityDragon 相对资源路径的安全规范化与完整 URL 生成 |
+| `src/domain/champion-coverage.ts` | 双语英雄合并、覆盖率计算、A–Z 排序和动态文案 |
 | `src/domain/related.ts` | 相关推荐计算 |
 | `src/seo/site.ts` | 站点级 SEO 常量和首页元数据 |
 | `src/seo/chroma-seo.ts` | 详情 SEO、Alt 和结构化数据 |
@@ -441,9 +448,9 @@ img.chromaart.lol 规范图片
 
 ### 16.1 自动测试层次
 
-- 领域单元测试：数据模型、详情动作、Hero 选择和相关推荐；
+- 领域单元测试：数据模型、CommunityDragon 路径、英雄覆盖率、详情动作、Hero 选择和相关推荐；
 - 目录单元测试：查询解析、筛选、排序、分页和浏览器状态；
-- 客户端测试：图片回退、查看器开关、双指中点缩放、`0.5×–4×` 边界、单指拖拽接续、手势取消/重置和语言相关行为；
+- 客户端测试：英雄数据刷新降级、图片回退、查看器开关、双指中点缩放、`0.5×–4×` 边界、单指拖拽接续、手势取消/重置和语言相关行为；
 - 响应式契约测试：导航、折叠结构、完整字段和网格断点；
 - 构建测试：静态路由、SEO、Sitemap、Cloudflare 配置和产物审计；
 - Smoke：关键页面和资源的生产形态检查。

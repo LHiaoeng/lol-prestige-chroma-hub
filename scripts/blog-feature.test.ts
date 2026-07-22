@@ -65,6 +65,7 @@ describe('blog feature contract', () => {
     expect(component).toContain('grid-template-columns:repeat(2,minmax(0,1fr))');
     expect(component).toContain('@media (max-width:767px)');
     for (const pagePath of [
+      'src/pages/blog/champions-without-prestige-chroma.astro',
       'src/pages/blog/what-are-prestige-chromas.astro',
       'src/pages/blog/what-are-chroma-skins.astro',
       'src/pages/blog/what-is-league-of-legends.astro',
@@ -230,5 +231,29 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-aria-en=');
     expect(page).toContain('data-aria-zh=');
     expect(page.match(/<details>/g)).toHaveLength(12);
+  });
+
+  it('derives and refreshes every champion coverage fact', () => {
+    const page = source('src/pages/blog/champions-without-prestige-chroma.astro');
+    expect(page).toContain('fetchChampionCoverage(fetch, coveredHeroIds, patchVersion)');
+    expect(page).toContain('championCoverageCopy(snapshot)');
+    expect(page).toContain('id="champion-coverage-config"');
+    expect(page).toContain('initializeChampionCoverageRefresh(document)');
+    expect(page.match(/data-coverage-list="(?:en|zh)"/g)).toHaveLength(2);
+    expect(page.match(/data-coverage-status/g)).toHaveLength(2);
+    for (const key of [
+      'deckEn', 'deckZh', 'captionEn', 'captionZh', 'overviewEn', 'overviewZh',
+      'listIntroEn', 'listIntroZh', 'totalValue', 'coveredValue', 'missingValue', 'coverageValue',
+    ]) {
+      expect(page).toContain(`data-coverage-text="${key}"`);
+    }
+    for (const stale of [
+      'Patch 26.14', '173 champions', '68 champions', '>60.7%</span>', '按上线时间从早到晚排列',
+    ]) {
+      expect(page).not.toContain(stale);
+    }
+    expect(page).not.toContain('/img/champions/${c.alias}.png');
+    expect(page).not.toContain('prestige-chromas.json');
+    expect(page).toContain('<style is:global>');
   });
 });

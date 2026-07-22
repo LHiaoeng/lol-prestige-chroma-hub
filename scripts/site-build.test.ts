@@ -39,10 +39,11 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'))).toBe(true);
-    expect(existsSync(join(dist, 'blog', 'champions-without-prestige-chroma', 'index.html'))).toBe(false);
+    expect(existsSync(join(dist, 'blog', 'champions-without-prestige-chroma', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
     const prestigeArticle = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
+    const coverageArticle = readFileSync(join(dist, 'blog', 'champions-without-prestige-chroma', 'index.html'), 'utf8');
     expect(blog).toContain('<link rel="canonical" href="https://chromaart.lol/blog/">');
     expect(blog).toContain('"@type":"CollectionPage"');
     expect(article).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-is-league-of-legends/">');
@@ -53,6 +54,19 @@ describe('static site build', () => {
     expect(prestigeArticle).toContain('"@type":"BlogPosting"');
     expect(prestigeArticle).toContain('data-language-content="zh"');
     expect(prestigeArticle).toContain('什么是臻彩');
+    expect(coverageArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/champions-without-prestige-chroma/">');
+    expect(coverageArticle).toContain('data-coverage-list="en"');
+    expect(coverageArticle).toContain('data-coverage-list="zh"');
+    expect(coverageArticle).toContain('id="champion-coverage-config"');
+    expect(coverageArticle).toContain('https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/');
+    expect(coverageArticle).toContain('按英文英雄名 A–Z 排列');
+    expect(coverageArticle).not.toContain('prestige-chromas.json');
+    expect(coverageArticle).not.toContain('按上线时间从早到晚排列');
+    const configJson = coverageArticle.match(/<script[^>]*id="champion-coverage-config"[^>]*>([\s\S]*?)<\/script>/)?.[1];
+    expect(configJson).toBeDefined();
+    expect(Object.keys(JSON.parse(configJson!)).sort()).toEqual(['coveredHeroIds', 'patchVersion']);
+    expect(coverageArticle).toContain('.champion-list li{');
+    expect(coverageArticle).not.toMatch(/\.champion-list\[data-astro-cid-[^\]]+\] li\[data-astro-cid-/);
   });
 
   it('emits record-specific chroma splash art metadata', () => {

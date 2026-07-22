@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { fetchChampionCoverage } from '../../data/champion-coverage';
+import { championCoverageCopy, latestGameVersion } from '../../domain/champion-coverage';
+import { safeJsonLd } from '../../domain/chroma';
+import { SITE } from '../../seo/site';
+
+const article = blogArticles.find((entry) => entry.slug === 'champions-without-prestige-chroma');
+if (!article) throw new Error('Champions without prestige chroma article metadata is missing');
+const title = `${article.titleEn} | ${SITE.name}`;
+const description = article.summaryEn;
+const canonical = `${SITE.origin}${article.href}`;
+const coveredHeroIds = [...new Set(catalog.map((item) => item.heroId))];
+const patchVersion = latestGameVersion(catalog.map((item) => item.gameVer));
+const snapshot = await fetchChampionCoverage(fetch, coveredHeroIds, patchVersion);
+const coverageCopy = championCoverageCopy(snapshot);
+const clientConfig = safeJsonLd({ coveredHeroIds, patchVersion });
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: ['en', 'zh'], articleSection: 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: `${SITE.origin}/` },
+    publisher: { '@type': 'Organization', name: SITE.name, url: `${SITE.origin}/` },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE.origin}/` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE.origin}/blog/` },
+      { '@type': 'ListItem', position: 3, name: article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd}>
+  <nav class="blog-breadcrumbs" aria-label="Breadcrumb" data-aria-en="Breadcrumb" data-aria-zh="面包屑">
+    <a href="/" data-en="Home" data-zh="首页">Home</a><span>/</span><a href="/blog/" data-en="Blog" data-zh="博客">Blog</a><span>/</span><span aria-current="page" data-en="Champions without prestige chroma" data-zh="还没有臻彩原画的英雄">Champions without prestige chroma</span>
+  </nav>
+
+  <article class="blog-article" data-language-content="en">
+    <header class="article-header">
+      <p class="kicker">LoL PRESTIGE CHROMA TRACKER</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck" data-coverage-text="deckEn">{coverageCopy.deckEn}</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure>
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption data-coverage-text="captionEn">{coverageCopy.captionEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>Overview</h2>
+      <p>Prestige chroma splash art is a pretty exclusive cosmetic in League of Legends — it gives certain skin chromas their own brand-new splash art (<a href="/blog/what-are-prestige-chromas/">full guide</a>). <span data-coverage-text="overviewEn">{coverageCopy.overviewEn}</span></p>
+      <p>Note: regular <a href="/blog/what-are-chroma-skins/">chroma skins</a> only shift the colour palette — prestige chromas go further with entirely new illustrations.</p>
+      <p>Below is every champion that <strong>doesn't have</strong> a prestige chroma splash art yet.</p>
+    </section>
+
+    <section><h2>Complete list</h2><p data-coverage-text="listIntroEn">{coverageCopy.listIntroEn}</p></section>
+    <ul class="champion-list" data-coverage-list="en">
+      {snapshot.champions.map((champion, index) => (
+        <li><span class="champ-id">{index + 1}.</span><img class="champ-avatar" src={champion.portraitUrl} alt="" width="32" height="32" loading="lazy" decoding="async" aria-hidden="true" /><span class="champ-name">{champion.nameEn}</span></li>
+      ))}
+    </ul>
+
+    <section><h2>By the numbers</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><span class="stat-number" data-coverage-text="totalValue">{coverageCopy.totalValue}</span><span class="stat-label">Total champions</span></div>
+        <div class="stat-card"><span class="stat-number" data-coverage-text="coveredValue">{coverageCopy.coveredValue}</span><span class="stat-label">With prestige chroma</span></div>
+        <div class="stat-card"><span class="stat-number" data-coverage-text="missingValue">{coverageCopy.missingValue}</span><span class="stat-label">Still waiting</span></div>
+        <div class="stat-card"><span class="stat-number" data-coverage-text="coverageValue">{coverageCopy.coverageValue}</span><span class="stat-label">Coverage rate</span></div>
+      </div>
+      <p class="coverage-status" aria-live="polite" data-coverage-status data-coverage-language="en">Data snapshot generated automatically from CommunityDragon.</p>
+    </section>
+
+    <section class="faq"><h2>FAQ</h2><details><summary>When will new prestige chroma splash art be released?</summary><p>Riot hasn't announced a fixed schedule, but the Chinese server may add new ones with patch updates.</p></details><details><summary>Will older prestige chromas come back?</summary><p>Some older prestige chromas rotate into the Mythic Shop periodically. There is no guarantee for every past chroma, but the pattern suggests select returns over time.</p></details><details><summary>What is the difference between prestige chromas and regular chromas?</summary><p>Prestige chromas are also chromas — but each one comes with its own beautifully illustrated splash art. See our <a href="/blog/what-are-prestige-chromas/">prestige chroma guide</a> for the full breakdown.</p></details><details><summary>How does the Prestige Chroma Collection system work?</summary><p>The in-client Collection system lets you view, organise, and showcase your prestige chromas. You can curate a personal gallery and compare progress on the server ranking. See our <a href="/blog/what-are-prestige-chromas/">detailed guide</a> for how it works.</p></details></section>
+  </article>
+
+  <article class="blog-article" data-language-content="zh">
+    <header class="article-header">
+      <p class="kicker">LoL 臻彩原画追踪</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck" data-coverage-text="deckZh">{coverageCopy.deckZh}</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure>
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption data-coverage-text="captionZh">{coverageCopy.captionZh}</figcaption>
+    </figure>
+
+    <section>
+      <h2>概览</h2>
+      <p>臻彩原画算是《英雄联盟》里比较稀缺的视觉内容了——简单说就是给部分皮肤的炫彩配色单独画了一幅新原画（<a href="/blog/what-are-prestige-chromas/">详细介绍</a>）。<span data-coverage-text="overviewZh">{coverageCopy.overviewZh}</span></p>
+      <p>补充一下：普通<a href="/blog/what-are-chroma-skins/">炫彩皮肤</a>只是换配色，臻彩则直接配上全新原画。</p>
+      <p>下面就是目前<strong>还没有</strong>臻彩原画的英雄。</p>
+    </section>
+
+    <section><h2>完整名单</h2><p data-coverage-text="listIntroZh">{coverageCopy.listIntroZh}</p></section>
+    <ul class="champion-list" data-coverage-list="zh">
+      {snapshot.champions.map((champion, index) => (
+        <li><span class="champ-id">{index + 1}.</span><img class="champ-avatar" src={champion.portraitUrl} alt="" width="32" height="32" loading="lazy" decoding="async" aria-hidden="true" /><span class="champ-name">{champion.nameZh}</span></li>
+      ))}
+    </ul>
+
+    <section><h2>数据一览</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><span class="stat-number" data-coverage-text="totalValue">{coverageCopy.totalValue}</span><span class="stat-label">英雄总数</span></div>
+        <div class="stat-card"><span class="stat-number" data-coverage-text="coveredValue">{coverageCopy.coveredValue}</span><span class="stat-label">已有臻彩原画</span></div>
+        <div class="stat-card"><span class="stat-number" data-coverage-text="missingValue">{coverageCopy.missingValue}</span><span class="stat-label">仍在等待</span></div>
+        <div class="stat-card"><span class="stat-number" data-coverage-text="coverageValue">{coverageCopy.coverageValue}</span><span class="stat-label">覆盖率</span></div>
+      </div>
+      <p class="coverage-status" aria-live="polite" data-coverage-status data-coverage-language="zh">数据由 CommunityDragon 自动更新；当前显示构建快照。</p>
+    </section>
+
+    <section class="faq"><h2>常见问题解答</h2><details><summary>臻彩原画什么时候会新增？</summary><p>官方没有公布固定时间表，国服可能会在版本更新中新增臻彩原画。</p></details><details><summary>往期的臻彩还会返场吗？</summary><p>部分往期臻彩会不定期进入神话商店轮换。并非所有历史臻彩都会返场，但已有先例表明部分臻彩会随时间回归。</p></details><details><summary>臻彩和普通炫彩有什么区别？</summary><p>臻彩也是炫彩，但每个臻彩都将拥有一张精美的原画。详见我们的<a href="/blog/what-are-prestige-chromas/">臻彩专题</a>。</p></details><details><summary>臻彩藏馆系统怎么用？</summary><p>客户端内打开臻彩藏馆即可查看、整理和展示自己的收藏，还能自定义个人主页的臻彩展示。详见我们的<a href="/blog/what-are-prestige-chromas/">详细介绍</a>。</p></details></section>
+  </article>
+
+  <script is:inline id="champion-coverage-config" type="application/json" set:html={clientConfig}></script>
+  <script>
+    import { initializeChampionCoverageRefresh } from '../../client/champion-coverage-refresh';
+    void initializeChampionCoverageRefresh(document);
+  </script>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(760px,calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.blog-article>ul,.stats-grid{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;object-fit:cover;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+    .champion-list{list-style:none;padding:0;margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 16px}.champion-list li{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:#15182a;border:1px solid var(--line);font-size:.92rem;color:#c7cad4;transition:border-color .15s}.champion-list li:hover{border-color:var(--gold)}.champ-id{color:var(--muted);font-size:.78rem;min-width:32px;font-variant-numeric:tabular-nums}.champ-avatar{width:32px;height:32px;object-fit:contain;flex-shrink:0}.champ-name{font-weight:600;color:#e6e8ee}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}.stat-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 12px;border-radius:10px;background:#15182a;border:1px solid var(--line)}.stat-number{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--gold);font-weight:500;line-height:1}.stat-label{color:var(--muted);font-size:.82rem;text-align:center}.coverage-status{margin-top:16px!important;color:var(--muted)!important;font-size:.8rem!important}
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.champion-list{grid-template-columns:1fr;gap:6px}.stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+  </style>
+</BaseLayout>

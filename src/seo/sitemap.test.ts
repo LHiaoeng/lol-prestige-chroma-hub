@@ -22,7 +22,7 @@ describe('SEO sitemap', () => {
     expect(xml).toContain('<lastmod>2026-07-20</lastmod>');
     expect(xml).toContain('<image:loc>https://chromaart.lol/img/blog/chroma-history-hero-en.png</image:loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/blog/what-is-league-of-legends/</loc>');
-    expect(xml).not.toContain('/blog/champions-without-prestige-chroma/');
+    expect(xml).toContain('<loc>https://chromaart.lol/blog/champions-without-prestige-chroma/</loc>');
     expect(xml).not.toContain('<loc>https://chromaart.lol/chromas/1/</loc>');
   });
 });
