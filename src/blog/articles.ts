@@ -35,6 +35,19 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'champion-most-prestige-chromas',
+    href: '/blog/champion-most-prestige-chromas/',
+    titleEn: 'Which Champion Has the Most Prestige Chromas? (Patch 26.9)',
+    titleZh: '哪个英雄拥有最多臻彩？（版本 26.9）',
+    summaryEn: 'Ahri tops the leaderboard with 17 prestige chromas across 9 skin families. See the full ranking and what makes the Nine-Tailed Fox so special.',
+    summaryZh: '阿狸以17款臻彩、横跨9个皮肤系列位居榜首。查看完整排名与九尾妖狐的独特之处。',
+    publishedAt: '2026-07-27',
+    readingMinutes: 6,
+    coverUrl: '/img/blog/champion-most-prestige-chromas-cover.jpg',
+    coverAltEn: 'Anonymous champion silhouettes surrounding a glowing prestige chroma trophy',
+    coverAltZh: '多位匿名英雄剪影围绕发光的臻彩奖杯',
+  },
+  {
     slug: 'kaisa-prestige-chroma',
     href: '/blog/kaisa-prestige-chroma/',
     titleEn: 'Kai\u2019Sa Prestige Chroma Gallery',

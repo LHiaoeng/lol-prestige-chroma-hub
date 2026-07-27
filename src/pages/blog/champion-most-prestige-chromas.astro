@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'champion-most-prestige-chromas');
+if (!article) throw new Error('Champion most prestige chromas article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const ahriHeroId = '103';
+const ahriChromas: Chroma[] = catalog.filter((item) => item.heroId === ahriHeroId);
+const totalChromas = catalog.length;
+const championCount = new Set(catalog.map((item) => item.heroId)).size;
+
+const ahriSkinGroups = (() => {
+  const map = new Map<string, { skinNameEn: string; skinNameZh: string; chromas: Chroma[] }>();
+  for (const chroma of ahriChromas) {
+    const key = chroma.skinNameEn;
+    if (!map.has(key)) map.set(key, { skinNameEn: chroma.skinNameEn, skinNameZh: chroma.skinNameZh, chromas: [] });
+    map.get(key)!.chromas.push(chroma);
+  }
+  return [...map.values()];
+})();
+
+const leaderboard = (() => {
+  const map = new Map<string, { heroId: string; nameEn: string; nameZh: string; count: number }>();
+  for (const chroma of catalog) {
+    const entry = map.get(chroma.heroId);
+    if (entry) { entry.count++; } else {
+      map.set(chroma.heroId, { heroId: chroma.heroId, nameEn: chroma.heroNameEn, nameZh: chroma.heroNameZh, count: 1 });
+    }
+  }
+  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 10);
+})();
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '臻彩数量榜' : 'Prestige Chroma Leaderboard'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LoL PRESTIGE CHROMA LEADERBOARD</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">A nine-tailed fox, 17 prestige chromas, nine skin families. Ahri owns a bigger slice of the {totalChromas}-chroma catalogue than anyone else on the Rift.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>17 of {totalChromas} prestige chromas belong to Ahri. More than any other champion.</figcaption>
+    </figure>
+
+    <section>
+      <h2>The numbers</h2>
+      <p>As of patch 26.9, <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> are spread across {championCount} champions. Most have one or two. A handful hit double digits. And then there's Ahri — <strong>{ahriChromas.length} chromas</strong>, two ahead of Ashe and Lee Sin tied at 15. Her nine skin families cover everything from Popstar to Spirit Blossom Springs.</p>
+      <div class="leaderboard-table-wrapper">
+        <table class="leaderboard-table">
+          <thead>
+            <tr><th>#</th><th>Champion</th><th>Prestige Chromas</th></tr>
+          </thead>
+          <tbody>
+            {leaderboard.map((entry, index) => (
+              <tr class:list={{ ['leaderboard-highlight']: entry.heroId === ahriHeroId }}>
+                <td class="rank-cell">{index + 1}</td>
+                <td>{entry.nameEn}</td>
+                <td class="count-cell">{entry.count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ahri's prestige chroma collection</h2>
+      <p>Ahri has {ahriChromas.length} prestige chromas across {ahriSkinGroups.length} different skins. Her chromas span multiple categories — Diamond Prestige Chromas, standard Prestige Chromas, and Golden-tier editions.</p>
+    </section>
+
+    {ahriSkinGroups.map((group) => (
+    <section>
+      <h2>{group.skinNameEn}</h2>
+      <p>{group.skinNameEn} has {group.chromas.length} prestige chroma{group.chromas.length !== 1 ? 's' : ''}:</p>
+      <ul class={`chroma-grid${group.chromas.length >= 3 ? ' chroma-grid-wide' : ''}`}>
+        {group.chromas.map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+    </section>
+    ))}
+
+    <section>
+      <h2>Why Ahri?</h2>
+      <p>Ahri gets more prestige chromas because she gets more of everything. A decade-plus of being one of League's most popular champions. K/DA turned her into a virtual pop star. Spirit Blossom gave her a legendary skin with five chroma variants. Every time Riot releases an event pass or prestige capsule, there's a good chance Ahri is in the lineup.</p>
+      <p>The prestige chroma system started on the Chinese server, where her popularity is massive. That market alone explains a lot. Could someone catch up? Ashe and Lee Sin are both at 15 and still getting new skins. But Ahri's been getting three or four chromas per year. The gap might widen before it closes.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Does the leaderboard change often?</summary>
+        <p>It moves when new prestige chromas drop, which tends to happen every couple of patches. Whenever our catalogue updates, these numbers refresh.</p>
+      </details>
+      <details>
+        <summary>Who has the fewest?</summary>
+        <p>Plenty of champions have just one, and <a href={localizedPath(locale, '/blog/champions-without-prestige-chroma/')}>quite a few still have zero</a>. Check the live tracker for the current count.</p>
+      </details>
+      <details>
+        <summary>Are regular chroma recolours counted here?</summary>
+        <p>No. Only chromas with their own prestige splash art. Standard recolour variants aren't included.</p>
+      </details>
+      <details>
+        <summary>Can I still get all 17 Ahri chromas?</summary>
+        <p>Some were event-limited, some rotate through the Mythic Shop. The older ones aren't always available. More detail in the <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a>.</p>
+      </details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LoL 臻彩数量排行榜</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">一只九尾妖狐，17 款臻彩，横跨 9 个皮肤系列。在这份 {totalChromas} 款臻彩目录里，阿狸占的份额比峡谷里任何英雄都大。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>{totalChromas} 款臻彩中阿狸独占 17 款。全英雄第一。</figcaption>
+    </figure>
+
+    <section>
+      <h2>数据</h2>
+      <p>版本 26.9，{totalChromas} 款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>分布在 {championCount} 位英雄头上。大多数只有一两款，少数上了两位数。然后就是阿狸——<strong>{ahriChromas.length} 款</strong>，比并列第二的艾希和李青（各 15 款）多两个。九个皮肤系列，从偶像歌手一路铺到灵魂莲华。</p>
+      <div class="leaderboard-table-wrapper">
+        <table class="leaderboard-table">
+          <thead>
+            <tr><th>#</th><th>英雄</th><th>臻彩数量</th></tr>
+          </thead>
+          <tbody>
+            {leaderboard.map((entry, index) => (
+              <tr class:list={{ ['leaderboard-highlight']: entry.heroId === ahriHeroId }}>
+                <td class="rank-cell">{index + 1}</td>
+                <td>{entry.nameZh}</td>
+                <td class="count-cell">{entry.count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>阿狸的臻彩收藏</h2>
+      <p>阿狸目前拥有 {ahriChromas.length} 款臻彩，涵盖 {ahriSkinGroups.length} 款不同皮肤。她的臻彩横跨多个类别——钻石臻彩、普通臻彩和炫金臻彩。</p>
+    </section>
+
+    {ahriSkinGroups.map((group) => (
+    <section>
+      <h2>{group.skinNameZh}</h2>
+      <p>{group.skinNameZh}拥有 {group.chromas.length} 款臻彩：</p>
+      <ul class={`chroma-grid${group.chromas.length >= 3 ? ' chroma-grid-wide' : ''}`}>
+        {group.chromas.map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+    </section>
+    ))}
+
+    <section>
+      <h2>为什么是阿狸？</h2>
+      <p>阿狸的臻彩最多，因为她什么都是最多的。十几年了，她一直是英雄联盟人气最高的英雄之一。K/DA 把她做成了虚拟偶像。灵魂莲华给了她传说皮肤，一口气配了五款臻彩。每次拳头出通行证或者臻彩宝箱，名单里大概率有她。</p>
+      <p>臻彩系统最早在国服上线，而阿狸在国服的人气不用多说。有人能追上吗？艾希和李青都是 15 款，还在出新皮肤。但阿狸这几年每年稳定出三四款臻彩，这个差距大概只会越拉越大。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题</h2>
+      <details>
+        <summary>排行榜会经常变吗？</summary>
+        <p>有新臻彩上线就会变，一般每隔几个版本会有变动。目录数据更新后这边也会同步刷新。</p>
+      </details>
+      <details>
+        <summary>谁最少？</summary>
+        <p>只有一款的英雄很多，<a href={localizedPath(locale, '/blog/champions-without-prestige-chroma/')}>连一款都没有的也不少</a>。</p>
+      </details>
+      <details>
+        <summary>这个统计包括普通炫彩换色吗？</summary>
+        <p>不包括。只统计有专属臻彩原画的，普通炫彩配色不算在内。</p>
+      </details>
+      <details>
+        <summary>17 款阿狸臻彩现在还能获取吗？</summary>
+        <p>部分是限时活动的，部分在神话商店轮换。老款不一定随时能拿到。详情看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
+      </details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+    .leaderboard-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:24px}.leaderboard-table{width:100%;border-collapse:collapse;font-size:.96rem}.leaderboard-table th{text-align:left;color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;padding:0 16px 12px}.leaderboard-table td{padding:12px 16px;color:#c7cad4;border-bottom:1px solid var(--line)}.leaderboard-table tbody tr:hover{background:#15182a}.leaderboard-highlight td{color:var(--gold);font-weight:700;background:#15182a}.rank-cell{width:48px;color:var(--muted);font-variant-numeric:tabular-nums}.count-cell{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>

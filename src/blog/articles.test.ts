@@ -23,34 +23,41 @@ describe('blog article metadata', () => {
     expect(adjacentBlogArticles('missing')).toEqual({ newer: undefined, older: undefined });
   });
 
-  it('publishes five bilingual articles with unique canonical routes', () => {
-    expect(blogArticles).toHaveLength(5);
+  it('publishes six bilingual articles with unique canonical routes', () => {
+    expect(blogArticles).toHaveLength(6);
     expect(blogArticles[0]).toMatchObject({
+      slug: 'champion-most-prestige-chromas',
+      href: '/blog/champion-most-prestige-chromas/',
+      titleEn: 'Which Champion Has the Most Prestige Chromas? (Patch 26.9)',
+      titleZh: '哪个英雄拥有最多臻彩？（版本 26.9）',
+      coverUrl: '/img/blog/champion-most-prestige-chromas-cover.jpg',
+    });
+    expect(blogArticles[1]).toMatchObject({
       slug: 'kaisa-prestige-chroma',
       href: '/blog/kaisa-prestige-chroma/',
-      titleEn: 'Kai’Sa Prestige Chroma Gallery',
+      titleEn: 'Kai\u2019Sa Prestige Chroma Gallery',
       titleZh: '卡莎臻彩原画图鉴',
-      summaryEn: 'Browse Kai’Sa prestige chroma artwork by skin, with names, colour palettes, and release details.',
+      summaryEn: 'Browse Kai\u2019Sa prestige chroma artwork by skin, with names, colour palettes, and release details.',
       summaryZh: '按皮肤查看卡莎的臻彩原画，以及每款臻彩的名称、配色与获取信息。',
       coverUrl: '/img/blog/kaisa-prestige-chroma-cover.png',
     });
-    expect(blogArticles[1]).toMatchObject({
+    expect(blogArticles[2]).toMatchObject({
       slug: 'champions-without-prestige-chroma',
       href: '/blog/champions-without-prestige-chroma/',
       titleZh: '哪些英雄还没有臻彩原画？',
     });
-    expect(blogArticles[2]).toMatchObject({
+    expect(blogArticles[3]).toMatchObject({
       slug: 'what-are-prestige-chromas',
       href: '/blog/what-are-prestige-chromas/',
       titleZh: '什么是臻彩？',
     });
-    expect(blogArticles[3]).toMatchObject({
+    expect(blogArticles[4]).toMatchObject({
       slug: 'what-are-chroma-skins',
       href: '/blog/what-are-chroma-skins/',
       titleZh: '什么是炫彩皮肤？',
       coverUrl: '/img/blog/chroma-history-hero-en.png',
     });
-    expect(blogArticles[4]).toMatchObject({
+    expect(blogArticles[5]).toMatchObject({
       slug: 'what-is-league-of-legends',
       href: '/blog/what-is-league-of-legends/',
       titleEn: 'What Is League of Legends?',
@@ -59,7 +66,7 @@ describe('blog article metadata', () => {
     expect(blogArticles[0].publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(blogArticles[0].readingMinutes).toBeGreaterThan(0);
     expect(new Set(blogArticles.map((article) => article.href)).size).toBe(blogArticles.length);
-    expect(blogArticles[0].slug).toBe('kaisa-prestige-chroma');
+    expect(blogArticles[0].slug).toBe('champion-most-prestige-chromas');
     for (const article of blogArticles) {
       expect(article.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(article.readingMinutes).toBeGreaterThan(0);
