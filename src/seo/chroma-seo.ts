@@ -40,8 +40,7 @@ export function createChromaSeo(chroma: Chroma, requestedLocale: Locale = 'en') 
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: new URL(localizedPath(locale, '/'), SITE.origin).toString() },
-          { '@type': 'ListItem', position: 2, name: isZh ? chroma.skinNameZh : chroma.skinNameEn },
-          { '@type': 'ListItem', position: 3, name, item: canonical },
+          { '@type': 'ListItem', position: 2, name, item: canonical },
         ],
       },
     ],
