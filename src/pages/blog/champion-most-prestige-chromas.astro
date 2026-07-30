@@ -4,6 +4,7 @@ import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astr
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { latestGameVersion } from '../../domain/champion-coverage';
 import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
@@ -19,21 +20,9 @@ const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toSt
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 
-const ahriHeroId = '103';
-const ahriChromas: Chroma[] = catalog.filter((item) => item.heroId === ahriHeroId);
 const totalChromas = catalog.length;
 const championCount = new Set(catalog.map((item) => item.heroId)).size;
-
-const ahriSkinGroups = (() => {
-  const map = new Map<string, { skinNameEn: string; skinNameZh: string; chromas: Chroma[] }>();
-  for (const chroma of ahriChromas) {
-    const key = chroma.skinNameEn;
-    if (!map.has(key)) map.set(key, { skinNameEn: chroma.skinNameEn, skinNameZh: chroma.skinNameZh, chromas: [] });
-    map.get(key)!.chromas.push(chroma);
-  }
-  return [...map.values()];
-})();
-
+const patchVersion = latestGameVersion(catalog.map((item) => item.gameVer));
 const leaderboard = (() => {
   const map = new Map<string, { heroId: string; nameEn: string; nameZh: string; count: number }>();
   for (const chroma of catalog) {
@@ -44,6 +33,47 @@ const leaderboard = (() => {
   }
   return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 10);
 })();
+const leader = leaderboard[0];
+if (!leader) throw new Error('Prestige chroma leaderboard is empty');
+const leaderChromas: Chroma[] = catalog.filter((item) => item.heroId === leader.heroId);
+const leaderSkinGroups = (() => {
+  const map = new Map<string, { skinNameEn: string; skinNameZh: string; chromas: Chroma[] }>();
+  for (const chroma of leaderChromas) {
+    const key = chroma.skinNameEn;
+    if (!map.has(key)) map.set(key, { skinNameEn: chroma.skinNameEn, skinNameZh: chroma.skinNameZh, chromas: [] });
+    map.get(key)!.chromas.push(chroma);
+  }
+  return [...map.values()];
+})();
+function commonTrailingWords(values: readonly string[]): string {
+  const tokenLists = values.map((value) => value.trim().split(/\s+/).reverse());
+  if (tokenLists.length === 0) return '';
+  const shared: string[] = [];
+  for (let index = 0; tokenLists.every((tokens) => tokens[index] != null); index++) {
+    const candidate = tokenLists[0][index];
+    if (!tokenLists.every((tokens) => tokens[index].toLocaleLowerCase() === candidate.toLocaleLowerCase())) break;
+    shared.push(candidate);
+  }
+  return shared.reverse().join(' ');
+}
+function shortHeroName(heroId: string, language: 'en' | 'zh', fallback: string): string {
+  const skinNames = [...new Set(catalog.filter((item) => item.heroId === heroId).map((item) => language === 'en' ? item.skinNameEn : item.skinNameZh))];
+  return commonTrailingWords(skinNames) || fallback.replace(/^the\s+/i, '');
+}
+const leaderNameEn = shortHeroName(leader.heroId, 'en', leader.nameEn);
+const leaderNameZh = shortHeroName(leader.heroId, 'zh', leader.nameZh);
+const largestSkinGroup = [...leaderSkinGroups].sort((left, right) => right.chromas.length - left.chromas.length)[0];
+const runnerUpCount = leaderboard[1]?.count ?? 0;
+const runnersUp = leaderboard.filter((entry) => entry.heroId !== leader.heroId && entry.count === runnerUpCount);
+const runnersUpEn = runnersUp.map((entry) => shortHeroName(entry.heroId, 'en', entry.nameEn));
+const runnersUpZh = runnersUp.map((entry) => shortHeroName(entry.heroId, 'zh', entry.nameZh));
+const lead = leader.count - runnerUpCount;
+const leadComparisonEn = lead > 0
+  ? `${lead} ahead of ${runnersUpEn.join(' and ')} at ${runnerUpCount}`
+  : `tied with ${runnersUpEn.join(' and ')} at ${leader.count}`;
+const leadComparisonZh = lead > 0
+  ? `比并列第二的${runnersUpZh.join('和')}（各 ${runnerUpCount} 款）多 ${lead} 款`
+  : `与${runnersUpZh.join('和')}同为 ${leader.count} 款`;
 
 const jsonLd = [
   {
@@ -73,17 +103,17 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">LoL PRESTIGE CHROMA LEADERBOARD</p>
       <h1>{article.titleEn}</h1>
-      <p class="article-deck">A nine-tailed fox, 17 prestige chromas, nine skin families. Ahri owns a bigger slice of the {totalChromas}-chroma catalogue than anyone else on the Rift.</p>
+      <p class="article-deck">{leaderNameEn} currently leads the catalog with {leader.count} prestige chromas across {leaderSkinGroups.length} skin families.</p>
       <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
-      <figcaption>17 of {totalChromas} prestige chromas belong to Ahri. More than any other champion.</figcaption>
+      <figcaption>{leader.count} of {totalChromas} prestige chromas belong to {leaderNameEn}, the current number one.</figcaption>
     </figure>
 
     <section>
       <h2>The numbers</h2>
-      <p>As of patch 26.9, <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> are spread across {championCount} champions. Most have one or two. A handful hit double digits. And then there's Ahri — <strong>{ahriChromas.length} chromas</strong>, two ahead of Ashe and Lee Sin tied at 15. Her nine skin families cover everything from Popstar to Spirit Blossom Springs.</p>
+      <p>As of patch {patchVersion}, <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> are spread across {championCount} champions. Most have one or two, while a handful reach double digits. <strong>{leaderNameEn} is first with {leader.count}</strong>, {leadComparisonEn}.</p>
       <div class="leaderboard-table-wrapper">
         <table class="leaderboard-table">
           <thead>
@@ -91,7 +121,7 @@ const jsonLd = [
           </thead>
           <tbody>
             {leaderboard.map((entry, index) => (
-              <tr class:list={{ ['leaderboard-highlight']: entry.heroId === ahriHeroId }}>
+              <tr class:list={{ ['leaderboard-highlight']: entry.heroId === leader.heroId }}>
                 <td class="rank-cell">{index + 1}</td>
                 <td>{entry.nameEn}</td>
                 <td class="count-cell">{entry.count}</td>
@@ -103,11 +133,11 @@ const jsonLd = [
     </section>
 
     <section>
-      <h2>Ahri's prestige chroma collection</h2>
-      <p>Ahri has {ahriChromas.length} prestige chromas across {ahriSkinGroups.length} different skins. Her chromas span multiple categories — Diamond Prestige Chromas, standard Prestige Chromas, and Golden-tier editions.</p>
+      <h2>{leaderNameEn} prestige chroma collection</h2>
+      <p>{leaderNameEn} has {leaderChromas.length} prestige chromas across {leaderSkinGroups.length} different skins. The gallery below is grouped by base skin and reads directly from the current catalog.</p>
     </section>
 
-    {ahriSkinGroups.map((group) => (
+    {leaderSkinGroups.map((group) => (
     <section>
       <h2>{group.skinNameEn}</h2>
       <p>{group.skinNameEn} has {group.chromas.length} prestige chroma{group.chromas.length !== 1 ? 's' : ''}:</p>
@@ -120,9 +150,8 @@ const jsonLd = [
     ))}
 
     <section>
-      <h2>Why Ahri?</h2>
-      <p>Ahri gets more prestige chromas because she gets more of everything. A decade-plus of being one of League's most popular champions. K/DA turned her into a virtual pop star. Spirit Blossom gave her a legendary skin with five chroma variants. Every time Riot releases an event pass or prestige capsule, there's a good chance Ahri is in the lineup.</p>
-      <p>The prestige chroma system started on the Chinese server, where her popularity is massive. That market alone explains a lot. Could someone catch up? Ashe and Lee Sin are both at 15 and still getting new skins. But Ahri's been getting three or four chromas per year. The gap might widen before it closes.</p>
+      <h2>Why is {leaderNameEn} first?</h2>
+      <p>The current catalog records {leaderChromas.length} chromas across {leaderSkinGroups.length} skin families for {leaderNameEn}. {largestSkinGroup && <>{largestSkinGroup.skinNameEn} is the largest group with {largestSkinGroup.chromas.length}. </>}That breadth is what creates the lead over champions represented by fewer skins or variants.</p>
     </section>
 
     <section class="faq">
@@ -140,7 +169,7 @@ const jsonLd = [
         <p>No. Only chromas with their own prestige splash art. Standard recolour variants aren't included.</p>
       </details>
       <details>
-        <summary>Can I still get all 17 Ahri chromas?</summary>
+        <summary>Can I still get all {leaderChromas.length} {leaderNameEn} chromas?</summary>
         <p>Some were event-limited, some rotate through the Mythic Shop. The older ones aren't always available. More detail in the <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a>.</p>
       </details>
     </section>
@@ -150,17 +179,17 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">LoL 臻彩数量排行榜</p>
       <h1>{article.titleZh}</h1>
-      <p class="article-deck">一只九尾妖狐，17 款臻彩，横跨 9 个皮肤系列。在这份 {totalChromas} 款臻彩目录里，阿狸占的份额比峡谷里任何英雄都大。</p>
+      <p class="article-deck">{leaderNameZh}目前以 {leader.count} 款臻彩位居目录第一，横跨 {leaderSkinGroups.length} 个皮肤系列。</p>
       <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
-      <figcaption>{totalChromas} 款臻彩中阿狸独占 17 款。全英雄第一。</figcaption>
+      <figcaption>{totalChromas} 款臻彩中，{leaderNameZh}拥有 {leader.count} 款，当前排名第一。</figcaption>
     </figure>
 
     <section>
       <h2>数据</h2>
-      <p>版本 26.9，{totalChromas} 款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>分布在 {championCount} 位英雄头上。大多数只有一两款，少数上了两位数。然后就是阿狸——<strong>{ahriChromas.length} 款</strong>，比并列第二的艾希和李青（各 15 款）多两个。九个皮肤系列，从偶像歌手一路铺到灵魂莲华。</p>
+      <p>截至 {patchVersion} 版本，{totalChromas} 款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>分布在 {championCount} 位英雄头上。大多数只有一两款，少数上了两位数。<strong>{leaderNameZh}以 {leader.count} 款排名第一</strong>，{leadComparisonZh}。</p>
       <div class="leaderboard-table-wrapper">
         <table class="leaderboard-table">
           <thead>
@@ -168,7 +197,7 @@ const jsonLd = [
           </thead>
           <tbody>
             {leaderboard.map((entry, index) => (
-              <tr class:list={{ ['leaderboard-highlight']: entry.heroId === ahriHeroId }}>
+              <tr class:list={{ ['leaderboard-highlight']: entry.heroId === leader.heroId }}>
                 <td class="rank-cell">{index + 1}</td>
                 <td>{entry.nameZh}</td>
                 <td class="count-cell">{entry.count}</td>
@@ -180,11 +209,11 @@ const jsonLd = [
     </section>
 
     <section>
-      <h2>阿狸的臻彩收藏</h2>
-      <p>阿狸目前拥有 {ahriChromas.length} 款臻彩，涵盖 {ahriSkinGroups.length} 款不同皮肤。她的臻彩横跨多个类别——钻石臻彩、普通臻彩和炫金臻彩。</p>
+      <h2>{leaderNameZh}的臻彩收藏</h2>
+      <p>{leaderNameZh}目前拥有 {leaderChromas.length} 款臻彩，涵盖 {leaderSkinGroups.length} 款不同皮肤。下方原画按原皮肤分组，并直接读取当前目录。</p>
     </section>
 
-    {ahriSkinGroups.map((group) => (
+    {leaderSkinGroups.map((group) => (
     <section>
       <h2>{group.skinNameZh}</h2>
       <p>{group.skinNameZh}拥有 {group.chromas.length} 款臻彩：</p>
@@ -197,9 +226,8 @@ const jsonLd = [
     ))}
 
     <section>
-      <h2>为什么是阿狸？</h2>
-      <p>阿狸的臻彩最多，因为她什么都是最多的。十几年了，她一直是英雄联盟人气最高的英雄之一。K/DA 把她做成了虚拟偶像。灵魂莲华给了她传说皮肤，一口气配了五款臻彩。每次拳头出通行证或者臻彩宝箱，名单里大概率有她。</p>
-      <p>臻彩系统最早在国服上线，而阿狸在国服的人气不用多说。有人能追上吗？艾希和李青都是 15 款，还在出新皮肤。但阿狸这几年每年稳定出三四款臻彩，这个差距大概只会越拉越大。</p>
+      <h2>为什么{leaderNameZh}排在第一？</h2>
+      <p>当前目录为{leaderNameZh}记录了 {leaderChromas.length} 款臻彩，分布在 {leaderSkinGroups.length} 个皮肤系列中。{largestSkinGroup && <>{largestSkinGroup.skinNameZh}以 {largestSkinGroup.chromas.length} 款成为数量最多的一组。</>}相比只覆盖一两个皮肤系列的英雄，这种跨度更容易积累出数量优势。</p>
     </section>
 
     <section class="faq">
@@ -217,7 +245,7 @@ const jsonLd = [
         <p>不包括。只统计有专属臻彩原画的，普通炫彩配色不算在内。</p>
       </details>
       <details>
-        <summary>17 款阿狸臻彩现在还能获取吗？</summary>
+        <summary>{leaderChromas.length} 款{leaderNameZh}臻彩现在还能获取吗？</summary>
         <p>部分是限时活动的，部分在神话商店轮换。老款不一定随时能拿到。详情看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
       </details>
     </section>

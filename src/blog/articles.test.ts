@@ -23,16 +23,24 @@ describe('blog article metadata', () => {
     expect(adjacentBlogArticles('missing')).toEqual({ newer: undefined, older: undefined });
   });
 
-  it('publishes six bilingual articles with unique canonical routes', () => {
-    expect(blogArticles).toHaveLength(6);
+  it('publishes seven bilingual articles with unique canonical routes', () => {
+    expect(blogArticles).toHaveLength(7);
     expect(blogArticles[0]).toMatchObject({
-      slug: 'champion-most-prestige-chromas',
-      href: '/blog/champion-most-prestige-chromas/',
-      titleEn: 'Which Champion Has the Most Prestige Chromas? (Patch 26.9)',
-      titleZh: '哪个英雄拥有最多臻彩？（版本 26.9）',
-      coverUrl: '/img/blog/champion-most-prestige-chromas-cover.jpg',
+      slug: 'patch-26-15-prestige-chromas',
+      href: '/blog/patch-26-15-prestige-chromas/',
+      titleEn: 'LoL Patch 26.15: 6 New Prestige Chromas',
+      titleZh: '《英雄联盟》26.15 版本：6 款新增臻彩原画',
     });
     expect(blogArticles[1]).toMatchObject({
+      slug: 'champion-most-prestige-chromas',
+      href: '/blog/champion-most-prestige-chromas/',
+      titleEn: 'Which Champion Has the Most Prestige Chromas?',
+      titleZh: '哪个英雄拥有最多臻彩？',
+      summaryEn: 'See the current League of Legends prestige chroma leaderboard and a complete gallery for the champion holding first place.',
+      summaryZh: '查看当前《英雄联盟》臻彩数量排行榜，以及榜首英雄按皮肤整理的完整臻彩原画。',
+      coverUrl: '/img/blog/champion-most-prestige-chromas-cover.jpg',
+    });
+    expect(blogArticles[2]).toMatchObject({
       slug: 'kaisa-prestige-chroma',
       href: '/blog/kaisa-prestige-chroma/',
       titleEn: 'Kai\u2019Sa Prestige Chroma Gallery',
@@ -41,23 +49,23 @@ describe('blog article metadata', () => {
       summaryZh: '按皮肤查看卡莎的臻彩原画，以及每款臻彩的名称、配色与获取信息。',
       coverUrl: '/img/blog/kaisa-prestige-chroma-cover.png',
     });
-    expect(blogArticles[2]).toMatchObject({
+    expect(blogArticles[3]).toMatchObject({
       slug: 'champions-without-prestige-chroma',
       href: '/blog/champions-without-prestige-chroma/',
       titleZh: '哪些英雄还没有臻彩原画？',
     });
-    expect(blogArticles[3]).toMatchObject({
+    expect(blogArticles[4]).toMatchObject({
       slug: 'what-are-prestige-chromas',
       href: '/blog/what-are-prestige-chromas/',
       titleZh: '什么是臻彩？',
     });
-    expect(blogArticles[4]).toMatchObject({
+    expect(blogArticles[5]).toMatchObject({
       slug: 'what-are-chroma-skins',
       href: '/blog/what-are-chroma-skins/',
       titleZh: '什么是炫彩皮肤？',
       coverUrl: '/img/blog/chroma-history-hero-en.png',
     });
-    expect(blogArticles[5]).toMatchObject({
+    expect(blogArticles[6]).toMatchObject({
       slug: 'what-is-league-of-legends',
       href: '/blog/what-is-league-of-legends/',
       titleEn: 'What Is League of Legends?',
@@ -66,7 +74,9 @@ describe('blog article metadata', () => {
     expect(blogArticles[0].publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(blogArticles[0].readingMinutes).toBeGreaterThan(0);
     expect(new Set(blogArticles.map((article) => article.href)).size).toBe(blogArticles.length);
-    expect(blogArticles[0].slug).toBe('champion-most-prestige-chromas');
+    expect(blogArticles[0].slug).toBe('patch-26-15-prestige-chromas');
+    expect(`${blogArticles[1].titleEn} ${blogArticles[1].titleZh}`).not.toMatch(/\d+\.\d+/);
+    expect(`${blogArticles[1].summaryEn} ${blogArticles[1].summaryZh}`).not.toMatch(/Ahri|阿狸|17/);
     for (const article of blogArticles) {
       expect(article.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(article.readingMinutes).toBeGreaterThan(0);

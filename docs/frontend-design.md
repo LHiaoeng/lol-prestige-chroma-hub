@@ -82,6 +82,8 @@ browser-app.ts 读取嵌入目录
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
 | `/blog/` | 博客列表 | 大图精选文章、摘要、日期与阅读时间 |
 | `/zh-cn/blog/` | 简体中文博客列表 | 简体中文文章摘要、日期与阅读时间 |
+| `/blog/patch-26-15-prestige-chromas/` | 博客文章 | 26.15 版本收录的 6 款臻彩原画 |
+| `/zh-cn/blog/patch-26-15-prestige-chromas/` | 简体中文博客文章 | 26.15 版本收录的 6 款臻彩原画 |
 | `/blog/what-is-league-of-legends/` | 博客文章 | 中英文《英雄联盟》入门图文指南 |
 | `/blog/champions-without-prestige-chroma/` | 博客文章 | 自动计算并实时刷新的未获得臻彩原画英雄清单 |
 | `/blog/what-are-chroma-skins/` | 博客文章 | 站点自有的炫彩皮肤科普与完整 FAQ |

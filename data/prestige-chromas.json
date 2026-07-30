@@ -1,5 +1,293 @@
 [
   {
+    "id" : 462,
+    "skinId" : 157096,
+    "instanceId" : "682a0450-c246-485d-b6d6-815a1acebfa0",
+    "nameZh" : "踏雪寻梅 亚索 独步早春",
+    "nameEn" : "Petals of Spring Yasuo (Emerald)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#2DA130"
+    ],
+    "heroId" : "157",
+    "heroNameZh" : "疾风剑豪 亚索",
+    "heroNameEn" : "the Unforgiven Yasuo",
+    "sourceSkinId" : 157088,
+    "skinSets" : [
+      {
+        "id" : 225,
+        "nameZh" : "踏雪寻梅",
+        "nameEn" : "Petals of Spring",
+        "descriptionZh" : "在精神领域的深处，有一个神话花园，其中的每一株植物都具象化了凡间的希望、梦想和苦难。园丁们以神圣的关怀照料它，修剪掉悲伤并培育新的花朵。如果一切顺利，霜火花就会盛开——预示着积雪即将融化——并且​​春天就会回归，为花园和凡界带来生机。",
+        "descriptionEn" : "Deep within the spirit realm lies a garden of myth, where each plant embodies mortal hopes, dreams, and suffering. Gardeners tend to it with sacred care, pruning sorrow and nurturing new blossoms. If all goes well, the Frostpyre flowers bloom—signaling the coming melt of snow—and Spring returns, bringing life back to both the garden and the mortal world."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "踏雪寻梅 亚索",
+    "skinNameEn" : "Petals of Spring Yasuo",
+    "categoryId" : "1",
+    "categoryName" : "生肖限定臻彩",
+    "tagId" : "13",
+    "gameVer" : "26.15",
+    "isNew" : true,
+    "rank" : 461,
+    "images" : {
+      "large" : "assets/chromas/682a0450-c246-485d-b6d6-815a1acebfa0/site3.jpg",
+      "small" : "assets/chromas/682a0450-c246-485d-b6d6-815a1acebfa0/site4.jpg",
+      "medium" : "assets/chromas/682a0450-c246-485d-b6d6-815a1acebfa0/site5.jpg",
+      "tag" : "assets/tags/x-13.png"
+    }
+  },
+  {
+    "id" : 461,
+    "skinId" : 876052,
+    "instanceId" : "6479e006-0b5c-42ae-ad4a-3bd517a51c4f",
+    "nameZh" : "踏雪寻梅 莉莉娅 独步早春",
+    "nameEn" : "Petals of Spring Lillia (Emerald)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#2DA130"
+    ],
+    "heroId" : "876",
+    "heroNameZh" : "含羞蓓蕾 莉莉娅",
+    "heroNameEn" : "the Bashful Bloom Lillia",
+    "sourceSkinId" : 876046,
+    "skinSets" : [
+      {
+        "id" : 225,
+        "nameZh" : "踏雪寻梅",
+        "nameEn" : "Petals of Spring",
+        "descriptionZh" : "在精神领域的深处，有一个神话花园，其中的每一株植物都具象化了凡间的希望、梦想和苦难。园丁们以神圣的关怀照料它，修剪掉悲伤并培育新的花朵。如果一切顺利，霜火花就会盛开——预示着积雪即将融化——并且​​春天就会回归，为花园和凡界带来生机。",
+        "descriptionEn" : "Deep within the spirit realm lies a garden of myth, where each plant embodies mortal hopes, dreams, and suffering. Gardeners tend to it with sacred care, pruning sorrow and nurturing new blossoms. If all goes well, the Frostpyre flowers bloom—signaling the coming melt of snow—and Spring returns, bringing life back to both the garden and the mortal world."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "踏雪寻梅 莉莉娅",
+    "skinNameEn" : "Petals of Spring Lillia",
+    "categoryId" : "1",
+    "categoryName" : "生肖限定臻彩",
+    "tagId" : "13",
+    "gameVer" : "26.15",
+    "isNew" : true,
+    "rank" : 460,
+    "images" : {
+      "large" : "assets/chromas/6479e006-0b5c-42ae-ad4a-3bd517a51c4f/site3.jpg",
+      "small" : "assets/chromas/6479e006-0b5c-42ae-ad4a-3bd517a51c4f/site4.jpg",
+      "medium" : "assets/chromas/6479e006-0b5c-42ae-ad4a-3bd517a51c4f/site5.jpg",
+      "tag" : "assets/tags/x-13.png"
+    }
+  },
+  {
+    "id" : 460,
+    "skinId" : 55078,
+    "instanceId" : "4849cb48-4610-47a6-8aaf-03faaa48c2fd",
+    "nameZh" : "踏雪寻梅 卡特琳娜 独步早春",
+    "nameEn" : "Petals of Spring Katarina (Emerald)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#2DA130"
+    ],
+    "heroId" : "55",
+    "heroNameZh" : "不祥之刃 卡特琳娜",
+    "heroNameEn" : "the Sinister Blade Katarina",
+    "sourceSkinId" : 55070,
+    "skinSets" : [
+      {
+        "id" : 225,
+        "nameZh" : "踏雪寻梅",
+        "nameEn" : "Petals of Spring",
+        "descriptionZh" : "在精神领域的深处，有一个神话花园，其中的每一株植物都具象化了凡间的希望、梦想和苦难。园丁们以神圣的关怀照料它，修剪掉悲伤并培育新的花朵。如果一切顺利，霜火花就会盛开——预示着积雪即将融化——并且​​春天就会回归，为花园和凡界带来生机。",
+        "descriptionEn" : "Deep within the spirit realm lies a garden of myth, where each plant embodies mortal hopes, dreams, and suffering. Gardeners tend to it with sacred care, pruning sorrow and nurturing new blossoms. If all goes well, the Frostpyre flowers bloom—signaling the coming melt of snow—and Spring returns, bringing life back to both the garden and the mortal world."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "踏雪寻梅 卡特琳娜",
+    "skinNameEn" : "Petals of Spring Katarina",
+    "categoryId" : "1",
+    "categoryName" : "生肖限定臻彩",
+    "tagId" : "13",
+    "gameVer" : "26.15",
+    "isNew" : true,
+    "rank" : 459,
+    "images" : {
+      "large" : "assets/chromas/4849cb48-4610-47a6-8aaf-03faaa48c2fd/site3.jpg",
+      "small" : "assets/chromas/4849cb48-4610-47a6-8aaf-03faaa48c2fd/site4.jpg",
+      "medium" : "assets/chromas/4849cb48-4610-47a6-8aaf-03faaa48c2fd/site5.jpg",
+      "tag" : "assets/tags/x-13.png"
+    }
+  },
+  {
+    "id" : 459,
+    "skinId" : 10082,
+    "instanceId" : "11914b2b-f986-474e-b3f7-1e8cc41b72c9",
+    "nameZh" : "灵魂莲华 凯尔 星回",
+    "nameEn" : "Spirit Blossom Kayle (Tanzanite)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#54209B"
+    ],
+    "heroId" : "10",
+    "heroNameZh" : "正义天使 凯尔",
+    "heroNameEn" : "the Righteous Kayle",
+    "sourceSkinId" : 10078,
+    "skinSets" : [
+      {
+        "id" : 171,
+        "nameZh" : "灵魂莲华",
+        "nameEn" : "Spirit Blossom",
+        "descriptionZh" : "绽灵节是艾欧尼亚的一个古老的节庆时段，当通往灵界的大门打开时，亡者会回到亲人身边，各种各样的灵体都将目光投向生者。从仁慈的明昼到偏执的夜幽——他们的故事一次又一次地上演，就像走马灯上的影像。",
+        "descriptionEn" : "The Spirit Blossom Festival is an ancient and celebrated time in Ionia, when the door to the spirit world is opened, the dead return to their loved ones, and spirits of all manner turn their eyes towards the living. From the benevolent Kanmei, to the obsessive Akana—their stories play out again and again, like shadows on a paper lantern."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 37,
+        "nameZh" : "灵魂莲华",
+        "nameEn" : "Spirit Blossom",
+        "descriptionZh" : "绽灵节是艾欧尼亚的一个古老的庆典，届时灵界的大门会开启，逝者们会回到他们的挚爱那里，并且各式各样的灵体们都会把目光转向生者们。从仁慈的明昼，到偏执的夜幽——它们的故事都在一遍又一遍地上演着，就像走马灯上的影子一样。",
+        "descriptionEn" : "The Spirit Blossom Festival is an ancient and celebrated time in Ionia, when the door to the spirit world is opened, the dead return to their loved ones, and spirits of all manner turn their eyes towards the living. From the benevolent Kanmei, to the obsessive Akana—their stories play out again and again, like shadows on a paper lantern."
+      }
+    ],
+    "skinNameZh" : "灵魂莲华 凯尔",
+    "skinNameEn" : "Spirit Blossom Kayle",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.15",
+    "isNew" : true,
+    "rank" : 458,
+    "images" : {
+      "large" : "assets/chromas/11914b2b-f986-474e-b3f7-1e8cc41b72c9/site3.jpg",
+      "small" : "assets/chromas/11914b2b-f986-474e-b3f7-1e8cc41b72c9/site4.jpg",
+      "medium" : "assets/chromas/11914b2b-f986-474e-b3f7-1e8cc41b72c9/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 458,
+    "skinId" : 114095,
+    "instanceId" : "619946f6-b69c-4df3-9266-9588322c9802",
+    "nameZh" : "女帝 菲奥娜 纹章之刻印·强运",
+    "nameEn" : "Battle Queen Fiora (Rose Quartz)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#E58BA5"
+    ],
+    "heroId" : "114",
+    "heroNameZh" : "无双剑姬 菲奥娜",
+    "heroNameEn" : "the Grand Duelist Fiora",
+    "sourceSkinId" : 114089,
+    "skinSets" : [
+      {
+        "id" : 137,
+        "nameZh" : "女帝无双",
+        "nameEn" : "Battle Queens",
+        "descriptionZh" : null,
+        "descriptionEn" : null
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 40,
+        "nameZh" : "女帝无双",
+        "nameEn" : "Battle Queens",
+        "descriptionZh" : "伊莱西亚曾经被无休止的战争给弄得支离破碎，而其中的诸多女帝之国已经认识到了她们世界的真实本质：把她们这个幻想位面结合到一起的那股魔力，只有通过冲突才能得以维持。因此，她们通过“神圣加冕礼”的统一冲突而结成了同盟，尽管有些联盟正在开始出现裂痕……",
+        "descriptionEn" : "Once fractured by endless warfare, the collective Queendoms of Elysia have realized the true nature of their world: that the magic holding their fantastical plane together is maintained only through conflict. They have thus allied through the unifying conflict of the Grand Coronation, though some alliances are beginning to show cracks..."
+      }
+    ],
+    "skinNameZh" : "女帝 菲奥娜",
+    "skinNameEn" : "Battle Queen Fiora",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.15",
+    "isNew" : true,
+    "rank" : 457,
+    "images" : {
+      "large" : "assets/chromas/619946f6-b69c-4df3-9266-9588322c9802/site3.jpg",
+      "small" : "assets/chromas/619946f6-b69c-4df3-9266-9588322c9802/site4.jpg",
+      "medium" : "assets/chromas/619946f6-b69c-4df3-9266-9588322c9802/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 457,
+    "skinId" : 99032,
+    "instanceId" : "3d420409-62e4-494d-bee0-7a48abe98a34",
+    "nameZh" : "青花瓷 拉克丝 含苞",
+    "nameEn" : "Porcelain Lux (Rose Quartz)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#E58BA5"
+    ],
+    "heroId" : "99",
+    "heroNameZh" : "光辉女郎 拉克丝",
+    "heroNameEn" : "the Lady of Luminosity Lux",
+    "sourceSkinId" : 99029,
+    "skinSets" : [
+      {
+        "id" : 154,
+        "nameZh" : "青花瓷",
+        "nameEn" : "Porcelain",
+        "descriptionZh" : "有这样一个世界，古老灵体和神奇生物在现代社会的边缘茁壮成的，被称为十二生肖圣物的强大瓷器是释放巨大力量的关键。它们受到守护者们的保护：不朽的守护者们负责防止生肖圣物落入坏人之手。",
+        "descriptionEn" : "In a world where ancient spirits and magical creatures thrive in the periphery of modern society, powerful porcelain artifacts called the Zodiac Relics are key to unlocking immense power. They are kept safe by the Protectors: immortal guardians tasked with keeping the Relics out of the wrong hands."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "青花瓷 拉克丝",
+    "skinNameEn" : "Porcelain Lux",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.15",
+    "isNew" : true,
+    "rank" : 456,
+    "images" : {
+      "large" : "assets/chromas/3d420409-62e4-494d-bee0-7a48abe98a34/site3.jpg",
+      "small" : "assets/chromas/3d420409-62e4-494d-bee0-7a48abe98a34/site4.jpg",
+      "medium" : "assets/chromas/3d420409-62e4-494d-bee0-7a48abe98a34/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
     "id" : 456,
     "skinId" : 876023,
     "instanceId" : "7c9c05ca-5288-48f0-9f79-e6ef4d28e86b",
@@ -38,7 +326,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.14",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 455,
     "images" : {
       "large" : "assets/chromas/7c9c05ca-5288-48f0-9f79-e6ef4d28e86b/site3.jpg",
@@ -86,7 +374,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.14",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 454,
     "images" : {
       "large" : "assets/chromas/a7699a24-8688-4a93-b0fd-65aff78a8a4c/site3.jpg",
@@ -134,7 +422,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.14",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 453,
     "images" : {
       "large" : "assets/chromas/910dd6a4-a82c-425d-8b24-fdc78bbcf54c/site3.jpg",
@@ -182,7 +470,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.14",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 452,
     "images" : {
       "large" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site3.jpg",
@@ -197,8 +485,8 @@
     "instanceId" : "04d46cbd-375b-406b-9038-c5c3455f2a9e",
     "nameZh" : "海魔至尊 亚托克斯 威慑嘶吼",
     "nameEn" : "Primordian Aatrox (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2024年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2024.",
     "colors" : [
       "#D33528"
     ],
@@ -230,7 +518,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.14",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 451,
     "images" : {
       "large" : "assets/chromas/04d46cbd-375b-406b-9038-c5c3455f2a9e/site3.jpg",
@@ -632,8 +920,8 @@
     "instanceId" : "f5069942-3c9f-4cb3-8a67-299d9b1b7406",
     "nameZh" : "天龙之子 黛安娜 赫赫龙威",
     "nameEn" : "Heavenscale Diana (Lustrous)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在天龙之子(2024)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2024 Heavenscale event.",
     "colors" : [
       "#DFA6DF",
       "#E0D7D7"
@@ -921,8 +1209,8 @@
     "instanceId" : "58cd810b-fa2e-4939-ac2a-0bae7e06f4fb",
     "nameZh" : "踏雪寻梅 卡特琳娜 岁寒特妍",
     "nameEn" : "Petals of Spring Katarina (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2026年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2026.",
     "colors" : [
       "#D33528"
     ],
@@ -969,8 +1257,8 @@
     "instanceId" : "a76beb96-c162-4191-8063-43571cfaa184",
     "nameZh" : "踏雪寻梅 莉莉娅 岁寒特妍",
     "nameEn" : "Petals of Spring Lillia (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2026年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2026.",
     "colors" : [
       "#D33528"
     ],
@@ -1314,7 +1602,7 @@
     "nameZh" : "偶像歌手 阿狸 幻紫罗兰",
     "nameEn" : "Popstar Ahri (Ahri-versary)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released in the 2021 Ahri-versary event.",
     "colors" : [
       "#2E38C4",
       "#C8003F"
@@ -3650,8 +3938,8 @@
     "instanceId" : "f710357f-e5d1-4371-bf32-8f97143d838d",
     "nameZh" : "灵魂莲华 伊芙琳 绽夜",
     "nameEn" : "Spirit Blossom Evelynn (Night Blossom)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在全球总决赛(2022)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the Worlds 2022 event.",
     "colors" : [
       "#0C0C0F",
       "#B2D1E4"
@@ -4460,8 +4748,8 @@
     "instanceId" : "115be906-0bd1-4a83-a0d0-5e9cef4ef126",
     "nameZh" : "剪纸仙灵 婕拉 金玉满堂",
     "nameEn" : "Mythmaker Zyra (Gilded)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在春节(2023)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2023 Lunar Revel event.",
     "colors" : [
       "#181818",
       "#DDAA0E"
@@ -4773,8 +5061,8 @@
     "instanceId" : "bf061ede-7cec-4c1f-a914-4253ec3cdc48",
     "nameZh" : "熊猫娃娃 拉克丝 火锅姑娘",
     "nameEn" : "Panda Pal Lux (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2025.",
     "colors" : [
       "#D33528"
     ],
@@ -5029,8 +5317,8 @@
     "instanceId" : "1e705def-72e0-43e7-8624-2a4b61e826f4",
     "nameZh" : "莲华温泉 娑娜 流火",
     "nameEn" : "Spirit Blossom Springs Sona (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2025.",
     "colors" : [
       "#D33528"
     ],
@@ -5269,8 +5557,8 @@
     "instanceId" : "b9c58311-c073-4b55-be1f-6357c5e0481f",
     "nameZh" : "莲华温泉 阿狸 流火",
     "nameEn" : "Spirit Blossom Springs Ahri (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2025.",
     "colors" : [
       "#D33528"
     ],
@@ -5365,8 +5653,8 @@
     "instanceId" : "b1a7fa6f-d9d8-47b6-b463-09c87b23d169",
     "nameZh" : "青花瓷 艾瑞莉娅 牡丹",
     "nameEn" : "Porcelain Irelia (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2024年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2024.",
     "colors" : [
       "#D33528"
     ],
@@ -5549,8 +5837,8 @@
     "instanceId" : "c0697a21-e558-46aa-914c-b176e40c732d",
     "nameZh" : "iG 洛 极境",
     "nameEn" : "iG Rakan (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025全球总决赛期间作为一个礼包专属物品发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during Worlds 2025.",
     "colors" : [
       "#568DF3",
       "#ECC642"
@@ -5598,8 +5886,8 @@
     "instanceId" : "ae0cd9b9-46c6-489b-b0aa-463533f89b45",
     "nameZh" : "iG 卡莎 极境",
     "nameEn" : "iG Kai'Sa (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025全球总决赛期间作为一个礼包专属物品发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during Worlds 2025.",
     "colors" : [
       "#568DF3",
       "#ECC642"
@@ -5647,8 +5935,8 @@
     "instanceId" : "a07b551f-5b3a-4d89-bea8-55d2f7395576",
     "nameZh" : "iG 乐芙兰 极境",
     "nameEn" : "iG LeBlanc (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025全球总决赛期间作为一个礼包专属物品发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during Worlds 2025.",
     "colors" : [
       "#568DF3",
       "#ECC642"
@@ -5696,8 +5984,8 @@
     "instanceId" : "8ce5d1c5-a757-4e29-a334-8a115e8f563e",
     "nameZh" : "iG 卡蜜尔 极境",
     "nameEn" : "iG Camille (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025全球总决赛期间作为一个礼包专属物品发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during Worlds 2025.",
     "colors" : [
       "#568DF3",
       "#ECC642"
@@ -5745,8 +6033,8 @@
     "instanceId" : "c6f55f19-0954-44e7-9a24-8e178f1ba12d",
     "nameZh" : "iG 艾瑞莉娅 极境",
     "nameEn" : "iG Irelia (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025全球总决赛期间作为一个礼包专属物品发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during Worlds 2025.",
     "colors" : [
       "#568DF3",
       "#ECC642"
@@ -5794,8 +6082,8 @@
     "instanceId" : "d0900979-9d2c-4a97-9749-fb1a7d95cdbb",
     "nameZh" : "iG 菲奥娜 极境",
     "nameEn" : "iG Fiora (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025全球总决赛期间作为一个礼包专属物品发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during Worlds 2025.",
     "colors" : [
       "#568DF3",
       "#ECC642"
@@ -5843,8 +6131,8 @@
     "instanceId" : "efab26c3-0415-4242-bb03-4f44d6d23960",
     "nameZh" : "T1 巴德 精锐",
     "nameEn" : "T1 Bard (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "解锁方式：在T1冠军皮肤活动期间作为礼包专属获得。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during T1 World Championship showcase.",
     "colors" : [
       "#AE1F1F",
       "#DF4F1A"
@@ -5892,8 +6180,8 @@
     "instanceId" : "6ac78da3-ab8a-467a-bacb-29598816dc9d",
     "nameZh" : "T1 金克丝 精锐",
     "nameEn" : "T1 Jinx (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "解锁方式：在T1冠军皮肤活动期间作为礼包专属获得。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during T1 World Championship showcase.",
     "colors" : [
       "#AE1F1F",
       "#DF4F1A"
@@ -5941,8 +6229,8 @@
     "instanceId" : "a3080206-fcb1-44df-920b-ec205b2d2a3a",
     "nameZh" : "T1 奥莉安娜 精锐",
     "nameEn" : "T1 Orianna (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "解锁方式：在T1冠军皮肤活动期间作为礼包专属获得。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during T1 World Championship showcase.",
     "colors" : [
       "#AE1F1F",
       "#DF4F1A"
@@ -5990,8 +6278,8 @@
     "instanceId" : "e55bfeef-46c5-499a-ace8-4a7d8875c76b",
     "nameZh" : "T1 李青 精锐",
     "nameEn" : "T1 Lee Sin (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "解锁方式：在T1冠军皮肤活动期间作为礼包专属获得。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during T1 World Championship showcase.",
     "colors" : [
       "#AE1F1F",
       "#DF4F1A"
@@ -6039,8 +6327,8 @@
     "instanceId" : "f0e45690-fcd2-443a-b29e-e8bc00eb2f91",
     "nameZh" : "T1 杰斯 精锐",
     "nameEn" : "T1 Jayce (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "解锁方式：在T1冠军皮肤活动期间作为礼包专属获得。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during T1 World Championship showcase.",
     "colors" : [
       "#AE1F1F",
       "#DF4F1A"
@@ -6088,8 +6376,8 @@
     "instanceId" : "1f227f8e-ba0e-4248-9625-82eb5833e10c",
     "nameZh" : "EDG 悠米 破军",
     "nameEn" : "EDG Yuumi (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在季中冠军赛(2022)期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during MSI 2022.",
     "colors" : [
       "#131521",
       "#9E1517"
@@ -6137,8 +6425,8 @@
     "instanceId" : "7a81758d-cd47-40cc-be13-c36180f20bf9",
     "nameZh" : "EDG 厄斐琉斯 破军",
     "nameEn" : "EDG Aphelios (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在季中冠军赛(2022)期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during MSI 2022.",
     "colors" : [
       "#131521",
       "#9E1517"
@@ -6186,8 +6474,8 @@
     "instanceId" : "868f2532-010e-4720-ba59-5ffa88ba3c2e",
     "nameZh" : "EDG 佐伊 破军",
     "nameEn" : "EDG Zoe (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在季中冠军赛(2022)期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during MSI 2022.",
     "colors" : [
       "#131521",
       "#9E1517"
@@ -6235,8 +6523,8 @@
     "instanceId" : "df15d598-bce9-4c76-be93-da8692937ee8",
     "nameZh" : "EDG 佛耶戈 破军",
     "nameEn" : "EDG Viego (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在季中冠军赛(2022)期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during MSI 2022.",
     "colors" : [
       "#131521",
       "#9E1517"
@@ -6284,8 +6572,8 @@
     "instanceId" : "f04363e5-94f6-4bd3-bc33-ddf960acc17f",
     "nameZh" : "EDG 格雷福斯 破军",
     "nameEn" : "EDG Graves (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在季中冠军赛(2022)期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during MSI 2022.",
     "colors" : [
       "#131521",
       "#9E1517"
@@ -6333,8 +6621,8 @@
     "instanceId" : "c296537d-e70b-48ae-8126-f98c2c99e8d5",
     "nameZh" : "FPX 薇恩 涅槃",
     "nameEn" : "FPX Vayne (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#0C0C0F",
       "#9B1520"
@@ -6382,8 +6670,8 @@
     "instanceId" : "4d6dcc11-c119-4079-ab1f-38ffd04375cc",
     "nameZh" : "FPX 锤石 涅槃",
     "nameEn" : "FPX Thresh (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#0C0C0F",
       "#9B1520"
@@ -6431,8 +6719,8 @@
     "instanceId" : "579fc5f1-87be-44dd-b617-b4e8ee4117e4",
     "nameZh" : "FPX 墨菲特 涅槃",
     "nameEn" : "FPX Malphite (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#0C0C0F",
       "#9B1520"
@@ -6480,8 +6768,8 @@
     "instanceId" : "e35117dc-84fb-49ed-859f-905616c578f3",
     "nameZh" : "FPX 李青 涅槃",
     "nameEn" : "FPX Lee Sin (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#0C0C0F",
       "#9B1520"
@@ -6529,8 +6817,8 @@
     "instanceId" : "2fbbcc45-5504-44c4-8429-2d6c81d5ac38",
     "nameZh" : "FPX 普朗克 涅槃",
     "nameEn" : "FPX Gangplank (Elite)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#0C0C0F",
       "#9B1520"
@@ -6818,8 +7106,8 @@
     "instanceId" : "910df5d2-e183-41cb-b86f-a6b0183cb5ed",
     "nameZh" : "殿堂传奇 薇恩 登神",
     "nameEn" : "Risen Legend Vayne (Mythclimber)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾作为专属奖励发布，用于奖励那些完成了致敬Uzi的2025名人堂通行证的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who completed the 2025 Hall of Legends Battle Pass honoring Uzi.",
     "colors" : [
       "#EE7BA0",
       "#DCAF66"
@@ -6867,8 +7155,8 @@
     "instanceId" : "e6329ceb-a14f-4c62-80f3-08d3ff009545",
     "nameZh" : "源计划：雷 卢锡安 至强",
     "nameEn" : "PROJECT: Lucian (Paragon)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾作为专属奖励发布，用于奖励那些已拥有致敬Uzi的2025名人堂签名版联盟不朽收藏礼包的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who obtained the 2025 Hall of Legends Signature Immortalized Legend Edition Collection honoring Uzi.",
     "colors" : [
       "#9364D0",
       "#69B6C2"
@@ -7300,8 +7588,8 @@
     "instanceId" : "ea990b97-4865-421b-adbc-30c6fd8c907d",
     "nameZh" : "玉剑传说 星仙子 胭脂",
     "nameEn" : "Immortal Journey Soraka (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#D33528"
     ],
@@ -7588,8 +7876,8 @@
     "instanceId" : "20520315-d4b3-4bf2-9303-b20e8cc6f5c6",
     "nameZh" : "殿堂传奇 薇恩 至强",
     "nameEn" : "Risen Legend Vayne (Paragon)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾作为专属奖励发布，用于奖励那些拥有致敬Uzi的联盟不朽签名版收藏礼包的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who obtained the 2025 Hall of Legends Signature Immortalized Legend Collection honoring Uzi.",
     "colors" : [
       "#BCD6EF",
       "#474AF7"
@@ -7733,8 +8021,8 @@
     "instanceId" : "1221f068-b6ec-49e7-b591-e8b8e81c1e24",
     "nameZh" : "神龙尊者 苍龙艾希 至强",
     "nameEn" : "Fae Dragon Ashe (Paragon)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾作为专属奖励发布，用于奖励那些已拥有致敬Uzi的2025名人堂签名版联盟不朽收藏礼包的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who obtained the 2025 Hall of Legends Signature Immortalized Legend Edition Collection honoring Uzi.",
     "colors" : [
       "#BCD6EF",
       "#474AF7"
@@ -8262,8 +8550,8 @@
     "instanceId" : "97e121ae-07eb-4616-8601-d1e638ee6c0d",
     "nameZh" : "电玩女神 娑娜 K.O.",
     "nameEn" : "Arcade Sona (K.O.)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "2019电玩事件期间的战利品专属道具。",
+    "descriptionEn" : "Loot exclusive gained during the 2019 Arcade event.",
     "colors" : [
       "#A5FFF8",
       "#D87BFF"
@@ -8647,8 +8935,8 @@
     "instanceId" : "c1d0267f-f618-441b-a01e-f5f95b59a31f",
     "nameZh" : "光明哨兵 薇恩 帝国抗击者",
     "nameEn" : "Sentinel Vayne (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
     "colors" : [
       "#D33528"
     ],
@@ -8695,8 +8983,8 @@
     "instanceId" : "fb854fcf-e540-40d8-b43c-da5ebb92d9b6",
     "nameZh" : "光明哨兵 艾瑞莉娅 帝国抗击者",
     "nameEn" : "Sentinel Irelia (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
     "colors" : [
       "#D33528"
     ],
@@ -8743,8 +9031,8 @@
     "instanceId" : "4ed53d21-ce3f-4656-8ee0-aeb8121bee12",
     "nameZh" : "光明哨兵 锐雯 帝国抗击者",
     "nameEn" : "Sentinel Riven (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
     "colors" : [
       "#D33528"
     ],
@@ -8791,8 +9079,8 @@
     "instanceId" : "f56f19a7-9b13-4036-a54f-e5dec561eb86",
     "nameZh" : "光明哨兵 黛安娜 帝国抗击者",
     "nameEn" : "Sentinel Diana (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
     "colors" : [
       "#D33528"
     ],
@@ -9032,7 +9320,7 @@
     "nameZh" : "焰阳仙灵 妮蔻",
     "nameEn" : "Winter Wonder Neeko (Ruby)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during 2018.",
     "colors" : [
       "#D33528"
     ],
@@ -9263,8 +9551,8 @@
     "instanceId" : "7916903e-4d76-4e7e-86c7-ca347f162175",
     "nameZh" : "点心宝贝 萨勒芬妮 山楂冰糖葫芦",
     "nameEn" : "Dumpling Darlings Seraphine (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2025年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2025.",
     "colors" : [
       "#D33528"
     ],
@@ -9431,8 +9719,8 @@
     "instanceId" : "1bb5c51d-e221-48af-bdfc-db1f59dcf8fc",
     "nameZh" : "怦然心动 凯特琳 克制亦是放肆",
     "nameEn" : "Heartthrob Caitlyn (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#D33528"
     ],
@@ -9527,8 +9815,8 @@
     "instanceId" : "ff18242d-3299-42b6-878d-d8bd63ad7203",
     "nameZh" : "至臻 双城之战2 指挥官 凯特琳 华星",
     "nameEn" : "Prestige Arcane Commander Caitlyn (Stellar)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在【双城之战2】活动期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the Arcane event.",
     "colors" : [
       "#464AF7",
       "#FAFDC4"
@@ -9577,7 +9865,7 @@
     "nameZh" : "焰尾妖狐 阿狸 青春之焰",
     "nameEn" : "Foxfire Ahri (Emerald)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Obtained through Influencer audience giveaways.",
     "colors" : [
       "#2DA130"
     ],
@@ -9816,8 +10104,8 @@
     "instanceId" : "aeabdd63-1427-4b1e-98cf-4306b7cad768",
     "nameZh" : "灵魂莲华 永恩 流火",
     "nameEn" : "Spirit Blossom Yone (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#D33528"
     ],
@@ -10001,7 +10289,7 @@
     "nameZh" : "魔女 阿狸 污蔑",
     "nameEn" : "Coven Ahri (Ahri-versary)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released in the 2021 Ahri-versary event.",
     "colors" : [
       "#2E38C4",
       "#C8003F"
@@ -10049,8 +10337,8 @@
     "instanceId" : "3827543d-f766-4c5b-99aa-dfe920230668",
     "nameZh" : "魅惑女巫 莫甘娜 热情化身",
     "nameEn" : "Bewitching Morgana (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#D33528"
     ],
@@ -10867,7 +11155,7 @@
     "nameZh" : "天龙之子 伊泽瑞尔 龙行天下",
     "nameEn" : "Heavenscale Ezreal (Auspicious)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2024 Heavenscale event.",
     "colors" : [
       "#ECEAD3",
       "#DC7515"
@@ -11108,7 +11396,7 @@
     "nameZh" : "K/DA 阿狸 魅惑之舞",
     "nameEn" : "K/DA Ahri (Ahri-versary)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released in the 2021 Ahri-versary event.",
     "colors" : [
       "#2E38C4",
       "#C8003F"
@@ -11780,8 +12068,8 @@
     "instanceId" : "7ef9397b-b855-447a-bd5e-b35019dd199f",
     "nameZh" : "心之钢 伊泽瑞尔 锐意曲风",
     "nameEn" : "HEARTSTEEL Ezreal (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#D33528"
     ],
@@ -11972,8 +12260,8 @@
     "instanceId" : "486197bb-07a8-4d7c-94fa-a19d86b65277",
     "nameZh" : "玉剑传说 舞龙卫 胭脂",
     "nameEn" : "Immortal Journey Shyvana (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#D33528"
     ],
@@ -12549,7 +12837,7 @@
     "nameZh" : "暗影妖狐 阿狸 入梦之影",
     "nameEn" : "Midnight Ahri (Ahri-versary)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released in the 2021 Ahri-versary event.",
     "colors" : [
       "#2E38C4",
       "#C8003F"
@@ -12693,8 +12981,8 @@
     "instanceId" : "67bf14dc-bbd0-4a7e-86f6-abed6fae68e7",
     "nameZh" : "2024 全球总决赛 佛耶戈 眼见为实",
     "nameEn" : "Worlds 2024 Viego (Unlocked)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2024年期间作为【全球总决赛 2024 礼包】专属发布。",
+    "descriptionEn" : "This chroma was released as an exclusive to the Unlocked bundle in 2024.",
     "colors" : [
       "#2756CE"
     ],
@@ -13654,8 +13942,8 @@
     "instanceId" : "9c8957d1-8ca1-4593-abeb-84c92faf4500",
     "nameZh" : "墨之影武者 永恩 灵墨刻影",
     "nameEn" : "Inkshadow Yone (Inked)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在墨之影(2023)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2023 Inkshadow event.",
     "colors" : [
       "#B5CED6",
       "#33D889"
@@ -14087,8 +14375,8 @@
     "instanceId" : "8ef12c96-2049-4373-ad93-ae580eaf7039",
     "nameZh" : "SKT T1 辛德拉 至强",
     "nameEn" : "SKT T1 Syndra (Paragon)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾作为专属奖励发布，用于奖励那些已拥有致敬Faker的2024名人堂签名版收藏礼包的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who obtained the 2024 Hall of Legends Signature Edition Collection honoring Faker.",
     "colors" : [
       "#64DCC8",
       "#E446F7"
@@ -14136,8 +14424,8 @@
     "instanceId" : "666ebc46-230d-471d-8043-f0152946a592",
     "nameZh" : "殿堂传奇 乐芙兰 至强",
     "nameEn" : "Risen Legend LeBlanc (Paragon)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个图标曾作为专属奖励发布，用于奖励那些已拥有致敬Faker的2024名人堂签名版收藏礼包的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who obtained the 2024 Hall of Legends Signature Edition Collection honoring Faker.",
     "colors" : [
       "#64DCC8",
       "#E446F7"
@@ -14185,8 +14473,8 @@
     "instanceId" : "3bf46d19-e12d-422b-9e3d-6aea3861df4a",
     "nameZh" : "殿堂传奇 乐芙兰 登神",
     "nameEn" : "Risen Legend LeBlanc (Mythclimber)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个图标曾作为专属奖励发布，用于奖励那些完成了致敬Faker的2024名人堂通行证的玩家。",
+    "descriptionEn" : "This chroma was released as an exclusive reward for players who completed the 2024 Hall of Legends Battle Pass honoring Faker.",
     "colors" : [
       "#059849",
       "#C89600"
@@ -14282,8 +14570,8 @@
     "instanceId" : "f88272b6-12fa-4ce8-91d2-86c514726e3c",
     "nameZh" : "春晖神女 艾希 玉露金风",
     "nameEn" : "Lunar Empress Ashe (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#D33528"
     ],
@@ -14331,7 +14619,7 @@
     "nameZh" : "魅惑女巫 迦娜 炫金",
     "nameEn" : "Bewitching Janna (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during 2018.",
     "colors" : [
       "#FFC948"
     ],
@@ -14522,8 +14810,8 @@
     "instanceId" : "3f6943c3-8bb3-4553-9f0a-537044f7f21b",
     "nameZh" : "星之守护者 阿卡丽 热情之光",
     "nameEn" : "Star Guardian Akali (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2022年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2022.",
     "colors" : [
       "#D33528"
     ],
@@ -14570,8 +14858,8 @@
     "instanceId" : "ee54552f-2080-47f1-a124-05c9739a7d39",
     "nameZh" : "斗魂觉醒 拉克丝 无限斗志",
     "nameEn" : "Soul Fighter Lux (Limitless)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在斗魂觉醒(2023)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2023 Soul Fighter event.",
     "colors" : [
       "#C8D0CE",
       "#AF65D1"
@@ -14619,8 +14907,8 @@
     "instanceId" : "a5880f74-e352-405d-919d-906ea95f5d0c",
     "nameZh" : "战斗学院 盖伦 不死鸟",
     "nameEn" : "Battle Academia Garen (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
     "colors" : [
       "#D33528"
     ],
@@ -15051,8 +15339,8 @@
     "instanceId" : "4488aa1d-2a0e-4134-9c12-6b4941664feb",
     "nameZh" : "战斗学院 卡特琳娜 盛典礼服",
     "nameEn" : "Battle Academia Katarina (Formal)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "在2019试炼事件期间获得的战利品专属。",
+    "descriptionEn" : "Loot exclusive gained during the 2019 Trials event.",
     "colors" : [
       "#111112",
       "#EAF1F4"
@@ -15388,8 +15676,8 @@
     "instanceId" : "a7aa3dcc-5fe3-43eb-b9f5-c346a4563142",
     "nameZh" : "2023 全球总决赛 雷克顿 潜力解封",
     "nameEn" : "Worlds 2023 Renekton (Unlocked)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为【2023全球总决赛典藏礼盒】专属发布。",
+    "descriptionEn" : "This chroma was released as an exclusive to the Unlocked bundle in 2023.",
     "colors" : [
       "#DED6B0"
     ],
@@ -15628,8 +15916,8 @@
     "instanceId" : "fd0b2f06-0aba-4098-9a84-50f23f490ea6",
     "nameZh" : "斗魂觉醒 瑟提 无限斗志",
     "nameEn" : "Soul Fighter Sett (Limitless)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在斗魂觉醒(2023)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2023 Soul Fighter event.",
     "colors" : [
       "#C8D0CE",
       "#AF65D1"
@@ -15677,8 +15965,8 @@
     "instanceId" : "d9112d06-e524-407d-842e-4a263c9be139",
     "nameZh" : "玉剑传说 舞剑仙 空翠烟霏",
     "nameEn" : "Divine Sword Irelia (Unflinching Zeal)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#39DBB8",
       "#C88A0B"
@@ -15774,8 +16062,8 @@
     "instanceId" : "d2bb6e02-e37f-4632-9adb-6e4a3cbb985e",
     "nameZh" : "玉剑传说 无劫 胭脂",
     "nameEn" : "Immortal Journey Zed (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2023年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2023.",
     "colors" : [
       "#D33528"
     ],
@@ -15966,8 +16254,8 @@
     "instanceId" : "09183c18-4fe4-4c1d-b193-d633f9952172",
     "nameZh" : "神龙尊者 圣龙李青 登龙",
     "nameEn" : "Storm Dragon Lee Sin (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#D33528"
     ],
@@ -16015,7 +16303,7 @@
     "nameZh" : "征服者 韦鲁斯 炫金",
     "nameEn" : "Conqueror Varus (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained during the 2019 MSI Event.",
     "colors" : [
       "#FFC948"
     ],
@@ -16544,7 +16832,7 @@
     "nameZh" : "南天之怒 沃里克 炫金天神",
     "nameEn" : "Lunar Guardian Warwick (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2019 Lunar Revel event.",
     "colors" : [
       "#FFC948"
     ],
@@ -16687,8 +16975,8 @@
     "instanceId" : "5e17a3ee-fde3-4110-9a84-bc589e09bf33",
     "nameZh" : "冠军之志 瑞兹 凯旋圣装",
     "nameEn" : "Worlds 2019 Ryze (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -16832,7 +17120,7 @@
     "nameZh" : "屠龙勇士 布隆 金瞳龙首之盾",
     "nameEn" : "Dragonslayer Braum (LEC)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Obtained by completing missions via the purchasable Team Pass. Only available in LCS and LEC regions.",
     "colors" : [
       "#DF6C0E",
       "#0DCADB"
@@ -16880,8 +17168,8 @@
     "instanceId" : "fcae5948-aac8-41af-a659-3f9be14e2e99",
     "nameZh" : "灵魂莲华 亚索 霜见",
     "nameEn" : "Spirit Blossom Yasuo (Night Blossom)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在灵魂莲华(2020)事件期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2020 Spirit Blossom event.",
     "colors" : [
       "#0C0C0F",
       "#B2D1E4"
@@ -16977,8 +17265,8 @@
     "instanceId" : "d10a50df-4a64-4e16-b3ca-d0516f5bf297",
     "nameZh" : "幻灵战斗队长 厄运小姐 勇气赞歌",
     "nameEn" : "Battle Bunny Miss Fortune (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2022年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2022.",
     "colors" : [
       "#D33528"
     ],
@@ -17025,8 +17313,8 @@
     "instanceId" : "663bd2e7-cace-417f-941d-e2031d572fe5",
     "nameZh" : "冠军之隐 劫 凯旋圣装",
     "nameEn" : "Worlds 2016 Zed (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -17218,8 +17506,8 @@
     "instanceId" : "caaee65c-17c9-417f-a007-ee430fdb9eb3",
     "nameZh" : "玉剑传说 寒潭夭夭 胭脂",
     "nameEn" : "Splendid Staff Nami (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2019期间作为礼包专属来发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2019.",
     "colors" : [
       "#D33528"
     ],
@@ -17314,8 +17602,8 @@
     "instanceId" : "970245c8-e3b9-4393-8a70-2d4e7cebaab5",
     "nameZh" : "冠军之矛 卡莉丝塔 凯旋圣装",
     "nameEn" : "Worlds 2015 Kalista (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -17363,7 +17651,7 @@
     "nameZh" : "冰雪风暴 希维尔 炫金",
     "nameEn" : "Snowstorm Sivir (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Snowdown event.",
     "colors" : [
       "#FFC948"
     ],
@@ -17555,7 +17843,7 @@
     "nameZh" : "闭月之颜 貂蝉 炫金莲华",
     "nameEn" : "Warring Kingdoms Katarina (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Lunar Revel missions.",
     "colors" : [
       "#FFC948"
     ],
@@ -17650,8 +17938,8 @@
     "instanceId" : "60f54a3b-9f7c-4c26-bfab-54b2cb88963b",
     "nameZh" : "灵魂莲华 卡西奥佩娅 流火",
     "nameEn" : "Spirit Blossom Cassiopeia (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#D33528"
     ],
@@ -17698,8 +17986,8 @@
     "instanceId" : "d07d7603-82cd-4bf6-9191-48e69d1a7d20",
     "nameZh" : "灵魂莲华 锐雯 流火",
     "nameEn" : "Spirit Blossom Riven (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#D33528"
     ],
@@ -17746,8 +18034,8 @@
     "instanceId" : "79af9197-e38c-4e8b-b8a3-cad2083adc9c",
     "nameZh" : "星之守护者 卡莎 热情之光",
     "nameEn" : "Star Guardian Kai'Sa (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2022年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2022.",
     "colors" : [
       "#D33528"
     ],
@@ -17794,8 +18082,8 @@
     "instanceId" : "68762f5b-69b2-4b99-9bdb-b04d9332e9c8",
     "nameZh" : "星之守护者 霞 烈羽",
     "nameEn" : "Star Guardian Xayah (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2019期间作为礼包专属来发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2019.",
     "colors" : [
       "#D33528"
     ],
@@ -18429,8 +18717,8 @@
     "instanceId" : "176be0ec-a9c7-465f-b8f2-f00d62bf4eb4",
     "nameZh" : "冠军典狱长 锤石 凯旋圣装",
     "nameEn" : "Worlds 2013 Thresh (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -18477,8 +18765,8 @@
     "instanceId" : "fe328842-fb56-48b7-85bd-bb8c2d4a1a00",
     "nameZh" : "冠军之血 希瓦娜 凯旋圣装",
     "nameEn" : "Worlds 2014 Shyvana (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -18526,7 +18814,7 @@
     "nameZh" : "冰雪游神 巴德 炫金",
     "nameEn" : "Snow Day Bard (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Snowdown event.",
     "colors" : [
       "#FFC948"
     ],
@@ -18621,8 +18909,8 @@
     "instanceId" : "7ff80f0d-0764-4a66-8d97-07cfebc34a5b",
     "nameZh" : "星之吞噬者 莫甘娜 热情之末",
     "nameEn" : "Star Nemesis Morgana (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2022年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2022.",
     "colors" : [
       "#D33528"
     ],
@@ -18861,8 +19149,8 @@
     "instanceId" : "8f7c4ed9-8739-4442-ac08-364bd225a452",
     "nameZh" : "冠军掠夺者 卡兹克 凯旋圣装",
     "nameEn" : "Worlds 2018 Kha'Zix (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -18909,8 +19197,8 @@
     "instanceId" : "2d5a3c1d-a7a3-483e-9bc9-695f567e6e6f",
     "nameZh" : "冠军之刃 锐雯 2016 凯旋圣装",
     "nameEn" : "Reignited Worlds 2012 Riven (Golden)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFC948"
     ],
@@ -18957,8 +19245,8 @@
     "instanceId" : "1c6aef33-2272-40da-9c8b-31f9318dd857",
     "nameZh" : "山海绘卷 科加斯 朱红",
     "nameEn" : "Shan Hai Scrolls Cho'Gath (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
     "colors" : [
       "#D33528"
     ],
@@ -19149,8 +19437,8 @@
     "instanceId" : "ba277f9b-0780-4b10-93e1-b5076a5a5665",
     "nameZh" : "源计划：火 菲奥娜 惩戒",
     "nameEn" : "PROJECT: Fiora (Reckoning)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "在2019源计划事件期间获得的战利品专属。",
+    "descriptionEn" : "Loot exclusive gained during the 2019 PROJECT event.",
     "colors" : [
       "#FF5500",
       "#162B30"
@@ -19295,7 +19583,7 @@
     "nameZh" : "征服者 阿利斯塔 炫金",
     "nameEn" : "Conqueror Alistar (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained during the 2019 MSI Event.",
     "colors" : [
       "#FFC948"
     ],
@@ -19919,8 +20207,8 @@
     "instanceId" : "70851e2e-3d68-43a4-a607-119a91f1ab50",
     "nameZh" : "女帝 卡特琳娜 纹章之刻印 英勇",
     "nameEn" : "Battle Queen Katarina (Ruby)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#D33528"
     ],
@@ -19967,8 +20255,8 @@
     "instanceId" : "6d8fa734-6a10-488f-a7cc-c290dd6bae38",
     "nameZh" : "灵魂莲华 阿狸 春晓",
     "nameEn" : "Spirit Blossom Ahri (Rose Quartz)",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在2020期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2020.",
     "colors" : [
       "#E58BA5"
     ],
@@ -20063,8 +20351,8 @@
     "instanceId" : "3936d944-ab90-4301-9c4a-87d1d8f970f0",
     "nameZh" : "冠军之箭 艾希 凯旋圣装",
     "nameEn" : "Worlds 2017 Ashe Chroma",
-    "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionZh" : "这个炫彩曾在一个全球总决赛事件期间作为战利品专属来发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive during a Worlds event.",
     "colors" : [
       "#FFEE59"
     ],
@@ -20112,7 +20400,7 @@
     "nameZh" : "冰霜之刃 艾瑞莉娅 炫金",
     "nameEn" : "Frostblade Irelia (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Snowdown event.",
     "colors" : [
       "#FFC948"
     ],
@@ -20306,7 +20594,7 @@
     "nameZh" : "古琴余韵 娑娜 炫金天籁",
     "nameEn" : "Guqin Sona (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Lunar Revel missions.",
     "colors" : [
       "#FFC948"
     ],
@@ -20402,7 +20690,7 @@
     "nameZh" : "替父从军 花木兰 炫金龙刃",
     "nameEn" : "Dragonblade Riven (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Lunar Revel missions.",
     "colors" : [
       "#FFC948"
     ],
@@ -20739,7 +21027,7 @@
     "nameZh" : "冰雪节 格雷福斯 炫金",
     "nameEn" : "Snow Day Graves (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Snowdown event.",
     "colors" : [
       "#FFC948"
     ],
@@ -20787,7 +21075,7 @@
     "nameZh" : "赵云 子龙 炫金将军",
     "nameEn" : "Warring Kingdoms Xin Zhao (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2019 Lunar Revel event.",
     "colors" : [
       "#FFC948"
     ],
@@ -20981,7 +21269,7 @@
     "nameZh" : "吕布 奉先 炫金战神",
     "nameEn" : "Warring Kingdoms Jarvan IV (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2019 Lunar Revel event.",
     "colors" : [
       "#FFC948"
     ],
@@ -21269,7 +21557,7 @@
     "nameZh" : "张辽 文远 炫金将军",
     "nameEn" : "Warring Kingdoms Garen (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Lunar Revel missions.",
     "colors" : [
       "#FFC948"
     ],
@@ -21365,7 +21653,7 @@
     "nameZh" : "玉净夜叉 凯特琳 炫金神机",
     "nameEn" : "Lunar Wraith Caitlyn (Golden)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "Loot exclusive gained from the 2018 Lunar Revel missions.",
     "colors" : [
       "#FFC948"
     ],
@@ -21606,7 +21894,7 @@
     "nameZh" : "龙的传人 李青 龙战于野",
     "nameEn" : "Dragon Fist Lee Sin (Ruby)",
     "descriptionZh" : "",
-    "descriptionEn" : "",
+    "descriptionEn" : "This chroma was released as a bundle exclusive during 2018.",
     "colors" : [
       "#D33528"
     ],
