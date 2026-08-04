@@ -7,7 +7,9 @@ dist/
 .tmp/
 .release/
 .worktrees/
-.superpowers/
+.superpowers
+docs/superpowers/
 coverage/
 *.log
 /.idea/
+/.codebuddy/

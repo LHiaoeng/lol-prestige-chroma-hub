@@ -45,6 +45,23 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
       <h2>Prestige Chroma and Other Categories</h2>
       <p>LoL Chroma Art uses Prestige Chroma as the English label for the Chinese 臻彩 category. A Prestige Chroma is still a chroma of an existing skin, not a traditional Prestige Skin. The archive may also include chroma splash arts from other categories, and focuses on identifying each chroma, its base skin, patch, category, and unique artwork.</p>
     </section>
+
+    <section class="contact-section">
+      <h2>Get in Touch</h2>
+      <p>Have questions, suggestions, or just want to say hi? Feel free to reach out.</p>
+      <ul class="contact-list">
+        <li>
+          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM2 1v1.145l5.803 3.546.197-.14.197.14L14 2.145V1zm13.8 2.698L8 9.586 2.2 3.698l-.15.158V12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.856z" fill="currentColor"/></svg>
+          <span class="contact-label">Email</span>
+          <a class="contact-link" href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>
+        </li>
+        <li>
+          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" fill="currentColor"/></svg>
+          <span class="contact-label">X (Twitter)</span>
+          <a class="contact-link" href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@LiaoHeng3364</a>
+        </li>
+      </ul>
+    </section>
   </article>}
 
   {isZh && <article class="about-page">
@@ -71,7 +88,24 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
 
     <section>
       <h2>臻彩与其他分类</h2>
-      <p>本站将“臻彩”分类译作 Prestige Chroma。臻彩仍是现有皮肤的炫彩，并非传统至臻皮肤；本站也可能收录其他分类的炫彩原画，重点记录炫彩名称、基础皮肤、版本、分类和独立原画。</p>
+      <p>本站将"臻彩"分类译作 Prestige Chroma。臻彩仍是现有皮肤的炫彩，并非传统至臻皮肤；本站也可能收录其他分类的炫彩原画，重点记录炫彩名称、基础皮肤、版本、分类和独立原画。</p>
+    </section>
+  
+    <section class="contact-section">
+      <h2>联系我们</h2>
+      <p>有任何问题、建议或合作意向，欢迎通过以下方式联系。</p>
+      <ul class="contact-list">
+        <li>
+          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM2 1v1.145l5.803 3.546.197-.14.197.14L14 2.145V1zm13.8 2.698L8 9.586 2.2 3.698l-.15.158V12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.856z" fill="currentColor"/></svg>
+          <span class="contact-label">邮箱</span>
+          <a class="contact-link" href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>
+        </li>
+        <li>
+          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" fill="currentColor"/></svg>
+          <span class="contact-label">X (Twitter)</span>
+          <a class="contact-link" href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@LiaoHeng3364</a>
+        </li>
+      </ul>
     </section>
   </article>}
 
@@ -84,11 +118,22 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
     .about-page section p + p { margin-top: 1em; }
     .about-art { width: 100%; margin: 32px 0 0; overflow: hidden; border: 1px solid var(--line); background: #090b15; box-shadow: 0 18px 48px #0008; }
     .about-art img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: center top; }
+    .contact-section { display: flex; flex-direction: column; }
+    .contact-list { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+    .contact-list li { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; transition: border-color .2s ease; }
+    @media(hover:hover) and (pointer:fine){ .contact-list li:hover { border-color: #8b744b; } }
+    .contact-icon { width: 20px; height: 20px; flex: none; color: var(--gold); }
+    .contact-label { color: var(--muted); font-size: .82rem; font-weight: 600; letter-spacing: .04em; min-width: 90px; flex: none; }
+    .contact-link { color: var(--gold); font-size: .95rem; word-break: break-all; transition: color .15s ease; }
+    .contact-link:hover { color: #e8cc8a; }
     @media (max-width: 767px) {
       .about-page { padding: 52px 0 72px; }
       .about-page h1 { font-size: clamp(2.15rem, 10vw, 3rem); }
       .about-page section { margin-top: 34px; padding-top: 28px; }
       .about-page p:not(.kicker) { font-size: 1rem; line-height: 1.75; }
+      .contact-list li { padding: 12px 14px; gap: 10px; }
+      .contact-label { min-width: 72px; font-size: .78rem; }
+      .contact-link { font-size: .88rem; }
     }
   </style>
 </BaseLayout>
