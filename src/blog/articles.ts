@@ -35,6 +35,20 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'prestige-chroma-summon-august-2026',
+    href: '/blog/prestige-chroma-summon-august-2026/',
+    titleEn: 'Brilliant Prestige Chroma Summoning — August 2026',
+    titleZh: '璀璨臻彩召唤活动上新',
+    summaryEn: 'A new prestige chroma summon event is live until September 6. See the prize pool, featured chromas, and how to participate.',
+    summaryZh: '新一期璀璨臻彩召唤活动上线，持续至 9 月 6 日。查看奖池、精选臻彩与参与方式。',
+    publishedAt: '2026-08-07',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/b8890b94-fd18-4ee5-a844-388c74036edd/site3.jpg',
+    coverAltEn: 'Battle Academia Xayah Sapphire prestige chroma splash art',
+    coverAltZh: '战斗学院 霞 天马臻彩原画',
+    sourceUrl: 'https://lol.qq.com/act/a202608077548tendraws34/index.html',
+  },
+  {
     slug: 'top-2-prestige-chroma-champions',
     href: '/blog/top-2-prestige-chroma-champions/',
     titleEn: 'Which Champion Has the Second Most Prestige Chromas?',

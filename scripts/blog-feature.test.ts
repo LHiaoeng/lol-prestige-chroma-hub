@@ -8,6 +8,7 @@ describe('blog feature contract', () => {
   it('links every verified official prestige chroma source in both languages', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     const officialUrls = [
+      'https://lol.qq.com/act/a202608077548tendraws34/index.html',
       'https://lol.qq.com/act/a202607034771tendraws31/index.html',
       'https://lol.qq.com/act/a202606264151prizewheel/index.html',
       'https://lol.qq.com/act/a202606117610prizewheel/index.html',
@@ -17,11 +18,12 @@ describe('blog feature contract', () => {
       'https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898',
     ];
     for (const url of officialUrls) expect(page.split(url)).toHaveLength(3);
-    expect(page.match(/class="official-source-link"/g)).toHaveLength(14);
-    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(14);
+    expect(page.match(/class="official-source-link"/g)).toHaveLength(16);
+    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(16);
     for (const label of [
       'Official acquisition sources',
       'Official cultural sources',
+      'Brilliant Prestige Summoning — August 2026',
       'Brilliant Prestige Summoning — July 2026',
       'Lucky Gate — June 26, 2026',
       'Lucky Gate — June 11, 2026',
@@ -31,6 +33,7 @@ describe('blog feature contract', () => {
       'Panda Lux Prestige Chroma charity project',
       '官方获取来源',
       '官方文化来源',
+      '璀璨臻彩召唤 — 2026 年 8 月',
       '璀璨臻彩召唤 — 2026 年 7 月',
       '幸运之门 — 2026 年 6 月 26 日',
       '幸运之门 — 2026 年 6 月 11 日',
@@ -72,6 +75,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/what-are-chroma-skins.astro',
       'src/pages/blog/what-is-league-of-legends.astro',
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
+      'src/pages/blog/prestige-chroma-summon-august-2026.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);

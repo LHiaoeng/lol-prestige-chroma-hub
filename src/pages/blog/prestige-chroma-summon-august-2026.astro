@@ -1,0 +1,271 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'prestige-chroma-summon-august-2026');
+if (!article) throw new Error('Prestige chroma summon august 2026 article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const eventStart = '2026-08-07';
+const eventEnd = '2026-09-06';
+const eventUrl = 'https://lol.qq.com/act/a202608077548tendraws34/index.html';
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=348745922754031550';
+
+const featuredChromas = [
+  { heroId: '498', skinNameEn: 'Battle Academia Xayah', nameEn: 'Battle Academia Xayah (Sapphire)', nameZh: '战斗学院 霞 天马' },
+  { heroId: '22', skinNameEn: 'Lunar Empress Ashe', nameEn: 'Lunar Empress Ashe  (Rose Quartz)', nameZh: '春晖神女 艾希 轻云蔽月' },
+];
+
+function findChroma(heroId: string, skinNameEn: string): Chroma | undefined {
+  return catalog.find((c) => c.heroId === heroId && c.skinNameEn === skinNameEn);
+}
+function filterChromas(heroId: string, skinNameEn: string): Chroma[] {
+  return catalog.filter((c) => c.heroId === heroId && c.skinNameEn === skinNameEn);
+}
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? '璀璨臻彩召唤活动上新' : 'Brilliant Prestige Chroma Summoning — August 2026',
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '璀璨臻彩召唤' : 'Prestige Chroma Summoning'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The Brilliant Prestige Chroma Summoning event runs August 7 – September 6, 2026 on the Chinese server. Two prestige chromas — Battle Academia Xayah (Sapphire) and Lunar Empress Ashe (Rose Quartz) — headline the self-select prize pools.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Battle Academia Xayah Sapphire prestige chroma splash art.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Two prestige chromas in the prize pool</h2>
+      <p>The event's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, each in a different prize tier:</p>
+      <ul class="chroma-grid">
+        {featuredChromas.map((fc) => {
+          const chroma = findChroma(fc.heroId, fc.skinNameEn);
+          return chroma ? (
+            <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+          ) : (
+            <li><div class="chroma-card-link"><div class="chroma-card-img-wrap"><img src="/placeholder.svg" alt={fc.nameEn} width="960" height="540" loading="lazy" decoding="async" /></div><span class="chroma-card-name">{fc.nameEn}</span></div></li>
+          );
+        })}
+      </ul>
+      <p>Battle Academia Xayah (Sapphire) sits in the Grand Prize tier alongside a prestige skin; Lunar Empress Ashe (Rose Quartz) leads the First Prize tier. Both are prestige chromas with unique splash art, not regular recolour chromas. If you're new to the concept, our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> breaks down what makes them different.</p>
+    </section>
+
+    <section>
+      <h2>Battle Academia Xayah (Sapphire)</h2>
+      <p>Battle Academia is one of the most popular skin lines in League of Legends, reimagining champions as students at a magical academy. Xayah's Battle Academia skin gives her a scholar's uniform with sharp, rebellious energy — and the Sapphire chroma shifts the palette to a deep, vivid blue (<span style="color:#2756CE">#2756CE</span>).</p>
+      <p>The Battle Academia Xayah skin family currently has 2 prestige chromas:</p>
+      <ul class="chroma-grid">
+        {filterChromas('498', 'Battle Academia Xayah').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+      <p>The other one, Catseye, uses a warm yellow tone. Sapphire stands in clear contrast — ideal if you prefer cooler colours on this skin.</p>
+    </section>
+
+    <section>
+      <h2>Lunar Empress Ashe (Rose Quartz)</h2>
+      <p>Lunar Empress Ashe draws from Chinese mythology, dressing the Ice Archer in flowing celestial robes. The Rose Quartz chroma bathes her in soft pink (<span style="color:#E58BA5">#E58BA5</span>), earning the poetic Chinese name "轻云蔽月" — "light clouds veiling the moon".</p>
+      <p>The Lunar Empress Ashe skin family also has 2 prestige chromas:</p>
+      <ul class="chroma-grid">
+        {filterChromas('22', 'Lunar Empress Ashe').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+      <p>The other one, Ruby, goes for a bold red (<span style="color:#D33528">#D33528</span>) — named "玉露金风". Rose Quartz is the softer, more ethereal pick.</p>
+    </section>
+
+    <section>
+      <h2>About the Brilliant Prestige Chroma Summoning</h2>
+      <p>"Brilliant Prestige Chroma Summoning" is a recurring limited-time event series on the Chinese server of League of Legends. Each edition offers a rotating selection of <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> through a self-select draw system. The format is consistent: 12 RMB per summon, 10-item pool, no duplicates per round, with the grand prize starting at 0.5% odds.</p>
+      <p>What makes this event series stand out is the self-select mechanic — you're not stuck with a fixed prize table. You can swap chromas in and out of the pool before you start drawing, and adjust once more after your first summon. This means you can tailor the pool to the chromas you actually want, rather than gambling on a fixed list.</p>
+      <p>Each edition also occasionally adds a prestige skin (至臻) to the grand prize tier alongside the chromas, making the top tier even more tempting for collectors.</p>
+    </section>
+
+    <section>
+      <h2>How the event works</h2>
+      <p>Each summon costs 12 RMB. You draw from a pool of 10 items — no duplicates within a round. The grand prize tier (containing both a prestige skin and a prestige chroma) starts at 0.5% and first prize at 1%; odds scale up proportionally as items are claimed. Before your first draw, you can freely customise which skins appear in the self-select tiers; after that, one adjustment is allowed.</p>
+      <p>A few things worth noting from the <a href={newsUrl} target="_blank" rel="noreferrer">official announcement</a>:</p>
+      <ul>
+        <li>Each QQ account can only participate in one server region. All rewards go to your currently bound region.</li>
+        <li>The random skin chest prioritises skins you haven't unlocked yet in your bound region. If you already own every skin in the pool, you'll receive one random skin and can choose to send it to a different region.</li>
+        <li>"Holy Temple Fire" currency is delivered to your bound region — check it under Loot in the client.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>You need the base skin</h2>
+      <p>Prestige chromas require the original skin to use. If you don't own Battle Academia Xayah or Lunar Empress Ashe yet, you can unlock them through the event's limited skin prize pool or from the game shop.</p>
+    </section>
+
+    <aside class="official-sources" aria-label={isZh ? '官方来源' : 'Official sources'}>
+      <strong>{isZh ? '官方来源' : 'Official sources'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">{isZh ? '璀璨臻彩召唤活动页' : 'Brilliant Prestige Chroma Summoning event page'}</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">{isZh ? '官方新闻公告' : 'Official news announcement'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Are these prestige chromas different from regular chromas?</summary>
+        <p>Yes. Prestige chromas have their own unique splash art and sit in a separate tier above regular chromas. The <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> covers the full difference, including how they display in the collection.</p>
+      </details>
+      <details>
+        <summary>Can I choose which prestige chroma I get?</summary>
+        <p>The Grand Prize tier lets you pick Battle Academia Xayah (Sapphire); the First Prize tier lets you pick Lunar Empress Ashe (Rose Quartz). You can adjust your self-select pool once before drawing and once more after your first summon.</p>
+      </details>
+      <details>
+        <summary>Do I need the base skin to use these chromas?</summary>
+        <p>Yes. Prestige chromas require the original skin. Battle Academia Xayah and Lunar Empress Ashe can be unlocked through the event's limited skin pool or the game shop.</p>
+      </details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">8 月 7 日至 9 月 6 日，国服璀璨臻彩召唤活动上线。两款自选臻彩加入奖池：特等奖池的战斗学院 霞 天马，一等奖池的春晖神女 艾希 轻云蔽月。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>战斗学院 霞 天马臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>奖池中的两款臻彩</h2>
+      <p>本期活动的自选奖池包含两款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>，分布在不同奖池层级：</p>
+      <ul class="chroma-grid">
+        {featuredChromas.map((fc) => {
+          const chroma = findChroma(fc.heroId, fc.skinNameEn);
+          return chroma ? (
+            <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+          ) : (
+            <li><div class="chroma-card-link"><div class="chroma-card-img-wrap"><img src="/placeholder.svg" alt={fc.nameZh} width="960" height="540" loading="lazy" decoding="async" /></div><span class="chroma-card-name">{fc.nameZh}</span></div></li>
+          );
+        })}
+      </ul>
+      <p>战斗学院 霞 天马位于特等奖池（与一款至臻皮肤同层），春晖神女 艾希 轻云蔽月位于一等奖池。两款都是有专属原画的臻彩，不是普通炫彩换色。对臻彩不太了解的话，可以看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
+    </section>
+
+    <section>
+      <h2>战斗学院 霞 天马</h2>
+      <p>战斗学院是英雄联盟最受欢迎的皮肤系列之一，将英雄们重新演绎为魔法学院的学生。霞的战斗学院皮肤搭配了利落的校服造型，带着几分叛逆气质。天马臻彩将配色换成了深邃鲜明的蓝色（<span style="color:#2756CE">#2756CE</span>）。</p>
+      <p>战斗学院 霞目前拥有 2 款臻彩：</p>
+      <ul class="chroma-grid">
+        {filterChromas('498', 'Battle Academia Xayah').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+      <p>另一款雄狮（Catseye）是暖黄色调，天马则是鲜明的冷色对比——如果你更喜欢冷色系，天马是更好的选择。</p>
+    </section>
+
+    <section>
+      <h2>春晖神女 艾希 轻云蔽月</h2>
+      <p>春晖神女取材中国神话，将寒冰弓手装扮在飘逸的仙境华服中。轻云蔽月臻彩为艾希披上一层柔和的粉色（<span style="color:#E58BA5">#E58BA5</span>），名字本身就充满诗意——轻云蔽月。</p>
+      <p>春晖神女 艾希目前也拥有 2 款臻彩：</p>
+      <ul class="chroma-grid">
+        {filterChromas('22', 'Lunar Empress Ashe').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+      <p>另一款玉露金风（Ruby）走大胆红色路线（<span style="color:#D33528">#D33528</span>）。轻云蔽月则更柔和、更仙气。</p>
+    </section>
+
+    <section>
+      <h2>关于璀璨臻彩召唤活动</h2>
+      <p>「璀璨臻彩召唤」是英雄联盟国服定期举办的限时活动系列。每期提供轮换的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>，通过自选奖池抽取。形式固定：每次 12 元、10 个奖品池、一轮内不重复，特等奖池（含至臻皮肤与臻彩）初始概率 0.5%。</p>
+      <p>这个活动系列最大的特色是自选机制——你不必面对固定的奖品表。首次开启前可以自由调整奖池中的臻彩，开启后还能再改一次。这意味着你可以把奖池调整为自己真正想要的臻彩，而不是赌一张固定列表。</p>
+      <p>每期活动还会在特等奖池中限时加入至臻皮肤，与臻彩并列，让顶层奖励更有吸引力。</p>
+    </section>
+
+    <section>
+      <h2>活动怎么玩</h2>
+      <p>每次开启 12 元，从 10 个奖品中抽取，一轮内不重复。特等奖池（含至臻皮肤与臻彩）初始概率 0.5%，一等奖 1%，随奖品减少等比例提升。首次开启前可自由调整自选奖池，开启后还能改一次。</p>
+      <p>根据<a href={newsUrl} target="_blank" rel="noreferrer">官方公告</a>，几点参与须知：</p>
+      <ul>
+        <li>单个 QQ 仅限一个大区参与，所有皮肤道具优先发放至当前绑定大区。</li>
+        <li>随机皮肤宝箱优先产出绑定大区未解锁的皮肤；如果已全部解锁，则随机产出 1 款，可选择发放至未拥有大区。</li>
+        <li>圣堂花火发放至绑定大区，在客户端「战利品」中查看使用。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>臻彩需要原皮肤</h2>
+      <p>臻彩必须配合原皮肤才能使用。如果还没有战斗学院 霞或春晖神女 艾希，可以在活动限定皮肤奖池自选或游戏商城解锁。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">璀璨臻彩召唤活动页</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">官方新闻公告</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      <details>
+        <summary>这些臻彩和普通炫彩有什么区别？</summary>
+        <p>臻彩有专属原画，是独立的更高阶品质。可以看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>了解完整区别，包括在藏馆里的展示方式。</p>
+      </details>
+      <details>
+        <summary>可以自选想要哪款臻彩吗？</summary>
+        <p>特等奖池可选战斗学院 霞 天马，一等奖池可选春晖神女 艾希 轻云蔽月。首次开启前可自由调整自选奖池，开启后还能改一次。</p>
+      </details>
+      <details>
+        <summary>没有原皮肤能用臻彩吗？</summary>
+        <p>不能。臻彩必须配合原皮肤使用。战斗学院 霞和春晖神女 艾希可以在活动限定皮肤奖池自选或游戏商城解锁。</p>
+      </details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}.official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}.official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}.official-sources li{font-size:.88rem;line-height:1.6}.official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>
