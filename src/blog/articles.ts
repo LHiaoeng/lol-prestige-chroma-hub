@@ -35,6 +35,19 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'top-2-prestige-chroma-champions',
+    href: '/blog/top-2-prestige-chroma-champions/',
+    titleEn: 'Which Champion Has the Second Most Prestige Chromas?',
+    titleZh: '拥有第二多臻彩的英雄是谁？',
+    summaryEn: 'One champion leads the prestige chroma leaderboard. But which two are tied right behind in second?',
+    summaryZh: '排行榜第一已经尘埃落定，紧随其后的第二是谁？答案是两位并列。',
+    publishedAt: '2026-08-07',
+    readingMinutes: 7,
+    coverUrl: '/img/blog/top-2-prestige-chroma-champions-cover.jpg',
+    coverAltEn: 'Ashe and Lee Sin silhouettes on a second-place podium, tied for the second most prestige chromas',
+    coverAltZh: '艾希与李青剪影并肩站在第二名领奖台上，以 15 款臻彩并列第二',
+  },
+  {
     slug: 'patch-26-15-prestige-chromas',
     href: '/blog/patch-26-15-prestige-chromas/',
     titleEn: 'LoL Patch 26.15: 6 New Prestige Chromas',

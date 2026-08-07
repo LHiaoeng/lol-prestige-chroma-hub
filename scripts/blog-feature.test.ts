@@ -71,6 +71,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/what-are-prestige-chromas.astro',
       'src/pages/blog/what-are-chroma-skins.astro',
       'src/pages/blog/what-is-league-of-legends.astro',
+      'src/pages/blog/top-2-prestige-chroma-champions.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -101,7 +102,7 @@ describe('blog feature contract', () => {
     expect(page).toContain('@media (max-width: 1023px)');
     expect(page).toContain('@media (max-width: 767px)');
     expect(page).toContain('grid-template-columns:minmax(0,1fr) minmax(320px,1fr)');
-    expect(page).toContain('height:360px');
+    expect(page).toContain('min-height:360px');
     expect(page).toContain('-webkit-line-clamp:3');
     expect(page).toContain('.featured-post-link { grid-template-columns:1fr; height:auto; min-height:0; }');
   });
@@ -269,7 +270,7 @@ describe('blog feature contract', () => {
     expect(page.match(/<details>/g)).toHaveLength(10);
     expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
-    expect(page).toContain('aspect-ratio:16/9');
+    expect(page).toContain('.article-hero img{display:block;width:100%;height:auto');
     expect(page).toContain('grid-template-columns:repeat(6,minmax(0,1fr))');
     expect(page).toContain('left:50%;bottom:7px;transform:translateX(-50%)');
     expect(page).toContain('display:inline-flex;line-height:0');
@@ -282,6 +283,29 @@ describe('blog feature contract', () => {
     expect(page).not.toContain('may rotate into the Mythic Shop');
     expect(page).not.toContain('会不定期进入神话商店');
     expect(page).not.toContain("Heavenscale Kai\\'a");
+  });
+
+  it('renders a complete localized top-2 prestige chroma champions article', () => {
+    const page = source('src/pages/blog/top-2-prestige-chroma-champions.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>Patch 26.15: {article.titleEn}</h1>');
+    expect(page).toContain('<h1>26.15 版本：{article.titleZh}</h1>');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page).toContain('data-placeholder="/placeholder.svg"');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('chroma-grid');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(2);
+    expect(page.match(/<details>/g)).toHaveLength(6);
+    expect(page).not.toContain('？---');
   });
 
   it('derives and refreshes every champion coverage fact', () => {

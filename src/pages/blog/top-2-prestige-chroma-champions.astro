@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'top-2-prestige-chroma-champions');
+if (!article) throw new Error('Second most prestige chroma champions article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const totalChromas = 461;
+const championCount = 105;
+
+const firstSkinGroups = [
+  { skinNameEn: 'Spirit Blossom Springs Ahri', skinNameZh: '莲花温泉 阿狸', count: 5 },
+  { skinNameEn: 'Popstar Ahri', skinNameZh: '偶像歌手 阿狸', count: 4 },
+  { skinNameEn: 'K/DA ALL OUT Ahri', skinNameZh: 'K/DA ALL OUT 阿狸', count: 1 },
+  { skinNameEn: 'Foxfire Ahri', skinNameZh: '焰尾妖狐 阿狸', count: 1 },
+  { skinNameEn: 'Coven Ahri', skinNameZh: '魔女 阿狸', count: 2 },
+  { skinNameEn: 'K/DA Ahri', skinNameZh: 'K/DA 阿狸', count: 1 },
+  { skinNameEn: 'Midnight Ahri', skinNameZh: '暗影妖狐 阿狸', count: 1 },
+  { skinNameEn: 'Snow Moon Ahri', skinNameZh: '净雪之月 阿狸', count: 1 },
+  { skinNameEn: 'Spirit Blossom Ahri', skinNameZh: '灵魂莲华 阿狸', count: 1 },
+];
+
+const runnerUpData = [
+  {
+    shortEn: 'Ashe', shortZh: '艾希', heroId: '22', count: 15,
+    skinGroups: [
+      { skinNameEn: 'Firecracker Ashe', skinNameZh: '龙马烈焰 艾希', count: 3 },
+      { skinNameEn: 'Ocean Song Ashe', skinNameZh: '海之歌 艾希', count: 3 },
+      { skinNameEn: 'Coven Ashe', skinNameZh: '魔女 艾希', count: 1 },
+      { skinNameEn: 'Spirit Blossom Ashe', skinNameZh: '灵魂莲华 艾希', count: 3 },
+      { skinNameEn: 'Lunar Empress Ashe', skinNameZh: '春晖神女 艾希', count: 2 },
+      { skinNameEn: 'Fae Dragon Ashe', skinNameZh: '神龙尊者 苍龙艾希', count: 1 },
+      { skinNameEn: 'Worlds 2017 Ashe', skinNameZh: '冠军之箭 艾希', count: 1 },
+      { skinNameEn: 'PROJECT: Ashe', skinNameZh: '源计划：联合 艾希', count: 1 },
+    ],
+  },
+  {
+    shortEn: 'Lee Sin', shortZh: '李青', heroId: '64', count: 15,
+    skinGroups: [
+      { skinNameEn: 'Storm Dragon Lee Sin', skinNameZh: '神龙尊者 圣龙李青', count: 3 },
+      { skinNameEn: 'T1 Lee Sin', skinNameZh: 'T1 李青', count: 1 },
+      { skinNameEn: 'FPX Lee Sin', skinNameZh: 'FPX 李青', count: 1 },
+      { skinNameEn: 'Heavenscale Lee Sin', skinNameZh: '天龙之子 李青', count: 1 },
+      { skinNameEn: 'Dragon Fist Lee Sin', skinNameZh: '龙的传人 李青', count: 9 },
+    ],
+  },
+];
+
+function filterChromas(heroId: string, skinNameEn: string): Chroma[] {
+  return catalog.filter((item) => item.heroId === heroId && item.skinNameEn === skinNameEn);
+}
+function shortName(skinName: string, fallback: string): string {
+  return skinName.split(/\s+(?=Ahri|Ashe|Lee Sin$)/).pop() || fallback;
+}
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? '26.15 版本：拥有第二多臻彩的英雄是谁？' : 'Patch 26.15: Which Champion Has the Second Most Prestige Chromas?',
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '第二多臻彩英雄' : 'Second Most Prestige Chromas'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LoL PRESTIGE CHROMA LEADERBOARD</p>
+      <h1>Patch 26.15: {article.titleEn}</h1>
+      <p class="article-deck">{totalChromas} <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> across {championCount} champions. First place isn't up for debate. Second place is a two-way tie.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Two champions tied for second on the prestige chroma leaderboard.</figcaption>
+    </figure>
+
+    <section>
+      <h2>First place: Ahri with 17</h2>
+      <p>17 prestige chromas, 9 skin families — nobody else is close. For the full gallery grouped by base skin, see the <a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>Ahri prestige chroma breakdown</a>.</p>
+    </section>
+
+    {runnerUpData.map((runner) => (
+    <>
+    <section>
+      <h2>Second place: {runner.shortEn} with {runner.count}</h2>
+      <p>{runner.shortEn} has {runner.count} prestige chromas across {runner.skinGroups.length} skin families.</p>
+    </section>
+
+    {runner.skinGroups.map((group) => (
+    <section>
+      <h3>{group.skinNameEn}</h3>
+      <p>{group.skinNameEn} has {group.count} prestige chroma{group.count !== 1 ? 's' : ''}:</p>
+      <ul class={`chroma-grid${group.count >= 3 ? ' chroma-grid-wide' : ''}`}>
+        {filterChromas(runner.heroId, group.skinNameEn).map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+    </section>
+    ))}
+    </>
+    ))}
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Does this list include regular chroma recolours?</summary>
+        <p>No. Only chromas with their own prestige splash art. Standard recolour variants aren't counted. The <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma skins guide</a> explains the difference.</p>
+      </details>
+      <details>
+        <summary>Are these chromas still obtainable?</summary>
+        <p>Some were event-limited, some rotate through the Mythic Shop. Older ones aren't always available. Details in the <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a>.</p>
+      </details>
+      <details>
+        <summary>Which champion is closest to catching up?</summary>
+        <p>Check the <a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>full leaderboard</a> for the latest standings. The gap between second and fifth is usually tight.</p>
+      </details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LoL 臻彩数量排行榜</p>
+      <h1>26.15 版本：{article.titleZh}</h1>
+      <p class="article-deck">{totalChromas} 款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>，{championCount} 位英雄。第一名没悬念，第二名是两位并列。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>臻彩数量排行榜上并列第二的两位英雄。</figcaption>
+    </figure>
+
+    <section>
+      <h2>第一名：阿狸，17 款</h2>
+      <p>17 款，9 个系列，没人接近。按皮肤分组的完整图鉴看<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>阿狸臻彩整理</a>。</p>
+    </section>
+
+    {runnerUpData.map((runner) => (
+    <>
+    <section>
+      <h2>第二名：{runner.shortZh}，{runner.count} 款</h2>
+      <p>{runner.shortZh}，{runner.count} 款，{runner.skinGroups.length} 个系列。</p>
+    </section>
+
+    {runner.skinGroups.map((group) => (
+    <section>
+      <h3>{group.skinNameZh}</h3>
+      <p>{group.skinNameZh}拥有 {group.count} 款臻彩：</p>
+      <ul class={`chroma-grid${group.count >= 3 ? ' chroma-grid-wide' : ''}`}>
+        {filterChromas(runner.heroId, group.skinNameEn).map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+    </section>
+    ))}
+    </>
+    ))}
+
+    <section class="faq">
+      <h2>常见问题</h2>
+      <details>
+        <summary>统计包括普通炫彩换色吗？</summary>
+        <p>不包括。只统计有专属臻彩原画的，普通炫彩配色不算在内。可以看<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩皮肤介绍</a>了解两者的区别。</p>
+      </details>
+      <details>
+        <summary>这些臻彩现在还能获取吗？</summary>
+        <p>部分是限时活动的，部分在神话商店轮换。老款不一定随时能拿到。详情看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
+      </details>
+      <details>
+        <summary>谁最有可能追上来？</summary>
+        <p>看<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>完整排行榜</a>，第二名到第五名的差距通常很小，随时可能变。</p>
+      </details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>
