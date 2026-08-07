@@ -53,11 +53,12 @@ const jsonLd = {
       </header>
       <section class="blog-index">
         <div class="post-list">
-        {blogArticles.map((entry, index) => (
+        {blogArticles.map((entry, index) => {
+          return (
         <article class="featured-post">
           <a class="featured-post-link" href={articleHref(entry, locale)}>
             <div class="featured-post-art">
-              <img src={entry.coverUrl} alt={isZh ? entry.coverAltZh : entry.coverAltEn} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={index === 0 ? 1920 : 3288} height={index === 0 ? 944 : 2100} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+              <img src={entry.coverUrl} alt={isZh ? entry.coverAltZh : entry.coverAltEn} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={800} height={450} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
             </div>
             <div class="featured-post-copy">
               <p class="eyebrow">{isZh ? (index === 0 ? '精选文章' : '指南') : (index === 0 ? 'FEATURED STORY' : 'GUIDE')}</p>
@@ -72,7 +73,8 @@ const jsonLd = {
             </div>
           </a>
         </article>
-        ))}
+        );
+        })}
         </div>
       </section>
     </section>
@@ -89,7 +91,7 @@ const jsonLd = {
     .blog-heading>div>p:last-child { color:var(--muted); font-size:1.08rem; line-height:1.7; margin:0; text-shadow:0 2px 18px #000; }
     .post-list { display:grid; gap:32px; }
     .featured-post { overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--panel); box-shadow:0 28px 80px #0007; }
-    .featured-post-link { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,1fr); height:360px; min-height:0; }
+    .featured-post-link { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,1fr); min-height:360px; }
     .featured-post-art { min-width:0; overflow:hidden; background:#15182a; }
     .featured-post-art img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
     .featured-post-copy { display:flex; min-width:0; flex-direction:column; justify-content:center; padding:clamp(24px,3vw,42px); }
@@ -99,14 +101,15 @@ const jsonLd = {
     .read-more { color:var(--gold); font-weight:700; }
     .featured-post-link:focus-visible { outline:2px solid var(--gold); outline-offset:-4px; }
     @media (hover:hover) and (pointer:fine) { .featured-post-link:hover .featured-post-art img { transform:scale(1.025); } }
-    @media (max-width: 1023px) { .featured-post-link { grid-template-columns:minmax(0,1fr) minmax(280px,1fr); height:340px; } }
+    @media (min-width: 1280px) { .featured-post-link { grid-template-columns:minmax(0,1.3fr) minmax(320px,1fr); } }
+    @media (max-width: 1023px) { .featured-post-link { grid-template-columns:minmax(0,1fr) minmax(280px,1fr); min-height:340px; } }
     @media (max-width: 767px) {
       .blog-hero { padding:44px 0 76px; }
       .blog-index { padding-top:32px; }
       .blog-heading h1 { font-size:clamp(2.35rem,12vw,3.5rem); }
       .blog-heading>div>p:last-child { font-size:1rem; }
       .featured-post-link { grid-template-columns:1fr; height:auto; min-height:0; }
-      .featured-post-art { aspect-ratio:16/10; }
+      .featured-post-art img { height:auto; max-height:70svh; object-fit:contain; }
       .featured-post-copy { padding:24px 20px 28px; }
     }
     @media (prefers-reduced-motion:reduce) { .featured-post-art img { transition:none; } }
