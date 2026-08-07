@@ -76,6 +76,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/what-is-league-of-legends.astro',
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
+      'src/pages/blog/splendid-treasure-august-2026.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);

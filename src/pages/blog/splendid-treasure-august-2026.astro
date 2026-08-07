@@ -1,0 +1,250 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'splendid-treasure-august-2026');
+if (!article) throw new Error('Splendid treasure august 2026 article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const eventStart = '2026-08-07';
+const eventEnd = '2026-09-06';
+const eventUrl = 'https://lol.qq.com/act/a202608074415lustertreasure/index.html';
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=523008731130382761';
+
+const featuredChromas = [
+  { heroId: '711', skinNameEn: 'Surprise Party Vex', nameEn: 'Surprise Party Vex (Pearl)', nameZh: '惊悚派对 薇古丝 吓走你的沮丧！', fragments: 300 },
+  { heroId: '910', skinNameEn: 'Spirit Blossom Hwei', nameEn: 'Spirit Blossom Hwei (Catseye)', nameZh: '灵魂莲华 彗 雁来', fragments: 600 },
+  { heroId: '238', skinNameEn: null, nameEn: 'Prestige Spirit Blossom Zed', nameZh: '至臻 灵魂莲华 劫', fragments: 1000 },
+];
+
+function findChroma(heroId: string, skinNameEn: string | null): Chroma | undefined {
+  if (!skinNameEn) return undefined;
+  return catalog.find((c) => c.heroId === heroId && c.skinNameEn === skinNameEn);
+}
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? '华彩秘宝·召唤活动上线' : 'Splendid Treasure Summoning — August 2026',
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '华彩秘宝·召唤' : 'Splendid Treasure Summoning'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The Splendid Treasure Summoning event runs August 7 – September 6, 2026 on the Chinese server. Two prestige chromas and one prestige skin — Surprise Party Vex (Pearl), Spirit Blossom Hwei (Catseye), and Prestige Spirit Blossom Zed — are available through fragment exchange.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Spirit Blossom Hwei Catseye prestige chroma splash art.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Two prestige chromas and one prestige skin in the exchange shop</h2>
+      <p>This event offers two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> and one <a href="https://leagueoflegends.fandom.com/wiki/Champion_skin#Prestige_Editions" target="_blank" rel="noreferrer">prestige skin</a> through the fragment exchange shop. Each open guarantees a skin from the pool, and every 10 opens locks in a random prestige chroma. Fragments earned along the way can be traded for these specific items:</p>
+      <ul class="chroma-grid">
+        {featuredChromas.filter((fc) => findChroma(fc.heroId, fc.skinNameEn)).map((fc) => {
+          const chroma = findChroma(fc.heroId, fc.skinNameEn)!;
+          return (
+            <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={fc.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{fc.nameEn} — {fc.fragments} fragments</span></a></li>
+          );
+        })}
+      </ul>
+      <p>Surprise Party Vex (Pearl) costs 300 fragments, Spirit Blossom Hwei (Catseye) costs 600, and Prestige Spirit Blossom Zed sits at 1,000. The first two are prestige chromas with unique splash art; Prestige Spirit Blossom Zed is a prestige skin, a separate tier above regular skins — not a prestige chroma.</p>
+    </section>
+
+    <section>
+      <h2>Surprise Party Vex (Pearl)</h2>
+      <p>Surprise Party Vex reimagines the Gloomist in a festive, slightly unsettling celebration theme. The Pearl chroma bathes Vex in a soft, iridescent white (<span style="color:#ECF9F8">#ECF9F8</span>) — a clean contrast against the skin's already vibrant party aesthetic.</p>
+      <p>The Surprise Party Vex skin family currently has 1 prestige chroma:</p>
+      <ul class="chroma-grid">
+        {catalog.filter((c) => c.heroId === '711' && c.skinNameEn === 'Surprise Party Vex').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Spirit Blossom Hwei (Catseye)</h2>
+      <p>Spirit Blossom Hwei draws from Ionia's Spirit Blossom Festival lore, dressing the Visionary in flowing celestial robes. The Catseye chroma shifts the palette to a warm, vivid yellow (<span style="color:#FFEE59">#FFEE59</span>) — bright and eye-catching against the skin's ethereal base.</p>
+      <p>The Spirit Blossom Hwei skin family currently has 2 prestige chromas:</p>
+      <ul class="chroma-grid">
+        {catalog.filter((c) => c.heroId === '910' && c.skinNameEn === 'Spirit Blossom Hwei').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameEn}</span></a></li>
+        ))}
+      </ul>
+      <p>The other one, Pearl, goes for a soft white (<span style="color:#ECF9F8">#ECF9F8</span>). Catseye is the bolder, warmer pick.</p>
+      <p>The exchange shop also offers Prestige Spirit Blossom Zed (1,000 fragments) — a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige skin</a>, a different tier from prestige chromas. We'll add it to the catalog once it's available.</p>
+    </section>
+
+    <section>
+      <h2>How to earn fragments</h2>
+      <p>Each summon drops fragments. You can also break down duplicate skins for 10 fragments each. The first summon costs only 60 diamonds (~6 RMB); subsequent summons cost 290 diamonds each. Every 10 summons also guarantee a random prestige chroma — separate from the fragment exchange.</p>
+      <p>Fragments are event-specific: unspent fragments clear when the event ends on September 6, so plan your exchanges before then.</p>
+    </section>
+
+    <section>
+      <h2>Chromas need the base skin</h2>
+      <p>Prestige chromas require their original skins. If you don't own Surprise Party Vex or Spirit Blossom Hwei yet, you can pick them up from the game shop or through the event's skin pool. The prestige skin (Spirit Blossom Zed) is a complete skin on its own — no base skin needed.</p>
+    </section>
+
+    <aside class="official-sources" aria-label={isZh ? '官方来源' : 'Official sources'}>
+      <strong>{isZh ? '官方来源' : 'Official sources'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">{isZh ? '华彩秘宝·召唤活动页' : 'Splendid Treasure Summoning event page'}</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">{isZh ? '官方新闻公告' : 'Official news announcement'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Are these prestige chromas different from regular chromas?</summary>
+        <p>Yes. Prestige chromas have their own unique splash art and sit in a separate tier above regular chromas. The <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> covers the full difference.</p>
+      </details>
+      <details>
+        <summary>Can I choose which prestige chroma I get from the 10-summon guarantee?</summary>
+        <p>No. The 10-summon prestige chroma is random. If you want a specific prestige chroma, the fragment exchange shop is the reliable path — Surprise Party Vex at 300, Spirit Blossom Hwei at 600 fragments. Prestige Spirit Blossom Zed (1,000 fragments) is a prestige skin, not a prestige chroma.</p>
+      </details>
+      <details>
+        <summary>Do I need the base skin?</summary>
+        <p>The prestige chromas require their original skins — Surprise Party Vex and Spirit Blossom Hwei can be unlocked through the game shop or the event's skin pool. The prestige skin (Spirit Blossom Zed) is a complete skin and does not require a separate base skin.</p>
+      </details>
+      <details>
+        <summary>What is a prestige skin?</summary>
+        <p>Prestige skins are complete skins with a unique border, splash art and VFX. Some of them are event-specific (requires a certain amount of tokens to redeem them) and others are craft-able for 150 Mythic Essences. However, these skins can drop from loot or can be obtained from re-roll. <a href="https://leagueoflegends.fandom.com/wiki/Champion_skin#Prestige_Editions" target="_blank" rel="noreferrer">Source</a></p>
+      </details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">8 月 7 日至 9 月 6 日，华彩秘宝·召唤活动上线。两款臻彩和一款至臻皮肤加入碎片兑换商店：惊悚派对 薇古丝 吓走你的沮丧！（300 碎片）、灵魂莲华 彗 雁来（600 碎片）、至臻 灵魂莲华 劫（1000 碎片）。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>灵魂莲华 彗 雁来臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>兑换商店中的两款臻彩与一款至臻皮肤</h2>
+      <p>本期活动通过碎片兑换商店提供两款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>和一款<a href="https://leagueoflegends.fandom.com/zh/wiki/%E8%8B%B1%E9%9B%84%E7%9A%AE%E8%82%A4#%E8%87%B3%E7%9A%87" target="_blank" rel="noreferrer">至臻皮肤</a>。每次开启保底 1 款未解锁皮肤，每 10 次开启额外保底 1 款随机臻彩。过程中获得的碎片可以换取以下内容：</p>
+      <ul class="chroma-grid">
+        {featuredChromas.filter((fc) => findChroma(fc.heroId, fc.skinNameEn)).map((fc) => {
+          const chroma = findChroma(fc.heroId, fc.skinNameEn)!;
+          return (
+            <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={fc.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{fc.nameZh} — {fc.fragments} 碎片</span></a></li>
+          );
+        })}
+      </ul>
+      <p>惊悚派对 薇古丝 吓走你的沮丧！ 300 碎片、灵魂莲华 彗 雁来 600 碎片、至臻 灵魂莲华 劫 1000 碎片。前两款是有专属原画的臻彩；至臻 灵魂莲华 劫是至臻皮肤，和普通皮肤是不同的品质层级，不是臻彩。</p>
+    </section>
+
+    <section>
+      <h2>惊悚派对 薇古丝 吓走你的沮丧！</h2>
+      <p>惊悚派对 薇古丝将忧思者装扮成一个略带诡异气氛的庆典造型。「吓走你的沮丧！」为薇古丝披上一层柔和的虹彩白色（<span style="color:#ECF9F8">#ECF9F8</span>），与皮肤本身鲜明的派对风格形成干净利落的对比。</p>
+      <p>惊悚派对 薇古丝目前拥有 1 款臻彩：</p>
+      <ul class="chroma-grid">
+        {catalog.filter((c) => c.heroId === '711' && c.skinNameEn === 'Surprise Party Vex').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>灵魂莲华 彗 雁来</h2>
+      <p>灵魂莲华 彗取材自艾欧尼亚绽灵节的传说，将远见者装扮在飘逸的仙境华服中。「雁来」将配色换成了鲜明温暖的黄色（<span style="color:#FFEE59">#FFEE59</span>），在皮肤空灵的底色上格外醒目。</p>
+      <p>灵魂莲华 彗目前拥有 2 款臻彩：</p>
+      <ul class="chroma-grid">
+        {catalog.filter((c) => c.heroId === '910' && c.skinNameEn === 'Spirit Blossom Hwei').map((chroma) => (
+          <li><a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><div class="chroma-card-img-wrap"><img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" /><div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div></div><span class="chroma-card-name">{chroma.nameZh}</span></a></li>
+        ))}
+      </ul>
+      <p>另一款「朝花」走柔和白色路线（<span style="color:#ECF9F8">#ECF9F8</span>）。「雁来」更鲜明、更抢眼。</p>
+      <p>兑换商店还提供至臻 灵魂莲华 劫（1000 碎片）——这是一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>至臻皮肤</a>，和臻彩是不同的品质层级。暂未收录到目录中，后续添加后会更新。</p>
+    </section>
+
+    <section>
+      <h2>如何获取碎片</h2>
+      <p>每次开启都会掉落碎片，已解锁的皮肤也可以分解为碎片（每款 10 碎片）。首次开启仅需 60 钻石（约 6 元），之后每次 290 钻石。每 10 次开启还保底 1 款随机臻彩——和碎片兑换是两条独立的路径。</p>
+      <p>碎片是活动限定的：活动结束后未兑换的碎片全部清空，9 月 6 日前记得用完。</p>
+    </section>
+
+    <section>
+      <h2>臻彩需要原皮肤，至臻皮肤不需要</h2>
+      <p>臻彩必须配合对应的原皮肤才能使用。如果还没有惊悚派对 薇古丝或灵魂莲华 彗的原皮肤，可以在游戏商城或活动的皮肤奖池中获取。至臻皮肤（灵魂莲华 劫）本身就是完整的皮肤，不需要额外的原皮肤。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">华彩秘宝·召唤活动页</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">官方新闻公告</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      <details>
+        <summary>这些臻彩和普通炫彩有什么区别？</summary>
+        <p>臻彩有专属原画，是独立的更高阶品质。可以看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>了解完整区别。</p>
+      </details>
+      <details>
+        <summary>10 次保底的臻彩能自选吗？</summary>
+        <p>不能。10 次保底的臻彩是随机的。如果想要特定的臻彩，碎片兑换商店是最稳的路径——惊悚派对 薇古丝 300 碎片、灵魂莲华 彗 600 碎片。至臻 灵魂莲华 劫（1000 碎片）是至臻皮肤，不是臻彩。</p>
+      </details>
+      <details>
+        <summary>需要原皮肤吗？</summary>
+        <p>臻彩需要对应的原皮肤——惊悚派对 薇古丝和灵魂莲华 彗可以在游戏商城或活动的皮肤奖池中获取。至臻皮肤（灵魂莲华 劫）本身就是完整的皮肤，不需要额外的原皮肤。</p>
+      </details>
+      <details>
+        <summary>什么是至臻皮肤？</summary>
+        <p>至臻皮肤本身就是完整的皮肤，拥有专属边框、原画和特效。部分至臻皮肤是活动限定的，需要一定数量的代币兑换；另一些可以用 150 神话精粹合成。此外，至臻皮肤也可能从战利品中掉落或通过重随获得。<a href="https://leagueoflegends.fandom.com/wiki/Champion_skin#Prestige_Editions" target="_blank" rel="noreferrer">来源</a></p>
+      </details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}.official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}.official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}.official-sources li{font-size:.88rem;line-height:1.6}.official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>

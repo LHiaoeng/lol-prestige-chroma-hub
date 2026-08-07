@@ -35,6 +35,20 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'splendid-treasure-august-2026',
+    href: '/blog/splendid-treasure-august-2026/',
+    titleEn: 'Splendid Treasure Summoning — August 2026',
+    titleZh: '华彩秘宝·召唤活动上线',
+    summaryEn: 'The Splendid Treasure Summoning event runs August 7 – September 6, 2026 on the Chinese server. Two prestige chromas and one prestige skin headline the fragment exchange shop.',
+    summaryZh: '8 月 7 日至 9 月 6 日，华彩秘宝·召唤活动上线。两款臻彩和一款至臻皮肤加入碎片兑换商店。',
+    publishedAt: '2026-08-07',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/e27b368d-8a98-45b1-ac06-2f160a7c1400/site3.jpg',
+    coverAltEn: 'Spirit Blossom Hwei Catseye prestige chroma splash art',
+    coverAltZh: '灵魂莲华 彗 雁来臻彩原画',
+    sourceUrl: 'https://lol.qq.com/act/a202608074415lustertreasure/index.html',
+  },
+  {
     slug: 'prestige-chroma-summon-august-2026',
     href: '/blog/prestige-chroma-summon-august-2026/',
     titleEn: 'Brilliant Prestige Chroma Summoning — August 2026',
