@@ -35,6 +35,20 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'joy-club-peak-gala-202607',
+    href: '/blog/joy-club-peak-gala-202607/',
+    titleEn: 'Joy Club Peak Gala — Session 202607',
+    titleZh: '心悦巅峰盛典 — 第 202607 期',
+    summaryEn: 'The Joy Club Peak Gala rewards top spenders on the Chinese LoL server with exclusive prestige chromas. Session 202607 runs August 1–31, 2026; spend 500,000 peak value to qualify and claim Spirit Blossom Kayle (Tanzanite) — exclusive for 3 months.',
+    summaryZh: '心悦巅峰盛典第 202607 期（2026 年 8 月 1 日—31 日）：在英雄联盟消费累积巅峰值满 50 万即可入席，活动结束后选择大区领取本期专属臻彩「灵魂莲华 凯尔 星回」，享 3 个月独享期。',
+    publishedAt: '2026-08-10',
+    readingMinutes: 4,
+    coverUrl: '/img/blog/prestige-chromas-cover.png',
+    coverAltEn: 'Joy Club Peak Gala session 202607 event',
+    coverAltZh: '心悦巅峰盛典第 202607 期活动',
+    sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202608/index.html',
+  },
+  {
     slug: 'splendid-treasure-august-2026',
     href: '/blog/splendid-treasure-august-2026/',
     titleEn: 'Splendid Treasure Summoning — August 2026',

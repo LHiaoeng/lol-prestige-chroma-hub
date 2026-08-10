@@ -77,6 +77,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
+      'src/pages/blog/joy-club-peak-gala-202607.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -343,5 +344,40 @@ describe('blog feature contract', () => {
     expect(page).not.toContain('/img/champions/${c.alias}.png');
     expect(page).not.toContain('prestige-chromas.json');
     expect(page).toContain('<style is:global>');
+  });
+
+  it('renders a complete localized Joy Club Peak Gala article', () => {
+    const page = source('src/pages/blog/joy-club-peak-gala-202607.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain('data-placeholder="/placeholder.svg"');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain('chroma-grid');
+    expect(page).toContain('imageUrl(rewardChroma.images');
+    expect(page).toContain('sourceImageUrl');
+    expect(page).toContain('ChromaColorCircle');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain('class="chroma-art-link"');
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://act.xinyue.qq.com/act/joyclubgala202608/index.html');
+    expect(page.match(/<details>/g)).toHaveLength(12);
+    for (const heading of [
+      'What is the Joy Club Peak Gala?',
+      'How peak value is earned',
+      'Rewards, settlement, and claiming',
+      '什么是心悦巅峰盛典？',
+      '巅峰值如何累积',
+      '奖励、结算与领取',
+    ]) expect(page).toContain(heading);
+    // No Chinese text mixed into the English article block
+    expect(page).not.toContain('Tencent Game Joy Club</a> (&ldquo;腾讯游戏心悦俱乐部&rdquo;)');
+    expect(page).not.toContain('(&ldquo;巅峰值&rdquo;)');
   });
 });
