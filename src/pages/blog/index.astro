@@ -26,6 +26,14 @@ const jsonLd = {
   inLanguage: isZh ? 'zh-CN' : 'en',
   isPartOf: { '@type': 'WebSite', name: SITE.name, url: new URL(localizedPath(locale, '/'), SITE.origin).toString() },
 };
+
+const coverFallbacks: Record<string, string> = {};
+for (const entry of blogArticles) {
+  if (entry.coverUrl.startsWith('http')) {
+    const match = catalog.find((c) => imageUrl(c.images.large) === entry.coverUrl || imageUrl(c.images.medium) === entry.coverUrl);
+    if (match) coverFallbacks[entry.slug] = sourceImageUrl('large', match.instanceId);
+  }
+}
 ---
 <BaseLayout {title} {description} {canonical} image={article.coverUrl} {jsonLd} {locale}>
   <div class="blog-page">
@@ -58,7 +66,7 @@ const jsonLd = {
         <article class="featured-post">
           <a class="featured-post-link" href={articleHref(entry, locale)}>
             <div class="featured-post-art">
-              <img src={entry.coverUrl} alt={isZh ? entry.coverAltZh : entry.coverAltEn} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={800} height={450} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+              <img src={entry.coverUrl} alt={isZh ? entry.coverAltZh : entry.coverAltEn} data-fallback={coverFallbacks[entry.slug] ?? '/placeholder.svg'} data-placeholder="/placeholder.svg" width={800} height={450} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
             </div>
             <div class="featured-post-copy">
               <p class="eyebrow">{isZh ? (index === 0 ? '精选文章' : '指南') : (index === 0 ? 'FEATURED STORY' : 'GUIDE')}</p>
