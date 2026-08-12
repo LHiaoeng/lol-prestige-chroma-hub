@@ -35,6 +35,20 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'blue-porcelain-prestige-chromas',
+    href: '/blog/blue-porcelain-prestige-chromas/',
+    titleEn: 'Porcelain Prestige Chromas — Irelia, Lissandra, Ezreal, Lux',
+    titleZh: '青花瓷臻彩上线：艾瑞莉娅、丽桑卓、伊泽瑞尔、拉克丝',
+    summaryEn: 'Four new Jingdezhen porcelain-inspired prestige chromas launch August 13 and 19. See the full lineup and the cultural collaboration behind them.',
+    summaryZh: '四款融入景德镇瓷艺美学的青花瓷臻彩分两批上线，8 月 13 日先出艾瑞莉娅和丽桑卓，8 月 19 日再出伊泽瑞尔和拉克丝。',
+    publishedAt: '2026-08-11',
+    readingMinutes: 3,
+    coverUrl: '/img/blog/blue-porcelain-prestige-chromas-cover.jpg',
+    coverAltEn: 'Porcelain prestige chromas showcase — four Jingdezhen-inspired chromas for Irelia, Lissandra, Ezreal, and Lux',
+    coverAltZh: '青花瓷臻彩展示 — 四款景德镇瓷艺灵感臻彩',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=8872043071403757220',
+  },
+  {
     slug: 'joy-club-peak-gala-202607',
     href: '/blog/joy-club-peak-gala-202607/',
     titleEn: 'Joy Club Peak Gala — Session 202607',

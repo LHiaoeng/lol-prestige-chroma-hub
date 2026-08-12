@@ -1,0 +1,260 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'blue-porcelain-prestige-chromas');
+if (!article) throw new Error('Blue porcelain prestige chromas article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const coverImg = article.coverUrl;
+const ireliaImg = '/img/blog/blue-porcelain-prestige-chromas-cover.jpg';
+const lissandraImg = '/img/blog/blue-porcelain-lissandra.jpg';
+const ezrealImg = '/img/blog/blue-porcelain-ezreal.jpg';
+const luxImg = '/img/blog/blue-porcelain-lux.jpg';
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=8872043071403757220';
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={coverImg} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '青花瓷臻彩' : 'Porcelain Prestige Chromas'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">PORCELAIN PRESTIGE CHROMAS</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">Four new prestige chromas inspired by Jingdezhen porcelain art launch in two waves &mdash; August 13 for Irelia and Lissandra, August 19 for Ezreal and Lux.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={coverImg} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="eager" decoding="async" />
+      <figcaption>Porcelain prestige chromas &mdash; four Jingdezhen-inspired chromas for Irelia, Lissandra, Ezreal, and Lux.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Four porcelain styles, four chromas</h2>
+      <p>League of Legends partnered with Jingdezhen cultural tourism, Jingdezhen Ceramic University, the Jingdezhen World Heritage Application Office, and Tencent SSV to bring four traditional Jingdezhen porcelain techniques into the game as <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>. Each chroma reimagines a champion through a different porcelain aesthetic:</p>
+      <ul>
+        <li><strong>Irelia</strong> &mdash; Qingbai (Blue-White) Moon Fawn</li>
+        <li><strong>Lissandra</strong> &mdash; Underglaze Red Plum</li>
+        <li><strong>Ezreal</strong> &mdash; Sancai (Three-Color) Tiger</li>
+        <li><strong>Lux</strong> &mdash; Wucai (Five-Color) Leaping Carp</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>August 13: Irelia and Lissandra</h2>
+      <figure>
+        <img src={ireliaImg} alt="Porcelain Irelia — Qingbai Moon Fawn prestige chroma" data-alt-en="Porcelain Irelia — Qingbai Moon Fawn prestige chroma" data-alt-zh="青花瓷 艾瑞莉娅 青白月之羚臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>Porcelain Irelia &mdash; Qingbai Moon Fawn.</figcaption>
+      </figure>
+      <figure>
+        <img src={lissandraImg} alt="Porcelain Lissandra — Underglaze Red Plum prestige chroma" data-alt-en="Porcelain Lissandra — Underglaze Red Plum prestige chroma" data-alt-zh="青花瓷 丽桑卓 釉里红之梅臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>Porcelain Lissandra &mdash; Underglaze Red Plum.</figcaption>
+      </figure>
+      <p>The first wave drops on August 13. Irelia takes on the cool, translucent tone of Qingbai porcelain &mdash; the &ldquo;blue-white&rdquo; glaze that Jingdezhen is most famous for. Lissandra gets the underglaze red treatment, with plum blossom motifs drawn from a classic Jingdezhen firing technique where copper oxide creates a deep crimson beneath the glaze.</p>
+    </section>
+
+    <section>
+      <h2>August 19: Ezreal and Lux</h2>
+      <figure>
+        <img src={ezrealImg} alt="Porcelain Ezreal — Sancai Tiger prestige chroma" data-alt-en="Porcelain Ezreal — Sancai Tiger prestige chroma" data-alt-zh="青花瓷 伊泽瑞尔 素三彩之虎臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>Porcelain Ezreal &mdash; Sancai Tiger.</figcaption>
+      </figure>
+      <figure>
+        <img src={luxImg} alt="Porcelain Lux — Wucai Leaping Carp prestige chroma" data-alt-en="Porcelain Lux — Wucai Leaping Carp prestige chroma" data-alt-zh="青花瓷 拉克丝 五彩釉跃鲤臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>Porcelain Lux &mdash; Wucai Leaping Carp.</figcaption>
+      </figure>
+      <p>The second wave arrives on August 19. Ezreal channels the Sancai (three-color) style &mdash; a restrained, earthy palette typical of Tang dynasty tri-color pottery. Lux goes full Wucai (five-color), the vivid overglaze technique that layers multiple bright enamels on a single piece.</p>
+    </section>
+
+    <section>
+      <h2>A collaboration with Jingdezhen</h2>
+      <p>This isn&rsquo;t just a skin drop. The project ties into the recent UNESCO listing of Jingdezhen&rsquo;s traditional porcelain industry as an intangible cultural heritage. Riot and Tencent are working with local institutions to bring the craft into the game &mdash; and back out into the real world.</p>
+      <p>Previously donated charity funds will now go through the &ldquo;Heritage Guardian &mdash; Rural Artisan Empowerment Plan&rdquo; to support the protection and transmission of Jingdezhen&rsquo;s handmade porcelain heritage. The goal is to do more than put porcelain in the game &mdash; it&rsquo;s to help keep the craft alive for the people who still make it.</p>
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">Official LoL news announcement</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>What are prestige chromas?</summary>
+        <p>Prestige chromas are a rare cosmetic tier with unique splash art, sitting above regular chromas. See our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> for the full breakdown.</p>
+      </details>
+      <details>
+        <summary>When do these chromas become available?</summary>
+        <p>Irelia and Lissandra launch on August 13, 2026. Ezreal and Lux follow on August 19, 2026. Both waves are on the Chinese server.</p>
+      </details>
+      <details>
+        <summary>How do I get these chromas?</summary>
+        <p>Check the official LoL event pages and in-game shop for acquisition details. The announcement does not specify a single method &mdash; these may be tied to upcoming events or the <a href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}>prestige chroma summoning</a> system.</p>
+      </details>
+      <details>
+        <summary>Do I need the base Porcelain skin?</summary>
+        <p>Yes &mdash; prestige chromas require their original skin. You&rsquo;ll need the Porcelain skin for each champion before applying the chroma.</p>
+      </details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">青花瓷臻彩</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">青白如月舞流刃，釉里红梅缀霜华。三彩灵虎入云松，五彩游鳞衔晴光。四种景德镇瓷艺美学融入英雄联盟青花瓷臻彩，8 月 13 日和 19 日分两批上线。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={coverImg} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="eager" decoding="async" />
+      <figcaption>青花瓷臻彩 &mdash; 四款景德镇瓷艺灵感臻彩。</figcaption>
+    </figure>
+
+    <section>
+      <h2>四种瓷艺，四款臻彩</h2>
+      <p>英雄联盟和景德镇文旅、景德镇陶瓷大学、景德镇市申遗办、腾讯 SSV 合作，把四种景德镇传统瓷艺带进峡谷，做成<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>。每款臻彩对应一种瓷艺风格：</p>
+      <ul>
+        <li><strong>艾瑞莉娅</strong> &mdash; 青白月之羚</li>
+        <li><strong>丽桑卓</strong> &mdash; 釉里红之梅</li>
+        <li><strong>伊泽瑞尔</strong> &mdash; 素三彩之虎</li>
+        <li><strong>拉克丝</strong> &mdash; 五彩釉跃鲤</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8 月 13 日：艾瑞莉娅与丽桑卓先启</h2>
+      <figure>
+        <img src={ireliaImg} alt="青花瓷 艾瑞莉娅 青白月之羚臻彩" data-alt-en="Porcelain Irelia — Qingbai Moon Fawn prestige chroma" data-alt-zh="青花瓷 艾瑞莉娅 青白月之羚臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>青花瓷 艾瑞莉娅 &mdash; 青白月之羚。</figcaption>
+      </figure>
+      <figure>
+        <img src={lissandraImg} alt="青花瓷 丽桑卓 釉里红之梅臻彩" data-alt-en="Porcelain Lissandra — Underglaze Red Plum prestige chroma" data-alt-zh="青花瓷 丽桑卓 釉里红之梅臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>青花瓷 丽桑卓 &mdash; 釉里红之梅。</figcaption>
+      </figure>
+      <p>第一批 8 月 13 日上线。艾瑞莉娅取青白瓷的温润质感 &mdash; 景德镇最出名的「青白」釉色，清透如玉。丽桑卓走釉里红路线，以铜氧化物在高温下烧出的深红为底色，配上梅花纹样 &mdash; 这是景德镇经典的高温釉下彩工艺。</p>
+    </section>
+
+    <section>
+      <h2>8 月 19 日：伊泽瑞尔与拉克丝再临</h2>
+      <figure>
+        <img src={ezrealImg} alt="青花瓷 伊泽瑞尔 素三彩之虎臻彩" data-alt-en="Porcelain Ezreal — Sancai Tiger prestige chroma" data-alt-zh="青花瓷 伊泽瑞尔 素三彩之虎臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>青花瓷 伊泽瑞尔 &mdash; 素三彩之虎。</figcaption>
+      </figure>
+      <figure>
+        <img src={luxImg} alt="青花瓷 拉克丝 五彩釉跃鲤臻彩" data-alt-en="Porcelain Lux — Wucai Leaping Carp prestige chroma" data-alt-zh="青花瓷 拉克丝 五彩釉跃鲤臻彩" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1080" height="607" loading="lazy" decoding="async" />
+        <figcaption>青花瓷 拉克丝 &mdash; 五彩釉跃鲤。</figcaption>
+      </figure>
+      <p>第二批 8 月 19 日上线。伊泽瑞尔用的是素三彩风格 &mdash; 源自唐代三彩陶的质朴配色，以黄、绿、褐为主调。拉克丝则是五彩釉上彩，多种鲜艳釉色叠绘在一件瓷器上，视觉冲击力最强。</p>
+    </section>
+
+    <section>
+      <h2>不只是皮肤，也是非遗传承</h2>
+      <p>【景德镇手工瓷业遗存】刚申遗成功，英雄联盟想用自己的方式让更多召唤师认识这些传承至今的瓷艺与手艺。此前英雄联盟向中国乡村发展基金会捐赠的公益资金，也将通过这次「非遗守护者·乡村工匠赋能计划」落地，用于支持景德镇手工瓷业遗存的保护与传承。</p>
+      <p>说白了，不只是把瓷艺搬进峡谷，也希望能帮到那些还在做瓷器的手艺人。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">英雄联盟官方新闻公告</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      <details>
+        <summary>臻彩和普通炫彩有什么区别？</summary>
+        <p>臻彩有专属原画，是独立的更高阶品质。详见<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
+      </details>
+      <details>
+        <summary>这些臻彩什么时候上线？</summary>
+        <p>艾瑞莉娅和丽桑卓 8 月 13 日上线，伊泽瑞尔和拉克丝 8 月 19 日上线。仅限国服。</p>
+      </details>
+      <details>
+        <summary>怎么获取这些臻彩？</summary>
+        <p>具体获取方式请关注官方活动页面和游戏内商城公告。后续可能会通过<a href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}>璀璨臻彩召唤</a>等活动开放。</p>
+      </details>
+      <details>
+        <summary>需要原皮肤吗？</summary>
+        <p>需要。臻彩必须配合对应的青花瓷皮肤才能使用，没有原皮肤无法单独装备臻彩。</p>
+      </details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}
+    .blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}
+    .blog-article{padding:clamp(52px,8vw,90px) 0 110px}
+    .article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}
+    .article-header{margin-bottom:42px}
+    .article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}
+    .article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}
+    .article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}
+    .blog-article section{margin-top:48px}
+    .blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}
+    .blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}
+    .blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}
+    .blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}
+    .blog-article li{margin-bottom:.5em}
+    .blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+    .blog-article figure{margin-top:42px}
+    .article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}
+    .article-hero img{display:block;width:100%;height:auto;background:#15182a}
+    .blog-article figure img{display:block;width:100%;height:auto;object-fit:cover;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}
+    .blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
+    .blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}
+    .faq details{border-top:1px solid var(--line);padding:16px 0}
+    .faq details:last-child{border-bottom:1px solid var(--line)}
+    .faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}
+    .faq details p{margin:12px 0 0}
+    .official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}
+    .official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}
+    .official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}
+    .official-sources li{font-size:.88rem;line-height:1.6}
+    .official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    @media(max-width:767px){
+      .blog-breadcrumbs{padding-top:18px}
+      .blog-article{padding:42px 0 76px}
+      .article-header{margin-bottom:28px}
+      .article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}
+      .blog-article section{margin-top:36px}
+      .blog-article section p{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>

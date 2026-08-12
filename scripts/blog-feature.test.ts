@@ -78,6 +78,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/joy-club-peak-gala-202607.astro',
+      'src/pages/blog/blue-porcelain-prestige-chromas.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -379,5 +380,37 @@ describe('blog feature contract', () => {
     // No Chinese text mixed into the English article block
     expect(page).not.toContain('Tencent Game Joy Club</a> (&ldquo;腾讯游戏心悦俱乐部&rdquo;)');
     expect(page).not.toContain('(&ldquo;巅峰值&rdquo;)');
+  });
+
+  it('renders a complete localized blue porcelain prestige chromas article', () => {
+    const page = source('src/pages/blog/blue-porcelain-prestige-chromas.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain('data-placeholder="/placeholder.svg"');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=8872043071403757220');
+    expect(page.match(/<details>/g)).toHaveLength(8);
+    for (const heading of [
+      'Four porcelain styles, four chromas',
+      'August 13: Irelia and Lissandra',
+      'August 19: Ezreal and Lux',
+      'A collaboration with Jingdezhen',
+      '四种瓷艺，四款臻彩',
+      '8 月 13 日：艾瑞莉娅与丽桑卓先启',
+      '8 月 19 日：伊泽瑞尔与拉克丝再临',
+      '不只是皮肤，也是非遗传承',
+    ]) expect(page).toContain(heading);
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(2);
   });
 });
