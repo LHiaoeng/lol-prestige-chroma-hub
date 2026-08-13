@@ -1,6 +1,348 @@
 [
   {
+    "id" : 468,
+    "skinId" : 39072,
+    "instanceId" : "0a145d9e-33a7-430c-8eb0-49075a397148",
+    "nameZh" : "青花瓷 艾瑞莉娅 青白月之羚",
+    "nameEn" : "Porcelain Irelia (Lustrous)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#CEC8BF",
+      "#367378"
+    ],
+    "heroId" : "39",
+    "heroNameZh" : "刀锋舞者 艾瑞莉娅",
+    "heroNameEn" : "the Blade Dancer Irelia",
+    "sourceSkinId" : 39045,
+    "skinSets" : [
+      {
+        "id" : 154,
+        "nameZh" : "青花瓷",
+        "nameEn" : "Porcelain",
+        "descriptionZh" : "有这样一个世界，古老灵体和神奇生物在现代社会的边缘茁壮成的，被称为十二生肖圣物的强大瓷器是释放巨大力量的关键。它们受到守护者们的保护：不朽的守护者们负责防止生肖圣物落入坏人之手。",
+        "descriptionEn" : "In a world where ancient spirits and magical creatures thrive in the periphery of modern society, powerful porcelain artifacts called the Zodiac Relics are key to unlocking immense power. They are kept safe by the Protectors: immortal guardians tasked with keeping the Relics out of the wrong hands."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "青花瓷 艾瑞莉娅",
+    "skinNameEn" : "Porcelain Irelia",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 468,
+    "images" : {
+      "large" : "assets/chromas/0a145d9e-33a7-430c-8eb0-49075a397148/site3.jpg",
+      "small" : "assets/chromas/0a145d9e-33a7-430c-8eb0-49075a397148/site4.jpg",
+      "medium" : "assets/chromas/0a145d9e-33a7-430c-8eb0-49075a397148/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 467,
+    "skinId" : 81077,
+    "instanceId" : "8a417ddf-c554-4be7-b55d-0af619963d45",
+    "nameZh" : "青花瓷 伊泽瑞尔 素三彩之虎",
+    "nameEn" : "Porcelain Protector Ezreal (Lustrous)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#B3D89B",
+      "#337077"
+    ],
+    "heroId" : "81",
+    "heroNameZh" : "探险家 伊泽瑞尔",
+    "heroNameEn" : "the Prodigal Explorer Ezreal",
+    "sourceSkinId" : 81025,
+    "skinSets" : [
+      {
+        "id" : 154,
+        "nameZh" : "青花瓷",
+        "nameEn" : "Porcelain",
+        "descriptionZh" : "有这样一个世界，古老灵体和神奇生物在现代社会的边缘茁壮成的，被称为十二生肖圣物的强大瓷器是释放巨大力量的关键。它们受到守护者们的保护：不朽的守护者们负责防止生肖圣物落入坏人之手。",
+        "descriptionEn" : "In a world where ancient spirits and magical creatures thrive in the periphery of modern society, powerful porcelain artifacts called the Zodiac Relics are key to unlocking immense power. They are kept safe by the Protectors: immortal guardians tasked with keeping the Relics out of the wrong hands."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "青花瓷 伊泽瑞尔",
+    "skinNameEn" : "Porcelain Protector Ezreal",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 467,
+    "images" : {
+      "large" : "assets/chromas/8a417ddf-c554-4be7-b55d-0af619963d45/site3.jpg",
+      "small" : "assets/chromas/8a417ddf-c554-4be7-b55d-0af619963d45/site4.jpg",
+      "medium" : "assets/chromas/8a417ddf-c554-4be7-b55d-0af619963d45/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 466,
+    "skinId" : 127052,
+    "instanceId" : "a5bce466-8029-41b5-9b58-f17c8e69868b",
+    "nameZh" : "青花瓷 丽桑卓 釉里红之梅",
+    "nameEn" : "Porcelain Lissandra (Auspicious)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#ADCCD7",
+      "#7A2335"
+    ],
+    "heroId" : "127",
+    "heroNameZh" : "冰霜女巫 丽桑卓",
+    "heroNameEn" : "the Ice Witch Lissandra",
+    "sourceSkinId" : 127023,
+    "skinSets" : [
+      {
+        "id" : 154,
+        "nameZh" : "青花瓷",
+        "nameEn" : "Porcelain",
+        "descriptionZh" : "有这样一个世界，古老灵体和神奇生物在现代社会的边缘茁壮成的，被称为十二生肖圣物的强大瓷器是释放巨大力量的关键。它们受到守护者们的保护：不朽的守护者们负责防止生肖圣物落入坏人之手。",
+        "descriptionEn" : "In a world where ancient spirits and magical creatures thrive in the periphery of modern society, powerful porcelain artifacts called the Zodiac Relics are key to unlocking immense power. They are kept safe by the Protectors: immortal guardians tasked with keeping the Relics out of the wrong hands."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "青花瓷 丽桑卓",
+    "skinNameEn" : "Porcelain Lissandra",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 466,
+    "images" : {
+      "large" : "assets/chromas/a5bce466-8029-41b5-9b58-f17c8e69868b/site3.jpg",
+      "small" : "assets/chromas/a5bce466-8029-41b5-9b58-f17c8e69868b/site4.jpg",
+      "medium" : "assets/chromas/a5bce466-8029-41b5-9b58-f17c8e69868b/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 465,
+    "skinId" : 99081,
+    "instanceId" : "115d3b8e-dcf1-4ebe-9c2e-097bfbf314e3",
+    "nameZh" : "青花瓷 拉克丝 五彩釉跃鲤",
+    "nameEn" : "Porcelain Lux (Beacon)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#CCD0D5",
+      "#FD8E68"
+    ],
+    "heroId" : "99",
+    "heroNameZh" : "光辉女郎 拉克丝",
+    "heroNameEn" : "the Lady of Luminosity Lux",
+    "sourceSkinId" : 99029,
+    "skinSets" : [
+      {
+        "id" : 154,
+        "nameZh" : "青花瓷",
+        "nameEn" : "Porcelain",
+        "descriptionZh" : "有这样一个世界，古老灵体和神奇生物在现代社会的边缘茁壮成的，被称为十二生肖圣物的强大瓷器是释放巨大力量的关键。它们受到守护者们的保护：不朽的守护者们负责防止生肖圣物落入坏人之手。",
+        "descriptionEn" : "In a world where ancient spirits and magical creatures thrive in the periphery of modern society, powerful porcelain artifacts called the Zodiac Relics are key to unlocking immense power. They are kept safe by the Protectors: immortal guardians tasked with keeping the Relics out of the wrong hands."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "青花瓷 拉克丝",
+    "skinNameEn" : "Porcelain Lux",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 465,
+    "images" : {
+      "large" : "assets/chromas/115d3b8e-dcf1-4ebe-9c2e-097bfbf314e3/site3.jpg",
+      "small" : "assets/chromas/115d3b8e-dcf1-4ebe-9c2e-097bfbf314e3/site4.jpg",
+      "medium" : "assets/chromas/115d3b8e-dcf1-4ebe-9c2e-097bfbf314e3/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 464,
+    "skinId" : 11104,
+    "instanceId" : "525e5780-8bb9-4f3a-82ac-55cd7934b3a8",
+    "nameZh" : "天龙之子 易 赫赫龙威",
+    "nameEn" : "Heavenscale Master Yi (Lustrous)",
+    "descriptionZh" : "这个炫彩曾在天龙之子(2024)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2024 Heavenscale event.",
+    "colors" : [
+      "#DFA6DF",
+      "#E0D7D7"
+    ],
+    "heroId" : "11",
+    "heroNameZh" : "无极剑圣 易",
+    "heroNameEn" : "the Wuju Bladesman Master Yi",
+    "sourceSkinId" : 11096,
+    "skinSets" : [
+      {
+        "id" : 201,
+        "nameZh" : "天龙之子",
+        "nameEn" : "Heavenscale",
+        "descriptionZh" : "为了更好地了解自己治下的子民，龙族皇室和随从们从天宫中下凡，化作人形与凡人们共同庆祝新年。",
+        "descriptionEn" : "In order to better know their kingdom's subjects, draconic royalty and retinue descend from their palace in the sky, taking on human forms and reveling with the mortals as they usher in the New Year."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "天龙之子 易",
+    "skinNameEn" : "Heavenscale Master Yi",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 464,
+    "images" : {
+      "large" : "assets/chromas/525e5780-8bb9-4f3a-82ac-55cd7934b3a8/site3.jpg",
+      "small" : "assets/chromas/525e5780-8bb9-4f3a-82ac-55cd7934b3a8/site4.jpg",
+      "medium" : "assets/chromas/525e5780-8bb9-4f3a-82ac-55cd7934b3a8/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
+    "id" : 463,
+    "skinId" : 145067,
+    "instanceId" : "daa1490b-5a26-4bc0-8989-93a5f5b6494c",
+    "nameZh" : "天龙之子 卡莎 赫赫龙威",
+    "nameEn" : "Heavenscale Kai'Sa (Lustrous)",
+    "descriptionZh" : "这个炫彩曾在天龙之子(2024)活动期间作为战利品专属发布。",
+    "descriptionEn" : "This chroma was released as a Loot exclusive in the 2024 Heavenscale event.",
+    "colors" : [
+      "#DFA6DF",
+      "#E0D7D7"
+    ],
+    "heroId" : "145",
+    "heroNameZh" : "虚空之女 卡莎",
+    "heroNameEn" : "Daughter of the Void Kai'Sa",
+    "sourceSkinId" : 145059,
+    "skinSets" : [
+      {
+        "id" : 201,
+        "nameZh" : "天龙之子",
+        "nameEn" : "Heavenscale",
+        "descriptionZh" : "为了更好地了解自己治下的子民，龙族皇室和随从们从天宫中下凡，化作人形与凡人们共同庆祝新年。",
+        "descriptionEn" : "In order to better know their kingdom's subjects, draconic royalty and retinue descend from their palace in the sky, taking on human forms and reveling with the mortals as they usher in the New Year."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "天龙之子 卡莎",
+    "skinNameEn" : "Heavenscale Kai'Sa",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 463,
+    "images" : {
+      "large" : "assets/chromas/daa1490b-5a26-4bc0-8989-93a5f5b6494c/site3.jpg",
+      "small" : "assets/chromas/daa1490b-5a26-4bc0-8989-93a5f5b6494c/site4.jpg",
+      "medium" : "assets/chromas/daa1490b-5a26-4bc0-8989-93a5f5b6494c/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
     "id" : 462,
+    "skinId" : 1058,
+    "instanceId" : "9409e4c3-2c38-46df-870a-528ba019ed3d",
+    "nameZh" : "战斗公主 安妮 纹章之刻印·深谋",
+    "nameEn" : "Battle Princess Annie (Obsidian)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#27211C"
+    ],
+    "heroId" : "1",
+    "heroNameZh" : "黑暗之女 安妮",
+    "heroNameEn" : "the Dark Child Annie",
+    "sourceSkinId" : 1050,
+    "skinSets" : [
+      {
+        "id" : 137,
+        "nameZh" : "女帝无双",
+        "nameEn" : "Battle Queens",
+        "descriptionZh" : null,
+        "descriptionEn" : null
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 40,
+        "nameZh" : "女帝无双",
+        "nameEn" : "Battle Queens",
+        "descriptionZh" : "伊莱西亚曾经被无休止的战争给弄得支离破碎，而其中的诸多女帝之国已经认识到了她们世界的真实本质：把她们这个幻想位面结合到一起的那股魔力，只有通过冲突才能得以维持。因此，她们通过“神圣加冕礼”的统一冲突而结成了同盟，尽管有些联盟正在开始出现裂痕……",
+        "descriptionEn" : "Once fractured by endless warfare, the collective Queendoms of Elysia have realized the true nature of their world: that the magic holding their fantastical plane together is maintained only through conflict. They have thus allied through the unifying conflict of the Grand Coronation, though some alliances are beginning to show cracks..."
+      }
+    ],
+    "skinNameZh" : "战斗公主 安妮",
+    "skinNameEn" : "Battle Princess Annie",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.16",
+    "isNew" : true,
+    "rank" : 462,
+    "images" : {
+      "large" : "assets/chromas/9409e4c3-2c38-46df-870a-528ba019ed3d/site3.jpg",
+      "small" : "assets/chromas/9409e4c3-2c38-46df-870a-528ba019ed3d/site4.jpg",
+      "medium" : "assets/chromas/9409e4c3-2c38-46df-870a-528ba019ed3d/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 461,
     "skinId" : 157096,
     "instanceId" : "682a0450-c246-485d-b6d6-815a1acebfa0",
     "nameZh" : "踏雪寻梅 亚索 独步早春",
@@ -38,7 +380,7 @@
     "categoryName" : "生肖限定臻彩",
     "tagId" : "13",
     "gameVer" : "26.15",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 461,
     "images" : {
       "large" : "assets/chromas/682a0450-c246-485d-b6d6-815a1acebfa0/site3.jpg",
@@ -48,7 +390,7 @@
     }
   },
   {
-    "id" : 461,
+    "id" : 460,
     "skinId" : 876052,
     "instanceId" : "6479e006-0b5c-42ae-ad4a-3bd517a51c4f",
     "nameZh" : "踏雪寻梅 莉莉娅 独步早春",
@@ -86,7 +428,7 @@
     "categoryName" : "生肖限定臻彩",
     "tagId" : "13",
     "gameVer" : "26.15",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 460,
     "images" : {
       "large" : "assets/chromas/6479e006-0b5c-42ae-ad4a-3bd517a51c4f/site3.jpg",
@@ -96,7 +438,7 @@
     }
   },
   {
-    "id" : 460,
+    "id" : 459,
     "skinId" : 55078,
     "instanceId" : "4849cb48-4610-47a6-8aaf-03faaa48c2fd",
     "nameZh" : "踏雪寻梅 卡特琳娜 独步早春",
@@ -134,7 +476,7 @@
     "categoryName" : "生肖限定臻彩",
     "tagId" : "13",
     "gameVer" : "26.15",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 459,
     "images" : {
       "large" : "assets/chromas/4849cb48-4610-47a6-8aaf-03faaa48c2fd/site3.jpg",
@@ -144,7 +486,7 @@
     }
   },
   {
-    "id" : 459,
+    "id" : 458,
     "skinId" : 10082,
     "instanceId" : "11914b2b-f986-474e-b3f7-1e8cc41b72c9",
     "nameZh" : "灵魂莲华 凯尔 星回",
@@ -182,7 +524,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.15",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 458,
     "images" : {
       "large" : "assets/chromas/11914b2b-f986-474e-b3f7-1e8cc41b72c9/site3.jpg",
@@ -192,7 +534,7 @@
     }
   },
   {
-    "id" : 458,
+    "id" : 457,
     "skinId" : 114095,
     "instanceId" : "619946f6-b69c-4df3-9266-9588322c9802",
     "nameZh" : "女帝 菲奥娜 纹章之刻印·强运",
@@ -230,7 +572,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.15",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 457,
     "images" : {
       "large" : "assets/chromas/619946f6-b69c-4df3-9266-9588322c9802/site3.jpg",
@@ -240,7 +582,7 @@
     }
   },
   {
-    "id" : 457,
+    "id" : 456,
     "skinId" : 99032,
     "instanceId" : "3d420409-62e4-494d-bee0-7a48abe98a34",
     "nameZh" : "青花瓷 拉克丝 含苞",
@@ -278,7 +620,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.15",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 456,
     "images" : {
       "large" : "assets/chromas/3d420409-62e4-494d-bee0-7a48abe98a34/site3.jpg",
@@ -288,7 +630,7 @@
     }
   },
   {
-    "id" : 456,
+    "id" : 455,
     "skinId" : 876023,
     "instanceId" : "7c9c05ca-5288-48f0-9f79-e6ef4d28e86b",
     "nameZh" : "山海绘卷 莉莉娅 湘妃",
