@@ -35,6 +35,19 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'patch-26-16-prestige-chromas',
+    href: '/blog/patch-26-16-prestige-chromas/',
+    titleEn: 'LoL Patch 26.16: 7 New Prestige Chromas',
+    titleZh: '《英雄联盟》26.16 版本：7 款新增臻彩原画',
+    summaryEn: 'Patch 26.16 adds 7 prestige chromas: four Diamond Porcelain upgrades for Irelia, Ezreal, Lissandra, and Lux, plus Heavenscale Master Yi and Kai\u2019Sa, and Battle Princess Annie.',
+    summaryZh: '26.16 版本新增 7 款臻彩：艾瑞莉娅、伊泽瑞尔、丽桑卓和拉克丝的青花瓷钻石臻彩，天龙之子易和卡莎，以及战斗公主安妮。',
+    publishedAt: '2026-08-14',
+    readingMinutes: 5,
+    coverUrl: 'https://img.chromaart.lol/chromas/0a145d9e-33a7-430c-8eb0-49075a397148/site3.jpg',
+    coverAltEn: 'Porcelain Irelia (Lustrous) Diamond prestige chroma splash art',
+    coverAltZh: '青花瓷 艾瑞莉娅 青白月之羚钻石臻彩原画',
+  },
+  {
     slug: 'blue-porcelain-prestige-chromas',
     href: '/blog/blue-porcelain-prestige-chromas/',
     titleEn: 'Porcelain Prestige Chromas — Irelia, Lissandra, Ezreal, Lux',

@@ -79,6 +79,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
+      'src/pages/blog/patch-26-16-prestige-chromas.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -412,5 +413,41 @@ describe('blog feature contract', () => {
     ]) expect(page).toContain(heading);
     expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
+  });
+
+  it('renders a complete localized patch 26.16 prestige chromas article', () => {
+    const page = source('src/pages/blog/patch-26-16-prestige-chromas.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
+    expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
+    expect(page).toContain('chroma-grid');
+    expect(page).toContain('imageUrl(chroma.images.medium)');
+    expect(page).toContain('sourceImageUrl');
+    expect(page).toContain('ChromaColorCircle');
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(1);
+    expect(page.match(/<details>/g)).toHaveLength(1);
+    expect(page).toContain('faqEntries.map');
+    for (const heading of [
+      'Seven chromas across three skinlines',
+      'Four Diamond Porcelain chromas in one patch',
+      'Heavenscale and Battle Princess round out the patch',
+      'Patch 26.16 prestige chroma gallery',
+      '七款，分成三个系列',
+      '青花瓷四款钻石臻彩，一次到位',
+      '天龙之子和战斗公主各添新成员',
+      '26.16 臻彩原画一览',
+    ]) expect(page).toContain(heading);
+    expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.16')");
   });
 });

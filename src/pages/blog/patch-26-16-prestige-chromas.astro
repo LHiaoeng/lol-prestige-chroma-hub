@@ -1,0 +1,140 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'patch-26-16-prestige-chromas');
+if (!article) throw new Error('Patch 26.16 prestige chroma article metadata is missing');
+const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.16');
+if (patchChromas.length === 0) throw new Error('No prestige chromas found for Patch 26.16');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const faqEntries = isZh ? [
+  { question: '26.16 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：青花瓷钻石臻彩 4 款（青花瓷 艾瑞莉娅 青白月之羚、青花瓷 伊泽瑞尔 素三彩之虎、青花瓷 丽桑卓 釉里红之梅、青花瓷 拉克丝 五彩釉跃鲤），天龙之子臻彩 2 款（易、卡莎），战斗公主安妮钻石臻彩 1 款。` },
+  { question: '这次青花瓷臻彩有什么不同？', answer: `这次四款钻石臻彩都与景德镇瓷艺联动，分别对应青白瓷、三彩、釉里红和五彩釉四种传统工艺，各自拥有独立原画和全新配色。详见我们的<a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">青花瓷臻彩专题</a>。` },
+  { question: '这些是至臻皮肤吗？', answer: '不是。它们是拥有独立原画的臻彩，依附于现有皮肤，并非传统的至臻皮肤。' },
+] : [
+  { question: 'Which prestige chromas are in LoL Patch 26.16?', answer: `${patchChromas.length} in total: four Diamond Porcelain chromas for Porcelain Irelia, Porcelain Protector Ezreal, Porcelain Lissandra, and Porcelain Lux; two Heavenscale chromas for Master Yi and Kai\u2019Sa; and one Diamond Battle Princess Annie.` },
+  { question: 'What\u2019s different about these Porcelain chromas?', answer: `The four Diamond chromas are tied to a Jingdezhen porcelain collaboration: each maps to a different traditional technique &mdash; Qingbai glaze, Sancai pottery, underglaze red, and Wucai enamel. They each have their own splash art and colour palette. See our <a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">Porcelain prestige chroma feature</a> for the full cultural background.` },
+  { question: 'Are these traditional Prestige skins?', answer: 'No. These are chromas of existing skins with dedicated splash art, not traditional Prestige skins.' },
+];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(patchChromas[0].images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '英雄联盟26.16, 臻彩, 臻彩原画, 青花瓷, 艾瑞莉娅, 伊泽瑞尔, 丽桑卓, 拉克丝, 天龙之子, 易, 卡莎, 战斗公主, 安妮' : 'LoL Patch 26.16, prestige chromas, chroma splash art, Porcelain, Irelia, Ezreal, Lissandra, Lux, Heavenscale, Master Yi, Kai\'Sa, Battle Princess, Annie',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: isZh ? '26.16 版本臻彩原画列表' : 'LoL Patch 26.16 Prestige Chroma List',
+    numberOfItems: patchChromas.length,
+    itemListElement: patchChromas.map((chroma, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: {
+        '@type': 'CreativeWork', name: isZh ? chroma.nameZh : chroma.nameEn,
+        url: new URL(localizedPath(locale, `/chromas/${chroma.slug}/`), SITE.origin).toString(),
+        image: imageUrl(chroma.images.large),
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '26.16 版本臻彩' : 'Patch 26.16 Prestige Chromas'}</span>
+  </nav>
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '26.16 版本 · 臻彩原画' : 'PATCH 26.16 · PRESTIGE CHROMA ART'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? `26.16 这一批一共 ${patchChromas.length} 款：青花瓷系列一次新增 4 款钻石臻彩，天龙之子加入 2 款，战斗公主安妮再添 1 款。` : `Patch 26.16 brings ${patchChromas.length} additions: four Diamond Porcelain chromas, two Heavenscale chromas, and one Battle Princess Annie.`}</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={localizedPath(locale, `/chromas/${patchChromas[0].slug}/`)} aria-label={isZh ? `查看 ${patchChromas[0].nameZh} 详情` : `View ${patchChromas[0].nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(patchChromas[0].images.medium)} data-fallback={sourceImageUrl('medium', patchChromas[0].instanceId)} />
+          <img src={imageUrl(patchChromas[0].images.large)} data-fallback={sourceImageUrl('large', patchChromas[0].instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${patchChromas[0].nameZh}臻彩原画` : `${patchChromas[0].nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? patchChromas[0].nameZh : patchChromas[0].nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '七款，分成三个系列' : 'Seven chromas across three skinlines'}</h2>
+      {isZh ? <><p>26.16 的名单分三组。青花瓷一次新增青花瓷 艾瑞莉娅 青白月之羚、青花瓷 伊泽瑞尔 素三彩之虎、青花瓷 丽桑卓 釉里红之梅和青花瓷 拉克丝 五彩釉跃鲤四款钻石臻彩；天龙之子给易和卡莎各加了一款臻彩；战斗公主安妮则拿到一款单色钻石臻彩。五款钻石臻彩、两款臻彩，正好组成这次更新。</p><p>这里的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>指带有独立原画的炫彩，依附于原皮肤，不是通常所说的至臻皮肤；和只改变模型配色的<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>普通炫彩</a>也不完全一样。下方每张图都可以点进详情页，查看原皮肤、所属系列、版本和配色。</p></> : <><p>The patch splits into three groups. Porcelain adds four Diamond chromas &mdash; Porcelain Irelia, Porcelain Protector Ezreal, Porcelain Lissandra, and Porcelain Lux. Heavenscale contributes two chromas for Master Yi and Kai&rsquo;Sa. Battle Princess Annie rounds out the list with a single monochrome Diamond entry. That gives five Diamond Prestige Chromas and two more.</p><p>On this site, <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>&ldquo;Prestige Chroma&rdquo;</a> is the English label for 臻彩: a chroma of an existing skin with its own splash art. It is not the same thing as a traditional Prestige Skin, and it goes beyond a <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>regular chroma</a> that only changes the model&rsquo;s colours. Every image below links to a detail page with the base skin, skinline, patch, category, and colour data.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '青花瓷四款钻石臻彩，一次到位' : 'Four Diamond Porcelain chromas in one patch'}</h2>
+      {isZh ? <><p>青花瓷是这次数量最多的系列。拉克丝在 26.15 已有一款臻彩「含苞」，这次四款钻石臻彩各自拥有独立原画和全新配色，互不相同。</p><p>四款钻石臻彩各自对应一种景德镇瓷艺风格：青花瓷 艾瑞莉娅 青白月之羚取青白瓷的温润，青花瓷 伊泽瑞尔 素三彩之虎走唐代三彩路线，青花瓷 丽桑卓 釉里红之梅用铜红釉下彩，青花瓷 拉克丝 五彩釉跃鲤则是最鲜艳的五彩釉上彩。四款放在一起看，比单独翻目录更容易看出它们是一套。完整的青花瓷臻彩文化背景可以看我们的<a href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}>青花瓷臻彩专题</a>。</p></> : <><p>Porcelain is the headline act. Porcelain Lux already had a chroma in Patch 26.15 (see our <a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">Porcelain prestige chroma feature</a>). The four 26.16 Diamond chromas &mdash; Porcelain Irelia, Porcelain Protector Ezreal, Porcelain Lissandra, and Porcelain Lux &mdash; are all distinct entries, each with its own splash art and colour palette.</p><p>Each Diamond chroma maps to a different Jingdezhen porcelain technique. Porcelain Irelia&rsquo;s &ldquo;Lustrous&rdquo; draws on Qingbai (blue-white) glaze, Porcelain Protector Ezreal&rsquo;s &ldquo;Lustrous&rdquo; on Sancai (three-colour) pottery, Porcelain Lissandra&rsquo;s &ldquo;Auspicious&rdquo; on underglaze red, and Porcelain Lux&rsquo;s &ldquo;Beacon&rdquo; on Wucai (five-colour) overglaze enamel. The full cultural background behind the Porcelain skinline and its Jingdezhen collaboration is covered in our <a href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}>Porcelain prestige chroma feature</a>.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '天龙之子和战斗公主各添新成员' : 'Heavenscale and Battle Princess round out the patch'}</h2>
+      {isZh ? <><p><strong>天龙之子 易 赫赫龙威</strong>和<strong>天龙之子 卡莎 赫赫龙威</strong>使用同一组淡紫配米白的配色，分类是臻彩。天龙之子系列围绕东方龙的主题展开，两款新臻彩延续了这套世界观。</p><p><strong>战斗公主 安妮 纹章之刻印·深谋</strong>使用单色深黑配色，目录分类是钻石臻彩。战斗公主系列以军装风格和竞技荣耀为主题，安妮这款深色系原画和前面两款天龙之子的浅色调形成鲜明对比。</p></> : <><p><strong>Heavenscale Master Yi (Lustrous)</strong> and <strong>Heavenscale Kai&rsquo;Sa (Lustrous)</strong> share the same soft purple-and-cream colourway and are both listed as Prestige Chromas. The Heavenscale skinline draws on Eastern dragon mythology, and these two additions stay close to that setting.</p><p><strong>Battle Princess Annie (Obsidian)</strong> is the only single-colour entry in the batch and is listed as a Diamond Prestige Chroma. Battle Princess is built around military pageantry and competitive glory, so Annie&rsquo;s dark monochrome artwork sits in sharp contrast to the pastel Heavenscale pair.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '26.16 臻彩原画一览' : 'Patch 26.16 prestige chroma gallery'}</h2>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这 7 款新增也影响了' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. These 7 additions also shifted the '}<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>{isZh ? '臻彩数量排行榜' : 'prestige chroma leaderboard'}</a>{isZh ? '。' : '.'}</p>
+      <ul class="chroma-grid chroma-grid-wide">
+        {patchChromas.map((chroma) => <li>
+          <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={isZh ? `查看 ${chroma.nameZh} 详情` : `View ${chroma.nameEn} details`}>
+            <div class="chroma-card-img-wrap">
+              <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? chroma.nameZh : chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" />
+              <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
+            </div>
+            <span class="chroma-card-name">{isZh ? chroma.nameZh : chroma.nameEn}</span>
+          </a>
+        </li>)}
+      </ul>
+    </section>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.article-hero img{height:auto}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>
