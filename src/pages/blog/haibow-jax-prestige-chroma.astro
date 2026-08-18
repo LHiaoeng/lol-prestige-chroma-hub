@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'haibow-jax-prestige-chroma');
+if (!article) throw new Error('Haibow Jax prestige chroma article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const faqEntries = isZh ? [
+  { question: '海斗大赛专属臻彩怎么获得？', answer: '在首届海斗大赛中累计取得 15 场胜利，8 月 27 日起即可免费领取「源计划：孤狼 贾克斯 海斗大赛限定」臻彩及对应皮肤。' },
+  { question: '海斗大赛有哪些赛道？', answer: '全民、网吧、高校、平台、解说主持和合作共六条赛道，12 支战队将晋级 9 月初上海线下总决赛。' },
+  { question: '这款臻彩和通常的<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">臻彩</a>有什么区别？', answer: '它属于赛事奖励臻彩，通过比赛胜场免费获取，而非通过召唤活动或神话商店。获取方式更直接，但同样拥有独立原画。' },
+] : [
+  { question: 'How do I get the Challenger: Mayhem prestige chroma?', answer: 'Win 15 matches in the first Challenger: Mayhem and claim <strong>PROJECT: Jax (Turquoise)</strong> plus the base skin for free starting August 27.' },
+  { question: 'What are the tournament brackets?', answer: 'Six tracks &mdash; Open, Internet Caf&eacute;, College, Platform, Caster/Host, and Partner &mdash; feed into a 12-team offline finals in Shanghai in early September.' },
+  { question: 'How does this compare to regular <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">prestige chromas</a>?', answer: 'It is a tournament reward earned through match wins rather than a summoning event or Mythic Shop redemption. The acquisition path is more straightforward, but it still comes with its own dedicated splash art.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: article.coverUrl, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '海斗大赛, 臻彩, 源计划, 贾克斯, 赛事奖励, 英雄联盟' : 'Challenger: Mayhem, prestige chroma, PROJECT, Jax, tournament reward, League of Legends',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '海斗大赛臻彩' : 'Challenger: Mayhem Chroma'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">TOURNAMENT REWARD · PRESTIGE CHROMA</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The first Challenger: Mayhem rewards its most active fighters with a free PROJECT: Jax prestige chroma. Here is what you need to know.</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
+        <span>·</span>
+        <span>{article.readingMinutes} min read</span>
+      </p>
+    </header>
+
+    <section>
+      <h2>15 wins, one free prestige chroma</h2>
+      <p>League of Legends is running its first-ever Challenger: Mayhem &mdash; a nationwide ARAM tournament spanning open, internet caf&eacute;, college, platform, caster, and partner tracks. The reward for putting in the work: <strong>PROJECT: Jax (Turquoise)</strong>, a prestige chroma plus the base skin, available free from August 27 to anyone who accumulates 15 wins across the event.</p>
+      <p>This is not a summoning event or a Mythic Shop rotation. You earn it by playing. Fifteen wins is a low bar for anyone who queues ARAM regularly, and the chroma comes with its own dedicated splash art &mdash; the same tier of artwork treatment as <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> from paid events.</p>
+    </section>
+
+    <figure>
+      <img src="/img/blog/haibow-jax-prestige-chroma-cover.jpg" data-alt-en="PROJECT: Jax (Turquoise) prestige chroma splash art" data-alt-zh="源计划：孤狼 贾克斯 海斗大赛限定臻彩原画" alt="PROJECT: Jax (Turquoise)" width="1920" height="1080" loading="lazy" decoding="async" />
+      <figcaption>PROJECT: Jax (Turquoise)</figcaption>
+    </figure>
+
+    <section>
+      <h2>How the tournament works</h2>
+      <p>The Open Track is the widest path in. Play 10 matches per week to earn a Golden Ticket, then queue into the dedicated Haibow bracket on Saturday and Sunday (10:00&ndash;22:00). Top 500 per server advance to the Peak Stage (August 19&ndash;23), and the final TOP 30 form six teams heading to the Shanghai offline finals.</p>
+      <p>The Internet Caf&eacute; Track has already produced its first offline finals qualifier. College, Platform (Douyin, Huya, Bilibili, Douyu), Caster/Host, and Partner tracks are all in their closing stages. Twelve teams in total &mdash; six from Open, one each from College, Internet Caf&eacute;, Caster/Host, and Partner, plus two from the Platform cross-bracket &mdash; will compete in Shanghai in early September for a &yen;1.5&nbsp;million prize pool and the &ldquo;King of Haibow&rdquo; title.</p>
+    </section>
+
+    <section>
+      <h2>What else you get along the way</h2>
+      <p>Beyond the 15-win chroma, the Challenger: Mayhem passport unlocks cosmetic rewards at specific tiers: a <strong>Empowered Rune Lord icon</strong> at free passport Level 10 and a <strong>Prismatic Haibow Banner</strong> at paid passport Level 20 (both claimable since August 13).</p>
+      <p>If you are mainly here for the chroma collection, the 15-win target is the most direct free prestige chroma available right now. Compare that to the <a href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}>Brilliant Prestige Chroma Summoning</a> or the <a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>Splendid Treasure Summoning</a>, where luck and spending determine what you walk away with.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href="https://lpl.qq.com/act/a20260614hksmatch/index.html" target="_blank" rel="noreferrer">Challenger: Mayhem official site</a></li>
+        <li><a class="official-source-link" href="https://lol.qq.com/news/detail.shtml?docid=1223329969537437457" target="_blank" rel="noreferrer">Challenger: Mayhem announcement &mdash; LoL Official Site</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">赛事奖励 · 臻彩</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">首届海斗大赛给打满胜场的召唤师准备了一款免费臻彩，不用抽卡、不用花点券，纯靠打。</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
+        <span>·</span>
+        <span>阅读约 {article.readingMinutes} 分钟</span>
+      </p>
+    </header>
+
+    <section>
+      <h2>15 胜换一款免费臻彩</h2>
+      <p>英雄联盟首届海斗大赛正在进行中，这是一场覆盖全民、网吧、高校、平台等多条赛道的全国大乱斗赛事。给力的奖励是：累计 15 胜就能在 8 月 27 日起免费领取<strong>「源计划：孤狼 贾克斯 海斗大赛限定」</strong>臻彩和对应皮肤。</p>
+      <p>不是召唤活动，不是神话商店轮换，纯靠打。15 胜对经常玩大乱斗的玩家来说不算高，而且这款臻彩有独立原画，和<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>通常的臻彩</a>是同一档次的原画规格。</p>
+    </section>
+
+    <figure>
+      <img src="/img/blog/haibow-jax-prestige-chroma-cover.jpg" data-alt-en="PROJECT: Jax (Turquoise) prestige chroma splash art" data-alt-zh="源计划：孤狼 贾克斯 海斗大赛限定臻彩原画" alt="源计划：孤狼 贾克斯 海斗大赛限定" width="1920" height="1080" loading="lazy" decoding="async" />
+      <figcaption>源计划：孤狼 贾克斯 海斗大赛限定</figcaption>
+    </figure>
+
+    <section>
+      <h2>六条赛道，12 支战队进上海总决赛</h2>
+      <p>全民赛道门槛最低：每周打满 10 局拿黄金门票，周末进专属队列冲榜，各服务器前 500 名晋级 8 月 19—23 日的「海斗之巅」巅峰赛，最终 TOP 30 组成 6 支战队去上海。</p>
+      <p>网吧赛道已经率先产出第一支晋级线下总决赛的队伍。高校、平台（抖音、虎牙、B 站、斗鱼）、解说主持、合作赛道都在收尾阶段。9 月初，12 支战队将在上海线下总决赛争夺 150 万元总奖金和「海斗·天下第一」冠军头衔。</p>
+    </section>
+
+    <section>
+      <h2>宝典奖励同步开放</h2>
+      <p>除了 15 胜臻彩，海斗大赛宝典也有奖励可以领：免费宝典 10 级拿<strong>强化符文之王图标</strong>，付费宝典 20 级拿<strong>棱彩海斗旗帜</strong>，两项都已在 8 月 13 日开放领取。</p>
+      <p>如果单纯冲着收集臻彩来，15 胜免费拿是目前最直接的获取路径。对比<a href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}>璀璨臻彩召唤</a>和<a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>华彩秘宝·召唤</a>那种靠运气和消费的活动，海斗大赛的门槛更明确——打就完了。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href="https://lpl.qq.com/act/a20260614hksmatch/index.html" target="_blank" rel="noreferrer">海斗大赛官网</a></li>
+        <li><a class="official-source-link" href="https://lol.qq.com/news/detail.shtml?docid=1223329969537437457" target="_blank" rel="noreferrer">海斗大赛赛事公告 — 英雄联盟官网</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{margin-top:48px;padding:20px 24px;border:1px solid var(--line);border-radius:8px;background:#11131e}.official-sources strong{display:block;color:#e6e8ee;font-size:.95rem;margin-bottom:10px}.official-sources ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}.official-source-link{color:var(--gold);text-decoration:none;font-size:.9rem}.official-source-link:hover{text-decoration:underline}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>

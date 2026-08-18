@@ -35,6 +35,20 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'haibow-jax-prestige-chroma',
+    href: '/blog/haibow-jax-prestige-chroma/',
+    titleEn: 'Challenger: Mayhem: Free PROJECT: Jax Prestige Chroma',
+    titleZh: '海斗大赛专属臻彩：源计划 贾克斯 海斗大赛限定',
+    summaryEn: 'Win 15 matches in the first Challenger: Mayhem to earn PROJECT: Jax (Turquoise) &mdash; a free prestige chroma available from August 27.',
+    summaryZh: '首届海斗大赛累计 15 胜即可免费领取「源计划：孤狼 贾克斯 海斗大赛限定」臻彩，8 月 27 日起开放领取。',
+    publishedAt: '2026-08-18',
+    readingMinutes: 3,
+    coverUrl: '/img/blog/haibow-jax-prestige-chroma-cover.jpg',
+    coverAltEn: 'PROJECT: Jax (Turquoise) prestige chroma',
+    coverAltZh: '源计划：孤狼 贾克斯 海斗大赛限定臻彩',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=1223329969537437457',
+  },
+  {
     slug: 'patch-26-16-prestige-chromas',
     href: '/blog/patch-26-16-prestige-chromas/',
     titleEn: 'LoL Patch 26.16: 7 New Prestige Chromas',

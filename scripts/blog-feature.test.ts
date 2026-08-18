@@ -1,6 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { blogArticles } from '../src/blog/articles';
 
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
@@ -80,9 +81,20 @@ describe('blog feature contract', () => {
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
+      'src/pages/blog/haibow-jax-prestige-chroma.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
+    }
+  });
+
+  it('creates a zh-cn locale wrapper page for every blog article', () => {
+    for (const article of blogArticles) {
+      const zhPath = join('src', 'pages', 'zh-cn', 'blog', `${article.slug}.astro`);
+      expect(existsSync(zhPath)).toBe(true);
+      const wrapper = source(zhPath);
+      expect(wrapper).toContain(`import Article from '../../blog/${article.slug}.astro'`);
+      expect(wrapper).toContain('<Article locale="zh-cn" />');
     }
   });
 
@@ -449,5 +461,39 @@ describe('blog feature contract', () => {
       '26.16 臻彩原画一览',
     ]) expect(page).toContain(heading);
     expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.16')");
+  });
+
+  it('renders a complete localized Haibow Jax prestige chroma article', () => {
+    const page = source('src/pages/blog/haibow-jax-prestige-chroma.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=1223329969537437457');
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/<figure>/g)).toHaveLength(2);
+    expect(page).toContain('/img/blog/haibow-jax-prestige-chroma-cover.jpg');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    for (const heading of [
+      '15 wins, one free prestige chroma',
+      'How the tournament works',
+      'What else you get along the way',
+      '15 胜换一款免费臻彩',
+      '六条赛道，12 支战队进上海总决赛',
+      '宝典奖励同步开放',
+    ]) expect(page).toContain(heading);
   });
 });
