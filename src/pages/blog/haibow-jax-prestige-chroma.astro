@@ -21,7 +21,7 @@ const faqEntries = isZh ? [
   { question: '海斗大赛有哪些赛道？', answer: '全民、网吧、高校、平台、解说主持和合作共六条赛道，12 支战队将晋级 9 月初上海线下总决赛。' },
   { question: '这款臻彩和通常的<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">臻彩</a>有什么区别？', answer: '它属于赛事奖励臻彩，通过比赛胜场免费获取，而非通过召唤活动或神话商店。获取方式更直接，但同样拥有独立原画。' },
 ] : [
-  { question: 'How do I get the Challenger: Mayhem prestige chroma?', answer: 'Win 15 matches in the first Challenger: Mayhem and claim <strong>PROJECT: Jax (Turquoise)</strong> plus the base skin for free starting August 27.' },
+  { question: 'How do I get the Challenger: Mayhem prestige chroma?', answer: 'This is a China-server-exclusive event. Win 15 matches in the first Challenger: Mayhem and claim <strong>PROJECT: Jax (Turquoise)</strong> plus the base skin for free starting August 27.' },
   { question: 'What are the tournament brackets?', answer: 'Six tracks &mdash; Open, Internet Caf&eacute;, College, Platform, Caster/Host, and Partner &mdash; feed into a 12-team offline finals in Shanghai in early September.' },
   { question: 'How does this compare to regular <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">prestige chromas</a>?', answer: 'It is a tournament reward earned through match wins rather than a summoning event or Mythic Shop redemption. The acquisition path is more straightforward, but it still comes with its own dedicated splash art.' },
 ];
@@ -64,7 +64,7 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">TOURNAMENT REWARD · PRESTIGE CHROMA</p>
       <h1>{article.titleEn}</h1>
-      <p class="article-deck">The first Challenger: Mayhem rewards its most active fighters with a free PROJECT: Jax prestige chroma. Here is what you need to know.</p>
+      <p class="article-deck">The Chinese server&rsquo;s first Challenger: Mayhem rewards its most active ARAM fighters with a free PROJECT: Jax prestige chroma. Here is what you need to know.</p>
       <p class="article-meta">
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
@@ -74,8 +74,8 @@ const jsonLd = [
 
     <section>
       <h2>15 wins, one free prestige chroma</h2>
-      <p>League of Legends is running its first-ever Challenger: Mayhem &mdash; a nationwide ARAM tournament spanning open, internet caf&eacute;, college, platform, caster, and partner tracks. The reward for putting in the work: <strong>PROJECT: Jax (Turquoise)</strong>, a prestige chroma plus the base skin, available free from August 27 to anyone who accumulates 15 wins across the event.</p>
-      <p>This is not a summoning event or a Mythic Shop rotation. You earn it by playing. Fifteen wins is a low bar for anyone who queues ARAM regularly, and the chroma comes with its own dedicated splash art &mdash; the same tier of artwork treatment as <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> from paid events.</p>
+      <p>The Chinese server is running its first-ever Challenger: Mayhem &mdash; a nationwide ARAM tournament spanning open, internet caf&eacute;, college, platform, caster, and partner tracks. The reward for putting in the work: <strong>PROJECT: Jax (Turquoise)</strong>, a prestige chroma plus the base skin, available free from August 27 to anyone who accumulates 15 wins across the event.</p>
+      <p>This is a China-server-exclusive event &mdash; it does not apply to other regions. That said, the chroma itself is not a summoning event or a Mythic Shop rotation. You earn it by playing. Fifteen wins is a low bar for anyone who queues ARAM regularly, and the chroma comes with its own dedicated splash art &mdash; the same tier of artwork treatment as <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> from paid events.</p>
     </section>
 
     <figure>
@@ -113,7 +113,7 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">赛事奖励 · 臻彩</p>
       <h1>{article.titleZh}</h1>
-      <p class="article-deck">首届海斗大赛给打满胜场的召唤师准备了一款免费臻彩，不用抽卡、不用花点券，纯靠打。</p>
+      <p class="article-deck">国服首届海斗大赛给打满胜场的召唤师准备了一款免费臻彩，不用抽卡、不用花点券，纯靠打。注意：这是国服专属赛事，其他服务器没有。</p>
       <p class="article-meta">
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
@@ -123,7 +123,7 @@ const jsonLd = [
 
     <section>
       <h2>15 胜换一款免费臻彩</h2>
-      <p>英雄联盟首届海斗大赛正在进行中，这是一场覆盖全民、网吧、高校、平台等多条赛道的全国大乱斗赛事。给力的奖励是：累计 15 胜就能在 8 月 27 日起免费领取<strong>「源计划：孤狼 贾克斯 海斗大赛限定」</strong>臻彩和对应皮肤。</p>
+      <p>英雄联盟国服首届海斗大赛正在进行中，这是一场覆盖全民、网吧、高校、平台等多条赛道的全国大乱斗赛事。给力的奖励是：累计 15 胜就能在 8 月 27 日起免费领取<strong>「源计划：孤狼 贾克斯 海斗大赛限定」</strong>臻彩和对应皮肤。</p>
       <p>不是召唤活动，不是神话商店轮换，纯靠打。15 胜对经常玩大乱斗的玩家来说不算高，而且这款臻彩有独立原画，和<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>通常的臻彩</a>是同一档次的原画规格。</p>
     </section>
 
