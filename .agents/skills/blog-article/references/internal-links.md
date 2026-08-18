@@ -19,7 +19,7 @@
 | **prestige-chroma-summon-august-2026** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — | ❌ | ❌ | ❌ |
 | **blue-porcelain-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ✅ | ❌ |
 | **patch-26-16-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ❌ |
-| **haibow-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — |
+| **challenger-mayhem-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — |
 
 ## 入链统计
 
@@ -36,7 +36,7 @@
 | patch-26-15-prestige-chromas | 0 | ❌ 孤岛 |
 | blue-porcelain-prestige-chromas | 3 | ✅ 良好 |
 | patch-26-16-prestige-chromas | 2 | ✅ 新页面 |
-| haibow-jax-prestige-chroma | 0 | ❌ 新孤岛 |
+| challenger-mayhem-jax-prestige-chroma | 0 | ❌ 新孤岛 |
 
 ## 待补充内链
 
@@ -126,4 +126,4 @@
 - 2026-08-10: 新增 joy-club-peak-gala-202607，正文中链向 what-are-prestige-chromas，FAQ 中链向 what-are-prestige-chromas
 - 2026-08-11: 新增 blue-porcelain-prestige-chromas，正文链向 what-are-prestige-chromas 和 prestige-chroma-summon-august-2026；从 patch-26-15 和 what-are-prestige-chromas 回改内链
 - 2026-08-14: 新增 patch-26-16-prestige-chromas，正文链向 blue-porcelain、what-are-prestige-chromas、what-are-chroma-skins、champion-most；从 patch-26-15 和 blue-porcelain 回改内链
-- 2026-08-18: 新增 haibow-jax-prestige-chroma，正文链向 what-are-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026
+- 2026-08-18: 新增 challenger-mayhem-jax-prestige-chroma，正文链向 what-are-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026

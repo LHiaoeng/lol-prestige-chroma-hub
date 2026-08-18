@@ -26,12 +26,12 @@ describe('blog article metadata', () => {
   it('publishes fourteen bilingual articles with unique canonical routes', () => {
     expect(blogArticles).toHaveLength(14);
     expect(blogArticles[0]).toMatchObject({
-      slug: 'haibow-jax-prestige-chroma',
-      href: '/blog/haibow-jax-prestige-chroma/',
+      slug: 'challenger-mayhem-jax-prestige-chroma',
+      href: '/blog/challenger-mayhem-jax-prestige-chroma/',
       titleEn: 'Challenger: Mayhem: Free PROJECT: Jax Prestige Chroma',
       titleZh: '海斗大赛专属臻彩：源计划 贾克斯 海斗大赛限定',
       sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=1223329969537437457',
-      coverUrl: '/img/blog/haibow-jax-prestige-chroma-cover.jpg',
+      coverUrl: '/img/blog/challenger-mayhem-jax-prestige-chroma-cover.jpg',
     });
     expect(blogArticles[1]).toMatchObject({
       slug: 'patch-26-16-prestige-chromas',

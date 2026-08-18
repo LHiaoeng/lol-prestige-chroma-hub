@@ -8,7 +8,7 @@ import { SITE } from '../../seo/site';
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const article = blogArticles.find((entry) => entry.slug === 'haibow-jax-prestige-chroma');
+const article = blogArticles.find((entry) => entry.slug === 'challenger-mayhem-jax-prestige-chroma');
 if (!article) throw new Error('Haibow Jax prestige chroma article metadata is missing');
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
@@ -79,7 +79,7 @@ const jsonLd = [
     </section>
 
     <figure>
-      <img src="/img/blog/haibow-jax-prestige-chroma-cover.jpg" data-alt-en="PROJECT: Jax (Turquoise) prestige chroma splash art" data-alt-zh="源计划：孤狼 贾克斯 海斗大赛限定臻彩原画" alt="PROJECT: Jax (Turquoise)" width="1920" height="1080" loading="lazy" decoding="async" />
+      <img src="/img/blog/challenger-mayhem-jax-prestige-chroma-cover.jpg" data-alt-en="PROJECT: Jax (Turquoise) prestige chroma splash art" data-alt-zh="源计划：孤狼 贾克斯 海斗大赛限定臻彩原画" alt="PROJECT: Jax (Turquoise)" width="1920" height="1080" loading="lazy" decoding="async" />
       <figcaption>PROJECT: Jax (Turquoise)</figcaption>
     </figure>
 
@@ -128,7 +128,7 @@ const jsonLd = [
     </section>
 
     <figure>
-      <img src="/img/blog/haibow-jax-prestige-chroma-cover.jpg" data-alt-en="PROJECT: Jax (Turquoise) prestige chroma splash art" data-alt-zh="源计划：孤狼 贾克斯 海斗大赛限定臻彩原画" alt="源计划：孤狼 贾克斯 海斗大赛限定" width="1920" height="1080" loading="lazy" decoding="async" />
+      <img src="/img/blog/challenger-mayhem-jax-prestige-chroma-cover.jpg" data-alt-en="PROJECT: Jax (Turquoise) prestige chroma splash art" data-alt-zh="源计划：孤狼 贾克斯 海斗大赛限定臻彩原画" alt="源计划：孤狼 贾克斯 海斗大赛限定" width="1920" height="1080" loading="lazy" decoding="async" />
       <figcaption>源计划：孤狼 贾克斯 海斗大赛限定</figcaption>
     </figure>
 

@@ -81,7 +81,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
-      'src/pages/blog/haibow-jax-prestige-chroma.astro',
+      'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -464,7 +464,7 @@ describe('blog feature contract', () => {
   });
 
   it('renders a complete localized Haibow Jax prestige chroma article', () => {
-    const page = source('src/pages/blog/haibow-jax-prestige-chroma.astro');
+    const page = source('src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro');
     expect(page).toContain("'@type': 'BlogPosting'");
     expect(page).toContain("'@type': 'BreadcrumbList'");
     expect(page).toContain("'@type': 'FAQPage'");
@@ -484,7 +484,7 @@ describe('blog feature contract', () => {
     expect(page).toContain('<style is:global>');
     expect(page.match(/<details>/g)).toHaveLength(2);
     expect(page.match(/<figure>/g)).toHaveLength(2);
-    expect(page).toContain('/img/blog/haibow-jax-prestige-chroma-cover.jpg');
+    expect(page).toContain('/img/blog/challenger-mayhem-jax-prestige-chroma-cover.jpg');
     expect(page).toContain('data-alt-en=');
     expect(page).toContain('data-alt-zh=');
     for (const heading of [
