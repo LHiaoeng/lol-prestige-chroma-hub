@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ResponsiveHeroBackdrop from '../../components/ResponsiveHeroBackdrop.astro';
-import { articleHref, blogArticles, formatBlogDate } from '../../blog/articles';
+import { articleHref, blogArticles, blogCategoryLabels, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { SITE } from '../../seo/site';
@@ -14,8 +14,8 @@ const isZh = locale === 'zh-cn';
 const article = blogArticles[0];
 const backgroundChroma = catalog.find((item) => item.rank === 1);
 if (!backgroundChroma) throw new Error('The blog background requires a rank-one chroma');
-const title = isZh ? `英雄联盟博客 | ${SITE.name}` : `League of Legends Blog | ${SITE.name}`;
-const description = isZh ? '阅读关于《英雄联盟》玩法、英雄、符文之地与炫彩原画的指南和故事。' : 'Explore League of Legends guides and stories about champions, Summoner’s Rift, gameplay, art, and the world of Runeterra.';
+const title = isZh ? `臻彩资讯与指南 | ${SITE.name}` : `Prestige Chroma News & Guides | ${SITE.name}`;
+const description = isZh ? '臻彩活动资讯、版本更新追踪、数据分析与获取指南。' : 'Prestige chroma event news, patch updates, data analysis, and collection guides.';
 const canonical = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -51,12 +51,12 @@ for (const entry of blogArticles) {
       <header class="blog-heading">
         {isZh ? <div>
           <p class="kicker">LoL CHROMA ART 博客</p>
-          <h1>峡谷内外的故事</h1>
-          <p>探索《英雄联盟》的游戏玩法、英雄角色与视觉世界。</p>
+          <h1>臻彩资讯与活动追踪</h1>
+          <p>活动公告、版本更新、数据分析与臻彩获取指南。</p>
         </div> : <div>
-          <p class="kicker">LoL CHROMA ART JOURNAL</p>
-          <h1>Stories from the Rift</h1>
-          <p>Guides and stories about the game, champions, and visual world behind League of Legends.</p>
+          <p class="kicker">LoL CHROMA ART BLOG</p>
+          <h1>Prestige Chroma News & Guides</h1>
+          <p>Event announcements, patch updates, data analysis, and everything about prestige chroma collection.</p>
         </div>}
       </header>
       <section class="blog-index">
@@ -69,7 +69,7 @@ for (const entry of blogArticles) {
               <img src={entry.coverUrl} alt={isZh ? entry.coverAltZh : entry.coverAltEn} data-fallback={coverFallbacks[entry.slug] ?? '/placeholder.svg'} data-placeholder="/placeholder.svg" width={800} height={450} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
             </div>
             <div class="featured-post-copy">
-              <p class="eyebrow">{isZh ? (index === 0 ? '精选文章' : '指南') : (index === 0 ? 'FEATURED STORY' : 'GUIDE')}</p>
+              <p class="eyebrow">{isZh ? blogCategoryLabels[entry.category].zh : blogCategoryLabels[entry.category].en}</p>
               <h2>{isZh ? entry.titleZh : entry.titleEn}</h2>
               <p class="post-summary">{isZh ? entry.summaryZh : entry.summaryEn}</p>
               <p class="post-meta">

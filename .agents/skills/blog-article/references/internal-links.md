@@ -6,37 +6,39 @@
 
 行 = 来源页面，列 = 链向页面，✅ = 已有链接。
 
-| 来源 ＼ 链向 | what-is-lol | chroma-skins | prestige-chromas | kaisa | champion-most | without | patch-26-15 | top-2 | summon-aug-2026 | porcelain | patch-26-16 | haibow-jax |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **what-is-league-of-legends** | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **what-are-chroma-skins** | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **what-are-prestige-chromas** | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **kaisa-prestige-chroma** | ❌ | ✅ | ✅ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **champion-most-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | — | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **champions-without-prestige-chroma** | ❌ | ✅ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **patch-26-15-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | — | ✅ | ❌ | ✅ | ✅ | ❌ |
-| **top-2-prestige-chroma-champions** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ |
-| **prestige-chroma-summon-august-2026** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — | ❌ | ❌ | ❌ |
-| **blue-porcelain-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ✅ | ❌ |
-| **patch-26-16-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ❌ |
-| **challenger-mayhem-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — |
+| 来源 ＼ 链向 | what-is-lol | chroma-skins | prestige-chromas | kaisa | champion-most | without | patch-26-15 | top-2 | summon-aug-2026 | porcelain | patch-26-16 | haibow-jax | lucky-gate |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **what-is-league-of-legends** | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **what-are-chroma-skins** | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **what-are-prestige-chromas** | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **kaisa-prestige-chroma** | ❌ | ✅ | ✅ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **champion-most-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | — | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **champions-without-prestige-chroma** | ❌ | ✅ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **patch-26-15-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | — | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| **top-2-prestige-chroma-champions** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **prestige-chroma-summon-august-2026** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ |
+| **blue-porcelain-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ✅ | ❌ | ✅ |
+| **patch-26-16-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ❌ | ✅ |
+| **challenger-mayhem-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — | ❌ |
+| **lucky-gate-porcelain-charm-202608** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | — |
 
 ## 入链统计
 
 | 页面 | 入链数 | 状态 |
 |---|---|---|
-| what-are-prestige-chromas | 6 | ✅ 枢纽 |
+| what-are-prestige-chromas | 7 | ✅ 枢纽 |
 | what-are-chroma-skins | 3 | ✅ 良好 |
 | champions-without-prestige-chroma | 1 | ⚠️ 偏少 |
 | what-is-league-of-legends | 0 | ❌ 孤岛 |
 | kaisa-prestige-chroma | 0 | ❌ 孤岛 |
 | champion-most-prestige-chromas | 2 | ✅ 良好 |
 | top-2-prestige-chroma-champions | 0 | ❌ 孤岛 |
-| prestige-chroma-summon-august-2026 | 2 | ✅ 新页面 |
+| prestige-chroma-summon-august-2026 | 3 | ✅ 良好 |
 | patch-26-15-prestige-chromas | 0 | ❌ 孤岛 |
 | blue-porcelain-prestige-chromas | 3 | ✅ 良好 |
-| patch-26-16-prestige-chromas | 2 | ✅ 新页面 |
+| patch-26-16-prestige-chromas | 2 | ✅ 良好 |
 | challenger-mayhem-jax-prestige-chroma | 0 | ❌ 新孤岛 |
+| lucky-gate-porcelain-charm-202608 | 2 | ✅ 新页面 |
 
 ## 待补充内链
 
@@ -127,3 +129,4 @@
 - 2026-08-11: 新增 blue-porcelain-prestige-chromas，正文链向 what-are-prestige-chromas 和 prestige-chroma-summon-august-2026；从 patch-26-15 和 what-are-prestige-chromas 回改内链
 - 2026-08-14: 新增 patch-26-16-prestige-chromas，正文链向 blue-porcelain、what-are-prestige-chromas、what-are-chroma-skins、champion-most；从 patch-26-15 和 blue-porcelain 回改内链
 - 2026-08-18: 新增 challenger-mayhem-jax-prestige-chroma，正文链向 what-are-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026
+- 2026-08-20: 新增 lucky-gate-porcelain-charm-202608，正文链向 what-are-prestige-chromas、what-are-chroma-skins、blue-porcelain-prestige-chromas、patch-26-16-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026；从 blue-porcelain-prestige-chromas 和 patch-26-16-prestige-chromas 回改内链

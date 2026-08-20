@@ -51,6 +51,7 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'blue-porcelain-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'patch-26-16-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'challenger-mayhem-jax-prestige-chroma', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'lucky-gate-porcelain-charm-202608', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
     const prestigeArticle = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');

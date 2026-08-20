@@ -6,6 +6,7 @@
 - 使用 Node.js 22+、pnpm、TypeScript strict、Zod 和 Vitest；部署目标为 Cloudflare Workers Static Assets。
 - `src/domain/` 放领域模型与纯业务逻辑，`src/client/` 仅放必要的浏览器交互，`src/seo/` 放 SEO 规则。
 - `data/prestige-chromas.json` 是唯一目录数据源；完整 JSON 不得进入 `public/`。
+- 博客文章由多个文件组成（元数据 `src/blog/articles.ts`、Astro 页面 `src/pages/blog/`、中文路由 `src/pages/zh-cn/blog/`、封面图 `public/img/blog/`、测试），均为项目主要文件，默认加入版本控制。
 
 ## 执行效率
 

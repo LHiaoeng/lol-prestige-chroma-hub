@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'lucky-gate-porcelain-charm-202608');
+if (!article) throw new Error('Lucky Gate Porcelain Charm article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const sourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=17896616915886300256';
+const eventUrl = 'https://lol.qq.com/act/a202608199962prizewheel/index.html';
+
+const ezrealChroma = catalog.find((c) => c.heroId === '81' && c.skinNameEn === 'Porcelain Protector Ezreal');
+const luxChroma = catalog.find((c) => c.heroId === '99' && c.skinNameEn === 'Porcelain Lux');
+const yuumiChroma = catalog.find((c) => c.heroId === '350' && c.skinNameEn === 'Firecracker Yuumi');
+const catalogChromas: Chroma[] = [ezrealChroma, luxChroma, yuumiChroma].filter((c): c is Chroma => c != null);
+
+const faqEntries = isZh ? [
+  { question: '幸运之门·青瓷彩韵活动什么时候结束？', answer: `活动时间为 2026 年 8 月 20 日至 9 月 20 日，持续一个月。` },
+  { question: '活动中的臻彩和普通的<a href="' + localizedPath(locale, '/blog/what-are-chroma-skins/') + '">炫彩</a>有什么区别？', answer: '臻彩是更高阶的炫彩品质，拥有独立原画和专属展示效果。详见我们的<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">臻彩专题</a>。' },
+  { question: '圣天龙李青是臻彩吗？', answer: '不是。圣天龙李青是一款神话幻想品质皮肤，本身是完整的皮肤品质，和臻彩属于不同层级。' },
+] : [
+  { question: 'When does the Lucky Gate: Porcelain Charm event end?', answer: 'The event runs from August 20 to September 20, 2026 &mdash; one month total.' },
+  { question: 'How are prestige chromas different from regular <a href="' + localizedPath(locale, '/blog/what-are-chroma-skins/') + '">chroma skins</a>?', answer: 'Prestige chromas are a higher cosmetic tier with their own dedicated splash art and showcase effects. See our <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">prestige chroma guide</a> for the full breakdown.' },
+  { question: 'Is Saint Dragon Lee Sin a prestige chroma?', answer: 'No. Saint Dragon Lee Sin is a mythical fantasy quality skin &mdash; a complete skin tier on its own, separate from prestige chromas.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '青瓷彩韵召唤' : 'Porcelain Charm Summoning'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA SUMMON EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The Lucky Gate: Porcelain Charm summoning event is live from August 20 to September 20, 2026 on the Chinese server. Three prestige chromas &mdash; including two Porcelain Diamond chromas and one Dragon Flame prestige chroma &mdash; and one mythical fantasy quality skin headline the prize pool.</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
+        <span>·</span>
+        <span>{article.readingMinutes} min read</span>
+      </p>
+    </header>
+
+    <figure>
+      <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt={article.coverAltEn} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>Lucky Gate: Porcelain Charm event artwork.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Three prestige chromas and one mythical fantasy skin in the prize pool</h2>
+      <p>The event offers four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our catalog; the mythical fantasy skin is not yet tracked.</p>
+      <ul class="chroma-grid">
+        {catalogChromas.map((chroma) => (
+          <li>
+            <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>
+              <div class="chroma-card-img-wrap">
+                <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" />
+                <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
+              </div>
+              <span class="chroma-card-name">{chroma.nameEn}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p><strong>Porcelain Protector Ezreal (Lustrous)</strong> and <strong>Porcelain Lux (Beacon)</strong> are both Diamond Porcelain chromas from Patch 26.16 &mdash; the same batch that launched the <a href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}>Porcelain prestige chroma skinline</a>. This Lucky Gate event is their first appearance &mdash; they have not been available through any earlier path.</p>
+      <p>The third prestige chroma, <strong>Firecracker Yuumi (Obsidian)</strong>, is a Lunar New Year limited chroma from the Firecracker skinline. The remaining reward is not in our catalog:</p>
+      <ul>
+        <li><strong>Saint Dragon Lee Sin</strong> &mdash; a mythical fantasy quality skin (a complete skin tier, not a chroma)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Porcelain chromas carry the Jingdezhen collaboration</h2>
+      <p>The two Porcelain chromas in this event are part of a cultural collaboration with Jingdezhen, the city known as China&rsquo;s porcelain capital. Each chroma in the skinline draws from traditional ceramic techniques &mdash; sancai glazing, wucai overglaze patterns, and underglaze red &mdash; reinterpreted through League of Legends champion designs.</p>
+      <p>Ezreal&rsquo;s &ldquo;Sancai Tiger&rdquo; variant pulls from the three-color (sancai) pottery tradition, while Lux&rsquo;s &ldquo;Wucai Leaping Carp&rdquo; references the five-color overglaze technique. Both are Diamond-tier prestige chromas, the highest grade in the Porcelain line.</p>
+    </section>
+
+    <section>
+      <h2>Event runs one month &mdash; plan around other August summons</h2>
+      <p>The Lucky Gate: Porcelain Charm event runs from August 20 to September 20, 2026. It overlaps with several other active summoning events on the Chinese server, including the <a href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}>Brilliant Prestige Chroma Summoning</a> and the <a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>Splendid Treasure Summoning</a>. Each event has its own prize pool and currency, so budget your spending based on which specific chromas or skins you want.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">Lucky Gate: Porcelain Charm announcement &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Lucky Gate: Porcelain Charm event page &mdash; LoL Official Site</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩召唤活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">8 月 20 日至 9 月 20 日，幸运之门·青瓷彩韵召唤活动上线。青花瓷伊泽瑞尔、青花瓷拉克丝、龙马烈焰悠米三款臻彩及神话幻想品质皮肤圣天龙李青加入奖池。</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
+        <span>·</span>
+        <span>阅读约 {article.readingMinutes} 分钟</span>
+      </p>
+    </header>
+
+    <figure>
+      <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt={article.coverAltZh} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>幸运之门·青瓷彩韵召唤活动主视觉。</figcaption>
+    </figure>
+
+    <section>
+      <h2>三款臻彩加一款神话幻想皮肤，奖池内容一览</h2>
+      <p>本期活动提供四项主要奖励。其中三款是已收录在我们目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；神话幻想皮肤圣天龙李青暂未收录。</p>
+      <ul class="chroma-grid">
+        {catalogChromas.map((chroma) => (
+          <li>
+            <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>
+              <div class="chroma-card-img-wrap">
+                <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" />
+                <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
+              </div>
+              <span class="chroma-card-name">{chroma.nameZh}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p><strong>青花瓷 伊泽瑞尔 素三彩之虎</strong>和<strong>青花瓷 拉克丝 五彩釉跃鲤</strong>都是 26.16 版本青花瓷系列中的钻石臻彩，和<a href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}>青花瓷臻彩系列</a>同期公布。这次幸运之门活动是它们的首次获取途径。</p>
+      <p>第三款臻彩<strong>龙马烈焰 悠米 团团圆圆</strong>是春节限定的生肖臻彩，来自龙马烈焰系列。剩余一项奖励暂未收录到目录：</p>
+      <ul>
+        <li><strong>圣天龙 李青</strong> — 神话幻想品质皮肤（完整的皮肤品质，不是臻彩）</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>青花瓷臻彩背后的景德镇瓷艺</h2>
+      <p>活动中的两款青花瓷臻彩来自与景德镇的合作系列。每款青花瓷臻彩都借鉴了传统瓷艺技法——素三彩、五彩釉、釉里红——再用英雄联盟的英雄设计重新演绎。</p>
+      <p>伊泽瑞尔的「素三彩之虎」取材于三彩陶瓷工艺，拉克丝的「五彩釉跃鲤」则参考了五彩釉上彩技法。两款都是青花瓷系列中最高等级的钻石臻彩。</p>
+    </section>
+
+    <section>
+      <h2>活动持续一个月，注意和其他召唤活动错开预算</h2>
+      <p>幸运之门·青瓷彩韵活动时间为 2026 年 8 月 20 日至 9 月 20 日。目前国服同时进行的还有<a href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}>璀璨臻彩召唤</a>和<a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>华彩秘宝·召唤</a>等多个活动。每个活动的奖池和货币独立，建议根据自己想要的臻彩或皮肤来分配预算。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">幸运之门·青瓷彩韵活动公告 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">幸运之门·青瓷彩韵活动页面 — 英雄联盟官网</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{margin-top:48px;padding:20px 24px;border:1px solid var(--line);border-radius:8px;background:#11131e}.official-sources strong{display:block;color:#e6e8ee;font-size:.95rem;margin-bottom:10px}.official-sources ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}.official-source-link{color:var(--gold);text-decoration:none;font-size:.9rem}.official-source-link:hover{text-decoration:underline}
+    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+  </style>
+</BaseLayout>

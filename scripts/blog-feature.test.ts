@@ -82,6 +82,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
+      'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -494,6 +495,49 @@ describe('blog feature contract', () => {
       '15 胜换一款免费臻彩',
       '六条赛道，12 支战队进上海总决赛',
       '宝典奖励同步开放',
+    ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete localized Lucky Gate Porcelain Charm article', () => {
+    const page = source('src/pages/blog/lucky-gate-porcelain-charm-202608.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-16-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=17896616915886300256');
+    expect(page).toContain('https://lol.qq.com/act/a202608199962prizewheel/index.html');
+    expect(page).toContain('mythical fantasy quality skin');
+    expect(page).toContain('神话幻想品质皮肤');
+    expect(page).toContain('<style is:global>');
+    expect(page).toContain('chroma-grid');
+    expect(page).toContain('imageUrl(chroma.images.medium)');
+    expect(page).toContain('sourceImageUrl');
+    expect(page).toContain('ChromaColorCircle');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/<figure>/g)).toHaveLength(2);
+    expect(page).toContain('article.coverUrl');
+    for (const heading of [
+      'Three prestige chromas and one mythical fantasy skin in the prize pool',
+      'Porcelain chromas carry the Jingdezhen collaboration',
+      'Event runs one month',
+      '三款臻彩加一款神话幻想皮肤，奖池内容一览',
+      '青花瓷臻彩背后的景德镇瓷艺',
+      '活动持续一个月',
     ]) expect(page).toContain(heading);
   });
 });

@@ -22,11 +22,11 @@ const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 const faqEntries = isZh ? [
   { question: '26.16 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：青花瓷钻石臻彩 4 款（青花瓷 艾瑞莉娅 青白月之羚、青花瓷 伊泽瑞尔 素三彩之虎、青花瓷 丽桑卓 釉里红之梅、青花瓷 拉克丝 五彩釉跃鲤），天龙之子臻彩 2 款（易、卡莎），战斗公主安妮钻石臻彩 1 款。` },
-  { question: '这次青花瓷臻彩有什么不同？', answer: `这次四款钻石臻彩都与景德镇瓷艺联动，分别对应青白瓷、三彩、釉里红和五彩釉四种传统工艺，各自拥有独立原画和全新配色。详见我们的<a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">青花瓷臻彩专题</a>。` },
+  { question: '这次青花瓷臻彩有什么不同？', answer: `这次四款钻石臻彩都与景德镇瓷艺联动，分别对应青白瓷、三彩、釉里红和五彩釉四种传统工艺，各自拥有独立原画和全新配色。详见我们的<a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">青花瓷臻彩专题</a>。其中伊泽瑞尔和拉克丝两款已加入<a href="${localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}">幸运之门·青瓷彩韵召唤活动</a>。` },
   { question: '这些是至臻皮肤吗？', answer: '不是。它们是拥有独立原画的臻彩，依附于现有皮肤，并非传统的至臻皮肤。' },
 ] : [
   { question: 'Which prestige chromas are in LoL Patch 26.16?', answer: `${patchChromas.length} in total: four Diamond Porcelain chromas for Porcelain Irelia, Porcelain Protector Ezreal, Porcelain Lissandra, and Porcelain Lux; two Heavenscale chromas for Master Yi and Kai\u2019Sa; and one Diamond Battle Princess Annie.` },
-  { question: 'What\u2019s different about these Porcelain chromas?', answer: `The four Diamond chromas are tied to a Jingdezhen porcelain collaboration: each maps to a different traditional technique &mdash; Qingbai glaze, Sancai pottery, underglaze red, and Wucai enamel. They each have their own splash art and colour palette. See our <a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">Porcelain prestige chroma feature</a> for the full cultural background.` },
+  { question: 'What\u2019s different about these Porcelain chromas?', answer: `The four Diamond chromas are tied to a Jingdezhen porcelain collaboration: each maps to a different traditional technique &mdash; Qingbai glaze, Sancai pottery, underglaze red, and Wucai enamel. They each have their own splash art and colour palette. See our <a href="${localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}">Porcelain prestige chroma feature</a> for the full cultural background. Porcelain Ezreal and Porcelain Lux are also available through the <a href="${localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}">Lucky Gate: Porcelain Charm summoning event</a>.` },
   { question: 'Are these traditional Prestige skins?', answer: 'No. These are chromas of existing skins with dedicated splash art, not traditional Prestige skins.' },
 ];
 const jsonLd = [
