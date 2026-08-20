@@ -25,8 +25,8 @@
     Minimum quality to try during auto-degradation. Default: 30.
 
 .EXAMPLE
-    powershell -ExecutionPolicy Bypass -File scripts/compress-image.ps1 -Source input.png -Output output.jpg
-    powershell -ExecutionPolicy Bypass -File scripts/compress-image.ps1 -Source input.png -Output output.jpg -MaxWidth 1280 -Quality 75 -MaxSizeMB 0.5
+    powershell -ExecutionPolicy Bypass -File .agents/skills/compress-image/scripts/compress-image.ps1 -Source input.png -Output output.jpg
+    powershell -ExecutionPolicy Bypass -File .agents/skills/compress-image/scripts/compress-image.ps1 -Source input.png -Output output.jpg -MaxWidth 1280 -Quality 75 -MaxSizeMB 0.5
 #>
 
 [CmdletBinding()]

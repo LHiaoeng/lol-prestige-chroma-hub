@@ -13,11 +13,11 @@ description: 将图片压缩到 1MB 以内，输出为 JPEG 格式。支持 PNG/
 
 ## 压缩脚本
 
-项目根目录下提供可复用脚本 `scripts/compress-image.ps1`：
+本 skill 目录下提供可复用脚本 `scripts/compress-image.ps1`：
 
 ```powershell
 # 用法
-powershell -ExecutionPolicy Bypass -File scripts/compress-image.ps1 -Source <输入路径> -Output <输出路径> [-MaxWidth 1920] [-Quality 82] [-MaxSizeMB 1]
+powershell -ExecutionPolicy Bypass -File .agents/skills/compress-image/scripts/compress-image.ps1 -Source <输入路径> -Output <输出路径> [-MaxWidth 1920] [-Quality 82] [-MaxSizeMB 1]
 ```
 
 ### 参数

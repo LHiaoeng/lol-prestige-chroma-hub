@@ -1,0 +1,3 @@
+interface:
+  display_name: "英雄联盟国服官网新闻内容"
+  short_description: "获取 lol.qq.com 国服官网新闻正文与图片"

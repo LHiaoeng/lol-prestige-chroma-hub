@@ -1,0 +1,4 @@
+interface:
+  display_name: "博客文章"
+  short_description: "新增符合项目规范的中英双语博客文章"
+  default_prompt: "Use $blog-article to add a bilingual blog article following this project's SEO and testing requirements."

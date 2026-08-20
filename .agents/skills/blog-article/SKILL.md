@@ -9,6 +9,19 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 
 用户要求新增博客文章、博文、blog post，或要求为博客添加某个主题的内容。
 
+## 根据国服官网新闻新增博客
+
+当文章主题来自腾讯《英雄联盟》国服官网新闻时，必须先使用
+[`league-of-legends-cn-official-news`](../league-of-legends-cn-official-news/SKILL.md)
+获取并核验原始内容，再开始写作。
+
+1. 使用新闻 skill 的 `scripts/fetch_news.py`，支持输入完整官方详情页 URL 或独立 `docid`。如果两者同时提供，以 URL 作为来源链接，并核对 URL 中的 `docid` 与独立参数一致。
+2. 以返回的 `title`、`published_at`、`author`、`content_text`、`images` 和 `source_url` 为事实底稿；不要从详情页的空 `#article` 容器或搜索摘要推断正文。
+3. 博客应围绕玩家问题重新组织和解释新闻内容，不能直接复制官方 HTML，也不能把活动公告改写成未经标注的原创事实。涉及概率、奖励、时间和资格条件时，保留官方表述并标注来源。
+4. 将 `source_url` 写入文章元数据的 `sourceUrl`，并在中英文正文各加入官方来源链接。注明文章依据的官方发布时间；动态阅读量、点赞数不写入博客，除非用户明确要求。
+5. 新闻图片只在来源、授权和项目图片路径规则都明确时使用。需要保存到 `public/img/blog/` 的图片必须先用 `compress-image` skill 压缩到 ≤ 1MB；否则使用项目允许的外部图片地址或不放图。
+6. 新闻中的活动日期是时效信息，正文使用明确的绝对日期，并避免把“当前”“即将”等相对表述写成长期有效结论。
+
 ## 交付清单
 
 每篇新文章必须完成以下 **四层** 变更，缺一不可：
@@ -47,7 +60,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 - `slug` 全小写、连字符分隔
 - `publishedAt` 使用 ISO 日期格式
 - `coverUrl` 本地图片放 `public/img/blog/`，也可使用 `https://img.chromaart.lol/...` 外部地址
-- 保存到 `public/img/blog/` 的图片**必须压缩到 ≤ 1MB**，使用 `compress-image` skill 或 `scripts/compress-image.ps1`
+- 保存到 `public/img/blog/` 的图片**必须压缩到 ≤ 1MB**，使用 `compress-image` skill 或 `.agents/skills/compress-image/scripts/compress-image.ps1`
 - 数组按发布时间**从新到旧**排列，新文章插在最前
 
 ## 第二步：创建 Astro 页面
