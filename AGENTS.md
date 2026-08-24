@@ -44,3 +44,17 @@
 - 不编辑或提交生成目录、密钥、凭据、私有数据、本机绝对路径或远程图片。
 - 不绕过失败的测试、类型检查、数据校验或产物审计。
 - 不擅自改变 Cloudflare Worker 名称、生产分支、域名或部署流程。
+
+## Agent skills
+
+### Issue tracker
+
+Issue 与规格统一通过 GitHub Issues 跟踪。详见 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+使用五个默认的分诊标签。详见 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+本仓库采用单上下文领域文档布局。详见 `docs/agents/domain.md`。
