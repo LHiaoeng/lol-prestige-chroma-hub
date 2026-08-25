@@ -32,6 +32,39 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).toThrow(/Simplified Chinese counterpart/i);
   });
 
+  it('rejects blank HTML documents', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'blog'));
+    writeFileSync(join(root, 'blog', 'empty.html'), '');
+    expect(() => auditBuild(root)).toThrow(/blank html/i);
+  });
+
+  it('rejects a catalog detail without noindex or with advertising markup', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'chromas', 'sample'), { recursive: true });
+    writeFileSync(join(root, 'chromas', 'sample', 'index.html'), '<link rel="canonical" href="https://chromaart.lol/chromas/sample/"><aside data-ad-boundary="catalog-index"></aside>');
+    expect(() => auditBuild(root)).toThrow(/noindex|advertising/i);
+  });
+
+  it('rejects catalog details in the sitemap', () => {
+    const root = createBuild();
+    writeFileSync(join(root, 'sitemap.xml'), '<urlset><url><loc>https://chromaart.lol/chromas/sample/</loc></url></urlset>');
+    expect(() => auditBuild(root)).toThrow(/sitemap/i);
+  });
+
+  it('allows advertising on the bilingual blog index and article routes', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'blog', 'what-is-league-of-legends'), { recursive: true });
+    mkdirSync(join(root, 'zh-cn', 'blog', 'what-is-league-of-legends'), { recursive: true });
+    mkdirSync(join(root, 'zh-cn', 'blog'), { recursive: true });
+    const adMarkup = '<script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><aside data-ad-boundary="editorial-article"></aside>';
+    writeFileSync(join(root, 'blog', 'index.html'), `<link rel="canonical" href="https://chromaart.lol/blog/">${adMarkup}`);
+    writeFileSync(join(root, 'zh-cn', 'blog', 'index.html'), `<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/">${adMarkup}`);
+    writeFileSync(join(root, 'blog', 'what-is-league-of-legends', 'index.html'), `<link rel="canonical" href="https://chromaart.lol/blog/what-is-league-of-legends/">${adMarkup}`);
+    writeFileSync(join(root, 'zh-cn', 'blog', 'what-is-league-of-legends', 'index.html'), `<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/what-is-league-of-legends/">${adMarkup}`);
+    expect(() => auditBuild(root)).not.toThrow();
+  });
+
   it.each([
     'nested/prestige-chromas.json',
     '_astro/page.D4gH3x.js.map',

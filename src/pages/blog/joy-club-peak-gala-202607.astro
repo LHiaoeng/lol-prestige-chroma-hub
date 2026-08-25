@@ -66,7 +66,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={imageUrl(rewardChroma.images.large)} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale}>
+<BaseLayout {title} {description} {canonical} image={imageUrl(rewardChroma.images.large)} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a>
     <span>/</span>

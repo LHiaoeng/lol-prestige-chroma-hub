@@ -143,6 +143,10 @@ describe('blog article metadata', () => {
     }
   });
 
+  it('marks every blog article as ad eligible', () => {
+    expect(blogArticles.every((article) => article.adEligible)).toBe(true);
+  });
+
   it('derives crawlable article routes for each locale', () => {
     const article = blogArticles[0];
     expect(articleHref(article, 'en')).toBe(`/blog/${article.slug}/`);

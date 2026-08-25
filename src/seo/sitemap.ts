@@ -1,6 +1,3 @@
-import type { Chroma } from '../domain/chroma';
-import { imageUrl } from '../domain/chroma';
-import { chromaImageAlt } from './chroma-seo';
 import { SITE } from './site';
 import { blogArticles } from '../blog/articles';
 import { SITE_LOCALES, alternateUrls, localizedPath, type Locale } from '../i18n/config';
@@ -22,7 +19,7 @@ function page(pathname: string, locale: Locale, image?: { location: string; titl
   return `<url><loc>${escapeXml(location)}</loc>${lastModifiedXml}${alternateXml}${imageXml}</url>`;
 }
 
-export function renderSitemap(catalog: Chroma[]): string {
+export function renderSitemap(): string {
   const fixedPaths = ['/', '/about/', '/privacy/', '/blog/'];
   const fixed = SITE_LOCALES.flatMap((locale) => [
     ...fixedPaths.map((pathname) => page(pathname, locale)),
@@ -36,13 +33,5 @@ export function renderSitemap(catalog: Chroma[]): string {
       article.publishedAt,
     )),
   ]);
-  const details = SITE_LOCALES.flatMap((locale) => catalog.map((chroma) => page(
-    `/chromas/${chroma.slug}/`,
-    locale,
-    {
-      location: imageUrl(chroma.images.large),
-      title: chromaImageAlt(locale === 'zh-cn' ? chroma.nameZh : chroma.nameEn, locale),
-    },
-  )));
-  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">${[...fixed, ...details].join('')}</urlset>`;
+  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">${fixed.join('')}</urlset>`;
 }

@@ -42,6 +42,8 @@ describe('static site build', () => {
     expect(home).toContain('operated by Tencent');
     expect(home).toContain('"@type":"WebSite"');
     expect(home).toContain('"@type":"CollectionPage"');
+    expect(home).toContain('data-ad-boundary="catalog-index"');
+    expect(home).toContain('pagead2.googlesyndication.com');
     expect(existsSync(join(dist, 'blog', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'kaisa-prestige-chroma', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'))).toBe(true);
@@ -54,6 +56,7 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'lucky-gate-porcelain-charm-202608', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
+    const eventArticle = readFileSync(join(dist, 'blog', 'challenger-mayhem-jax-prestige-chroma', 'index.html'), 'utf8');
     const prestigeArticle = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const kaisaArticle = readFileSync(join(dist, 'blog', 'kaisa-prestige-chroma', 'index.html'), 'utf8');
     expect(kaisaArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/kaisa-prestige-chroma/">');
@@ -64,6 +67,12 @@ describe('static site build', () => {
     expect(blog).toContain('"@type":"CollectionPage"');
     expect(article).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-is-league-of-legends/">');
     expect(article).toContain('"@type":"BlogPosting"');
+    expect(article).toContain('data-ad-boundary="editorial-article"');
+    expect(article).toContain('pagead2.googlesyndication.com');
+    expect(eventArticle).toContain('data-ad-boundary="editorial-article"');
+    expect(eventArticle).toContain('pagead2.googlesyndication.com');
+    expect(blog).toContain('data-ad-boundary="editorial-article"');
+    expect(blog).toContain('pagead2.googlesyndication.com');
     expect(article).not.toContain('召唤师峡谷与水晶枢纽');
     expect(prestigeArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-are-prestige-chromas/">');
     expect(prestigeArticle).toContain('"@type":"BlogPosting"');
@@ -93,6 +102,9 @@ describe('static site build', () => {
     expect(detail).not.toContain('点击图片预览');
     expect(detail).toContain('Related Chroma Splash Arts');
     expect(detail).toContain('"representativeOfPage":true');
+    expect(detail).toContain('<meta name="robots" content="noindex, nofollow">');
+    expect(detail).not.toContain('data-ad-boundary=');
+    expect(detail).not.toContain('pagead2.googlesyndication.com');
   });
 
   it('uses factual informational SEO copy', () => {
@@ -121,6 +133,7 @@ describe('static site build', () => {
     const chineseDetail = readFileSync(join(dist, 'zh-cn', 'chromas', sample.slug, 'index.html'), 'utf8');
     const chineseBlog = readFileSync(join(dist, 'zh-cn', 'blog', 'index.html'), 'utf8');
     const chineseKaisa = readFileSync(join(dist, 'zh-cn', 'blog', 'kaisa-prestige-chroma', 'index.html'), 'utf8');
+    const chineseEditorial = readFileSync(join(dist, 'zh-cn', 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
     expect(chineseKaisa).toContain('<html lang="zh-CN"');
     expect(chineseKaisa).toContain('卡莎与臻彩');
     expect(chineseKaisa).not.toContain('data-language-content="en"');
@@ -129,9 +142,14 @@ describe('static site build', () => {
     expect(chineseHome).toContain('<html lang="zh-CN"');
     expect(chineseHome).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/">');
     expect(chineseHome).toContain('英雄联盟中国服专属');
+    expect(chineseHome).toContain('data-ad-boundary="catalog-index"');
     expect(chineseHome).not.toContain('data-language-content="en"');
     expect(chineseDetail).toContain(`<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${sample.slug}/">`);
     expect(chineseDetail).toContain(`${sample.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`);
+    expect(chineseDetail).toContain('<meta name="robots" content="noindex, nofollow">');
+    expect(chineseDetail).not.toContain('data-ad-boundary=');
+    expect(chineseEditorial).toContain('data-ad-boundary="editorial-article"');
+    expect(chineseBlog).toContain('data-ad-boundary="editorial-article"');
     expect(chineseDetail).toContain(`href="/zh-cn/chromas/`);
     expect(chineseBlog).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/">');
     expect(chineseBlog).toContain('峡谷内外的故事');
@@ -189,10 +207,11 @@ describe('static site build', () => {
 
   it('emits one image sitemap entry per canonical catalog page', () => {
     const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
-    const expectedImageCount = (catalog.length + blogArticles.length) * 2;
+    const expectedImageCount = blogArticles.length * 2;
     expect(sitemap.match(/<image:image>/g)).toHaveLength(expectedImageCount);
     expect(sitemap.match(/<image:loc>/g)).toHaveLength(expectedImageCount);
-    expect(sitemap).toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].slug}/</loc>`);
+    expect(sitemap).not.toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].slug}/</loc>`);
+    expect(sitemap).not.toContain(`<loc>https://chromaart.lol/zh-cn/chromas/${catalog[0].slug}/</loc>`);
     expect(sitemap).not.toContain(`<loc>https://chromaart.lol/chromas/${catalog[0].skinId}/</loc>`);
   });
 

@@ -62,7 +62,7 @@ const patchActions = [
   { ...actionLabels.patch, href: patchNotesUrl(chroma.gameVer) },
 ];
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale} noindex>
   <div class="detail-background" aria-hidden="true">
     <picture>
       <source media="(max-width: 767px)" srcset={mobileImage} data-fallback={sourceImageUrl('medium', chroma.instanceId)} />

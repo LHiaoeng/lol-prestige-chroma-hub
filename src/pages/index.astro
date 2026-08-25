@@ -26,7 +26,7 @@ const jsonLd = isZh ? [
   { '@context': 'https://schema.org', '@type': 'CollectionPage', name: '英雄联盟中国服专属炫彩原画图鉴', description, url: canonical, inLanguage: 'zh-CN' },
 ] : HOME_SEO.jsonLd;
 ---
-<BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
+<BaseLayout {title} {description} {canonical} {jsonLd} {locale} adPlacement="catalog-index">
   <section class="hero-section" data-backdrop-scope>
     {featuredChroma && <ResponsiveHeroBackdrop
       largeSrc={imageUrl(featuredChroma.images.large)}

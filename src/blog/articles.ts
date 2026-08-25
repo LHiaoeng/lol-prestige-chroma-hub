@@ -22,6 +22,7 @@ export interface BlogArticle {
   readonly coverAltEn: string;
   readonly coverAltZh: string;
   readonly sourceUrl?: string;
+  readonly adEligible: boolean;
   readonly category: BlogCategory;
 }
 
@@ -56,6 +57,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'Lucky Gate: Porcelain Charm summoning event artwork featuring Porcelain Ezreal',
     coverAltZh: '幸运之门·青瓷彩韵召唤活动主视觉，展示青花瓷伊泽瑞尔',
     sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=17896616915886300256',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -71,6 +73,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'PROJECT: Jax (Turquoise) prestige chroma',
     coverAltZh: '源计划：孤狼 贾克斯 海斗大赛限定臻彩',
     sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=1223329969537437457',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -85,6 +88,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: 'https://img.chromaart.lol/chromas/0a145d9e-33a7-430c-8eb0-49075a397148/site3.jpg',
     coverAltEn: 'Porcelain Irelia (Lustrous) Diamond prestige chroma splash art',
     coverAltZh: '青花瓷 艾瑞莉娅 青白月之羚钻石臻彩原画',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -100,6 +104,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'Porcelain prestige chromas showcase — four Jingdezhen-inspired chromas for Irelia, Lissandra, Ezreal, and Lux',
     coverAltZh: '青花瓷臻彩展示 — 四款景德镇瓷艺灵感臻彩',
     sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=8872043071403757220',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -115,6 +120,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'Spirit Blossom Kayle (Tanzanite) prestige chroma — Joy Club Peak Gala session 202607 reward',
     coverAltZh: '灵魂莲华 凯尔 星回臻彩 — 心悦巅峰盛典第 202607 期奖励',
     sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202608/index.html',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -130,6 +136,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'Spirit Blossom Hwei Catseye prestige chroma splash art',
     coverAltZh: '灵魂莲华 彗 雁来臻彩原画',
     sourceUrl: 'https://lol.qq.com/act/a202608074415lustertreasure/index.html',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -145,6 +152,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'Battle Academia Xayah Sapphire prestige chroma splash art',
     coverAltZh: '战斗学院 霞 天马臻彩原画',
     sourceUrl: 'https://lol.qq.com/act/a202608077548tendraws34/index.html',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -159,6 +167,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: '/img/blog/top-2-prestige-chroma-champions-cover.jpg',
     coverAltEn: 'Ashe and Lee Sin silhouettes on a second-place podium, tied for the second most prestige chromas',
     coverAltZh: '艾希与李青剪影并肩站在第二名领奖台上，以 15 款臻彩并列第二',
+    adEligible: true,
     category: 'analysis',
   },
   {
@@ -173,6 +182,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: 'https://img.chromaart.lol/chromas/682a0450-c246-485d-b6d6-815a1acebfa0/site3.jpg',
     coverAltEn: 'Petals of Spring Yasuo Emerald prestige chroma splash art',
     coverAltZh: '踏雪寻梅 亚索 独步早春臻彩原画',
+    adEligible: true,
     category: 'news',
   },
   {
@@ -187,6 +197,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: '/img/blog/champion-most-prestige-chromas-cover.jpg',
     coverAltEn: 'Anonymous champion silhouettes surrounding a glowing prestige chroma trophy',
     coverAltZh: '多位匿名英雄剪影围绕发光的臻彩奖杯',
+    adEligible: true,
     category: 'analysis',
   },
   {
@@ -201,6 +212,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: '/img/blog/kaisa-prestige-chroma-cover.png',
     coverAltEn: 'Kai\u2019Sa prestige chroma splash art concept showcase',
     coverAltZh: '\u5361\u838e\u81fb\u5f69\u539f\u753b\u6982\u5ff5\u5c55\u793a',
+    adEligible: true,
     category: 'spotlight',
   },
   {
@@ -215,6 +227,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: '/img/blog/cover-champions-without-prestige-chroma.jpg',
     coverAltEn: 'Prestige chroma splash art showcase in the League of Legends client',
     coverAltZh: '《英雄联盟》客户端中的臻彩原画展示',
+    adEligible: true,
     category: 'analysis',
   },
   {
@@ -229,6 +242,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: '/img/blog/prestige-chromas-cover.png',
     coverAltEn: 'Prestige Chroma Collection interface in the League of Legends client',
     coverAltZh: '《英雄联盟》客户端中的臻彩藏馆界面',
+    adEligible: true,
     category: 'guide',
   },
   {
@@ -243,6 +257,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverUrl: '/img/blog/chroma-history-hero-en.png',
     coverAltEn: 'Chroma Skins 1.1 banner with a lineup of League of Legends champions',
     coverAltZh: '带有英雄阵容的英文 Chroma Skins 1.1 横幅',
+    adEligible: true,
     category: 'guide',
   },
   {
@@ -258,6 +273,7 @@ export const blogArticles: readonly BlogArticle[] = [
     coverAltEn: 'The blue team Nexus and base on Summoner\u2019s Rift',
     coverAltZh: '召唤师峡谷中的蓝色方水晶枢纽与基地',
     sourceUrl: 'https://www.leagueoflegends.com/en-us/how-to-play/',
+    adEligible: true,
     category: 'guide',
   },
 ] as const;
