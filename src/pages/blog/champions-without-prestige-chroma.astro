@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
 import { fetchChampionCoverage } from '../../data/champion-coverage';
 import { championCoverageCopy, latestGameVersion } from '../../domain/champion-coverage';
@@ -14,6 +16,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'champions-without-prestige-chroma');
 if (!article) throw new Error('Champions without prestige chroma article metadata is missing');
+const maintenance = evergreenGuideMaintenance['champions-without-prestige-chroma'];
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
@@ -28,7 +31,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
-    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    dateModified: maintenance.updatedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
     author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
@@ -43,7 +46,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '还没有臻彩原画的英雄' : 'Champions without prestige chroma'}</span>
   </nav>
@@ -83,7 +86,8 @@ const jsonLd = [
       ))}
     </ul>
 
-    <section class="faq"><h2>FAQ</h2><details><summary>When will new prestige chroma splash art be released?</summary><p>Riot hasn't announced a fixed schedule, but the Chinese server may add new ones with patch updates.</p></details><details><summary>Will older prestige chromas come back?</summary><p>Some older prestige chromas rotate into the Mythic Shop periodically. There is no guarantee for every past chroma, but the pattern suggests select returns over time.</p></details><details><summary>What is the difference between prestige chromas and regular chromas?</summary><p>Prestige chromas are also chromas — but each one comes with its own beautifully illustrated splash art. See our <a href="/blog/what-are-prestige-chromas/">prestige chroma guide</a> for the full breakdown.</p></details><details><summary>How does the Prestige Chroma Collection system work?</summary><p>The in-client Collection system lets you view, organise, and showcase your prestige chromas. You can curate a personal gallery and compare progress on the server ranking. See our <a href="/blog/what-are-prestige-chromas/">detailed guide</a> for how it works.</p></details></section>
+    <section class="faq"><h2>FAQ</h2><details><summary>When will new prestige chroma splash art be released?</summary><p>Riot hasn't announced a fixed schedule, but the China Server may add new ones with patch updates.</p></details><details><summary>Will older prestige chromas come back?</summary><p>Some older prestige chromas rotate into the Mythic Shop periodically. There is no guarantee for every past chroma, but the pattern suggests select returns over time.</p></details><details><summary>What defines a prestige chroma?</summary><p>A prestige chroma is attached to an existing skin and comes with its own illustrated splash art. See our <a href="/blog/what-are-prestige-chromas/">prestige chroma guide</a> for the full breakdown.</p></details><details><summary>How does the Prestige Chroma Collection system work?</summary><p>The in-client Collection system lets you view, organise, and showcase your prestige chromas. You can curate a personal gallery and compare progress on the server ranking. See our <a href="/blog/what-are-prestige-chromas/">detailed guide</a> for how it works.</p></details></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   {isZh && <article class="blog-article">
@@ -121,7 +125,8 @@ const jsonLd = [
       ))}
     </ul>
 
-    <section class="faq"><h2>常见问题解答</h2><details><summary>臻彩原画什么时候会新增？</summary><p>官方没有公布固定时间表，国服可能会在版本更新中新增臻彩原画。</p></details><details><summary>往期的臻彩还会返场吗？</summary><p>部分往期臻彩会不定期进入神话商店轮换。并非所有历史臻彩都会返场，但已有先例表明部分臻彩会随时间回归。</p></details><details><summary>臻彩和普通炫彩有什么区别？</summary><p>臻彩也是炫彩，但每个臻彩都将拥有一张精美的原画。详见我们的<a href="/blog/what-are-prestige-chromas/">臻彩专题</a>。</p></details><details><summary>臻彩藏馆系统怎么用？</summary><p>客户端内打开臻彩藏馆即可查看、整理和展示自己的收藏，还能自定义个人主页的臻彩展示。详见我们的<a href="/blog/what-are-prestige-chromas/">详细介绍</a>。</p></details></section>
+    <section class="faq"><h2>常见问题解答</h2><details><summary>臻彩原画什么时候会新增？</summary><p>官方没有公布固定时间表，国服可能会在版本更新中新增臻彩原画。</p></details><details><summary>往期的臻彩还会返场吗？</summary><p>部分往期臻彩会不定期进入神话商店轮换。并非所有历史臻彩都会返场，但已有先例表明部分臻彩会随时间回归。</p></details><details><summary>臻彩的核心特征是什么？</summary><p>臻彩依附于已有皮肤，并拥有专属原画。详见我们的<a href="/blog/what-are-prestige-chromas/">臻彩专题</a>。</p></details><details><summary>臻彩藏馆系统怎么用？</summary><p>客户端内打开臻彩藏馆即可查看、整理和展示自己的收藏，还能自定义个人主页的臻彩展示。详见我们的<a href="/blog/what-are-prestige-chromas/">详细介绍</a>。</p></details></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   <script is:inline id="champion-coverage-config" type="application/json" set:html={clientConfig}></script>

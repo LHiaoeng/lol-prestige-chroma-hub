@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
@@ -10,6 +12,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'what-are-chroma-skins');
 if (!article) throw new Error('Chroma explainer article metadata is missing');
+const maintenance = evergreenGuideMaintenance['what-are-chroma-skins'];
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
@@ -20,7 +23,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
-    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    dateModified: maintenance.updatedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟指南' : 'League of Legends Guides',
     author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
@@ -35,7 +38,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '炫彩皮肤' : 'Chroma skins'}</span>
   </nav>
@@ -54,6 +57,7 @@ const jsonLd = [
     <section><h2>Colour schemes</h2><p>Chroma palettes are designed to be clear, lively and varied. Some chromas also add small visual touches that make each colour option more distinctive.</p></section>
     <div class="comparison" role="group" aria-label="Official chroma colour comparison"><figure><img src={`${mediaRoot}refined-before.png`} alt="Official chroma colour example before refinement" data-alt-en="Official chroma colour example before refinement" data-alt-zh="官方炫彩配色调整前示例" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="293" height="292" loading="lazy" decoding="async" /><figcaption>Before</figcaption></figure><figure><img src={`${mediaRoot}refined-after.png`} alt="Official chroma colour example after refinement" data-alt-en="Official chroma colour example after refinement" data-alt-zh="官方炫彩配色调整后示例" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="293" height="292" loading="lazy" decoding="async" /><figcaption>After</figcaption></figure></div>
     <section class="faq"><h2>FAQ</h2><details><summary>Why were chromas changed?</summary><p>Riot wanted chromas to offer more ways to personalise favourite League content. Feedback showed the first version had not fully reached that goal, so the team spent several months improving the experience.</p></details><details><summary>How were skins selected for new chromas?</summary><p>The team looked at popular skins and considered their creative potential, including colour combinations and materials. A concept moved forward when it looked strong and felt distinctive.</p></details><details><summary>How can chromas be purchased with Blue Essence?</summary><p>The Blue Essence Emporium offers selected chromas for a limited time. Prices and availability depend on the current store rotation.</p></details><details><summary>Would there be more chromas?</summary><p>Yes. The page said more skins would receive chroma versions in the future.</p></details><details><summary>Did chromas replace the creation of new skins?</summary><p>No. Riot said it would continue making both new skins and chromas.</p></details><details><summary>Were chroma bundles discounted?</summary><p>Yes. Bundles included a discount, with exact details shown in the game store.</p></details><details><summary>Where could players see all available chromas?</summary><p>Bundles appeared under the store’s bundle tab. Individual chromas could be offered through the campaign page, with availability announced officially.</p></details><details><summary>Would more chromas be made for champions’ classic appearances?</summary><p>At that time the focus had shifted to chromas for skins, which were intended to deepen the connection with a favourite cosmetic. Existing classic-appearance chromas remained available, but the page said no more were planned then.</p></details></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   {isZh && <article class="blog-article">
@@ -70,6 +74,7 @@ const jsonLd = [
     <section><h2>配色方案</h2><p>炫彩皮肤的颜色主题更加明确、生动和丰富；部分炫彩还会增加一些小设计，让不同配色更有特色。</p></section>
     <div class="comparison" role="group" aria-label="官方炫彩配色前后对比"><figure><img src={`${mediaRoot}refined-before.png`} alt="官方炫彩配色调整前示例" data-alt-en="Official chroma colour example before refinement" data-alt-zh="官方炫彩配色调整前示例" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="293" height="292" loading="lazy" decoding="async" /><figcaption>调整前</figcaption></figure><figure><img src={`${mediaRoot}refined-after.png`} alt="官方炫彩配色调整后示例" data-alt-en="Official chroma colour example after refinement" data-alt-zh="官方炫彩配色调整后示例" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="293" height="292" loading="lazy" decoding="async" /><figcaption>调整后</figcaption></figure></div>
     <section class="faq"><h2>常见问题解答</h2><details><summary>为什么要对炫彩皮肤进行改动？</summary><p>制作炫彩的初衷，是让玩家用更多方式个性化自己喜欢的内容。第一次尝试的反馈表明目标没有完全实现，因此团队用数月时间改善体验。</p></details><details><summary>如何选择新的炫彩制作目标？</summary><p>官方会优先考虑受欢迎的皮肤，同时查看颜色组合、材质等创作空间；当方案足够好看并具有鲜明特色时，才会继续探索。</p></details><details><summary>如何用蓝色精萃购买炫彩皮肤？</summary><p>蓝色精萃商店会限时开放部分炫彩，每款所需精萃和开放范围以当期商城为准。</p></details><details><summary>还会有更多炫彩皮肤吗？</summary><p>会。官方表示将来会为更多皮肤制作炫彩版本。</p></details><details><summary>制作炫彩后还会制作新皮肤吗？</summary><p>会。官方明确表示新皮肤和炫彩皮肤都会继续制作。</p></details><details><summary>购买炫彩礼包会有折扣吗？</summary><p>会。礼包会提供一定折扣，具体内容以当时游戏商城为准。</p></details><details><summary>如何查看全部可用炫彩？</summary><p>炫彩礼包可以在商店“道具包”标签下查看；单个炫彩可通过活动页面购买，具体开放情况关注官方公告。</p></details><details><summary>还会为英雄经典皮肤制作更多炫彩吗？</summary><p>当时的重点已经转向为皮肤制作炫彩，让玩家进一步个性化喜爱的皮肤。已有的英雄经典造型炫彩仍可购买，但专题表示暂时不计划继续制作。</p></details></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   <BlogAdjacentNavigation currentSlug={article.slug} {locale} />

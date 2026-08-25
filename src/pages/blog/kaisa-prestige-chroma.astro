@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
 import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
@@ -13,6 +15,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'kaisa-prestige-chroma');
 if (!article) throw new Error('Kai\'Sa prestige chroma article metadata is missing');
+const maintenance = evergreenGuideMaintenance['kaisa-prestige-chroma'];
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
@@ -33,7 +36,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
-    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    dateModified: maintenance.updatedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
     author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
@@ -48,7 +51,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '卡莎与臻彩' : 'Kai\'Sa & Prestige Chromas'}</span>
   </nav>
@@ -107,9 +110,10 @@ const jsonLd = [
       <details><summary>How many prestige chromas does Kai'Sa have?</summary><p>Kai'Sa has {kaisaChromas.length} prestige chromas across {kaisaSkinGroups.length} different skins: {kaisaSkinGroups.map((g) => g.skinNameEn).join(', ')}.</p></details>
       <details><summary>Which Kai'Sa skin has the most prestige chromas?</summary><p>Heavenscale Kai'Sa (天龙之子 卡莎) has the most with {kaisaSkinGroups.find((g) => g.skinNameEn === 'Heavenscale Kai\'Sa')?.chromas.length ?? 0} prestige chromas, spanning Diamond Prestige and Zodiac Limited categories.</p></details>
       <details><summary>What is the rarest Kai'Sa prestige chroma?</summary><p>The iG Kai'Sa (Tenfold Triumph) / 无畏猎手 卡莎 极境飞跃 is an LPL tenth anniversary commemorative, making it one of the most limited releases.</p></details>
-      <details><summary>What is the difference between prestige chromas and regular chromas?</summary><p>Prestige chromas include exclusive splash art displayed in champion select and the loading screen. Regular chromas only change the colour palette. See our <a href="/blog/what-are-prestige-chromas/">prestige chroma guide</a> for the full breakdown.</p></details>
+      <details><summary>What defines a prestige chroma?</summary><p>A prestige chroma is attached to an existing skin and includes exclusive splash art displayed in champion select and the loading screen. See our <a href="/blog/what-are-prestige-chromas/">prestige chroma guide</a> for the full breakdown.</p></details>
       <details><summary>How does the Prestige Chroma Collection system work?</summary><p>The in-client Collection system lets you view, organise, and showcase your prestige chromas. You can curate a personal gallery and compare progress on the server ranking. See our <a href="/blog/what-are-prestige-chromas/">detailed guide</a> for how it works.</p></details>
     </section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   {isZh && <article class="blog-article">
@@ -166,9 +170,10 @@ const jsonLd = [
       <details><summary>卡莎有多少款臻彩？</summary><p>卡莎目前拥有 {kaisaChromas.length} 款臻彩，涵盖 {kaisaSkinGroups.length} 款皮肤：{kaisaSkinGroups.map((g) => g.skinNameZh).join('、')}。</p></details>
       <details><summary>卡莎哪款皮肤的臻彩最多？</summary><p>天龙之子 卡莎拥有最多的 {kaisaSkinGroups.find((g) => g.skinNameEn === 'Heavenscale Kai\'Sa')?.chromas.length ?? 0} 款臻彩，涵盖钻石臻彩和生肖限定臻彩。</p></details>
       <details><summary>卡莎最稀有的臻彩是哪款？</summary><p>无畏猎手 卡莎 极境飞跃（iG Kai'Sa Tenfold Triumph）是 LPL 十周年纪念臻彩，属于最限量的版本之一。</p></details>
-      <details><summary>臻彩和普通炫彩有什么区别？</summary><p>臻彩拥有专属原画，在选英雄和载入界面中展示；普通炫彩仅改变配色。详见我们的<a href="/blog/what-are-prestige-chromas/">臻彩专题</a>。</p></details>
+      <details><summary>臻彩的核心特征是什么？</summary><p>臻彩依附于已有皮肤，并拥有在选英雄和载入界面中展示的专属原画。详见我们的<a href="/blog/what-are-prestige-chromas/">臻彩专题</a>。</p></details>
       <details><summary>臻彩藏馆系统怎么用？</summary><p>客户端内打开臻彩藏馆即可查看、整理和展示你的收藏，还能自定义个人主页的臻彩展示。详见我们的<a href="/blog/what-are-prestige-chromas/">详细介绍</a>。</p></details>
     </section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   <BlogAdjacentNavigation currentSlug={article.slug} {locale} />

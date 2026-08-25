@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
 import { latestGameVersion } from '../../domain/champion-coverage';
@@ -14,6 +16,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'champion-most-prestige-chromas');
 if (!article) throw new Error('Champion most prestige chromas article metadata is missing');
+const maintenance = evergreenGuideMaintenance['champion-most-prestige-chromas'];
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
@@ -79,7 +82,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
-    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    dateModified: maintenance.updatedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
     author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
@@ -94,7 +97,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '臻彩数量榜' : 'Prestige Chroma Leaderboard'}</span>
   </nav>
@@ -165,7 +168,7 @@ const jsonLd = [
         <p>Plenty of champions have just one, and <a href={localizedPath(locale, '/blog/champions-without-prestige-chroma/')}>quite a few still have zero</a>. Check the live tracker for the current count.</p>
       </details>
       <details>
-        <summary>Are regular chroma recolours counted here?</summary>
+        <summary>Are chromas without prestige splash art counted here?</summary>
         <p>No. Only chromas with their own prestige splash art. Standard recolour variants aren't included.</p>
       </details>
       <details>
@@ -173,6 +176,7 @@ const jsonLd = [
         <p>Some were event-limited, some rotate through the Mythic Shop. The older ones aren't always available. More detail in the <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a>.</p>
       </details>
     </section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   {isZh && <article class="blog-article">
@@ -241,14 +245,15 @@ const jsonLd = [
         <p>只有一款的英雄很多，<a href={localizedPath(locale, '/blog/champions-without-prestige-chroma/')}>连一款都没有的也不少</a>。</p>
       </details>
       <details>
-        <summary>这个统计包括普通炫彩换色吗？</summary>
-        <p>不包括。只统计有专属臻彩原画的，普通炫彩配色不算在内。</p>
+        <summary>这个统计包括没有专属臻彩原画的炫彩吗？</summary>
+        <p>不包括。这里只统计拥有专属臻彩原画的条目。</p>
       </details>
       <details>
         <summary>{leaderChromas.length} 款{leaderNameZh}臻彩现在还能获取吗？</summary>
         <p>部分是限时活动的，部分在神话商店轮换。老款不一定随时能拿到。详情看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
       </details>
     </section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   <BlogAdjacentNavigation currentSlug={article.slug} {locale} />

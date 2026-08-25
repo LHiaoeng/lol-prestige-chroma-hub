@@ -1,0 +1,72 @@
+---
+import { formatBlogDate } from '../blog/articles';
+import type { LocalizedArticleLink } from '../blog/evergreen-guides';
+import { localizedPath, type Locale } from '../i18n/config';
+
+interface Props {
+  locale: Locale;
+  updatedAt: string;
+  sources: readonly LocalizedArticleLink[];
+  related: readonly LocalizedArticleLink[];
+}
+
+const { locale, updatedAt, sources, related } = Astro.props;
+const isZh = locale === 'zh-cn';
+const hrefFor = (link: LocalizedArticleLink) => link.external ? link.href : localizedPath(locale, link.href);
+const labelFor = (link: LocalizedArticleLink) => isZh ? link.labelZh : link.labelEn;
+const correctionEmail = 'mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction';
+---
+<aside class="article-maintenance" data-article-maintenance>
+  <h2>{isZh ? '来源与文章维护' : 'Sources and article maintenance'}</h2>
+  <dl class="maintenance-meta">
+    <div data-article-author>
+      <dt>{isZh ? '作者' : 'Author'}</dt>
+      <dd><a href={localizedPath(locale, '/editorial-policy/')}>{isZh ? 'BreadJ 与 LoL Chroma Art 编辑团队' : 'BreadJ and the LoL Chroma Art editorial team'}</a></dd>
+    </div>
+    <div data-article-updated>
+      <dt>{isZh ? '最后核验' : 'Last reviewed'}</dt>
+      <dd><time datetime={updatedAt}>{formatBlogDate(updatedAt, isZh ? 'zh' : 'en')}</time></dd>
+    </div>
+  </dl>
+
+  <div class="maintenance-group">
+    <h3>{isZh ? '资料来源' : 'Sources'}</h3>
+    <ul data-article-sources>
+      {sources.map((source) => (
+        <li><a href={hrefFor(source)} target={source.external ? '_blank' : undefined} rel={source.external ? 'noreferrer' : undefined}>{labelFor(source)}</a></li>
+      ))}
+    </ul>
+  </div>
+
+  <p class="correction-note" data-article-corrections>
+    {isZh ? '发现名称、日期、服务器范围或资料链接有误？' : 'Found an incorrect name, date, server scope, or source link?'}
+    {' '}<a href={correctionEmail}>{isZh ? '提交纠错' : 'Send a correction'}</a>{isZh ? '，或查看' : ', or read the '}<a href={localizedPath(locale, '/editorial-policy/')}>{isZh ? '作者与编辑说明' : 'editorial policy'}</a>{isZh ? '了解核验流程。' : ' for our verification process.'}
+  </p>
+
+  <div class="maintenance-group">
+    <h3>{isZh ? '继续阅读' : 'Related guides'}</h3>
+    <ul data-article-related>
+      {related.map((link) => <li><a href={hrefFor(link)}>{labelFor(link)}</a></li>)}
+    </ul>
+  </div>
+</aside>
+
+<style>
+  .article-maintenance { width: 100%; margin: 56px auto 0; padding: 26px 28px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--panel) 86%, transparent); }
+  .article-maintenance h2 { margin: 0 0 20px; color: var(--gold); font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.45rem, 3vw, 1.9rem); line-height: 1.25; }
+  .article-maintenance h3 { margin: 0 0 10px; color: var(--text); font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; }
+  .maintenance-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+  .maintenance-meta div { min-width: 0; }
+  .maintenance-meta dt { margin-bottom: 4px; color: var(--muted); font-size: .76rem; letter-spacing: .05em; text-transform: uppercase; }
+  .maintenance-meta dd { margin: 0; color: var(--text); font-size: .94rem; line-height: 1.55; }
+  .maintenance-group { margin-top: 24px; }
+  .maintenance-group ul { display: grid; gap: 8px; margin: 0; padding-left: 1.2rem; }
+  .maintenance-group li { color: var(--muted); font-size: .92rem; line-height: 1.55; }
+  .article-maintenance a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .article-maintenance a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .correction-note { margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .92rem; line-height: 1.65; }
+  @media(max-width: 767px) {
+    .article-maintenance { margin-top: 42px; padding: 22px 20px; }
+    .maintenance-meta { grid-template-columns: 1fr; }
+  }
+</style>

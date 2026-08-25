@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
@@ -10,6 +12,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'what-is-league-of-legends');
 if (!article) throw new Error('League of Legends introduction article metadata is missing');
+const maintenance = evergreenGuideMaintenance['what-is-league-of-legends'];
 const title = isZh ? `${article.titleZh} | ${SITE.name}` : `${article.titleEn} A Beginner’s Guide | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
@@ -26,7 +29,7 @@ const jsonLd = [
     description,
     image: article.coverUrl,
     datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
+    dateModified: maintenance.updatedAt,
     mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en',
     articleSection: 'League of Legends Guides',
@@ -44,7 +47,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '指南' : 'Guide'}</span>
   </nav>
@@ -67,6 +70,7 @@ const jsonLd = [
     <figure><img src={laneImage} alt="A top lane champion on Summoner’s Rift" data-alt-en="A top lane champion on Summoner’s Rift" data-alt-zh="召唤师峡谷上路的一名英雄" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="lazy" decoding="async" /><figcaption>Different positions favour different responsibilities and champion styles. Image: <a href={sourceUrl} target="_blank" rel="noreferrer">Riot Games</a>.</figcaption></figure>
     <section><h2>How a match gains momentum</h2><p>Champions earn experience to level up and gold to buy items. Players gather those resources from minions, monsters, structures, and combat, then decide when to stay in lane, return to base, help a teammate, or contest an objective such as a dragon or Baron Nashor.</p><p>Kills matter, but they are usually a means to gain time and control. Strong teams convert a won fight into something lasting: a turret, an objective, deeper vision, or the final route to the Nexus. Communication and timing make individual plays add up.</p></section>
     <section><h2>A game that keeps evolving</h2><p>Riot Games regularly adjusts champions, items, systems, and seasonal goals. Beyond competition, League has grown through Runeterra’s stories, music, animation, character art, and a global esports scene. Players can enjoy it as a strategic sport, a social game with friends, or a doorway into a much larger fictional world.</p><p>If you want to learn the controls and current basics, continue with Riot Games’ official <a href={sourceUrl} target="_blank" rel="noreferrer">How to Play guide</a>.</p></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   {isZh && <article class="blog-article">
@@ -79,6 +83,7 @@ const jsonLd = [
     <figure><img src={laneImage} alt="召唤师峡谷上路的一名英雄" data-alt-en="A top lane champion on Summoner’s Rift" data-alt-zh="召唤师峡谷上路的一名英雄" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="3288" height="2100" loading="lazy" decoding="async" /><figcaption>不同位置承担不同职责，也适合不同类型的英雄。图片来源：<a href={sourceUrl} target="_blank" rel="noreferrer">Riot Games</a>。</figcaption></figure>
     <section><h2>一场对局如何积累优势</h2><p>英雄通过经验值提升等级，并使用金币购买装备。玩家可以从小兵、野怪、防御建筑与战斗中获得资源，再判断何时留在线上、回城补给、支援队友，或争夺巨龙与纳什男爵等地图目标。</p><p>击杀很重要，但它通常是争取时间与控制权的手段。成熟的团队会把一场胜利的团战转化为长期收益：防御塔、地图目标、更深入的视野，或通往水晶枢纽的最后一条道路。沟通与时机让个人操作真正汇聚成团队优势。</p></section>
     <section><h2>持续进化的游戏</h2><p>Riot Games 会持续调整英雄、装备、系统与赛季目标。在竞技之外，《英雄联盟》还通过符文之地的故事、音乐、动画、角色美术与全球电竞赛事不断扩展。玩家既可以把它当作策略竞技项目，也可以与朋友共同游玩，或把它视为进入宏大幻想世界的入口。</p><p>想了解当前版本的操作与基础规则，可以继续阅读 Riot Games 官方的<a href={sourceUrl} target="_blank" rel="noreferrer">新手玩法指南</a>。</p></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   <BlogAdjacentNavigation currentSlug={article.slug} {locale} />

@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
@@ -12,6 +14,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'what-are-prestige-chromas');
 if (!article) throw new Error('Prestige chroma article metadata is missing');
+const maintenance = evergreenGuideMaintenance['what-are-prestige-chromas'];
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
@@ -30,7 +33,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
-    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    dateModified: maintenance.updatedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟指南' : 'League of Legends Guides',
     author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
@@ -45,7 +48,7 @@ const jsonLd = [
   },
 ];
 ---
-<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '臻彩' : 'Prestige Chromas'}</span>
   </nav>
@@ -58,7 +61,7 @@ const jsonLd = [
     <section><h2>The chroma art showcase</h2><p>Each prestige chroma in this archive has its own full-colour illustration, meant to be collected as art. Here are a few picks from the collection.</p></section>
     <div class="showcase">{showcase.map((chroma) => <figure><a class="chroma-art-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={`View ${chroma.nameEn} details`}><img src={imageUrl(chroma.images.large)} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.nameEn} prestige chroma splash art`} width="1920" height="1080" loading="lazy" decoding="async" /></a><figcaption>{chroma.nameEn}</figcaption></figure>)}</div>
 
-    <section><h2>What sets them apart</h2><p>Regular chromas mainly change a skin's colour palette. Prestige chromas go further by pairing the colour treatment with exclusive splash art, giving each release a stronger identity in the collection and in supported game interfaces.</p></section>
+    <section><h2>What defines a prestige chroma</h2><p>A prestige chroma is attached to an existing skin and pairs its colour treatment with exclusive splash art, giving each release a clear identity in the collection and in supported game interfaces.</p></section>
 
     <section><h2>The collection system</h2><p>The Prestige Chroma Collection system in the League client lets players view, organise, and share their prestige chroma collection. Each prestige chroma unlocks an illustration you can display and share.</p></section>
     <section><p>Players also get a personal collection homepage where they can pick which prestige chromas to show off — basically curating their own gallery for others to browse.</p></section>
@@ -79,7 +82,8 @@ const jsonLd = [
     <aside class="official-sources" aria-label="Official collaboration sources"><strong>Official collaboration sources</strong><ul><li><a class="official-source-link" href="https://lol.qq.com/act/a2023lpl10celebration2s/index.html?pos=2" target="_blank" rel="noreferrer">LPL 10th Anniversary commemorative Prestige Chromas</a></li><li><a class="official-source-link" href="https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898" target="_blank" rel="noreferrer">Panda Lux Prestige Chroma charity project</a></li></ul></aside>
     <figure><a class="chroma-art-link" href={localizedPath(locale, `/chromas/${cultureChroma.slug}/`)} aria-label={`View ${cultureChroma.nameEn} details`}><img src={imageUrl(cultureChroma.images.large)} data-fallback={sourceImageUrl('large', cultureChroma.instanceId)} data-placeholder="/placeholder.svg" alt="Soulstealer Vayne (First Decennial) prestige chroma splash art" width="1920" height="1080" loading="lazy" decoding="async" /></a><figcaption>Soulstealer Vayne (First Decennial) — commemorative prestige chroma</figcaption></figure>
 
-    <section class="faq"><h2>FAQ</h2><details><summary>Do I need the base skin to use a prestige chroma?</summary><p>Yes. A prestige chroma requires ownership of the corresponding base skin before it can be applied.</p></details><details><summary>Can prestige chromas be purchased directly with RP?</summary><p>Prestige chromas are typically obtained through event tokens, summoning events, or Mythic Essence rather than direct RP purchase. Check the current event or Mythic Shop for available options.</p></details><details><summary>What does “China Exclusive” mean here?</summary><p>{CHINA_EXCLUSIVE_DEFINITION.en} The chroma itself may also be available in other regions; acquisition varies by region, event, and patch.</p></details><details><summary>What makes prestige chromas different from regular chromas?</summary><p>Prestige chromas include exclusive splash art displayed in champion select and the loading screen.</p></details><details><summary>Will older prestige chromas come back?</summary><p>Some older prestige chromas rotate into the Mythic Shop periodically. There is no guarantee for every past chroma, but the pattern suggests select returns over time.</p></details><details><summary>How can I track my collection progress?</summary><p>Open the Prestige Chroma Collection page in the League client to view your holdings, illustrations, and progress toward exclusive Poro icon rewards.</p></details></section>
+    <section class="faq"><h2>FAQ</h2><details><summary>Do I need the base skin to use a prestige chroma?</summary><p>Yes. A prestige chroma requires ownership of the corresponding base skin before it can be applied.</p></details><details><summary>Can prestige chromas be purchased directly with RP?</summary><p>Prestige chromas are typically obtained through event tokens, summoning events, or Mythic Essence rather than direct RP purchase. Check the current event or Mythic Shop for available options.</p></details><details><summary>What does “China Exclusive” mean here?</summary><p>{CHINA_EXCLUSIVE_DEFINITION.en} The chroma itself may also be available in other regions; acquisition varies by region, event, and patch.</p></details><details><summary>What defines a prestige chroma?</summary><p>A prestige chroma is attached to an existing skin and includes exclusive splash art displayed in champion select and the loading screen.</p></details><details><summary>Will older prestige chromas come back?</summary><p>Some older prestige chromas rotate into the Mythic Shop periodically. There is no guarantee for every past chroma, but the pattern suggests select returns over time.</p></details><details><summary>How can I track my collection progress?</summary><p>Open the Prestige Chroma Collection page in the League client to view your holdings, illustrations, and progress toward exclusive Poro icon rewards.</p></details></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   {isZh && <article class="blog-article">
@@ -90,7 +94,7 @@ const jsonLd = [
     <section><h2>臻彩原画展示</h2><p>图鉴里每款臻彩都有自己的全彩插画，值得收藏。下面挑了几张看看。</p></section>
     <div class="showcase">{showcase.map((chroma) => <figure><a class="chroma-art-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={`查看 ${chroma.nameZh} 详情`}><img src={imageUrl(chroma.images.large)} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${chroma.nameZh} 臻彩原画`} width="1920" height="1080" loading="lazy" decoding="async" /></a><figcaption>{chroma.nameZh}</figcaption></figure>)}</div>
 
-    <section><h2>与普通炫彩的区别</h2><p>普通炫彩主要改变皮肤的配色；臻彩在配色之外还拥有专属原画，在藏馆及支持的游戏界面中形成更完整的收藏展示。</p></section>
+    <section><h2>臻彩的核心特征</h2><p>臻彩依附于已有皮肤，并拥有专属原画，在藏馆及支持的游戏界面中形成完整的收藏展示。</p></section>
 
     <section><h2>臻彩藏馆系统</h2><p>臻彩藏馆系统在客户端里就能打开，用来查看、整理和分享你的臻彩收藏。每拿到一款臻彩，就解锁一张插画，可以展示和分享。</p></section>
     <section><p>每个玩家还有自己的收藏主页，可以自己选哪些臻彩展示出来——相当于搭一个自己的臻彩小展厅，给别人看。</p></section>
@@ -111,7 +115,8 @@ const jsonLd = [
     <aside class="official-sources" aria-label="官方合作来源"><strong>官方合作来源</strong><ul><li><a class="official-source-link" href="https://lol.qq.com/act/a2023lpl10celebration2s/index.html?pos=2" target="_blank" rel="noreferrer">LPL 十周年纪念臻彩</a></li><li><a class="official-source-link" href="https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898" target="_blank" rel="noreferrer">熊猫拉克丝臻彩公益项目</a></li></ul></aside>
     <figure><a class="chroma-art-link" href={localizedPath(locale, `/chromas/${cultureChroma.slug}/`)} aria-label={`查看 ${cultureChroma.nameZh} 详情`}><img src={imageUrl(cultureChroma.images.large)} data-fallback={sourceImageUrl('large', cultureChroma.instanceId)} data-placeholder="/placeholder.svg" alt="无畏竞巅峰 薇恩臻彩原画" width="1920" height="1080" loading="lazy" decoding="async" /></a><figcaption>无畏竞巅峰 薇恩 — LPL 十周年纪念臻彩</figcaption></figure>
 
-    <section class="faq"><h2>常见问题解答</h2><details><summary>使用臻彩需要先拥有原皮肤吗？</summary><p>需要。臻彩必须在拥有对应原皮肤后才能使用。</p></details><details><summary>臻彩可以直接用点券购买吗？</summary><p>臻彩通常通过活动代币、召唤活动或神话精粹获取，而非直接点券购买。请关注当前活动或神话商店的可用选项。</p></details><details><summary>这里的“中国服专属”是什么意思？</summary><p>{CHINA_EXCLUSIVE_DEFINITION.zh} 炫彩本身也可能在其他地区提供；具体获取范围会随地区、活动和版本变化。</p></details><details><summary>臻彩和普通炫彩有什么区别？</summary><p>每款臻彩都有专属原画，在选英雄和载入界面中展示；普通炫彩仅改变皮肤配色。</p></details><details><summary>往期的臻彩还会返场吗？</summary><p>部分往期臻彩会不定期进入神话商店轮换。并非所有历史臻彩都会返场，但已有先例表明部分臻彩会随时间回归。</p></details><details><summary>如何查看自己的收藏进度？</summary><p>在《英雄联盟》客户端中打开"臻彩藏馆"页面，即可查看已拥有的臻彩、插画以及专属魄罗图标的解锁进度。</p></details></section>
+    <section class="faq"><h2>常见问题解答</h2><details><summary>使用臻彩需要先拥有原皮肤吗？</summary><p>需要。臻彩必须在拥有对应原皮肤后才能使用。</p></details><details><summary>臻彩可以直接用点券购买吗？</summary><p>臻彩通常通过活动代币、召唤活动或神话精粹获取，而非直接点券购买。请关注当前活动或神话商店的可用选项。</p></details><details><summary>这里的“中国服专属”是什么意思？</summary><p>{CHINA_EXCLUSIVE_DEFINITION.zh} 炫彩本身也可能在其他地区提供；具体获取范围会随地区、活动和版本变化。</p></details><details><summary>臻彩的核心特征是什么？</summary><p>臻彩依附于已有皮肤，并拥有在选英雄和载入界面中展示的专属原画。</p></details><details><summary>往期的臻彩还会返场吗？</summary><p>部分往期臻彩会不定期进入神话商店轮换。并非所有历史臻彩都会返场，但已有先例表明部分臻彩会随时间回归。</p></details><details><summary>如何查看自己的收藏进度？</summary><p>在《英雄联盟》客户端中打开"臻彩藏馆"页面，即可查看已拥有的臻彩、插画以及专属魄罗图标的解锁进度。</p></details></section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
 
   <BlogAdjacentNavigation currentSlug={article.slug} {locale} />

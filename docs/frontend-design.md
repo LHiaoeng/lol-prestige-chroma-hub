@@ -157,6 +157,8 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 博客图片可引用公开 CDN，或将文章实际使用的素材保存到 `public/images/blog/<article>/` 以便迁移。图片声明宽高、替代文本、懒加载策略与 `/placeholder.svg` 降级。列表输出 `CollectionPage`，文章输出 `BlogPosting` 与 `BreadcrumbList`，并使用文章类型 Open Graph、绝对分享图地址、发布日期和修改日期。所有路由均进入 Sitemap，文章条目同时包含更新时间与封面图。
 
+六篇常青指南在正文末尾统一展示文章级维护信息，包括可见作者、最后核验日期、具体资料来源、纠错入口和两条相关指南内链；同一核验日期同时写入 Open Graph 与 `BlogPosting.dateModified`。这些字段由 `src/blog/evergreen-guides.ts` 集中维护，并通过发布产物测试同时核对英文与简体中文路由。
+
 `champions-without-prestige-chroma` 是渐进增强例外：Astro 构建时请求 CommunityDragon 的 `global/default` 与 `global/zh_cn` 英雄摘要，并与私有目录的唯一 `heroId` 求差集，输出可独立索引的双语正文；浏览器再请求相同数据源并刷新数字、说明、名单和头像。CommunityDragon 的相对资源路径只能通过 `src/domain/communitydragon-url.ts` 转换。页面仅嵌入已覆盖英雄 ID 和本地版本号；构建请求或校验失败会停止发布，浏览器请求失败则保留构建快照，完整目录 JSON 不进入公开产物。
 
 ## 7. 首页设计

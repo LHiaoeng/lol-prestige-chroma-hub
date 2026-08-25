@@ -161,6 +161,42 @@ describe('static site build', () => {
     expect(chineseCoverage).not.toContain('data-coverage-list="en"');
   });
 
+  it('publishes bilingual maintenance details for all six evergreen guides', () => {
+    const evergreenGuideSlugs = [
+      'what-is-league-of-legends',
+      'what-are-chroma-skins',
+      'what-are-prestige-chromas',
+      'kaisa-prestige-chroma',
+      'champion-most-prestige-chromas',
+      'champions-without-prestige-chroma',
+    ];
+
+    for (const slug of evergreenGuideSlugs) {
+      for (const localePrefix of ['', 'zh-cn']) {
+        const article = readFileSync(join(dist, localePrefix, 'blog', slug, 'index.html'), 'utf8');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-maintenance');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-author');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-updated');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-sources');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-corrections');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-related');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(localePrefix ? 'BreadJ 与 LoL Chroma Art 编辑团队' : 'BreadJ and the LoL Chroma Art editorial team');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(`href="/${localePrefix ? `${localePrefix}/` : ''}editorial-policy/"`);
+
+        const updatedAt = article.match(/data-article-updated[\s\S]*?<time datetime="([^"]+)"/)?.[1];
+        expect(updatedAt, `${localePrefix || 'en'} ${slug} review date`).toBeDefined();
+        expect(article, `${localePrefix || 'en'} ${slug} Open Graph review date`).toContain(`<meta property="article:modified_time" content="${updatedAt}">`);
+        expect(article, `${localePrefix || 'en'} ${slug} structured review date`).toContain(`"dateModified":"${updatedAt}"`);
+
+        const sources = article.match(/data-article-sources[\s\S]*?<\/ul>/)?.[0] ?? '';
+        expect(sources, `${localePrefix || 'en'} ${slug} sources`).toContain('<a ');
+        const related = article.match(/data-article-related[\s\S]*?<\/ul>/)?.[0] ?? '';
+        expect(related.match(/<a /g), `${localePrefix || 'en'} ${slug} related guides`).toHaveLength(2);
+      }
+    }
+  });
+
   it('supports legacy numeric chroma detail URLs in Simplified Chinese', () => {
     const chroma = catalog.find((item) => item.skinId === 147063);
     expect(chroma).toBeDefined();
