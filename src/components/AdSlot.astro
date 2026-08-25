@@ -1,20 +1,10 @@
 ---
 import type { AdPlacement } from '../domain/ad-policy';
-import type { Locale } from '../i18n/config';
 
 interface Props {
   placement: AdPlacement;
-  locale: Locale;
 }
 
-const { placement, locale } = Astro.props;
-const isZh = locale === 'zh-cn';
+const { placement } = Astro.props;
 ---
-<aside class="ad-boundary" data-ad-boundary={placement} aria-label={isZh ? '广告' : 'Advertisement'}>
-  <span class="ad-label">{isZh ? '广告' : 'Advertisement'}</span>
-</aside>
-<style>
-  .ad-boundary { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); min-height: 90px; margin: 0 auto 28px; padding: 12px; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); background: color-mix(in srgb, var(--panel) 72%, transparent); color: var(--muted); text-align: center; }
-  .ad-label { display: inline-block; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
-  @media (max-width: 767px) { .ad-boundary { min-height: 72px; margin-bottom: 20px; } }
-</style>
+<div class="ad-boundary" data-ad-boundary={placement}></div>
