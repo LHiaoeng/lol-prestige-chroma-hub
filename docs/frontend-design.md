@@ -23,14 +23,14 @@
 LoL Chroma Art 是面向海外用户的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 `China-Exclusive Chroma Splash Art Archive`。`China Exclusive` 仅描述中国服务器中提供的独立炫彩原画，不代表炫彩本身一定仅限中国服务器；中英文标准定义集中维护在 `src/seo/site.ts`。前端承担以下职责：
 
 - 用原画优先的暗色画廊界面展示炫彩原画目录；
-- 提供可分享、可索引的静态详情页；
+- 提供可分享、具备明确索引策略的静态详情页；
 - 支持名称、英雄、版本、分类、状态和排序筛选；
 - 支持英文与中文即时切换；
 - 在桌面端保持信息完整常显，在手机端压缩导航和次级信息；
 - 在图片源失效、无筛选结果或脚本异常时提供明确降级；
 - 保持少依赖、静态优先和可由数据持续扩展。
 
-`Chroma Splash Art` 表示为特定炫彩单独创作的原画；普通炫彩通常沿用基础皮肤原画，并不天然拥有独立原画。`Prestige Chroma` 只作为“臻彩”分类的规范英文译名，不得统称整个目录，也不得描述为传统 `Prestige Skin`。涉及地区范围时使用 `the Chinese version of League of Legends`，并将腾讯描述为该版本的运营方。
+`Chroma Splash Art` 表示为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。`Prestige Chroma` 是“臻彩”的规范英文译名，不得描述为传统 `Prestige Skin`。涉及地区范围时使用 `China Server`，首次出现时说明该服务器由腾讯运营。
 
 ## 3. 技术架构
 
@@ -90,10 +90,9 @@ browser-app.ts 读取嵌入目录
 | `/blog/champions-without-prestige-chroma/` | 博客文章 | 自动计算并实时刷新的未获得臻彩原画英雄清单 |
 | `/blog/what-are-chroma-skins/` | 博客文章 | 站点自有的炫彩皮肤科普与完整 FAQ |
 | `/404/` | 未找到状态 | 错误说明和返回目录入口 |
-| `/sitemap.xml` | 搜索引擎入口 | 页面及详情原画索引 |
+| `/sitemap.xml` | 搜索引擎入口 | 固定资料页和博客文章索引（不含图鉴详情页） |
 | `/robots.txt` | 抓取规则 | Sitemap 和抓取声明 |
 
-页面顶部统一使用 `BaseLayout.astro`。品牌链接返回首页；Header 在全端常显博客入口与语言切换，Footer 同时提供 About、博客和隐私说明入口。
 页面顶部统一使用 `BaseLayout.astro`。品牌链接返回首页；Header 在全端常显博客入口与语言切换，Footer 同时提供 About、作者与编辑说明、博客和隐私说明入口。博客文章底部也提供作者与编辑说明入口，方便核验维护主体、来源和纠错方式。
 
 ## 5. 视觉语言
@@ -155,7 +154,7 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 列表页采用单篇大图精选布局，并使用目录中 `rank = 1` 的臻彩原画作为整页氛围背景，以深色渐变保证文字与卡片对比度；桌面为图片与正文横向组合，平板压缩间距，`≤767px` 改为上下单列、加载中图并降低背景存在感。所有文章页统一使用 760px 版心，标题、正文、图片、对比图与 FAQ 和容器等宽；支持 320px 手机到宽屏桌面，不产生页面级横向滚动。中英文继续共用 URL，并由全站语言切换控制。
 
-博客图片可引用公开 CDN，或将文章实际使用的素材保存到 `public/images/blog/<article>/` 以便迁移。图片声明宽高、替代文本、懒加载策略与 `/placeholder.svg` 降级。列表输出 `CollectionPage`，文章输出 `BlogPosting` 与 `BreadcrumbList`，并使用文章类型 Open Graph、绝对分享图地址、发布日期和修改日期。所有路由均进入 Sitemap，文章条目同时包含更新时间与封面图。
+博客图片可引用公开 CDN，或将文章实际使用的素材保存到 `public/images/blog/<article>/` 以便迁移。图片声明宽高、替代文本、懒加载策略与 `/placeholder.svg` 降级。列表输出 `CollectionPage`，文章输出 `BlogPosting` 与 `BreadcrumbList`，并使用文章类型 Open Graph、绝对分享图地址、发布日期和修改日期。可索引博客文章同时包含更新时间与封面图；图鉴详情页输出 `noindex` 且不进入 Sitemap。
 
 六篇常青指南在正文末尾统一展示文章级维护信息，包括可见作者、最后核验日期、具体资料来源、纠错入口和两条相关指南内链；同一核验日期同时写入 Open Graph 与 `BlogPosting.dateModified`。这些字段由 `src/blog/evergreen-guides.ts` 集中维护，并通过发布产物测试同时核对英文与简体中文路由。
 
@@ -370,7 +369,7 @@ img.chromaart.lol 规范图片
 - `Prestige Chroma` 只用于“臻彩”分类和对应记录，不作为全站内容类型；
 - 详情页覆盖名称、英雄、原皮和原画长尾意图；
 - 数字兼容路由不进入 Sitemap；
-- Sitemap 为每个规范详情页附带大图；
+- Sitemap 为固定资料页和博客文章生成，不包含图鉴详情页；
 - JSON-LD 只描述页面真实可见内容；
 - 不暗示本站由 Riot Games 或腾讯官方运营、赞助、认可或销售皮肤；Footer 明确说明本站是独立爱好者图鉴；
 - 新增有效目录记录后，不需要手工维护页面级 SEO。

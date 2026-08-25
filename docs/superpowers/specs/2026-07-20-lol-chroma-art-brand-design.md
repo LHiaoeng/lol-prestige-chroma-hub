@@ -20,7 +20,7 @@
 
 ## 内容边界
 
-`Chroma Splash Art` 对应“炫彩原画”，指为特定炫彩单独创作的原画。普通炫彩通常沿用基础皮肤原画，并不天然拥有独立的 Chroma Splash Art。
+`Chroma Splash Art` 对应“炫彩原画”，指为特定炫彩单独创作的原画；炫彩并不天然拥有独立的 Chroma Splash Art。
 
 本站只收录拥有独立炫彩原画的特定炫彩，不应描述成完整的中国服炫彩目录，也不应暗示所有炫彩都有专属原画。
 
@@ -30,7 +30,7 @@
 
 中文定义使用：
 
-> 炫彩原画是为特定炫彩单独创作的原画。普通炫彩通常沿用基础皮肤原画，不拥有独立的炫彩原画。
+> 炫彩原画是为特定炫彩单独创作的原画；炫彩并不天然拥有独立的炫彩原画。
 
 ## 术语规则
 
@@ -171,7 +171,7 @@ View the unique splash art for {Chroma Name}, a chroma of {Base Skin} featured i
 1. 可见品牌、SEO 元数据和结构化数据统一使用 `LoL Chroma Art`。
 2. 定位语严格使用 `China-Exclusive Chroma Splash Art Archive`。
 3. 站点描述明确限定为中国版本中特定炫彩的独立原画，并说明该版本由腾讯运营。
-4. 页面不暗示普通炫彩均有独立原画。
+4. 页面不暗示所有炫彩均有独立原画。
 5. `Prestige Chroma` 只用于“臻彩”分类，不作为整个站点的内容统称。
 6. 页面明确区分 `Prestige Chroma` 与 `Prestige Skin`。
 7. 页面不暗示本站与 Riot Games 或腾讯存在官方关系。

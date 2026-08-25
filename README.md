@@ -2,7 +2,7 @@
 
 面向海外用户、以英文为默认语言的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 **China-Exclusive Chroma Splash Art Archive**。这里的“中国服专属”限定的是中国服务器中提供的独立炫彩原画，不表示炫彩本身一定仅限中国服务器。英文使用现有无前缀 URL，简体中文使用 `/zh-cn/` 独立静态 URL。Astro 在构建时读取 `data/prestige-chromas.json`，生成双语静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
 
-炫彩原画（Chroma Splash Art）是为特定炫彩单独创作的原画；普通炫彩通常沿用基础皮肤原画。站内将“臻彩”分类译作 `Prestige Chroma`，但不使用该词统称整个目录，也不将其描述为传统 `Prestige Skin`。
+炫彩原画（Chroma Splash Art）是为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。站内将“臻彩”译作 `Prestige Chroma`，但不将其描述为传统 `Prestige Skin`。
 
 图片由管理后台上传和维护在 R2，通过 `https://img.chromaart.lol` 公开；本仓库只保存 JSON 中的图片相对路径，不保存图片文件。
 
@@ -11,8 +11,8 @@
 英文博客位于 `/blog/`，简体中文博客位于 `/zh-cn/blog/`；两种语言使用相同文章 slug。文章正文直接由共享 Astro 页面维护，构建时只输出当前 URL 对应语言，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章在构建时请求 CommunityDragon 的 `default` 与 `zh_cn` 英雄摘要，并与本地臻彩目录中的英雄 ID 计算差集；浏览器打开页面后再次请求两份摘要刷新当前语言内容，请求失败时保留完整静态快照。公开页面只嵌入已覆盖英雄 ID 与本地版本号，不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
 图鉴首页和中英文博客列表、文章页保留广告位；所有中英文图鉴详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
-作者与编辑说明位于 `/editorial-policy/`，简体中文位于 `/zh-cn/editorial-policy/`。页面公开本站的维护主体、编辑原则、资料来源、核验方式和纠错渠道；该页与 About、Privacy 等资料页不承载广告。
 
+作者与编辑说明位于 `/editorial-policy/`，简体中文位于 `/zh-cn/editorial-policy/`。页面公开本站的维护主体、编辑原则、资料来源、核验方式和纠错渠道；该页与 About、Privacy 等资料页不承载广告。
 
 ## 本地开发
 

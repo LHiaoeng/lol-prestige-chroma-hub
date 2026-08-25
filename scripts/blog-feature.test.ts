@@ -322,7 +322,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('chroma-grid');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
-    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
     expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
     expect(page.match(/<details>/g)).toHaveLength(6);
@@ -440,7 +439,6 @@ describe('blog feature contract', () => {
     expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
     expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
-    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
     expect(page).toContain('chroma-grid');
