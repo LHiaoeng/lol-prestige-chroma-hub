@@ -1,6 +1,6 @@
 ---
 import { adjacentBlogArticles, articleHref, formatBlogDate } from '../blog/articles';
-import { resolveLocale, type Locale } from '../i18n/config';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 
 interface Props {
   currentSlug: string;
@@ -13,17 +13,24 @@ const isZh = locale === 'zh-cn';
 const { newer, older } = adjacentBlogArticles(currentSlug);
 const navigationClass = `blog-adjacent${newer && !older ? ' only-newer' : ''}${older && !newer ? ' only-older' : ''}`;
 ---
-{(newer || older) && (
-  <nav class={navigationClass} aria-label={isZh ? '更多博客文章' : 'More blog articles'}>
-    <div class="adjacent-grid">
-      {older && <a class="adjacent-card older" href={articleHref(older, locale)} aria-label={isZh ? `上一篇：${older.titleZh}` : `Previous article: ${older.titleEn}`}><span class="direction">{isZh ? '← 上一篇' : '← Previous article'}</span><strong>{isZh ? older.titleZh : older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
-      {newer && <a class="adjacent-card newer" href={articleHref(newer, locale)} aria-label={isZh ? `下一篇：${newer.titleZh}` : `Next article: ${newer.titleEn}`}><span class="direction">{isZh ? '下一篇 →' : 'Next article →'}</span><strong>{isZh ? newer.titleZh : newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
-    </div>
-  </nav>
-)}
+<div class="blog-adjacent-shell">
+  {(newer || older) && (
+    <nav class={navigationClass} aria-label={isZh ? '更多博客文章' : 'More blog articles'}>
+      <div class="adjacent-grid">
+        {older && <a class="adjacent-card older" href={articleHref(older, locale)} aria-label={isZh ? `上一篇：${older.titleZh}` : `Previous article: ${older.titleEn}`}><span class="direction">{isZh ? '← 上一篇' : '← Previous article'}</span><strong>{isZh ? older.titleZh : older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
+        {newer && <a class="adjacent-card newer" href={articleHref(newer, locale)} aria-label={isZh ? `下一篇：${newer.titleZh}` : `Next article: ${newer.titleEn}`}><span class="direction">{isZh ? '下一篇 →' : 'Next article →'}</span><strong>{isZh ? newer.titleZh : newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
+      </div>
+    </nav>
+  )}
+  <aside class="editorial-trust">
+    <p>{isZh ? '想了解本站如何核验资料、维护图鉴和处理纠错？' : 'Want to know how we verify sources, maintain the archive, and handle corrections?'}</p>
+    <a href={localizedPath(locale, '/editorial-policy/')}>{isZh ? '查看作者与编辑说明 →' : 'Read our editorial policy →'}</a>
+  </aside>
+</div>
 
 <style>
-  .blog-adjacent { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin:0 auto clamp(76px,9vw,120px); }
+  .blog-adjacent-shell { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin:0 auto clamp(76px,9vw,120px); }
+  .blog-adjacent { width:auto; margin:0; }
   .adjacent-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
   .only-newer .newer { grid-column:2; }
   .adjacent-card { display:flex; min-width:0; min-height:170px; flex-direction:column; justify-content:center; gap:12px; padding:clamp(24px,3vw,36px); border:1px solid var(--line); border-radius:14px; background:var(--panel); transition:border-color .2s ease,transform .2s ease,background-color .2s ease; }
@@ -32,7 +39,11 @@ const navigationClass = `blog-adjacent${newer && !older ? ' only-newer' : ''}${o
   .adjacent-card strong { color:var(--text); font-family:Georgia,"Noto Serif SC",serif; font-size:clamp(1.25rem,2.2vw,1.75rem); line-height:1.25; overflow-wrap:anywhere; }
   .adjacent-card time { color:var(--muted); font-size:.78rem; }
   .adjacent-card:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
+  .editorial-trust { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 24px; margin-top:24px; padding:18px 22px; border:1px solid var(--line); border-radius:10px; background:color-mix(in srgb, var(--panel) 72%, transparent); }
+  .editorial-trust p { color:var(--muted); font-size:.9rem; line-height:1.5; margin:0; }
+  .editorial-trust a { color:var(--gold); font-size:.9rem; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+  .editorial-trust a:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
   @media (hover:hover) and (pointer:fine) { .adjacent-card:hover { border-color:var(--gold); background:var(--panel2); transform:translateY(-3px); } }
-  @media (max-width:767px) { .adjacent-grid { grid-template-columns:1fr; gap:14px; } .only-newer .newer { grid-column:auto; } .adjacent-card { min-height:0; } }
+  @media (max-width:767px) { .adjacent-grid { grid-template-columns:1fr; gap:14px; } .only-newer .newer { grid-column:auto; } .adjacent-card { min-height:0; } .editorial-trust { display:block; padding:16px 18px; } .editorial-trust a { display:inline-block; margin-top:8px; } }
   @media (prefers-reduced-motion:reduce) { .adjacent-card { transition:none; } }
 </style>

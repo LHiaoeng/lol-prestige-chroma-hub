@@ -196,6 +196,27 @@ describe('static site build', () => {
     expect(footer).toContain('class="footer-separator" aria-hidden="true"');
   });
 
+  it('publishes bilingual editorial trust pages and links them from public content', () => {
+    const policy = readFileSync(join(dist, 'editorial-policy', 'index.html'), 'utf8');
+    const chinesePolicy = readFileSync(join(dist, 'zh-cn', 'editorial-policy', 'index.html'), 'utf8');
+    const article = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
+    const home = readFileSync(join(dist, 'index.html'), 'utf8');
+    expect(policy).toContain('<title>Editorial Policy &amp; Sources | LoL Chroma Art</title>');
+    expect(policy).toContain('Maintained by BreadJ and the LoL Chroma Art editorial team');
+    expect(policy).toContain('Sources and verification');
+    expect(policy).toContain('Corrections and updates');
+    expect(policy).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
+    expect(policy).not.toContain('data-ad-boundary=');
+    expect(policy).not.toContain('pagead2.googlesyndication.com');
+    expect(chinesePolicy).toContain('<title>作者与编辑说明 | LoL Chroma Art</title>');
+    expect(chinesePolicy).toContain('维护主体：BreadJ 与 LoL Chroma Art 编辑团队');
+    expect(chinesePolicy).toContain('资料来源与核验方式');
+    expect(chinesePolicy).toContain('纠错与更新');
+    expect(chinesePolicy).not.toContain('data-ad-boundary=');
+    expect(article).toContain('href="/editorial-policy/"');
+    expect(home).toContain('href="/editorial-policy/"');
+  });
+
   it('keeps the 404 page out of the localized canonical index', () => {
     const notFound = readFileSync(join(dist, '404.html'), 'utf8');
     expect(notFound).toContain('<meta name="robots" content="noindex, nofollow">');

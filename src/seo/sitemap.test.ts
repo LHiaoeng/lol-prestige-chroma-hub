@@ -10,6 +10,8 @@ describe('SEO sitemap', () => {
     expect(xml).not.toContain('<loc>https://chromaart.lol/zh-cn/chromas/ahri-cat-eye-1/</loc>');
     expect(xml).not.toContain('https://img.chromaart.lol/chromas/ahri/site3.jpg');
     expect(xml).toContain('<loc>https://chromaart.lol/about/</loc>');
+    expect(xml).toContain('<loc>https://chromaart.lol/editorial-policy/</loc>');
+    expect(xml).toContain('<loc>https://chromaart.lol/zh-cn/editorial-policy/</loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/privacy/</loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/blog/</loc>');
     expect(xml).toContain('<loc>https://chromaart.lol/blog/what-are-chroma-skins/</loc>');

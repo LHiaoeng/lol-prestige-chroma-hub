@@ -20,7 +20,7 @@ function page(pathname: string, locale: Locale, image?: { location: string; titl
 }
 
 export function renderSitemap(): string {
-  const fixedPaths = ['/', '/about/', '/privacy/', '/blog/'];
+  const fixedPaths = ['/', '/about/', '/editorial-policy/', '/privacy/', '/blog/'];
   const fixed = SITE_LOCALES.flatMap((locale) => [
     ...fixedPaths.map((pathname) => page(pathname, locale)),
     ...blogArticles.map((article) => page(

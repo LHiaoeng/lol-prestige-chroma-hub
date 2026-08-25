@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
+import { SITE } from '../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const title = isZh ? '作者与编辑说明 | LoL Chroma Art' : 'Editorial Policy & Sources | LoL Chroma Art';
+const description = isZh
+  ? '了解 LoL Chroma Art 的维护主体、编辑原则、资料来源、核验方式和纠错流程。'
+  : 'Learn who maintains LoL Chroma Art, how the archive is edited and verified, which sources it uses, and how to report a correction.';
+const canonical = new URL(localizedPath(locale, '/editorial-policy/'), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  '@id': `${canonical}#editorial-policy`,
+  name: title,
+  description,
+  url: canonical,
+  inLanguage: isZh ? 'zh-CN' : 'en',
+  author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  isPartOf: { '@type': 'WebSite', name: SITE.name, url: homeUrl },
+};
+---
+<BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
+  {!isZh && <article class="editorial-page">
+    <header class="editorial-header">
+      <p class="kicker">EDITORIAL TRUST</p>
+      <h1>How LoL Chroma Art Maintains Its Archive</h1>
+      <p class="editorial-lede">LoL Chroma Art is an independent fan archive. This page explains who is responsible for the site, how we separate reference data from editorial writing, and how readers can check or correct our work.</p>
+      <p class="editorial-meta"><span>Maintained by BreadJ and the LoL Chroma Art editorial team</span><span>Last reviewed: August 25, 2026</span></p>
+    </header>
+
+    <section>
+      <h2>Who maintains this site?</h2>
+      <p>LoL Chroma Art is maintained by BreadJ and the LoL Chroma Art editorial team. We are an independent fan publisher, not Riot Games, Tencent, or an official game service. The team maintains the static archive, researches and writes the blog, checks links and terminology, and reviews reader corrections.</p>
+      <dl class="responsibility-list">
+        <div><dt>Archive maintenance</dt><dd>Keep the catalog’s names, relationships, categories, versions, and artwork references consistent with the available source material.</dd></div>
+        <div><dt>Editorial work</dt><dd>Write explanations, comparisons, and analysis that add context beyond a catalog record, with a visible date and source trail.</dd></div>
+        <div><dt>Quality review</dt><dd>Recheck time-sensitive claims, preserve the distinction between China Server, Global Server, and a Server Region, and respond to reported factual errors.</dd></div>
+      </dl>
+    </section>
+
+    <section>
+      <h2>Our editorial principles</h2>
+      <ul class="principle-list">
+        <li><strong>Reference and interpretation stay separate.</strong> Catalog pages are lookup records. Blog articles may explain, compare, or curate, but they identify those editorial judgments instead of presenting them as raw game data.</li>
+        <li><strong>Terms follow the game’s real structure.</strong> China Server means the League of Legends server operated by Tencent in mainland China. Global Server means the server system operated directly by Riot Games. A Server Region is a subdivision within a server, and an esports region such as the LPL Region is not a game server.</li>
+        <li><strong>臻彩 is a chroma, not a separate skin.</strong> We use <em>Prestige Chroma</em> for 臻彩 in English. A Prestige Chroma remains attached to its base skin and may have its own Prestige Chroma Splash Art.</li>
+        <li><strong>Availability is handled carefully.</strong> A patch or event date records when a source associated an item with that release. It does not promise that the item is currently obtainable. Current purchase or event details should be checked against the live official announcement or client.</li>
+        <li><strong>Bilingual pages are reviewed as content.</strong> The Chinese and English versions communicate the same verified claim in language appropriate to their readers; a translation is not used to replace missing research or editorial explanation.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Sources and verification</h2>
+      <p>We prefer first-party material: <a href="https://www.leagueoflegends.com/" target="_blank" rel="noreferrer">Riot Games and League of Legends official pages</a>, and <a href="https://lol.qq.com/" target="_blank" rel="noreferrer">the Tencent-operated League of Legends China Server site</a>, including event announcements, patch information, store notices, and official showcases. When an article depends on a specific announcement, the relevant source is linked in the article.</p>
+      <p>For structured identifiers, patch context, and image paths, the catalog workflow may also use publicly accessible game-data references such as <a href="https://raw.communitydragon.org/" target="_blank" rel="noreferrer">CommunityDragon</a>. These supporting references help identify and compare records; they do not turn this independent archive into an official Riot or Tencent database.</p>
+      <ol class="verification-list">
+        <li>Identify the champion, base skin, chroma, category, and server context before writing a claim.</li>
+        <li>Compare the claim with the strongest available official source and check that dates, names, and acquisition wording match.</li>
+        <li>Review artwork and related records for identity or relationship mistakes, then record the page’s publication or review date.</li>
+        <li>When sources disagree or a current status cannot be confirmed, say so clearly and avoid presenting an inference as an official fact.</li>
+      </ol>
+      <p class="source-note">We use League of Legends assets under Riot Games’ <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">Legal Jibber Jabber</a> policy. LoL Chroma Art does not claim ownership of those assets.</p>
+    </section>
+
+    <section class="correction-section">
+      <h2>Corrections and updates</h2>
+      <p>If you find a wrong name, relationship, source link, translation, date, or server description, email <a href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction">lolchromaart@outlook.com</a>. You can also contact the public maintainer on <a href="https://x.com/BreadJ" target="_blank" rel="noopener noreferrer">X at @BreadJ</a>.</p>
+      <div class="correction-panel">
+        <h3>What to include</h3>
+        <ul>
+          <li>The page URL and the exact statement or field that needs review.</li>
+          <li>The corrected wording and, when possible, a first-party source link or screenshot.</li>
+          <li>Your preferred language and any context that helps reproduce the issue.</li>
+        </ul>
+      </div>
+      <p>We review reports against the available source material. Confirmed factual errors are corrected in the next content update, and material changes receive a new review date. A suggestion may be declined when it cannot be verified, conflicts with a stronger source, or describes current availability without a current official notice.</p>
+    </section>
+
+    <section>
+      <h2>Questions about the archive</h2>
+      <p>For questions about a catalog record, editorial decision, source, or correction, use the contact methods above and include the relevant URL. We welcome precise, evidence-based feedback that helps keep this reference useful.</p>
+    </section>
+  </article>}
+
+  {isZh && <article class="editorial-page">
+    <header class="editorial-header">
+      <p class="kicker">编辑可信度</p>
+      <h1>LoL Chroma Art 如何维护臻彩原画图鉴</h1>
+      <p class="editorial-lede">LoL Chroma Art 是独立的爱好者图鉴。本页说明本站由谁负责、如何区分图鉴资料与原创文章、使用哪些来源进行核验，以及读者如何报告错误。</p>
+      <p class="editorial-meta"><span>维护主体：BreadJ 与 LoL Chroma Art 编辑团队</span><span>最近核验：2026 年 8 月 25 日</span></p>
+    </header>
+
+    <section>
+      <h2>谁在维护本站？</h2>
+      <p>LoL Chroma Art 由 BreadJ 与 LoL Chroma Art 编辑团队维护。我们是独立的爱好者内容发布者，不是 Riot Games、腾讯或任何官方游戏服务。团队负责维护静态图鉴、研究和撰写博客、检查链接与术语，并处理读者提交的事实纠错。</p>
+      <dl class="responsibility-list">
+        <div><dt>图鉴维护</dt><dd>根据可获得的资料，保持名称、关联关系、分类、版本和原画引用的一致性。</dd></div>
+        <div><dt>原创编辑</dt><dd>撰写超出单个图鉴字段的解释、比较和分析，并展示日期与资料线索。</dd></div>
+        <div><dt>质量核验</dt><dd>复查时效性较强的说法，区分 China Server、Global Server 和 Server Region，并回应读者报告的事实错误。</dd></div>
+      </dl>
+    </section>
+
+    <section>
+      <h2>编辑原则</h2>
+      <ul class="principle-list">
+        <li><strong>区分资料与解读。</strong> 图鉴详情页是用于查找和核对的资料记录；博客文章可以提供解释、比较或策展判断，但会把这些编辑内容与原始游戏资料区分开。</li>
+        <li><strong>按照游戏真实结构使用术语。</strong> China Server 指腾讯在中国大陆运营的《英雄联盟》游戏服务器；Global Server 指 Riot Games 直接运营的服务器体系；Server Region 是游戏服务器内部的大区；LPL Region 等电竞赛区不是游戏服务器。</li>
+        <li><strong>臻彩仍然是炫彩，不是独立皮肤。</strong> 英文统一使用 <em>Prestige Chroma</em> 指代臻彩。臻彩依附于基础皮肤，并可能拥有单独的臻彩原画。</li>
+        <li><strong>谨慎处理获取状态。</strong> 版本或活动日期表示资料将条目与该次发布关联，并不保证当前仍可获取。当前购买或活动信息应以正在生效的官方公告或客户端为准。</li>
+        <li><strong>双语页面都经过内容审阅。</strong> 中文和英文版本表达同一条已核验事实，同时适应各自读者的语言；翻译不会被用来掩盖缺少研究或编辑解释的问题。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>资料来源与核验方式</h2>
+      <p>我们优先使用第一方资料，包括 <a href="https://www.leagueoflegends.com/" target="_blank" rel="noreferrer">Riot Games 和《英雄联盟》官方页面</a>，以及 <a href="https://lol.qq.com/" target="_blank" rel="noreferrer">腾讯运营的《英雄联盟》中国大陆服官网</a>，具体包括活动公告、版本信息、商城说明和官方展示。文章依赖具体公告时，会在文章中链接对应来源。</p>
+      <p>对于业务标识、版本背景和图片路径，图鉴数据流程也可能参考公开的游戏数据资料，例如 <a href="https://raw.communitydragon.org/" target="_blank" rel="noreferrer">CommunityDragon</a>。这些辅助资料用于识别和比较记录，并不意味着本站是 Riot Games 或腾讯的官方数据库。</p>
+      <ol class="verification-list">
+        <li>先确认英雄、基础皮肤、炫彩、分类和服务器语境，再撰写相关说法。</li>
+        <li>将说法与可获得的最强官方来源对照，检查日期、名称和获取描述是否一致。</li>
+        <li>复查原画及关联条目，避免身份或关系错误，并记录页面发布日期或核验日期。</li>
+        <li>当来源存在差异，或无法确认当前状态时，明确说明不确定性，不把推断写成官方事实。</li>
+      </ol>
+      <p class="source-note">本站依据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">“Legal Jibber Jabber”</a> 政策使用《英雄联盟》素材；LoL Chroma Art 不主张拥有这些素材的所有权。</p>
+    </section>
+
+    <section class="correction-section">
+      <h2>纠错与更新</h2>
+      <p>如果你发现名称、关联关系、来源链接、翻译、日期或服务器描述有误，请发送邮件至 <a href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20%E7%BA%A0%E9%94%99">lolchromaart@outlook.com</a>，也可以通过 <a href="https://x.com/BreadJ" target="_blank" rel="noopener noreferrer">X 联系公开维护者 @BreadJ</a>。</p>
+      <div class="correction-panel">
+        <h3>建议提供的信息</h3>
+        <ul>
+          <li>页面网址，以及需要核查的准确说法或字段。</li>
+          <li>建议的正确表述，并尽可能附上第一方来源链接或截图。</li>
+          <li>你使用的语言，以及有助于复现问题的上下文。</li>
+        </ul>
+      </div>
+      <p>我们会将报告与现有资料进行对照。确认属实的事实错误会在下一次内容更新中修正，重大修改会更新核验日期。如果建议无法核验、与更可靠的来源冲突，或在没有当前官方公告的情况下声称某项内容仍可获取，我们可能不会采纳。</p>
+    </section>
+
+    <section>
+      <h2>关于图鉴的其他问题</h2>
+      <p>如果你想询问某条图鉴记录、编辑决定、资料来源或纠错结果，请使用上方联系方式并附上相关网址。欢迎能够帮助这份资料保持准确的具体、可核验反馈。</p>
+    </section>
+  </article>}
+
+  <style>
+    .editorial-page { width: min(860px, calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding: clamp(72px, 9vw, 120px) 0 100px; }
+    .editorial-header { margin-bottom: 44px; }
+    .editorial-page h1 { font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.08; margin: .45em 0 .45em; font-weight: 500; }
+    .editorial-lede { color: #c7cad4; font-size: clamp(1.08rem, 2vw, 1.25rem); line-height: 1.8; margin: 0; }
+    .editorial-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: .84rem; line-height: 1.6; margin: 20px 0 0; }
+    .editorial-meta span + span::before { content: "·"; margin-right: 18px; color: var(--gold); }
+    .editorial-page section { border-top: 1px solid var(--line); margin-top: 42px; padding-top: 34px; }
+    .editorial-page h2 { font-family: Georgia, "Noto Serif SC", serif; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 16px; }
+    .editorial-page h3 { color: #e4c880; font-size: 1.05rem; margin: 0 0 10px; }
+    .editorial-page p, .editorial-page li, .editorial-page dd { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; }
+    .editorial-page p { margin: 0; }
+    .editorial-page p + p { margin-top: 16px; }
+    .editorial-page a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+    .responsibility-list { display: grid; gap: 12px; margin: 24px 0 0; }
+    .responsibility-list div { padding: 18px 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+    .responsibility-list dt { color: var(--text); font-weight: 700; margin-bottom: 5px; }
+    .responsibility-list dd { margin: 0; }
+    .principle-list, .verification-list { padding-left: 1.35rem; margin: 20px 0 0; }
+    .principle-list li, .verification-list li { padding-left: 6px; margin-top: 12px; }
+    .principle-list strong { color: var(--text); }
+    .source-note { color: var(--muted) !important; font-size: .92rem !important; }
+    .correction-panel { margin-top: 22px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 10px; background: #11131e; }
+    .correction-panel ul { margin: 0; padding-left: 1.25rem; }
+    .correction-panel li { font-size: .98rem; margin-top: 8px; }
+    .correction-panel li:first-child { margin-top: 0; }
+    @media (max-width: 767px) {
+      .editorial-page { padding: 52px 0 72px; }
+      .editorial-page h1 { font-size: clamp(2.15rem, 10vw, 3rem); }
+      .editorial-page section { margin-top: 34px; padding-top: 28px; }
+      .editorial-page p, .editorial-page li, .editorial-page dd { font-size: 1rem; line-height: 1.78; }
+      .editorial-meta { display: block; }
+      .editorial-meta span { display: block; }
+      .editorial-meta span + span { margin-top: 5px; }
+      .editorial-meta span + span::before { display: none; }
+      .responsibility-list div { padding: 15px 16px; }
+      .correction-panel { padding: 17px 18px; }
+    }
+  </style>
+</BaseLayout>

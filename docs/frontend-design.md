@@ -80,6 +80,8 @@ browser-app.ts 读取嵌入目录
 | `/chromas/{slug}/` | 规范详情页 | 原画、完整资料、外部操作、相关推荐 |
 | `/chromas/{skinId}/` | 数字兼容入口 | 与对应规范详情页相同，Canonical 指向描述性 slug |
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
+| `/editorial-policy/` | ������༭˵�� | ά�����塢�༭ԭ��������Դ�����鷽ʽ��������� |
+| `/zh-cn/editorial-policy/` | ��������������༭˵�� | ��Ӣ��ҳ���Ӧ�����Ŀ��Ŷ�˵�� |
 | `/blog/` | 博客列表 | 大图资讯、摘要、日期与阅读时间 |
 | `/zh-cn/blog/` | 简体中文博客列表 | 简体中文文章摘要、日期与阅读时间 |
 | `/blog/patch-26-15-prestige-chromas/` | 博客文章 | 26.15 版本收录的 6 款臻彩原画 |
@@ -92,6 +94,7 @@ browser-app.ts 读取嵌入目录
 | `/robots.txt` | 抓取规则 | Sitemap 和抓取声明 |
 
 页面顶部统一使用 `BaseLayout.astro`。品牌链接返回首页；Header 在全端常显博客入口与语言切换，Footer 同时提供 About、博客和隐私说明入口。
+ҳ�涥��ͳһʹ�� `BaseLayout.astro`��Ʒ�����ӷ�����ҳ��Header ��ȫ�˳��Բ�������������л���Footer ͬʱ�ṩ About��������༭˵�������ͺ���˽˵����ڡ��������µײ�Ҳ�ṩ������༭˵����ڣ��������ά�����塢��Դ�;�����ʽ��
 
 ## 5. 视觉语言
 
@@ -419,6 +422,7 @@ img.chromaart.lol 规范图片
 | `src/pages/index.astro` | 首页静态结构、Hero、首批目录、模板和目录数据注入 |
 | `src/pages/chromas/[slug].astro` | 详情静态生成、字段编排、背景、响应式资料面板和相关推荐 |
 | `src/pages/about.astro` | 中英文概念说明和示例原画 |
+| `src/pages/editorial-policy.astro` | ��Ӣ�����ߡ��༭ԭ��������Դ�����鷽ʽ�;���˵�� |
 | `src/blog/articles.ts` | 博客列表元数据与官方封面来源 |
 | `src/pages/blog/index.astro` | 双语博客列表与大图精选布局 |
 | `src/pages/blog/what-is-league-of-legends.astro` | 双语图文文章、文章 SEO 与响应式阅读样式 |
