@@ -24,6 +24,8 @@
 
 新增页面 `lucky-gate-petals-of-spring-chromas-202607` 的关系：正文链向 `what-are-prestige-chromas` 与 `patch-26-15-prestige-chromas`；`patch-26-15-prestige-chromas` 和 `lucky-gate-porcelain-charm-202608` 回链本页。
 
+新增页面 `joy-club-peak-gala-202606` 的关系：正文链向原有 `joy-club-peak-gala-202607`、`what-are-prestige-chromas` 与 `what-are-chroma-skins`；FAQ 链向 `what-are-prestige-chromas`；原有 `joy-club-peak-gala-202607` 与 `what-are-prestige-chromas` 回链本页。
+
 ## 入链统计
 
 | 页面 | 入链数 | 状态 |
@@ -134,3 +136,4 @@
 - 2026-08-18: 新增 challenger-mayhem-jax-prestige-chroma，正文链向 what-are-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026
 - 2026-08-20: 新增 lucky-gate-porcelain-charm-202608，正文链向 what-are-prestige-chromas、what-are-chroma-skins、blue-porcelain-prestige-chromas、patch-26-16-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026；从 blue-porcelain-prestige-chromas 和 patch-26-16-prestige-chromas 回改内链
 - 2026-07-29: 新增 lucky-gate-petals-of-spring-chromas-202607，正文链向 what-are-prestige-chromas 和 patch-26-15-prestige-chromas；从 patch-26-15-prestige-chromas 和 lucky-gate-porcelain-charm-202608 回改内链
+- 2026-07-01: 新增 joy-club-peak-gala-202606（官方第 202606 期），正文链向原有 joy-club-peak-gala-202607、what-are-prestige-chromas 和 what-are-chroma-skins；从原有 joy-club-peak-gala-202607 和 what-are-prestige-chromas 回改内链

@@ -54,6 +54,10 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'patch-26-16-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'challenger-mayhem-jax-prestige-chroma', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'lucky-gate-porcelain-charm-202608', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'joy-club-peak-gala-202607', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'joy-club-peak-gala-202606', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202607', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202606', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'lucky-gate-petals-of-spring-chromas-202607', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'lucky-gate-petals-of-spring-chromas-202607', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
@@ -170,7 +174,10 @@ describe('static site build', () => {
 
   it('removes list indentation from blog chroma grids', () => {
     const styles = readFileSync(join(root, 'src', 'styles', 'global.css'), 'utf8');
+    const grid = readFileSync(join(root, 'src', 'components', 'BlogChromaGrid.astro'), 'utf8');
     expect(styles).toContain('.blog-article ul.chroma-grid{padding-left:0}');
+    expect(grid).toContain('padding:0');
+    expect(grid).toContain('grid-template-columns:repeat(var(--blog-chroma-columns)');
   });
 
   it('publishes bilingual maintenance details for all six evergreen guides', () => {

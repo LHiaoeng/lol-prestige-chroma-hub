@@ -6,6 +6,37 @@ import { blogArticles } from '../src/blog/articles';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('blog feature contract', () => {
+  it('centralizes catalog-backed blog chroma cards and grid layout', () => {
+    const grid = source('src/components/BlogChromaGrid.astro');
+    const card = source('src/components/BlogChromaCard.astro');
+    expect(grid).toContain("['chroma-grid', 'blog-chroma-grid'");
+    expect(grid).toContain('padding:0');
+    expect(grid).toContain('grid-template-columns:repeat(var(--blog-chroma-columns)');
+    expect(card).toContain('ChromaColorCircle');
+    expect(card).toContain('sourceImageUrl');
+    expect(card).toContain('labelEn?: string');
+    expect(card).toContain('labelZh?: string');
+    for (const pagePath of [
+      'src/pages/blog/champion-most-prestige-chromas.astro',
+      'src/pages/blog/joy-club-peak-gala-202607.astro',
+      'src/pages/blog/joy-club-peak-gala-202606.astro',
+      'src/pages/blog/kaisa-prestige-chroma.astro',
+      'src/pages/blog/lucky-gate-petals-of-spring-chromas-202607.astro',
+      'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
+      'src/pages/blog/patch-26-15-prestige-chromas.astro',
+      'src/pages/blog/patch-26-16-prestige-chromas.astro',
+      'src/pages/blog/prestige-chroma-summon-august-2026.astro',
+      'src/pages/blog/splendid-treasure-august-2026.astro',
+      'src/pages/blog/top-2-prestige-chroma-champions.astro',
+    ]) {
+      const page = source(pagePath);
+      expect(page).toContain('BlogChromaGrid');
+      expect(page).toContain('BlogChromaCard');
+      expect(page).not.toContain('.chroma-card-link');
+      expect(page).not.toContain('.chroma-card-img-wrap');
+    }
+  });
+
   it('links every verified official prestige chroma source in both languages', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     const officialUrls = [
@@ -79,6 +110,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/joy-club-peak-gala-202607.astro',
+      'src/pages/blog/joy-club-peak-gala-202606.astro',
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
@@ -275,9 +307,8 @@ describe('blog feature contract', () => {
     expect(page).toContain("const kaisaHeroId = '145'");
     expect(page).toContain('kaisaChromas');
     expect(page).toContain('kaisaSkinGroups');
-    expect(page).toContain('chroma-grid');
-    expect(page).toContain('imageUrl(chroma.images.medium)');
-    expect(page).toContain('sourceImageUrl');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
     for (const heading of [
       'Champion profile: Kai\'Sa',
       'Kai\'Sa\'s prestige chroma collection',
@@ -292,12 +323,7 @@ describe('blog feature contract', () => {
     expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
     expect(page).toContain('.article-hero img{display:block;width:100%;height:auto');
-    expect(page).toContain('grid-template-columns:repeat(6,minmax(0,1fr))');
-    expect(page).toContain('left:50%;bottom:7px;transform:translateX(-50%)');
-    expect(page).toContain('display:inline-flex;line-height:0');
-    expect(page).toContain('justify-content:center;text-align:center');
-    expect(page).toContain('.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:');
-    expect(page).toContain('.chroma-card-img-wrap img{display:block;width:100%;height:auto}');
+    expect(page).not.toContain('.chroma-card-');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).not.toContain('most played and most banned');
     expect(page).not.toContain('出场率和禁率最高');
@@ -319,7 +345,8 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('chroma-grid');
+    expect(page).toContain('<BlogChromaGrid>');
+    expect(page).toContain('<BlogChromaCard chroma={chroma} {locale} />');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
     expect(page).toContain('<style is:global>');
@@ -373,10 +400,11 @@ describe('blog feature contract', () => {
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
     expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
-    expect(page).toContain('chroma-grid');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
     expect(page).toContain('imageUrl(rewardChroma.images');
     expect(page).toContain('sourceImageUrl');
-    expect(page).toContain('ChromaColorCircle');
+    expect(page).not.toContain('ChromaColorCircle');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain('class="chroma-art-link"');
     expect(page).toContain('class="official-source-link"');
@@ -441,10 +469,10 @@ describe('blog feature contract', () => {
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
-    expect(page).toContain('chroma-grid');
-    expect(page).toContain('imageUrl(chroma.images.medium)');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
     expect(page).toContain('sourceImageUrl');
-    expect(page).toContain('ChromaColorCircle');
+    expect(page).not.toContain('ChromaColorCircle');
     expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(1);
     expect(page.match(/<details>/g)).toHaveLength(1);
@@ -460,6 +488,35 @@ describe('blog feature contract', () => {
       '26.16 臻彩原画一览',
     ]) expect(page).toContain(heading);
     expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.16')");
+  });
+
+  it('renders the July 2026 Joy Club Peak Gala article in both languages', () => {
+    const page = source('src/pages/blog/joy-club-peak-gala-202606.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('titleEn');
+    expect(page).toContain('titleZh');
+    expect(page).toContain('data-alt-en={article.coverAltEn}');
+    expect(page).toContain('data-alt-zh={article.coverAltZh}');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).toContain('https://act.xinyue.qq.com/act/joyclubgala202607/index.html');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
+    expect(page).toContain('2026 年 7 月 1 日');
+    expect(page).toContain('202606');
+    expect(page).toContain('July 1&ndash;31');
+    expect(page).toContain('赠送者');
+    expect(page).toContain('云顶召唤商店');
+    expect(page).toContain('Apple 并非本活动赞助方');
+    expect(page).toContain('Apple is not a sponsor');
+    expect(page.match(/<details>/g)).toHaveLength(6);
+
+    const chineseArticle = page.slice(page.indexOf('{isZh &&'));
+    expect(chineseArticle).not.toContain('rewardChroma.nameEn');
+    expect(chineseArticle).not.toContain('Global Server');
   });
 
   it('renders the Lucky Gate Petals of Spring prestige chroma article', () => {
@@ -549,10 +606,10 @@ describe('blog feature contract', () => {
     expect(page).toContain('mythical fantasy quality skin');
     expect(page).toContain('神话幻想品质皮肤');
     expect(page).toContain('<style is:global>');
-    expect(page).toContain('chroma-grid');
-    expect(page).toContain('imageUrl(chroma.images.medium)');
-    expect(page).toContain('sourceImageUrl');
-    expect(page).toContain('ChromaColorCircle');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).not.toContain('imageUrl(chroma.images.medium)');
+    expect(page).not.toContain('ChromaColorCircle');
     expect(page).toContain('data-alt-en=');
     expect(page).toContain('data-alt-zh=');
     expect(page.match(/<details>/g)).toHaveLength(2);

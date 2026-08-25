@@ -1,0 +1,53 @@
+---
+import ChromaColorCircle from './ChromaColorCircle.astro';
+import type { Chroma } from '../domain/chroma';
+import { imageUrl, sourceImageUrl } from '../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
+
+interface Props {
+  chroma?: Chroma;
+  labelEn?: string;
+  labelZh?: string;
+  locale?: Locale;
+}
+
+const { chroma, labelEn, labelZh } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const nameEn = labelEn ?? chroma?.nameEn;
+const nameZh = labelZh ?? chroma?.nameZh;
+if (!nameEn || !nameZh) throw new Error('BlogChromaCard requires chroma or both labelEn and labelZh');
+const isZh = locale === 'zh-cn';
+const name = isZh ? nameZh : nameEn;
+const image = chroma ? imageUrl(chroma.images.medium) : '/placeholder.svg';
+const fallback = chroma ? sourceImageUrl('medium', chroma.instanceId) : undefined;
+---
+
+<li class:list={['blog-chroma-card', { 'blog-chroma-card--placeholder': !chroma }]}>
+  {chroma ? (
+    <a class="blog-chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>
+      <div class="blog-chroma-card-img-wrap">
+        <img src={image} data-fallback={fallback} data-placeholder="/placeholder.svg" data-alt-en={`${nameEn} prestige chroma splash art`} data-alt-zh={`${nameZh}臻彩原画`} alt={isZh ? `${nameZh}臻彩原画` : `${nameEn} prestige chroma splash art`} width="960" height="540" loading="lazy" decoding="async" />
+        <div class="blog-chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
+      </div>
+      <span class="blog-chroma-card-name">{name}</span>
+    </a>
+  ) : (
+    <div class="blog-chroma-card-placeholder">
+      <div class="blog-chroma-card-img-wrap">
+        <img src={image} data-placeholder="/placeholder.svg" data-alt-en={`${nameEn} prestige chroma splash art`} data-alt-zh={`${nameZh}臻彩原画`} alt={isZh ? `${nameZh}臻彩原画` : `${nameEn} prestige chroma splash art`} width="960" height="540" loading="lazy" decoding="async" />
+      </div>
+      <span class="blog-chroma-card-name">{name}</span>
+    </div>
+  )}
+</li>
+
+<style is:global>
+  .blog-chroma-grid .blog-chroma-card{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}
+  .blog-chroma-grid .blog-chroma-card:hover{border-color:#b99b57;transform:translateY(-2px)}
+  .blog-chroma-grid .blog-chroma-card-link,.blog-chroma-grid .blog-chroma-card-placeholder{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}
+  .blog-chroma-grid .blog-chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
+  .blog-chroma-grid .blog-chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}
+  .blog-chroma-grid .blog-chroma-card-img-wrap img{display:block;width:100%;height:auto}
+  .blog-chroma-grid .blog-chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}
+  .blog-chroma-grid .blog-chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+</style>

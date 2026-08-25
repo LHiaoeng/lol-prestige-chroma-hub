@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
@@ -111,17 +112,9 @@ const jsonLd = [
     <section>
       <h2>{isZh ? '26.15 臻彩原画一览' : 'Patch 26.15 prestige chroma gallery'}</h2>
       <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这 6 款新增也影响了<a href={localizedPath(locale, \'/blog/top-2-prestige-chroma-champions/\')}>臻彩数量排行榜</a>。' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. These 6 additions also shifted the <a href={localizedPath(locale, \'/blog/top-2-prestige-chroma-champions/\')}>prestige chroma leaderboard</a>.'}</p>
-      <ul class="chroma-grid chroma-grid-wide">
-        {patchChromas.map((chroma) => <li>
-          <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={isZh ? `查看 ${chroma.nameZh} 详情` : `View ${chroma.nameEn} details`}>
-            <div class="chroma-card-img-wrap">
-              <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? chroma.nameZh : chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" />
-              <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
-            </div>
-            <span class="chroma-card-name">{isZh ? chroma.nameZh : chroma.nameEn}</span>
-          </a>
-        </li>)}
-      </ul>
+      <BlogChromaGrid>
+        {patchChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
     </section>
 
     <section class="faq">
@@ -134,7 +127,7 @@ const jsonLd = [
 
   <style is:global>
     .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.article-hero img{height:auto}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
-    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
-    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}}
   </style>
 </BaseLayout>

@@ -88,6 +88,8 @@ browser-app.ts 读取嵌入目录
 | `/zh-cn/blog/patch-26-15-prestige-chromas/` | 简体中文博客文章 | 26.15 版本收录的 6 款臻彩原画 |
 | `/blog/lucky-gate-petals-of-spring-chromas-202607/` | 博客文章 | 幸运之门公告中的 3 款踏雪寻梅臻彩 |
 | `/zh-cn/blog/lucky-gate-petals-of-spring-chromas-202607/` | 简体中文博客文章 | 幸运之门公告中的 3 款踏雪寻梅臻彩 |
+| `/blog/joy-club-peak-gala-202606/` | 博客文章 | 心悦巅峰盛典第 202606 期与玉剑传说 海龙王 亚恒臻彩 |
+| `/zh-cn/blog/joy-club-peak-gala-202606/` | 简体中文博客文章 | 心悦巅峰盛典第 202606 期与玉剑传说 海龙王 亚恒臻彩 |
 | `/blog/what-is-league-of-legends/` | 博客文章 | 中英文《英雄联盟》入门图文指南 |
 | `/blog/champions-without-prestige-chroma/` | 博客文章 | 自动计算并实时刷新的未获得臻彩原画英雄清单 |
 | `/blog/what-are-chroma-skins/` | 博客文章 | 站点自有的炫彩皮肤科普与完整 FAQ |

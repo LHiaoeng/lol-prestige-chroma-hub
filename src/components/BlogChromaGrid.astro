@@ -1,0 +1,18 @@
+---
+interface Props {
+  columns?: 3 | 6;
+}
+
+const { columns = 6 } = Astro.props;
+if (columns !== 3 && columns !== 6) throw new Error('BlogChromaGrid columns must be 3 or 6');
+---
+
+<ul class:list={['chroma-grid', 'blog-chroma-grid', `blog-chroma-grid--${columns}`]}>
+  <slot />
+</ul>
+
+<style is:global>
+  .blog-chroma-grid.blog-chroma-grid{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(var(--blog-chroma-columns),minmax(0,1fr));gap:10px}
+  .blog-chroma-grid--3{--blog-chroma-columns:3}.blog-chroma-grid--6{--blog-chroma-columns:6}
+  @media(max-width:767px){.blog-chroma-grid.blog-chroma-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
+</style>

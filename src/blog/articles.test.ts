@@ -23,8 +23,8 @@ describe('blog article metadata', () => {
     expect(adjacentBlogArticles('missing')).toEqual({ newer: undefined, older: undefined });
   });
 
-  it('publishes sixteen bilingual articles with unique canonical routes', () => {
-    expect(blogArticles).toHaveLength(16);
+  it('publishes seventeen bilingual articles with unique canonical routes', () => {
+    expect(blogArticles).toHaveLength(17);
     expect(blogArticles[0]).toMatchObject({
       slug: 'lucky-gate-porcelain-charm-202608',
       href: '/blog/lucky-gate-porcelain-charm-202608/',
@@ -137,6 +137,14 @@ describe('blog article metadata', () => {
       href: '/blog/what-is-league-of-legends/',
       titleEn: 'What Is League of Legends?',
       titleZh: '什么是《英雄联盟》？',
+    });
+    expect(blogArticles[16]).toMatchObject({
+      slug: 'joy-club-peak-gala-202606',
+      href: '/blog/joy-club-peak-gala-202606/',
+      titleEn: 'Joy Club Peak Gala — Session 202606',
+      titleZh: '心悦巅峰盛典 — 第 202606 期',
+      publishedAt: '2026-07-01',
+      sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202607/index.html',
     });
     expect(blogArticles[9].publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(blogArticles[9].readingMinutes).toBeGreaterThan(0);

@@ -292,6 +292,22 @@ export const blogArticles: readonly BlogArticle[] = [
     adEligible: true,
     category: 'guide',
   },
+  {
+    slug: 'joy-club-peak-gala-202606',
+    href: '/blog/joy-club-peak-gala-202606/',
+    titleEn: 'Joy Club Peak Gala — Session 202606',
+    titleZh: '心悦巅峰盛典 — 第 202606 期',
+    summaryEn: 'The July 2026 Joy Club Peak Gala runs from July 1–31 on the League of Legends China Server. Reach 500,000 peak value to qualify for Immortal Journey Zaahen (Pearl), with a 3-month exclusive window.',
+    summaryZh: '心悦巅峰盛典第 202606 期于 2026 年 7 月 1 日至 31 日开放统计。巅峰值达到 50 万，可在结算后领取玉剑传说 海龙王 亚恒 自强不息臻彩，并享有 3 个月独享期。',
+    publishedAt: '2026-07-01',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/6366e9e2-6b21-4216-afec-ebc7dac380e7/site3.jpg',
+    coverAltEn: 'Immortal Journey Zaahen (Pearl) prestige chroma splash art — Joy Club Peak Gala Session 202606 reward',
+    coverAltZh: '玉剑传说 海龙王 亚恒 自强不息臻彩原画 — 心悦巅峰盛典第 202606 期奖励',
+    sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202607/index.html',
+    adEligible: true,
+    category: 'news',
+  },
 ] as const;
 
 export function adjacentBlogArticles(currentSlug: string): {

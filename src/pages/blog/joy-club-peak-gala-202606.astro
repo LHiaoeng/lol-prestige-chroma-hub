@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { sourceImageUrl } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'joy-club-peak-gala-202606');
+if (!article) throw new Error('Joy Club Peak Gala Session 202606 article metadata is missing');
+
+const rewardChroma = catalog.find((item) => item.heroId === '904' && item.nameEn === 'Immortal Journey Zaahen (Pearl)');
+if (!rewardChroma) throw new Error('Immortal Journey Zaahen (Pearl) reward chroma is missing from catalog');
+
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const eventUrl = 'https://act.xinyue.qq.com/act/joyclubgala202607/index.html';
+const thresholdPoints = 500000;
+const exclusiveWindowMonths = 3;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description, image: article.coverUrl, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩资讯' : 'League of Legends Prestige Chroma News',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question', name: isZh ? '这期巅峰盛典什么时候统计？' : 'When is the July Peak Gala counted?',
+        acceptedAnswer: { '@type': 'Answer', text: isZh ? '统计时间为 2026 年 7 月 1 日 00:00:00 至 7 月 31 日 23:59:59。' : 'The counting window is July 1, 2026 at 00:00:00 through July 31, 2026 at 23:59:59.' },
+      },
+      {
+        '@type': 'Question', name: isZh ? '达到门槛后如何领取臻彩？' : 'How do I claim the Prestige Chroma after qualifying?',
+        acceptedAnswer: { '@type': 'Answer', text: isZh ? '活动统计结束后，符合条件的召唤师需在相关活动页面选择大区领取奖励。' : 'After the counting period, qualified summoners must choose a server region on the related event page to claim the reward.' },
+      },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>
+    <a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span>
+    <span aria-current="page">{isZh ? '心悦巅峰盛典' : 'Joy Club Peak Gala'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">JOY CLUB PEAK GALA · EVENT NEWS</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The July 2026 Joy Club Peak Gala runs from July 1&ndash;31 on the League of Legends China Server. Reach {thresholdPoints.toLocaleString()} peak value to qualify for <a href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)}>{rewardChroma.nameEn}</a>, which remains exclusive for {exclusiveWindowMonths} months.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a class="chroma-art-link" href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)} aria-label={`View ${rewardChroma.nameEn} details`}>
+        <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={article.coverAltEn} width="1920" height="1080" loading="eager" decoding="async" />
+      </a>
+      <figcaption>{rewardChroma.nameEn} — the Session 202606 Peak Gala reward.</figcaption>
+    </figure>
+
+    <section>
+      <h2>July 2026 event details</h2>
+      <p>Tencent Game Joy Club and League of Legends are running this <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202607/')}>Joy Club Peak Gala</a> for players on the China Server. Purchases of virtual items and services through the official League of Legends channels add to an account&rsquo;s peak value. Reach <strong>{thresholdPoints.toLocaleString()}</strong> during the event to qualify for the reward.</p>
+      <p>The counting window runs from <strong>July 1, 2026 at 00:00:00 through July 31, 2026 at 23:59:59</strong>. Peak value is calculated against the QQ account and combines qualifying purchases made across all of its official-server regions.</p>
+      <p>The reward is <a href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)}>{rewardChroma.nameEn}</a>. The official page gives qualifying players a {exclusiveWindowMonths}-month exclusive window before the reward becomes available through other channels.</p>
+    </section>
+
+    <section>
+      <h2>How peak value is earned</h2>
+      <p>The main eligible routes are:</p>
+      <ul>
+        <li>Virtual items and services bought in the League of Legends client with Dianquan, Q coins, or WeChat Pay.</li>
+        <li>League of Legends purchases made through the LoL mobile companion.</li>
+        <li>League of Legends purchases made through Daojucheng&rsquo;s PC site, app, or H5 page.</li>
+        <li>Purchases made through official League of Legends event pages under <code>lol.qq.com</code>.</li>
+        <li>Gifts sent through the game shop, Daojucheng, or the LoL mobile companion shop; the order counts for the sender&rsquo;s QQ account.</li>
+      </ul>
+      <p>Recharging Dianquan, buying non-virtual goods, using the Tencent recharge pages inside WeChat or mobile QQ, and buying Cloud Stones in the Teamfight Tactics summon shop do not count. Canyon of the Challenger, PBE, tournament servers, and other non-standard regions are also excluded. For the full list of eligible purchases and exceptions, check the <a href={eventUrl} target="_blank" rel="noreferrer">official event page</a>. Our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>Prestige Chroma guide</a> and <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma basics</a> explain the collection terms.</p>
+    </section>
+
+    <section>
+      <h2>Settlement and claim steps</h2>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
+      <p>The official page says that the gala announcement and reward distribution will take place within seven working days after the counting period ends. Qualified summoners must then open the related event page, choose a server region, and claim the chroma themselves.</p>
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official source</strong>
+      <ul><li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Joy Club Peak Gala — Session 202606 event page</a></li></ul>
+      <p>Apple is not a sponsor of this event and did not participate in it in any capacity.</p>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details><summary>Is this event available on every League of Legends server?</summary><p>No. The rules describe spending on the League of Legends China Server and its official-server regions. It is not a Global Server event.</p></details>
+      <details><summary>Does recharging Dianquan earn peak value?</summary><p>No. Recharging does not count; only qualifying purchases of virtual items and services count.</p></details>
+      <details><summary>What is a Prestige Chroma?</summary><p>It is a chroma attached to an existing base skin with its own splash art. Our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>Prestige Chroma guide</a> explains the collection context.</p></details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">心悦巅峰盛典 · 活动资讯</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">心悦巅峰盛典第 202606 期于 2026 年 7 月 1 日至 31 日开放统计。活动期间累计达到 50 万巅峰值，结算后即可领取<a href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)}>{rewardChroma.nameZh}</a>，并享有 3 个月独享期。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a class="chroma-art-link" href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)} aria-label={`查看 ${rewardChroma.nameZh} 详情`}>
+        <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={article.coverAltZh} width="1920" height="1080" loading="eager" decoding="async" />
+      </a>
+      <figcaption>{rewardChroma.nameZh}——心悦巅峰盛典第 202606 期奖励。</figcaption>
+    </figure>
+
+    <section>
+      <h2>活动规则</h2>
+      <p>腾讯游戏心悦俱乐部携手英雄联盟，带来本期<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202607/')}>心悦巅峰盛典</a>。活动期间，在英雄联盟官方渠道购买符合规则的虚拟道具及服务，消费会转化为巅峰值；巅峰值达到<strong>500000</strong>即可入席，并在活动结束后领取本期奖励。</p>
+      <p>统计时间为<strong>2026 年 7 月 1 日 00:00:00 至 7 月 31 日 23:59:59</strong>。巅峰值按召唤师 QQ 号统计，名下所有正式服大区的符合条件消费会合并计算。</p>
+      <p>奖励为<a href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)}>{rewardChroma.nameZh}</a>。获取该奖励的心悦召唤师享有 3 个月独享期，独享期结束后才会开放其他渠道获取。</p>
+    </section>
+
+    <section>
+      <h2>如何获得巅峰值</h2>
+      <p>官方公告列出的主要途径如下：</p>
+      <ul>
+        <li>在英雄联盟客户端内购买虚拟道具和服务，可使用点券、Q 币或微信支付。</li>
+        <li>通过掌上英雄联盟购买英雄联盟道具和服务。</li>
+        <li>通过道聚城 PC 页面、道聚城 App 或道聚城 H5 页面购买英雄联盟道具和服务。</li>
+        <li>在英雄联盟官方活动页面购买道具和服务，官方页面请认准 <code>lol.qq.com</code> 域名。</li>
+        <li>通过游戏商城、道聚城或掌盟商城赠送好友时，消费计入<strong>赠送者</strong>的 QQ 号。</li>
+      </ul>
+      <p>充值点券、非虚拟商品、微信及手机 QQ 腾讯充值页面英雄联盟专区的购买、云顶召唤商店的云石，以及峡谷之巅、体验服、比赛服等非正式大区不计入。具体项目和例外情况请直接查看<a href={eventUrl} target="_blank" rel="noreferrer">官方活动页面</a>；普通炫彩与臻彩的区别可参考<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>和<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩基础介绍</a>。</p>
+    </section>
+
+    <section>
+      <h2>什么时候结算，怎么领奖？</h2>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
+      <p>由于活动需要时间统计数据，官方活动页写明，统计结束后，巅峰盛典公布及奖励发放将在<strong>七个工作日内</strong>进行。进入巅峰盛典的召唤师需要前往相关活动页面，选择大区后领取臻彩。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul><li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">心悦巅峰盛典第 202606 期活动页</a></li></ul>
+      <p>Apple 并非本活动赞助方，也没有以任何形式参与活动。</p>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题</h2>
+      <details><summary>这个活动面向哪些玩家？</summary><p>活动面向英雄联盟国服及其正式服大区，不适用于拳头直营服。</p></details>
+      <details><summary>充值点券能获得巅峰值吗？</summary><p>不能。充值点券不计入巅峰值，但使用点券购买符合规则的虚拟道具或服务可以计入。</p></details>
+      <details><summary>什么是臻彩？</summary><p>臻彩依附于已有基础皮肤，并拥有独立的臻彩原画。关于臻彩的获取方式和图鉴范围，可以查看<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p></details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}.official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}.official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}.official-sources li{font-size:.88rem;line-height:1.6}.official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>

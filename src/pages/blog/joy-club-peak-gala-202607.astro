@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
@@ -97,6 +98,7 @@ const jsonLd = [
     <section>
       <h2>What is the Joy Club Peak Gala?</h2>
       <p>The Peak Gala is a recurring spending event run by Tencent Game Joy Club and League of Legends. Spend in LoL during the event window to build up &ldquo;peak value&rdquo;; hit the {thresholdPoints.toLocaleString()}-point mark to qualify and earn a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> after settlement.</p>
+      <p>The July 2026 event is covered in our <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202606/')}>July 2026 Peak Gala article</a>; each session has its own reward and counting window.</p>
       <p>Session 202607 runs from <strong>{eventStart.replace(/-/g, '/')} 00:00:00 to {eventEnd.replace(/-/g, '/')} 23:59:59</strong> China Standard Time. Peak value aggregates across every official-server region tied to a single QQ account &mdash; spending on any of your official accounts counts toward the same total.</p>
       <p>The session 202607 reward is <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a prestige chroma of the Spirit Blossom Kayle skin in deep tanzanite purple (<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>). Qualifying summoners get a <strong>{exclusiveWindowMonths}-month exclusive window</strong>; after it ends, the chroma opens up to other channels. Watch the official LoL site for the announcement.</p>
     </section>
@@ -133,17 +135,9 @@ const jsonLd = [
     <section>
       <h2>Rewards, settlement, and claiming</h2>
       <p>Qualifying players receive <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a <strong>diamond-tier prestige chroma</strong> of the Spirit Blossom Kayle skin. It stays exclusive to Peak Gala for {exclusiveWindowMonths} months, then opens to other channels.</p>
-      <ul class="chroma-grid">
-        <li>
-          <a class="chroma-card-link" href={rewardChromaUrl}>
-            <div class="chroma-card-img-wrap">
-              <img src={imageUrl(rewardChroma.images.medium)} data-fallback={sourceImageUrl('medium', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={rewardChroma.nameEn} width="960" height="540" loading="lazy" decoding="async" />
-              <div class="chroma-card-color"><ChromaColorCircle colors={rewardChroma.colors} /></div>
-            </div>
-            <span class="chroma-card-name">{rewardChroma.nameEn}</span>
-          </a>
-        </li>
-      </ul>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
       <p>Settlement starts <strong>{settlementWorkdays} working days after the window closes</strong>. <strong>Session 202607</strong> needs an extra {sessionExtraWorkdays} working days on top of that (Classic mode stats are tricky to aggregate) &mdash; expect rewards around mid-September 2026. Future sessions go back to the standard {settlementWorkdays}-day window.</p>
       <p>The reward is not auto-delivered. Qualifying summoners must <strong>visit the event page and select their server region</strong> to claim the chroma.</p>
     </section>
@@ -217,6 +211,7 @@ const jsonLd = [
     <section>
       <h2>什么是心悦巅峰盛典？</h2>
       <p>巅峰盛典是腾讯游戏心悦俱乐部和英雄联盟联合举办的周期性消费活动。活动期间在英雄联盟消费可累积巅峰值，满 {(thresholdPoints / 10000).toFixed(0)} 万即可入席，结算后领取<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>奖励。</p>
+      <p>上一期 7 月活动的统计窗口和奖励已整理在<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202606/')}>2026 年 7 月心悦巅峰盛典文章</a>中；每期都有独立的奖励和统计窗口。</p>
       <p>第 202607 期统计窗口为 <strong>{eventStart.replace(/-/g, '/')} 00:00:00 至 {eventEnd.replace(/-/g, '/')} 23:59:59</strong>。巅峰值按召唤师 QQ 号名下所有正式服大区聚合统计，任何一个正式服账号的消费都计入同一门槛。</p>
       <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，基于灵魂莲华 凯尔皮肤，主色调为深邃的坦桑石紫（<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>）。获取该臻彩的心悦召唤师享有 <strong>{exclusiveWindowMonths} 个月独享期</strong>，独享期结束后开放其他渠道获取，请关注官网公告。</p>
     </section>
@@ -253,17 +248,9 @@ const jsonLd = [
     <section>
       <h2>奖励、结算与领取</h2>
       <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，属于<strong>钻石臻彩</strong>。该臻彩在巅峰盛典享有 {exclusiveWindowMonths} 个月独享期，结束后开放其他渠道获取。</p>
-      <ul class="chroma-grid">
-        <li>
-          <a class="chroma-card-link" href={rewardChromaUrl}>
-            <div class="chroma-card-img-wrap">
-              <img src={imageUrl(rewardChroma.images.medium)} data-fallback={sourceImageUrl('medium', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={rewardChroma.nameZh} width="960" height="540" loading="lazy" decoding="async" />
-              <div class="chroma-card-color"><ChromaColorCircle colors={rewardChroma.colors} /></div>
-            </div>
-            <span class="chroma-card-name">{rewardChroma.nameZh}</span>
-          </a>
-        </li>
-      </ul>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
       <p>巅峰盛典奖励发放将在统计结束后 <strong>{settlementWorkdays} 个工作日内</strong>进行。<strong>本期（第 202607 期）</strong>因经典模式数据统计较复杂，额外需要 {sessionExtraWorkdays} 个工作日，预计 9 月中旬发放。后续巅峰盛典维持 {settlementWorkdays} 个工作日内结算。</p>
       <p>奖励不自动到账，达到门槛的召唤师需<strong>前往活动页面选择大区</strong>领取「灵魂莲华 凯尔 星回」。</p>
     </section>
@@ -355,7 +342,7 @@ const jsonLd = [
     .official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}
     .official-sources li{font-size:.88rem;line-height:1.6}
     .official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+
     @media(max-width:767px){
       .blog-breadcrumbs{padding-top:18px}
       .blog-article{padding:42px 0 76px}
@@ -363,6 +350,6 @@ const jsonLd = [
       .article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}
       .blog-article section{margin-top:36px}
       .blog-article section p{font-size:1rem;line-height:1.78}
-      .showcase{grid-template-columns:1fr;gap:26px;margin-top:32px}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+      .showcase{grid-template-columns:1fr;gap:26px;margin-top:32px}}
   </style>
 </BaseLayout>

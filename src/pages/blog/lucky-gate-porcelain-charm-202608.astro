@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
-import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
-import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import type { Chroma } from '../../domain/chroma';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
@@ -88,19 +89,9 @@ const jsonLd = [
     <section>
       <h2>Three prestige chromas and one mythical fantasy skin in the prize pool</h2>
       <p>The event offers four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our catalog; the mythical fantasy skin is not yet tracked. For the earlier Lucky Gate announcement and its Petals of Spring lineup, see the <a href={localizedPath(locale, '/blog/lucky-gate-petals-of-spring-chromas-202607/')}>July 2026 chroma preview</a>.</p>
-      <ul class="chroma-grid">
-        {catalogChromas.map((chroma) => (
-          <li>
-            <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>
-              <div class="chroma-card-img-wrap">
-                <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameEn} width="960" height="540" loading="lazy" decoding="async" />
-                <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
-              </div>
-              <span class="chroma-card-name">{chroma.nameEn}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <BlogChromaGrid>
+        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
       <p><strong>Porcelain Protector Ezreal (Lustrous)</strong> and <strong>Porcelain Lux (Beacon)</strong> are both Diamond Porcelain chromas from <a href={localizedPath(locale, '/blog/patch-26-16-prestige-chromas/')}>Patch 26.16</a> &mdash; the same batch that launched the <a href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}>Porcelain prestige chroma skinline</a>. This Lucky Gate event is their first appearance &mdash; they have not been available through any earlier path.</p>
       <p>The third prestige chroma, <strong>Firecracker Yuumi (Obsidian)</strong>, is a Lunar New Year limited chroma from the Firecracker skinline. The remaining reward is not in our catalog:</p>
       <ul>
@@ -153,19 +144,9 @@ const jsonLd = [
     <section>
       <h2>三款臻彩加一款神话幻想皮肤，奖池内容一览</h2>
       <p>本期活动提供四项主要奖励。其中三款是已收录在我们目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；神话幻想皮肤圣天龙李青暂未收录。想回看更早一轮幸运之门公告里的踏雪寻梅阵容，可以读<a href={localizedPath(locale, '/blog/lucky-gate-petals-of-spring-chromas-202607/')}>2026 年 7 月的臻彩预告</a>。</p>
-      <ul class="chroma-grid">
-        {catalogChromas.map((chroma) => (
-          <li>
-            <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>
-              <div class="chroma-card-img-wrap">
-                <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" alt={chroma.nameZh} width="960" height="540" loading="lazy" decoding="async" />
-                <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
-              </div>
-              <span class="chroma-card-name">{chroma.nameZh}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <BlogChromaGrid>
+        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
        <p><strong>青花瓷 伊泽瑞尔 素三彩之虎</strong>和<strong>青花瓷 拉克丝 五彩釉跃鲤</strong>都是<a href={localizedPath(locale, '/blog/patch-26-16-prestige-chromas/')}>26.16 版本</a>青花瓷系列中的钻石臻彩，和<a href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}>青花瓷臻彩系列</a>同期公布。这次幸运之门活动是它们的首次获取途径。</p>
       <p>第三款臻彩<strong>龙马烈焰 悠米 团团圆圆</strong>是春节限定的生肖臻彩，来自龙马烈焰系列。剩余一项奖励暂未收录到目录：</p>
       <ul>
@@ -202,7 +183,7 @@ const jsonLd = [
 
   <style is:global>
     .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{margin-top:48px;padding:20px 24px;border:1px solid var(--line);border-radius:8px;background:#11131e}.official-sources strong{display:block;color:#e6e8ee;font-size:.95rem;margin-bottom:10px}.official-sources ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}.official-source-link{color:var(--gold);text-decoration:none;font-size:.9rem}.official-source-link:hover{text-decoration:underline}
-    .chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
-    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:repeat(2,1fr);gap:8px}}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}}
   </style>
 </BaseLayout>
