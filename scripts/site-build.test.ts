@@ -200,9 +200,11 @@ describe('static site build', () => {
     const policy = readFileSync(join(dist, 'editorial-policy', 'index.html'), 'utf8');
     const chinesePolicy = readFileSync(join(dist, 'zh-cn', 'editorial-policy', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
+    const chineseArticle = readFileSync(join(dist, 'zh-cn', 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
     expect(policy).toContain('<title>Editorial Policy &amp; Sources | LoL Chroma Art</title>');
     expect(policy).toContain('Maintained by BreadJ and the LoL Chroma Art editorial team');
+    expect(policy).toContain('the League of Legends China Server, operated by Tencent');
     expect(policy).toContain('Sources and verification');
     expect(policy).toContain('Corrections and updates');
     expect(policy).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
@@ -214,6 +216,8 @@ describe('static site build', () => {
     expect(chinesePolicy).toContain('纠错与更新');
     expect(chinesePolicy).not.toContain('data-ad-boundary=');
     expect(article).toContain('href="/editorial-policy/"');
+    expect(chineseArticle).toContain('href="/zh-cn/editorial-policy/"');
+    expect(article).toContain('min-height:var(--touch-target)');
     expect(home).toContain('href="/editorial-policy/"');
   });
 
