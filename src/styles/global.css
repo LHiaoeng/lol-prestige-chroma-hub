@@ -27,7 +27,7 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .filters input,.filters select{width:100%;min-width:0;min-height:var(--touch-target);color:var(--text);background:#090b15;border:1px solid var(--line);border-radius:7px;padding:0 10px}
 .filters button,.button{align-self:end;min-height:var(--touch-target);padding:0 18px;border:1px solid var(--gold);border-radius:7px;background:var(--gold);color:#121019;font-weight:700;cursor:pointer}
 .filters .ghost{background:transparent;color:var(--gold)}
-.chroma-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.chroma-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.blog-article ul.chroma-grid{padding-left:0}
 .chroma-card{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:transform .2s ease,border-color .2s ease}
 .chroma-card:focus-within{border-color:#8b744b}
 @media(hover:hover) and (pointer:fine){.chroma-card:hover{transform:translateY(-4px);border-color:#8b744b}}

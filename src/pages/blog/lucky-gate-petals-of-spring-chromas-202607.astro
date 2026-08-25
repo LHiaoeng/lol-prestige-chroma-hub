@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'lucky-gate-petals-of-spring-chromas-202607');
+if (!article) throw new Error('Lucky Gate Petals of Spring article metadata is missing');
+
+const featuredChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.15' && [
+  'Petals of Spring Lillia',
+  'Petals of Spring Katarina',
+  'Petals of Spring Yasuo',
+].includes(item.skinNameEn));
+if (featuredChromas.length !== 3) throw new Error('Lucky Gate Petals of Spring chromas are missing from the catalog');
+
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=15850902128487429757';
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description,
+    image: article.coverUrl,
+    datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
+    mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩资讯' : 'League of Legends Prestige Chroma News',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>
+    <a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span>
+    <span aria-current="page">{isZh ? '幸运之门臻彩' : 'Lucky Gate Prestige Chromas'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LUCKY GATE · PRESTIGE CHROMA NEWS</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The July 29 announcement puts three Petals of Spring Prestige Chromas in the Lucky Gate summon pool: Lillia, Katarina, and Yasuo, all using the Emerald colour entry.</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>Petals of Spring Yasuo (Emerald) — one of the three chromas named in the official announcement.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Three chromas share one spring theme</h2>
+      <p>The official announcement names three rewards under “Lucky Gate: Summoning”: <strong>Petals of Spring Lillia (Emerald)</strong>, <strong>Petals of Spring Katarina (Emerald)</strong>, and <strong>Petals of Spring Yasuo (Emerald)</strong>. The Chinese subtitle “独步早春” is shared by all three.</p>
+      <p>That makes this a focused three-chroma release rather than a mixed list of unrelated cosmetics. The earlier <a href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}>Patch 26.15 roundup</a> places these entries alongside the other chromas from the same update.</p>
+      <ul class="chroma-grid chroma-grid-wide">
+        {featuredChromas.map((chroma) => <li>
+          <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={`View ${chroma.nameEn} details`}>
+            <div class="chroma-card-img-wrap">
+              <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" data-alt-en={`${chroma.nameEn} prestige chroma splash art`} data-alt-zh={`${chroma.nameZh}臻彩原画`} alt={`${chroma.nameEn} prestige chroma splash art`} width="960" height="540" loading="lazy" decoding="async" />
+              <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
+            </div>
+            <span class="chroma-card-name">{chroma.nameEn}</span>
+          </a>
+        </li>)}
+      </ul>
+    </section>
+
+    <section>
+      <h2>What the July 29 announcement confirms</h2>
+      <p>The notice says the Lucky Gate activity would appear in the Summoning Center alongside the July 30 launch of Season 3, Act 1. It specifically calls out the three Petals of Spring chromas as rare rewards that players could try to obtain.</p>
+      <p>The notice does not give the Lucky Gate odds or a separate end date in the chroma section. Treat the official activity page as the source of truth for live rules, pricing, and availability. This article records the named chromas, not a promise that the pool remains open.</p>
+    </section>
+
+    <section>
+      <h2>These are Prestige Chromas, not Prestige Skins</h2>
+      <p>On LoL Chroma Art, a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>Prestige Chroma</a> is a chroma attached to an existing base skin and recorded with its own splash art. That is a different object from a traditional Prestige Skin, even though both may appear in the same event announcement.</p>
+      <p>For these three entries, check the linked catalog cards for the base skin and artwork details before deciding whether a Lucky Gate reward fits your collection.</p>
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul><li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">Tencent League of Legends — July 29 announcement</a></li></ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details><summary>Which chromas are named in the announcement?</summary><p>Petals of Spring Lillia, Katarina, and Yasuo, all with the Emerald colour entry and the shared Chinese subtitle “独步早春”.</p></details>
+      <details><summary>Does the announcement give Lucky Gate odds?</summary><p>Not in the prestige chroma section. Check the live official activity page for the current rules; this article only records the named rewards.</p></details>
+      <details><summary>How are these different from regular chromas?</summary><p>These are Prestige Chromas with dedicated splash art. The <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>Prestige Chroma guide</a> explains the distinction and collection context.</p></details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">幸运之门 · 臻彩资讯</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">7 月 29 日公告预告，幸运之门·召唤将带来踏雪寻梅莉莉娅、卡特琳娜和亚索三款“独步早春”臻彩。</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>踏雪寻梅 亚索 独步早春——官方公告点名的三款臻彩之一。</figcaption>
+    </figure>
+
+    <section>
+      <h2>三款臻彩，统一叫“独步早春”</h2>
+      <p>官方公告在“幸运之门·召唤”部分点名了三款奖励：<strong>踏雪寻梅 莉莉娅 独步早春</strong>、<strong>踏雪寻梅 卡特琳娜 独步早春</strong>和<strong>踏雪寻梅 亚索 独步早春</strong>。站内目录将它们的英文配色记录为 Emerald。</p>
+      <p>这次不是把多个系列随意拼在一起，而是一次补齐踏雪寻梅三位英雄的同主题臻彩。想看同一批版本内容，可以接着读<a href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}>26.15 版本臻彩整理</a>。</p>
+      <ul class="chroma-grid chroma-grid-wide">
+        {featuredChromas.map((chroma) => <li>
+          <a class="chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)} aria-label={`查看 ${chroma.nameZh} 详情`}>
+            <div class="chroma-card-img-wrap">
+              <img src={imageUrl(chroma.images.medium)} data-fallback={sourceImageUrl('medium', chroma.instanceId)} data-placeholder="/placeholder.svg" data-alt-en={`${chroma.nameEn} prestige chroma splash art`} data-alt-zh={`${chroma.nameZh}臻彩原画`} alt={`${chroma.nameZh}臻彩原画`} width="960" height="540" loading="lazy" decoding="async" />
+              <div class="chroma-card-color"><ChromaColorCircle colors={chroma.colors} /></div>
+            </div>
+            <span class="chroma-card-name">{chroma.nameZh}</span>
+          </a>
+        </li>)}
+      </ul>
+    </section>
+
+    <section>
+      <h2>公告确认了哪些信息？</h2>
+      <p>公告称，幸运之门活动会和 7 月 30 日开启的第 3 赛季第 1 幕通行证一起上架召唤中心，并把上面三款踏雪寻梅臻彩列为可争取的珍稀奖励。</p>
+      <p>这篇公告的臻彩部分没有写出幸运之门的概率，也没有单独列出活动结束时间。实时规则、价格和开放状态要以官方活动页为准。本文只整理公告点名的三款臻彩，不把通行证、至臻维迦或战利品内容混进来。</p>
+    </section>
+
+    <section>
+      <h2>它们是臻彩，不是至臻皮肤</h2>
+      <p>在 LoL Chroma Art 中，<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>依附于已有基础皮肤，并拥有自己的臻彩原画。它和公告里同样可能出现的至臻皮肤不是同一个对象。</p>
+      <p>准备参与前，可以先打开上面的图鉴卡片，确认对应基础皮肤和原画资料，再决定这次幸运之门是否值得加入收藏计划。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul><li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">腾讯《英雄联盟》— 7 月 29 日官方公告</a></li></ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题</h2>
+      <details><summary>公告点名了哪三款臻彩？</summary><p>踏雪寻梅 莉莉娅、踏雪寻梅 卡特琳娜和踏雪寻梅 亚索，三款中文副标题都是“独步早春”。</p></details>
+      <details><summary>公告里有幸运之门的概率吗？</summary><p>臻彩相关段落没有公布概率。请以官方活动页的实时规则为准，本文只记录公告点名的奖励。</p></details>
+      <details><summary>它们和普通炫彩有什么区别？</summary><p>这三款属于拥有独立原画的臻彩。想了解臻彩和普通炫彩的区别，可以查看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p></details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}.official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}.official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}.official-sources li{font-size:.88rem;line-height:1.6}.official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}.chroma-grid,.chroma-grid-wide{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.chroma-grid li{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}.chroma-grid li:hover{border-color:#b99b57;transform:translateY(-2px)}.chroma-card-link{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}.chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}.chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}.chroma-card-img-wrap img{display:block;width:100%;height:auto}.chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}.chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.chroma-grid,.chroma-grid-wide{grid-template-columns:1fr;gap:8px}}
+  </style>
+</BaseLayout>

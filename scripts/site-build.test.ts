@@ -54,9 +54,12 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'patch-26-16-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'challenger-mayhem-jax-prestige-chroma', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'lucky-gate-porcelain-charm-202608', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'lucky-gate-petals-of-spring-chromas-202607', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'zh-cn', 'blog', 'lucky-gate-petals-of-spring-chromas-202607', 'index.html'))).toBe(true);
     const blog = readFileSync(join(dist, 'blog', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-is-league-of-legends', 'index.html'), 'utf8');
     const eventArticle = readFileSync(join(dist, 'blog', 'challenger-mayhem-jax-prestige-chroma', 'index.html'), 'utf8');
+    const petalsArticle = readFileSync(join(dist, 'blog', 'lucky-gate-petals-of-spring-chromas-202607', 'index.html'), 'utf8');
     const prestigeArticle = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const kaisaArticle = readFileSync(join(dist, 'blog', 'kaisa-prestige-chroma', 'index.html'), 'utf8');
     expect(kaisaArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/kaisa-prestige-chroma/">');
@@ -71,6 +74,10 @@ describe('static site build', () => {
     expect(article).toContain('pagead2.googlesyndication.com');
     expect(eventArticle).toContain('data-ad-boundary="editorial-article"');
     expect(eventArticle).toContain('pagead2.googlesyndication.com');
+    expect(petalsArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/lucky-gate-petals-of-spring-chromas-202607/">');
+    expect(petalsArticle).toContain('Lucky Gate: Three Petals of Spring Prestige Chromas');
+    expect(petalsArticle).toContain('Petals of Spring Lillia (Emerald)');
+    expect(petalsArticle).toContain('15850902128487429757');
     expect(blog).toContain('data-ad-boundary="editorial-article"');
     expect(blog).toContain('pagead2.googlesyndication.com');
     expect(article).not.toContain('召唤师峡谷与水晶枢纽');
@@ -159,6 +166,11 @@ describe('static site build', () => {
     expect(chineseArticle).not.toContain('data-language-content="en"');
     expect(chineseCoverage).toContain('data-coverage-list="zh"');
     expect(chineseCoverage).not.toContain('data-coverage-list="en"');
+  });
+
+  it('removes list indentation from blog chroma grids', () => {
+    const styles = readFileSync(join(root, 'src', 'styles', 'global.css'), 'utf8');
+    expect(styles).toContain('.blog-article ul.chroma-grid{padding-left:0}');
   });
 
   it('publishes bilingual maintenance details for all six evergreen guides', () => {

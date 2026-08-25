@@ -22,6 +22,8 @@
 | **challenger-mayhem-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — | ❌ |
 | **lucky-gate-porcelain-charm-202608** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | — |
 
+新增页面 `lucky-gate-petals-of-spring-chromas-202607` 的关系：正文链向 `what-are-prestige-chromas` 与 `patch-26-15-prestige-chromas`；`patch-26-15-prestige-chromas` 和 `lucky-gate-porcelain-charm-202608` 回链本页。
+
 ## 入链统计
 
 | 页面 | 入链数 | 状态 |
@@ -34,11 +36,12 @@
 | champion-most-prestige-chromas | 2 | ✅ 良好 |
 | top-2-prestige-chroma-champions | 0 | ❌ 孤岛 |
 | prestige-chroma-summon-august-2026 | 3 | ✅ 良好 |
-| patch-26-15-prestige-chromas | 0 | ❌ 孤岛 |
+| patch-26-15-prestige-chromas | 1 | ✅ 已连接 |
 | blue-porcelain-prestige-chromas | 3 | ✅ 良好 |
 | patch-26-16-prestige-chromas | 2 | ✅ 良好 |
 | challenger-mayhem-jax-prestige-chroma | 0 | ❌ 新孤岛 |
 | lucky-gate-porcelain-charm-202608 | 2 | ✅ 新页面 |
+| lucky-gate-petals-of-spring-chromas-202607 | 2 | ✅ 新页面 |
 
 ## 待补充内链
 
@@ -130,3 +133,4 @@
 - 2026-08-14: 新增 patch-26-16-prestige-chromas，正文链向 blue-porcelain、what-are-prestige-chromas、what-are-chroma-skins、champion-most；从 patch-26-15 和 blue-porcelain 回改内链
 - 2026-08-18: 新增 challenger-mayhem-jax-prestige-chroma，正文链向 what-are-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026
 - 2026-08-20: 新增 lucky-gate-porcelain-charm-202608，正文链向 what-are-prestige-chromas、what-are-chroma-skins、blue-porcelain-prestige-chromas、patch-26-16-prestige-chromas、prestige-chroma-summon-august-2026、splendid-treasure-august-2026；从 blue-porcelain-prestige-chromas 和 patch-26-16-prestige-chromas 回改内链
+- 2026-07-29: 新增 lucky-gate-petals-of-spring-chromas-202607，正文链向 what-are-prestige-chromas 和 patch-26-15-prestige-chromas；从 patch-26-15-prestige-chromas 和 lucky-gate-porcelain-charm-202608 回改内链

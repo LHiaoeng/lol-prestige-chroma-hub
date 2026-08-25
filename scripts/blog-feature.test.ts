@@ -462,6 +462,35 @@ describe('blog feature contract', () => {
     expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.16')");
   });
 
+  it('renders the Lucky Gate Petals of Spring prestige chroma article', () => {
+    const page = source('src/pages/blog/lucky-gate-petals-of-spring-chromas-202607.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain("catalog.filter((item) => item.gameVer === '26.15'");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=15850902128487429757');
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/<details>/g)).toHaveLength(6);
+    for (const heading of [
+      'Three chromas share one spring theme',
+      'What the July 29 announcement confirms',
+      'These are Prestige Chromas, not Prestige Skins',
+      '三款臻彩，统一叫“独步早春”',
+      '公告确认了哪些信息？',
+      '它们是臻彩，不是至臻皮肤',
+    ]) expect(page).toContain(heading);
+  });
+
   it('renders a complete localized Haibow Jax prestige chroma article', () => {
     const page = source('src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro');
     expect(page).toContain("'@type': 'BlogPosting'");
