@@ -1,5 +1,7 @@
 # 01：收敛图鉴索引与广告范围
 
+> 本地实施草稿：权威 Issue 与状态以 GitHub Issues 为准，详见 `docs/agents/issue-tracker.md`。
+
 **What to build:** 保留图鉴首页和博客广告，将详情页稳定为无广告参考资料，减少低价值页面进入搜索索引，并消除空白成功页面。
 
 **Blocked by:** None (can start immediately)

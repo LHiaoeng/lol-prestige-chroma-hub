@@ -1,5 +1,7 @@
 # 04：完成复审前产物审计
 
+> 本地实施草稿：权威 Issue 与状态以 GitHub Issues 为准，详见 `docs/agents/issue-tracker.md`。
+
 **What to build:** 用发布构建验证整改后的实际静态产物，并形成重新抓取与 AdSense 复审前的检查结果。
 
 **Blocked by:** 01：收敛图鉴索引与广告范围；02：补齐编辑可信度页面；03：发布六篇双语常青指南

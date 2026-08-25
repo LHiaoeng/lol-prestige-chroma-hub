@@ -1,5 +1,7 @@
 # 03：发布六篇双语常青指南
 
+> 本地实施草稿：权威 Issue 与状态以 GitHub Issues 为准，详见 `docs/agents/issue-tracker.md`。
+
 **What to build:** 发布六篇具有独立搜索与阅读价值的原创常青指南，每篇同时提供中文和英文版本。
 
 **Blocked by:** 02：补齐编辑可信度页面

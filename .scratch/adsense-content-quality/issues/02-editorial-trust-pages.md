@@ -1,5 +1,7 @@
 # 02：补齐编辑可信度页面
 
+> 本地实施草稿：权威 Issue 与状态以 GitHub Issues 为准，详见 `docs/agents/issue-tracker.md`。
+
 **What to build:** 为站点提供中英双语的作者、编辑原则、资料来源和纠错说明，使内容责任和维护方式可核验。
 
 **Blocked by:** None (can start immediately)
