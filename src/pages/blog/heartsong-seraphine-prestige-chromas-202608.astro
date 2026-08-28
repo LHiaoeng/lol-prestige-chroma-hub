@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import type { Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'heartsong-seraphine-prestige-chromas-202608');
+if (!article) throw new Error('Heartsong Seraphine launch article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const sourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=5139631504250084137';
+const charitySourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=15049214926825968357';
+const posterSourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=1922461044220370320';
+const announceSourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=5497789012765032025';
+const liveStreamSourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=13410569553974498576';
+const eventUrl = 'https://lol.qq.com/act/a20260828heartsong/index.html?e_code=558109';
+const luckyGateUrl = 'https://lol.qq.com/act/a202608277402prizewheel/index.html';
+
+const pearlChroma = catalog.find((c) => c.heroId === '147' && c.skinNameEn === 'Heartsong Seraphine' && c.nameEn === 'Heartsong Seraphine (Pearl)');
+const rubyChroma = catalog.find((c) => c.heroId === '147' && c.skinNameEn === 'Heartsong Seraphine' && c.nameEn === 'Heartsong Seraphine (Ruby)');
+const sapphireChroma = catalog.find((c) => c.heroId === '147' && c.skinNameEn === 'Heartsong Seraphine' && c.nameEn === 'Heartsong Seraphine (Sapphire)');
+const catalogChromas: Chroma[] = [pearlChroma, rubyChroma, sapphireChroma].filter((c): c is Chroma => c != null);
+
+const faqEntries = isZh ? [
+  { question: '心之歌萨勒芬妮的三款臻彩叫什么名字？', answer: `三款都是钻石臻彩，分别是「心之歌 萨勒芬妮 晴彩泡沫」「心之歌 萨勒芬妮 我会走向你」「心之歌 萨勒芬妮 光年之约」。详见我们的<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">臻彩专题</a>。` },
+  { question: '幸运之门·心之歌召唤活动什么时候结束？', answer: '活动时间为 2026 年 8 月 27 日至 9 月 27 日 23:59。三款臻彩均为幸运之门超级奖励，不可重复获得。' },
+  { question: '“暖心行动”公益捐赠金额是多少？', answer: '心之歌萨勒芬妮皮肤与三款臻彩项目承诺向“暖心行动”公益专项捐赠总计不低于 1000 万元善款，用于支持乡村儿童与残障儿童。' },
+] : [
+  { question: 'What are the three Heartsong Seraphine prestige chromas called?', answer: `All three are Diamond prestige chromas: Heartsong Seraphine (Pearl), Heartsong Seraphine (Ruby), and Heartsong Seraphine (Sapphire). See our <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chroma guide</a> for the framework.` },
+  { question: 'When does the Lucky Gate: Heartsong summoning event end?', answer: 'The event runs from August 27 through September 27, 2026 at 23:59. The three chromas are Lucky Gate super rewards and cannot be obtained more than once.' },
+  { question: 'How much does the Warm Heart Action charity receive?', answer: 'The Heartsong Seraphine skin and its three prestige chromas commit a minimum donation of 10 million RMB to the Warm Heart Action charity fund for rural children and children with disabilities.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '心之歌萨勒芬妮上线' : 'Heartsong Seraphine Launch'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL HEARTSONG SERAPHINE LAUNCH</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">Heartsong Seraphine went live on August 27, 2026, headlining League of Legends&rsquo; 15th anniversary. The skin ships with three Diamond prestige chromas &mdash; Pearl, Ruby, and Sapphire &mdash; alongside GEM (Deng Ziqi) as the IP series Starry Messenger and a minimum 10 million RMB donation to the Warm Heart Action fund.</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
+        <span>·</span>
+        <span>{article.readingMinutes} min read</span>
+      </p>
+    </header>
+
+    <figure>
+      <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt={article.coverAltEn} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>Heartsong Seraphine (Pearl) prestige chroma splash art.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Three Diamond prestige chromas for Seraphine</h2>
+      <p>The Heartsong skinline leans on the idea that one song can connect everyone, and Seraphine gets three Diamond <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> on launch day. The three go in different directions: <strong>Heartsong Seraphine (Pearl)</strong> in pearl white, <strong>Heartsong Seraphine (Ruby)</strong> in red, and <strong>Heartsong Seraphine (Sapphire)</strong> in deep blue. They also show up in the <a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>Patch 26.17</a> catalog additions, but this event is the first time all three are obtainable together.</p>
+      <BlogChromaGrid>
+        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+      <p>The catalog marks <strong>Heartsong Seraphine (Ruby)</strong> as a 2026 bundle exclusive. Pearl sets her on a sunlit beach with foam at her feet; Sapphire moves the stage into a cosmic concert hall; Ruby projects a giant, semi-transparent close-up of her own face behind her, singing toward the listener.</p>
+    </section>
+
+    <section>
+      <h2>GEM as League of Legends IP Starry Messenger and the 10 million RMB charity commitment</h2>
+      <p>GEM (Deng Ziqi) is named the League of Legends IP series Starry Messenger (星籁合伙人) for the launch. The announcement went out at 18:05 on August 27, with the chroma poster and launch trailer following within the hour. The same day, the Heartsong Seraphine project committed a minimum 10 million RMB donation to the &ldquo;Warm Heart Action&rdquo; fund.</p>
+      <p>The money goes two places: each Heartsong Seraphine skin bought pays for one week of free school meals and a custom thermos for a rural child; the prestige chromas&rsquo; revenue funds home repairs and assistive devices for 100 children with disabilities. Both direct purchases and Lucky Gate pulls count toward the donation.</p>
+    </section>
+
+    <section>
+      <h2>Lucky Gate: Heartsong summoning event runs through September 27</h2>
+      <p>The three Heartsong prestige chromas double as the super rewards in a <a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>Lucky Gate</a> summoning event that opened August 27 and runs through September 27, 2026 at 23:59. The wheel has 10 rounds of 8 slots each; land on the Lucky Gate ticket and the round ends, paying out one remaining super reward and moving you to the next round.</p>
+      <p>Initial super-reward probabilities for the three Heartsong chromas are 0.20% for Pearl, 1.17% for Sapphire, and 1.17% for Ruby. Each round starts at 300 coupons for a single pull and 2,400 for a full round, scaling up to 3,000 / 24,000 in rounds 8&ndash;10. Players who already own a chroma and pull a duplicate receive 30 Mythic Essence instead. The full pull costs, probabilities, and the self-select pool rules are on the <a href={luckyGateUrl} target="_blank" rel="noreferrer">official Lucky Gate event page</a>.</p>
+    </section>
+
+    <section>
+      <h2>A 15th anniversary live commerce stream</h2>
+      <p>A 15th anniversary live commerce stream starts at 10:00 on August 27 on the official LoL Douyin channel. Limited-time bundles include a 19.9 RMB skin gift box, a self-select mythic Heartsong prestige chroma bundle, a Season 18 cloud-stone pack, and a stream-only icon (&ldquo;有狸真好&rdquo;). The skin alone costs 109 RMB; the complete bundle with icon, loading border, and emote is 149 RMB.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">Heartsong Seraphine launch announcement &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={announceSourceUrl} target="_blank" rel="noreferrer">GEM as IP Starry Messenger announcement &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={posterSourceUrl} target="_blank" rel="noreferrer">Heartsong prestige chroma poster reveal &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={charitySourceUrl} target="_blank" rel="noreferrer">Warm Heart Action charity announcement &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={liveStreamSourceUrl} target="_blank" rel="noreferrer">Heartsong live commerce broadcast &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Heartsong Seraphine event page &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={luckyGateUrl} target="_blank" rel="noreferrer">Lucky Gate: Heartsong summoning event &mdash; LoL Official Site</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 心之歌萨勒芬妮上线</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">2026 年 8 月 27 日，心之歌萨勒芬妮上线，是英雄联盟 15 周年庆的主角内容。三款钻石臻彩——晴彩泡沫、我会走向你、光年之约——与皮肤同步开售，邓紫棋出任 IP 系列星籁合伙人，项目承诺向“暖心行动”公益专项捐赠不低于 1000 万元。</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
+        <span>·</span>
+        <span>阅读约 {article.readingMinutes} 分钟</span>
+      </p>
+    </header>
+
+    <figure>
+      <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt={article.coverAltZh} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>心之歌 萨勒芬妮 晴彩泡沫臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>三款钻石臻彩，一次到位</h2>
+      <p>心之歌系列的主题是「有一首歌连接了我们所有人」，上线当天同时给萨勒芬妮放出三款钻石臻彩。三款原画色调各走一路：<strong>心之歌 萨勒芬妮 晴彩泡沫</strong>用珍珠白，<strong>心之歌 萨勒芬妮 我会走向你</strong>用正红，<strong>心之歌 萨勒芬妮 光年之约</strong>用深蓝。它们也收录在<a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>26.17 版本</a>的目录新增里，但本次活动是三款首次共同开放获取的途径。</p>
+      <BlogChromaGrid>
+        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+      <p>目录备注写明「我会走向你」在 2026 年期间是礼包专属。晴彩泡沫把萨勒芬妮放在海边，脚下是泡沫、头顶是阳光；光年之约把舞台搬进宇宙太空；我会走向你在她身后投出一块半透明的巨型面部特写，把这首歌「唱给你听」。</p>
+    </section>
+
+    <section>
+      <h2>邓紫棋出任 IP 系列星籁合伙人，承诺捐赠不低于 1000 万元</h2>
+      <p>邓紫棋（GEM）在本次上线中出任英雄联盟 IP 系列星籁合伙人。官宣在 8 月 27 日 18:05 发布，臻彩海报和上线预告在一小时内接连推出。同日，心之歌项目承诺向「暖心行动」公益专项捐赠不低于 1000 万元。</p>
+      <p>钱分两处用：每卖出一份心之歌萨勒芬妮皮肤，对应为一名乡村儿童提供一周免费午餐和一只定制保温杯；三款臻彩的收益用于为 100 位困难残障儿童改善居住环境、定制助残设备。直接购买和参与幸运之门召唤都算进捐赠池。</p>
+    </section>
+
+    <section>
+      <h2>幸运之门·心之歌召唤活动持续至 9 月 27 日</h2>
+      <p>三款心之歌臻彩同时也是一期<a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>幸运之门</a>召唤活动的超级奖励。活动 8 月 27 日开放，9 月 27 日 23:59 结束。奖池分 10 轮，每轮 8 个奖励；抽中幸运之门门票就结束本轮、进入下一轮，并从超级奖励中随机拿一项。</p>
+      <p>三款臻彩的初始超级奖励概率为：晴彩泡沫 0.20%，光年之约 1.17%，我会走向你 1.17%。第 1 轮单抽 300 点券、整轮 2,400 点券，第 8&ndash;10 轮升至 3,000 / 24,000。若已拥有其中某款臻彩又重复抽中，将获得神话精萃×30。完整抽取成本、概率与自选奖池规则见<a href={luckyGateUrl} target="_blank" rel="noreferrer">幸运之门活动官方页面</a>。</p>
+    </section>
+
+    <section>
+      <h2>15 周年直播带货专场同步开启</h2>
+      <p>8 月 27 日 10:00，英雄联盟官方抖音直播间开播 15 周年·心之歌直播带货专场。限时上架的礼包有 19.9 元精选皮肤礼盒、自选神话心之歌臻彩礼包、第 18 赛季特惠云石礼包，以及直播间限定图标「有狸真好」。心之歌萨勒芬妮皮肤单卖 109 Q 币，完全体礼包 149 Q 币（含图标、载入边框和「我听不到你」表情）。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">心之歌萨勒芬妮上线公告 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={announceSourceUrl} target="_blank" rel="noreferrer">邓紫棋出任 IP 系列星籁合伙人官宣 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={posterSourceUrl} target="_blank" rel="noreferrer">心之歌臻彩海报发布 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={charitySourceUrl} target="_blank" rel="noreferrer">暖心行动公益公告 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={liveStreamSourceUrl} target="_blank" rel="noreferrer">心之歌直播带货专场公告 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">心之歌萨勒芬妮活动页面 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={luckyGateUrl} target="_blank" rel="noreferrer">幸运之门·心之歌召唤活动 — 英雄联盟官网</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{margin-top:48px;padding:20px 24px;border:1px solid var(--line);border-radius:8px;background:#11131e}.official-sources strong{display:block;color:#e6e8ee;font-size:.95rem;margin-bottom:10px}.official-sources ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}.official-source-link{color:var(--gold);text-decoration:none;font-size:.9rem}.official-source-link:hover{text-decoration:underline}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>

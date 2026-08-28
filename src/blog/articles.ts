@@ -46,6 +46,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'heartsong-seraphine-prestige-chromas-202608',
+    href: '/blog/heartsong-seraphine-prestige-chromas-202608/',
+    titleEn: 'Heartsong Seraphine Launch: GEM, Three Prestige Chromas, and a Lucky Gate',
+    titleZh: '心之歌萨勒芬妮上线：邓紫棋、三款臻彩与幸运之门',
+    summaryEn: 'Heartsong Seraphine launched August 27, 2026 with three Diamond prestige chromas — Pearl, Ruby, and Sapphire — alongside GEM (Deng Ziqi) as the League of Legends IP Starry Messenger. The project commits at least 10 million RMB to the Warm Heart Action charity, and a Lucky Gate summoning event runs through September 27.',
+    summaryZh: '2026 年 8 月 27 日，心之歌萨勒芬妮上线，带来晴彩泡沫、我会走向你、光年之约三款钻石臻彩，邓紫棋担任英雄联盟 IP 系列星籁合伙人。心之歌项目承诺向“暖心行动”公益专项捐赠不低于 1000 万元，幸运之门·心之歌召唤活动同步开放至 9 月 27 日。',
+    publishedAt: '2026-08-27',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/94dccf54-86af-4c8d-9525-99e5a989d5f5/site3.jpg',
+    coverAltEn: 'Heartsong Seraphine (Pearl) prestige chroma splash art',
+    coverAltZh: '心之歌 萨勒芬妮 晴彩泡沫臻彩原画',
+    sourceUrl: 'https://lol.qq.com/act/a20260828heartsong/index.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'patch-26-17-prestige-chromas',
     href: '/blog/patch-26-17-prestige-chromas/',
     titleEn: 'LoL Patch 26.17: 7 New Prestige Chromas',

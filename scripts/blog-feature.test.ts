@@ -29,6 +29,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
+      'src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro',
     ]) {
       const page = source(pagePath);
       expect(page).toContain('BlogChromaGrid');
@@ -117,6 +118,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
+      'src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro',
     ]) {
       const page = source(pagePath);
       expect(page.match(/<BlogAdjacentNavigation currentSlug=\{article\.slug\} \{locale\} \/>/g)).toHaveLength(1);
@@ -661,6 +663,51 @@ describe('blog feature contract', () => {
       '三款臻彩加一款神话幻想皮肤，奖池内容一览',
       '青花瓷臻彩背后的景德镇瓷艺',
       '活动持续一个月',
+    ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete localized Heartsong Seraphine launch article', () => {
+    const page = source('src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=5139631504250084137');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=15049214926825968357');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=1922461044220370320');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=5497789012765032025');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=13410569553974498576');
+    expect(page).toContain('https://lol.qq.com/act/a20260828heartsong/index.html?e_code=558109');
+    expect(page).toContain('https://lol.qq.com/act/a202608277402prizewheel/index.html');
+    expect(page).toContain('<style is:global>');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/<figure>/g)).toHaveLength(2);
+    expect(page).toContain('article.coverUrl');
+    for (const heading of [
+      'Three Diamond prestige chromas for Seraphine',
+      'GEM as League of Legends IP Starry Messenger and the 10 million RMB charity commitment',
+      'Lucky Gate: Heartsong summoning event runs through September 27',
+      'A 15th anniversary live commerce stream',
+      '三款钻石臻彩，一次到位',
+      '邓紫棋出任 IP 系列星籁合伙人，承诺捐赠不低于 1000 万元',
+      '幸运之门·心之歌召唤活动持续至 9 月 27 日',
+      '15 周年直播带货专场同步开启',
     ]) expect(page).toContain(heading);
   });
 });

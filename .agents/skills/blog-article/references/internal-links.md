@@ -142,3 +142,4 @@
 - 2026-08-27: 新增 patch-26-17-prestige-chromas，正文链向 what-are-prestige-chromas、patch-26-16-prestige-chromas、challenger-mayhem-jax-prestige-chroma 和 champion-most-prestige-chromas；按用户要求不修改旧文回链
 - 2026-07-29: 新增 lucky-gate-petals-of-spring-chromas-202607，正文链向 what-are-prestige-chromas 和 patch-26-15-prestige-chromas；从 patch-26-15-prestige-chromas 和 lucky-gate-porcelain-charm-202608 回改内链
 - 2026-07-01: 新增 joy-club-peak-gala-202606（官方第 202606 期），正文链向原有 joy-club-peak-gala-202607、what-are-prestige-chromas 和 what-are-chroma-skins；从原有 joy-club-peak-gala-202607 和 what-are-prestige-chromas 回改内链
+- 2026-08-28: 新增 heartsong-seraphine-prestige-chromas-202608（合并 7 个官网链接的心之歌萨勒芬妮上线资讯），正文链向 what-are-prestige-chromas、patch-26-17-prestige-chromas 与 lucky-gate-porcelain-charm-202608；FAQ 链向 what-are-prestige-chromas；从 patch-26-17-prestige-chromas 与 lucky-gate-porcelain-charm-202608 回改内链
