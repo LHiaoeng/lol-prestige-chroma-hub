@@ -4,6 +4,7 @@ import ChromaCard from '../components/ChromaCard.astro';
 import Filters from '../components/Filters.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
+import { articleHref, blogArticles, blogCategoryLabels, formatBlogDate } from '../blog/articles';
 import { catalog } from '../data/catalog';
 import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
@@ -14,6 +15,7 @@ interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const firstPage = catalog.slice(0, 24);
+const latestArticles = blogArticles.slice(0, 3);
 const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 const heroDescriptionEn = CHINA_EXCLUSIVE_DEFINITION.en;
@@ -40,6 +42,21 @@ const jsonLd = isZh ? [
     </div>
     <div class="scroll-hint" aria-hidden="true">
       <span class="scroll-mouse"><span class="scroll-wheel"></span></span>
+    </div>
+  </section>
+  <section class="latest-section" aria-labelledby="latest-title">
+    <div class="section-heading">
+      <div><h2 id="latest-title">{isZh ? '最新资讯与指南' : 'Latest News & Guides'}</h2></div>
+      <a class="see-all" href={localizedPath(locale, '/blog/')}>{isZh ? '查看全部 →' : 'View all →'}</a>
+    </div>
+    <div class="guide-list">
+      {latestArticles.map((entry) => (
+        <a class="guide-card" href={articleHref(entry, locale)}>
+          <p class="guide-category">{isZh ? blogCategoryLabels[entry.category].zh : blogCategoryLabels[entry.category].en}</p>
+          <h3>{isZh ? entry.titleZh : entry.titleEn}</h3>
+          <time datetime={entry.publishedAt}>{formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')}</time>
+        </a>
+      ))}
     </div>
   </section>
   <section class="catalog-section" aria-labelledby="catalog-title">
@@ -87,9 +104,20 @@ const jsonLd = isZh ? [
   .scroll-wheel { display: block; width: 4px; height: 8px; background: var(--gold); border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scroll-wheel 2s ease-in-out infinite; }
   @keyframes scroll-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
   @keyframes scroll-wheel { 0% { opacity: 1; top: 8px; } 100% { opacity: 0; top: 22px; } }
+  .latest-section { width: min(1240px, calc(100% - 48px)); margin-inline: auto; padding-top: 64px; padding-bottom: 72px; }
+  .see-all { flex: none; color: var(--gold); font-weight: 700; }
+  .guide-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .guide-card { display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; transition: border-color .2s ease; }
+  .guide-card:hover { border-color: var(--gold); }
+  .guide-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .guide-category { color: var(--gold); font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+  .guide-card h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-family: Georgia, "Noto Serif SC", serif; font-size: 1.05rem; line-height: 1.35; overflow-wrap: anywhere; }
+  .guide-card time { color: var(--muted); font-size: .78rem; margin-top: auto; }
+  @media (max-width: 900px) { .guide-list { grid-template-columns: 1fr; } }
   @media (max-width: 680px) {
     .hero-section { padding:64px 0; }
     .hero-content { width: min(100% - 28px, 1240px); }
+    .latest-section { width: min(100% - 28px, 1240px); padding-top: 48px; padding-bottom: 56px; }
   }
   @media (prefers-reduced-motion: reduce) { .scroll-hint { animation:none; } }
 </style>

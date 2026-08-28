@@ -370,6 +370,7 @@ img.chromaart.lol 规范图片
 - 品牌统一写作 `LoL Chroma Art`，所有语言保持同一品牌名；
 - 定位语统一写作 `China-Exclusive Chroma Splash Art Archive`；
 - 首页覆盖宽泛的 China-Exclusive Chroma Splash Art 搜索意图；
+- 首页在图鉴之前展示最新 3 篇博客文章（紧凑链接卡），让访客第一时间发现资讯与指南内容；
 - `Prestige Chroma` 只用于“臻彩”分类和对应记录，不作为全站内容类型；
 - 详情页覆盖名称、英雄、原皮和原画长尾意图；
 - 数字兼容路由不进入 Sitemap；

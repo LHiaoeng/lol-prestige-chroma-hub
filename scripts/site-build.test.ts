@@ -139,6 +139,21 @@ describe('static site build', () => {
     expect(about).not.toContain('Players should prepare');
   });
 
+  it('surfaces the latest blog articles on the homepage', () => {
+    const home = readFileSync(join(dist, 'index.html'), 'utf8');
+    const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
+    expect(home).toContain('Latest News & Guides');
+    expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/patch-26-17-prestige-chromas/"');
+    expect(home).toContain('href="/blog/lucky-gate-porcelain-charm-202608/"');
+    expect(home).toContain('href="/blog/challenger-mayhem-jax-prestige-chroma/"');
+    expect(chineseHome).toContain('最新资讯与指南');
+    expect(chineseHome).toContain('href="/zh-cn/blog/"');
+    expect(chineseHome).toContain('href="/zh-cn/blog/patch-26-17-prestige-chromas/"');
+    expect(chineseHome).toContain('href="/zh-cn/blog/lucky-gate-porcelain-charm-202608/"');
+    expect(chineseHome).toContain('href="/zh-cn/blog/challenger-mayhem-jax-prestige-chroma/"');
+  });
+
   it('emits Simplified Chinese canonical routes as server-rendered pages', () => {
     const sample = catalog[0];
     const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
