@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'patch-26-17-prestige-chromas');
+if (!article) throw new Error('Patch 26.17 prestige chroma article metadata is missing');
+const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.17');
+if (patchChromas.length === 0) throw new Error('No prestige chromas found for Patch 26.17');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const faqEntries = isZh ? [
+  { question: '26.17 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：心之歌 萨勒芬妮 3 款钻石臻彩（光年之约、我会走向你、晴彩泡沫），海之歌 金克丝 燥音和海之歌 索拉卡 拾音 2 款钻石臻彩，天龙之子 黛安娜 祥龙献瑞，以及源计划：孤狼 贾克斯 海斗大赛限定。` },
+  { question: '源计划：孤狼 贾克斯 海斗大赛限定怎么获得？', answer: `在<a href="${localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}">海斗大赛</a>中累计取得 15 场胜利，8 月 27 日起即可免费领取这款臻彩及对应基础皮肤。赛事为国服专属，其他服务器没有。` },
+  { question: '这些是至臻皮肤吗？', answer: `不是。它们是拥有独立原画的<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">臻彩</a>，依附于现有皮肤，并非传统的至臻皮肤。` },
+] : [
+  { question: 'Which prestige chromas are in LoL Patch 26.17?', answer: `${patchChromas.length} in total: three Diamond Heartsong chromas for Seraphine (Sapphire, Ruby, and Pearl), two Diamond Ocean Song chromas for Jinx and Soraka, one Heavenscale chroma for Diana, and the Challenger: Mayhem PROJECT: Jax reward.` },
+  { question: 'How do I get the PROJECT: Jax (Turquoise) prestige chroma?', answer: `Win 15 matches in the China-server-exclusive <a href="${localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}">Challenger: Mayhem</a> tournament and claim it for free along with the base skin, available starting August 27.` },
+  { question: 'Are these traditional Prestige skins?', answer: `No. These are <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chromas</a> of existing skins with dedicated splash art, not traditional Prestige skins.` },
+];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(patchChromas[0].images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '英雄联盟26.17, 臻彩, 臻彩原画, 心之歌, 萨勒芬妮, 海之歌, 金克丝, 索拉卡, 天龙之子, 黛安娜, 源计划, 贾克斯, 海斗大赛' : 'LoL Patch 26.17, prestige chromas, chroma splash art, Heartsong, Seraphine, Ocean Song, Jinx, Soraka, Heavenscale, Diana, PROJECT, Jax, Challenger Mayhem',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: isZh ? '26.17 版本臻彩原画列表' : 'LoL Patch 26.17 Prestige Chroma List',
+    numberOfItems: patchChromas.length,
+    itemListElement: patchChromas.map((chroma, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: {
+        '@type': 'CreativeWork', name: isZh ? chroma.nameZh : chroma.nameEn,
+        url: new URL(localizedPath(locale, `/chromas/${chroma.slug}/`), SITE.origin).toString(),
+        image: imageUrl(chroma.images.large),
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '26.17 版本臻彩' : 'Patch 26.17 Prestige Chromas'}</span>
+  </nav>
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '26.17 版本 · 臻彩原画' : 'PATCH 26.17 · PRESTIGE CHROMA ART'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? `26.17 这一批一共 ${patchChromas.length} 款：心之歌萨勒芬妮一次拿到 3 款钻石臻彩，海之歌金克丝和索拉卡各添 1 款，天龙之子迎来黛安娜，海斗大赛的源计划贾克斯限定也进了目录。` : `Patch 26.17 brings ${patchChromas.length} additions: a three-chroma Diamond Heartsong set for Seraphine, Pearl Diamond chromas for Ocean Song Jinx and Soraka, a Heavenscale chroma for Diana, and the free Challenger: Mayhem PROJECT: Jax reward.`}</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={localizedPath(locale, `/chromas/${patchChromas[0].slug}/`)} aria-label={isZh ? `查看 ${patchChromas[0].nameZh} 详情` : `View ${patchChromas[0].nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(patchChromas[0].images.medium)} data-fallback={sourceImageUrl('medium', patchChromas[0].instanceId)} />
+          <img src={imageUrl(patchChromas[0].images.large)} data-fallback={sourceImageUrl('large', patchChromas[0].instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${patchChromas[0].nameZh}臻彩原画` : `${patchChromas[0].nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? patchChromas[0].nameZh : patchChromas[0].nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '七款臻彩，分属四个皮肤系列' : 'Seven chromas across four skinlines'}</h2>
+      {isZh ? <><p>26.17 的名单分四组。心之歌给星籁歌姬萨勒芬妮一次新增光年之约、我会走向你和晴彩泡沫三款钻石臻彩；海之歌给金克丝和索拉卡各加了一款钻石臻彩；天龙之子继上个版本的易和卡莎之后迎来黛安娜；源计划：孤狼 贾克斯 海斗大赛限定也随版本进入目录。五款钻石臻彩、两款臻彩，正好组成这次更新。</p><p>这里的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>指国服定义的炫彩类型，依附于已有皮肤并拥有独立原画，不是通常所说的至臻皮肤。下方每张图都可以点进详情页，查看基础皮肤、所属系列、版本和配色。</p></> : <><p>The patch splits into four groups. Heartsong adds three Diamond chromas for Seraphine &mdash; Sapphire, Ruby, and Pearl. Ocean Song contributes Diamond chromas for Jinx and Soraka. Heavenscale follows up on last patch&rsquo;s Master Yi and Kai&rsquo;Sa with a chroma for Diana. And PROJECT: Jax (Turquoise), the Challenger: Mayhem tournament reward, joins the catalog with this patch. That gives five Diamond Prestige Chromas and two more.</p><p>On this site, <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>&ldquo;Prestige Chroma&rdquo;</a> is the English label for 臻彩: a China Server chroma type attached to an existing skin with its own splash art. It is not the same thing as a traditional Prestige Skin. Every image below links to a detail page with the base skin, skinline, patch, category, and colour data.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '心之歌：萨勒芬妮一次三款钻石臻彩' : 'Heartsong: three Diamond chromas for Seraphine'}</h2>
+      {isZh ? <><p>心之歌是这次数量最多的系列，三款全部是星籁歌姬萨勒芬妮的钻石臻彩。这个系列围绕「有一首歌连接了我们所有人」的主题展开，三款原画各自走向不同色调：<strong>心之歌 萨勒芬妮 光年之约</strong>用深蓝，<strong>心之歌 萨勒芬妮 我会走向你</strong>用正红，<strong>心之歌 萨勒芬妮 晴彩泡沫</strong>则是珍珠白。</p><p>其中「我会走向你」的目录备注写明：这款炫彩曾在 2026 年期间作为礼包专属发布。26.17 和上一版一样是单版本新增 7 款臻彩，想感受不同系列的原画风格，可以对照<a href={localizedPath(locale, '/blog/patch-26-16-prestige-chromas/')}>26.16 版本的新增臻彩</a>。</p></> : <><p>Heartsong is the headline act, and all three entries belong to Seraphine. The skinline is built around the idea of a song that connects everyone, and the three Diamond chromas each take a different tone: <strong>Heartsong Seraphine (Sapphire)</strong> in deep blue, <strong>Heartsong Seraphine (Ruby)</strong> in red, and <strong>Heartsong Seraphine (Pearl)</strong> in pearl white.</p><p>The archive notes that the Ruby entry was released as a bundle exclusive during 2026. This is the second patch in a row to add seven chromas in a single release; compare it with <a href={localizedPath(locale, '/blog/patch-26-16-prestige-chromas/')}>what Patch 26.16 added</a> to see how each skinline handles its chroma artwork.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '海之歌：金克丝与索拉卡的珍珠白钻石臻彩' : 'Ocean Song: Pearl Diamond chromas for Jinx and Soraka'}</h2>
+      {isZh ? <><p><strong>海之歌 金克丝 燥音</strong>和<strong>海之歌 索拉卡 拾音</strong>使用同一组珍珠白配色，分类都是钻石臻彩。海之歌系列围绕海滩音乐节展开，隶属清凉盛夏宇宙，金克丝的原画走躁动舞台风，索拉卡则更贴近柔和的海边夜晚。名字里的「燥音」和「拾音」也各自呼应了两位英雄在海之歌音乐节里的位置。</p></> : <><p><strong>Ocean Song Jinx (Pearl)</strong> and <strong>Ocean Song Soraka (Pearl)</strong> share the same pearl-white colourway and are both listed as Diamond Prestige Chromas. Ocean Song is the beach-festival skinline under the Sunkissed Summer umbrella: Jinx&rsquo;s artwork leans into the loud stage-energy side of the festival, while Soraka&rsquo;s sits closer to a calm seaside night. Their names even echo their roles &mdash; Jinx brings the noise, Soraka picks up the sound.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '天龙之子黛安娜与免费的源计划贾克斯' : 'Heavenscale Diana and the free PROJECT: Jax'}</h2>
+      {isZh ? <><p><strong>天龙之子 黛安娜 祥龙献瑞</strong>使用粉调配色，分类是臻彩。继 26.16 的易和卡莎之后，天龙之子系列继续扩充，黛安娜这款原画延续了东方龙的主题。</p><p><strong>源计划：孤狼 贾克斯 海斗大赛限定</strong>则是国服首届海斗大赛的赛事奖励臻彩：累计 15 胜即可免费领取，8 月 27 日起开放。获取方式和召唤活动完全不同，具体的赛道规则和奖励节奏看我们的<a href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}>海斗大赛专属臻彩解读</a>。</p></> : <><p><strong>Heavenscale Diana (Rose Quartz)</strong> takes a soft pink colourway and is listed as a Prestige Chroma. After Master Yi and Kai&rsquo;Sa in Patch 26.16, the Eastern-dragon skinline keeps expanding, and Diana&rsquo;s artwork stays close to that mythology.</p><p><strong>PROJECT: Jax (Turquoise)</strong> is the tournament reward from the first Challenger: Mayhem, a China-server-exclusive event: 15 match wins earn it for free, with claiming open since August 27. The acquisition path is nothing like a summoning event &mdash; the details are in our <a href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}>Challenger: Mayhem breakdown</a>.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '26.17 臻彩原画一览' : 'Patch 26.17 prestige chroma gallery'}</h2>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这 7 款新增也影响了' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. These 7 additions also shifted the '}<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>{isZh ? '臻彩数量排行榜' : 'prestige chroma leaderboard'}</a>{isZh ? '。' : '.'}</p>
+      <BlogChromaGrid>
+        {patchChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+    </section>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.article-hero img{height:auto}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}}
+  </style>
+</BaseLayout>

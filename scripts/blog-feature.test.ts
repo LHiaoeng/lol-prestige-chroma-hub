@@ -25,6 +25,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
       'src/pages/blog/patch-26-15-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
+      'src/pages/blog/patch-26-17-prestige-chromas.astro',
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
@@ -113,6 +114,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/joy-club-peak-gala-202606.astro',
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
+      'src/pages/blog/patch-26-17-prestige-chromas.astro',
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
     ]) {
@@ -488,6 +490,43 @@ describe('blog feature contract', () => {
       '26.16 臻彩原画一览',
     ]) expect(page).toContain(heading);
     expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.16')");
+  });
+
+  it('renders a complete localized patch 26.17 prestige chromas article', () => {
+    const page = source('src/pages/blog/patch-26-17-prestige-chromas.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
+    expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).toContain('sourceImageUrl');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(1);
+    expect(page.match(/<details>/g)).toHaveLength(1);
+    expect(page).toContain('faqEntries.map');
+    for (const heading of [
+      'Seven chromas across four skinlines',
+      'Heartsong: three Diamond chromas for Seraphine',
+      'Ocean Song: Pearl Diamond chromas for Jinx and Soraka',
+      'Heavenscale Diana and the free PROJECT: Jax',
+      'Patch 26.17 prestige chroma gallery',
+      '七款臻彩，分属四个皮肤系列',
+      '心之歌：萨勒芬妮一次三款钻石臻彩',
+      '海之歌：金克丝与索拉卡的珍珠白钻石臻彩',
+      '天龙之子黛安娜与免费的源计划贾克斯',
+      '26.17 臻彩原画一览',
+    ]) expect(page).toContain(heading);
+    expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.17')");
   });
 
   it('renders the July 2026 Joy Club Peak Gala article in both languages', () => {

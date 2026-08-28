@@ -45,6 +45,21 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 }
 
 export const blogArticles: readonly BlogArticle[] = [
+  {
+    slug: 'patch-26-17-prestige-chromas',
+    href: '/blog/patch-26-17-prestige-chromas/',
+    titleEn: 'LoL Patch 26.17: 7 New Prestige Chromas',
+    titleZh: '《英雄联盟》26.17 版本：7 款新增臻彩原画',
+    summaryEn: 'Patch 26.17 adds 7 prestige chromas: three Diamond Heartsong chromas for Seraphine, Ocean Song Diamond chromas for Jinx and Soraka, Heavenscale Diana, and the free Challenger: Mayhem PROJECT: Jax reward.',
+    summaryZh: '26.17 版本新增 7 款臻彩：心之歌萨勒芬妮 3 款钻石臻彩，海之歌金克丝和索拉卡各 1 款钻石臻彩，天龙之子黛安娜，以及海斗大赛限定源计划贾克斯。',
+    publishedAt: '2026-08-27',
+    readingMinutes: 5,
+    coverUrl: 'https://img.chromaart.lol/chromas/78495da2-e6c6-4e30-b643-fb1f920535ea/site3.jpg',
+    coverAltEn: 'Heartsong Seraphine (Sapphire) prestige chroma splash art',
+    coverAltZh: '心之歌 萨勒芬妮 光年之约钻石臻彩原画',
+    adEligible: true,
+    category: 'news',
+  },
   {slug: 'lucky-gate-porcelain-charm-202608',
     href: '/blog/lucky-gate-porcelain-charm-202608/',
     titleEn: 'Lucky Gate: Porcelain Charm Summoning Event',
