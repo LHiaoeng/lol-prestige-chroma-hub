@@ -1,5 +1,317 @@
 [
   {
+    "id" : 475,
+    "skinId" : 147077,
+    "instanceId" : "78495da2-e6c6-4e30-b643-fb1f920535ea",
+    "nameZh" : "心之歌 萨勒芬妮 光年之约",
+    "nameEn" : "Heartsong Seraphine (Sapphire)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#2756CE"
+    ],
+    "heroId" : "147",
+    "heroNameZh" : "星籁歌姬 萨勒芬妮",
+    "heroNameEn" : "the Starry-Eyed Songstress Seraphine",
+    "sourceSkinId" : 147069,
+    "skinSets" : [
+      {
+        "id" : 233,
+        "nameZh" : "心之歌",
+        "nameEn" : "Heartsong",
+        "descriptionZh" : "有一首歌连接了我们所有人。它深藏在我们心中，沉睡着，直到我们选择唤醒它。闭上双眼然后聆听。听到了吗？那是你心中的魔法，是你灵魂的声音！",
+        "descriptionEn" : "There's a song that connects us all. It's hidden deep within, sleeping until we choose to wake it. Close your eyes and listen. Hear that? That's the magic in your heart, the sound of your soul!"
+      }
+    ],
+    "universes" : [ ],
+    "skinNameZh" : "心之歌 萨勒芬妮",
+    "skinNameEn" : "Heartsong Seraphine",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 475,
+    "images" : {
+      "large" : "assets/chromas/78495da2-e6c6-4e30-b643-fb1f920535ea/site3.jpg",
+      "small" : "assets/chromas/78495da2-e6c6-4e30-b643-fb1f920535ea/site4.jpg",
+      "medium" : "assets/chromas/78495da2-e6c6-4e30-b643-fb1f920535ea/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 474,
+    "skinId" : 147076,
+    "instanceId" : "31c96386-38e6-4392-ac2c-8f68688ca996",
+    "nameZh" : "心之歌 萨勒芬妮 我会走向你",
+    "nameEn" : "Heartsong Seraphine (Ruby)",
+    "descriptionZh" : "这个炫彩曾在2026年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2026.",
+    "colors" : [
+      "#D33528"
+    ],
+    "heroId" : "147",
+    "heroNameZh" : "星籁歌姬 萨勒芬妮",
+    "heroNameEn" : "the Starry-Eyed Songstress Seraphine",
+    "sourceSkinId" : 147069,
+    "skinSets" : [
+      {
+        "id" : 233,
+        "nameZh" : "心之歌",
+        "nameEn" : "Heartsong",
+        "descriptionZh" : "有一首歌连接了我们所有人。它深藏在我们心中，沉睡着，直到我们选择唤醒它。闭上双眼然后聆听。听到了吗？那是你心中的魔法，是你灵魂的声音！",
+        "descriptionEn" : "There's a song that connects us all. It's hidden deep within, sleeping until we choose to wake it. Close your eyes and listen. Hear that? That's the magic in your heart, the sound of your soul!"
+      }
+    ],
+    "universes" : [ ],
+    "skinNameZh" : "心之歌 萨勒芬妮",
+    "skinNameEn" : "Heartsong Seraphine",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 474,
+    "images" : {
+      "large" : "assets/chromas/31c96386-38e6-4392-ac2c-8f68688ca996/site3.jpg",
+      "small" : "assets/chromas/31c96386-38e6-4392-ac2c-8f68688ca996/site4.jpg",
+      "medium" : "assets/chromas/31c96386-38e6-4392-ac2c-8f68688ca996/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 473,
+    "skinId" : 147078,
+    "instanceId" : "94dccf54-86af-4c8d-9525-99e5a989d5f5",
+    "nameZh" : "心之歌 萨勒芬妮 晴彩泡沫",
+    "nameEn" : "Heartsong Seraphine (Pearl)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#ECF9F8"
+    ],
+    "heroId" : "147",
+    "heroNameZh" : "星籁歌姬 萨勒芬妮",
+    "heroNameEn" : "the Starry-Eyed Songstress Seraphine",
+    "sourceSkinId" : 147069,
+    "skinSets" : [
+      {
+        "id" : 233,
+        "nameZh" : "心之歌",
+        "nameEn" : "Heartsong",
+        "descriptionZh" : "有一首歌连接了我们所有人。它深藏在我们心中，沉睡着，直到我们选择唤醒它。闭上双眼然后聆听。听到了吗？那是你心中的魔法，是你灵魂的声音！",
+        "descriptionEn" : "There's a song that connects us all. It's hidden deep within, sleeping until we choose to wake it. Close your eyes and listen. Hear that? That's the magic in your heart, the sound of your soul!"
+      }
+    ],
+    "universes" : [ ],
+    "skinNameZh" : "心之歌 萨勒芬妮",
+    "skinNameEn" : "Heartsong Seraphine",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 473,
+    "images" : {
+      "large" : "assets/chromas/94dccf54-86af-4c8d-9525-99e5a989d5f5/site3.jpg",
+      "small" : "assets/chromas/94dccf54-86af-4c8d-9525-99e5a989d5f5/site4.jpg",
+      "medium" : "assets/chromas/94dccf54-86af-4c8d-9525-99e5a989d5f5/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 472,
+    "skinId" : 222073,
+    "instanceId" : "bf21aa87-2066-477e-8d7f-9940e022bf15",
+    "nameZh" : "海之歌 金克丝 燥音",
+    "nameEn" : "Ocean Song Jinx (Pearl)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#ECF9F8"
+    ],
+    "heroId" : "222",
+    "heroNameZh" : "暴走萝莉 金克丝",
+    "heroNameEn" : "the Loose Cannon Jinx",
+    "sourceSkinId" : 222065,
+    "skinSets" : [
+      {
+        "id" : 159,
+        "nameZh" : "海之歌",
+        "nameEn" : "Ocean Song",
+        "descriptionZh" : "没有什么比海之歌音乐节更能散发出“海滩氛围和酷炫曲调”的生活方式了。从萨勒芬妮的柔和歌曲到永恩的实验性DJ现场，每个人都有一种氛围，所以，尽情感受脚趾间的沙子、品尝充满咸味的空气、沉浸在夏天最好的音乐中吧。",
+        "descriptionEn" : "Nothing exudes the \"beach vibes and cool tunes\" lifestyle more than the Ocean Song Festival. From Seraphine's mellow songs to Yone's experimental DJ set, there's a vibe for everyone, so feel the sand between your toes, taste the salty air, and lose yourself to the best music of the summer."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 58,
+        "nameZh" : "清凉盛夏",
+        "nameEn" : "Sunkissed Summer",
+        "descriptionZh" : "夏天到了，宝贝！太阳出来啦，微风暖洋洋，海水凉爽爽。每个人都将他们的竞争与积怨留在家里，并且只带着泳衣和正能量。以后有的是时间去争斗与大吼。现在只需坐下来，享受音乐，感受快乐。",
+        "descriptionEn" : "It's summer, baby! The sun's out, the breeze's warm, and the water's cool. Everybody's leaving their rivalries and grudges at home, and bringing only swimsuits and good vibes. There'll be plenty of time for punching and yelling later. Just sit back, enjoy the music, and soak up the fun."
+      }
+    ],
+    "skinNameZh" : "海之歌 金克丝",
+    "skinNameEn" : "Ocean Song Jinx",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 472,
+    "images" : {
+      "large" : "assets/chromas/bf21aa87-2066-477e-8d7f-9940e022bf15/site3.jpg",
+      "small" : "assets/chromas/bf21aa87-2066-477e-8d7f-9940e022bf15/site4.jpg",
+      "medium" : "assets/chromas/bf21aa87-2066-477e-8d7f-9940e022bf15/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 471,
+    "skinId" : 16071,
+    "instanceId" : "ba8d1eeb-4916-45ca-b10c-b91e4fccc169",
+    "nameZh" : "海之歌 索拉卡 拾音",
+    "nameEn" : "Ocean Song Soraka (Pearl)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#ECF9F8"
+    ],
+    "heroId" : "16",
+    "heroNameZh" : "众星之子 索拉卡",
+    "heroNameEn" : "the Starchild Soraka",
+    "sourceSkinId" : 16063,
+    "skinSets" : [
+      {
+        "id" : 159,
+        "nameZh" : "海之歌",
+        "nameEn" : "Ocean Song",
+        "descriptionZh" : "没有什么比海之歌音乐节更能散发出“海滩氛围和酷炫曲调”的生活方式了。从萨勒芬妮的柔和歌曲到永恩的实验性DJ现场，每个人都有一种氛围，所以，尽情感受脚趾间的沙子、品尝充满咸味的空气、沉浸在夏天最好的音乐中吧。",
+        "descriptionEn" : "Nothing exudes the \"beach vibes and cool tunes\" lifestyle more than the Ocean Song Festival. From Seraphine's mellow songs to Yone's experimental DJ set, there's a vibe for everyone, so feel the sand between your toes, taste the salty air, and lose yourself to the best music of the summer."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 58,
+        "nameZh" : "清凉盛夏",
+        "nameEn" : "Sunkissed Summer",
+        "descriptionZh" : "夏天到了，宝贝！太阳出来啦，微风暖洋洋，海水凉爽爽。每个人都将他们的竞争与积怨留在家里，并且只带着泳衣和正能量。以后有的是时间去争斗与大吼。现在只需坐下来，享受音乐，感受快乐。",
+        "descriptionEn" : "It's summer, baby! The sun's out, the breeze's warm, and the water's cool. Everybody's leaving their rivalries and grudges at home, and bringing only swimsuits and good vibes. There'll be plenty of time for punching and yelling later. Just sit back, enjoy the music, and soak up the fun."
+      }
+    ],
+    "skinNameZh" : "海之歌 索拉卡",
+    "skinNameEn" : "Ocean Song Soraka",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 471,
+    "images" : {
+      "large" : "assets/chromas/ba8d1eeb-4916-45ca-b10c-b91e4fccc169/site3.jpg",
+      "small" : "assets/chromas/ba8d1eeb-4916-45ca-b10c-b91e4fccc169/site4.jpg",
+      "medium" : "assets/chromas/ba8d1eeb-4916-45ca-b10c-b91e4fccc169/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 470,
+    "skinId" : 131056,
+    "instanceId" : "8f2739ac-9a7d-4ff2-9bb6-3f7da53f82f6",
+    "nameZh" : "天龙之子 黛安娜 祥龙献瑞",
+    "nameEn" : "Heavenscale Diana (Rose Quartz)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#E58BA5"
+    ],
+    "heroId" : "131",
+    "heroNameZh" : "皎月女神 黛安娜",
+    "heroNameEn" : "Scorn of the Moon Diana",
+    "sourceSkinId" : 131054,
+    "skinSets" : [
+      {
+        "id" : 201,
+        "nameZh" : "天龙之子",
+        "nameEn" : "Heavenscale",
+        "descriptionZh" : "为了更好地了解自己治下的子民，龙族皇室和随从们从天宫中下凡，化作人形与凡人们共同庆祝新年。",
+        "descriptionEn" : "In order to better know their kingdom's subjects, draconic royalty and retinue descend from their palace in the sky, taking on human forms and reveling with the mortals as they usher in the New Year."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "天龙之子 黛安娜",
+    "skinNameEn" : "Heavenscale Diana",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 470,
+    "images" : {
+      "large" : "assets/chromas/8f2739ac-9a7d-4ff2-9bb6-3f7da53f82f6/site3.jpg",
+      "small" : "assets/chromas/8f2739ac-9a7d-4ff2-9bb6-3f7da53f82f6/site4.jpg",
+      "medium" : "assets/chromas/8f2739ac-9a7d-4ff2-9bb6-3f7da53f82f6/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
+    "id" : 469,
+    "skinId" : 24037,
+    "instanceId" : "146a99c9-5424-4ee5-a166-6b383235d760",
+    "nameZh" : "源计划：孤狼 贾克斯 海斗大赛限定",
+    "nameEn" : "PROJECT: Jax (Turquoise)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#73BFBE"
+    ],
+    "heroId" : "24",
+    "heroNameZh" : "武器大师 贾克斯",
+    "heroNameEn" : "Grandmaster at Arms Jax",
+    "sourceSkinId" : 24033,
+    "skinSets" : [
+      {
+        "id" : 18,
+        "nameZh" : "源计划",
+        "nameEn" : "PROJECT",
+        "descriptionZh" : "源计划集团相信解开人类潜能的秘密是超越我们凡躯的关键。我们将通过技术达到飞升。聚在一起。",
+        "descriptionEn" : "The PROJECT Corporation believes unlocking the secrets of humanity's potential is the key to progress beyond our mortal bodies. It is through technology that we will ascend. Together."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 33,
+        "nameZh" : "源计划",
+        "nameEn" : "PROJECT",
+        "descriptionZh" : "在某个由数个全球集团所控制的未来，巨型建筑物和拥挤的街道之中，一场暗影战争在充满抗争精神且被技术增幅过的人类和全新强化过的智能生物之间打响了。胜者将改变历史的进程……而败者将被强迫演变。",
+        "descriptionEn" : "Among the mega-structures and packed streets of a future controlled by global corporations, a shadow war rages between rebellious, augmented humans and newly empowered artificial beings. The winners will shape the course of history... and the losers will be forced to evolve."
+      }
+    ],
+    "skinNameZh" : "源计划：孤狼 贾克斯",
+    "skinNameEn" : "PROJECT: Jax",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.17",
+    "isNew" : true,
+    "rank" : 469,
+    "images" : {
+      "large" : "assets/chromas/146a99c9-5424-4ee5-a166-6b383235d760/site3.jpg",
+      "small" : "assets/chromas/146a99c9-5424-4ee5-a166-6b383235d760/site4.jpg",
+      "medium" : "assets/chromas/146a99c9-5424-4ee5-a166-6b383235d760/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
     "id" : 468,
     "skinId" : 39072,
     "instanceId" : "0a145d9e-33a7-430c-8eb0-49075a397148",
@@ -39,7 +351,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 468,
     "images" : {
       "large" : "assets/chromas/0a145d9e-33a7-430c-8eb0-49075a397148/site3.jpg",
@@ -88,7 +400,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 467,
     "images" : {
       "large" : "assets/chromas/8a417ddf-c554-4be7-b55d-0af619963d45/site3.jpg",
@@ -137,7 +449,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 466,
     "images" : {
       "large" : "assets/chromas/a5bce466-8029-41b5-9b58-f17c8e69868b/site3.jpg",
@@ -186,7 +498,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 465,
     "images" : {
       "large" : "assets/chromas/115d3b8e-dcf1-4ebe-9c2e-097bfbf314e3/site3.jpg",
@@ -235,7 +547,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 464,
     "images" : {
       "large" : "assets/chromas/525e5780-8bb9-4f3a-82ac-55cd7934b3a8/site3.jpg",
@@ -284,7 +596,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 463,
     "images" : {
       "large" : "assets/chromas/daa1490b-5a26-4bc0-8989-93a5f5b6494c/site3.jpg",
@@ -332,7 +644,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.16",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 462,
     "images" : {
       "large" : "assets/chromas/9409e4c3-2c38-46df-870a-528ba019ed3d/site3.jpg",
