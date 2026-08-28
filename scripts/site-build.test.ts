@@ -39,7 +39,6 @@ describe('static site build', () => {
     expect(home).toContain('<meta name="twitter:title" content="LoL China-Exclusive Chroma Splash Arts | LoL Chroma Art">');
     expect(home).toContain('League of Legends');
     expect(home).toContain('China-Exclusive Chroma Splash Arts');
-    expect(home).toContain('operated by Tencent');
     expect(home).toContain('"@type":"WebSite"');
     expect(home).toContain('"@type":"CollectionPage"');
     expect(home).toContain('data-ad-boundary="catalog-index"');
@@ -125,14 +124,14 @@ describe('static site build', () => {
     const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
     const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
     const chineseAbout = readFileSync(join(dist, 'zh-cn', 'about', 'index.html'), 'utf8');
-    expect(home).toContain('“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.');
-    expect(home).not.toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
-    expect(chineseHome).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(home).toContain('“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.');
+    expect(home).not.toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
+    expect(chineseHome).toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(about).toContain('<title>What Are Chroma Splash Arts? | LoL Chroma Art</title>');
-    expect(about).toContain('“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.');
-    expect(about).not.toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(about).toContain('“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.');
+    expect(about).not.toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(chineseAbout).toContain('<title>什么是《英雄联盟》中国服炫彩原画？ | LoL Chroma Art</title>');
-    expect(chineseAbout).toContain('“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。');
+    expect(chineseAbout).toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(about).toContain("Most chromas reuse their base skin's splash art");
     expect(about).toContain('operated by Tencent');
     expect(about).toContain('Availability and release timing vary by event and patch');
@@ -154,7 +153,7 @@ describe('static site build', () => {
     const chineseCoverage = readFileSync(join(dist, 'zh-cn', 'blog', 'champions-without-prestige-chroma', 'index.html'), 'utf8');
     expect(chineseHome).toContain('<html lang="zh-CN"');
     expect(chineseHome).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/">');
-    expect(chineseHome).toContain('英雄联盟中国服专属');
+    expect(chineseHome).toContain('英雄联盟国服');
     expect(chineseHome).toContain('data-ad-boundary="catalog-index"');
     expect(chineseHome).not.toContain('data-language-content="en"');
     expect(chineseDetail).toContain(`<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${sample.slug}/">`);

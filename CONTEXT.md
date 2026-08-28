@@ -13,7 +13,7 @@ _Avoid_: LoL Prestige Chroma Hub、Chroma Art
 _Avoid_: 大区、物理主机、电竞赛区
 
 **中国大陆服（China Server）**:
-由腾讯在中国大陆运营的《英雄联盟》游戏服务器，内部划分多个大区，是“臻彩”这一站内核心概念的来源语境。中文玩家通常称“国服”；英文内容首次出现时使用 `the League of Legends China Server, operated by Tencent`，后续简称 `China Server`，不把 `Tencent server` 当作正式专名。
+由腾讯在中国大陆运营的《英雄联盟》游戏服务器，内部划分多个大区，是“臻彩”这一站内核心概念的来源语境。中文玩家通常称“国服”；英文内容统一使用 `China Server`，由腾讯运营属于定义性事实，不要求在文案中展开，不把 `Tencent server` 当作正式专名。
 _Avoid_: 中国腾讯服（作为正式专名时）、中国服务器（未限定大陆时）、全球服
 
 **国服**:

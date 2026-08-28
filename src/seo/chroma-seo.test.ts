@@ -27,8 +27,8 @@ describe('site SEO', () => {
 
   it('defines China Exclusive as an artwork property, not a chroma availability claim', () => {
     expect(siteSeo).toHaveProperty('CHINA_EXCLUSIVE_DEFINITION', {
-      en: '“China Exclusive” describes the standalone splash art shown on the Chinese League of Legends server—not necessarily the regional availability of the chroma itself.',
-      zh: '“中国服专属”指独立炫彩原画在《英雄联盟》中国服务器中提供，并不表示该炫彩本身一定仅限中国服务器。',
+      en: '“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.',
+      zh: '“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。',
     });
   });
 });

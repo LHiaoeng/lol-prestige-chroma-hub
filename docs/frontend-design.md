@@ -20,7 +20,7 @@
 
 ## 2. 产品与体验目标
 
-LoL Chroma Art 是面向海外用户的《英雄联盟》中国服专属炫彩原画图鉴，定位语为 `China-Exclusive Chroma Splash Art Archive`。`China Exclusive` 仅描述中国服务器中提供的独立炫彩原画，不代表炫彩本身一定仅限中国服务器；中英文标准定义集中维护在 `src/seo/site.ts`。前端承担以下职责：
+LoL Chroma Art 是面向海外用户的《英雄联盟》国服臻彩原画图鉴，定位语为 `China-Exclusive Chroma Splash Art Archive`。`China Exclusive` 仅描述中国大陆服为臻彩单独提供的臻彩原画，不代表对应炫彩一定仅限中国大陆服；中英文标准定义集中维护在 `src/seo/site.ts`。前端承担以下职责：
 
 - 用原画优先的暗色画廊界面展示炫彩原画目录；
 - 提供可分享、具备明确索引策略的静态详情页；
@@ -30,7 +30,7 @@ LoL Chroma Art 是面向海外用户的《英雄联盟》中国服专属炫彩�
 - 在图片源失效、无筛选结果或脚本异常时提供明确降级；
 - 保持少依赖、静态优先和可由数据持续扩展。
 
-`Chroma Splash Art` 表示为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。`Prestige Chroma` 是“臻彩”的规范英文译名，不得描述为传统 `Prestige Skin`。涉及地区范围时使用 `China Server`，首次出现时说明该服务器由腾讯运营。
+`Chroma Splash Art` 表示为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。`Prestige Chroma` 是“臻彩”的规范英文译名，不得描述为传统 `Prestige Skin`。涉及地区范围时统一使用 `China Server`。
 
 ## 3. 技术架构
 
