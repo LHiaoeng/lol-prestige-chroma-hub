@@ -29,6 +29,8 @@
 
 新增页面 `joy-club-peak-gala-202606` 的关系：正文链向原有 `joy-club-peak-gala-202607`、`what-are-prestige-chromas` 与 `what-are-chroma-skins`；FAQ 链向 `what-are-prestige-chromas`；原有 `joy-club-peak-gala-202607` 与 `what-are-prestige-chromas` 回链本页。
 
+2026-09-01: 新增 `full-gift-reward-prestige-chroma-202608`（满额礼赠活动资讯）。正文链向 `what-are-prestige-chromas`（正文+FAQ）与 `patch-26-15-prestige-chromas`（正文提及 1000 积分奖励出处）；`patch-26-15-prestige-chromas`（女帝菲奥娜段落）与 `joy-club-peak-gala-202607`（什么是心悦巅峰盛典段落）回链本页。
+
 ## 入链统计
 
 | 页面 | 入链数 | 状态 |

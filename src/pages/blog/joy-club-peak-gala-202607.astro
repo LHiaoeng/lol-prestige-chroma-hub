@@ -99,6 +99,7 @@ const jsonLd = [
       <h2>What is the Joy Club Peak Gala?</h2>
       <p>The Peak Gala is a recurring spending event run by Tencent Game Joy Club and League of Legends. Spend in LoL during the event window to build up &ldquo;peak value&rdquo;; hit the {thresholdPoints.toLocaleString()}-point mark to qualify and earn a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> after settlement.</p>
       <p>The July 2026 event is covered in our <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202606/')}>July 2026 Peak Gala article</a>; each session has its own reward and counting window.</p>
+      <p>If you're looking for another spending-reward event, the <a href={localizedPath(locale, '/blog/full-gift-reward-prestige-chroma-202608/')}>Full Gift Reward</a> activity counts purchases from August 15 to October 11 and grants Battle Queen Fiora (Rose Quartz) at 1000 points.</p>
       <p>Session 202607 runs from <strong>{eventStart.replace(/-/g, '/')} 00:00:00 to {eventEnd.replace(/-/g, '/')} 23:59:59</strong> China Standard Time. Peak value aggregates across every official-server region tied to a single QQ account &mdash; spending on any of your official accounts counts toward the same total.</p>
       <p>The session 202607 reward is <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a prestige chroma of the Spirit Blossom Kayle skin in deep tanzanite purple (<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>). Qualifying summoners get a <strong>{exclusiveWindowMonths}-month exclusive window</strong>; after it ends, the chroma opens up to other channels. Watch the official LoL site for the announcement.</p>
     </section>
@@ -212,6 +213,7 @@ const jsonLd = [
       <h2>什么是心悦巅峰盛典？</h2>
       <p>巅峰盛典是腾讯游戏心悦俱乐部和英雄联盟联合举办的周期性消费活动。活动期间在英雄联盟消费可累积巅峰值，满 {(thresholdPoints / 10000).toFixed(0)} 万即可入席，结算后领取<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>奖励。</p>
       <p>上一期 7 月活动的统计窗口和奖励已整理在<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202606/')}>2026 年 7 月心悦巅峰盛典文章</a>中；每期都有独立的奖励和统计窗口。</p>
+      <p>如果你在找另一个消费返赠活动，<a href={localizedPath(locale, '/blog/full-gift-reward-prestige-chroma-202608/')}>满额礼赠</a>统计 8 月 15 日至 10 月 11 日的消费，累计 1000 积分可领取女帝菲奥娜紋章之刻印·强运臻彩。</p>
       <p>第 202607 期统计窗口为 <strong>{eventStart.replace(/-/g, '/')} 00:00:00 至 {eventEnd.replace(/-/g, '/')} 23:59:59</strong>。巅峰值按召唤师 QQ 号名下所有正式服大区聚合统计，任何一个正式服账号的消费都计入同一门槛。</p>
       <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，基于灵魂莲华 凯尔皮肤，主色调为深邃的坦桑石紫（<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>）。获取该臻彩的心悦召唤师享有 <strong>{exclusiveWindowMonths} 个月独享期</strong>，独享期结束后开放其他渠道获取，请关注官网公告。</p>
     </section>

@@ -17,6 +17,7 @@ describe('blog feature contract', () => {
     expect(card).toContain('labelEn?: string');
     expect(card).toContain('labelZh?: string');
     for (const pagePath of [
+      'src/pages/blog/full-gift-reward-prestige-chroma-202608.astro',
       'src/pages/blog/champion-most-prestige-chromas.astro',
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/joy-club-peak-gala-202606.astro',
@@ -102,6 +103,7 @@ describe('blog feature contract', () => {
     expect(component).toContain('grid-template-columns:repeat(2,minmax(0,1fr))');
     expect(component).toContain('@media (max-width:767px)');
     for (const pagePath of [
+      'src/pages/blog/full-gift-reward-prestige-chroma-202608.astro',
       'src/pages/blog/patch-26-15-prestige-chromas.astro',
       'src/pages/blog/kaisa-prestige-chroma.astro',
       'src/pages/blog/champions-without-prestige-chroma.astro',

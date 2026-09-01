@@ -46,6 +46,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'full-gift-reward-prestige-chroma-202608',
+    href: '/blog/full-gift-reward-prestige-chroma-202608/',
+    titleEn: 'Full Gift Reward Event: Battle Queen Fiora Prestige Chroma',
+    titleZh: '满额礼赠活动：女帝菲奥娜臻彩获取指南',
+    summaryEn: 'The Full Gift Reward activity counts spending from August 15 to October 11, 2026 on the Chinese LoL server. Hit 1000 points to claim Battle Queen Fiora (Rose Quartz) — a diamond-tier prestige chroma — with chroma rewards also at the 300 and 600-point tiers.',
+    summaryZh: '满额礼赠活动统计 2026 年 8 月 15 日至 10 月 11 日在国服的消费，累计 1000 积分可领取「女帝 菲奥娜 紋章之刻印·强运」钻石臻彩，300 与 600 积分档位另有奖池臻彩奖励。',
+    publishedAt: '2026-09-01',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/619946f6-b69c-4df3-9266-9588322c9802/site3.jpg',
+    coverAltEn: 'Battle Queen Fiora (Rose Quartz) prestige chroma splash art',
+    coverAltZh: '女帝 菲奥娜 紋章之刻印·强运钻石臻彩原画',
+    sourceUrl: 'https://lol.qq.com/act/a202608276213sale/index.html?e_code=558097',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'heartsong-seraphine-prestige-chromas-202608',
     href: '/blog/heartsong-seraphine-prestige-chromas-202608/',
     titleEn: 'Heartsong Seraphine Launch: GEM, Three Prestige Chromas, and a Lucky Gate',

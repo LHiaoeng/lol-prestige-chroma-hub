@@ -1,0 +1,330 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'full-gift-reward-prestige-chroma-202608');
+if (!article) throw new Error('Full Gift Reward article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const pointsStart = '2026-08-15';
+const pointsEnd = '2026-10-11';
+const claimEnd = '2026-10-18';
+const eventUrl = 'https://lol.qq.com/act/a202608276213sale/index.html?e_code=558097';
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=10082434617858604726';
+
+// 1000-point reward: Battle Queen Fiora (Rose Quartz) — "女帝 菲奥娜 紋章之刻印·强运"
+const rewardChroma = catalog.find((item) => item.heroId === '114' && item.skinNameEn === 'Battle Queen Fiora' && item.nameEn === 'Battle Queen Fiora (Rose Quartz)');
+if (!rewardChroma) throw new Error('Battle Queen Fiora (Rose Quartz) reward chroma is missing from catalog');
+const rewardChromaUrl = localizedPath(locale, `/chromas/${rewardChroma.slug}/`);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(rewardChroma.images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList',
+    name: isZh ? '满额礼赠奖励臻彩' : 'Full Gift Reward prestige chroma',
+    numberOfItems: 1,
+    itemListElement: [{
+      '@type': 'ListItem', position: 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: isZh ? rewardChroma.nameZh : rewardChroma.nameEn,
+        url: new URL(rewardChromaUrl, SITE.origin).toString(),
+        image: imageUrl(rewardChroma.images.large),
+      },
+    }],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={imageUrl(rewardChroma.images.large)} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a>
+    <span>/</span>
+    <a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
+    <span>/</span>
+    <span aria-current="page">{isZh ? '满额礼赠' : 'Full Gift Reward'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">SPENDING REWARD EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The Full Gift Reward activity counts spending from {pointsStart.replace(/-/g, '/')} to {pointsEnd.replace(/-/g, '/')}. Hit 1000 points to claim <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a diamond-tier <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> &mdash; with chroma rewards also at the 300 and 600-point tiers.</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
+        <span>·</span>
+        <span>{article.readingMinutes} min read</span>
+      </p>
+    </header>
+
+    <figure class="article-hero">
+      <a class="chroma-art-link" href={rewardChromaUrl} aria-label={`View ${rewardChroma.nameEn} details`}>
+        <img src={imageUrl(rewardChroma.images.large)} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${rewardChroma.nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+      </a>
+      <figcaption>{rewardChroma.nameEn} &mdash; the 1000-point Full Gift Reward chroma.</figcaption>
+    </figure>
+
+    <section>
+      <h2>What is the Full Gift Reward?</h2>
+      <p>The Full Gift Reward is a spending-based milestone activity on the Chinese server. Every 100 Dianquan (or equivalent spending) on designated activities earns 1 event point. Points unlock tiered rewards at 100, 200, 300, 600, and 1000 milestones &mdash; the top tier grants <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a>, a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> of the Battle Queen Fiora skin.</p>
+      <p>Point accumulation runs <strong>{pointsStart.replace(/-/g, '/')} 00:00:00 through {pointsEnd.replace(/-/g, '/')} 23:59:59</strong> China Standard Time. Rewards must be claimed by <strong>{claimEnd.replace(/-/g, '/')} 23:59</strong> (including server maintenance windows). See the <a href={eventUrl} target="_blank" rel="noreferrer">official event page</a> for the exact list of participating activities and their individual windows.</p>
+    </section>
+
+    <section>
+      <h2>Reward tiers at a glance</h2>
+      <p>Each account can only participate once, and points aggregate across all official-server regions on the same QQ account. Here is what each milestone unlocks:</p>
+      <ul>
+        <li><strong>100 points</strong> &mdash; choose 1 skin from a 30-skin pool, or 5 Mythic Essence.</li>
+        <li><strong>200 points</strong> &mdash; choose 1 skin from a 30-skin pool, or 5 Mythic Essence.</li>
+        <li><strong>300 points</strong> &mdash; a new prestige chroma, or choose 1 chroma from a 10-chroma pool, or 10 Mythic Essence.</li>
+        <li><strong>600 points</strong> &mdash; choose 1 chroma from a 10-chroma pool, or 10 Mythic Essence.</li>
+        <li><strong>1000 points</strong> &mdash; <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a>, the diamond-tier prestige chroma for Battle Queen Fiora in rose-quartz pink (<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>).</li>
+      </ul>
+      <p>The chroma was first catalogued in <a href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}>Patch 26.15</a>; the Full Gift Reward is now a dedicated channel to obtain it.</p>
+    </section>
+
+    <section>
+      <h2>The 1000-point reward: {rewardChroma.nameEn}</h2>
+      <p>Reaching 1000 points grants <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a diamond-tier prestige chroma of the Battle Queen Fiora skin. Its dominant colour is rose-quartz pink, and it belongs to the Battle Queens skin set. Like all prestige chromas, it requires owning the base Battle Queen Fiora skin to equip.</p>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
+    </section>
+
+    <section>
+      <h2>How points are earned</h2>
+      <p>Points come from spending on designated activities during the point-counting window. The official announcement lists these channels:</p>
+      <ul>
+        <li><strong>In-game shop</strong> &mdash; items bought with Dianquan or equivalent currency count toward points.</li>
+        <li><strong>Daojucheng</strong> (item mall) &mdash; PC, app, and mobile web purchases of LoL items.</li>
+        <li><strong>Mobile Companion app shop</strong> &mdash; LoL items bought through the in-app shop.</li>
+        <li><strong>Official event pages on <code>lol.qq.com</code></strong> &mdash; spending on designated activities during their respective windows.</li>
+        <li><strong>Live-platform Sanctum Spark bundles</strong> &mdash; only Sanctum Spark (<em>Shengtang Huahuo</em>) bundles purchased on Douyin, Douyu, or Huya count; other channels for Sanctum Spark do <strong>not</strong> earn points.</li>
+      </ul>
+      <p>Non-cloud-top-arena-item purchases count; Teamfight Tactics Yushi purchases in the summon store are excluded. Gifting spending counts toward the <em>sender&rsquo;s</em> account.</p>
+    </section>
+
+    <section>
+      <h2>Rules and eligibility</h2>
+      <ul>
+        <li>Each QQ account (or WeChat account, tracked separately) can only participate once. All official-server regions under one QQ account share a single point total.</li>
+        <li>Gifting through the in-game shop, Daojucheng, or Companion shop counts toward the <strong>sender&rsquo;s</strong> points.</li>
+        <li>Only Sanctum Spark bundles from Douyin, Douyu, and Huya live platforms earn points; other Sanctum Spark channels are excluded.</li>
+        <li>Prestige chromas in the reward pool (including diamond, zodiac-limited, and LPL 10th-anniversary chromas) require owning the base skin to use. Check your ownership before selecting.</li>
+        <li>Points must be earned within the {pointsStart.replace(/-/g, '/')}&ndash;{pointsEnd.replace(/-/g, '/')} window; spending outside this period is not retroactive.</li>
+        <li>Rewards must be claimed by <strong>{claimEnd.replace(/-/g, '/')} 23:59</strong> (including server maintenance time).</li>
+      </ul>
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Full Gift Reward event page</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">League of Legends 15th anniversary announcement</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is this event available on all servers?</summary>
+        <p>No. The Full Gift Reward is exclusive to the Chinese League of Legends server. It is not available on Riot-operated servers (NA, EUW, KR, etc.). See our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> for how prestige chromas work.</p>
+      </details>
+      <details>
+        <summary>Do I need to own the base skin to use the reward chroma?</summary>
+        <p>Yes. Prestige chromas are variants of an existing skin, not standalone skins. <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> requires the Battle Queen Fiora base skin. The same applies to every chroma in the 10-chroma pool at the 300 and 600-point tiers.</p>
+      </details>
+      <details>
+        <summary>Do Teamfight Tactics purchases count toward points?</summary>
+        <p>Only non-TFT item purchases on designated activities count. Yushi purchases in the TFT summon store are excluded from point accumulation.</p>
+      </details>
+      <details>
+        <summary>What happens to unspent points after the event?</summary>
+        <p>Points reset when the counting window closes on {pointsEnd.replace(/-/g, '/')}. They do not carry over to future events. You must hit your target tier entirely within the {pointsStart.replace(/-/g, '/')}&ndash;{pointsEnd.replace(/-/g, '/')} window, and claim rewards by {claimEnd.replace(/-/g, '/')} 23:59.</p>
+      </details>
+      <details>
+        <summary>Can I earn points by gifting?</summary>
+        <p>Yes &mdash; gifting through the in-game shop, Daojucheng, or Companion shop counts toward <em>your</em> (the sender&rsquo;s) point total. Gifting through other channels is not included.</p>
+      </details>
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">消费积分活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">满额礼赠活动积分统计时间为 {pointsStart.replace(/-/g, '/')} 至 {pointsEnd.replace(/-/g, '/')}。满 1000 积分可领取「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」钻石<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>，300 和 600 积分档也有臻彩可选。</p>
+      <p class="article-meta">
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
+        <span>·</span>
+        <span>阅读约 {article.readingMinutes} 分钟</span>
+      </p>
+    </header>
+
+    <figure class="article-hero">
+      <a class="chroma-art-link" href={rewardChromaUrl} aria-label={`查看 ${rewardChroma.nameZh} 详情`}>
+        <img src={imageUrl(rewardChroma.images.large)} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${rewardChroma.nameZh}臻彩原画`} width="1920" height="1080" loading="eager" decoding="async" />
+      </a>
+      <figcaption>{rewardChroma.nameZh} &mdash; 满额礼赠 1000 积分奖励臻彩。</figcaption>
+    </figure>
+
+    <section>
+      <h2>满额礼赠是什么？</h2>
+      <p>满额礼赠是国服的消费积分活动。活动期间在指定活动（详见活动页面）每消费 100 点券或等值金额，即可获得 1 积分。积分达到 100、200、300、600、1000 各档可领取对应奖励，满 1000 积分可领取本期专属<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」。</p>
+      <p>积分统计时间为 <strong>{pointsStart.replace(/-/g, '/')} 00:00 至 {pointsEnd.replace(/-/g, '/')} 23:59</strong>。领取道具截止时间为 <strong>{claimEnd.replace(/-/g, '/')} 23:59</strong>（含服务器维护时间）。参与活动的具体入口和各活动窗口请查看<a href={eventUrl} target="_blank" rel="noreferrer">官方活动页</a>。</p>
+    </section>
+
+    <section>
+      <h2>各档奖励一览</h2>
+      <p>每个账号仅可参与一次，同一 QQ 号在所有大区累计同一总积分（QQ 号与微信号分别统计）。各档奖励如下：</p>
+      <ul>
+        <li><strong>100 积分</strong> &mdash; 自选奖池内 1 款皮肤（30 选 1），或神话精萃 &times; 5。</li>
+        <li><strong>200 积分</strong> &mdash; 自选奖池内 1 款皮肤（30 选 1），或神话精萃 &times; 5。</li>
+        <li><strong>300 积分</strong> &mdash; 全新臻彩，或自选奖池内 1 款臻彩（10 选 1），或神话精萃 &times; 10。</li>
+        <li><strong>600 积分</strong> &mdash; 自选奖池内 1 款臻彩（10 选 1），或神话精萃 &times; 10。</li>
+        <li><strong>1000 积分</strong> &mdash; <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，女帝 菲奥娜皮肤的钻石臻彩，主色调为玫瑰石英粉（<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>）。</li>
+      </ul>
+      <p>该臻彩最早收录于<a href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}>26.15 版本</a>，满额礼赠是当前获取它的指定渠道。</p>
+    </section>
+
+    <section>
+      <h2>1000 积分奖励：{rewardChroma.nameZh}</h2>
+      <p>满 1000 积分可领取「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」，属于<strong>钻石臻彩</strong>，基于女帝 菲奥娜皮肤，隶属女帝无双皮肤系列，主色调为玫瑰石英粉。与所有臻彩一样，需先拥有女帝 菲奥娜基础皮肤方可装备。</p>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
+    </section>
+
+    <section>
+      <h2>积分如何累积</h2>
+      <p>积分来源于活动期间在指定活动中的消费。官方公告列出的计入渠道如下：</p>
+      <ul>
+        <li><strong>游戏商城</strong> &mdash; 使用点券或等值货币购买的道具计入积分。</li>
+        <li><strong>道聚城</strong>（电脑版、APP、网页版）&mdash; 购买的英雄联盟道具。</li>
+        <li><strong>掌上英雄联盟商城</strong> &mdash; 通过掌盟商城内购买的道具。</li>
+        <li><strong>英雄联盟官方活动页</strong>（认准域名 <code>lol.qq.com</code>）&mdash; 在指定活动窗口内的消费。</li>
+        <li><strong>直播平台圣堂花火礼包</strong> &mdash; 仅在抖音、斗鱼、虎牙购买的圣堂花火相关礼包计入积分；其他渠道购买圣堂花火<strong>不计入</strong>积分。</li>
+      </ul>
+      <p>非云顶之弈道具购买计入积分；云顶召唤商店购买云石不纳入。赠送好友的消费计入<strong>赠送方</strong>积分。</p>
+    </section>
+
+    <section>
+      <h2>规则与参与资格</h2>
+      <ul>
+        <li>每个 QQ 账号（或微信号，分别统计）仅可参与一次。同一 QQ 号下所有正式服大区累计同一总积分。</li>
+        <li>通过游戏商城、道聚城、掌盟商城赠送好友的消费计入<strong>赠送方</strong>积分。</li>
+        <li>仅在抖音、斗鱼、虎牙直播平台购买的圣堂花火相关礼包计入积分，其他渠道购买圣堂花火不纳入。</li>
+        <li>奖池中的臻彩（含钻石臻彩、生肖限定臻彩、LPL 十周年纪念臻彩等）需配合拥有原皮肤方可使用，请根据拥有情况选择。</li>
+        <li>积分必须在 {pointsStart.replace(/-/g, '/')}&ndash;{pointsEnd.replace(/-/g, '/')} 窗口内达成；活动期外的消费不回溯计入。</li>
+        <li>奖励领取截止时间为 <strong>{claimEnd.replace(/-/g, '/')} 23:59</strong>（含服务器维护时间）。</li>
+      </ul>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">共贺周年庆 满额礼赠活动页</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">英雄联盟 15 周年庆公告</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      <details>
+        <summary>这个活动所有大区都能参与吗？</summary>
+        <p>仅限英雄联盟国服的正式服大区参与。Riot 运营的服务器（美服、欧服、韩服等）不参与。详见我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>了解臻彩的运作方式。</p>
+      </details>
+      <details>
+        <summary>奖励的臻彩需要原皮肤吗？</summary>
+        <p>需要。臻彩是已有皮肤的变体，不是独立皮肤。「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」需要女帝 菲奥娜基础皮肤才能装备。300 和 600 积分档奖池中的臻彩同样需要对应原皮肤。</p>
+      </details>
+      <details>
+        <summary>云顶之弈的消费算积分吗？</summary>
+        <p>仅指定活动中的非云顶之弈道具购买计入积分。云顶召唤商店购买云石不纳入积分统计。</p>
+      </details>
+      <details>
+        <summary>活动结束后积分会清零吗？</summary>
+        <p>积分在统计窗口结束（{pointsEnd.replace(/-/g, '/')}）后清零，不结转到后续活动。你必须在 {pointsStart.replace(/-/g, '/')}&ndash;{pointsEnd.replace(/-/g, '/')} 期间内达成目标档位，并在 {claimEnd.replace(/-/g, '/')} 23:59 前领取奖励。</p>
+      </details>
+      <details>
+        <summary>赠送好友会算我的积分吗？</summary>
+        <p>会的，但仅限通过游戏商城、道聚城或掌盟商城进行的赠送 &mdash; 积分计入<strong>你</strong>（赠送方）的账户。其他渠道的赠送暂不纳入。</p>
+      </details>
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}
+    .blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}
+    .blog-article{padding:clamp(52px,8vw,90px) 0 110px}
+    .article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}
+    .article-header{margin-bottom:42px}
+    .article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}
+    .article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}
+    .article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}
+    .blog-article section{margin-top:48px}
+    .blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}
+    .blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}
+    .blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}
+    .blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}
+    .blog-article li{margin-bottom:.5em}
+    .blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+    .blog-article figure{margin-top:42px}
+    .article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}
+    .article-hero img{display:block;width:100%;height:auto;background:#15182a}
+    .blog-article figure img{display:block;width:100%;height:auto;object-fit:cover;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}
+    .blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
+    .blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}
+    .faq details{border-top:1px solid var(--line);padding:16px 0}
+    .faq details:last-child{border-bottom:1px solid var(--line)}
+    .faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}
+    .faq details p{margin:12px 0 0}
+    .chroma-art-link{display:block}
+    .chroma-art-link:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+    .official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}
+    .official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}
+    .official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}
+    .official-sources li{font-size:.88rem;line-height:1.6}
+    .official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+    @media(max-width:767px){
+      .blog-breadcrumbs{padding-top:18px}
+      .blog-article{padding:42px 0 76px}
+      .article-header{margin-bottom:28px}
+      .article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}
+      .blog-article section{margin-top:36px}
+      .blog-article section p{font-size:1rem;line-height:1.78}
+      .showcase{grid-template-columns:1fr;gap:26px;margin-top:32px}}
+  </style>
+</BaseLayout>
