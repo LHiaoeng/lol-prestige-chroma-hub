@@ -31,6 +31,20 @@ const rewardChroma = catalog.find((item) => item.heroId === '114' && item.skinNa
 if (!rewardChroma) throw new Error('Battle Queen Fiora (Rose Quartz) reward chroma is missing from catalog');
 const rewardChromaUrl = localizedPath(locale, `/chromas/${rewardChroma.slug}/`);
 
+const faqEntries = isZh ? [
+  { question: '这个活动所有大区都能参与吗？', answer: '仅限英雄联盟国服的正式服大区参与。Riot 运营的服务器（美服、欧服、韩服等）不参与。详见我们的臻彩专题了解臻彩的运作方式。' },
+  { question: '奖励的臻彩需要原皮肤吗？', answer: '需要。臻彩是已有皮肤的变体，不是独立皮肤。"女帝 菲奥娜 紋章之刻印·强运"需要女帝 菲奥娜基础皮肤才能装备。300 和 600 积分档奖池中的臻彩同样需要对应原皮肤。' },
+  { question: '云顶之弈的消费算积分吗？', answer: '仅指定活动中的非云顶之弈道具购买计入积分。云顶召唤商店购买云石不纳入积分统计。' },
+  { question: '活动结束后积分会清零吗？', answer: `积分在统计窗口结束（${pointsEnd.replace(/-/g, '/')}）后清零，不结转到后续活动。你必须在 ${pointsStart.replace(/-/g, '/')}–${pointsEnd.replace(/-/g, '/')} 期间内达成目标档位，并在 ${claimEnd.replace(/-/g, '/')} 23:59 前领取奖励。` },
+  { question: '赠送好友会算我的积分吗？', answer: '会的，但仅限通过游戏商城、道聚城或掌盟商城进行的赠送——积分计入你（赠送方）的账户。其他渠道的赠送暂不纳入。' },
+] : [
+  { question: 'Is this event available on all servers?', answer: 'No. The Full Gift Reward is exclusive to the Chinese League of Legends server. It is not available on Riot-operated servers (NA, EUW, KR, etc.). See our prestige chroma guide for how prestige chromas work.' },
+  { question: 'Do I need to own the base skin to use the reward chroma?', answer: 'Yes. Prestige chromas are variants of an existing skin, not standalone skins. Battle Queen Fiora (Rose Quartz) requires the Battle Queen Fiora base skin. The same applies to every chroma in the 10-chroma pool at the 300 and 600-point tiers.' },
+  { question: 'Do Teamfight Tactics purchases count toward points?', answer: 'Only non-TFT item purchases on designated activities count. Yushi purchases in the TFT summon store are excluded from point accumulation.' },
+  { question: 'What happens to unspent points after the event?', answer: `Points reset when the counting window closes on ${pointsEnd.replace(/-/g, '/')}. They do not carry over to future events. You must hit your target tier entirely within the ${pointsStart.replace(/-/g, '/')}–${pointsEnd.replace(/-/g, '/')} window, and claim rewards by ${claimEnd.replace(/-/g, '/')} 23:59.` },
+  { question: 'Can I earn points by gifting?', answer: 'Yes — gifting through the in-game shop, Daojucheng, or Companion shop counts toward your (the sender\'s) point total. Gifting through other channels is not included.' },
+];
+
 const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting',
@@ -62,6 +76,13 @@ const jsonLd = [
         image: imageUrl(rewardChroma.images.large),
       },
     }],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
   },
 ];
 ---
@@ -155,26 +176,7 @@ const jsonLd = [
 
     <section class="faq">
       <h2>FAQ</h2>
-      <details>
-        <summary>Is this event available on all servers?</summary>
-        <p>No. The Full Gift Reward is exclusive to the Chinese League of Legends server. It is not available on Riot-operated servers (NA, EUW, KR, etc.). See our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> for how prestige chromas work.</p>
-      </details>
-      <details>
-        <summary>Do I need to own the base skin to use the reward chroma?</summary>
-        <p>Yes. Prestige chromas are variants of an existing skin, not standalone skins. <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> requires the Battle Queen Fiora base skin. The same applies to every chroma in the 10-chroma pool at the 300 and 600-point tiers.</p>
-      </details>
-      <details>
-        <summary>Do Teamfight Tactics purchases count toward points?</summary>
-        <p>Only non-TFT item purchases on designated activities count. Yushi purchases in the TFT summon store are excluded from point accumulation.</p>
-      </details>
-      <details>
-        <summary>What happens to unspent points after the event?</summary>
-        <p>Points reset when the counting window closes on {pointsEnd.replace(/-/g, '/')}. They do not carry over to future events. You must hit your target tier entirely within the {pointsStart.replace(/-/g, '/')}&ndash;{pointsEnd.replace(/-/g, '/')} window, and claim rewards by {claimEnd.replace(/-/g, '/')} 23:59.</p>
-      </details>
-      <details>
-        <summary>Can I earn points by gifting?</summary>
-        <p>Yes &mdash; gifting through the in-game shop, Daojucheng, or Companion shop counts toward <em>your</em> (the sender&rsquo;s) point total. Gifting through other channels is not included.</p>
-      </details>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}
     </section>
   </article>}
 
@@ -259,26 +261,7 @@ const jsonLd = [
 
     <section class="faq">
       <h2>常见问题解答</h2>
-      <details>
-        <summary>这个活动所有大区都能参与吗？</summary>
-        <p>仅限英雄联盟国服的正式服大区参与。Riot 运营的服务器（美服、欧服、韩服等）不参与。详见我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>了解臻彩的运作方式。</p>
-      </details>
-      <details>
-        <summary>奖励的臻彩需要原皮肤吗？</summary>
-        <p>需要。臻彩是已有皮肤的变体，不是独立皮肤。「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」需要女帝 菲奥娜基础皮肤才能装备。300 和 600 积分档奖池中的臻彩同样需要对应原皮肤。</p>
-      </details>
-      <details>
-        <summary>云顶之弈的消费算积分吗？</summary>
-        <p>仅指定活动中的非云顶之弈道具购买计入积分。云顶召唤商店购买云石不纳入积分统计。</p>
-      </details>
-      <details>
-        <summary>活动结束后积分会清零吗？</summary>
-        <p>积分在统计窗口结束（{pointsEnd.replace(/-/g, '/')}）后清零，不结转到后续活动。你必须在 {pointsStart.replace(/-/g, '/')}&ndash;{pointsEnd.replace(/-/g, '/')} 期间内达成目标档位，并在 {claimEnd.replace(/-/g, '/')} 23:59 前领取奖励。</p>
-      </details>
-      <details>
-        <summary>赠送好友会算我的积分吗？</summary>
-        <p>会的，但仅限通过游戏商城、道聚城或掌盟商城进行的赠送 &mdash; 积分计入<strong>你</strong>（赠送方）的账户。其他渠道的赠送暂不纳入。</p>
-      </details>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}
     </section>
   </article>}
 
