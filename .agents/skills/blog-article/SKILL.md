@@ -20,7 +20,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 每篇文章都需要：
 
 1. `src/blog/articles.ts` 头部的双语元数据；`publishedAt` 使用完整 ISO 时间（含时区或 `Z`），排序按发布时间从新到旧。
-2. `src/pages/blog/{slug}.astro`，同时渲染英文和中文内容块，并包含 `BlogPosting`、`BreadcrumbList`、canonical、面包屑、封面图、`BlogAdjacentNavigation`。
+2. `src/pages/blog/{slug}.astro`，同时渲染英文和中文内容块，并向 `BaseLayout` 传入 `image`、`ogType="article"`、`publishedTime`、`modifiedTime`、`jsonLd`；`BaseLayout` 据此自动输出 canonical、hreflang(en/zh-CN/x-default)、Open Graph、`article:published_time` / `article:modified_time`、Twitter summary_large_image 和 JSON-LD `<script>`。文章自己在 `jsonLd` 数组里放 `BlogPosting`、`BreadcrumbList`、`FAQPage` 和视文章类型追加的 `ItemList`/`HowTo`/`WebPage`。只要页面有 FAQ 段落就必须带 `FAQPage`；FAQ 问答统一为双语 `faqEntries` 数组，同一份数据既渲染正文 `<details>` 也驱动 `FAQPage.mainEntity`，避免手写两套。
 3. `src/pages/zh-cn/blog/{slug}.astro` 只做包装：`import Article` 与 `<Article locale="zh-cn" />`。
 4. `scripts/blog-feature.test.ts` 的页面契约和 `scripts/site-build.test.ts` 的路由/产物回归；必要时更新 `src/blog/articles.test.ts` 的数量与排序断言。
 5. 至少两条正文内链、FAQ 中一条基础文章内链，并在 `references/internal-links.md` 和至少两篇相关旧文中回链新文章。

@@ -23,6 +23,18 @@ const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toSt
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 
+// FAQ 问答统一为双语 faqEntries 数组：同一份数据既渲染正文 <details>，也驱动 FAQPage JSON-LD
+//   - 正文 FAQ 段: faqEntries.map((entry) => <details><summary>{entry.question}</summary><p>{entry.answer}</p></details>)
+//   - JSON-LD FAQPage: mainEntity: faqEntries.map(...)
+// FAQPage 是 Google 搜索问答卡富媒体必需；只要文章有 FAQ，就要用 faqEntries 统一驱动两处。
+const faqEntries = isZh ? [
+  { question: '中文问答 1？', answer: '中文答案 1。' },
+  { question: '中文问答 2？', answer: '中文答案 2。' },
+] : [
+  { question: 'Question 1 in English?', answer: 'Answer 1 in English.' },
+  { question: 'Question 2 in English?', answer: 'Answer 2 in English.' },
+];
+
 const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting',
@@ -41,9 +53,29 @@ const jsonLd = [
       { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
     ],
   },
+  // 条件：只要文章有 FAQ 段落，就补 FAQPage；常青指南也一样
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
 ];
 ---
 ```
+
+### SEO 通用契约（BaseLayout 自动覆盖，文章只需传 props）
+
+以下 tag 由 `BaseLayout` 根据 `title` / `description` / `canonical` / `image` / `ogType` / `publishedTime` / `modifiedTime` / `locale` / `jsonLd` props 自动生成，文章不重复写：
+
+- `link rel="canonical"`（完整 URL，含 origin）
+- `link rel="alternate" hreflang`（en / zh-CN / x-default 三方互链，由 `alternateUrls()` 生成）
+- `meta property="og:type|site_name|locale|locale:alternate|title|description|url|image"`（`ogType="article"` 时还注入 `article:published_time` / `article:modified_time`）
+- `meta name="twitter:card"|title|description|image`（`summary_large_image`）
+- 注入的 JSON-LD `<script type="application/ld+json">`（safeJsonLd 处理后，BaseLayout 统一序列化）
+
+文章 frontmatter 的 `jsonLd` 数组负责承载 **BaseLayout 不自动拼的业务结构化数据**：`BlogPosting`、`BreadcrumbList`、`FAQPage`，以及视文章类型追加的 `ItemList`（臻彩奖励列表）、`HowTo`、`WebPage` 等。
 
 ## Layout、导航与内容
 

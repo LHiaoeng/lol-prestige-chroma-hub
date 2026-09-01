@@ -12,7 +12,10 @@
 
 - [ ] 英文和中文均为独立完整内容，包含标题、导语、正文、至少一个 FAQ 和相关内链
 - [ ] 页面查找正确 article，设置 `title`、`description`、`canonical`、面包屑和 `BlogAdjacentNavigation`
+- [ ] BaseLayout props 已传 `image`、`ogType="article"`、`publishedTime`、`modifiedTime`、`jsonLd`，自动获得 canonical、hreflang(en/zh-CN/x-default)、Open Graph、article:published/modified_time、Twitter summary_large_image
 - [ ] JSON-LD 至少包含 `BlogPosting` 与 `BreadcrumbList`；`datePublished`、`dateModified` 与页面内容一致
+- [ ] JSON-LD 含 `FAQPage`（只要页面有 FAQ 段落就必须带，Google 搜索问答卡富媒体必需）；FAQ 使用 `faqEntries` 双语数组统一驱动正文 `<details>` 和 JSON-LD，不手写两套
+- [ ] 可选追加 `ItemList`（臻彩奖励列表）、`HowTo`、`WebPage` 等业务结构化数据
 - [ ] 首图 eager，其余图片 lazy；图片有 `alt`、`data-alt-en`、`data-alt-zh`、`data-fallback`、`data-placeholder`、宽高
 - [ ] 外部链接使用 `target="_blank" rel="noreferrer"`
 
