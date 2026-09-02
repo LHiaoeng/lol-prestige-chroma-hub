@@ -6,32 +6,60 @@ import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
+import { joyClubPeakGalaSessions } from '../../domain/joy-club-gala';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const article = blogArticles.find((entry) => entry.slug === 'joy-club-peak-gala-202607');
-if (!article) throw new Error('Joy Club Peak Gala 202607 article metadata is missing');
+const article = blogArticles.find((entry) => entry.slug === 'joy-club-peak-gala-202608');
+if (!article) throw new Error('Joy Club Peak Gala 202608 article metadata is missing');
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
 const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 
-const eventStart = '2026-08-01';
-const eventEnd = '2026-08-31';
-const eventUrl = 'https://act.xinyue.qq.com/act/joyclubgala202608/index.html';
+const eventStart = '2026-09-01';
+const eventEnd = '2026-09-30';
+const eventUrl = 'https://act.xinyue.qq.com/act/joyclubgala202609/index.html';
 const thresholdPoints = 500000;
 const exclusiveWindowMonths = 3;
 const settlementWorkdays = 7;
-const sessionExtraWorkdays = 3;
 
-// Session 202607 reward: Spirit Blossom Kayle (Tanzanite) — "灵魂莲华 凯尔 星回"
-const rewardChroma = catalog.find((item) => item.heroId === '10' && item.skinNameEn === 'Spirit Blossom Kayle' && item.nameEn === 'Spirit Blossom Kayle (Tanzanite)');
-if (!rewardChroma) throw new Error('Spirit Blossom Kayle (Tanzanite) reward chroma is missing from catalog');
+// Session 202608 reward: Primordian Aatrox (Sapphire) — "海魔至尊 亚托克斯 无情背袭"
+const rewardChroma = catalog.find((item) => item.heroId === '266' && item.skinNameEn === 'Primordian Aatrox' && item.nameEn === 'Primordian Aatrox (Sapphire)');
+if (!rewardChroma) throw new Error('Primordian Aatrox (Sapphire) reward chroma is missing from catalog');
 const rewardChromaUrl = localizedPath(locale, `/chromas/${rewardChroma.slug}/`);
+
+// Past sessions for the "Past Peak Gala" section — exclude current, sort desc by sessionId
+const currentSessionId = '202608';
+const sessionChromas = joyClubPeakGalaSessions
+  .filter((s) => s.sessionId !== currentSessionId)
+  .sort((a, b) => b.sessionId.localeCompare(a.sessionId))
+  .map((s) => ({
+    session: s,
+    chroma: catalog.find(
+      (item) => item.heroId === s.rewardHeroId && item.skinNameEn === s.rewardSkinNameEn && item.nameEn === s.rewardChromaNameEn,
+    ),
+  }));
+
+const faqEntries = isZh ? [
+  { question: '这个活动所有大区都能参与吗？', answer: '仅限英雄联盟国服的正式服大区参与，需持有符合条件的 QQ 账户。Riot 运营的服务器（美服、欧服、韩服等）不参与。非正式服大区（峡谷之巅、体验服、比赛服等）的消费也不计入巅峰值。详见我们的臻彩专题了解臻彩的运作方式。' },
+  { question: '赠送好友皮肤会算我自己的巅峰值吗？', answer: '会的，但仅限通过游戏商城、道聚城或掌盟商城进行的赠送——巅峰值计入你（赠送方）的 QQ 账户。其他渠道或活动的赠送暂不纳入。' },
+  { question: '活动结束后未用完的巅峰值会怎样？', answer: `巅峰值每期活动结束后清零，不会结转到未来的巅峰盛典。你必须在 ${eventStart.replace(/-/g, '/')}–${eventEnd.replace(/-/g, '/')} 期间内达到门槛。` },
+  { question: '通过苹果内购充值能获得巅峰值吗？', answer: '不能。活动明确声明苹果公司不是赞助者，也没有以任何形式参与活动。任何形式的点券充值都不产生巅峰值，只有将点券用于消费才计入。' },
+  { question: '云顶之弈的云石购买算巅峰值吗？', answer: '不算。云顶召唤商店购买云石暂时无法统计到巅峰值。只有英雄联盟的虚拟道具及服务消费才计入。' },
+  { question: '达到门槛后怎么领取臻彩？', answer: `统计窗口结束并完成结算后，进入巅峰盛典的召唤师需前往相关活动页面选择大区领取「${rewardChroma.nameZh}」，奖励不会自动到账。预计结算在统计结束后 ${settlementWorkdays} 个工作日内完成。` },
+] : [
+  { question: 'Is this event available on all servers?', answer: 'No. The Peak Gala is exclusive to the Chinese League of Legends server and requires a qualified Chinese QQ account. It is not available on Riot-operated servers (NA, EUW, KR, etc.). Spending on non-official Chinese servers (Rift of the Decade, PBE, tournament realms) is also excluded from peak value. See our prestige chroma guide for how prestige chromas work.' },
+  { question: 'Does gifting count toward my threshold?', answer: 'Yes — but only when the gift is sent through the in-game shop, Daojucheng, or the Companion shop. Peak value goes to you (the sender), not the recipient. Gifting through other channels is not included.' },
+  { question: 'What happens to unspent peak value after the event?', answer: `Peak value resets at the end of each session. It does not carry over to future galas. You must reach the threshold entirely within the ${eventStart.replace(/-/g, '/')}–${eventEnd.replace(/-/g, '/')} window.` },
+  { question: 'Can I earn peak value through Apple Pay recharges?', answer: 'No. Recharging Dianquan via Apple In-App Purchase does not generate peak value — the event explicitly states Apple is not a sponsor and does not participate in any form. Only actual spending within LoL counts.' },
+  { question: 'Do Teamfight Tactics purchases count?', answer: 'No. Yushi purchases in the TFT summon store are not yet tracked by the Peak Gala system. Only League of Legends virtual items and services count.' },
+  { question: 'How do I actually claim the chroma after qualifying?', answer: `Once settlement completes (around ${settlementWorkdays} working days after the window closes), visit the event page and select your server region to claim ${rewardChroma.nameEn}. The reward is not delivered automatically.` },
+];
 
 const jsonLd = [
   {
@@ -53,7 +81,7 @@ const jsonLd = [
   },
   {
     '@context': 'https://schema.org', '@type': 'ItemList',
-    name: isZh ? '第 202607 期巅峰盛典奖励臻彩' : 'Session 202607 Peak Gala reward chromas',
+    name: isZh ? '第 202608 期巅峰盛典奖励臻彩' : 'Session 202608 Peak Gala reward chromas',
     numberOfItems: 1,
     itemListElement: [{
       '@type': 'ListItem', position: 1,
@@ -64,6 +92,13 @@ const jsonLd = [
         image: imageUrl(rewardChroma.images.large),
       },
     }],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
   },
 ];
 ---
@@ -80,7 +115,7 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">TENCENT JOY CLUB EVENT</p>
       <h1>{article.titleEn}</h1>
-      <p class="article-deck">Session 202607 runs August 1&ndash;31, 2026 on the Chinese server. Spend {thresholdPoints.toLocaleString()} peak value during the window to qualify &mdash; claim <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> after settlement, exclusive to Peak Gala for {exclusiveWindowMonths} months.</p>
+      <p class="article-deck">Session 202608 runs {eventStart.replace(/-/g, '/')} through {eventEnd.replace(/-/g, '/')}, 2026 on the Chinese server. Spend {thresholdPoints.toLocaleString()} peak value during the window to qualify &mdash; claim <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> after settlement, exclusive to Peak Gala for {exclusiveWindowMonths} months.</p>
       <p class="article-meta">
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
@@ -92,16 +127,16 @@ const jsonLd = [
       <a class="chroma-art-link" href={rewardChromaUrl} aria-label={`View ${rewardChroma.nameEn} details`}>
         <img src={imageUrl(rewardChroma.images.large)} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${rewardChroma.nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
       </a>
-      <figcaption>{rewardChroma.nameEn} &mdash; session 202607 Peak Gala reward.</figcaption>
+      <figcaption>{rewardChroma.nameEn} &mdash; session 202608 Peak Gala reward.</figcaption>
     </figure>
 
     <section>
       <h2>What is the Joy Club Peak Gala?</h2>
       <p>The Peak Gala is a recurring spending event run by Tencent Game Joy Club and League of Legends. Spend in LoL during the event window to build up &ldquo;peak value&rdquo;; hit the {thresholdPoints.toLocaleString()}-point mark to qualify and earn a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> after settlement.</p>
-      <p>The July 2026 event is covered in our <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202606/')}>July 2026 Peak Gala article</a>; each session has its own reward and counting window. The latest September 2026 session (202608) rewards <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}>Primordian Aatrox (Sapphire)</a>.</p>
+      <p>The previous August session (202607) is covered in our <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202607/')}>session 202607 Peak Gala article</a>; each session has its own reward and counting window.</p>
       <p>If you're looking for another spending-reward event, the <a href={localizedPath(locale, '/blog/full-gift-reward-prestige-chroma-202608/')}>Full Gift Reward</a> activity counts purchases from August 15 to October 11 and grants Battle Queen Fiora (Rose Quartz) at 1000 points.</p>
-      <p>Session 202607 runs from <strong>{eventStart.replace(/-/g, '/')} 00:00:00 to {eventEnd.replace(/-/g, '/')} 23:59:59</strong> China Standard Time. Peak value aggregates across every official-server region tied to a single QQ account &mdash; spending on any of your official accounts counts toward the same total.</p>
-      <p>The session 202607 reward is <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a prestige chroma of the Spirit Blossom Kayle skin in deep tanzanite purple (<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>). Qualifying summoners get a <strong>{exclusiveWindowMonths}-month exclusive window</strong>; after it ends, the chroma opens up to other channels. Watch the official LoL site for the announcement.</p>
+      <p>Session 202608 runs from <strong>{eventStart.replace(/-/g, '/')} 00:00:00 to {eventEnd.replace(/-/g, '/')} 23:59:59</strong> China Standard Time. Peak value aggregates across every official-server region tied to a single QQ account &mdash; spending on any of your official accounts counts toward the same total.</p>
+      <p>The session 202608 reward is <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a prestige chroma of the Primordian Aatrox skin in deep sapphire blue (<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>). Qualifying summoners get a <strong>{exclusiveWindowMonths}-month exclusive window</strong>; after it ends, the chroma opens up to other channels. Watch the official LoL site for the announcement.</p>
     </section>
 
     <section>
@@ -117,7 +152,7 @@ const jsonLd = [
         <li><strong>LoL Mini Program</strong> &mdash; LoL items or services bought within the WeChat/QQ mini program.</li>
         <li><strong>Gifting through the in-game shop, Daojucheng, or Companion shop</strong> &mdash; peak value goes to the <em>sender&rsquo;s</em> QQ account. Gifting via other channels is excluded.</li>
       </ul>
-      <p>At 100 Dianquan &asymp; 1 RMB, hitting {thresholdPoints.toLocaleString()} peak value takes roughly <strong>&asymp; 5,000 RMB</strong> over the August 1&ndash;31 window. This is a high-spender threshold.</p>
+      <p>At 100 Dianquan &asymp; 1 RMB, hitting {thresholdPoints.toLocaleString()} peak value takes roughly <strong>&asymp; 5,000 RMB</strong> over the September window. This is a high-spender threshold.</p>
     </section>
 
     <section>
@@ -135,12 +170,33 @@ const jsonLd = [
 
     <section>
       <h2>Rewards, settlement, and claiming</h2>
-      <p>Qualifying players receive <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a <strong>diamond-tier prestige chroma</strong> of the Spirit Blossom Kayle skin. It stays exclusive to Peak Gala for {exclusiveWindowMonths} months, then opens to other channels.</p>
+      <p>Qualifying players receive <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a prestige chroma of the Primordian Aatrox skin. It stays exclusive to Peak Gala for {exclusiveWindowMonths} months, then opens to other channels.</p>
       <BlogChromaGrid>
         <BlogChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
-      <p>Settlement starts <strong>{settlementWorkdays} working days after the window closes</strong>. <strong>Session 202607</strong> needs an extra {sessionExtraWorkdays} working days on top of that (Classic mode stats are tricky to aggregate) &mdash; expect rewards around mid-September 2026. Future sessions go back to the standard {settlementWorkdays}-day window.</p>
+      <p>Settlement starts <strong>{settlementWorkdays} working days after the window closes</strong>. Rewards are expected around mid-October 2026.</p>
       <p>The reward is not auto-delivered. Qualifying summoners must <strong>visit the event page and select their server region</strong> to claim the chroma.</p>
+    </section>
+
+    <section class="gala-sessions">
+      <h2>Past Peak Gala sessions</h2>
+      <div class="gala-table-wrapper">
+        <table class="gala-table">
+          <thead><tr><th>Session</th><th>Counting window</th><th>Reward chroma</th><th>Article</th></tr></thead>
+          <tbody>
+            {sessionChromas.map(({ session, chroma }) => {
+              const chromaUrl = chroma ? localizedPath(locale, `/chromas/${chroma.slug}/`) : '#';
+              const articleUrl = localizedPath(locale, `/blog/${session.articleSlug}/`);
+              return <tr>
+                <td class="gala-col-session">{session.sessionId}</td>
+                <td class="gala-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td>{chroma ? <a href={chromaUrl}>{chroma.nameEn}</a> : <em>Unknown reward</em>}</td>
+                <td class="gala-col-link"><a href={articleUrl}>Read</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section>
@@ -156,37 +212,14 @@ const jsonLd = [
     <aside class="official-sources" aria-label="Official sources">
       <strong>Official sources</strong>
       <ul>
-        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Joy Club Peak Gala session 202607 event page</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Joy Club Peak Gala session 202608 event page</a></li>
         <li><a class="official-source-link" href="https://xinyue.qq.com/" target="_blank" rel="noreferrer">Tencent Game Joy Club</a></li>
       </ul>
     </aside>
 
     <section class="faq">
       <h2>FAQ</h2>
-      <details>
-        <summary>Is this event available on all servers?</summary>
-        <p>No. The Peak Gala is exclusive to the Chinese League of Legends server and requires a qualified Chinese QQ account. It is not available on Riot-operated servers (NA, EUW, KR, etc.). Spending on non-official Chinese servers (Rift of the Decade, PBE, tournament realms) is also excluded from peak value.</p>
-      </details>
-      <details>
-        <summary>Does gifting count toward my threshold?</summary>
-        <p>Yes &mdash; but only when the gift is sent through the in-game shop, Daojucheng, or the Companion shop. Peak value goes to <em>you</em> (the sender), not the recipient. Gifting through other channels is not included.</p>
-      </details>
-      <details>
-        <summary>What happens to unspent peak value after the event?</summary>
-        <p>Peak value resets at the end of each session. It does not carry over to future galas. You must reach the threshold entirely within the {eventStart.replace(/-/g, '/')}&ndash;{eventEnd.replace(/-/g, '/')} window.</p>
-      </details>
-      <details>
-        <summary>Can I earn peak value through Apple Pay recharges?</summary>
-        <p>No. Recharging Dianquan via Apple In-App Purchase does <em>not</em> generate peak value &mdash; the event explicitly states Apple is not a sponsor and does not participate in any form. Only actual spending within LoL counts.</p>
-      </details>
-      <details>
-        <summary>Do Teamfight Tactics purchases count?</summary>
-        <p>No. Yushi purchases in the TFT summon store are not yet tracked by the Peak Gala system. Only League of Legends virtual items and services count.</p>
-      </details>
-      <details>
-        <summary>How do I actually claim the chroma after qualifying?</summary>
-        <p>Once settlement completes, visit the event page and select your server region to claim <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a>. The reward is not delivered automatically.</p>
-      </details>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}
     </section>
   </article>}
 
@@ -194,7 +227,7 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">心悦俱乐部活动</p>
       <h1>{article.titleZh}</h1>
-      <p class="article-deck">第 202607 期统计窗口为 2026 年 8 月 1 日至 31 日。累积巅峰值满 {(thresholdPoints / 10000).toFixed(0)} 万即可入席，结算后前往活动页选择大区领取本期臻彩 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，享 {exclusiveWindowMonths} 个月独享期。</p>
+      <p class="article-deck">第 202608 期统计窗口为 {eventStart.replace(/-/g, '/')} 至 {eventEnd.replace(/-/g, '/')}。累积巅峰值满 {(thresholdPoints / 10000).toFixed(0)} 万即可入席，结算后前往活动页选择大区领取本期臻彩 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，享 {exclusiveWindowMonths} 个月独享期。</p>
       <p class="article-meta">
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
@@ -206,16 +239,16 @@ const jsonLd = [
       <a class="chroma-art-link" href={rewardChromaUrl} aria-label={`查看 ${rewardChroma.nameZh} 详情`}>
         <img src={imageUrl(rewardChroma.images.large)} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={`${rewardChroma.nameZh}臻彩原画`} width="1920" height="1080" loading="eager" decoding="async" />
       </a>
-      <figcaption>{rewardChroma.nameZh} &mdash; 第 202607 期巅峰盛典奖励。</figcaption>
+      <figcaption>{rewardChroma.nameZh} &mdash; 第 202608 期巅峰盛典奖励。</figcaption>
     </figure>
 
     <section>
       <h2>什么是心悦巅峰盛典？</h2>
       <p>巅峰盛典是腾讯游戏心悦俱乐部和英雄联盟联合举办的周期性消费活动。活动期间在英雄联盟消费可累积巅峰值，满 {(thresholdPoints / 10000).toFixed(0)} 万即可入席，结算后领取<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>奖励。</p>
-      <p>上一期 7 月活动的统计窗口和奖励已整理在<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202606/')}>2026 年 7 月心悦巅峰盛典文章</a>中；每期都有独立的奖励和统计窗口。最新一期 9 月活动（第 202608 期）奖励为<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}>海魔至尊 亚托克斯 无情背袭</a>。</p>
+      <p>上一期 8 月活动的统计窗口和奖励已整理在<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202607/')}>第 202607 期心悦巅峰盛典文章</a>中；每期都有独立的奖励和统计窗口。</p>
       <p>如果你在找另一个消费返赠活动，<a href={localizedPath(locale, '/blog/full-gift-reward-prestige-chroma-202608/')}>满额礼赠</a>统计 8 月 15 日至 10 月 11 日的消费，累计 1000 积分可领取女帝菲奥娜紋章之刻印·强运臻彩。</p>
-      <p>第 202607 期统计窗口为 <strong>{eventStart.replace(/-/g, '/')} 00:00:00 至 {eventEnd.replace(/-/g, '/')} 23:59:59</strong>。巅峰值按召唤师 QQ 号名下所有正式服大区聚合统计，任何一个正式服账号的消费都计入同一门槛。</p>
-      <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，基于灵魂莲华 凯尔皮肤，主色调为深邃的坦桑石紫（<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>）。获取该臻彩的心悦召唤师享有 <strong>{exclusiveWindowMonths} 个月独享期</strong>，独享期结束后开放其他渠道获取，请关注官网公告。</p>
+      <p>第 202608 期统计窗口为 <strong>{eventStart.replace(/-/g, '/')} 00:00:00 至 {eventEnd.replace(/-/g, '/')} 23:59:59</strong>。巅峰值按召唤师 QQ 号名下所有正式服大区聚合统计，任何一个正式服账号的消费都计入同一门槛。</p>
+      <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，基于海魔至尊 亚托克斯皮肤，主色调为深邃的蓝宝石蓝（<span style={`color:${rewardChroma.colors[0]}`}>{rewardChroma.colors[0]}</span>）。获取该臻彩的心悦召唤师享有 <strong>{exclusiveWindowMonths} 个月独享期</strong>，独享期结束后开放其他渠道获取，请关注官网公告。</p>
     </section>
 
     <section>
@@ -231,7 +264,7 @@ const jsonLd = [
         <li><strong>英雄联盟小程序</strong> &mdash; 在微信小程序内购买的英雄联盟道具或服务。</li>
         <li><strong>游戏商城、道聚城、掌盟商城的赠送</strong> &mdash; 巅峰值计入<strong>赠送方 QQ</strong>。其他渠道或活动的赠送暂不纳入。</li>
       </ul>
-      <p>按 100 点券 &asymp; 1 元估算，在 8 月 1 日至 31 日期间累积 {(thresholdPoints / 10000).toFixed(0)} 万巅峰值约需消费 <strong>5,000 元</strong>。这是面向高消费玩家的门槛。</p>
+      <p>按 100 点券 &asymp; 1 元估算，在 {eventStart.replace(/-/g, '/')} 至 {eventEnd.replace(/-/g, '/')} 期间累积 {(thresholdPoints / 10000).toFixed(0)} 万巅峰值约需消费 <strong>5,000 元</strong>。这是面向高消费玩家的门槛。</p>
     </section>
 
     <section>
@@ -249,12 +282,33 @@ const jsonLd = [
 
     <section>
       <h2>奖励、结算与领取</h2>
-      <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，属于<strong>钻石臻彩</strong>。该臻彩在巅峰盛典享有 {exclusiveWindowMonths} 个月独享期，结束后开放其他渠道获取。</p>
+      <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，基于海魔至尊 亚托克斯皮肤。该臻彩在巅峰盛典享有 {exclusiveWindowMonths} 个月独享期，结束后开放其他渠道获取。</p>
       <BlogChromaGrid>
         <BlogChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
-      <p>巅峰盛典奖励发放将在统计结束后 <strong>{settlementWorkdays} 个工作日内</strong>进行。<strong>本期（第 202607 期）</strong>因经典模式数据统计较复杂，额外需要 {sessionExtraWorkdays} 个工作日，预计 9 月中旬发放。后续巅峰盛典维持 {settlementWorkdays} 个工作日内结算。</p>
-      <p>奖励不自动到账，达到门槛的召唤师需<strong>前往活动页面选择大区</strong>领取「灵魂莲华 凯尔 星回」。</p>
+      <p>巅峰盛典奖励发放将在统计结束后 <strong>{settlementWorkdays} 个工作日内</strong>进行，预计 10 月中旬发放。</p>
+      <p>奖励不自动到账，达到门槛的召唤师需<strong>前往活动页面选择大区</strong>领取「{rewardChroma.nameZh}」。</p>
+    </section>
+
+    <section class="gala-sessions">
+      <h2>往期巅峰盛典</h2>
+      <div class="gala-table-wrapper">
+        <table class="gala-table">
+          <thead><tr><th>期号</th><th>统计窗口</th><th>奖励臻彩</th><th>文章</th></tr></thead>
+          <tbody>
+            {sessionChromas.map(({ session, chroma }) => {
+              const chromaUrl = chroma ? localizedPath(locale, `/chromas/${chroma.slug}/`) : '#';
+              const articleUrl = localizedPath(locale, `/blog/${session.articleSlug}/`);
+              return <tr>
+                <td class="gala-col-session">第 {session.sessionId} 期</td>
+                <td class="gala-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td>{chroma ? <a href={chromaUrl}>{chroma.nameZh}</a> : <em>奖励未收录</em>}</td>
+                <td class="gala-col-link"><a href={articleUrl}>查看</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section>
@@ -270,37 +324,14 @@ const jsonLd = [
     <aside class="official-sources" aria-label="官方来源">
       <strong>官方来源</strong>
       <ul>
-        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">心悦巅峰盛典第 202607 期活动页</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">心悦巅峰盛典第 202608 期活动页</a></li>
         <li><a class="official-source-link" href="https://xinyue.qq.com/" target="_blank" rel="noreferrer">腾讯游戏心悦俱乐部</a></li>
       </ul>
     </aside>
 
     <section class="faq">
       <h2>常见问题解答</h2>
-      <details>
-        <summary>这个活动所有大区都能参与吗？</summary>
-        <p>仅限英雄联盟国服的正式服大区参与，需持有符合条件的 QQ 账户。 Riot 运营的服务器（美服、欧服、韩服等）不参与。非正式服大区（峡谷之巅、体验服、比赛服等）的消费也不计入巅峰值。</p>
-      </details>
-      <details>
-        <summary>赠送好友皮肤会算我自己的巅峰值吗？</summary>
-        <p>会的，但仅限通过游戏商城、道聚城或掌盟商城进行的赠送 &mdash; 巅峰值计入<strong>你</strong>（赠送方）的 QQ 账户。其他渠道或活动的赠送暂不纳入。</p>
-      </details>
-      <details>
-        <summary>活动结束后未用完的巅峰值会怎样？</summary>
-        <p>巅峰值每期活动结束后清零，不会结转到未来的巅峰盛典。你必须在 {eventStart.replace(/-/g, '/')}&ndash;{eventEnd.replace(/-/g, '/')} 期间内达到门槛。</p>
-      </details>
-      <details>
-        <summary>通过苹果内购充值能获得巅峰值吗？</summary>
-        <p>不能。活动明确声明苹果公司不是赞助者，也没有以任何形式参与活动。任何形式的点券充值都不产生巅峰值，只有将点券用于消费才计入。</p>
-      </details>
-      <details>
-        <summary>云顶之弈的云石购买算巅峰值吗？</summary>
-        <p>不算。云顶召唤商店购买云石暂时无法统计到巅峰值。只有英雄联盟的虚拟道具及服务消费才计入。</p>
-      </details>
-      <details>
-        <summary>达到门槛后怎么领取臻彩？</summary>
-        <p>统计窗口结束并完成结算后，进入巅峰盛典的召唤师需<strong>前往相关活动页面选择大区</strong>领取「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」，奖励不会自动到账。</p>
-      </details>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}
     </section>
   </article>}
 
@@ -344,6 +375,19 @@ const jsonLd = [
     .official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}
     .official-sources li{font-size:.88rem;line-height:1.6}
     .official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .gala-sessions{margin-top:32px}
+    .gala-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .gala-table{width:100%;border-collapse:collapse;font-size:.96rem}
+    .gala-table th{text-align:left;color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.06em;padding:0 16px 12px;border-bottom:1px solid var(--line)}
+    .gala-table td{padding:14px 16px;color:#c7cad4;border-bottom:1px solid var(--line)}
+    .gala-table tbody tr:last-child td{border-bottom:none}
+    .gala-table tbody tr:hover td{background:#15182a}
+    .gala-table a{text-decoration:none}
+    .gala-table a:hover{text-decoration:underline}
+    .gala-col-session{width:112px;color:var(--gold);font-family:Georgia,"Noto Serif SC",serif;font-weight:700;white-space:nowrap}
+    .gala-col-window{width:160px;color:var(--muted);font-size:.88rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .gala-col-link{width:64px;text-align:right}
+    .gala-col-link a{font-size:.88rem}
 
     @media(max-width:767px){
       .blog-breadcrumbs{padding-top:18px}
@@ -352,6 +396,10 @@ const jsonLd = [
       .article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}
       .blog-article section{margin-top:36px}
       .blog-article section p{font-size:1rem;line-height:1.78}
-      .showcase{grid-template-columns:1fr;gap:26px;margin-top:32px}}
+      .showcase{grid-template-columns:1fr;gap:26px;margin-top:32px}
+      .gala-table th,.gala-table td{padding:10px 12px;font-size:.88rem}
+      .gala-col-session{width:100px}
+      .gala-col-window{width:auto;white-space:normal}
+    }
   </style>
 </BaseLayout>

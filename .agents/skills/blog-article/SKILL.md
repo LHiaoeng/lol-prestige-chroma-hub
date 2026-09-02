@@ -13,6 +13,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 - 提供 `lol.qq.com` 新闻链接时，先使用 `league-of-legends-cn-official-news` 或 `lol-news-detail` skill 获取标题、发布时间、正文和图片；不得凭链接猜正文。
 - 先读取 `CONTEXT.md`，确认“臻彩”“璀璨臻彩”“华彩秘宝”“至臻皮肤”等领域术语和 `_Avoid_` 表述。
 - 新建或修改文章前，读取 `references/checklist.md`；文章包含目录臻彩卡片网格时，再读取 `references/chroma-grid.md`。
+- 新增文章属于定期举办的活动系列（如心悦巅峰盛典、满额礼赠等）时，额外读取 `references/recurring-activity-past-sessions.md` 并执行其中流程。
 - 仅在常青指南文章中读取 `src/blog/evergreen-guides.ts` 的维护要求；新闻/活动文章不登记为常青指南。
 
 ## 交付边界
@@ -29,6 +30,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 
 - 常青指南：登记 `evergreenGuideMaintenance`，渲染 `ArticleMaintenance`，显示作者、来源、最后核验日期、纠错入口和两条相关指南；`modifiedTime` 与可见核验日期一致。
 - 官网新闻/活动文章：保留官方 `sourceUrl`、官方来源链接和公告明确的时间/获取条件；不把未公布的概率、结束日期或可用性写成事实。
+- 定期举办的活动系列（如心悦巅峰盛典、满额礼赠）：按 `references/recurring-activity-past-sessions.md` 在奖励/结算章节之后插入往期场次表格；更新共享数据模块；不补改往期文章。
 - 本地封面图：保存到 `public/img/blog/`，使用 `compress-image` skill 压到 1MB 以内；目录原画继续使用 `img.chromaart.lol` 路径，不复制远程图片。
 
 ## 元数据与页面结构
@@ -87,6 +89,7 @@ Use `quick_validate.py` from the system `skill-creator` skill with `.agents/skil
 - 页面骨架与 SEO 片段：`references/page-template.md`
 - 交付检查：`references/checklist.md`
 - 内链矩阵：`references/internal-links.md`
+- 周期性活动往期场次表格：`references/recurring-activity-past-sessions.md`
 - 维护组件：`src/components/ArticleMaintenance.astro`
 - 常青指南登记：`src/blog/evergreen-guides.ts`
 - 完整示例：`src/pages/blog/what-are-prestige-chromas.astro`

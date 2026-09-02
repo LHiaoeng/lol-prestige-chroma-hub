@@ -46,6 +46,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'joy-club-peak-gala-202608',
+    href: '/blog/joy-club-peak-gala-202608/',
+    titleEn: 'Joy Club Peak Gala — Session 202608',
+    titleZh: '心悦巅峰盛典 — 第 202608 期',
+    summaryEn: 'The Joy Club Peak Gala session 202608 runs through September 2026 on the Chinese LoL server. Spend 500,000 peak value to qualify and claim Primordian Aatrox (Sapphire) — a prestige chroma of the Primordian Aatrox skin, exclusive to Peak Gala for 3 months.',
+    summaryZh: '心悦巅峰盛典第 202608 期于 2026 年 9 月开放统计。巅峰值满 50 万即可入席，结算后前往活动页选择大区领取本期专属臻彩「海魔至尊 亚托克斯 无情背袭」，享 3 个月独享期。',
+    publishedAt: '2026-09-02',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site3.jpg',
+    coverAltEn: 'Primordian Aatrox (Sapphire) prestige chroma splash art — Joy Club Peak Gala session 202608 reward',
+    coverAltZh: '海魔至尊 亚托克斯 无情背袭臻彩原画 — 心悦巅峰盛典第 202608 期奖励',
+    sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202609/index.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'full-gift-reward-prestige-chroma-202608',
     href: '/blog/full-gift-reward-prestige-chroma-202608/',
     titleEn: 'Full Gift Reward Event: Battle Queen Fiora Prestige Chroma',
