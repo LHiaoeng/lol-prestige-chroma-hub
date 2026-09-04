@@ -46,6 +46,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'prestige-chroma-summon-september-2026',
+    href: '/blog/prestige-chroma-summon-september-2026/',
+    titleEn: 'Brilliant Prestige Chroma Summoning — Session 202620',
+    titleZh: '璀璨臻彩召唤 — 第 202620 期',
+    summaryEn: 'The Brilliant Prestige Chroma Summoning event runs September 4 – October 4, 2026 on the Chinese server. Spirit Blossom Akali (Pearl) and Soul Fighter Gwen (Sapphire) headline the self-select prize pools, with the first summon costing 12 RMB.',
+    summaryZh: '2026 年 9 月 4 日至 10 月 4 日，新一期璀璨臻彩召唤上线：特等奖自选灵魂莲华 阿卡丽 朝花，一等奖自选斗魂觉醒 格温 狡之魂焰，首次召唤 12 元。',
+    publishedAt: '2026-09-04',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/93781ae8-55cd-4ba4-82eb-d21ee984f063/site3.jpg',
+    coverAltEn: 'Spirit Blossom Akali (Pearl) prestige chroma splash art — Brilliant Prestige Chroma Summoning September 2026 grand prize',
+    coverAltZh: '灵魂莲华 阿卡丽 朝花臻彩原画 — 2026 年 9 月璀璨臻彩召唤特等奖',
+    sourceUrl: 'https://lol.qq.com/act/a202609047293tendraws35/index.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'joy-club-peak-gala-202608',
     href: '/blog/joy-club-peak-gala-202608/',
     titleEn: 'Joy Club Peak Gala — Session 202608',
@@ -205,8 +221,8 @@ export const blogArticles: readonly BlogArticle[] = [
   {
     slug: 'prestige-chroma-summon-august-2026',
     href: '/blog/prestige-chroma-summon-august-2026/',
-    titleEn: 'Brilliant Prestige Chroma Summoning — August 2026',
-    titleZh: '璀璨臻彩召唤活动上新',
+    titleEn: 'Brilliant Prestige Chroma Summoning — Session 202619',
+    titleZh: '璀璨臻彩召唤 — 第 202619 期',
     summaryEn: 'A new prestige chroma summon event is live until September 6. See the prize pool, featured chromas, and how to participate.',
     summaryZh: '新一期璀璨臻彩召唤活动上线，持续至 9 月 6 日。查看奖池、精选臻彩与参与方式。',
     publishedAt: '2026-08-07',

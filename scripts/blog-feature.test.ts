@@ -29,6 +29,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
+      'src/pages/blog/prestige-chroma-summon-september-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
       'src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro',
@@ -45,6 +46,7 @@ describe('blog feature contract', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     const officialUrls = [
       'https://lol.qq.com/act/a202608077548tendraws34/index.html',
+      'https://lol.qq.com/act/a202609047293tendraws35/index.html',
       'https://lol.qq.com/act/a202607034771tendraws31/index.html',
       'https://lol.qq.com/act/a202606264151prizewheel/index.html',
       'https://lol.qq.com/act/a202606117610prizewheel/index.html',
@@ -54,12 +56,13 @@ describe('blog feature contract', () => {
       'https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898',
     ];
     for (const url of officialUrls) expect(page.split(url)).toHaveLength(3);
-    expect(page.match(/class="official-source-link"/g)).toHaveLength(16);
-    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(16);
+    expect(page.match(/class="official-source-link"/g)).toHaveLength(18);
+    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(18);
     for (const label of [
       'Official acquisition sources',
       'Official cultural sources',
       'Brilliant Prestige Summoning — August 2026',
+      'Brilliant Prestige Summoning — September 2026',
       'Brilliant Prestige Summoning — July 2026',
       'Lucky Gate — June 26, 2026',
       'Lucky Gate — June 11, 2026',
@@ -70,6 +73,7 @@ describe('blog feature contract', () => {
       '官方获取来源',
       '官方文化来源',
       '璀璨臻彩召唤 — 2026 年 8 月',
+      '璀璨臻彩召唤 — 2026 年 9 月',
       '璀璨臻彩召唤 — 2026 年 7 月',
       '幸运之门 — 2026 年 6 月 26 日',
       '幸运之门 — 2026 年 6 月 11 日',
@@ -113,6 +117,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/what-is-league-of-legends.astro',
       'src/pages/blog/top-2-prestige-chroma-champions.astro',
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
+      'src/pages/blog/prestige-chroma-summon-september-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/joy-club-peak-gala-202606.astro',
@@ -712,6 +717,56 @@ describe('blog feature contract', () => {
       '邓紫棋出任 IP 系列星籁合伙人，承诺捐赠不低于 1000 万元',
       '幸运之门·心之歌召唤活动持续至 9 月 27 日',
       '15 周年直播带货专场同步开启',
+    ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete localized September 2026 Brilliant Prestige Chroma Summoning article', () => {
+    const page = source('src/pages/blog/prestige-chroma-summon-september-2026.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(page).toContain("import { brilliantSummonSessions } from '../../domain/brilliant-summon'");
+    expect(page).toContain('summon-table');
+    expect(page).toContain('const currentSessionId = \'202620\'');
+    expect(page).toContain('[1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]');
+    expect(page).toContain('<td><strong>All ten</strong></td>');
+    expect(page).toContain('<td><strong>十次合计</strong></td>');
+    expect(page).toContain('Heartseeker Vayne');
+    expect(page).toContain('觅心猎手 薇恩');
+    expect(page).toContain('<style is:global>');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/question: '/g)).toHaveLength(8);
+    expect(page.match(/<figure class="article-hero"/g)).toHaveLength(2);
+    expect(page).toContain('article.coverUrl');
+    for (const heading of [
+      'Two prestige chromas in the prize pool',
+      'Summon prices and odds',
+      'Participation rules worth knowing',
+      'Past sessions',
+      'Prestige chromas need the base skin',
+      '奖池里的两款臻彩',
+      '召唤价格与概率',
+      '参与规则要点',
+      '往期活动',
+      '臻彩需要原皮肤',
     ]) expect(page).toContain(heading);
   });
 });

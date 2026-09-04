@@ -6,22 +6,23 @@
 
 行 = 来源页面，列 = 链向页面，✅ = 已有链接。
 
-| 来源 ＼ 链向 | what-is-lol | chroma-skins | prestige-chromas | kaisa | champion-most | without | patch-26-15 | top-2 | summon-aug-2026 | porcelain | patch-26-16 | haibow-jax | lucky-gate | patch-26-17 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **what-is-league-of-legends** | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **what-are-chroma-skins** | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **what-are-prestige-chromas** | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **kaisa-prestige-chroma** | ❌ | ✅ | ✅ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **champion-most-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | — | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **champions-without-prestige-chroma** | ❌ | ✅ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **patch-26-15-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | — | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **top-2-prestige-chroma-champions** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **prestige-chroma-summon-august-2026** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **blue-porcelain-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ✅ | ❌ | ✅ | ❌ |
-| **patch-26-16-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ❌ | ✅ | ❌ |
-| **challenger-mayhem-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — | ❌ | ❌ |
-| **lucky-gate-porcelain-charm-202608** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | — | ❌ |
-| **patch-26-17-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | — |
+| 来源 ＼ 链向 | what-is-lol | chroma-skins | prestige-chromas | kaisa | champion-most | without | patch-26-15 | top-2 | summon-aug-2026 | porcelain | patch-26-16 | haibow-jax | lucky-gate | patch-26-17 | summon-sep-2026 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **what-is-league-of-legends** | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **what-are-chroma-skins** | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **what-are-prestige-chromas** | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **kaisa-prestige-chroma** | ❌ | ✅ | ✅ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **champion-most-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | — | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **champions-without-prestige-chroma** | ❌ | ✅ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **patch-26-15-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | — | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **top-2-prestige-chroma-champions** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **prestige-chroma-summon-august-2026** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **blue-porcelain-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ✅ | ❌ | ✅ | ❌ | ❌ |
+| **patch-26-16-prestige-chromas** | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | — | ❌ | ✅ | ❌ | ❌ |
+| **challenger-mayhem-jax-prestige-chroma** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | — | ❌ | ❌ | ❌ |
+| **lucky-gate-porcelain-charm-202608** | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | — | ❌ | ❌ |
+| **patch-26-17-prestige-chromas** | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | — | ❌ |
+| **prestige-chroma-summon-september-2026** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | — |
 
 新增页面 `lucky-gate-petals-of-spring-chromas-202607` 的关系：正文链向 `what-are-prestige-chromas` 与 `patch-26-15-prestige-chromas`；`patch-26-15-prestige-chromas` 和 `lucky-gate-porcelain-charm-202608` 回链本页。
 
@@ -29,20 +30,22 @@
 
 新增页面 `joy-club-peak-gala-202606` 的关系：正文链向原有 `joy-club-peak-gala-202607`、`what-are-prestige-chromas` 与 `what-are-chroma-skins`；FAQ 链向 `what-are-prestige-chromas`；原有 `joy-club-peak-gala-202607` 与 `what-are-prestige-chromas` 回链本页。
 
+新增页面 `prestige-chroma-summon-september-2026` 的关系：正文链向 `what-are-prestige-chromas`（正文两处+FAQ）、`prestige-chroma-summon-august-2026`（往期活动表格+正文）；`prestige-chroma-summon-august-2026`（关于璀璨臻彩召唤活动段落）与 `what-are-prestige-chromas`（官方获取来源）回链本页。
+
 2026-09-01: 新增 `full-gift-reward-prestige-chroma-202608`（满额礼赠活动资讯）。正文链向 `what-are-prestige-chromas`（正文+FAQ）与 `patch-26-15-prestige-chromas`（正文提及 1000 积分奖励出处）；`patch-26-15-prestige-chromas`（女帝菲奥娜段落）与 `joy-club-peak-gala-202607`（什么是心悦巅峰盛典段落）回链本页。
 
 ## 入链统计
 
 | 页面 | 入链数 | 状态 |
 |---|---|---|
-| what-are-prestige-chromas | 7 | ✅ 枢纽 |
+| what-are-prestige-chromas | 8 | ✅ 枢纽 |
 | what-are-chroma-skins | 3 | ✅ 良好 |
 | champions-without-prestige-chroma | 1 | ⚠️ 偏少 |
 | what-is-league-of-legends | 0 | ❌ 孤岛 |
 | kaisa-prestige-chroma | 0 | ❌ 孤岛 |
 | champion-most-prestige-chromas | 2 | ✅ 良好 |
 | top-2-prestige-chroma-champions | 0 | ❌ 孤岛 |
-| prestige-chroma-summon-august-2026 | 3 | ✅ 良好 |
+| prestige-chroma-summon-august-2026 | 4 | ✅ 良好 |
 | patch-26-15-prestige-chromas | 1 | ✅ 已连接 |
 | blue-porcelain-prestige-chromas | 3 | ✅ 良好 |
 | patch-26-16-prestige-chromas | 2 | ✅ 良好 |
@@ -50,6 +53,7 @@
 | lucky-gate-porcelain-charm-202608 | 2 | ✅ 新页面 |
 | lucky-gate-petals-of-spring-chromas-202607 | 2 | ✅ 新页面 |
 | patch-26-17-prestige-chromas | 0 | ❌ 新孤岛（应用户要求不修改旧文回链） |
+| prestige-chroma-summon-september-2026 | 2 | ✅ 新页面 |
 
 ## 待补充内链
 
@@ -146,3 +150,4 @@
 - 2026-07-01: 新增 joy-club-peak-gala-202606（官方第 202606 期），正文链向原有 joy-club-peak-gala-202607、what-are-prestige-chromas 和 what-are-chroma-skins；从原有 joy-club-peak-gala-202607 和 what-are-prestige-chromas 回改内链
 - 2026-08-28: 新增 heartsong-seraphine-prestige-chromas-202608（合并 7 个官网链接的心之歌萨勒芬妮上线资讯），正文链向 what-are-prestige-chromas、patch-26-17-prestige-chromas 与 lucky-gate-porcelain-charm-202608；FAQ 链向 what-are-prestige-chromas；从 patch-26-17-prestige-chromas 与 lucky-gate-porcelain-charm-202608 回改内链
 - 2026-09-02: 新增 joy-club-peak-gala-202608（第 202608 期心悦巅峰盛典活动资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、joy-club-peak-gala-202607（上一期）与 full-gift-reward-prestige-chroma-202608（另一消费活动）；从 joy-club-peak-gala-202607（什么是心悦巅峰盛典段落）回链本页
+- 2026-09-04: 新增 prestige-chroma-summon-september-2026（2026 年 9 月期璀璨臻彩召唤活动资讯），正文链向 what-are-prestige-chromas（正文+FAQ）与 prestige-chroma-summon-august-2026（往期活动表格）；从 prestige-chroma-summon-august-2026（关于璀璨臻彩召唤活动段落）与 what-are-prestige-chromas（官方获取来源，中英各一条）回链本页；新增共享数据模块 src/domain/brilliant-summon.ts
