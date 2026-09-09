@@ -40,8 +40,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     const badge = card.querySelector<HTMLElement>('.new-badge');
     const versionTag = card.querySelector<HTMLElement>('.version-tag');
     const name = card.querySelector<HTMLElement>('h2');
-    const category = card.querySelector<HTMLElement>('.category');
-    if (!link || !image || !categoryIcon || !badge || !versionTag || !name || !category) {
+    if (!link || !image || !categoryIcon || !badge || !versionTag || !name) {
       throw new Error('Invalid catalog card template');
     }
 
@@ -58,7 +57,6 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     badge.hidden = !item.isNew;
     versionTag.textContent = item.gameVer;
     name.textContent = itemName;
-    category.textContent = localized(language, { en: item.categoryNameEn, zh: item.categoryName });
     return card;
   }
 

@@ -120,7 +120,7 @@ describe('static site build', () => {
     expect(detail).toContain(`${sample.nameEn} China-Exclusive Chroma Splash Art`);
     expect(detail).toContain('Click the image to preview');
     expect(detail).not.toContain('点击图片预览');
-    expect(detail).toContain('Related Chroma Splash Arts');
+    expect(detail).toMatch(/More [^<]+ Prestige Chromas/);
     expect(detail).toContain('"representativeOfPage":true');
     expect(detail).toContain('<meta name="robots" content="noindex, nofollow">');
     expect(detail).not.toContain('data-ad-boundary=');

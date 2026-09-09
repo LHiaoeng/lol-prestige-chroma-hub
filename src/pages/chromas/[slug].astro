@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ChromaCard from '../../components/ChromaCard.astro';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
 import CategoryIconPreview from '../../components/CategoryIconPreview.astro';
 import DetailActionMenu from '../../components/DetailActionMenu.astro';
+import ExpandableChromaGroup from '../../components/ExpandableChromaGroup.astro';
 import ImageViewer from '../../components/ImageViewer.astro';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { googleSearchUrl, khadaChampionUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
-import { findRelatedChromas } from '../../domain/related';
+import { findRelatedGroups } from '../../domain/related';
 import { categoryName } from '../../i18n';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createChromaSeo } from '../../seo/chroma-seo';
@@ -24,7 +24,7 @@ const isZh = locale === 'zh-cn';
 const seo = createChromaSeo(chroma, locale);
 const image = seo.image;
 const mobileImage = imageUrl(chroma.images.medium);
-const related = findRelatedChromas(catalog, chroma);
+const relatedGroups = findRelatedGroups(catalog, chroma);
 const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
 const skinSetsZh = chroma.skinSets.map((item) => item.nameZh).join('、');
 const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
@@ -98,7 +98,18 @@ const patchActions = [
       </details>
     </div>
   </article>
-  {related.length > 0 && <section class="related"><div class="section-heading"><h2>{isZh ? '相关炫彩原画' : 'Related Chroma Splash Arts'}</h2></div><div class="chroma-grid">{related.map((item) => <ChromaCard chroma={item} {locale} />)}</div></section>}
+  {relatedGroups.length > 0 && (
+    <section class="related">
+      {relatedGroups.map((group) => (
+        <ExpandableChromaGroup
+          titleEn={group.titleEn}
+          titleZh={group.titleZh}
+          chromas={group.chromas}
+          {locale}
+        />
+      ))}
+    </section>
+  )}
 </BaseLayout>
 <script>
   const detailDisclosure = document.querySelector<HTMLDetailsElement>('.detail-info-disclosure');

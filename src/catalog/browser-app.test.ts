@@ -168,8 +168,7 @@ function fixture(search = '', pathname = '/') {
   const versionTag = new TestElement('span', document); versionTag.className = 'version-tag';
   const heading = new TestElement('h2', document);
   const english = new TestElement('p', document); english.dataset.nameEn = '';
-  const category = new TestElement('span', document); category.className = 'category';
-  body.append(versionTag, heading, english, category);
+  body.append(versionTag, heading, english);
   link.append(imageWrap, body); card.append(link); template.content.append(card);
   document.roots.push(form, list, status, count, pagination, template, data);
 

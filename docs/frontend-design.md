@@ -298,7 +298,9 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 ### 8.6 相关推荐
 
-详情底部展示由 `src/domain/related.ts` 计算的相关臻彩，复用 `ChromaCard`，不维护独立的页面级推荐数据。
+详情底部由 `src/domain/related.ts` 的 `findRelatedGroups` 计算并按语义分组展示相关臻彩，由 `src/components/ExpandableChromaGroup.astro` 渲染，复用 `ChromaCard`，不维护独立的页面级推荐数据。分组顺序固定为：同英雄（`More {Hero} Prestige Chromas`）→ 同皮肤系列（`More {SkinSet} Prestige Chromas`）→ 同宇宙（`More {Universe} Prestige Chromas`）→ 同版本（`More Patch {gameVer} Prestige Chromas`）。分组之间按此优先级去重，已在前面分组出现的臻彩不再重复出现在后续分组。每组按 rank 接近度排序，默认返回全部匹配项（不截断），当前臻彩自身始终排除，无匹配项的分组不渲染。
+
+`ExpandableChromaGroup` 采用桌面 6 列、平板 3 列、移动 2 列的响应式网格。当分组内臻彩超过一行（6 个）时，默认只展示第一行，其余通过 `max-height` 裁剪隐藏，并在第一行底部叠加从页面背景色到透明的渐变遮罩，暗示下方仍有内容。分组底部中央放置圆形展开/收起按钮（chevron 图标，展开时旋转 180°），点击切换 `data-expanded` 状态。折叠态行高由 JS 测量首张卡片高度后写入 `--row-height` CSS 变量，并通过 `ResizeObserver` 在断点切换时重新测量，避免硬编码高度。
 
 ## 9. 响应式系统
 
@@ -439,6 +441,7 @@ img.chromaart.lol 规范图片
 | `src/components/DetailActionMenu.astro` | 单外链按钮和多动作菜单 |
 | `src/components/CategoryIconPreview.astro` | 分类图标展示与预览 |
 | `src/components/ChromaColorCircle.astro` | 颜色数据可视化 |
+| `src/components/ExpandableChromaGroup.astro` | 相关推荐分组：6 列网格、折叠态单行裁剪、渐变遮罩与展开/收起交互 |
 | `src/catalog/browser-catalog.ts` | 查询参数解析、筛选、排序和分页纯逻辑 |
 | `src/catalog/browser-app.ts` | 首页浏览器状态、DOM 更新和 History API |
 | `src/client/language.ts` | 语言读取、应用、持久化和事件 |

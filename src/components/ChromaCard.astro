@@ -1,7 +1,6 @@
 ---
 import type { Chroma } from '../domain/chroma';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
-import { categoryName } from '../i18n';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import { chromaImageAlt } from '../seo/chroma-seo';
 interface Props { chroma: Chroma; eager?: boolean; locale?: Locale }
@@ -26,7 +25,6 @@ const name = isZh ? chroma.nameZh : chroma.nameEn;
     <div class="card-body">
       <h2>{name}</h2>
       <div class="card-tags">
-        <span class="category">{categoryName(chroma.categoryId, isZh ? 'zh' : 'en')}</span>
         <span class="version-tag">{chroma.gameVer}</span>
       </div>
     </div>

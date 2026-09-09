@@ -1,0 +1,134 @@
+---
+import ChromaCard from './ChromaCard.astro';
+import type { Chroma } from '../domain/chroma';
+import type { Locale } from '../i18n/config';
+
+interface Props {
+  titleEn: string;
+  titleZh: string;
+  chromas: Chroma[];
+  locale?: Locale;
+}
+const { titleEn, titleZh, chromas } = Astro.props;
+const locale = Astro.props.locale ?? 'en';
+const isZh = locale === 'zh-cn';
+const hasOverflow = chromas.length > 6;
+---
+<div class="related-group">
+  <div class="section-heading"><h2>{isZh ? titleZh : titleEn}</h2></div>
+  <div class:list={['expandable-chroma-grid', hasOverflow && 'has-overflow']} data-expanded="false">
+    {chromas.map((item) => <ChromaCard chroma={item} {locale} />)}
+  </div>
+  {hasOverflow && (
+    <button
+      class="expand-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-label={isZh ? '展开全部炫彩' : 'Expand all chromas'}
+      title={isZh ? '展开全部' : 'Expand all'}
+    >
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+  )}
+</div>
+
+<script>
+  if (!(window as any).__expandableChromaGridInit) {
+    (window as any).__expandableChromaGridInit = true;
+
+    const measureRowHeight = (grid: HTMLElement) => {
+      const card = grid.querySelector<HTMLElement>('.chroma-card');
+      if (card) grid.style.setProperty('--row-height', `${card.offsetHeight}px`);
+    };
+
+    const initGrid = (grid: HTMLElement) => {
+      if (grid.dataset.inited) return;
+      grid.dataset.inited = 'true';
+      measureRowHeight(grid);
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(() => measureRowHeight(grid)).observe(grid);
+      }
+    };
+
+    document.querySelectorAll<HTMLElement>('.expandable-chroma-grid.has-overflow').forEach(initGrid);
+
+    document.addEventListener('click', (event) => {
+      const toggle = (event.target as HTMLElement).closest('.expand-toggle');
+      if (!toggle) return;
+      const group = toggle.closest('.related-group');
+      const grid = group?.querySelector<HTMLElement>('.expandable-chroma-grid');
+      if (!grid) return;
+      const expanded = grid.dataset.expanded === 'true';
+      grid.dataset.expanded = expanded ? 'false' : 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      toggle.classList.toggle('is-open', !expanded);
+    });
+  }
+</script>
+
+<style>
+  .expandable-chroma-grid {
+    --grid-gap: 18px;
+    --peek-height: 84px;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    position: relative;
+  }
+  .expandable-chroma-grid.has-overflow[data-expanded='false'] {
+    max-height: calc(var(--row-height, 280px) + var(--grid-gap) + var(--peek-height));
+    overflow: hidden;
+  }
+  .expandable-chroma-grid.has-overflow[data-expanded='false']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(var(--peek-height) + 56px);
+    background: linear-gradient(to top, var(--bg) 0%, rgba(9, 11, 21, 0.82) 35%, rgba(9, 11, 21, 0.35) 65%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .expand-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px auto 0;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--panel);
+    color: var(--gold);
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .expand-toggle:hover {
+    border-color: var(--gold);
+    background: #1a1f38;
+  }
+  .expand-toggle svg {
+    transition: transform 0.25s ease;
+  }
+  .expand-toggle.is-open svg {
+    transform: rotate(180deg);
+  }
+  @media (max-width: 1023px) {
+    .expandable-chroma-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .expandable-chroma-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      --grid-gap: 14px;
+      --peek-height: 64px;
+    }
+    .expand-toggle {
+      margin: 8px auto 0;
+    }
+  }
+</style>
