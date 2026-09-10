@@ -116,7 +116,7 @@ const jsonLd = [
 
     <section>
       <h2>{isZh ? '26.17 臻彩原画一览' : 'Patch 26.17 prestige chroma gallery'}</h2>
-      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这 7 款新增也影响了' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. These 7 additions also shifted the '}<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>{isZh ? '臻彩数量排行榜' : 'prestige chroma leaderboard'}</a>{isZh ? '。' : '.'}</p>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这 7 款新增也影响了' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. These 7 additions also shifted the '}<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>{isZh ? '臻彩数量排行榜' : 'prestige chroma leaderboard'}</a>{isZh ? '。紧随其后的 26.18 版本又把四款老炫彩升级为臻彩，详见' : '. The very next patch backfills four more existing chromas — see '}<a href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}>{isZh ? '26.18 版本臻彩' : 'the Patch 26.18 lineup'}</a>{isZh ? '。' : '.'}</p>
       <BlogChromaGrid>
         {patchChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>

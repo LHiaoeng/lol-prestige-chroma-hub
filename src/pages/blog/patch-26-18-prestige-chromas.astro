@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'patch-26-18-prestige-chromas');
+if (!article) throw new Error('Patch 26.18 prestige chroma article metadata is missing');
+const sourceUrl = 'https://lol.qq.com/gicp/news/410/37096116.html';
+const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.18');
+if (patchChromas.length === 0) throw new Error('No prestige chromas found for Patch 26.18');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const faqEntries = isZh ? [
+  { question: '26.18 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：素影霓裳 嫦娥（生肖限定臻彩），破败军团 厄运小姐 帝国征伐使（臻彩），恶魔诅咒 薇恩 诡诈附体与 K/DA ALL OUT 阿狸 玲珑之影（均为钻石臻彩）。四款都是已有炫彩升级后获得专属原画，不是新皮肤。` },
+  { question: '这四款臻彩怎么获得？', answer: `26.18 版本公告没有公布这四款臻彩的具体获取方式与开放时间，请以官方后续活动或商城公告为准。臻彩依附于基础皮肤，使用前需要先拥有对应的基础皮肤，详见<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">什么是臻彩</a>。` },
+  { question: '为什么版本公告的「炫彩」名单里找不到它们？', answer: `26.18 公告「以下炫彩已在版本内」列出的是殿堂传奇 奥莉安娜等普通炫彩，与臻彩是不同类别。这四款来自臻彩藏馆目录标注的所属版本；所属版本只表示它们在 26.18 进入臻彩体系，不代表当前仍可获取。` },
+] : [
+  { question: 'Which prestige chromas are in LoL Patch 26.18?', answer: `${patchChromas.length} in total: Lunar Goddess Diana (Obsidian) at Lunar Revel tier, Ruined Miss Fortune (Ruby) at standard Prestige Chroma tier, and Demoncursed Vayne (Sapphire) plus K/DA ALL OUT Ahri (Ahri-versary), both Diamond. All four are upgrades of existing chromas with new dedicated splash art, not new skins.` },
+  { question: 'How do I get these four prestige chromas?', answer: `The Patch 26.18 announcement does not specify acquisition methods or dates for these four entries, so wait for official event or shop announcements. Every prestige chroma is attached to an existing skin and requires owning that base skin first &mdash; see our <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chroma guide</a> for details.` },
+  { question: 'Why are they missing from the chroma list in the patch notes?', answer: `The &ldquo;chromas in this patch&rdquo; section of the 26.18 notes lists regular chromas such as Hall of Legends Orianna, which is a different category from prestige chromas. These four come from the prestige chroma archive, where the patch field records when each entry joined the prestige system; it does not mean the chroma is still obtainable in that patch.` },
+];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(patchChromas[0].images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '英雄联盟26.18, 臻彩, 臻彩原画, 素影霓裳, 嫦娥, 黛安娜, 破败军团, 厄运小姐, K/DA ALL OUT, 阿狸, 恶魔诅咒, 薇恩, 生肖限定臻彩, 钻石臻彩' : 'LoL Patch 26.18, prestige chromas, chroma splash art, Lunar Goddess Diana, Ruined Miss Fortune, K/DA ALL OUT Ahri, Demoncursed Vayne, Lunar Revel, Diamond Prestige Chroma',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: isZh ? '26.18 版本臻彩原画列表' : 'LoL Patch 26.18 Prestige Chroma List',
+    numberOfItems: patchChromas.length,
+    itemListElement: patchChromas.map((chroma, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: {
+        '@type': 'CreativeWork', name: isZh ? chroma.nameZh : chroma.nameEn,
+        url: new URL(localizedPath(locale, `/chromas/${chroma.slug}/`), SITE.origin).toString(),
+        image: imageUrl(chroma.images.large),
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '26.18 版本臻彩' : 'Patch 26.18 Prestige Chromas'}</span>
+  </nav>
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '26.18 版本 · 臻彩原画' : 'PATCH 26.18 · PRESTIGE CHROMA ART'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? `26.18 这一批一共 ${patchChromas.length} 款，全部来自已经上线的皮肤：广寒仙子嫦娥、破败军团厄运小姐、恶魔诅咒薇恩与 K/DA ALL OUT 阿狸的既有炫彩升级为臻彩，各补一张专属原画，其中两款为钻石臻彩。` : `Patch 26.18 adds ${patchChromas.length} entries, all upgraded from chromas of existing skins: Lunar Goddess Diana, Ruined Miss Fortune, Demoncursed Vayne, and K/DA ALL OUT Ahri each receive dedicated prestige splash art, two of them at Diamond tier.`}</p>
+      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={localizedPath(locale, `/chromas/${patchChromas[0].slug}/`)} aria-label={isZh ? `查看 ${patchChromas[0].nameZh} 详情` : `View ${patchChromas[0].nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(patchChromas[0].images.medium)} data-fallback={sourceImageUrl('medium', patchChromas[0].instanceId)} />
+          <img src={imageUrl(patchChromas[0].images.large)} data-fallback={sourceImageUrl('large', patchChromas[0].instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${patchChromas[0].nameZh}臻彩原画` : `${patchChromas[0].nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? patchChromas[0].nameZh : patchChromas[0].nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '四款既有炫彩升级，分属三个分类' : 'Four existing chromas upgraded across three categories'}</h2>
+      {isZh ? <><p>国服于 9 月 10 日停机更新 26.18 版本。本次进入臻彩藏馆的 {patchChromas.length} 款臻彩不是伴随新皮肤上线，而是给早已存在的炫彩补发专属原画：<strong>素影霓裳 嫦娥</strong>属生肖限定臻彩，<strong>破败军团 厄运小姐 帝国征伐使</strong>属臻彩，<strong>恶魔诅咒 薇恩 诡诈附体</strong>与<strong>K/DA ALL OUT 阿狸 玲珑之影</strong>属钻石臻彩。</p><p>本站所说的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>是国服定义的炫彩类型，依附于已有皮肤并拥有独立原画，不是通常所说的至臻皮肤；这里的版本号是臻彩条目的「所属版本」，只表示它们在 26.18 进入臻彩体系，并不代表当前仍可获取。与上一批以新皮肤为主的<a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>26.17 版本七款臻彩</a>相比，这次更像一次老内容回填。</p></> : <><p>The China Server deployed Patch 26.18 with scheduled maintenance on September 10. Instead of launching alongside new skins, the {patchChromas.length} additions give dedicated splash art to chromas that already existed: <strong>Lunar Goddess Diana (Obsidian)</strong> at Lunar Revel Prestige Chroma tier, <strong>Ruined Miss Fortune (Ruby)</strong> as a standard Prestige Chroma, and <strong>Demoncursed Vayne (Sapphire)</strong> plus <strong>K/DA ALL OUT Ahri (Ahri-versary)</strong> at Diamond tier.</p><p>On this site, a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> is the English label for 臻彩: a China Server chroma type attached to an existing skin with its own splash art, not a traditional Prestige Skin. The patch field records when each entry joined the prestige system; it does not mean the chroma remains obtainable in that patch. Unlike the skin-led lineup in <a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>Patch 26.17&rsquo;s seven entries</a>, this batch is a backfill of older content.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '两款 2021 年的老炫彩：厄运小姐与阿狸' : 'Two chromas from 2021: Miss Fortune and Ahri'}</h2>
+      {isZh ? <><p><strong>破败军团 厄运小姐 帝国征伐使</strong>是红色系臻彩，英文名 Ruined Miss Fortune (Ruby)，隶属破败之王传说宇宙。目录备注显示，对应的原炫彩曾在 2021 年期间作为礼包专属发布；这次升级只补上臻彩原画与藏馆条目，分类为普通臻彩。</p><p><strong>K/DA ALL OUT 阿狸 玲珑之影</strong>则是蓝红双色配色，分类为钻石臻彩。英文备注写明它出自 2021 年的 Ahri-versary（阿狸周年）活动，皮肤本体隶属 K/DA 系列与拳头唱片宇宙。两款 2021 年的旧炫彩在同版本回填，说明臻彩体系并不只跟随新皮肤推进。</p></> : <><p><strong>Ruined Miss Fortune (Ruby)</strong> is the red entry from the Ruined skinline under The Ruined King Saga. The archive notes that the original chroma was released as a bundle exclusive in 2021; this upgrade adds dedicated splash art and a collection entry at standard Prestige Chroma tier.</p><p><strong>K/DA ALL OUT Ahri (Ahri-versary)</strong> carries a blue-and-red colourway and is listed as a Diamond Prestige Chroma. Its archive note traces it to the 2021 Ahri-versary event, within the K/DA skinline and Riot Records universe. Having two 2021 chromas backfilled in the same patch shows the prestige system does not only move when new skins ship.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '万魔殿薇恩与广寒仙子嫦娥' : 'Demoncursed Vayne and Lunar Goddess Diana'}</h2>
+      {isZh ? <><p><strong>恶魔诅咒 薇恩 诡诈附体</strong>是蓝色系钻石臻彩，英文名 Demoncursed Vayne (Sapphire)。它的基础皮肤恶魔诅咒 薇恩随万魔殿主题在 26.9 版本上线，隶属符文之地时代宇宙；蓝宝石配色对应原画里恶魔能力的冷色调。</p><p><strong>素影霓裳 嫦娥</strong>是本批唯一的生肖限定臻彩，英文名 Lunar Goddess Diana (Obsidian)，曜石黑配色。基础皮肤广寒仙子 嫦娥来自春节庆典系列，原画延续春节与月神主题，与前三款的钻石/普通分类并列，自成一档。</p></> : <><p><strong>Demoncursed Vayne (Sapphire)</strong> is the blue Diamond entry. Its base skin, Demoncursed Vayne, shipped with the Pandemonium theme back in Patch 26.9 within the Ages of Runeterra universe; the sapphire colour matches the cool demonic palette of the artwork.</p><p><strong>Lunar Goddess Diana (Obsidian)</strong> is the batch&rsquo;s only Lunar Revel Prestige Chroma, in an obsidian-black colourway. The base skin belongs to the Lunar Revel skinline, and the artwork keeps the Lunar New Year and moon-goddess theme, sitting in its own tier alongside the Diamond and standard entries.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '26.18 臻彩原画一览' : 'Patch 26.18 prestige chroma gallery'}</h2>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这次回填也让厄运小姐、阿狸、薇恩和黛安娜在' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. This backfill also moves Miss Fortune, Ahri, Vayne, and Diana on the '}<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>{isZh ? '臻彩数量排行榜' : 'prestige chroma leaderboard'}</a>{isZh ? '上的数字各增加一款。' : ' up by one entry each.'}</p>
+      <BlogChromaGrid>
+        {patchChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '官方来源' : 'Official source'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '《英雄联盟》26.18 版本更新公告（2026 年 9 月 9 日）' : 'League of Legends China Server Patch 26.18 notes (September 9, 2026)'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.blog-article>aside{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.article-hero img{height:auto}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.blog-article aside.official-sources{margin-top:48px;border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:.92rem}.blog-article aside.official-sources ul{margin:10px 0 0;padding-left:18px}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}}
+  </style>
+</BaseLayout>

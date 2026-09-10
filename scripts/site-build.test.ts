@@ -52,6 +52,8 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'blue-porcelain-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'patch-26-16-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'patch-26-17-prestige-chromas', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'patch-26-18-prestige-chromas', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'zh-cn', 'blog', 'patch-26-18-prestige-chromas', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'heartsong-seraphine-prestige-chromas-202608', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'heartsong-seraphine-prestige-chromas-202608', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'full-gift-reward-prestige-chroma-202608', 'index.html'))).toBe(true);
@@ -152,14 +154,15 @@ describe('static site build', () => {
     const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
     expect(home).toContain('Latest News &amp; Guides');
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/patch-26-18-prestige-chromas/"');
     expect(home).toContain('href="/blog/prestige-chroma-summon-september-2026/"');
     expect(home).toContain('href="/blog/joy-club-peak-gala-202608/"');
-    expect(home).toContain('href="/blog/full-gift-reward-prestige-chroma-202608/"');
+    expect(home).not.toContain('href="/blog/full-gift-reward-prestige-chroma-202608/"');
     expect(chineseHome).toContain('最新资讯与指南');
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
+    expect(chineseHome).toContain('href="/zh-cn/blog/patch-26-18-prestige-chromas/"');
     expect(chineseHome).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
     expect(chineseHome).toContain('href="/zh-cn/blog/joy-club-peak-gala-202608/"');
-    expect(chineseHome).toContain('href="/zh-cn/blog/full-gift-reward-prestige-chroma-202608/"');
   });
 
   it('emits Simplified Chinese canonical routes as server-rendered pages', () => {

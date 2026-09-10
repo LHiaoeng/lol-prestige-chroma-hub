@@ -1,5 +1,198 @@
 [
   {
+    "id" : 483,
+    "skinId" : 131010,
+    "instanceId" : "788e0493-4fa1-4f9a-9b7c-e8f1e99fd25b",
+    "nameZh" : "素影霓裳 嫦娥",
+    "nameEn" : "Lunar Goddess Diana (Obsidian)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#27211C"
+    ],
+    "heroId" : "131",
+    "heroNameZh" : "皎月女神 黛安娜",
+    "heroNameEn" : "Scorn of the Moon Diana",
+    "sourceSkinId" : 131002,
+    "skinSets" : [
+      {
+        "id" : 55,
+        "nameZh" : "春节庆典",
+        "nameEn" : "Lunar Revel",
+        "descriptionZh" : "与朋友和敌人一起庆祝过去一年的各种故事。光彩夺目的花灯直达夜空，被逐渐消失的焰火照亮。红包们在大家的手中传递，很少见面的亲人和家族欢欣鼓舞，怀着同一种共识：新的一年即将到来。愿它成为你最好的一年！",
+        "descriptionEn" : "Join with friends and frenemies alike and celebrate the stories of the past year. Glowing lanterns touch the night sky, lit by fading fireworks. Red envelopes trade hands, families and clans that rarely meet rejoice in a shared acknowledgement: a new year beckons. May it be your best one yet!"
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 103,
+        "nameZh" : "春节",
+        "nameEn" : "Lunar New Year",
+        "descriptionZh" : "是时候回顾过去，与亲友们一起庆祝，团聚在一起铭记发生的一切，即使有好事也有坏事。当烟花照亮夜空时，我们期待着，新的一年会充满我们与珍视之人的美好回忆。",
+        "descriptionEn" : "It's time to look back, to celebrate with family and friends, to join together and remember all that has happened, the good and the bad. And as the fireworks light up the night sky, we look forward to a new year filled with wonderful memories with the ones we hold dear."
+      }
+    ],
+    "skinNameZh" : "广寒仙子 嫦娥",
+    "skinNameEn" : "Lunar Goddess Diana",
+    "categoryId" : "1",
+    "categoryName" : "生肖限定臻彩",
+    "tagId" : "6",
+    "gameVer" : "26.18",
+    "isNew" : true,
+    "rank" : 479,
+    "images" : {
+      "large" : "assets/chromas/788e0493-4fa1-4f9a-9b7c-e8f1e99fd25b/site3.jpg",
+      "small" : "assets/chromas/788e0493-4fa1-4f9a-9b7c-e8f1e99fd25b/site4.jpg",
+      "medium" : "assets/chromas/788e0493-4fa1-4f9a-9b7c-e8f1e99fd25b/site5.jpg",
+      "tag" : "assets/tags/x-6.png"
+    }
+  },
+  {
+    "id" : 482,
+    "skinId" : 21022,
+    "instanceId" : "7149d11f-474a-4567-926f-4e16967d3966",
+    "nameZh" : "破败军团 厄运小姐 帝国征伐使",
+    "nameEn" : "Ruined Miss Fortune (Ruby)",
+    "descriptionZh" : "这个炫彩曾在2021年期间作为礼包专属发布。",
+    "descriptionEn" : "This chroma was released as a bundle exclusive in 2021.",
+    "colors" : [
+      "#D33528"
+    ],
+    "heroId" : "21",
+    "heroNameZh" : "赏金猎人 厄运小姐",
+    "heroNameEn" : "the Bounty Hunter Miss Fortune",
+    "sourceSkinId" : 21021,
+    "skinSets" : [
+      {
+        "id" : 138,
+        "nameZh" : "破败军团",
+        "nameEn" : "Ruined",
+        "descriptionZh" : "蚀魂夜将它的黑雾散布在符文大地，肆意地腐蚀着。有些人，在它的影响下，受到了动摇并追随了破败之王，从而相信他们的目标一致。但是佛耶戈只想要伊苏尔德回来；他没有任何盟友。帮助他阻止光明哨兵们的破败军团们只不过是一个心碎情种的游戏中的棋子。",
+        "descriptionEn" : "The Harrowing spreads its Black Mist across Runeterra, corrupting indiscriminately. Some, in its presence, are swayed to follow the Ruined King, believing their goals aligned. But Viego wants only the return of Isolde; he has no allies. The Ruined who aid him in halting the Sentinels are mere pawns in a broken-hearted lover's game."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 41,
+        "nameZh" : "破败之王传说",
+        "nameEn" : "The Ruined King Saga",
+        "descriptionZh" : "黑雾聚集，蚀魂夜到来，并且破败之王已经再次崛起。佛耶戈的腐败席卷了符文之地，将好友变为仇敌并使诸国屈服。仅有的有能力阻挡他的一群人，就是光明哨兵：一个由赛娜和卢锡安领导的古老教团。他们必须从全境的每个角落将英雄们召集起来，以对黑雾进行反击并一劳永逸地终结破败之王的恐怖统治。",
+        "descriptionEn" : "The Black Mist gathers, the Harrowing comes, and the Ruined King has risen once more. Viego's corruption blankets Runeterra, turning friends into foes and bringing entire nations to their knees. The only ones with the power to stop him are the Sentinels of Light: an ancient order led by Senna and Lucian. They must call upon champions from every corner of the realm to fight back the Black Mist and end the Ruined King's reign of terror once and for all."
+      }
+    ],
+    "skinNameZh" : "破败军团 厄运小姐",
+    "skinNameEn" : "Ruined Miss Fortune",
+    "categoryId" : "4",
+    "categoryName" : "臻彩",
+    "tagId" : "4",
+    "gameVer" : "26.18",
+    "isNew" : true,
+    "rank" : 478,
+    "images" : {
+      "large" : "assets/chromas/7149d11f-474a-4567-926f-4e16967d3966/site3.jpg",
+      "small" : "assets/chromas/7149d11f-474a-4567-926f-4e16967d3966/site4.jpg",
+      "medium" : "assets/chromas/7149d11f-474a-4567-926f-4e16967d3966/site5.jpg",
+      "tag" : "assets/tags/x-4.png"
+    }
+  },
+  {
+    "id" : 481,
+    "skinId" : 67071,
+    "instanceId" : "de8131d9-463e-4f5b-9714-9984b4b710fb",
+    "nameZh" : "恶魔诅咒 薇恩 诡诈附体",
+    "nameEn" : "Demoncursed Vayne (Sapphire)",
+    "descriptionZh" : "",
+    "descriptionEn" : "",
+    "colors" : [
+      "#2756CE"
+    ],
+    "heroId" : "67",
+    "heroNameZh" : "暗夜猎手 薇恩",
+    "heroNameEn" : "the Night Hunter Vayne",
+    "sourceSkinId" : 67067,
+    "skinSets" : [
+      {
+        "id" : 229,
+        "nameZh" : "万魔殿",
+        "nameEn" : "Pandemonium",
+        "descriptionZh" : "透过恶魔们的眼睛，各种情感都在闪灼着只有他们才能看见的颜色。在这个隐藏光谱中，每个灵魂都展露无遗。当情感不受控制地涌动时，它们就像灯塔一样闪耀，吸引着恶魔……而且感觉越强，吸引力就越强。",
+        "descriptionEn" : "Through a demon's eyes, emotions blaze in colors only they can see. In this hidden spectrum, every soul is laid bare. When emotions surge beyond control, they flare like beacons, drawing in demons... and the stronger the feeling, the stronger the pull."
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 64,
+        "nameZh" : "符文之地时代",
+        "nameEn" : "Ages of Runeterra",
+        "descriptionZh" : "自身在其它生活中的掠影。另一个时代的宿命冲突。符文之地是一个充满可能性的世界，因为它的传说找到了新的目的和命运。",
+        "descriptionEn" : "Glimpses of selves in other lives. Clashes of fate in another era. Runeterra is a world rich in possibility as its legends find new destinations and destinies."
+      }
+    ],
+    "skinNameZh" : "恶魔诅咒 薇恩",
+    "skinNameEn" : "Demoncursed Vayne",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.18",
+    "isNew" : true,
+    "rank" : 477,
+    "images" : {
+      "large" : "assets/chromas/de8131d9-463e-4f5b-9714-9984b4b710fb/site3.jpg",
+      "small" : "assets/chromas/de8131d9-463e-4f5b-9714-9984b4b710fb/site4.jpg",
+      "medium" : "assets/chromas/de8131d9-463e-4f5b-9714-9984b4b710fb/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
+    "id" : 480,
+    "skinId" : 103063,
+    "instanceId" : "d9df6983-d2b5-456e-8736-0a183eedb7c3",
+    "nameZh" : "K/DA ALL OUT 阿狸 玲珑之影",
+    "nameEn" : "K/DA ALL OUT Ahri (Ahri-versary)",
+    "descriptionZh" : "",
+    "descriptionEn" : "This chroma was released in the 2021 Ahri-versary event.",
+    "colors" : [
+      "#2E38C4",
+      "#C8003F"
+    ],
+    "heroId" : "103",
+    "heroNameZh" : "九尾妖狐 阿狸",
+    "heroNameEn" : "the Nine-Tailed Fox Ahri",
+    "sourceSkinId" : 103028,
+    "skinSets" : [
+      {
+        "id" : 91,
+        "nameZh" : "K/DA",
+        "nameEn" : "K/DA",
+        "descriptionZh" : "“在现实与幻想之间有一个地方，一切都有可能发生。你可以成为任何人，做任何事。这就是你的梦。在这个夹缝中的世界里，K/DA感到自信又强大。我们可以梦想成真，你们也可以。”——卡莎",
+        "descriptionEn" : "“There is a place between fantasy and reality where anything can happen. You have the power to be anyone, and do anything. It is your dream. In our in-between world, K/DA feels confident and strong. We can do anything, and so can you.” -Kai'Sa"
+      }
+    ],
+    "universes" : [
+      {
+        "id" : 79,
+        "nameZh" : "拳头唱片",
+        "nameEn" : "Riot Records",
+        "descriptionZh" : "当然，它与一票难求的体育馆、时尚前卫的弄潮儿、欢呼的人群有关； 但它也与扬声器的音量太大有关，您的双耳会有歌声萦绕，就像它们想要一起唱歌一样。与炽热的舞台灯光、沉重的低音和稳定的鼓点有关。它与肾上腺素的高涨有关，从内到外点燃你。这种感觉？就是音乐。",
+        "descriptionEn" : "Sure, it's about sold out stadiums, the high-fashion swagger, the cheering crowd; but it's also about speakers cranked so loud, your ears ring like they want to sing along. About hot stage lights, pounding bass, and the steady rhythm of the drums. It's about that adrenaline high, igniting you from the inside out. This feeling? This is music."
+      }
+    ],
+    "skinNameZh" : "K/DA ALL OUT 阿狸",
+    "skinNameEn" : "K/DA ALL OUT Ahri",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
+    "gameVer" : "26.18",
+    "isNew" : true,
+    "rank" : 476,
+    "images" : {
+      "large" : "assets/chromas/d9df6983-d2b5-456e-8736-0a183eedb7c3/site3.jpg",
+      "small" : "assets/chromas/d9df6983-d2b5-456e-8736-0a183eedb7c3/site4.jpg",
+      "medium" : "assets/chromas/d9df6983-d2b5-456e-8736-0a183eedb7c3/site5.jpg",
+      "tag" : "assets/tags/x-2.png"
+    }
+  },
+  {
     "id" : 475,
     "skinId" : 147077,
     "instanceId" : "78495da2-e6c6-4e30-b643-fb1f920535ea",
@@ -30,7 +223,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 475,
     "images" : {
       "large" : "assets/chromas/78495da2-e6c6-4e30-b643-fb1f920535ea/site3.jpg",
@@ -70,7 +263,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 474,
     "images" : {
       "large" : "assets/chromas/31c96386-38e6-4392-ac2c-8f68688ca996/site3.jpg",
@@ -110,7 +303,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 473,
     "images" : {
       "large" : "assets/chromas/94dccf54-86af-4c8d-9525-99e5a989d5f5/site3.jpg",
@@ -158,7 +351,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 472,
     "images" : {
       "large" : "assets/chromas/bf21aa87-2066-477e-8d7f-9940e022bf15/site3.jpg",
@@ -206,7 +399,7 @@
     "categoryName" : "钻石臻彩",
     "tagId" : "2",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 471,
     "images" : {
       "large" : "assets/chromas/ba8d1eeb-4916-45ca-b10c-b91e4fccc169/site3.jpg",
@@ -254,7 +447,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 470,
     "images" : {
       "large" : "assets/chromas/8f2739ac-9a7d-4ff2-9bb6-3f7da53f82f6/site3.jpg",
@@ -302,7 +495,7 @@
     "categoryName" : "臻彩",
     "tagId" : "4",
     "gameVer" : "26.17",
-    "isNew" : true,
+    "isNew" : false,
     "rank" : 469,
     "images" : {
       "large" : "assets/chromas/146a99c9-5424-4ee5-a166-6b383235d760/site3.jpg",
@@ -1120,9 +1313,9 @@
     ],
     "skinNameZh" : "海魔至尊 亚托克斯",
     "skinNameEn" : "Primordian Aatrox",
-    "categoryId" : "4",
-    "categoryName" : "臻彩",
-    "tagId" : "4",
+    "categoryId" : "2",
+    "categoryName" : "钻石臻彩",
+    "tagId" : "2",
     "gameVer" : "26.14",
     "isNew" : false,
     "rank" : 452,
@@ -1130,7 +1323,7 @@
       "large" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site3.jpg",
       "small" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site4.jpg",
       "medium" : "assets/chromas/0745a936-f477-408b-a743-870f9d6e96d8/site5.jpg",
-      "tag" : "assets/tags/x-4.png"
+      "tag" : "assets/tags/x-2.png"
     }
   },
   {
@@ -8720,14 +8913,14 @@
   },
   {
     "id" : 291,
-    "skinId" : 91055,
+    "skinId" : 91057,
     "instanceId" : "d279e694-84f7-4469-bff8-b5e85b31ee41",
     "nameZh" : "伏虎之力 泰隆 瑞兽灵光",
-    "nameEn" : "Primal Ambush Talon (Sapphire)",
+    "nameEn" : "Primal Ambush Talon (Rose Quartz)",
     "descriptionZh" : "",
     "descriptionEn" : "",
     "colors" : [
-      "#2756CE"
+      "#E58BA5"
     ],
     "heroId" : "91",
     "heroNameZh" : "刀锋之影 泰隆",

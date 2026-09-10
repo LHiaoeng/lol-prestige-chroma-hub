@@ -46,6 +46,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'patch-26-18-prestige-chromas',
+    href: '/blog/patch-26-18-prestige-chromas/',
+    titleEn: 'LoL Patch 26.18: 4 New Prestige Chromas',
+    titleZh: '《英雄联盟》26.18 版本：4 款新增臻彩原画',
+    summaryEn: 'Patch 26.18 adds four prestige chromas upgraded from older chromas: Ruined Miss Fortune (Ruby), K/DA ALL OUT Ahri (Ahri-versary), Demoncursed Vayne (Sapphire), and Lunar Goddess Diana (Obsidian).',
+    summaryZh: '26.18 版本新增 4 款由旧炫彩升级而来的臻彩：破败军团 厄运小姐 帝国征伐使、K/DA ALL OUT 阿狸 玲珑之影、恶魔诅咒 薇恩 诡诈附体与素影霓裳 嫦娥。',
+    publishedAt: '2026-09-10',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/788e0493-4fa1-4f9a-9b7c-e8f1e99fd25b/site3.jpg',
+    coverAltEn: 'Lunar Goddess Diana (Obsidian) prestige chroma splash art',
+    coverAltZh: '素影霓裳 嫦娥臻彩原画',
+    sourceUrl: 'https://lol.qq.com/gicp/news/410/37096116.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'prestige-chroma-summon-september-2026',
     href: '/blog/prestige-chroma-summon-september-2026/',
     titleEn: 'Brilliant Prestige Chroma Summoning — Session 202620',
