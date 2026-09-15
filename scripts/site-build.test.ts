@@ -100,6 +100,7 @@ describe('static site build', () => {
     expect(article).not.toContain('召唤师峡谷与水晶枢纽');
     expect(prestigeArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-are-prestige-chromas/">');
     expect(prestigeArticle).toContain('"@type":"BlogPosting"');
+    expect(prestigeArticle).toContain('href="/blog/brilliant-prestige-chroma-summoning-guide/"');
     expect(prestigeArticle).not.toContain('什么是臻彩');
     expect(coverageArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/champions-without-prestige-chroma/">');
     expect(coverageArticle).toContain('data-coverage-list="en"');
@@ -225,12 +226,18 @@ describe('static site build', () => {
     expect(chineseGuide).toContain('抽出的奖励会从奖池中移除');
     expect(guide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
     expect(chineseGuide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(guide).toContain('"@type":"FAQPage"');
+    expect(chineseGuide).toContain('"@type":"FAQPage"');
     expect(guide).toContain('data-article-maintenance');
     expect(chineseGuide).toContain('data-article-maintenance');
     expect(guide).toContain('href="/blog/prestige-chroma-summon-september-2026/"');
+    expect(guide).toContain('href="/blog/prestige-chroma-summon-august-2026/"');
     expect(guide).toContain('href="/blog/what-are-prestige-chromas/"');
+    expect(guide).toContain('href="/"');
     expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
+    expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-august-2026/"');
     expect(chineseGuide).toContain('href="/zh-cn/blog/what-are-prestige-chromas/"');
+    expect(chineseGuide).toContain('href="/zh-cn/"');
     expect(guide).toContain('data-ad-boundary="editorial-article"');
     expect(chineseGuide).toContain('data-ad-boundary="editorial-article"');
     expect(guide).not.toContain('data-language-content="zh"');
