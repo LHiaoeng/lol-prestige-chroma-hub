@@ -4,6 +4,7 @@ import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
+import { brilliantSummonSessions } from '../../domain/brilliant-summon';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
@@ -24,14 +25,11 @@ const currentSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-se
 const previousSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/');
 const prestigeGuideUrl = localizedPath(locale, '/blog/what-are-prestige-chromas/');
 const catalogUrl = localizedPath(locale, '/');
-const septemberDrawCosts = [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000] as const;
+const currentSession = brilliantSummonSessions.find((session) => session.sessionId === '202620');
+if (!currentSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
+const septemberDrawCosts = currentSession.drawCosts;
 const septemberTotalCost = septemberDrawCosts.reduce((sum, cost) => sum + cost, 0);
-const relatedSummonChromaNames = new Set([
-  'Spirit Blossom Akali (Pearl)',
-  'Soul Fighter Gwen (Sapphire)',
-  'Battle Academia Xayah (Sapphire)',
-  'Lunar Empress Ashe  (Rose Quartz)',
-]);
+const relatedSummonChromaNames = new Set(brilliantSummonSessions.flatMap((session) => session.rewards.map((reward) => reward.chromaNameEn)));
 const relatedSummonChromas = catalog.filter((chroma) => relatedSummonChromaNames.has(chroma.nameEn));
 
 const faqJsonLd = {

@@ -781,7 +781,8 @@ describe('blog feature contract', () => {
     expect(page).toContain("import { brilliantSummonSessions } from '../../domain/brilliant-summon'");
     expect(page).toContain('summon-table');
     expect(page).toContain('const currentSessionId = \'202620\'');
-    expect(page).toContain('[1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]');
+    expect(page).toContain('const currentSummonSession = brilliantSummonSessions.find');
+    expect(source('src/domain/brilliant-summon.ts')).toContain('[1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]');
     expect(page).toContain('<td><strong>All ten</strong></td>');
     expect(page).toContain('<td><strong>十次合计</strong></td>');
     expect(page).toContain('Heartseeker Vayne');

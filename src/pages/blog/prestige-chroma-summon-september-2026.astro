@@ -27,7 +27,9 @@ const eventEnd = '2026-10-04';
 const eventUrl = 'https://lol.qq.com/act/a202609047293tendraws35/index.html';
 
 // Each summon's point cost; the tenth draw costs 15x the first.
-const drawCosts = [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000];
+const currentSummonSession = brilliantSummonSessions.find((session) => session.sessionId === '202620');
+if (!currentSummonSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
+const drawCosts = currentSummonSession.drawCosts;
 const totalCost = drawCosts.reduce((sum, cost) => sum + cost, 0);
 
 // Session 202620 prize chromas — "灵魂莲华 阿卡丽 朝花" and "斗魂觉醒 格温 狡之魂焰"

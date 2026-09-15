@@ -23,6 +23,16 @@ export interface BrilliantSummonSession {
   rewardSkinNameEn: string;
   /** Grand-prize chroma English name for catalog lookup. */
   rewardChromaNameEn: string;
+  /** Every self-select chroma explicitly featured by this session. */
+  rewards: readonly BrilliantSummonReward[];
+  /** Point costs for each summon when the official session publishes a price curve. */
+  drawCosts?: readonly number[];
+}
+
+export interface BrilliantSummonReward {
+  heroId: string;
+  skinNameEn: string;
+  chromaNameEn: string;
 }
 
 export const brilliantSummonSessions: readonly BrilliantSummonSession[] = [
@@ -35,6 +45,10 @@ export const brilliantSummonSessions: readonly BrilliantSummonSession[] = [
     rewardHeroId: '498',
     rewardSkinNameEn: 'Battle Academia Xayah',
     rewardChromaNameEn: 'Battle Academia Xayah (Sapphire)',
+    rewards: [
+      { heroId: '498', skinNameEn: 'Battle Academia Xayah', chromaNameEn: 'Battle Academia Xayah (Sapphire)' },
+      { heroId: '22', skinNameEn: 'Lunar Empress Ashe', chromaNameEn: 'Lunar Empress Ashe  (Rose Quartz)' },
+    ],
   },
   {
     sessionId: '202620',
@@ -45,5 +59,10 @@ export const brilliantSummonSessions: readonly BrilliantSummonSession[] = [
     rewardHeroId: '84',
     rewardSkinNameEn: 'Spirit Blossom Akali',
     rewardChromaNameEn: 'Spirit Blossom Akali (Pearl)',
+    rewards: [
+      { heroId: '84', skinNameEn: 'Spirit Blossom Akali', chromaNameEn: 'Spirit Blossom Akali (Pearl)' },
+      { heroId: '887', skinNameEn: 'Soul Fighter Gwen', chromaNameEn: 'Soul Fighter Gwen (Sapphire)' },
+    ],
+    drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
   },
 ];
