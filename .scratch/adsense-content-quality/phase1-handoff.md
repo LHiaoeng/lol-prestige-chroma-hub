@@ -36,15 +36,14 @@
 
 ## 未完成事项
 
-### 阶段二：内容精简
-- [ ] 对 13 篇模板化活动文章（非 patch、非 evergreen）添加 `noindex, follow`
-- [ ] 在 `articles.ts` 中为这些文章设置 `adEligible: false`
-- [ ] 提交 sitemap 更新，确保被 noindex 的文章不在 sitemap 中
+### 阶段三：支柱内容
+- [ ] 新建支柱页"璀璨臻彩召唤完全指南"作为模板验证内容深度
+- [ ] 根据模板批量生产其余支柱页
+- [ ] 支柱页上线后等待 Google 收录（约 90 天）再提交 AdSense 复审
 
 ### 提交复审前置条件
 - [ ] 确认 Google Search Console 中支柱页已显示"已收录"
 - [ ] 距首批内容上线约 90 天
-- [ ] 阶段二 noindex 生效且已被 Google 爬虫处理
 
 ## 变更文件清单
 
