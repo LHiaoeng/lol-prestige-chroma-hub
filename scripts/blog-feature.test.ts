@@ -777,7 +777,7 @@ describe('blog feature contract', () => {
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
     expect(page).toContain('class="official-source-link"');
-    expect(page).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(source('src/domain/brilliant-summon.ts')).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
     expect(page).toContain("import { brilliantSummonSessions } from '../../domain/brilliant-summon'");
     expect(page).toContain('summon-table');
     expect(page).toContain('const currentSessionId = \'202620\'');

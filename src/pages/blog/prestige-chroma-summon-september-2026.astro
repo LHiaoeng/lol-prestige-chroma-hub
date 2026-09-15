@@ -22,13 +22,12 @@ const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toSt
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 
-const eventStart = '2026-09-04';
-const eventEnd = '2026-10-04';
-const eventUrl = 'https://lol.qq.com/act/a202609047293tendraws35/index.html';
-
 // Each summon's point cost; the tenth draw costs 15x the first.
 const currentSummonSession = brilliantSummonSessions.find((session) => session.sessionId === '202620');
 if (!currentSummonSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
+const eventStart = currentSummonSession.windowStart;
+const eventEnd = currentSummonSession.windowEnd;
+const eventUrl = currentSummonSession.eventUrl;
 const drawCosts = currentSummonSession.drawCosts;
 const totalCost = drawCosts.reduce((sum, cost) => sum + cost, 0);
 
