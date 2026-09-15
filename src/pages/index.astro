@@ -4,7 +4,7 @@ import ChromaCard from '../components/ChromaCard.astro';
 import Filters from '../components/Filters.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
-import { articleHref, blogArticles, blogCategoryLabels, formatBlogDate } from '../blog/articles';
+import { articleHref, blogArticlesNewestFirst, blogCategoryLabels, formatBlogDate } from '../blog/articles';
 import { catalog } from '../data/catalog';
 import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
@@ -15,7 +15,7 @@ interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const firstPage = catalog.slice(0, 24);
-const latestArticles = blogArticles.slice(0, 3);
+const latestArticles = blogArticlesNewestFirst.slice(0, 3);
 const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 const heroDescriptionEn = CHINA_EXCLUSIVE_DEFINITION.en;

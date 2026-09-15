@@ -166,15 +166,17 @@ describe('static site build', () => {
     const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
     expect(home).toContain('Latest News &amp; Guides');
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/brilliant-prestige-chroma-summoning-guide/"');
     expect(home).toContain('href="/blog/patch-26-18-prestige-chromas/"');
     expect(home).toContain('href="/blog/prestige-chroma-summon-september-2026/"');
-    expect(home).toContain('href="/blog/joy-club-peak-gala-202608/"');
+    expect(home).not.toContain('href="/blog/joy-club-peak-gala-202608/"');
     expect(home).not.toContain('href="/blog/full-gift-reward-prestige-chroma-202608/"');
     expect(chineseHome).toContain('最新资讯与指南');
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
+    expect(chineseHome).toContain('href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"');
     expect(chineseHome).toContain('href="/zh-cn/blog/patch-26-18-prestige-chromas/"');
     expect(chineseHome).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
-    expect(chineseHome).toContain('href="/zh-cn/blog/joy-club-peak-gala-202608/"');
+    expect(chineseHome).not.toContain('href="/zh-cn/blog/joy-club-peak-gala-202608/"');
   });
 
   it('emits Simplified Chinese canonical routes as server-rendered pages', () => {
@@ -223,7 +225,13 @@ describe('static site build', () => {
     expect(guide).toContain('Global Server');
     expect(guide).toContain('Server Region');
     expect(guide).toContain('drawn rewards leave the pool');
+    expect(guide).toContain('570 RMB for the full round');
+    expect(guide).toContain('one QQ account can participate in one bound Server Region');
+    expect(guide).toContain('33.3% each for three items');
     expect(chineseGuide).toContain('抽出的奖励会从奖池中移除');
+    expect(chineseGuide).toContain('1200、1800、2400、3000、3600、4200、4800、6000、12000、18000');
+    expect(chineseGuide).toContain('单个 QQ 账号只能绑定一个参与大区');
+    expect(chineseGuide).toContain('三个奖项权重相同');
     expect(guide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
     expect(chineseGuide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
     expect(guide).toContain('"@type":"FAQPage"');
@@ -242,6 +250,15 @@ describe('static site build', () => {
     expect(chineseGuide).toContain('data-ad-boundary="editorial-article"');
     expect(guide).not.toContain('data-language-content="zh"');
     expect(chineseGuide).not.toContain('data-language-content="en"');
+  });
+
+  it('keeps dated session rules separate from the durable guide', () => {
+    const august = readFileSync(join(dist, 'blog', 'prestige-chroma-summon-august-2026', 'index.html'), 'utf8');
+    const augustChinese = readFileSync(join(dist, 'zh-cn', 'blog', 'prestige-chroma-summon-august-2026', 'index.html'), 'utf8');
+    expect(august).not.toContain('The format is consistent:');
+    expect(augustChinese).not.toContain('形式固定：');
+    expect(august).toContain('In this August 2026 Session 202619');
+    expect(augustChinese).toContain('2026 年 8 月第 202619 期公布的形式');
   });
 
   it('removes list indentation from blog chroma grids', () => {

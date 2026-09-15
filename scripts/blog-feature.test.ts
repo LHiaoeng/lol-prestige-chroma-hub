@@ -163,7 +163,7 @@ describe('blog feature contract', () => {
     expect(page).toContain("'@type': 'CollectionPage'");
     expect(page).toContain("const isZh = locale === 'zh-cn'");
     expect(page).toContain('<article class="featured-post">');
-    expect(page).toContain('blogArticles.map((entry, index)');
+    expect(page).toContain('blogArticlesNewestFirst.map((entry, index)');
     expect(page).toContain('href={articleHref(entry, locale)}');
     expect(page).toContain("formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')");
     expect(page).toContain('data-placeholder="/placeholder.svg"');

@@ -421,14 +421,20 @@ export const blogArticles: readonly BlogArticle[] = [
   },
 ] as const;
 
+/** Blog display order, derived from publication dates without mutating the metadata source. */
+export const blogArticlesNewestFirst: readonly BlogArticle[] = [...blogArticles].sort((left, right) => {
+  const dateOrder = right.publishedAt.localeCompare(left.publishedAt);
+  return dateOrder || blogArticles.indexOf(left) - blogArticles.indexOf(right);
+});
+
 export function adjacentBlogArticles(currentSlug: string): {
   newer: BlogArticle | undefined;
   older: BlogArticle | undefined;
 } {
-  const index = blogArticles.findIndex((article) => article.slug === currentSlug);
+  const index = blogArticlesNewestFirst.findIndex((article) => article.slug === currentSlug);
   if (index < 0) return { newer: undefined, older: undefined };
   return {
-    newer: blogArticles[index - 1],
-    older: blogArticles[index + 1],
+    newer: blogArticlesNewestFirst[index - 1],
+    older: blogArticlesNewestFirst[index + 1],
   };
 }

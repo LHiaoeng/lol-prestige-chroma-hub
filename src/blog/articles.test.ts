@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjacentBlogArticles, articleHref, blogArticles, formatBlogDate } from './articles';
+import { adjacentBlogArticles, articleHref, blogArticles, blogArticlesNewestFirst, formatBlogDate } from './articles';
 
 describe('blog article metadata', () => {
   it('formats ISO publication dates consistently in both languages', () => {
@@ -8,16 +8,17 @@ describe('blog article metadata', () => {
   });
 
   it('returns non-circular adjacent articles in newest-first order', () => {
-    expect(adjacentBlogArticles(blogArticles[0].slug)).toEqual({
+    expect(blogArticlesNewestFirst[0].slug).toBe('brilliant-prestige-chroma-summoning-guide');
+    expect(adjacentBlogArticles(blogArticlesNewestFirst[0].slug)).toEqual({
       newer: undefined,
-      older: blogArticles[1],
+      older: blogArticlesNewestFirst[1],
     });
-    expect(adjacentBlogArticles(blogArticles[1].slug)).toEqual({
-      newer: blogArticles[0],
-      older: blogArticles[2],
+    expect(adjacentBlogArticles(blogArticlesNewestFirst[1].slug)).toEqual({
+      newer: blogArticlesNewestFirst[0],
+      older: blogArticlesNewestFirst[2],
     });
-    expect(adjacentBlogArticles(blogArticles.at(-1)!.slug)).toEqual({
-      newer: blogArticles.at(-2),
+    expect(adjacentBlogArticles(blogArticlesNewestFirst.at(-1)!.slug)).toEqual({
+      newer: blogArticlesNewestFirst.at(-2),
       older: undefined,
     });
     expect(adjacentBlogArticles('missing')).toEqual({ newer: undefined, older: undefined });

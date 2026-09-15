@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ResponsiveHeroBackdrop from '../../components/ResponsiveHeroBackdrop.astro';
-import { articleHref, blogArticles, blogCategoryLabels, formatBlogDate } from '../../blog/articles';
+import { articleHref, blogArticlesNewestFirst, blogCategoryLabels, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { SITE } from '../../seo/site';
@@ -11,7 +11,7 @@ interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 
-const article = blogArticles[0];
+const article = blogArticlesNewestFirst[0];
 const backgroundChroma = catalog.find((item) => item.rank === 1);
 if (!backgroundChroma) throw new Error('The blog background requires a rank-one chroma');
 const title = isZh ? `臻彩资讯与指南 | ${SITE.name}` : `Prestige Chroma News & Guides | ${SITE.name}`;
@@ -28,7 +28,7 @@ const jsonLd = {
 };
 
 const coverFallbacks: Record<string, string> = {};
-for (const entry of blogArticles) {
+for (const entry of blogArticlesNewestFirst) {
   if (entry.coverUrl.startsWith('http')) {
     const match = catalog.find((c) => imageUrl(c.images.large) === entry.coverUrl || imageUrl(c.images.medium) === entry.coverUrl);
     if (match) coverFallbacks[entry.slug] = sourceImageUrl('large', match.instanceId);
@@ -61,7 +61,7 @@ for (const entry of blogArticles) {
       </header>
       <section class="blog-index">
         <div class="post-list">
-        {blogArticles.map((entry, index) => {
+        {blogArticlesNewestFirst.map((entry, index) => {
           return (
         <article class="featured-post">
           <a class="featured-post-link" href={articleHref(entry, locale)}>
