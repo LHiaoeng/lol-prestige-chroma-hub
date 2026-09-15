@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
+import { catalog } from '../../data/catalog';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
 
@@ -25,6 +26,13 @@ const prestigeGuideUrl = localizedPath(locale, '/blog/what-are-prestige-chromas/
 const catalogUrl = localizedPath(locale, '/');
 const septemberDrawCosts = [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000] as const;
 const septemberTotalCost = septemberDrawCosts.reduce((sum, cost) => sum + cost, 0);
+const relatedSummonChromaNames = new Set([
+  'Spirit Blossom Akali (Pearl)',
+  'Soul Fighter Gwen (Sapphire)',
+  'Battle Academia Xayah (Sapphire)',
+  'Lunar Empress Ashe  (Rose Quartz)',
+]);
+const relatedSummonChromas = catalog.filter((chroma) => relatedSummonChromaNames.has(chroma.nameEn));
 
 const faqJsonLd = {
   '@context': 'https://schema.org', '@type': 'FAQPage',
@@ -145,6 +153,7 @@ const jsonLd = [
     <section>
       <h2>Where this fits in a collection</h2>
       <p>A Prestige Chroma is a chroma attached to an existing skin with its own Prestige Chroma Splash Art. Use the <a href={prestigeGuideUrl}>Prestige Chroma guide</a> for the collection vocabulary, then browse the <a href={catalogUrl}>catalog archive</a> to compare artwork and base skins. The catalog is a reference archive, while this page explains the acquisition journey.</p>
+      <ul><li>Related catalogue entries: {relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameEn}</a>{index < relatedSummonChromas.length - 1 ? ', ' : ''}</>)}</li></ul>
       <p>For a current prize pool, follow the <a href={currentSessionUrl}>September 2026 session article</a>. For an older example, read the <a href={previousSessionUrl}>August 2026 session article</a> and compare its dates and rules instead of merging several sessions into one “standard” table.</p>
     </section>
 
@@ -243,6 +252,7 @@ const jsonLd = [
     <section>
       <h2>它和臻彩图鉴有什么关系？</h2>
       <p>臻彩仍然依附于基础皮肤，同时拥有自己的臻彩原画。可以先阅读<a href={prestigeGuideUrl}>什么是臻彩？</a>掌握术语，再浏览<a href={catalogUrl}>臻彩原画图鉴</a>核对原画和基础皮肤。图鉴负责整理可查的资料，本页负责解释获取过程。</p>
+      <ul><li>相关图鉴条目：{relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameZh}</a>{index < relatedSummonChromas.length - 1 ? '、' : ''}</>)}</li></ul>
       <p>想看当前奖池，请进入<a href={currentSessionUrl}>2026 年 9 月活动文章</a>；想比较往期奖池，可以阅读<a href={previousSessionUrl}>2026 年 8 月活动文章</a>，逐期查看日期和规则，不要把几期内容拼成一张“固定奖池表”。</p>
     </section>
 

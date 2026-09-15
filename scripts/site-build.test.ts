@@ -242,6 +242,19 @@ describe('static site build', () => {
     expect(guide).toContain('href="/blog/prestige-chroma-summon-august-2026/"');
     expect(guide).toContain('href="/blog/what-are-prestige-chromas/"');
     expect(guide).toContain('href="/"');
+    for (const slug of [
+      'the-rogue-assassin-akali-spirit-blossom-akali-pearl-84098',
+      'the-hallowed-seamstress-gwen-soul-fighter-gwen-sapphire-887023',
+      'the-rebel-xayah-battle-academia-xayah-sapphire-498060',
+      'the-frost-archer-ashe-lunar-empress-ashe-rose-quartz-22056',
+    ]) {
+      expect(guide).toContain(`href="/chromas/${slug}/"`);
+      expect(chineseGuide).toContain(`href="/zh-cn/chromas/${slug}/"`);
+      const detail = readFileSync(join(dist, 'chromas', slug, 'index.html'), 'utf8');
+      const chineseDetail = readFileSync(join(dist, 'zh-cn', 'chromas', slug, 'index.html'), 'utf8');
+      expect(detail).toContain('href="/blog/brilliant-prestige-chroma-summoning-guide/"');
+      expect(chineseDetail).toContain('href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"');
+    }
     expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
     expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-august-2026/"');
     expect(chineseGuide).toContain('href="/zh-cn/blog/what-are-prestige-chromas/"');

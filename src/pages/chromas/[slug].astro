@@ -61,6 +61,14 @@ const universeActions = [
 const patchActions = [
   { ...actionLabels.patch, href: patchNotesUrl(chroma.gameVer) },
 ];
+const summonGuideChromaNames = new Set([
+  'Spirit Blossom Akali (Pearl)',
+  'Soul Fighter Gwen (Sapphire)',
+  'Battle Academia Xayah (Sapphire)',
+  'Lunar Empress Ashe  (Rose Quartz)',
+]);
+const isSummonGuideChroma = summonGuideChromaNames.has(chroma.nameEn);
+const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/');
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale} noindex>
   <div class="detail-background" aria-hidden="true">
@@ -96,6 +104,7 @@ const patchActions = [
       </dl>
       </div>
       </details>
+      {isSummonGuideChroma && <p class="detail-context-link"><a href={summonGuideUrl}>{isZh ? '阅读璀璨臻彩召唤完全指南' : 'Read the complete Brilliant Prestige Chroma Summoning guide'}</a></p>}
     </div>
   </article>
   {relatedGroups.length > 0 && (
@@ -133,6 +142,7 @@ const patchActions = [
   .detail-copy dl{margin-top:0}
   .detail-copy dl>div{grid-template-columns:100px minmax(0,1fr)!important;column-gap:10px}
   .description-row dd{color:var(--muted);line-height:1.7}
+  .detail-context-link{margin:18px 0 0;color:var(--muted);font-size:.86rem;line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   @media(max-width:767px){
     .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
