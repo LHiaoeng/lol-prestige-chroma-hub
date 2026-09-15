@@ -137,14 +137,23 @@ describe('static site build', () => {
     expect(home).toContain('“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.');
     expect(home).not.toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(chineseHome).toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
-    expect(about).toContain('<title>What Are Chroma Splash Arts? | LoL Chroma Art</title>');
+    expect(about).toContain('<title>About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art</title>');
     expect(about).toContain('“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.');
     expect(about).not.toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
-    expect(chineseAbout).toContain('<title>什么是《英雄联盟》中国服炫彩原画？ | LoL Chroma Art</title>');
+    expect(chineseAbout).toContain('<title>关于 LoL Chroma Art — 独立臻彩原画图鉴 | LoL Chroma Art</title>');
     expect(chineseAbout).toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(about).toContain("Most chromas reuse their base skin's splash art");
     expect(about).toContain('operated by Tencent');
-    expect(about).toContain('Availability and release timing vary by event and patch');
+    expect(about).toContain('LoL Chroma Art Editorial Team');
+    expect(about).toContain('Editorial principles');
+    expect(about).toContain('Sources and verification');
+    expect(about).toContain('Corrections and updates');
+    expect(about).not.toContain('/editorial-policy/');
+    expect(chineseAbout).toContain('LoL Chroma Art 编辑团队');
+    expect(chineseAbout).toContain('编辑原则');
+    expect(chineseAbout).toContain('资料来源与核验方式');
+    expect(chineseAbout).toContain('纠错与更新');
+    expect(chineseAbout).not.toContain('/zh-cn/editorial-policy/');
     expect(about).not.toContain('will likely be priced higher');
     expect(about).not.toContain('Players should prepare');
   });
@@ -226,9 +235,9 @@ describe('static site build', () => {
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-sources');
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-corrections');
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-related');
-        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(localePrefix ? 'BreadJ 与 LoL Chroma Art 编辑团队' : 'BreadJ and the LoL Chroma Art editorial team');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(localePrefix ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team');
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
-        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(`href="/${localePrefix ? `${localePrefix}/` : ''}editorial-policy/"`);
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(`href="/${localePrefix ? `${localePrefix}/` : ''}about/"`);
 
         const updatedAt = article.match(/data-article-updated[\s\S]*?<time datetime="([^"]+)"/)?.[1];
         expect(updatedAt, `${localePrefix || 'en'} ${slug} review date`).toBeDefined();
@@ -278,29 +287,29 @@ describe('static site build', () => {
     expect(footer).toContain('class="footer-separator" aria-hidden="true"');
   });
 
-  it('publishes bilingual editorial trust pages and links them from public content', () => {
-    const policy = readFileSync(join(dist, 'editorial-policy', 'index.html'), 'utf8');
-    const chinesePolicy = readFileSync(join(dist, 'zh-cn', 'editorial-policy', 'index.html'), 'utf8');
+  it('merges editorial trust content into the about page and links it from public content', () => {
+    const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
+    const chineseAbout = readFileSync(join(dist, 'zh-cn', 'about', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const chineseArticle = readFileSync(join(dist, 'zh-cn', 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
-    expect(policy).toContain('<title>Editorial Policy &amp; Sources | LoL Chroma Art</title>');
-    expect(policy).toContain('Maintained by BreadJ and the LoL Chroma Art editorial team');
-    expect(policy).toContain('the League of Legends China Server, operated by Tencent');
-    expect(policy).toContain('Sources and verification');
-    expect(policy).toContain('Corrections and updates');
-    expect(policy).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
-    expect(policy).not.toContain('data-ad-boundary=');
-    expect(policy).not.toContain('pagead2.googlesyndication.com');
-    expect(chinesePolicy).toContain('<title>作者与编辑说明 | LoL Chroma Art</title>');
-    expect(chinesePolicy).toContain('维护主体：BreadJ 与 LoL Chroma Art 编辑团队');
-    expect(chinesePolicy).toContain('资料来源与核验方式');
-    expect(chinesePolicy).toContain('纠错与更新');
-    expect(chinesePolicy).not.toContain('data-ad-boundary=');
-    expect(article).toContain('href="/editorial-policy/"');
-    expect(chineseArticle).toContain('href="/zh-cn/editorial-policy/"');
+    expect(about).toContain('Editorial principles');
+    expect(about).toContain('Sources and verification');
+    expect(about).toContain('Corrections and updates');
+    expect(about).toContain('Maintained by the LoL Chroma Art Editorial Team');
+    expect(about).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
+    expect(about).not.toContain('data-ad-boundary=');
+    expect(about).not.toContain('pagead2.googlesyndication.com');
+    expect(chineseAbout).toContain('编辑原则');
+    expect(chineseAbout).toContain('资料来源与核验方式');
+    expect(chineseAbout).toContain('纠错与更新');
+    expect(chineseAbout).toContain('维护主体：LoL Chroma Art 编辑团队');
+    expect(chineseAbout).not.toContain('data-ad-boundary=');
+    expect(article).toContain('href="/about/"');
+    expect(chineseArticle).toContain('href="/zh-cn/about/"');
     expect(article).toContain('min-height:var(--touch-target)');
-    expect(home).toContain('href="/editorial-policy/"');
+    expect(home).toContain('href="/about/"');
+    expect(home).not.toContain('href="/editorial-policy/"');
   });
 
   it('keeps the 404 page out of the localized canonical index', () => {

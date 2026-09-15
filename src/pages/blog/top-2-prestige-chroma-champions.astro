@@ -74,7 +74,7 @@ const jsonLd = [
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -97,7 +97,7 @@ const jsonLd = [
       <p class="kicker">LoL PRESTIGE CHROMA LEADERBOARD</p>
       <h1>Patch 26.15: {article.titleEn}</h1>
       <p class="article-deck">{totalChromas} <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> across {championCount} champions. First place isn't up for debate. Second place is a two-way tie.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
@@ -152,7 +152,7 @@ const jsonLd = [
       <p class="kicker">LoL 臻彩数量排行榜</p>
       <h1>26.15 版本：{article.titleZh}</h1>
       <p class="article-deck">{totalChromas} 款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>，{championCount} 位英雄。第一名没悬念，第二名是两位并列。</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />

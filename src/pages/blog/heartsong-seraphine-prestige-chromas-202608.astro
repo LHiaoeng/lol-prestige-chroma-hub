@@ -49,7 +49,7 @@ const jsonLd = [
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -80,6 +80,7 @@ const jsonLd = [
       <h1>{article.titleEn}</h1>
       <p class="article-deck">Heartsong Seraphine went live on August 27, 2026, headlining League of Legends&rsquo; 15th anniversary. The skin ships with three Diamond prestige chromas &mdash; Pearl, Ruby, and Sapphire &mdash; alongside GEM (Deng Ziqi) as the IP series Starry Messenger and a minimum 10 million RMB donation to the Warm Heart Action fund.</p>
       <p class="article-meta">
+        <span>By LoL Chroma Art Editorial Team</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
         <span>{article.readingMinutes} min read</span>
@@ -142,6 +143,7 @@ const jsonLd = [
       <h1>{article.titleZh}</h1>
       <p class="article-deck">2026 年 8 月 27 日，心之歌萨勒芬妮上线，是英雄联盟 15 周年庆的主角内容。三款钻石臻彩——晴彩泡沫、我会走向你、光年之约——与皮肤同步开售，邓紫棋出任 IP 系列星籁合伙人，项目承诺向“暖心行动”公益专项捐赠不低于 1000 万元。</p>
       <p class="article-meta">
+        <span>LoL Chroma Art 编辑团队</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
         <span>阅读约 {article.readingMinutes} 分钟</span>

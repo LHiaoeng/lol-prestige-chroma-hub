@@ -52,7 +52,7 @@ const jsonLd = [
     description, image: imageUrl(rewardChroma.images.large), datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -101,6 +101,7 @@ const jsonLd = [
       <h1>{article.titleEn}</h1>
       <p class="article-deck">The Full Gift Reward activity counts spending from {pointsStart.replace(/-/g, '/')} to {pointsEnd.replace(/-/g, '/')}. Hit 1000 points to claim <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a diamond-tier <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> &mdash; with chroma rewards also at the 300 and 600-point tiers.</p>
       <p class="article-meta">
+        <span>By LoL Chroma Art Editorial Team</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
         <span>{article.readingMinutes} min read</span>
@@ -186,6 +187,7 @@ const jsonLd = [
       <h1>{article.titleZh}</h1>
       <p class="article-deck">满额礼赠活动积分统计时间为 {pointsStart.replace(/-/g, '/')} 至 {pointsEnd.replace(/-/g, '/')}。满 1000 积分可领取「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」钻石<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>，300 和 600 积分档也有臻彩可选。</p>
       <p class="article-meta">
+        <span>LoL Chroma Art 编辑团队</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
         <span>阅读约 {article.readingMinutes} 分钟</span>

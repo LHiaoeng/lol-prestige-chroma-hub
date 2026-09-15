@@ -35,7 +35,7 @@ const jsonLd = [
     description, image: article.coverUrl, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩资讯' : 'League of Legends Prestige Chroma News',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -73,7 +73,7 @@ const jsonLd = [
       <p class="kicker">JOY CLUB PEAK GALA · EVENT NEWS</p>
       <h1>{article.titleEn}</h1>
       <p class="article-deck">The July 2026 Joy Club Peak Gala runs from July 1&ndash;31 on the League of Legends China Server. Reach {thresholdPoints.toLocaleString()} peak value to qualify for <a href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)}>{rewardChroma.nameEn}</a>, which remains exclusive for {exclusiveWindowMonths} months.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
 
     <figure class="article-hero">
@@ -130,7 +130,7 @@ const jsonLd = [
       <p class="kicker">心悦巅峰盛典 · 活动资讯</p>
       <h1>{article.titleZh}</h1>
       <p class="article-deck">心悦巅峰盛典第 202606 期于 2026 年 7 月 1 日至 31 日开放统计。活动期间累计达到 50 万巅峰值，结算后即可领取<a href={localizedPath(locale, `/chromas/${rewardChroma.slug}/`)}>{rewardChroma.nameZh}</a>，并享有 3 个月独享期。</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
 
     <figure class="article-hero">

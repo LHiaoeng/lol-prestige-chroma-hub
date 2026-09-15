@@ -68,7 +68,7 @@ const jsonLd = [
     description, image: imageUrl(rewardChroma.images.large), datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -117,6 +117,7 @@ const jsonLd = [
       <h1>{article.titleEn}</h1>
       <p class="article-deck">Session 202608 runs {eventStart.replace(/-/g, '/')} through {eventEnd.replace(/-/g, '/')}, 2026 on the Chinese server. Spend {thresholdPoints.toLocaleString()} peak value during the window to qualify &mdash; claim <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> after settlement, exclusive to Peak Gala for {exclusiveWindowMonths} months.</p>
       <p class="article-meta">
+        <span>By LoL Chroma Art Editorial Team</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
         <span>{article.readingMinutes} min read</span>
@@ -229,6 +230,7 @@ const jsonLd = [
       <h1>{article.titleZh}</h1>
       <p class="article-deck">第 202608 期统计窗口为 {eventStart.replace(/-/g, '/')} 至 {eventEnd.replace(/-/g, '/')}。累积巅峰值满 {(thresholdPoints / 10000).toFixed(0)} 万即可入席，结算后前往活动页选择大区领取本期臻彩 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，享 {exclusiveWindowMonths} 个月独享期。</p>
       <p class="article-meta">
+        <span>LoL Chroma Art 编辑团队</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
         <span>阅读约 {article.readingMinutes} 分钟</span>

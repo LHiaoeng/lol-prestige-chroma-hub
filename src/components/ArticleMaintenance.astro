@@ -21,7 +21,7 @@ const correctionEmail = 'mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20
   <dl class="maintenance-meta">
     <div data-article-author>
       <dt>{isZh ? '作者' : 'Author'}</dt>
-      <dd><a href={localizedPath(locale, '/editorial-policy/')}>{isZh ? 'BreadJ 与 LoL Chroma Art 编辑团队' : 'BreadJ and the LoL Chroma Art editorial team'}</a></dd>
+      <dd><a href={localizedPath(locale, '/about/')}>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</a></dd>
     </div>
     <div data-article-updated>
       <dt>{isZh ? '最后核验' : 'Last reviewed'}</dt>
@@ -40,7 +40,7 @@ const correctionEmail = 'mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20
 
   <p class="correction-note" data-article-corrections>
     {isZh ? '发现名称、日期、服务器范围或资料链接有误？' : 'Found an incorrect name, date, server scope, or source link?'}
-    {' '}<a href={correctionEmail}>{isZh ? '提交纠错' : 'Send a correction'}</a>{isZh ? '，或查看' : ', or read the '}<a href={localizedPath(locale, '/editorial-policy/')}>{isZh ? '作者与编辑说明' : 'editorial policy'}</a>{isZh ? '了解核验流程。' : ' for our verification process.'}
+    {' '}<a href={correctionEmail}>{isZh ? '提交纠错' : 'Send a correction'}</a>{isZh ? '，或查看' : ', or read the '}<a href={localizedPath(locale, '/about/')}>{isZh ? '关于页面' : 'about page'}</a>{isZh ? '了解核验流程。' : ' for our verification process.'}
   </p>
 
   <div class="maintenance-group">
