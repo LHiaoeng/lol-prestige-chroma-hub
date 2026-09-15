@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'brilliant-prestige-chroma-summoning-guide');
+if (!article) throw new Error('Brilliant Prestige Chroma Summoning guide metadata is missing');
+const maintenance = evergreenGuideMaintenance['brilliant-prestige-chroma-summoning-guide'];
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const currentSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/');
+const prestigeGuideUrl = localizedPath(locale, '/blog/what-are-prestige-chromas/');
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: maintenance.updatedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟指南' : 'League of Legends Guides',
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '璀璨臻彩召唤指南' : 'Brilliant Prestige Summoning Guide'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA PILLAR GUIDE</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">A durable explanation of how Brilliant Prestige Chroma Summoning works on the China Server, how to read a current pool, and where to verify rules before spending.</p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>The in-client Prestige Chroma Collection is the destination for the artwork you collect.</figcaption>
+    </figure>
+
+    <section>
+      <h2>What this summoning series is</h2>
+      <p>Brilliant Prestige Chroma Summoning is a limited-time acquisition series on the <strong>China Server</strong>. Each session has its own activity page, dates, prize pool, costs, and eligibility rules. It is not a permanent store and it is not the same as Lucky Gate Summoning or Splendid Treasure Summoning.</p>
+      <p>The word <em>server</em> matters here. A <strong>Server Region</strong> is a player-data partition inside a game server; it is not the same thing as the <strong>Global Server</strong> operated directly by Riot Games, and neither object is the <strong>LPL esports region</strong>. The guide to <a href={prestigeGuideUrl}>what Prestige Chromas are</a> explains how a chroma remains attached to its base skin.</p>
+    </section>
+
+    <section>
+      <h2>Read the current session first</h2>
+      <p>Start with the official event page for the session you are considering. Our <a href={currentSessionUrl}>September 2026 session article</a> is a worked example, not a promise that future sessions will use the same rewards or prices. Check the official page for the opening window, eligible account, payment channel, prize names, probabilities, and final claiming deadline.</p>
+      <ul>
+        <li>Confirm that the activity is for the China Server and that your account is eligible.</li>
+        <li>Confirm the Server Region bound to the account before the first draw.</li>
+        <li>Read the pool, pricing table, probability notes, and claim instructions together.</li>
+        <li>Save the official page or announcement because a limited event can close before an old article is updated.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>How a pool and draw usually work</h2>
+      <p>Some sessions offer self-select tiers: you arrange a set of eligible rewards, then draw from that set. The exact number of choices and the point at which a pool locks are session-specific. Do not assume that a later event inherits an earlier session's adjustment allowance.</p>
+      <p>In the documented no-replacement format, drawn rewards leave the pool. The remaining reward types then account for the remaining probability, so the displayed odds can change after each draw. Treat the official session table as the source of truth for whether that rule applies.</p>
+      <p>After a draw, check the result and the claim state before continuing. A reward can be selected, delivered to the bound region, or require a separate button on the activity page; those are different states.</p>
+    </section>
+
+    <section>
+      <h2>Budgeting the cost and odds</h2>
+      <p>There is no universal price for a Brilliant Prestige Chroma Summoning session. One run may use points with a cash-equivalent price, while another may use a different currency or a different price curve. A first draw can be discounted, and later draws can cost more.</p>
+      <p>Before paying, write down the cost of the draws you are actually willing to make. A “complete run” total is a ceiling, not a recommendation. Compare the official probability table with the rewards you already own, and remember that owning the corresponding <em>Base Skin</em> is normally required to use a Prestige Chroma.</p>
+      <p>Do not convert a historical rate into a guaranteed expected result. The useful comparison is the current session's pool, current price, current eligibility, and your own collection goal.</p>
+    </section>
+
+    <section>
+      <h2>Rewards, delivery, and time limits</h2>
+      <p>Rewards are tied to the account and Server Region stated in the session rules. Verify the binding before the first draw, because some sessions lock it after participation. Keep the activity page open until the result and any separate claim step are confirmed.</p>
+      <p>Record the event's start and end times in the timezone shown by the official page. A draw deadline, a claim deadline, and an exclusivity window can be different dates. The single-session article records those values for its own run; this guide deliberately avoids presenting them as permanent rules.</p>
+    </section>
+
+    <section>
+      <h2>Where this fits in a collection</h2>
+      <p>A Prestige Chroma is a chroma attached to an existing skin with its own Prestige Chroma Splash Art. Use the <a href={prestigeGuideUrl}>Prestige Chroma guide</a> for the collection vocabulary, then open the linked catalog entry to compare the artwork and base skin. The catalog is a reference archive, while this page explains the acquisition journey.</p>
+      <p>For a current prize pool, follow the latest session article. For older pools, follow the historical session links listed there and compare their dates and rules instead of merging them into one “standard” table.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details><summary>Is this available on the Global Server?</summary><p>No. Brilliant Prestige Chroma Summoning is a China Server event series. Availability and acquisition paths on the Global Server are separate questions and should not be inferred from a China Server activity page.</p></details>
+      <details><summary>Can I choose any reward I want?</summary><p>Only when the current session explicitly offers a self-select pool, and only from the options listed there. Choice limits and lock timing can change between sessions.</p></details>
+      <details><summary>Do the rewards always leave the pool after a draw?</summary><p>Many documented sessions use no-replacement pools, but the official current-session rules decide whether that applies. Read the probability notes before treating changing odds as a guarantee.</p></details>
+      <details><summary>Should I use the full-run cost to decide whether to participate?</summary><p>Use it as a budget ceiling, not as a recommendation. Compare the current official price curve and pool with the Prestige Chromas and base skins you actually want.</p></details>
+      <details><summary>Where can I verify a date or reward?</summary><p>Use the official activity page linked in the maintenance panel below, then use our current or historical session article for an easier summary and links back to the source.</p></details>
+    </section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩原画支柱指南</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">从国服活动定位、奖池和召唤成本，到大区绑定、领奖与规则核验，完整了解璀璨臻彩召唤。</p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>客户端“臻彩藏馆”用于查看和展示你收藏的臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>这是什么活动？</h2>
+      <p>“璀璨臻彩召唤”是中国大陆服（China Server）定期开放的限时臻彩获取活动系列。每一期都有单独的活动页、开放时间、奖池、价格、概率和参与条件，不是永久商城，也不能和“幸运之门召唤”或“华彩秘宝·召唤”混为一谈。</p>
+      <p>这里要区分几个概念：<strong>游戏大区（Server Region）</strong>是一个游戏服务器内的账号和数据分区，不等于拳头直营的 <strong>Global Server</strong>，也不等于职业赛事的 LPL 赛区。想先了解臻彩与基础皮肤的关系，可以阅读<a href={prestigeGuideUrl}>什么是臻彩？</a>。</p>
+    </section>
+
+    <section>
+      <h2>先核对当前期活动页</h2>
+      <p>准备参与时，先打开当期官方活动页。我们的<a href={currentSessionUrl}>2026 年 9 月活动文章</a>只是一个带解释的实例，不代表下一期一定沿用相同奖励或价格。开放时间、账号资格、支付渠道、奖池名称、概率和最终领奖截止时间，都应以官方页面为准。</p>
+      <ul>
+        <li>确认活动服务范围是中国大陆服，并确认账号符合参与条件。</li>
+        <li>第一次召唤前确认账号绑定的游戏大区。</li>
+        <li>把奖池、价格表、概率说明和领奖步骤一起读完。</li>
+        <li>保存官方页面或公告，因为限时活动可能在旧文章更新前结束。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>奖池和召唤通常怎么运作？</h2>
+      <p>有些活动会提供自选奖池：玩家可以在列出的奖励中安排选择，再从这个奖池中召唤。具体能选多少、什么时候锁定、是否允许调整，每一期都可能不同，不能把往期规则当作固定标准。</p>
+      <p>在已公布的不放回抽取形式中，<strong>抽出的奖励会从奖池中移除</strong>，剩余奖励重新构成后续概率。因此每次召唤后显示的概率可能变化，是否采用这条规则要看当期官方概率说明。</p>
+      <p>每次召唤后都要检查结果和领取状态。奖励可能已经发放，也可能需要在活动页额外点击领取，这两种状态不能混淆。</p>
+    </section>
+
+    <section>
+      <h2>如何估算成本与概率？</h2>
+      <p>璀璨臻彩召唤没有一套永远不变的价格。某一期可能使用带人民币等价说明的点券或积分，另一期可能采用不同货币和价格曲线；首次召唤也可能有优惠，后续次数再逐步增加。</p>
+      <p>付费前先写下自己愿意进行的次数和预算。“抽完整轮”的总价只是上限，不是参与建议。还要对照当前奖池和自己已经拥有的内容，并记住臻彩通常需要先拥有对应的<strong>基础皮肤</strong>才能使用。</p>
+      <p>不要把历史期数的价格或概率换算成未来保证。真正有用的比较，是当前期的奖池、价格、资格条件和自己的收藏目标。</p>
+    </section>
+
+    <section>
+      <h2>奖励发放与时间限制</h2>
+      <p>奖励会按照活动规则发放到账号绑定的游戏大区。部分活动在参与后会锁定绑定关系，所以第一次召唤前一定要确认大区。活动页显示结果并完成可能存在的额外领取步骤后，再离开页面。</p>
+      <p>按官方页面显示的时区记录开始和结束时间。活动结束、召唤截止、领奖截止以及独享期可能是不同日期；单期文章只记录自己对应的那一期，本指南不会把它们写成永久规则。</p>
+    </section>
+
+    <section>
+      <h2>它和臻彩图鉴有什么关系？</h2>
+      <p>臻彩仍然依附于基础皮肤，同时拥有自己的臻彩原画。可以先阅读<a href={prestigeGuideUrl}>什么是臻彩？</a>掌握术语，再从相关文章进入图鉴条目，核对原画和基础皮肤。图鉴负责整理可查的资料，本页负责解释获取过程。</p>
+      <p>想看当前奖池，请进入最新一期活动文章；想比较往期奖池，就沿历史文章的活动链接逐期查看日期和规则，不要把几期内容拼成一张“固定奖池表”。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题</h2>
+      <details><summary>Global Server 能参加吗？</summary><p>不能据此推断。璀璨臻彩召唤是中国大陆服活动系列，Global Server 的可用性和获取方式是另一套问题，不能从国服活动页推导。</p></details>
+      <details><summary>可以随便选自己想要的奖励吗？</summary><p>只有当期活动明确提供自选奖池时，才能从活动列出的选项中选择；可选数量和锁定时间都可能随期数变化。</p></details>
+      <details><summary>每次召唤后奖励都会离开奖池吗？</summary><p>很多已公布的活动采用不放回奖池，但是否适用于当前期要看官方规则。先读概率说明，再判断概率变化，不要把历史经验当作保证。</p></details>
+      <details><summary>应该按完整一轮的总价决定是否参加吗？</summary><p>把它当预算上限，而不是参与建议。结合当前价格曲线、奖池，以及自己真正想要且拥有基础皮肤的臻彩来判断。</p></details>
+      <details><summary>日期或奖励去哪里核对？</summary><p>先看下方维护信息中的官方活动页，再用当前或往期活动文章获取更易读的摘要和回链。</p></details>
+    </section>
+    <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
+  </article>}
+
+  <style>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p,.blog-article li{color:#c7cad4;font-size:1.06rem;line-height:1.9}.blog-article section p{margin:0 0 1.2em}.blog-article ul{padding-left:1.25rem}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.article-hero{margin-top:0!important}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.blog-article a:focus-visible{outline:2px solid var(--gold);outline-offset:4px}@media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p,.blog-article li{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>

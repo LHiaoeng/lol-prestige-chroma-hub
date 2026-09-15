@@ -65,6 +65,8 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'joy-club-peak-gala-202608', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'prestige-chroma-summon-september-2026', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'prestige-chroma-summon-september-2026', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'zh-cn', 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202607', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202606', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202608', 'index.html'))).toBe(true);
@@ -208,6 +210,33 @@ describe('static site build', () => {
     expect(chineseCoverage).not.toContain('data-coverage-list="en"');
   });
 
+  it('publishes the bilingual Brilliant Prestige Chroma Summoning pillar guide', () => {
+    const guide = readFileSync(join(dist, 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'), 'utf8');
+    const chineseGuide = readFileSync(join(dist, 'zh-cn', 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'), 'utf8');
+
+    expect(guide).toContain('<link rel="canonical" href="https://chromaart.lol/blog/brilliant-prestige-chroma-summoning-guide/">');
+    expect(chineseGuide).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/">');
+    expect(guide).toContain('Brilliant Prestige Chroma Summoning: Complete Guide');
+    expect(chineseGuide).toContain('璀璨臻彩召唤完全指南');
+    expect(guide).toContain('China Server');
+    expect(guide).toContain('Global Server');
+    expect(guide).toContain('Server Region');
+    expect(guide).toContain('drawn rewards leave the pool');
+    expect(chineseGuide).toContain('抽出的奖励会从奖池中移除');
+    expect(guide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(chineseGuide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(guide).toContain('data-article-maintenance');
+    expect(chineseGuide).toContain('data-article-maintenance');
+    expect(guide).toContain('href="/blog/prestige-chroma-summon-september-2026/"');
+    expect(guide).toContain('href="/blog/what-are-prestige-chromas/"');
+    expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
+    expect(chineseGuide).toContain('href="/zh-cn/blog/what-are-prestige-chromas/"');
+    expect(guide).toContain('data-ad-boundary="editorial-article"');
+    expect(chineseGuide).toContain('data-ad-boundary="editorial-article"');
+    expect(guide).not.toContain('data-language-content="zh"');
+    expect(chineseGuide).not.toContain('data-language-content="en"');
+  });
+
   it('removes list indentation from blog chroma grids', () => {
     const styles = readFileSync(join(root, 'src', 'styles', 'global.css'), 'utf8');
     const grid = readFileSync(join(root, 'src', 'components', 'BlogChromaGrid.astro'), 'utf8');
@@ -216,7 +245,7 @@ describe('static site build', () => {
     expect(grid).toContain('grid-template-columns:repeat(var(--blog-chroma-columns)');
   });
 
-  it('publishes bilingual maintenance details for all six evergreen guides', () => {
+  it('publishes bilingual maintenance details for all evergreen guides', () => {
     const evergreenGuideSlugs = [
       'what-is-league-of-legends',
       'what-are-chroma-skins',
@@ -224,6 +253,7 @@ describe('static site build', () => {
       'kaisa-prestige-chroma',
       'champion-most-prestige-chromas',
       'champions-without-prestige-chroma',
+      'brilliant-prestige-chroma-summoning-guide',
     ];
 
     for (const slug of evergreenGuideSlugs) {

@@ -403,6 +403,22 @@ export const blogArticles: readonly BlogArticle[] = [
     adEligible: true,
     category: 'news',
   },
+  {
+    slug: 'brilliant-prestige-chroma-summoning-guide',
+    href: '/blog/brilliant-prestige-chroma-summoning-guide/',
+    titleEn: 'Brilliant Prestige Chroma Summoning: Complete Guide',
+    titleZh: '璀璨臻彩召唤完全指南',
+    summaryEn: 'Understand how Brilliant Prestige Chroma Summoning works on the China Server, from pool selection and draw costs to server binding, rewards, and changing event rules.',
+    summaryZh: '从奖池选择、召唤成本到大区绑定、领奖和规则变化，完整了解国服璀璨臻彩召唤活动。',
+    publishedAt: '2026-09-15',
+    readingMinutes: 12,
+    coverUrl: '/img/blog/prestige-chromas-cover.png',
+    coverAltEn: 'Prestige Chroma Collection interface for the Brilliant Prestige Chroma Summoning guide',
+    coverAltZh: '璀璨臻彩召唤完全指南的臻彩藏馆界面',
+    sourceUrl: 'https://lol.qq.com/act/a202609047293tendraws35/index.html',
+    adEligible: true,
+    category: 'guide',
+  },
 ] as const;
 
 export function adjacentBlogArticles(currentSlug: string): {
