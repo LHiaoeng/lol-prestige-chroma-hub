@@ -42,7 +42,7 @@ const jsonLd = [
     description, image: `${SITE.origin}${article.coverUrl}`,
     datePublished: article.publishedAt, dateModified: article.publishedAt,
     mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
