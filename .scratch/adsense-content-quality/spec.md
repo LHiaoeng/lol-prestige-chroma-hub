@@ -23,10 +23,12 @@
 
 - 所有中英双语图鉴详情页设为 `noindex`，并从 sitemap 移除。
 - 图鉴首页可以展示广告；图鉴详情页不展示广告。
-- 除图鉴首页外，广告允许出现在博客列表页和全部博客文章；图鉴详情页及其他资料页不展示广告。
+- 除图鉴首页外，广告允许出现在博客列表页和全部标记 `adEligible: true` 的博客文章；图鉴详情页及其他资料页不展示广告。
+- 广告位不预留固定高度、边框或额外留白；广告脚本未加载时不产生占位空间，仅保留审计所需的 `data-ad-boundary` 标记。
 - 删除或修复返回空白内容但状态为 200 的路由。
-- 新增中英双语作者、编辑原则、资料来源和纠错说明。
-- 编辑可信度页面固定使用 `/editorial-policy/` 与 `/zh-cn/editorial-policy/`，进入 sitemap 且不承载广告。
+- 新增中英双语作者、编辑原则、资料来源和纠错说明；作者署名统一为“LoL Chroma Art 编辑团队”（英文 `LoL Chroma Art Editorial Team`），不附带个人笔名。
+- 编辑可信度信息合并进 `/about/` 与 `/zh-cn/about/`（不再单独维护 `/editorial-policy/`），进入 sitemap、不设 `noindex` 且不承载广告。
+- 常青指南通过 `ArticleMaintenance` 组件渲染作者、资料来源、最后核验日期、纠错入口和两条相关指南内链；作者字段链接到 `/about/`。
 - 发布六篇中英双语原创常青指南。
 - 术语遵循项目领域文档：China Server 是中国大陆服，Global Server 是拳头直营服，Server Region 是游戏服务器内的大区；国服属于 LPL 电竞赛区，但游戏服务器与电竞赛区是不同概念。
 - `臻彩` 是 China Server 概念，英文使用 `Prestige Chroma`；不使用“普通炫彩”概念。
@@ -35,7 +37,8 @@
 ## Testing Decisions
 
 - 单一最高价值测试缝为 `pnpm release:build` 的产物审计。
-- 审计应覆盖 `noindex`、sitemap、广告边界、可信度页面和中英双语路由。
+- 审计应覆盖 `noindex`、sitemap、广告边界、可信度页面、中英双语路由、空白 HTML、敏感部署产物和必备静态页面。
+- 审计应拒绝以下情况：图鉴详情页缺少 `noindex` 或出现广告、广告位缺少显式 `data-ad-boundary` 边界、广告出现在未授权路径、博客文章未标记 `adEligible: true` 却渲染广告、sitemap 含图鉴详情页、静态产物包含 `prestige-chromas.json` 或 `.map` 等敏感文件、双语页面缺少中文对应产物。
 - 测试只验证用户、搜索引擎和广告审核方可观察到的最终产物，不绑定页面内部实现。
 - 沿用现有发布构建、SEO 产物审计和博客功能测试模式，不新增更低层的重复测试缝。
 
