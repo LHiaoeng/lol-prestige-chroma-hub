@@ -21,6 +21,7 @@ const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 
 const sourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=17083628231197355254';
+const eventUrl = 'https://lol.qq.com/act/a202609139891prizewheel/index.html';
 
 const sorakaChroma = catalog.find((c) => c.heroId === '16' && c.skinNameEn === 'Ocean Song Soraka');
 const jinxChroma = catalog.find((c) => c.heroId === '222' && c.skinNameEn === 'Ocean Song Jinx');
@@ -120,6 +121,7 @@ const jsonLd = [
       <strong>Official sources</strong>
       <ul>
         <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">Lucky Gate: Ocean Song announcement &mdash; LoL Official Site</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Lucky Gate: Ocean Song event page &mdash; LoL Official Site</a></li>
       </ul>
     </aside>
   </article>}
@@ -174,6 +176,7 @@ const jsonLd = [
       <strong>官方来源</strong>
       <ul>
         <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">幸运之门·海之歌活动公告 — 英雄联盟官网</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">幸运之门·海之歌活动页面 — 英雄联盟官网</a></li>
       </ul>
     </aside>
   </article>}

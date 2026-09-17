@@ -742,6 +742,7 @@ describe('blog feature contract', () => {
     expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/')}");
     expect(page).toContain('class="official-source-link"');
     expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=17083628231197355254');
+    expect(page).toContain('https://lol.qq.com/act/a202609139891prizewheel/index.html');
     expect(page).toContain('mythic-tier skin');
     expect(page).toContain('神话品质');
     expect(page).toContain('<style is:global>');
