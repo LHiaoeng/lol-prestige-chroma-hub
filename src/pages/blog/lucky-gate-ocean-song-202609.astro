@@ -1,0 +1,188 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import type { Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'lucky-gate-ocean-song-202609');
+if (!article) throw new Error('Lucky Gate Ocean Song article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const sourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=17083628231197355254';
+
+const sorakaChroma = catalog.find((c) => c.heroId === '16' && c.skinNameEn === 'Ocean Song Soraka');
+const jinxChroma = catalog.find((c) => c.heroId === '222' && c.skinNameEn === 'Ocean Song Jinx');
+const yoneChroma = catalog.find((c) => c.heroId === '777' && c.skinNameEn === 'Ocean Song Yone');
+const catalogChromas: Chroma[] = [sorakaChroma, jinxChroma, yoneChroma].filter((c): c is Chroma => c != null);
+
+const faqEntries = isZh ? [
+  { question: '幸运之门·海之歌活动什么时候开始和结束？', answer: '活动时间为 2026 年 9 月 13 日至 10 月 11 日，在国服限时开放。' },
+  { question: '奖池里的海之歌臻彩和普通<a href="' + localizedPath(locale, '/blog/what-are-chroma-skins/') + '">炫彩</a>有什么区别？', answer: '臻彩是炫彩升级后的珍稀限时类型，拥有专属臻彩原画，但仍然依附于基础皮肤，不是一款独立皮肤。详见我们的<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">臻彩专题</a>。' },
+  { question: '幻灵战斗兔司令 厄运小姐是臻彩吗？', answer: '不是。幻灵战斗兔司令 厄运小姐是一款神话品质的完整皮肤，属于幻灵战队系列，和臻彩不是同一个层级。' },
+  { question: '这三款海之歌臻彩是最近才加入目录的吗？', answer: '索拉卡和金克丝的两款珍珠白钻石臻彩在 26.17 版本进入目录；永恩的「幻彩夜空」更早，所属版本为 26.8。' },
+] : [
+  { question: 'When does the Lucky Gate: Ocean Song event start and end?', answer: 'The event runs from September 13 to October 11, 2026 on the Chinese server.' },
+  { question: 'How are the Ocean Song prestige chromas different from regular <a href="' + localizedPath(locale, '/blog/what-are-chroma-skins/') + '">chroma skins</a>?', answer: 'Prestige chromas are upgraded, limited-time chromas with dedicated splash art, but they still attach to a base skin and are not standalone skins. See our <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">prestige chroma guide</a> for the full breakdown.' },
+  { question: 'Is Admiral Battle Bunny Miss Fortune a prestige chroma?', answer: 'No. Admiral Battle Bunny Miss Fortune is a mythic-tier complete skin from the Anima Squad skinline, a different tier from a chroma variant.' },
+  { question: 'Were these three Ocean Song chromas recently added to the archive?', answer: 'The two pearl-white Diamond chromas for Soraka and Jinx entered the catalog in Patch 26.17. Yone&rsquo;s Tanzanite entry is older, dated to Patch 26.8.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '海之歌召唤' : 'Ocean Song Summoning'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA SUMMON EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The Lucky Gate: Ocean Song summoning event is live from September 13 to October 11, 2026 on the Chinese server. Three Ocean Song prestige chromas &mdash; Soraka (Pearl), Jinx (Pearl), and Yone (Tanzanite) &mdash; join the wheel alongside the mythic Admiral Battle Bunny Miss Fortune skin.</p>
+      <p class="article-meta">
+        <span>By LoL Chroma Art Editorial Team</span><span>·</span>
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
+        <span>·</span>
+        <span>{article.readingMinutes} min read</span>
+      </p>
+    </header>
+
+    <figure>
+      <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt={article.coverAltEn} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>Ocean Song Yone (Tanzanite), one of three prestige chromas in the Lucky Gate wheel.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Three Ocean Song prestige chromas and one mythic skin</h2>
+      <p>The official announcement names four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our archive; the fourth is a complete skin rather than a <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma</a>. This is a new session of the Lucky Gate series that ran the <a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>Porcelain Charm wheel in August</a>, with its own prize pool.</p>
+      <BlogChromaGrid columns={3}>
+        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+      <p><strong>Ocean Song Soraka (Pearl)</strong> and <strong>Ocean Song Jinx (Pearl)</strong> share one pearl-white colourway and are both Diamond prestige chromas. They are part of the <a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>Patch 26.17 batch</a> that expanded the Ocean Song festival lineup, which is set under the Sunkissed Summer universe. <strong>Ocean Song Yone (Tanzanite)</strong> is a regular-tier prestige chroma from an earlier batch (Patch 26.8), with a deep violet colourway fitting the festival&rsquo;s night-stage mood.</p>
+      <p>The remaining headline reward is not a chroma:</p>
+      <ul>
+        <li><strong>Admiral Battle Bunny Miss Fortune</strong> &mdash; a mythic-tier skin for Miss Fortune from the Anima Squad skinline. It is a complete skin, so it does not require a base skin the way a chroma does.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>How the Lucky Gate wheel works</h2>
+      <p>Lucky Gate sessions use a self-select prize pool and a ticket-round structure: before summoning, players pick which rewards go into the pool, and drawing a round ticket advances the wheel while granting a random super reward. Sessions traditionally open with a discounted first summon. Each session has its own pool, draw price, and drop rates &mdash; the official announcement and event page for this Ocean Song session are the source for the exact costs and probabilities, so plan around those rather than the numbers from earlier sessions.</p>
+    </section>
+
+    <section>
+      <h2>Open through October 11, alongside the September Brilliant summon</h2>
+      <p>The Ocean Song wheel closes on October 11, 2026. Its window overlaps with the <a href={localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/')}>Brilliant Prestige Chroma Summoning session of September</a> (through October 4), but the two are separate event series with separate currencies and pools. Lucky Gate draws from a rotating wheel of prestige chromas and skins; the Brilliant session is built around self-select grand- and first-prize chroma pools. If you want rewards from both, treat the budgets as independent.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">Lucky Gate: Ocean Song announcement &mdash; LoL Official Site</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩召唤活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">2026 年 9 月 13 日至 10 月 11 日，幸运之门·海之歌召唤活动限时上线。海之歌 索拉卡 拾音、海之歌 金克丝 燥音两款珍珠白钻石臻彩，与海之歌 永恩 幻彩夜空臻彩一同进入奖池，另有神话皮肤幻灵战斗兔司令 厄运小姐。</p>
+      <p class="article-meta">
+        <span>LoL Chroma Art 编辑团队</span><span>·</span>
+        <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
+        <span>·</span>
+        <span>阅读约 {article.readingMinutes} 分钟</span>
+      </p>
+    </header>
+
+    <figure>
+      <img src={article.coverUrl} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt={article.coverAltZh} width="1920" height="1080" loading="eager" decoding="async" />
+      <figcaption>海之歌 永恩 幻彩夜空，本期幸运之门三款臻彩之一。</figcaption>
+    </figure>
+
+    <section>
+      <h2>三款海之歌臻彩，外加一款神话皮肤</h2>
+      <p>官方公告列出了四项重点奖励。其中三款是已收录在本站目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；第四项是一款完整皮肤，不是<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩</a>。本期是幸运之门系列的新一轮活动，奖池与 8 月的<a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>青瓷彩韵召唤</a>独立。</p>
+      <BlogChromaGrid columns={3}>
+        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+      <p><strong>海之歌 索拉卡 拾音</strong>和<strong>海之歌 金克丝 燥音</strong>使用同一组珍珠白配色，分类都是钻石臻彩，属于<a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>26.17 版本</a>扩充海之歌音乐节阵容时新增的条目，该系列隶属清凉盛夏宇宙。<strong>海之歌 永恩 幻彩夜空</strong>则是更早的 26.8 版本条目，分类为臻彩，深紫色配色对应音乐节的夜晚舞台氛围。</p>
+      <p>剩余一项重点奖励不是臻彩：</p>
+      <ul>
+        <li><strong>幻灵战斗兔司令 厄运小姐</strong> — 幻灵战队系列的神话品质皮肤。它是一款完整皮肤，不像炫彩那样需要先拥有基础皮肤。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>幸运之门玩法：自选奖池与门票轮次</h2>
+      <p>幸运之门系列采用自选奖池加门票轮次的结构：召唤前可以自行选择奖池内的奖励，抽中本轮门票后会获得一个幸运之门超级奖励并进入下一轮；系列活动通常以优惠价开启首次召唤。每一期的奖池、召唤价格和概率都独立设置，本期海之歌活动的具体费用与掉率以官方公告和活动页面为准，不要直接套用往期数字。</p>
+    </section>
+
+    <section>
+      <h2>持续至 10 月 11 日，与 9 月璀璨召唤并行</h2>
+      <p>本期海之歌召唤持续到 2026 年 10 月 11 日，活动窗口与进行中的<a href={localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/')}>9 月期璀璨臻彩召唤</a>（至 10 月 4 日）重叠，但两者是不同的活动系列，货币和奖池互不通用。幸运之门走轮转奖池抽奖，璀璨臻彩召唤以特等奖、一等奖自选臻彩为核心。如果两边的奖励都想要，建议按两笔独立预算规划。</p>
+    </section>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => <details><summary set:html={entry.question}></summary><p set:html={entry.answer}></p></details>)}
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">幸运之门·海之歌活动公告 — 英雄联盟官网</a></li>
+      </ul>
+    </aside>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{margin-top:48px;padding:20px 24px;border:1px solid var(--line);border-radius:8px;background:#11131e}.official-sources strong{display:block;color:#e6e8ee;font-size:.95rem;margin-bottom:10px}.official-sources ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}.official-source-link{color:var(--gold);text-decoration:none;font-size:.9rem}.official-source-link:hover{text-decoration:underline}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>

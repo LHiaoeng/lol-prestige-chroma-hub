@@ -18,6 +18,7 @@ describe('blog feature contract', () => {
     expect(card).toContain('labelZh?: string');
     for (const pagePath of [
       'src/pages/blog/full-gift-reward-prestige-chroma-202608.astro',
+      'src/pages/blog/canyon-peak-2026-split-2-rewards.astro',
       'src/pages/blog/champion-most-prestige-chromas.astro',
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/joy-club-peak-gala-202606.astro',
@@ -25,6 +26,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/kaisa-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-petals-of-spring-chromas-202607.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
+      'src/pages/blog/lucky-gate-ocean-song-202609.astro',
       'src/pages/blog/patch-26-15-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
@@ -46,6 +48,7 @@ describe('blog feature contract', () => {
   it('links every verified official prestige chroma source in both languages', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     const officialUrls = [
+      'https://lol.qq.com/act/a202609170214tendraws36/index.html',
       'https://lol.qq.com/act/a202608077548tendraws34/index.html',
       'https://lol.qq.com/act/a202609047293tendraws35/index.html',
       'https://lol.qq.com/act/a202607034771tendraws31/index.html',
@@ -57,11 +60,12 @@ describe('blog feature contract', () => {
       'https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898',
     ];
     for (const url of officialUrls) expect(page.split(url)).toHaveLength(3);
-    expect(page.match(/class="official-source-link"/g)).toHaveLength(18);
-    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(18);
+    expect(page.match(/class="official-source-link"/g)).toHaveLength(20);
+    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(20);
     for (const label of [
       'Official acquisition sources',
       'Official cultural sources',
+      'Brilliant Prestige Summoning — Session 202621',
       'Brilliant Prestige Summoning — August 2026',
       'Brilliant Prestige Summoning — September 2026',
       'Brilliant Prestige Summoning — July 2026',
@@ -73,6 +77,7 @@ describe('blog feature contract', () => {
       'Panda Lux Prestige Chroma charity project',
       '官方获取来源',
       '官方文化来源',
+      '璀璨臻彩召唤 — 第 202621 期',
       '璀璨臻彩召唤 — 2026 年 8 月',
       '璀璨臻彩召唤 — 2026 年 9 月',
       '璀璨臻彩召唤 — 2026 年 7 月',
@@ -110,6 +115,7 @@ describe('blog feature contract', () => {
     expect(component).toContain('@media (max-width:767px)');
     for (const pagePath of [
       'src/pages/blog/full-gift-reward-prestige-chroma-202608.astro',
+      'src/pages/blog/canyon-peak-2026-split-2-rewards.astro',
       'src/pages/blog/patch-26-15-prestige-chromas.astro',
       'src/pages/blog/kaisa-prestige-chroma.astro',
       'src/pages/blog/champions-without-prestige-chroma.astro',
@@ -129,6 +135,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/patch-26-18-prestige-chromas.astro',
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
+      'src/pages/blog/lucky-gate-ocean-song-202609.astro',
       'src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro',
     ]) {
       const page = source(pagePath);
@@ -715,6 +722,55 @@ describe('blog feature contract', () => {
     ]) expect(page).toContain(heading);
   });
 
+  it('renders a complete localized Lucky Gate Ocean Song article', () => {
+    const page = source('src/pages/blog/lucky-gate-ocean-song-202609.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=17083628231197355254');
+    expect(page).toContain('mythic-tier skin');
+    expect(page).toContain('神话品质');
+    expect(page).toContain('<style is:global>');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).toContain('<BlogChromaGrid columns={3}>');
+    expect(page).not.toContain('imageUrl(chroma.images.medium)');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/<figure>/g)).toHaveLength(2);
+    expect(page).toContain('article.coverUrl');
+    expect(page).toContain("heroId === '16'");
+    expect(page).toContain("heroId === '222'");
+    expect(page).toContain("heroId === '777'");
+    expect(page).toContain("'Ocean Song Soraka'");
+    expect(page).toContain("'Ocean Song Jinx'");
+    expect(page).toContain("'Ocean Song Yone'");
+    for (const heading of [
+      'Three Ocean Song prestige chromas and one mythic skin',
+      'How the Lucky Gate wheel works',
+      'Open through October 11, alongside the September Brilliant summon',
+      '三款海之歌臻彩，外加一款神话皮肤',
+      '幸运之门玩法：自选奖池与门票轮次',
+      '持续至 10 月 11 日，与 9 月璀璨召唤并行',
+    ]) expect(page).toContain(heading);
+  });
+
   it('renders a complete localized Heartsong Seraphine launch article', () => {
     const page = source('src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro');
     expect(page).toContain("'@type': 'BlogPosting'");
@@ -808,6 +864,46 @@ describe('blog feature contract', () => {
       '参与规则要点',
       '往期活动',
       '臻彩需要原皮肤',
+    ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete localized Canyon Peak 2026 Split 2 rewards article', () => {
+    const page = source('src/pages/blog/canyon-peak-2026-split-2-rewards.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
+    expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('target="_blank" rel="noreferrer"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=16574079340694607129');
+    expect(page).toContain('https://lol.qq.com/act/a20180929awards/index.html');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogChromaCard from '../../components/BlogChromaCard.astro'");
+    expect(page).toContain('sourceImageUrl');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('<style is:global>');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(1);
+    expect(page.match(/<details>/g)).toHaveLength(1);
+    expect(page).toContain('faqEntries.map');
+    expect(page).toContain("const rewardChroma = catalog.find(");
+    expect(page).toContain("heroId === '84'");
+    expect(page).toContain("'Headhunter Akali'");
+    expect(page).toContain("'Headhunter Akali (Pearl)'");
+    for (const heading of [
+      'Top 2000 by LP get the chroma',
+      'Distribution timeline and how to claim',
+      'The reward chroma: Headhunter Akali (Pearl)',
+      '前 2000 名的排位奖励',
+      '发放时间与领取方式',
+      '奖励臻彩：铁血女忍 阿卡丽 斩魂粉樱',
     ]) expect(page).toContain(heading);
   });
 });

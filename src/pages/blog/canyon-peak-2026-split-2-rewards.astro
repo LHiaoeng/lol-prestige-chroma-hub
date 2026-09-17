@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'canyon-peak-2026-split-2-rewards');
+if (!article) throw new Error('Canyon Peak 2026 Split 2 rewards article metadata is missing');
+const sourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=16574079340694607129';
+const splitEndDate = '2026-07-29';
+const distributionStartDate = '2026-09-11';
+const qualifierCount = 2000;
+const splitEndLabel = splitEndDate.replace(/-/g, '/');
+const distributionStartLabel = distributionStartDate.replace(/-/g, '/');
+const galaStartLabel = '2026/09/01';
+const galaEndLabel = '2026/09/30';
+const rewardChroma = catalog.find(
+  (item) => item.heroId === '84' && item.skinNameEn === 'Headhunter Akali' && item.nameEn === 'Headhunter Akali (Pearl)',
+);
+if (!rewardChroma) throw new Error('Headhunter Akali (Pearl) reward chroma is missing from catalog');
+const rewardChromaUrl = localizedPath(locale, `/chromas/${rewardChroma.slug}/`);
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const faqEntries = isZh ? [
+  { question: '峡谷之巅 2026 第二赛段的奖励怎么领取？', answer: `结算时胜点排名前 ${qualifierCount.toLocaleString()} 名的召唤师会收到奖励。峡谷之巅大区角色将自动获得道具；其他大区角色需要前往<a href="https://lol.qq.com/act/a20180929awards/index.html" target="_blank" rel="noreferrer">官方领取中心</a>选择大区领取。从 ${distributionStartDate} 起陆续发放，请留意游戏内消息盒子通知。` },
+  { question: '「铁血女忍 阿卡丽 斩魂粉樱」是一款新臻彩吗？', answer: `不是新加入目录的臻彩。这款臻彩在国服的臻彩体系中早已存在（目录备注的所属版本为 ${rewardChroma.gameVer}），本次只是通过峡谷之巅赛段奖励的渠道再次发放。它仍然依附于基础皮肤「铁血女忍 阿卡丽」，使用前需要先拥有基础皮肤，详见我们的<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">臻彩专题</a>。` },
+  { question: '没有打到前 2000 名还能获得这款臻彩吗？', answer: `公告明确提到，「铁血女忍 阿卡丽 斩魂粉樱」后续也将通过其他运营活动获得，敬请期待。本站不擅自预测具体活动、概率或开放时间，请以官方后续公告为准。` },
+] : [
+  { question: 'How do I claim the Canyon Peak 2026 Split 2 rewards?', answer: `Players ranked in the top ${qualifierCount.toLocaleString()} by LP at settlement receive the rewards. Canyon Peak region characters get the items automatically; characters on other major regions must claim via the <a href="https://lol.qq.com/act/a20180929awards/index.html" target="_blank" rel="noreferrer">official reward center</a> by selecting a region. Distribution begins ${distributionStartDate} on a rolling basis — watch the in-game message box for the notification.` },
+  { question: 'Is Headhunter Akali (Pearl) a new prestige chroma?', answer: `No, it is not a new catalog entry. This chroma has been part of the China Server prestige system for some time (the archive records its joining version as ${rewardChroma.gameVer}); this Canyon Peak reward is simply a new distribution channel. It still attaches to the base skin Headhunter Akali and requires owning that skin first — see our <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chroma guide</a> for details.` },
+  { question: 'Can I still get this chroma if I missed the top 2000?', answer: `The announcement explicitly states that Headhunter Akali (Pearl) will also be obtainable through future operating activities. This site does not predict specific events, odds, or dates — please refer to official future announcements.` },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(rewardChroma.images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '峡谷之巅, 2026 第二赛段, 臻彩, 铁血女忍 阿卡丽, 斩魂粉樱, 赛段奖励, 英雄联盟' : 'Canyon Peak, 2026 Split 2, prestige chroma, Headhunter Akali, Pearl, ranked reward, League of Legends',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList',
+    name: isZh ? '峡谷之巅 2026 第二赛段奖励臻彩' : 'Canyon Peak 2026 Split 2 reward chromas',
+    numberOfItems: 1,
+    itemListElement: [{
+      '@type': 'ListItem', position: 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: isZh ? rewardChroma.nameZh : rewardChroma.nameEn,
+        url: new URL(rewardChromaUrl, SITE.origin).toString(),
+        image: imageUrl(rewardChroma.images.large),
+      },
+    }],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={imageUrl(rewardChroma.images.large)} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a>
+    <span>/</span>
+    <a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
+    <span>/</span>
+    <span aria-current="page">{isZh ? '峡谷之巅 2026 第二赛段' : 'Canyon Peak 2026 Split 2'}</span>
+  </nav>
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '排位赛段奖励 · 臻彩' : 'RANKED SPLIT REWARD · PRESTIGE CHROMA'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? <>峡谷之巅 2026 第二赛段已于 {splitEndLabel} 23:00 结束，胜点前 {qualifierCount.toLocaleString()} 名召唤师可获得「铁血女忍 阿卡丽 斩魂粉樱」臻彩、专属图标和表情。{distributionStartLabel} 起陆续发放，这款臻彩后续也会通过其他运营活动获取。</> : <>The Canyon Peak super zone's 2026 Split 2 ended on {splitEndLabel} at 23:00. The top {qualifierCount.toLocaleString()} players by LP receive Headhunter Akali (Pearl) prestige chroma plus an exclusive icon and emoji. Distribution begins {distributionStartLabel} on a rolling basis, and the chroma will also appear in future events.</>}</p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? <>阅读约 {article.readingMinutes} 分钟</> : <>{article.readingMinutes} min read</>}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={rewardChromaUrl} aria-label={isZh ? `查看 ${rewardChroma.nameZh} 详情` : `View ${rewardChroma.nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(rewardChroma.images.medium)} data-fallback={sourceImageUrl('medium', rewardChroma.instanceId)} />
+          <img src={imageUrl(rewardChroma.images.large)} data-fallback={sourceImageUrl('large', rewardChroma.instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${rewardChroma.nameZh}臻彩原画` : `${rewardChroma.nameEn} prestige chroma splash art`} data-alt-en={`${rewardChroma.nameEn} prestige chroma splash art`} data-alt-zh={`${rewardChroma.nameZh}臻彩原画`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? rewardChroma.nameZh : rewardChroma.nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '前 2000 名的排位奖励' : 'Top 2000 by LP get the chroma'}</h2>
+      {isZh ? <><p>「峡谷之巅」是中国大陆服面向顶尖召唤师的超级专区。2026 第二赛段已于 {splitEndLabel} 23:00 结束，官方按结算时的胜点排名发放奖励，胜点前 {qualifierCount.toLocaleString()} 名可领取本期专属臻彩<strong>「铁血女忍 阿卡丽 斩魂粉樱」</strong>，以及峡谷之巅专属图标和表情。</p><p>这是排位赛段奖励，不是召唤活动或消费活动，和<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>体系里的其他获取渠道并列存在。同样是赛事奖励渠道的还有 8 月开始的<a href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}>海斗大赛「源计划：孤狼 贾克斯 海斗大赛限定」</a>，那是 15 胜免费领的赛事臻彩；本次则是按排位胜点排名发放。</p></> : <><p>The "Canyon Peak" super zone on the China Server is reserved for the highest-ranked summoners. The 2026 Split 2 ended on {splitEndLabel} at 23:00, and rewards are issued based on LP rank at settlement. The top {qualifierCount.toLocaleString()} players receive the prestige chroma <strong>{rewardChroma.nameEn}</strong>, plus a Canyon Peak-exclusive icon and emoji.</p><p>This is a ranked-split reward — not a summoning event or a spending event — and it sits alongside other acquisition channels in the <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> system. The closest parallel is August's <a href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}>Challenger: Mayhem PROJECT: Jax chroma</a>, which is also a tournament-style reward earned by play, not by luck or spend.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '发放时间与领取方式' : 'Distribution timeline and how to claim'}</h2>
+      {isZh ? <><p>官方公告确认：<strong>从 {distributionStartLabel} 起陆续发放</strong>，请留意游戏内消息盒子通知。峡谷之巅大区角色会自动获得道具；其他大区角色需要前往<a href="https://lol.qq.com/act/a20180929awards/index.html" target="_blank" rel="noreferrer">官方领取中心</a>选择大区领取，奖励可以领取到峡谷之巅之外的任意大区。</p><p>同时段的另一条消费发放渠道是<a href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}>心悦巅峰盛典第 202608 期</a>：在 {galaStartLabel}—{galaEndLabel} 期间累计 50 万巅峰值也能领取一款专属臻彩。两条渠道面向不同玩家群体，互不冲突。</p></> : <><p>The official announcement confirms: <strong>distribution begins on {distributionStartLabel} on a rolling basis</strong>. Watch the in-game message box for the notification. Canyon Peak region characters receive the items automatically; characters on other major regions must visit the <a href="https://lol.qq.com/act/a20180929awards/index.html" target="_blank" rel="noreferrer">official reward center</a> and select a region to claim — the reward can be claimed to any major region outside Canyon Peak.</p><p>A parallel spending-based distribution channel running in the same window is the <a href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}>Joy Club Peak Gala Session 202608</a>: spend 500,000 peak value between {galaStartLabel} and {galaEndLabel} to claim an exclusive chroma. The two channels target different player groups and do not conflict.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '奖励臻彩：铁血女忍 阿卡丽 斩魂粉樱' : 'The reward chroma: Headhunter Akali (Pearl)'}</h2>
+      {isZh ? <><p><strong>「{rewardChroma.nameZh}」</strong>依附于基础皮肤「{rewardChroma.skinNameZh}」，隶属铁血猎手宇宙，以粉白色配色区别于原版铁血女忍。这款臻彩并非本次赛段才进入臻彩体系——目录备注的所属版本为 {rewardChroma.gameVer}，本次只是通过峡谷之巅赛段奖励的渠道再次发放。官方公告也明确提到，「铁血女忍 阿卡丽 斩魂粉樱」后续也将通过其他运营活动获得。</p><p>这款臻彩与本站图鉴中已收录的条目完全对应，点击下方卡片即可进入<a href={rewardChromaUrl}>详情页</a>查看原画与配色。</p></> : <><p><strong>{rewardChroma.nameEn}</strong> attaches to the base skin {rewardChroma.skinNameEn} within the Headhunter universe, distinguishable from the original Headhunter Akali by its pearl-pink colourway. This chroma is not a new entry to the prestige system — the archive records its joining version as {rewardChroma.gameVer}, and the Canyon Peak split reward is a new distribution channel rather than a debut. The announcement also notes that Headhunter Akali (Pearl) will be obtainable through future operating activities.</p><p>The chroma matches an existing entry in this archive. Select the card below to open the <a href={rewardChromaUrl}>detail page</a> for the splash art and colour palette.</p></>}
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={rewardChroma} {locale} />
+      </BlogChromaGrid>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '官方来源' : 'Official source'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '峡谷之巅 2026 第二赛段奖励公告（2026 年 9 月 11 日）' : 'Canyon Peak 2026 Split 2 Reward Announcement (September 11, 2026)'}</a></li>
+        <li><a class="official-source-link" href="https://lol.qq.com/act/a20180929awards/index.html" target="_blank" rel="noreferrer">{isZh ? '英雄联盟官方领取中心' : 'League of Legends Official Reward Center'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.blog-article>aside{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.article-hero img{height:auto}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.blog-article aside.official-sources{margin-top:48px;border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:.92rem}.blog-article aside.official-sources ul{margin:10px 0 0;padding-left:18px}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}}
+  </style>
+</BaseLayout>

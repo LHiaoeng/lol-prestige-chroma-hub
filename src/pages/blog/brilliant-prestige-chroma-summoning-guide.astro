@@ -14,7 +14,7 @@ const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const article = blogArticles.find((entry) => entry.slug === 'brilliant-prestige-chroma-summoning-guide');
 if (!article) throw new Error('Brilliant Prestige Chroma Summoning guide metadata is missing');
-const currentArticle = blogArticles.find((entry) => entry.slug === 'prestige-chroma-summon-september-2026');
+const currentArticle = blogArticles.find((entry) => entry.slug === 'prestige-chroma-summon-2026-21');
 if (!currentArticle) throw new Error('Current Brilliant Prestige Chroma Summoning article metadata is missing');
 const maintenance = evergreenGuideMaintenance['brilliant-prestige-chroma-summoning-guide'];
 const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
@@ -22,14 +22,14 @@ const description = isZh ? article.summaryZh : article.summaryEn;
 const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
-const currentSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/');
-const previousSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/');
+const currentSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-2026-21/');
+const previousSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/');
+const augustSessionUrl = localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/');
 const prestigeGuideUrl = localizedPath(locale, '/blog/what-are-prestige-chromas/');
-const catalogUrl = localizedPath(locale, '/');
-const currentSession = brilliantSummonSessions.find((session) => session.sessionId === '202620');
+const currentSession = brilliantSummonSessions.find((session) => session.sessionId === '202621');
 if (!currentSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
-const septemberDrawCosts = currentSession.drawCosts;
-const septemberTotalCost = septemberDrawCosts.reduce((sum, cost) => sum + cost, 0);
+const currentDrawCosts = currentSession.drawCosts;
+const currentTotalCost = currentDrawCosts.reduce((sum, cost) => sum + cost, 0);
 const relatedSummonChromaNames = new Set(brilliantSummonSessions.flatMap((session) => session.rewards.map((reward) => reward.chromaNameEn)));
 const relatedSummonChromas = catalog.filter((chroma) => relatedSummonChromaNames.has(chroma.nameEn));
 
@@ -96,7 +96,7 @@ const jsonLd = [
 
     <section>
       <h2>Read the current session first</h2>
-      <p>Start with the official event page for the session you are considering. Our <a href={currentSessionUrl}>September 2026 session article</a> is a worked example, not a promise that future sessions will use the same rewards or prices. Check the official page for the opening window, eligible account, payment channel, prize names, probabilities, and final claiming deadline.</p>
+      <p>Start with the official event page for the session you are considering. Our <a href={currentSessionUrl}>Session 202621 article</a> is a worked example, not a promise that future sessions will use the same rewards or prices. Check the official page for the opening window, eligible account, payment channel, prize names, probabilities, and final claiming deadline.</p>
       <ul>
         <li>Confirm that the activity is for the China Server and that your account is eligible.</li>
         <li>Confirm the Server Region bound to the account before the first draw.</li>
@@ -107,7 +107,7 @@ const jsonLd = [
 
     <figure class="session-example">
       <img src={currentArticle.coverUrl} alt={currentArticle.coverAltEn} width="1920" height="1080" loading="lazy" decoding="async" />
-      <figcaption>The September 2026 reward art is a dated example; use the <a href={currentSessionUrl}>session coverage</a> and official source for its rules.</figcaption>
+      <figcaption>The Session 202621 reward art is a dated example; use the <a href={currentSessionUrl}>session coverage</a> and official source for its rules.</figcaption>
     </figure>
 
     <section>
@@ -133,9 +133,9 @@ const jsonLd = [
     <section>
       <h2>Budgeting the cost and odds</h2>
       <p>There is no universal price for a Brilliant Prestige Chroma Summoning session. One run may use points with a cash-equivalent price, while another may use a different currency or a different price curve. A first draw can be discounted, and later draws can cost more.</p>
-      <p>When an activity shows points beside an RMB amount, treat the RMB figure as that session's display equivalent, not a permanent exchange rate. The September 2026 example lists 1,200 points as 12 RMB for its first summon; bundles, later prices, and payment channels still belong to that dated session.</p>
-      <p>For a complete worked example, Session 202620 lists the following ten draw costs. Adding the rows gives {septemberTotalCost.toLocaleString('en-US')} points, shown as 570 RMB for the full round; this is a dated example, not a universal price list.</p>
-      <table class="guide-table"><caption>September 2026 Session 202620 cost example</caption><thead><tr><th>Draw</th><th>Points</th><th>RMB display</th></tr></thead><tbody>{septemberDrawCosts.map((cost, index) => <tr><td>{index + 1}</td><td>{cost.toLocaleString('en-US')}</td><td>{(cost / 100).toFixed(0)} RMB</td></tr>)}</tbody><tfoot><tr><th>All ten</th><th>{septemberTotalCost.toLocaleString('en-US')}</th><th>570 RMB</th></tr></tfoot></table>
+      <p>When an activity shows points beside an RMB amount, treat the RMB figure as that session's display equivalent, not a permanent exchange rate. Session 202621 lists 1,200 points as 12 RMB for its first summon; bundles, later prices, and payment channels still belong to that dated session.</p>
+      <p>For a complete worked example, Session 202621 lists the following ten draw costs. Adding the rows gives {currentTotalCost.toLocaleString('en-US')} points, shown as 570 RMB for the full round; this is a dated example, not a universal price list.</p>
+      <table class="guide-table"><caption>Session 202621 cost example</caption><thead><tr><th>Draw</th><th>Points</th><th>RMB display</th></tr></thead><tbody>{currentDrawCosts.map((cost, index) => <tr><td>{index + 1}</td><td>{cost.toLocaleString('en-US')}</td><td>{(cost / 100).toFixed(0)} RMB</td></tr>)}</tbody><tfoot><tr><th>All ten</th><th>{currentTotalCost.toLocaleString('en-US')}</th><th>570 RMB</th></tr></tfoot></table>
       <p>Before paying, write down the cost of the draws you are actually willing to make. A “complete run” total is a ceiling, not a recommendation. Compare the official probability table with the rewards you already own, and remember that owning the corresponding <em>Base Skin</em> is normally required to use a Prestige Chroma.</p>
       <p>For the probability arithmetic, use the remaining-weight rule stated by the session: an item's next chance is its remaining weight divided by the total weight still in the pool. A simple equal-weight illustration is 33.3% each for three items, then 50% each after one item is removed; the actual session uses its published tier weights, so do not substitute this illustration for the official table.</p>
       <p>Do not convert a historical rate into a guaranteed expected result. The useful comparison is the current session's pool, current price, current eligibility, and your own collection goal.</p>
@@ -143,24 +143,22 @@ const jsonLd = [
 
     <section>
       <h2>Rewards, delivery, and time limits</h2>
-      <p>Rewards are tied to the account and Server Region stated in the session rules. In Session 202620, one QQ account can participate in one bound Server Region, and the binding cannot be switched after the first summon. Verify it before paying; a future session may phrase its lock differently, so always read that session's rule text.</p>
+      <p>Rewards are tied to the account and Server Region stated in the session rules. In Session 202621, one QQ account can participate in one bound Server Region, and the binding cannot be switched after the first summon. Verify it before paying; a future session may phrase its lock differently, so always read that session's rule text.</p>
       <p>Delivery follows the same session-specific boundary: normal skin items and currencies go to the bound region. The August 2026 announcement adds an exception for its random-skin chest: it prioritises skins not unlocked in the bound region, and if all are unlocked, the random result can be sent to an unowned region. Holy Temple Fire is delivered to the bound region's Loot tab. Treat that exception as an August rule unless the current page repeats it.</p>
       <p>Keep the activity page open until the result and any separate claim step are confirmed.</p>
       <p>Record the event's start and end times in the timezone shown by the official page. A draw deadline, a claim deadline, and an exclusivity window can be different dates. The single-session article records those values for its own run; this guide deliberately avoids presenting them as permanent rules.</p>
     </section>
 
     <section>
-      <h2>Where this fits in a collection</h2>
-      <p>A Prestige Chroma is a chroma attached to an existing skin with its own Prestige Chroma Splash Art. Use the <a href={prestigeGuideUrl}>Prestige Chroma guide</a> for the collection vocabulary, then browse the <a href={catalogUrl}>catalog archive</a> to compare artwork and base skins. The catalog is a reference archive, while this page explains the acquisition journey.</p>
-      <ul><li>Related catalogue entries: {relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameEn}</a>{index < relatedSummonChromas.length - 1 ? ', ' : ''}</>)}</li></ul>
-      <p>For a current prize pool, follow the <a href={currentSessionUrl}>September 2026 session article</a>. For an older example, read the <a href={previousSessionUrl}>August 2026 session article</a> and compare its dates and rules instead of merging several sessions into one “standard” table.</p>
+      <h2>Related artwork</h2>
+      <p>Catalogue entries for the Prestige Chromas featured across the documented sessions:</p>
+      <ul><li>{relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameEn}</a>{index < relatedSummonChromas.length - 1 ? ', ' : ''}</>)}</li></ul>
     </section>
 
     <section>
       <h2>Current and historical sessions</h2>
-      <p>These dated pages make rule changes visible without turning a historical price into a future promise. The editorial comparison below is a summary of those two pages, not a new official rule:</p>
-      <table class="guide-table history-table"><caption>What changed between the two documented sessions</caption><thead><tr><th>Session</th><th>Featured self-select examples</th><th>Cost shape</th><th>Pool, odds, and notable rule</th></tr></thead><tbody><tr><td>August 2026 · 202619</td><td>Battle Academia Xayah (Sapphire); Lunar Empress Ashe (Rose Quartz)</td><td>12 RMB per summon</td><td>10 items; Grand 0.5%, First 1% initially; one post-opening pool adjustment</td></tr><tr><td>September 2026 · 202620</td><td>Spirit Blossom Akali (Pearl); Soul Fighter Gwen (Sapphire)</td><td>1,200 → 18,000 points; 570 RMB for ten</td><td>10 items; no duplicates and remaining odds rise; binding locks after first summon</td></tr></tbody></table>
-      <ul><li><a href={currentSessionUrl}>September 2026 — Session 202620</a></li><li><a href={previousSessionUrl}>August 2026 — Session 202619</a></li></ul>
+      <p>Each documented session keeps its own dates and reward pool. The list below is ordered newest to oldest; follow a session's article for its full rules and costs.</p>
+      <table class="guide-table history-table"><caption>Documented Brilliant Prestige Chroma Summoning sessions</caption><thead><tr><th>Session</th><th>Featured self-select examples</th><th>Activity window</th><th>Official page</th></tr></thead><tbody><tr><td><a href={currentSessionUrl}>Session 202621</a></td><td>Dumpling Darlings Syndra (Pearl); Faerie Court Ezreal (Rose Quartz)</td><td>Sep 17 – Oct 18, 2026</td><td><a href="https://lol.qq.com/act/a202609170214tendraws36/index.html" target="_blank" rel="noopener">Tencent event page</a></td></tr><tr><td><a href={previousSessionUrl}>Session 202620</a></td><td>Spirit Blossom Akali (Pearl); Soul Fighter Gwen (Sapphire)</td><td>Sep 4 – Oct 4, 2026</td><td><a href="https://lol.qq.com/act/a202609047293tendraws35/index.html" target="_blank" rel="noopener">Tencent event page</a></td></tr><tr><td><a href={augustSessionUrl}>Session 202619</a></td><td>Battle Academia Xayah (Sapphire); Lunar Empress Ashe (Rose Quartz)</td><td>Aug 7 – Sep 6, 2026</td><td><a href="https://lol.qq.com/act/a202608077548tendraws34/index.html" target="_blank" rel="noopener">Tencent event page</a></td></tr></tbody></table>
     </section>
 
     <section class="faq">
@@ -195,7 +193,7 @@ const jsonLd = [
 
     <section>
       <h2>先核对当前期活动页</h2>
-      <p>决定参与前，先打开当期官方活动页。<a href={currentSessionUrl}>2026 年 9 月活动文章</a>只是带解释的参考实例，不代表下一期沿用同样的奖励或价格。开放时间、账号资格、支付渠道、奖池名称、概率和领奖截止时间，都以官方页面为准。</p>
+      <p>决定参与前，先打开当期官方活动页。<a href={currentSessionUrl}>第 202621 期活动文章</a>只是带解释的参考实例，不代表下一期沿用同样的奖励或价格。开放时间、账号资格、支付渠道、奖池名称、概率和领奖截止时间，都以官方页面为准。</p>
       <ul>
         <li>确认活动属于国服，且自己的账号符合参与条件。</li>
         <li>第一次召唤前确认账号绑定的大区。</li>
@@ -206,7 +204,7 @@ const jsonLd = [
 
     <figure class="session-example">
       <img src={currentArticle.coverUrl} alt={currentArticle.coverAltZh} width="1920" height="1080" loading="lazy" decoding="async" />
-      <figcaption>2026 年 9 月奖励原画只是带日期的示例；规则请以<a href={currentSessionUrl}>该期活动文章</a>和官方来源为准。</figcaption>
+      <figcaption>第 202621 期奖励原画只是带日期的示例；规则请以<a href={currentSessionUrl}>该期活动文章</a>和官方来源为准。</figcaption>
     </figure>
 
     <section>
@@ -232,9 +230,9 @@ const jsonLd = [
     <section>
       <h2>如何估算成本与概率？</h2>
       <p>璀璨臻彩召唤没有固定价格。有的期数用点券或积分，并标出人民币等价；有的期数换一种货币或价格曲线。首次召唤常有优惠，越往后越贵。</p>
-      <p>活动同时标出积分和人民币时，人民币只是这期的展示等价，不是固定汇率。2026 年 9 月这期首次召唤标为 1200 积分（12 元）；礼包、后续价格和支付渠道仍以当期页面为准。</p>
-      <p>以第 202620 期为例，十次价格依次为 1200、1800、2400、3000、3600、4200、4800、6000、12000、18000 点券，合计 {septemberTotalCost.toLocaleString('en-US')} 点券（页面标为 570 元）。这只是这期的价格，不是各期通用的价目表。</p>
-      <table class="guide-table"><caption>2026 年 9 月第 202620 期价格示例</caption><thead><tr><th>第几次</th><th>点券</th><th>展示等价</th></tr></thead><tbody>{septemberDrawCosts.map((cost, index) => <tr><td>{index + 1}</td><td>{cost.toLocaleString('en-US')}</td><td>{(cost / 100).toFixed(0)} 元</td></tr>)}</tbody><tfoot><tr><th>十次合计</th><th>{septemberTotalCost.toLocaleString('en-US')}</th><th>570 元</th></tr></tfoot></table>
+      <p>活动同时标出积分和人民币时，人民币只是这期的展示等价，不是固定汇率。第 202621 期首次召唤标为 1200 积分（12 元）；礼包、后续价格和支付渠道仍以当期页面为准。</p>
+      <p>以第 202621 期为例，十次价格依次为 1200、1800、2400、3000、3600、4200、4800、6000、12000、18000 点券，合计 {currentTotalCost.toLocaleString('en-US')} 点券（页面标为 570 元）。这只是这期的价格，不是各期通用的价目表。</p>
+      <table class="guide-table"><caption>第 202621 期价格示例</caption><thead><tr><th>第几次</th><th>点券</th><th>展示等价</th></tr></thead><tbody>{currentDrawCosts.map((cost, index) => <tr><td>{index + 1}</td><td>{cost.toLocaleString('en-US')}</td><td>{(cost / 100).toFixed(0)} 元</td></tr>)}</tbody><tfoot><tr><th>十次合计</th><th>{currentTotalCost.toLocaleString('en-US')}</th><th>570 元</th></tr></tfoot></table>
       <p>付费前先定好自己能接受的次数和预算。“抽完整轮”的总价只是预算上限，不是建议。再对照当期奖池和已拥有的皮肤——臻彩通常要先拥有对应的<strong>基础皮肤</strong>才能用。</p>
       <p>概率可以按“剩余权重 ÷ 剩余总权重”算。举个最简单的例子：三个奖项权重相同，一开始各 33.3%，抽走一个后剩下两个各 50%。实际活动用官方公布的分层权重，这个例子不能替代概率表。</p>
       <p>别拿历史价格或概率推算未来。值得比较的只有四样：当期奖池、当期价格、参与资格，以及自己的收藏目标。</p>
@@ -242,24 +240,22 @@ const jsonLd = [
 
     <section>
       <h2>奖励发放与时间限制</h2>
-      <p>奖励按活动规则发到账号绑定的大区。第 202620 期写明单个 QQ 账号只能绑定一个参与大区，第一次召唤后不能更换，付费前务必确认。未来期数的锁定措辞可能不同，仍以当期页面为准。</p>
+      <p>奖励按活动规则发到账号绑定的大区。第 202621 期写明单个 QQ 账号只能绑定一个参与大区，第一次召唤后不能更换，付费前务必确认。未来期数的锁定措辞可能不同，仍以当期页面为准。</p>
       <p>普通皮肤道具和货币一般发到绑定大区。第 202619 期公告另有说明：随机皮肤宝箱优先开出绑定大区未解锁的皮肤；如果绑定大区已全部解锁，可以选一个尚未拥有该皮肤的大区发放；圣堂花火直接进入绑定大区客户端的「战利品」。这些是 202619 期的特例，不要自动套到后续期数。</p>
       <p>在活动页确认结果、完成额外领取步骤后，再关页面。</p>
       <p>按官方页面显示的时区记下开始和结束时间。活动结束、召唤截止、领奖截止、独享期可能是四个不同日期。单期文章只记当期的日子，别把它们当成固定规则。</p>
     </section>
 
     <section>
-      <h2>它和臻彩图鉴有什么关系？</h2>
-      <p>臻彩依附于基础皮肤，又有自己的臻彩原画。先读<a href={prestigeGuideUrl}>什么是臻彩？</a>弄清术语，再到<a href={catalogUrl}>臻彩原画图鉴</a>核对原画和基础皮肤：图鉴管查阅，本页讲获取。</p>
-      <ul><li>相关图鉴条目：{relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameZh}</a>{index < relatedSummonChromas.length - 1 ? '、' : ''}</>)}</li></ul>
-      <p>当期奖池看<a href={currentSessionUrl}>2026 年 9 月活动文章</a>；往期对比读<a href={previousSessionUrl}>2026 年 8 月活动文章</a>。逐期看日期和规则，别把几期拼成一张“固定奖池表”。</p>
+      <h2>相关臻彩原画</h2>
+      <p>各期活动出现过的臻彩原画图鉴条目：</p>
+      <ul><li>{relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameZh}</a>{index < relatedSummonChromas.length - 1 ? '、' : ''}</>)}</li></ul>
     </section>
 
     <section>
       <h2>当前期与往期入口</h2>
-      <p>下面两篇文章都标了具体日期，方便对比规则变化，也避免把历史价格当成未来报价。两期差异汇总如下：</p>
-      <table class="guide-table history-table"><caption>两期已记录活动的差异</caption><thead><tr><th>期数</th><th>自选奖励示例</th><th>价格结构</th><th>奖池、概率与显著规则</th></tr></thead><tbody><tr><td>2026 年 8 月 · 202619</td><td>战斗学院 霞 天马；春晖神女 艾希 轻云蔽月</td><td>每次 12 元</td><td>10 个奖品；特等奖 0.5%、一等奖 1% 初始概率；开启后还能调整一次</td></tr><tr><td>2026 年 9 月 · 202620</td><td>灵魂莲华 阿卡丽 朝花；斗魂觉醒 格温 狡之魂焰</td><td>1200 → 18000 点券；十次 570 元</td><td>10 个奖品；一轮内不重复、剩余概率提升；首次召唤后锁定大区</td></tr></tbody></table>
-      <ul><li><a href={currentSessionUrl}>2026 年 9 月 — 第 202620 期</a></li><li><a href={previousSessionUrl}>2026 年 8 月 — 第 202619 期</a></li></ul>
+      <p>每一期都有独立的开放时间与奖池。下表按从新到旧排列；完整规则与价格请查看对应期数的文章。</p>
+      <table class="guide-table history-table"><caption>已记录的璀璨臻彩召唤期数</caption><thead><tr><th>期数</th><th>自选奖励示例</th><th>活动起止时间</th><th>官方活动页</th></tr></thead><tbody><tr><td><a href={currentSessionUrl}>第 202621 期</a></td><td>点心宝贝 辛德拉 芥菜点心；花仙贵族 伊泽瑞尔 玫瑰水晶眼</td><td>2026 年 9 月 17 日 — 10 月 18 日</td><td><a href="https://lol.qq.com/act/a202609170214tendraws36/index.html" target="_blank" rel="noopener">腾讯活动页</a></td></tr><tr><td><a href={previousSessionUrl}>第 202620 期</a></td><td>灵魂莲华 阿卡丽 朝花；斗魂觉醒 格温 狡之魂焰</td><td>2026 年 9 月 4 日 — 10 月 4 日</td><td><a href="https://lol.qq.com/act/a202609047293tendraws35/index.html" target="_blank" rel="noopener">腾讯活动页</a></td></tr><tr><td><a href={augustSessionUrl}>第 202619 期</a></td><td>战斗学院 霞 天马；春晖神女 艾希 轻云蔽月</td><td>2026 年 8 月 7 日 — 9 月 6 日</td><td><a href="https://lol.qq.com/act/a202608077548tendraws34/index.html" target="_blank" rel="noopener">腾讯活动页</a></td></tr></tbody></table>
     </section>
 
     <section class="faq">

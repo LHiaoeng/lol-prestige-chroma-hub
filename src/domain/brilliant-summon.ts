@@ -65,4 +65,19 @@ export const brilliantSummonSessions: readonly BrilliantSummonSession[] = [
     ],
     drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
   },
+  {
+    sessionId: '202621',
+    eventUrl: 'https://lol.qq.com/act/a202609170214tendraws36/index.html',
+    articleSlug: 'prestige-chroma-summon-2026-21',
+    windowStart: '2026-09-17',
+    windowEnd: '2026-10-18',
+    rewardHeroId: '134',
+    rewardSkinNameEn: 'Dumpling Darlings Syndra',
+    rewardChromaNameEn: 'Dumpling Darlings Syndra (Pearl)',
+    rewards: [
+      { heroId: '134', skinNameEn: 'Dumpling Darlings Syndra', chromaNameEn: 'Dumpling Darlings Syndra (Pearl)' },
+      { heroId: '81', skinNameEn: 'Faerie Court Ezreal', chromaNameEn: 'Faerie Court Ezreal (Rose Quartz)' },
+    ],
+    drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
+  },
 ];

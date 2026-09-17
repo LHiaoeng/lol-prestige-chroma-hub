@@ -1,0 +1,403 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { brilliantSummonSessions } from '../../domain/brilliant-summon';
+import { imageUrl } from '../../domain/chroma';
+import type { Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'prestige-chroma-summon-2026-21');
+if (!article) throw new Error('Prestige chroma summon 2026-21 article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+// Each summon's point cost; the tenth draw costs 15x the first.
+const currentSummonSession = brilliantSummonSessions.find((session) => session.sessionId === '202621');
+if (!currentSummonSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
+const eventStart = currentSummonSession.windowStart;
+const eventEnd = currentSummonSession.windowEnd;
+const eventUrl = currentSummonSession.eventUrl;
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=4154363561357956970';
+const drawCosts = currentSummonSession.drawCosts;
+const totalCost = drawCosts.reduce((sum, cost) => sum + cost, 0);
+
+// Session 202621 prize chromas — "点心宝贝 辛德拉 芥菜点心" and "花仙贵族 伊泽瑞尔 玫瑰水晶眼"
+const grandPrize = catalog.find((item) => item.heroId === '134' && item.skinNameEn === 'Dumpling Darlings Syndra' && item.nameEn === 'Dumpling Darlings Syndra (Pearl)');
+if (!grandPrize) throw new Error('Dumpling Darlings Syndra (Pearl) grand-prize chroma is missing from catalog');
+const firstPrize = catalog.find((item) => item.heroId === '81' && item.skinNameEn === 'Faerie Court Ezreal' && item.nameEn === 'Faerie Court Ezreal (Rose Quartz)');
+if (!firstPrize) throw new Error('Faerie Court Ezreal (Rose Quartz) first-prize chroma is missing from catalog');
+const grandPrizeUrl = localizedPath(locale, `/chromas/${grandPrize.slug}/`);
+const firstPrizeUrl = localizedPath(locale, `/chromas/${firstPrize.slug}/`);
+
+function filterChromas(heroId: string, skinNameEn: string): Chroma[] {
+  return catalog.filter((c) => c.heroId === heroId && c.skinNameEn === skinNameEn);
+}
+
+// Past sessions for the "Past sessions" section — exclude current, sort desc by sessionId
+const currentSessionId = '202621';
+const pastSessions = brilliantSummonSessions
+  .filter((s) => s.sessionId !== currentSessionId)
+  .sort((a, b) => b.sessionId.localeCompare(a.sessionId))
+  .map((s) => {
+    const chroma = catalog.find(
+      (item) => item.heroId === s.rewardHeroId && item.skinNameEn === s.rewardSkinNameEn && item.nameEn === s.rewardChromaNameEn,
+    );
+    if (!chroma) throw new Error(`Past summon session ${s.sessionId} reward chroma is missing from catalog`);
+    return { session: s, chroma };
+  });
+
+const faqEntries = isZh ? [
+  { question: '活动里的臻彩需要原皮肤吗？', answer: '需要。臻彩依附于原皮肤才能使用，本期两款臻彩分别对应点心宝贝 辛德拉与花仙贵族 伊泽瑞尔。公告说明本期臻彩的原皮肤均可在限定皮肤奖池自选或游戏商城解锁，可以根据自己的拥有情况决定是否参与，详见我们的臻彩专题。' },
+  { question: '十次召唤全部抽完要花多少钱？', answer: `首次 1,200 点券（12 元），此后逐次递增，第十次需要 18,000 点券，十次合计 ${totalCost.toLocaleString('en-US')} 点券（570 元）。每次抽出的奖品会从奖池移除，剩余奖励的概率等比例提升。` },
+  { question: '开启召唤后还能调整自选奖池吗？', answer: '首次开启夺宝前可以自由调整自选奖池；开启一轮召唤后，还可以再调整一次；一旦抽出奖品，奖池锁定。开始前请确认绑定大区，单个 QQ 仅限 1 个大区参与，开始后无法切换。' },
+  { question: '除臻彩外还有哪些奖励？', answer: '奖池共 10 个奖品：神话精萃 ×10 与 ×20、圣堂花火 ×2 与 ×4、自选限定皮肤（点心宝贝 辛德拉 等）以及 3 个随机皮肤奖位。随机皮肤各占 21%，优先产出绑定大区未解锁的皮肤。特等奖还可改选至臻皮肤 暗星女王 黛安娜。' },
+] : [
+  { question: 'Do the event chromas require the base skins?', answer: 'Yes. A prestige chroma only works with its base skin — this session pairs Dumpling Darlings Syndra and Faerie Court Ezreal. Per the announcement, both base skins can be picked from the limited-skin self-select pool or unlocked in the game store, so weigh what you own before participating. Our prestige chroma guide covers the details.' },
+  { question: 'How much does a complete 10-summon run cost?', answer: `The first summon costs 1,200 points (12 RMB) and prices climb to 18,000 points for the tenth — ${totalCost.toLocaleString('en-US')} points (570 RMB) for all ten. Every drawn item leaves the pool, so odds of the remaining types rise proportionally.` },
+  { question: 'Can I change the self-select pool after I start?', answer: 'Yes — once. Before your first summon you can adjust the pool freely; after opening a round, one more adjustment is allowed. Once a prize is drawn, the pool locks. Confirm your bound region before you start: each QQ account participates in one region only, and it cannot be switched afterwards.' },
+  { question: 'What falls into the lower prize tiers?', answer: 'The 10-item pool also holds Mythic Essence (×10 and ×20), Holy Temple Fire (×2 and ×4), a self-select limited skin (Dumpling Darlings Syndra among the options), and three random-skin slots at 21% each. The grand prize can alternatively be taken as the Dark Star Diana prestige skin.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description, image: article.coverUrl, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList',
+    name: isZh ? '第 202621 期璀璨臻彩召唤奖池臻彩' : 'Session 202621 Brilliant Prestige Chroma Summoning prize chromas',
+    numberOfItems: 2,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, item: { '@type': 'CreativeWork', name: isZh ? grandPrize.nameZh : grandPrize.nameEn, url: new URL(grandPrizeUrl, SITE.origin).toString(), image: imageUrl(grandPrize.images.large) } },
+      { '@type': 'ListItem', position: 2, item: { '@type': 'CreativeWork', name: isZh ? firstPrize.nameZh : firstPrize.nameEn, url: new URL(firstPrizeUrl, SITE.origin).toString(), image: imageUrl(firstPrize.images.large) } },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a>
+    <span>/</span>
+    <a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
+    <span>/</span>
+    <span aria-current="page">{isZh ? '璀璨臻彩召唤' : 'Prestige Chroma Summoning'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">A new Brilliant Prestige Chroma Summoning session runs {eventStart.replace(/-/g, '/')} &ndash; {eventEnd.replace(/-/g, '/')} on the Chinese server. <a href={grandPrizeUrl}>Dumpling Darlings Syndra (Pearl)</a> and <a href={firstPrizeUrl}>Faerie Court Ezreal (Rose Quartz)</a> headline the self-select prize pools, the Dark Star Diana prestige skin joins the grand-prize tier, and the first summon costs 12 RMB.</p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Dumpling Darlings Syndra (Pearl) prestige chroma splash art.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Two prestige chromas and a prestige skin in the pools</h2>
+      <p>This session's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, and the grand-prize tier adds a limited-time prestige-skin option. For the cross-session rules and a participation checklist, see our <a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>complete Brilliant Prestige Chroma Summoning guide</a>.</p>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={grandPrize} labelEn="Dumpling Darlings Syndra (Pearl)" labelZh="点心宝贝 辛德拉 芥菜点心" {locale} />
+        <BlogChromaCard chroma={firstPrize} labelEn="Faerie Court Ezreal (Rose Quartz)" labelZh="花仙贵族 伊泽瑞尔 玫瑰水晶眼" {locale} />
+      </BlogChromaGrid>
+      <p>The grand-prize tier pairs a self-select prestige chroma — Dumpling Darlings Syndra (Pearl) — with the Dark Star Diana prestige skin at 0.5% initial odds. The first-prize tier holds a self-select prestige chroma at 1%. Both chromas come with dedicated splash art, not regular recolour chromas; our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> explains the difference.</p>
+    </section>
+
+    <section>
+      <h2>Dumpling Darlings Syndra (Pearl)</h2>
+      <p>The grand prize belongs to the Dumpling Darlings series, which dresses champions in a dim-sum cafe aesthetic. Pearl — "芥菜点心" in Chinese, roughly "mustard-greens dumpling" — sits alongside Sapphire and Obsidian on the Dumpling Darlings Syndra skin:</p>
+      <BlogChromaGrid>
+        {filterChromas('134', 'Dumpling Darlings Syndra').map((chroma) => (
+          <BlogChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>Sapphire goes deep blue and Obsidian near-black; Pearl is a pale, milky white-green — and the only one of the three in this session's prize pool.</p>
+    </section>
+
+    <section>
+      <h2>Faerie Court Ezreal (Rose Quartz)</h2>
+      <p>The first prize comes from the Faerie Court series, which casts champions as fae nobility carrying out nature's will. Rose Quartz — "玫瑰水晶眼" in Chinese — is the only Faerie Court Ezreal prestige chroma in our archive:</p>
+      <BlogChromaGrid>
+        {filterChromas('81', 'Faerie Court Ezreal').map((chroma) => (
+          <BlogChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+    </section>
+
+    <section>
+      <h2>Summon prices and odds</h2>
+      <p>The first summon costs 1,200 points (12 RMB). Every drawn item leaves the pool, and each additional summon costs more points:</p>
+      <table class="event-table">
+        <thead><tr><th>Summon</th><th class="num">Point cost</th></tr></thead>
+        <tbody>
+          {drawCosts.map((cost, index) => (
+            <tr><td>#{index + 1}</td><td class="num">{cost.toLocaleString('en-US')}</td></tr>
+          ))}
+          <tr><td><strong>All ten</strong></td><td class="num"><strong>{totalCost.toLocaleString('en-US')}</strong></td></tr>
+        </tbody>
+      </table>
+      <p>The pool holds 10 items with these initial odds, per the official page:</p>
+      <table class="event-table">
+        <thead><tr><th>Tier</th><th>Item</th><th class="num">Initial odds</th></tr></thead>
+        <tbody>
+          <tr><td>Third</td><td>Random skin ×1 (three pool slots)</td><td class="num">21.0% each</td></tr>
+          <tr><td>Third</td><td>Mythic Essence ×10</td><td class="num">16.0%</td></tr>
+          <tr><td>Third</td><td>Holy Temple Fire ×2</td><td class="num">5.0%</td></tr>
+          <tr><td>Second</td><td>Mythic Essence ×20</td><td class="num">8.5%</td></tr>
+          <tr><td>Second</td><td>Self-select limited skin (Dumpling Darlings Syndra among the options)</td><td class="num">3.0%</td></tr>
+          <tr><td>Second</td><td>Holy Temple Fire ×4</td><td class="num">3.0%</td></tr>
+          <tr><td>First</td><td>Self-select prestige chroma</td><td class="num">1.0%</td></tr>
+          <tr><td>Grand</td><td>Self-select prestige chroma or prestige skin</td><td class="num">0.5%</td></tr>
+        </tbody>
+      </table>
+      <p>Odds rise proportionally as items leave the pool. No item can drop twice in one run.</p>
+    </section>
+
+    <section>
+      <h2>Participation rules worth knowing</h2>
+      <ul>
+        <li>One run per QQ account across all channels, in one bound region — rewards go to that region, so confirm it before your first summon.</li>
+        <li>Each summon bundles a 1-day Rose Warden ward skin purchase; unused points stay spendable elsewhere.</li>
+        <li>Holy Temple Fire is delivered to the Loot tab of your bound region.</li>
+        <li>Random skin chests prioritise skins you have not unlocked in your bound region; if you own every skin in the random pool, the skin can instead be sent to a region that does not own it — claim items promptly.</li>
+        <li>The self-select pool can be rearranged freely before the first summon, adjusted once after, and locks once a prize is drawn from it.</li>
+      </ul>
+    </section>
+
+    <section class="summon-sessions">
+      <h2>Past sessions</h2>
+      <p>The previous run, <a href={localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/')}>session 202620</a>, features Spirit Blossom Akali (Pearl) in the grand-prize tier and closes on October 4:</p>
+      <div class="summon-table-wrapper">
+        <table class="summon-table">
+          <thead><tr><th>Session</th><th>Event window</th><th>Grand-prize chroma</th><th>Article</th></tr></thead>
+          <tbody>
+            {pastSessions.map(({ session, chroma }) => {
+              const chromaUrl = localizedPath(locale, `/chromas/${chroma.slug}/`);
+              const articleUrl = localizedPath(locale, `/blog/${session.articleSlug}/`);
+              return <tr>
+                <td class="summon-col-session">{session.sessionId}</td>
+                <td class="summon-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td><a href={chromaUrl}>{chroma.nameEn}</a></td>
+                <td class="summon-col-link"><a href={articleUrl}>Read</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Prestige chromas need the base skin</h2>
+      <p>Both event chromas attach to existing skins — Dumpling Darlings Syndra and Faerie Court Ezreal. A chroma cannot be used until its base skin is unlocked. The announcement notes that both base skins can be picked from the limited-skin self-select pool or unlocked in the game store, so weigh what you own before spending.</p>
+    </section>
+
+    <aside class="official-sources" aria-label={isZh ? '官方来源' : 'Official sources'}>
+      <strong>{isZh ? '官方来源' : 'Official sources'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">{isZh ? '官网公告：璀璨臻彩召唤活动上新' : 'Official announcement: new Brilliant Prestige Chroma Summoning session'}</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">{isZh ? '璀璨臻彩召唤活动页' : 'Brilliant Prestige Chroma Summoning event page'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => (
+        <details>
+          <summary>{entry.question}</summary>
+          <p>{entry.answer}</p>
+        </details>
+      ))}
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">9 月 17 日至 10 月 18 日，新一期璀璨臻彩召唤上线国服。特等奖自选<a href={grandPrizeUrl}>点心宝贝 辛德拉 芥菜点心</a>或至臻皮肤 暗星女王 黛安娜，一等奖自选<a href={firstPrizeUrl}>花仙贵族 伊泽瑞尔 玫瑰水晶眼</a>，首次召唤 12 元，单个 QQ 限抽十次。</p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>点心宝贝 辛德拉 芥菜点心臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>奖池里的两款臻彩与一款至臻皮肤</h2>
+      <p>本期自选奖池的两个顶层奖位各有一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>坐镇，特等奖池还限时加入了至臻皮肤选项。想了解跨期规则和完整参与清单，可以阅读<a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>璀璨臻彩召唤完全指南</a>：</p>
+      <BlogChromaGrid>
+        <BlogChromaCard chroma={grandPrize} labelEn="Dumpling Darlings Syndra (Pearl)" labelZh="点心宝贝 辛德拉 芥菜点心" {locale} />
+        <BlogChromaCard chroma={firstPrize} labelEn="Faerie Court Ezreal (Rose Quartz)" labelZh="花仙贵族 伊泽瑞尔 玫瑰水晶眼" {locale} />
+      </BlogChromaGrid>
+      <p>特等奖池为自选臻彩或至臻皮肤，初始概率 0.5%，主推点心宝贝 辛德拉 芥菜点心，也可改选至臻皮肤 暗星女王 黛安娜；一等奖池为自选臻彩，初始概率 1%，主推花仙贵族 伊泽瑞尔 玫瑰水晶眼。两款臻彩都拥有专属原画，不是普通换色炫彩，不了解的话可以先看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
+    </section>
+
+    <section>
+      <h2>点心宝贝 辛德拉 芥菜点心</h2>
+      <p>特等奖来自点心宝贝系列，主题是点心铺与茶馆。芥菜点心与葡萄点心、黑芝麻点心同属点心宝贝 辛德拉皮肤家族：</p>
+      <BlogChromaGrid>
+        {filterChromas('134', 'Dumpling Darlings Syndra').map((chroma) => (
+          <BlogChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>葡萄点心走深蓝路线，黑芝麻点心接近墨色，芥菜点心以珍珠白绿呈现——三款里只有芥菜点心进入了本期奖池。</p>
+    </section>
+
+    <section>
+      <h2>花仙贵族 伊泽瑞尔 玫瑰水晶眼</h2>
+      <p>一等奖来自花仙贵族系列，把英雄塑造成执行自然意志的仙灵王庭贵族。玫瑰水晶眼目前是图鉴中花仙贵族 伊泽瑞尔唯一的臻彩：</p>
+      <BlogChromaGrid>
+        {filterChromas('81', 'Faerie Court Ezreal').map((chroma) => (
+          <BlogChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+    </section>
+
+    <section>
+      <h2>召唤价格与概率</h2>
+      <p>首次召唤 1,200 点券（12 元），此后每次价格递增，抽出的奖品会从奖池移除：</p>
+      <table class="event-table">
+        <thead><tr><th>召唤次数</th><th class="num">点券</th></tr></thead>
+        <tbody>
+          {drawCosts.map((cost, index) => (
+            <tr><td>第 {index + 1} 次</td><td class="num">{cost.toLocaleString('en-US')}</td></tr>
+          ))}
+          <tr><td><strong>十次合计</strong></td><td class="num"><strong>{totalCost.toLocaleString('en-US')}</strong></td></tr>
+        </tbody>
+      </table>
+      <p>官方页面公布的奖池共 10 个奖品，初始概率如下：</p>
+      <table class="event-table">
+        <thead><tr><th>奖项</th><th>奖品</th><th class="num">初始概率</th></tr></thead>
+        <tbody>
+          <tr><td>三等奖</td><td>随机皮肤 ×1（三个奖位）</td><td class="num">各 21.0%</td></tr>
+          <tr><td>三等奖</td><td>神话精萃 ×10</td><td class="num">16.0%</td></tr>
+          <tr><td>三等奖</td><td>圣堂花火 ×2</td><td class="num">5.0%</td></tr>
+          <tr><td>二等奖</td><td>神话精萃 ×20</td><td class="num">8.5%</td></tr>
+          <tr><td>二等奖</td><td>自选限定皮肤（点心宝贝 辛德拉 等）</td><td class="num">3.0%</td></tr>
+          <tr><td>二等奖</td><td>圣堂花火 ×4</td><td class="num">3.0%</td></tr>
+          <tr><td>一等奖</td><td>自选臻彩</td><td class="num">1.0%</td></tr>
+          <tr><td>特等奖</td><td>自选臻彩或至臻皮肤</td><td class="num">0.5%</td></tr>
+        </tbody>
+      </table>
+      <p>随着奖品被抽出，剩余奖励的概率等比例提升；同一轮内奖品不会重复获得。</p>
+    </section>
+
+    <section>
+      <h2>参与规则要点</h2>
+      <ul>
+        <li>单个 QQ 全渠道仅可参与 1 次，且仅限 1 个大区；产出道具优先发放至当前绑定大区，开始前请确认大区。</li>
+        <li>每次召唤以点券购买 1 天期限玫瑰守卫皮肤并额外获赠召唤机会，未消耗的点券仍可用于其他内容。</li>
+        <li>圣堂花火发放至绑定大区的「战利品」页签。</li>
+        <li>随机皮肤优先产出绑定大区未解锁的皮肤；若奖池内皮肤已全部解锁，可改发放至未拥有的大区，请及时领取道具。</li>
+        <li>首次开启夺宝前可自由调整自选奖池，开启一轮召唤后还能再调整一次；一旦抽出奖品，奖池锁定。</li>
+      </ul>
+    </section>
+
+    <section class="summon-sessions">
+      <h2>往期活动</h2>
+      <p>上一期<a href={localizedPath(locale, '/blog/prestige-chroma-summon-september-2026/')}>第 202620 期</a>于 10 月 4 日结束，特等奖主推灵魂莲华 阿卡丽 朝花：</p>
+      <div class="summon-table-wrapper">
+        <table class="summon-table">
+          <thead><tr><th>期号</th><th>活动时间</th><th>特等奖臻彩</th><th>文章</th></tr></thead>
+          <tbody>
+            {pastSessions.map(({ session, chroma }) => {
+              const chromaUrl = localizedPath(locale, `/chromas/${chroma.slug}/`);
+              const articleUrl = localizedPath(locale, `/blog/${session.articleSlug}/`);
+              return <tr>
+                <td class="summon-col-session">{session.sessionId}</td>
+                <td class="summon-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td><a href={chromaUrl}>{chroma.nameZh}</a></td>
+                <td class="summon-col-link"><a href={articleUrl}>查看</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>臻彩需要原皮肤</h2>
+      <p>两款臻彩分别依附于点心宝贝 辛德拉与花仙贵族 伊泽瑞尔。没有原皮肤，臻彩就无法使用——公告说明本期臻彩的原皮肤均可在限定皮肤奖池自选或游戏商城解锁，决定投入之前，先确认自己是否拥有对应原皮肤。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">官网公告：璀璨臻彩召唤活动上新</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">璀璨臻彩召唤活动页</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => (
+        <details>
+          <summary>{entry.question}</summary>
+          <p>{entry.answer}</p>
+        </details>
+      ))}
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}.official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}.official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}.official-sources li{font-size:.88rem;line-height:1.6}.official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+    .event-table{width:100%;border-collapse:collapse;font-size:.96rem;margin:0 0 1.2em}
+    .event-table th{text-align:left;color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.06em;padding:0 16px 12px;border-bottom:1px solid var(--line)}
+    .event-table td{padding:12px 16px;color:#c7cad4;border-bottom:1px solid var(--line)}
+    .event-table tbody tr:last-child td{border-bottom:none}
+    .event-table tbody tr:hover td{background:#15182a}
+    .event-table td.num,.event-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+    .summon-sessions{margin-top:32px}
+    .summon-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .summon-table{width:100%;border-collapse:collapse;font-size:.96rem}
+    .summon-table th{text-align:left;color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.06em;padding:0 16px 12px;border-bottom:1px solid var(--line)}
+    .summon-table td{padding:14px 16px;color:#c7cad4;border-bottom:1px solid var(--line)}
+    .summon-table tbody tr:last-child td{border-bottom:none}
+    .summon-table tbody tr:hover td{background:#15182a}
+    .summon-table a{text-decoration:none}
+    .summon-table a:hover{text-decoration:underline}
+    .summon-col-session{width:112px;color:var(--gold);font-family:Georgia,"Noto Serif SC",serif;font-weight:700;white-space:nowrap}
+    .summon-col-window{width:160px;color:var(--muted);font-size:.88rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .summon-col-link{width:64px;text-align:right}
+    .summon-col-link a{font-size:.88rem}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.event-table th,.event-table td{padding:10px 12px;font-size:.88rem}.summon-table th,.summon-table td{padding:10px 12px;font-size:.88rem}.summon-col-session{width:100px}.summon-col-window{width:auto;white-space:normal}}
+  </style>
+</BaseLayout>
