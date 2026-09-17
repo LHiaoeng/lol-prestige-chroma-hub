@@ -29,12 +29,12 @@ const yoneChroma = catalog.find((c) => c.heroId === '777' && c.skinNameEn === 'O
 const catalogChromas: Chroma[] = [sorakaChroma, jinxChroma, yoneChroma].filter((c): c is Chroma => c != null);
 
 const faqEntries = isZh ? [
-  { question: '幸运之门·海之歌活动什么时候开始和结束？', answer: '活动时间为 2026 年 9 月 13 日至 10 月 11 日，在国服限时开放。' },
+  { question: '幸运之门·海之歌活动是第几期？什么时候开始和结束？', answer: '本次活动是幸运之门系列的第 202618 期，活动时间为 2026 年 9 月 13 日至 10 月 11 日，在国服限时开放。' },
   { question: '奖池里的海之歌臻彩和普通<a href="' + localizedPath(locale, '/blog/what-are-chroma-skins/') + '">炫彩</a>有什么区别？', answer: '臻彩是炫彩升级后的珍稀限时类型，拥有专属臻彩原画，但仍然依附于基础皮肤，不是一款独立皮肤。详见我们的<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">臻彩专题</a>。' },
   { question: '幻灵战斗兔司令 厄运小姐是臻彩吗？', answer: '不是。幻灵战斗兔司令 厄运小姐是一款神话品质的完整皮肤，属于幻灵战队系列，和臻彩不是同一个层级。' },
   { question: '这三款海之歌臻彩是最近才加入目录的吗？', answer: '索拉卡和金克丝的两款珍珠白钻石臻彩在 26.17 版本进入目录；永恩的「幻彩夜空」更早，所属版本为 26.8。' },
 ] : [
-  { question: 'When does the Lucky Gate: Ocean Song event start and end?', answer: 'The event runs from September 13 to October 11, 2026 on the Chinese server.' },
+  { question: 'Which Lucky Gate session is the Ocean Song event, and when does it start and end?', answer: 'The Ocean Song wheel is Session 202618 of the Lucky Gate series; it runs from September 13 to October 11, 2026 on the Chinese server.' },
   { question: 'How are the Ocean Song prestige chromas different from regular <a href="' + localizedPath(locale, '/blog/what-are-chroma-skins/') + '">chroma skins</a>?', answer: 'Prestige chromas are upgraded, limited-time chromas with dedicated splash art, but they still attach to a base skin and are not standalone skins. See our <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">prestige chroma guide</a> for the full breakdown.' },
   { question: 'Is Admiral Battle Bunny Miss Fortune a prestige chroma?', answer: 'No. Admiral Battle Bunny Miss Fortune is a mythic-tier complete skin from the Anima Squad skinline, a different tier from a chroma variant.' },
   { question: 'Were these three Ocean Song chromas recently added to the archive?', answer: 'The two pearl-white Diamond chromas for Soraka and Jinx entered the catalog in Patch 26.17. Yone&rsquo;s Tanzanite entry is older, dated to Patch 26.8.' },
@@ -75,7 +75,7 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">LOL PRESTIGE CHROMA SUMMON EVENT</p>
       <h1>{article.titleEn}</h1>
-      <p class="article-deck">The Lucky Gate: Ocean Song summoning event is live from September 13 to October 11, 2026 on the Chinese server. Three Ocean Song prestige chromas &mdash; Soraka (Pearl), Jinx (Pearl), and Yone (Tanzanite) &mdash; join the wheel alongside the mythic Admiral Battle Bunny Miss Fortune skin.</p>
+      <p class="article-deck">The Lucky Gate: Ocean Song summoning event (Session 202618) is live from September 13 to October 11, 2026 on the Chinese server. Three Ocean Song prestige chromas &mdash; Soraka (Pearl), Jinx (Pearl), and Yone (Tanzanite) &mdash; join the wheel alongside the mythic Admiral Battle Bunny Miss Fortune skin.</p>
       <p class="article-meta">
         <span>By LoL Chroma Art Editorial Team</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
@@ -91,7 +91,7 @@ const jsonLd = [
 
     <section>
       <h2>Three Ocean Song prestige chromas and one mythic skin</h2>
-      <p>The official announcement names four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our archive; the fourth is a complete skin rather than a <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma</a>. This is a new session of the Lucky Gate series that ran the <a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>Porcelain Charm wheel in August</a>, with its own prize pool.</p>
+      <p>The official announcement names four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our archive; the fourth is a complete skin rather than a <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma</a>. This is Session 202618 of the Lucky Gate series; the August <a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>Porcelain Charm wheel</a> (Session 202616) ran its own prize pool.</p>
       <BlogChromaGrid columns={3}>
         {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
@@ -130,7 +130,7 @@ const jsonLd = [
     <header class="article-header">
       <p class="kicker">LOL 臻彩召唤活动</p>
       <h1>{article.titleZh}</h1>
-      <p class="article-deck">2026 年 9 月 13 日至 10 月 11 日，幸运之门·海之歌召唤活动限时上线。海之歌 索拉卡 拾音、海之歌 金克丝 燥音两款珍珠白钻石臻彩，与海之歌 永恩 幻彩夜空臻彩一同进入奖池，另有神话皮肤幻灵战斗兔司令 厄运小姐。</p>
+      <p class="article-deck">2026 年 9 月 13 日至 10 月 11 日，幸运之门·海之歌召唤活动（第 202618 期）限时上线。海之歌 索拉卡 拾音、海之歌 金克丝 燥音两款珍珠白钻石臻彩，与海之歌 永恩 幻彩夜空臻彩一同进入奖池，另有神话皮肤幻灵战斗兔司令 厄运小姐。</p>
       <p class="article-meta">
         <span>LoL Chroma Art 编辑团队</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
@@ -146,7 +146,7 @@ const jsonLd = [
 
     <section>
       <h2>三款海之歌臻彩，外加一款神话皮肤</h2>
-      <p>官方公告列出了四项重点奖励。其中三款是已收录在本站目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；第四项是一款完整皮肤，不是<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩</a>。本期是幸运之门系列的新一轮活动，奖池与 8 月的<a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>青瓷彩韵召唤</a>独立。</p>
+      <p>官方公告列出了四项重点奖励。其中三款是已收录在本站目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；第四项是一款完整皮肤，不是<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩</a>。本期是幸运之门系列的第 202618 期活动，奖池与 8 月的<a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>青瓷彩韵召唤</a>（第 202616 期）独立。</p>
       <BlogChromaGrid columns={3}>
         {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>

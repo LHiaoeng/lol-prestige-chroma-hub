@@ -38,8 +38,8 @@ describe('blog article metadata', () => {
     expect(blogArticles[1]).toMatchObject({
       slug: 'lucky-gate-ocean-song-202609',
       href: '/blog/lucky-gate-ocean-song-202609/',
-      titleEn: 'Lucky Gate: Ocean Song Summoning Event',
-      titleZh: '幸运之门·海之歌召唤活动',
+      titleEn: 'Lucky Gate: Ocean Song Summoning Event — Session 202618',
+      titleZh: '幸运之门·海之歌召唤活动 — 第 202618 期',
       publishedAt: '2026-09-13',
       sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=17083628231197355254',
       coverUrl: 'https://img.chromaart.lol/chromas/d3bf92b5-7e37-4f09-815b-df86b34bc3bd/site3.jpg',
@@ -109,8 +109,8 @@ describe('blog article metadata', () => {
     expect(blogArticles[9]).toMatchObject({
       slug: 'lucky-gate-porcelain-charm-202608',
       href: '/blog/lucky-gate-porcelain-charm-202608/',
-      titleEn: 'Lucky Gate: Porcelain Charm Summoning Event',
-      titleZh: '幸运之门·青瓷彩韵召唤活动',
+      titleEn: 'Lucky Gate: Porcelain Charm Summoning Event — Session 202616',
+      titleZh: '幸运之门·青瓷彩韵召唤活动 — 第 202616 期',
       sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=17896616915886300256',
       coverUrl: '/img/blog/lucky-gate-porcelain-charm-cover.jpg',
     });
