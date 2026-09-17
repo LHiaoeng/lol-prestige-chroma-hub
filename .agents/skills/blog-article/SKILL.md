@@ -13,6 +13,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 - 用户要求新增博客、博文、新闻改写或文章页面时触发。
 - 提供 `lol.qq.com` 新闻链接时，先使用 `league-of-legends-cn-official-news` 或 `lol-news-detail` skill 获取标题、发布时间、正文和图片；不得凭链接猜正文。
 - 撰写「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，官方活动类型标识 `tendraws`）活动文章时，先使用 `tendraws-activity-list` skill 核对当期活动目录 ID、期号、完整活动链接、导航缩略图 URL、开放时间与奖池概率，并获取往期活动链接；不要凭记忆或 URL 规律猜测期号与链接。
+- 撰写「幸运之门召唤」（Lucky Gate Summoning，官方活动 URL 标识 `prizewheel`）活动文章时，先使用 `lucky-gate-activity-list` skill 核对当期活动目录 ID、期号、完整活动链接、导航缩略图 URL 与开放时间，并获取往期活动链接；不要凭记忆或 URL 规律猜测期号与链接。
 - 新建或修改文章前，读取 `references/checklist.md`；文章包含目录臻彩卡片网格时，再读取 `references/chroma-grid.md`。
 - 新增文章属于定期举办的活动系列（如心悦巅峰盛典、满额礼赠等）时，额外读取 `references/recurring-activity-past-sessions.md` 并执行其中流程。
 - 仅在常青指南文章中读取 `src/blog/evergreen-guides.ts` 的维护要求；新闻/活动文章不登记为常青指南。
@@ -88,6 +89,7 @@ Use `quick_validate.py` from the system `skill-creator` skill with `.agents/skil
 ## 参考路由
 
 - 璀璨臻彩召唤活动数据（期号、活动链接、缩略图、开放时间、概率）：`tendraws-activity-list` skill
+- 幸运之门召唤活动数据（期号、活动链接、缩略图、开放时间）：`lucky-gate-activity-list` skill
 - 组件用法：`references/chroma-grid.md`
 - 页面骨架与 SEO 片段：`references/page-template.md`
 - 交付检查：`references/checklist.md`

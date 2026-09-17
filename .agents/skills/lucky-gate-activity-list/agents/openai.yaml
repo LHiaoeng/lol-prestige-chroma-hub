@@ -1,0 +1,3 @@
+interface:
+  display_name: "幸运之门召唤活动数据"
+  short_description: "获取国服幸运之门召唤（Lucky Gate Summoning，prizewheel 系列）各期活动链接、缩略图、开放时间与奖池线索"

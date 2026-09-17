@@ -8,7 +8,7 @@
 - 目录下已存在至少一篇同系列文章；或新建一期后，预期后续还会有同系列文章。
 - 每期都有独立的统计窗口、奖励臻彩和活动 URL，适合结构化复用。
 
-不适用：「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，官方活动类型标识 `tendraws`）每期是多档奖池与自选臻彩，不是单一奖励臻彩，往期活动链接与期号改用 `tendraws-activity-list` skill 获取，不建本文的数据模块。
+不适用：「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，官方活动类型标识 `tendraws`）每期是多档奖池与自选臻彩，不是单一奖励臻彩，往期活动链接与期号改用 `tendraws-activity-list` skill 获取，不建本文的数据模块。「幸运之门召唤」（Lucky Gate Summoning，`prizewheel` 系列）同理，往期活动链接与期号改用 `lucky-gate-activity-list` skill 获取。
 
 ## 操作流程
 
