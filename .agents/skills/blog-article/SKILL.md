@@ -29,7 +29,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 
 条件交付：
 
-- 常青指南：登记 `evergreenGuideMaintenance`，渲染 `ArticleMaintenance`，显示作者、来源、最后核验日期、纠错入口和两条相关指南；`modifiedTime` 与可见核验日期一致。
+- 常青指南：登记 `evergreenGuideMaintenance`，渲染 `ArticleMaintenance`，显示作者、来源、最后核验日期、纠错入口和两条相关指南；`modifiedTime` 与可见核验日期一致。常青指南仍须渲染 `BlogAdjacentNavigation`，与所有博客一致；维护组件不替代上下篇导航。
 - 官网新闻/活动文章：保留官方 `sourceUrl`、官方来源链接和公告明确的时间/获取条件；不把未公布的概率、结束日期或可用性写成事实。
 - 定期举办的活动系列（如心悦巅峰盛典、满额礼赠）：按 `references/recurring-activity-past-sessions.md` 在奖励/结算章节之后插入往期场次表格；更新共享数据模块；不补改往期文章。
 - 本地封面图：保存到 `public/img/blog/`，使用 `compress-image` skill 压到 1MB 以内；目录原画继续使用 `img.chromaart.lol` 路径，不复制远程图片。
@@ -57,6 +57,7 @@ import { SITE } from '../../seo/site';
 - 英文和中文分别组织信息，不逐句翻译；两种语言都要有完整事实、内链和 FAQ。
 - 开头直接给结论或读者要解决的问题；小标题写具体信息；数字、日期、版本和获取限制优先于空泛形容。
 - 避免模板化 AI 词和广告腔：英文少用 `delve`、`explore`、`comprehensive`、`seamless`、`robust`、`leverage`、`unlock`、`empower`；中文少用“此外”“至关重要”“深入探讨”“值得一提的是”“不可否认”。
+- 中文正文不得保留英文术语括号标注（如『中国大陆服（China Server）』），用 `CONTEXT.md` 的中文称呼直接替换；英文原词仅用于 JSON-LD `inLanguage`、`author` 等结构化字段和允许的专有名词（如 `LoL Chroma Art`、`QQ`、`LPL`）。
 - 官网公告只支持公告明确的事实；活动规则有歧义时链接官方活动页并明确不确定性。
 
 ## 内容组件与样式边界
