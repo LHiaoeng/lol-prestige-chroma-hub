@@ -35,11 +35,11 @@ const relatedSummonChromas = catalog.filter((chroma) => relatedSummonChromaNames
 const faqJsonLd = {
   '@context': 'https://schema.org', '@type': 'FAQPage',
   mainEntity: isZh ? [
-    { '@type': 'Question', name: 'Global Server 能参加吗？', acceptedAnswer: { '@type': 'Answer', text: '不能参加。璀璨臻彩召唤是中国大陆服活动系列，Global Server 的可用性和获取方式是另一套问题，不能从国服活动页推导。' } },
+    { '@type': 'Question', name: '拳头直营服能参加吗？', acceptedAnswer: { '@type': 'Answer', text: '不能。璀璨臻彩召唤是国服活动系列，拳头直营服是否开放、怎么获取是另一回事，不能从国服活动页推断。' } },
     { '@type': 'Question', name: '可以随便选自己想要的奖励吗？', acceptedAnswer: { '@type': 'Answer', text: '只有当期活动明确提供自选奖池时，才能从活动列出的选项中选择；可选数量和锁定时间都可能随期数变化。' } },
     { '@type': 'Question', name: '每次召唤后奖励都会离开奖池吗？', acceptedAnswer: { '@type': 'Answer', text: '很多已公布的活动采用不放回奖池，但是否适用于当前期要看官方规则。先读概率说明，再判断概率变化，不要把历史经验当作保证。' } },
-    { '@type': 'Question', name: '应该按完整一轮的总价决定是否参加吗？', acceptedAnswer: { '@type': 'Answer', text: '把它当预算上限，而不是参与建议。结合当前价格曲线、奖池，以及自己真正想要且拥有基础皮肤的臻彩来判断。' } },
-    { '@type': 'Question', name: '日期或奖励去哪里核对？', acceptedAnswer: { '@type': 'Answer', text: '先看维护信息中的官方活动页，再用当前或往期活动文章获取更易读的摘要和回链。' } },
+    { '@type': 'Question', name: '应该按完整一轮的总价决定是否参加吗？', acceptedAnswer: { '@type': 'Answer', text: '把它当预算上限，不是参与建议。再对照当期价格、奖池，以及自己真正想要、且已持有基础皮肤的臻彩来判断。' } },
+    { '@type': 'Question', name: '日期或奖励去哪里核对？', acceptedAnswer: { '@type': 'Answer', text: '先看页面下方维护信息里的官方活动页；想看更易懂的摘要和回链，再翻当期或往期活动文章。' } },
   ] : [
     { '@type': 'Question', name: 'Is this available on the Global Server?', acceptedAnswer: { '@type': 'Answer', text: 'No. Brilliant Prestige Chroma Summoning is a China Server event series. Availability and acquisition paths on the Global Server are separate questions and should not be inferred from a China Server activity page.' } },
     { '@type': 'Question', name: 'Can I choose any reward I want?', acceptedAnswer: { '@type': 'Answer', text: 'Only when the current session explicitly offers a self-select pool, and only from the options listed there. Choice limits and lock timing can change between sessions.' } },
@@ -175,9 +175,9 @@ const jsonLd = [
 
   {isZh && <article class="blog-article">
     <header class="article-header">
-      <p class="kicker">LOL 臻彩原画支柱指南</p>
+      <p class="kicker">臻彩原画支柱指南</p>
       <h1>{article.titleZh}</h1>
-      <p class="article-deck">从国服活动定位、奖池和召唤成本，到大区绑定、领奖与规则核验，完整了解璀璨臻彩召唤。</p>
+      <p class="article-deck">讲清国服这一活动的定位、奖池、召唤成本、大区绑定、领奖和规则核验。</p>
       <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
 
@@ -188,16 +188,16 @@ const jsonLd = [
 
     <section>
       <h2>这是什么活动？</h2>
-      <p>“璀璨臻彩召唤”是中国大陆服（China Server）定期开放的限时臻彩获取活动系列。每一期都有单独的活动页、开放时间、奖池、价格、概率和参与条件，不是永久商城，也不能和“幸运之门召唤”或“华彩秘宝·召唤”混为一谈。</p>
-      <p>这里要区分几个概念：<strong>游戏大区（Server Region）</strong>是一个游戏服务器内的账号和数据分区，不等于拳头直营的 <strong>Global Server</strong>，也不等于职业赛事的 LPL 赛区。想先了解臻彩与基础皮肤的关系，可以阅读<a href={prestigeGuideUrl}>什么是臻彩？</a>。</p>
+      <p>“璀璨臻彩召唤”是国服定期开放的限时臻彩获取活动。每一期都有独立的活动页、开放时间、奖池、价格、概率和参与条件，不是永久商城，也别和“幸运之门召唤”“华彩秘宝·召唤”混为一谈。</p>
+      <p>这里有三个容易混的概念。<strong>大区</strong>是游戏服务器内的账号和数据分区，比如艾欧尼亚；它既不是拳头直营服，也不是 LPL 这样的职业电竞赛区。想先搞清楚臻彩和基础皮肤的关系，可以读<a href={prestigeGuideUrl}>什么是臻彩？</a>。</p>
     </section>
 
     <section>
       <h2>先核对当前期活动页</h2>
-      <p>准备参与时，先打开当期官方活动页。我们的<a href={currentSessionUrl}>2026 年 9 月活动文章</a>只是一个带解释的实例，不代表下一期一定沿用相同奖励或价格。开放时间、账号资格、支付渠道、奖池名称、概率和最终领奖截止时间，都应以官方页面为准。</p>
+      <p>决定参与前，先打开当期官方活动页。<a href={currentSessionUrl}>2026 年 9 月活动文章</a>只是带解释的参考实例，不代表下一期沿用同样的奖励或价格。开放时间、账号资格、支付渠道、奖池名称、概率和领奖截止时间，都以官方页面为准。</p>
       <ul>
-        <li>确认活动服务范围是中国大陆服，并确认账号符合参与条件。</li>
-        <li>第一次召唤前确认账号绑定的游戏大区。</li>
+        <li>确认活动属于国服，且自己的账号符合参与条件。</li>
+        <li>第一次召唤前确认账号绑定的大区。</li>
         <li>把奖池、价格表、概率说明和领奖步骤一起读完。</li>
         <li>保存官方页面或公告，因为限时活动可能在旧文章更新前结束。</li>
       </ul>
@@ -211,63 +211,63 @@ const jsonLd = [
     <section>
       <h2>完整参与清单</h2>
       <ol>
-        <li>打开官方活动页，确认服务范围是中国大陆服，并记录开放时间。</li>
-        <li>核对账号、支付渠道、基础皮肤持有情况和绑定的游戏大区。</li>
+        <li>打开官方活动页，确认活动属于国服，记下开放时间。</li>
+        <li>核对账号、支付渠道、是否持有基础皮肤，以及绑定的大区。</li>
         <li>付费前记下奖励层级、自选项、价格曲线、概率说明和领奖截止时间。</li>
-        <li>只在当期活动允许的选项和调整时间内安排自选奖池。</li>
-        <li>完成召唤，检查每次结果，并在离开活动页前完成可能存在的额外领取步骤。</li>
+        <li>只在当期给出的选项和调整时间内设置自选奖池。</li>
+        <li>召唤后核对每次结果，离开活动页前先完成额外领取步骤。</li>
         <li>奖励到账绑定大区前，保留官方结果页或凭证。</li>
       </ol>
     </section>
 
     <section>
       <h2>奖池和召唤通常怎么运作？</h2>
-      <p>有些活动会提供自选奖池：玩家可以在列出的奖励中安排选择，再从这个奖池中召唤。具体能选多少、什么时候锁定、是否允许调整，每一期都可能不同，不能把往期规则当作固定标准。</p>
-      <p>奖励层级是当前奖池里的分类，不是所有活动通用的品质等级。特等奖或一等奖可能把自选臻彩与其他奖励放在一起，较低层级也可能是随机或固定奖励。不要跨活动系列比较层级名称，应该直接看当期奖池表。</p>
-      <p>在已公布的不放回抽取形式中，<strong>抽出的奖励会从奖池中移除</strong>，剩余奖励重新构成后续概率。因此每次召唤后显示的概率可能变化，是否采用这条规则要看当期官方概率说明。</p>
-      <p>每次召唤后都要检查结果和领取状态。奖励可能已经发放，也可能需要在活动页额外点击领取，这两种状态不能混淆。</p>
+      <p>有些期数提供自选奖池：先从活动列出的奖励里挑出一组，再从这组里召唤。能选几个、什么时候锁定、能不能调整，每期都可能变，别把往期规则当固定标准。</p>
+      <p>奖励层级只是当期奖池的分类，不是所有活动通用的品质等级。特等奖、一等奖可能把自选臻彩和其他奖励打包，较低层级则可能是随机或固定奖励。别跨活动比较层级名称，直接看当期奖池表。</p>
+      <p>在已公布的不放回形式中，<strong>抽出的奖励会从奖池中移除</strong>，后续概率由剩余奖励分摊，每次召唤后面板概率都可能变。当期是否采用这条规则，以官方概率说明为准。</p>
+      <p>每次召唤后核对结果和领取状态：有的奖励直接到账，有的要在活动页再点一次领取，别把两种状态搞混。</p>
     </section>
 
     <section>
       <h2>如何估算成本与概率？</h2>
-      <p>璀璨臻彩召唤没有一套永远不变的价格。某一期可能使用带人民币等价说明的点券或积分，另一期可能采用不同货币和价格曲线；首次召唤也可能有优惠，后续次数再逐步增加。</p>
-      <p>活动同时显示积分和人民币时，人民币只是这一期的展示等价，不是永久兑换比例。2026 年 9 月示例把首次召唤标为 1200 积分（12 元）；礼包、后续价格和支付渠道仍要以这期活动为准。</p>
-      <p>以 202620 期为完整示例，十次价格依次为 1200、1800、2400、3000、3600、4200、4800、6000、12000、18000 点券，相加为 {septemberTotalCost.toLocaleString('en-US')} 点券（活动展示等价 570 元）。这只是带日期的价格结构，不是所有期数的固定价目表。</p>
+      <p>璀璨臻彩召唤没有固定价格。有的期数用点券或积分，并标出人民币等价；有的期数换一种货币或价格曲线。首次召唤常有优惠，越往后越贵。</p>
+      <p>活动同时标出积分和人民币时，人民币只是这期的展示等价，不是固定汇率。2026 年 9 月这期首次召唤标为 1200 积分（12 元）；礼包、后续价格和支付渠道仍以当期页面为准。</p>
+      <p>以第 202620 期为例，十次价格依次为 1200、1800、2400、3000、3600、4200、4800、6000、12000、18000 点券，合计 {septemberTotalCost.toLocaleString('en-US')} 点券（页面标为 570 元）。这只是这期的价格，不是各期通用的价目表。</p>
       <table class="guide-table"><caption>2026 年 9 月第 202620 期价格示例</caption><thead><tr><th>第几次</th><th>点券</th><th>展示等价</th></tr></thead><tbody>{septemberDrawCosts.map((cost, index) => <tr><td>{index + 1}</td><td>{cost.toLocaleString('en-US')}</td><td>{(cost / 100).toFixed(0)} 元</td></tr>)}</tbody><tfoot><tr><th>十次合计</th><th>{septemberTotalCost.toLocaleString('en-US')}</th><th>570 元</th></tr></tfoot></table>
-      <p>付费前先写下自己愿意进行的次数和预算。“抽完整轮”的总价只是上限，不是参与建议。还要对照当前奖池和自己已经拥有的内容，并记住臻彩通常需要先拥有对应的<strong>基础皮肤</strong>才能使用。</p>
-      <p>概率计算可以用“剩余权重 ÷ 剩余总权重”理解：为了便于观察，若三个奖项权重相同，初始各为 33.3%，抽走一个后剩下两个各为 50%；实际活动仍须使用官方公布的分层权重，不能用这个示意替代概率表。</p>
-      <p>不要把历史期数的价格或概率换算成未来保证。真正有用的比较，是当前期的奖池、价格、资格条件和自己的收藏目标。</p>
+      <p>付费前先定好自己能接受的次数和预算。“抽完整轮”的总价只是预算上限，不是建议。再对照当期奖池和已拥有的皮肤——臻彩通常要先拥有对应的<strong>基础皮肤</strong>才能用。</p>
+      <p>概率可以按“剩余权重 ÷ 剩余总权重”算。举个最简单的例子：三个奖项权重相同，一开始各 33.3%，抽走一个后剩下两个各 50%。实际活动用官方公布的分层权重，这个例子不能替代概率表。</p>
+      <p>别拿历史价格或概率推算未来。值得比较的只有四样：当期奖池、当期价格、参与资格，以及自己的收藏目标。</p>
     </section>
 
     <section>
       <h2>奖励发放与时间限制</h2>
-      <p>奖励会按照活动规则发放到账号绑定的游戏大区。202620 期明确单个 QQ 账号只能绑定一个参与大区，第一次召唤后不能切换，所以付费前一定要确认。未来期数的锁定文字可能不同，仍要以当期页面为准。</p>
-      <p>普通皮肤道具和货币通常发往绑定大区。202619 期公告还说明：随机皮肤宝箱优先产出绑定大区未解锁的皮肤；如果绑定大区已经全部解锁，随机结果可以选择发放到尚未拥有该皮肤的大区；圣堂花火则发放到绑定大区的客户端「战利品」。这是该期的例外，不应自动套用到未来期数。</p>
-      <p>活动页显示结果并完成可能存在的额外领取步骤后，再离开页面。</p>
-      <p>按官方页面显示的时区记录开始和结束时间。活动结束、召唤截止、领奖截止以及独享期可能是不同日期；单期文章只记录自己对应的那一期，本指南不会把它们写成永久规则。</p>
+      <p>奖励按活动规则发到账号绑定的大区。第 202620 期写明单个 QQ 账号只能绑定一个参与大区，第一次召唤后不能更换，付费前务必确认。未来期数的锁定措辞可能不同，仍以当期页面为准。</p>
+      <p>普通皮肤道具和货币一般发到绑定大区。第 202619 期公告另有说明：随机皮肤宝箱优先开出绑定大区未解锁的皮肤；如果绑定大区已全部解锁，可以选一个尚未拥有该皮肤的大区发放；圣堂花火直接进入绑定大区客户端的「战利品」。这些是 202619 期的特例，不要自动套到后续期数。</p>
+      <p>在活动页确认结果、完成额外领取步骤后，再关页面。</p>
+      <p>按官方页面显示的时区记下开始和结束时间。活动结束、召唤截止、领奖截止、独享期可能是四个不同日期。单期文章只记当期的日子，别把它们当成固定规则。</p>
     </section>
 
     <section>
       <h2>它和臻彩图鉴有什么关系？</h2>
-      <p>臻彩仍然依附于基础皮肤，同时拥有自己的臻彩原画。可以先阅读<a href={prestigeGuideUrl}>什么是臻彩？</a>掌握术语，再浏览<a href={catalogUrl}>臻彩原画图鉴</a>核对原画和基础皮肤。图鉴负责整理可查的资料，本页负责解释获取过程。</p>
+      <p>臻彩依附于基础皮肤，又有自己的臻彩原画。先读<a href={prestigeGuideUrl}>什么是臻彩？</a>弄清术语，再到<a href={catalogUrl}>臻彩原画图鉴</a>核对原画和基础皮肤：图鉴管查阅，本页讲获取。</p>
       <ul><li>相关图鉴条目：{relatedSummonChromas.map((chroma, index) => <><a href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>{chroma.nameZh}</a>{index < relatedSummonChromas.length - 1 ? '、' : ''}</>)}</li></ul>
-      <p>想看当前奖池，请进入<a href={currentSessionUrl}>2026 年 9 月活动文章</a>；想比较往期奖池，可以阅读<a href={previousSessionUrl}>2026 年 8 月活动文章</a>，逐期查看日期和规则，不要把几期内容拼成一张“固定奖池表”。</p>
+      <p>当期奖池看<a href={currentSessionUrl}>2026 年 9 月活动文章</a>；往期对比读<a href={previousSessionUrl}>2026 年 8 月活动文章</a>。逐期看日期和规则，别把几期拼成一张“固定奖池表”。</p>
     </section>
 
     <section>
       <h2>当前期与往期入口</h2>
-      <p>下面的页面带有明确日期，方便比较规则变化，也不会把历史价格当成未来承诺。以下是对两篇单期文章的编辑归纳：</p>
+      <p>下面两篇文章都标了具体日期，方便对比规则变化，也避免把历史价格当成未来报价。两期差异汇总如下：</p>
       <table class="guide-table history-table"><caption>两期已记录活动的差异</caption><thead><tr><th>期数</th><th>自选奖励示例</th><th>价格结构</th><th>奖池、概率与显著规则</th></tr></thead><tbody><tr><td>2026 年 8 月 · 202619</td><td>战斗学院 霞 天马；春晖神女 艾希 轻云蔽月</td><td>每次 12 元</td><td>10 个奖品；特等奖 0.5%、一等奖 1% 初始概率；开启后还能调整一次</td></tr><tr><td>2026 年 9 月 · 202620</td><td>灵魂莲华 阿卡丽 朝花；斗魂觉醒 格温 狡之魂焰</td><td>1200 → 18000 点券；十次 570 元</td><td>10 个奖品；一轮内不重复、剩余概率提升；首次召唤后锁定大区</td></tr></tbody></table>
       <ul><li><a href={currentSessionUrl}>2026 年 9 月 — 第 202620 期</a></li><li><a href={previousSessionUrl}>2026 年 8 月 — 第 202619 期</a></li></ul>
     </section>
 
     <section class="faq">
       <h2>常见问题</h2>
-      <details><summary>Global Server 能参加吗？</summary><p>不能参加。璀璨臻彩召唤是中国大陆服活动系列，Global Server 的可用性和获取方式是另一套问题，不能从国服活动页推导。</p></details>
+      <details><summary>拳头直营服能参加吗？</summary><p>不能。璀璨臻彩召唤是国服活动系列，拳头直营服是否开放、怎么获取是另一回事，不能从国服活动页推断。</p></details>
       <details><summary>可以随便选自己想要的奖励吗？</summary><p>只有当期活动明确提供自选奖池时，才能从活动列出的选项中选择；可选数量和锁定时间都可能随期数变化。</p></details>
       <details><summary>每次召唤后奖励都会离开奖池吗？</summary><p>很多已公布的活动采用不放回奖池，但是否适用于当前期要看官方规则。先读概率说明，再判断概率变化，不要把历史经验当作保证。</p></details>
-      <details><summary>应该按完整一轮的总价决定是否参加吗？</summary><p>把它当预算上限，而不是参与建议。结合当前价格曲线、奖池，以及自己真正想要且拥有基础皮肤的臻彩来判断。</p></details>
-      <details><summary>日期或奖励去哪里核对？</summary><p>先看下方维护信息中的官方活动页，再用当前或往期活动文章获取更易读的摘要和回链。</p></details>
+      <details><summary>应该按完整一轮的总价决定是否参加吗？</summary><p>把它当预算上限，不是参与建议。再对照当期价格、奖池，以及自己真正想要、且已持有基础皮肤的臻彩来判断。</p></details>
+      <details><summary>日期或奖励去哪里核对？</summary><p>先看页面下方维护信息里的官方活动页；想看更易懂的摘要和回链，再翻当期或往期活动文章。</p></details>
     </section>
     <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
