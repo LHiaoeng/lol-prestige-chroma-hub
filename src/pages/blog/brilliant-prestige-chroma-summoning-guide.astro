@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
@@ -271,6 +272,8 @@ const jsonLd = [
     </section>
     <ArticleMaintenance {locale} updatedAt={maintenance.updatedAt} sources={maintenance.sources} related={maintenance.related} />
   </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
 
   <style>
     .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p,.blog-article li{color:#c7cad4;font-size:1.06rem;line-height:1.9}.blog-article section p{margin:0 0 1.2em}.blog-article ul,.blog-article ol{padding-left:1.25rem}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.article-hero{margin-top:0!important}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.blog-article a:focus-visible{outline:2px solid var(--gold);outline-offset:4px}@media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p,.blog-article li{font-size:1rem;line-height:1.78}}
