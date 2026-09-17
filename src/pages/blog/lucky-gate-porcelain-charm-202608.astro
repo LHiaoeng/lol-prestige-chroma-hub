@@ -44,7 +44,7 @@ const jsonLd = [
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -75,6 +75,7 @@ const jsonLd = [
       <h1>{article.titleEn}</h1>
       <p class="article-deck">The Lucky Gate: Porcelain Charm summoning event is live from August 20 to September 20, 2026 on the Chinese server. Three prestige chromas &mdash; including two Porcelain Diamond chromas and one Dragon Flame prestige chroma &mdash; and one mythical fantasy quality skin headline the prize pool.</p>
       <p class="article-meta">
+        <span>By LoL Chroma Art Editorial Team</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
         <span>{article.readingMinutes} min read</span>
@@ -130,6 +131,7 @@ const jsonLd = [
       <h1>{article.titleZh}</h1>
       <p class="article-deck">8 月 20 日至 9 月 20 日，幸运之门·青瓷彩韵召唤活动上线。青花瓷伊泽瑞尔、青花瓷拉克丝、龙马烈焰悠米三款臻彩及神话幻想品质皮肤圣天龙李青加入奖池。</p>
       <p class="article-meta">
+        <span>LoL Chroma Art 编辑团队</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
         <span>阅读约 {article.readingMinutes} 分钟</span>

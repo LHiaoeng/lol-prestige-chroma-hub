@@ -17,7 +17,8 @@ export type EvergreenGuideSlug =
   | 'what-are-prestige-chromas'
   | 'kaisa-prestige-chroma'
   | 'champion-most-prestige-chromas'
-  | 'champions-without-prestige-chroma';
+  | 'champions-without-prestige-chroma'
+  | 'brilliant-prestige-chroma-summoning-guide';
 
 const catalogSource: LocalizedArticleLink = {
   href: '/',
@@ -111,6 +112,22 @@ export const evergreenGuideMaintenance = {
     related: [
       guide('/blog/what-are-prestige-chromas/', 'Prestige Chroma guide', '臻彩专题'),
       guide('/blog/champion-most-prestige-chromas/', 'Prestige Chroma leaderboard', '臻彩数量排行榜'),
+    ],
+  },
+  'brilliant-prestige-chroma-summoning-guide': {
+    updatedAt: '2026-09-15',
+    sources: [
+      tencentPrestigeSource,
+      {
+        href: 'https://lol.qq.com/act/a202609047293tendraws35/index.html',
+        labelEn: 'Tencent League of Legends — Brilliant Prestige Chroma Summoning Session 202620',
+        labelZh: '腾讯《英雄联盟》— 璀璨臻彩召唤第 202620 期',
+        external: true,
+      },
+    ],
+    related: [
+      guide('/blog/prestige-chroma-summon-september-2026/', 'September 2026 summoning session', '2026 年 9 月璀璨臻彩召唤'),
+      guide('/blog/what-are-prestige-chromas/', 'What are Prestige Chromas?', '什么是臻彩？'),
     ],
   },
 } as const satisfies Record<EvergreenGuideSlug, EvergreenGuideMaintenance>;

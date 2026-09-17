@@ -35,7 +35,7 @@ const jsonLd = [
     keywords: isZh ? '海斗大赛, 臻彩, 源计划, 贾克斯, 赛事奖励, 英雄联盟' : 'Challenger: Mayhem, prestige chroma, PROJECT, Jax, tournament reward, League of Legends',
     about: { '@type': 'VideoGame', name: 'League of Legends' },
     isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -66,6 +66,7 @@ const jsonLd = [
       <h1>{article.titleEn}</h1>
       <p class="article-deck">The Chinese server&rsquo;s first Challenger: Mayhem rewards its most active ARAM fighters with a free PROJECT: Jax prestige chroma. Here is what you need to know.</p>
       <p class="article-meta">
+        <span>By LoL Chroma Art Editorial Team</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time>
         <span>·</span>
         <span>{article.readingMinutes} min read</span>
@@ -115,6 +116,7 @@ const jsonLd = [
       <h1>{article.titleZh}</h1>
       <p class="article-deck">国服首届海斗大赛给打满胜场的召唤师准备了一款免费臻彩，不用抽卡、不用花点券，纯靠打。注意：这是国服专属赛事，其他服务器没有。</p>
       <p class="article-meta">
+        <span>LoL Chroma Art 编辑团队</span><span>·</span>
         <time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time>
         <span>·</span>
         <span>阅读约 {article.readingMinutes} 分钟</span>

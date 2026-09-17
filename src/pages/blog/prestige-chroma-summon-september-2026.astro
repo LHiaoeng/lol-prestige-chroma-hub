@@ -22,12 +22,13 @@ const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toSt
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 
-const eventStart = '2026-09-04';
-const eventEnd = '2026-10-04';
-const eventUrl = 'https://lol.qq.com/act/a202609047293tendraws35/index.html';
-
 // Each summon's point cost; the tenth draw costs 15x the first.
-const drawCosts = [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000];
+const currentSummonSession = brilliantSummonSessions.find((session) => session.sessionId === '202620');
+if (!currentSummonSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
+const eventStart = currentSummonSession.windowStart;
+const eventEnd = currentSummonSession.windowEnd;
+const eventUrl = currentSummonSession.eventUrl;
+const drawCosts = currentSummonSession.drawCosts;
 const totalCost = drawCosts.reduce((sum, cost) => sum + cost, 0);
 
 // Session 202620 prize chromas — "灵魂莲华 阿卡丽 朝花" and "斗魂觉醒 格温 狡之魂焰"
@@ -74,7 +75,7 @@ const jsonLd = [
     description, image: article.coverUrl, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -117,7 +118,7 @@ const jsonLd = [
       <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
       <h1>{article.titleEn}</h1>
       <p class="article-deck">A new Brilliant Prestige Chroma Summoning session runs {eventStart.replace(/-/g, '/')} &ndash; {eventEnd.replace(/-/g, '/')} on the Chinese server. <a href={grandPrizeUrl}>Spirit Blossom Akali (Pearl)</a> and <a href={firstPrizeUrl}>Soul Fighter Gwen (Sapphire)</a> headline the self-select prize pools, and the first summon costs 12 RMB.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
@@ -126,7 +127,7 @@ const jsonLd = [
 
     <section>
       <h2>Two prestige chromas in the prize pool</h2>
-      <p>This session's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, one per top tier:</p>
+      <p>This session's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, one per top tier. For the cross-session rules and a participation checklist, see our <a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>complete Brilliant Prestige Chroma Summoning guide</a>.</p>
       <BlogChromaGrid>
         <BlogChromaCard chroma={grandPrize} labelEn="Spirit Blossom Akali (Pearl)" labelZh="灵魂莲华 阿卡丽 朝花" {locale} />
         <BlogChromaCard chroma={firstPrize} labelEn="Soul Fighter Gwen (Sapphire)" labelZh="斗魂觉醒 格温 狡之魂焰" {locale} />
@@ -246,7 +247,7 @@ const jsonLd = [
       <p class="kicker">LOL 臻彩活动</p>
       <h1>{article.titleZh}</h1>
       <p class="article-deck">9 月 4 日至 10 月 4 日，新一期璀璨臻彩召唤上线国服。特等奖自选<a href={grandPrizeUrl}>灵魂莲华 阿卡丽 朝花</a>，一等奖自选<a href={firstPrizeUrl}>斗魂觉醒 格温 狡之魂焰</a>，首次召唤 12 元，单个 QQ 限抽十次。</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
@@ -255,7 +256,7 @@ const jsonLd = [
 
     <section>
       <h2>奖池里的两款臻彩</h2>
-      <p>本期自选奖池的两个顶层奖位各有一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>坐镇：</p>
+      <p>本期自选奖池的两个顶层奖位各有一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>坐镇。想了解跨期规则和完整参与清单，可以阅读<a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>璀璨臻彩召唤完全指南</a>：</p>
       <BlogChromaGrid>
         <BlogChromaCard chroma={grandPrize} labelEn="Spirit Blossom Akali (Pearl)" labelZh="灵魂莲华 阿卡丽 朝花" {locale} />
         <BlogChromaCard chroma={firstPrize} labelEn="Soul Fighter Gwen (Sapphire)" labelZh="斗魂觉醒 格温 狡之魂焰" {locale} />

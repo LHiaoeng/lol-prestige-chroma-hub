@@ -65,6 +65,8 @@ describe('static site build', () => {
     expect(existsSync(join(dist, 'blog', 'joy-club-peak-gala-202608', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'blog', 'prestige-chroma-summon-september-2026', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'prestige-chroma-summon-september-2026', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'zh-cn', 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202607', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202606', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'zh-cn', 'blog', 'joy-club-peak-gala-202608', 'index.html'))).toBe(true);
@@ -98,6 +100,7 @@ describe('static site build', () => {
     expect(article).not.toContain('召唤师峡谷与水晶枢纽');
     expect(prestigeArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/what-are-prestige-chromas/">');
     expect(prestigeArticle).toContain('"@type":"BlogPosting"');
+    expect(prestigeArticle).toContain('href="/blog/brilliant-prestige-chroma-summoning-guide/"');
     expect(prestigeArticle).not.toContain('什么是臻彩');
     expect(coverageArticle).toContain('<link rel="canonical" href="https://chromaart.lol/blog/champions-without-prestige-chroma/">');
     expect(coverageArticle).toContain('data-coverage-list="en"');
@@ -137,14 +140,23 @@ describe('static site build', () => {
     expect(home).toContain('“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.');
     expect(home).not.toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(chineseHome).toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
-    expect(about).toContain('<title>What Are Chroma Splash Arts? | LoL Chroma Art</title>');
+    expect(about).toContain('<title>About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art</title>');
     expect(about).toContain('“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.');
     expect(about).not.toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
-    expect(chineseAbout).toContain('<title>什么是《英雄联盟》中国服炫彩原画？ | LoL Chroma Art</title>');
+    expect(chineseAbout).toContain('<title>关于 LoL Chroma Art — 独立臻彩原画图鉴 | LoL Chroma Art</title>');
     expect(chineseAbout).toContain('“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。');
     expect(about).toContain("Most chromas reuse their base skin's splash art");
     expect(about).toContain('operated by Tencent');
-    expect(about).toContain('Availability and release timing vary by event and patch');
+    expect(about).toContain('LoL Chroma Art Editorial Team');
+    expect(about).toContain('Editorial principles');
+    expect(about).toContain('Sources and verification');
+    expect(about).toContain('Corrections and updates');
+    expect(about).not.toContain('/editorial-policy/');
+    expect(chineseAbout).toContain('LoL Chroma Art 编辑团队');
+    expect(chineseAbout).toContain('编辑原则');
+    expect(chineseAbout).toContain('资料来源与核验方式');
+    expect(chineseAbout).toContain('纠错与更新');
+    expect(chineseAbout).not.toContain('/zh-cn/editorial-policy/');
     expect(about).not.toContain('will likely be priced higher');
     expect(about).not.toContain('Players should prepare');
   });
@@ -154,15 +166,17 @@ describe('static site build', () => {
     const chineseHome = readFileSync(join(dist, 'zh-cn', 'index.html'), 'utf8');
     expect(home).toContain('Latest News &amp; Guides');
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/brilliant-prestige-chroma-summoning-guide/"');
     expect(home).toContain('href="/blog/patch-26-18-prestige-chromas/"');
     expect(home).toContain('href="/blog/prestige-chroma-summon-september-2026/"');
-    expect(home).toContain('href="/blog/joy-club-peak-gala-202608/"');
+    expect(home).not.toContain('href="/blog/joy-club-peak-gala-202608/"');
     expect(home).not.toContain('href="/blog/full-gift-reward-prestige-chroma-202608/"');
     expect(chineseHome).toContain('最新资讯与指南');
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
+    expect(chineseHome).toContain('href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"');
     expect(chineseHome).toContain('href="/zh-cn/blog/patch-26-18-prestige-chromas/"');
     expect(chineseHome).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
-    expect(chineseHome).toContain('href="/zh-cn/blog/joy-club-peak-gala-202608/"');
+    expect(chineseHome).not.toContain('href="/zh-cn/blog/joy-club-peak-gala-202608/"');
   });
 
   it('emits Simplified Chinese canonical routes as server-rendered pages', () => {
@@ -199,6 +213,67 @@ describe('static site build', () => {
     expect(chineseCoverage).not.toContain('data-coverage-list="en"');
   });
 
+  it('publishes the bilingual Brilliant Prestige Chroma Summoning pillar guide', () => {
+    const guide = readFileSync(join(dist, 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'), 'utf8');
+    const chineseGuide = readFileSync(join(dist, 'zh-cn', 'blog', 'brilliant-prestige-chroma-summoning-guide', 'index.html'), 'utf8');
+
+    expect(guide).toContain('<link rel="canonical" href="https://chromaart.lol/blog/brilliant-prestige-chroma-summoning-guide/">');
+    expect(chineseGuide).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/">');
+    expect(guide).toContain('Brilliant Prestige Chroma Summoning: Complete Guide');
+    expect(chineseGuide).toContain('璀璨臻彩召唤完全指南');
+    expect(guide).toContain('China Server');
+    expect(guide).toContain('Global Server');
+    expect(guide).toContain('Server Region');
+    expect(guide).toContain('drawn rewards leave the pool');
+    expect(guide).toContain('570 RMB for the full round');
+    expect(guide).toContain('one QQ account can participate in one bound Server Region');
+    expect(guide).toContain('33.3% each for three items');
+    expect(chineseGuide).toContain('抽出的奖励会从奖池中移除');
+    expect(chineseGuide).toContain('1200、1800、2400、3000、3600、4200、4800、6000、12000、18000');
+    expect(chineseGuide).toContain('单个 QQ 账号只能绑定一个参与大区');
+    expect(chineseGuide).toContain('三个奖项权重相同');
+    expect(guide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(chineseGuide).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(guide).toContain('"@type":"FAQPage"');
+    expect(chineseGuide).toContain('"@type":"FAQPage"');
+    expect(guide).toContain('data-article-maintenance');
+    expect(chineseGuide).toContain('data-article-maintenance');
+    expect(guide).toContain('href="/blog/prestige-chroma-summon-september-2026/"');
+    expect(guide).toContain('href="/blog/prestige-chroma-summon-august-2026/"');
+    expect(guide).toContain('href="/blog/what-are-prestige-chromas/"');
+    expect(guide).toContain('href="/"');
+    for (const slug of [
+      'the-rogue-assassin-akali-spirit-blossom-akali-pearl-84098',
+      'the-hallowed-seamstress-gwen-soul-fighter-gwen-sapphire-887023',
+      'the-rebel-xayah-battle-academia-xayah-sapphire-498060',
+      'the-frost-archer-ashe-lunar-empress-ashe-rose-quartz-22056',
+    ]) {
+      expect(guide).toContain(`href="/chromas/${slug}/"`);
+      expect(chineseGuide).toContain(`href="/zh-cn/chromas/${slug}/"`);
+      const detail = readFileSync(join(dist, 'chromas', slug, 'index.html'), 'utf8');
+      const chineseDetail = readFileSync(join(dist, 'zh-cn', 'chromas', slug, 'index.html'), 'utf8');
+      expect(detail).toContain('href="/blog/brilliant-prestige-chroma-summoning-guide/"');
+      expect(chineseDetail).toContain('href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"');
+    }
+    expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-september-2026/"');
+    expect(chineseGuide).toContain('href="/zh-cn/blog/prestige-chroma-summon-august-2026/"');
+    expect(chineseGuide).toContain('href="/zh-cn/blog/what-are-prestige-chromas/"');
+    expect(chineseGuide).toContain('href="/zh-cn/"');
+    expect(guide).toContain('data-ad-boundary="editorial-article"');
+    expect(chineseGuide).toContain('data-ad-boundary="editorial-article"');
+    expect(guide).not.toContain('data-language-content="zh"');
+    expect(chineseGuide).not.toContain('data-language-content="en"');
+  });
+
+  it('keeps dated session rules separate from the durable guide', () => {
+    const august = readFileSync(join(dist, 'blog', 'prestige-chroma-summon-august-2026', 'index.html'), 'utf8');
+    const augustChinese = readFileSync(join(dist, 'zh-cn', 'blog', 'prestige-chroma-summon-august-2026', 'index.html'), 'utf8');
+    expect(august).not.toContain('The format is consistent:');
+    expect(augustChinese).not.toContain('形式固定：');
+    expect(august).toContain('In this August 2026 Session 202619');
+    expect(augustChinese).toContain('2026 年 8 月第 202619 期公布的形式');
+  });
+
   it('removes list indentation from blog chroma grids', () => {
     const styles = readFileSync(join(root, 'src', 'styles', 'global.css'), 'utf8');
     const grid = readFileSync(join(root, 'src', 'components', 'BlogChromaGrid.astro'), 'utf8');
@@ -207,7 +282,7 @@ describe('static site build', () => {
     expect(grid).toContain('grid-template-columns:repeat(var(--blog-chroma-columns)');
   });
 
-  it('publishes bilingual maintenance details for all six evergreen guides', () => {
+  it('publishes bilingual maintenance details for all evergreen guides', () => {
     const evergreenGuideSlugs = [
       'what-is-league-of-legends',
       'what-are-chroma-skins',
@@ -215,6 +290,7 @@ describe('static site build', () => {
       'kaisa-prestige-chroma',
       'champion-most-prestige-chromas',
       'champions-without-prestige-chroma',
+      'brilliant-prestige-chroma-summoning-guide',
     ];
 
     for (const slug of evergreenGuideSlugs) {
@@ -226,9 +302,9 @@ describe('static site build', () => {
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-sources');
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-corrections');
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('data-article-related');
-        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(localePrefix ? 'BreadJ 与 LoL Chroma Art 编辑团队' : 'BreadJ and the LoL Chroma Art editorial team');
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(localePrefix ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team');
         expect(article, `${localePrefix || 'en'} ${slug}`).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
-        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(`href="/${localePrefix ? `${localePrefix}/` : ''}editorial-policy/"`);
+        expect(article, `${localePrefix || 'en'} ${slug}`).toContain(`href="/${localePrefix ? `${localePrefix}/` : ''}about/"`);
 
         const updatedAt = article.match(/data-article-updated[\s\S]*?<time datetime="([^"]+)"/)?.[1];
         expect(updatedAt, `${localePrefix || 'en'} ${slug} review date`).toBeDefined();
@@ -278,29 +354,29 @@ describe('static site build', () => {
     expect(footer).toContain('class="footer-separator" aria-hidden="true"');
   });
 
-  it('publishes bilingual editorial trust pages and links them from public content', () => {
-    const policy = readFileSync(join(dist, 'editorial-policy', 'index.html'), 'utf8');
-    const chinesePolicy = readFileSync(join(dist, 'zh-cn', 'editorial-policy', 'index.html'), 'utf8');
+  it('merges editorial trust content into the about page and links it from public content', () => {
+    const about = readFileSync(join(dist, 'about', 'index.html'), 'utf8');
+    const chineseAbout = readFileSync(join(dist, 'zh-cn', 'about', 'index.html'), 'utf8');
     const article = readFileSync(join(dist, 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const chineseArticle = readFileSync(join(dist, 'zh-cn', 'blog', 'what-are-prestige-chromas', 'index.html'), 'utf8');
     const home = readFileSync(join(dist, 'index.html'), 'utf8');
-    expect(policy).toContain('<title>Editorial Policy &amp; Sources | LoL Chroma Art</title>');
-    expect(policy).toContain('Maintained by BreadJ and the LoL Chroma Art editorial team');
-    expect(policy).toContain('the League of Legends China Server, operated by Tencent');
-    expect(policy).toContain('Sources and verification');
-    expect(policy).toContain('Corrections and updates');
-    expect(policy).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
-    expect(policy).not.toContain('data-ad-boundary=');
-    expect(policy).not.toContain('pagead2.googlesyndication.com');
-    expect(chinesePolicy).toContain('<title>作者与编辑说明 | LoL Chroma Art</title>');
-    expect(chinesePolicy).toContain('维护主体：BreadJ 与 LoL Chroma Art 编辑团队');
-    expect(chinesePolicy).toContain('资料来源与核验方式');
-    expect(chinesePolicy).toContain('纠错与更新');
-    expect(chinesePolicy).not.toContain('data-ad-boundary=');
-    expect(article).toContain('href="/editorial-policy/"');
-    expect(chineseArticle).toContain('href="/zh-cn/editorial-policy/"');
+    expect(about).toContain('Editorial principles');
+    expect(about).toContain('Sources and verification');
+    expect(about).toContain('Corrections and updates');
+    expect(about).toContain('Maintained by the LoL Chroma Art Editorial Team');
+    expect(about).toContain('href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction"');
+    expect(about).not.toContain('data-ad-boundary=');
+    expect(about).not.toContain('pagead2.googlesyndication.com');
+    expect(chineseAbout).toContain('编辑原则');
+    expect(chineseAbout).toContain('资料来源与核验方式');
+    expect(chineseAbout).toContain('纠错与更新');
+    expect(chineseAbout).toContain('维护主体：LoL Chroma Art 编辑团队');
+    expect(chineseAbout).not.toContain('data-ad-boundary=');
+    expect(article).toContain('href="/about/"');
+    expect(chineseArticle).toContain('href="/zh-cn/about/"');
     expect(article).toContain('min-height:var(--touch-target)');
-    expect(home).toContain('href="/editorial-policy/"');
+    expect(home).toContain('href="/about/"');
+    expect(home).not.toContain('href="/editorial-policy/"');
   });
 
   it('keeps the 404 page out of the localized canonical index', () => {

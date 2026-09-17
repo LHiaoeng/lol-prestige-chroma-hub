@@ -30,7 +30,7 @@ const jsonLd = [
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -53,7 +53,7 @@ const jsonLd = [
       <p class="kicker">PORCELAIN PRESTIGE CHROMAS</p>
       <h1>{article.titleEn}</h1>
       <p class="article-deck">Four new prestige chromas inspired by Jingdezhen porcelain art launch in two waves &mdash; August 13 for Irelia and Lissandra, August 19 for Ezreal and Lux.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
 
     <figure class="article-hero">
@@ -138,7 +138,7 @@ const jsonLd = [
       <p class="kicker">青花瓷臻彩</p>
       <h1>{article.titleZh}</h1>
       <p class="article-deck">青白如月舞流刃，釉里红梅缀霜华。三彩灵虎入云松，五彩游鳞衔晴光。四种景德镇瓷艺美学融入英雄联盟青花瓷臻彩，8 月 13 日和 19 日分两批上线。</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
 
     <figure class="article-hero">

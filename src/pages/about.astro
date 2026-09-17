@@ -13,42 +13,89 @@ const isZh = locale === 'zh-cn';
 const firstChroma = catalog.reduce((lowest, item) => item.rank < lowest.rank ? item : lowest);
 const jadeSwordChroma = catalog.find((item) => item.nameZh === '玉剑传说 无极 白虎');
 
-const title = isZh ? '什么是《英雄联盟》中国服炫彩原画？ | LoL Chroma Art' : 'What Are Chroma Splash Arts? | LoL Chroma Art';
-const description = isZh ? '了解腾讯运营的《英雄联盟》中国版本为特定炫彩提供的独立炫彩原画。' : 'Learn about unique splash arts created for selected chromas in the Chinese version of League of Legends, operated by Tencent.';
+const title = isZh ? '关于 LoL Chroma Art — 独立臻彩原画图鉴 | LoL Chroma Art' : 'About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art';
+const description = isZh ? 'LoL Chroma Art 是由 LoL Chroma Art 编辑团队维护的独立爱好者图鉴，收录《英雄联盟》中国服臻彩专属原画。了解建站缘起、收录范围、编辑原则、资料来源与纠错流程。' : 'LoL Chroma Art is an independent fan archive maintained by the LoL Chroma Art Editorial Team, cataloging China-Exclusive Prestige Chroma splash arts for League of Legends. Learn about our editorial principles, sources, and correction process.';
 const canonical = new URL(localizedPath(locale, '/about/'), SITE.origin).toString();
-const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: title, description, url: canonical, inLanguage: isZh ? 'zh-CN' : 'en' };
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: title,
+  description,
+  url: canonical,
+  inLanguage: isZh ? 'zh-CN' : 'en',
+  author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+  publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  isPartOf: { '@type': 'WebSite', name: SITE.name, url: homeUrl },
+};
 ---
 <BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
   {!isZh && <article class="about-page">
     <p class="kicker">ABOUT THE ARCHIVE</p>
-    <h1>What Are Chroma Splash Arts in League of Legends?</h1>
-    <p>A chroma splash art is a unique splash artwork created for a specific chroma. Most chromas reuse their base skin's splash art and do not have one of their own.</p>
+    <h1>About LoL Chroma Art</h1>
+    <p>LoL Chroma Art is an independent fan archive cataloging standalone Prestige Chroma splash arts from the League of Legends China Server. It is maintained by the LoL Chroma Art Editorial Team — independent fans, not Riot Games or Tencent.</p>
+    <p class="editorial-meta"><span>Maintained by the LoL Chroma Art Editorial Team</span><span>Last reviewed: August 25, 2026</span></p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </figure>
 
     <section>
-      <h2>Chroma Splash Arts in the Chinese Version</h2>
+      <h2>Why this archive exists</h2>
+      <p>A chroma splash art is a unique splash artwork created for a specific chroma. Most chromas reuse their base skin's splash art and do not have one of their own. The China Server, operated by Tencent, produces dedicated splash arts for selected prestige chromas that are not available on the Global Server — these are the artworks this archive collects.</p>
       <p>{CHINA_EXCLUSIVE_DEFINITION.en}</p>
-      <p>Selected chromas in the Chinese version of League of Legends, operated by Tencent, are presented with their own splash arts. Availability and release timing vary by event and patch.</p>
+      <p>The archive launched in July 2026 to give players a single place to browse, identify, and compare every China-Exclusive chroma splash art. Each entry records the chroma name, base skin, patch, category, and artwork — verified against first-party sources before publication.</p>
       {jadeSwordChroma && <figure class="about-art">
         <img src={imageUrl(jadeSwordChroma.images.large)} data-fallback={sourceImageUrl('large', jadeSwordChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
       </figure>}
     </section>
 
     <section>
-      <h2>Availability and Release Tracking</h2>
-      <p>LoL Chroma Art records the patch associated with each catalog entry and adds new chroma splash arts when verified source data becomes available. For current purchase requirements, players should consult the active Chinese server event or store information.</p>
+      <h2>What the archive covers</h2>
+      <p>LoL Chroma Art uses <em>Prestige Chroma</em> as the English label for the Chinese 臻彩 category. A Prestige Chroma is still a chroma of an existing skin, not a traditional Prestige Skin. The catalog may also include chroma splash arts from other categories, and focuses on identifying each chroma, its base skin, patch, category, and unique artwork.</p>
+      <p>The archive records the patch associated with each entry and adds new chroma splash arts when verified source data becomes available. A patch or event date records when a source associated an item with that release — it does not promise that the item is currently obtainable. For current purchase requirements, players should consult the active Chinese server event or store information.</p>
     </section>
 
     <section>
-      <h2>Prestige Chroma and Other Categories</h2>
-      <p>LoL Chroma Art uses Prestige Chroma as the English label for the Chinese 臻彩 category. A Prestige Chroma is still a chroma of an existing skin, not a traditional Prestige Skin. The archive may also include chroma splash arts from other categories, and focuses on identifying each chroma, its base skin, patch, category, and unique artwork.</p>
+      <h2>Editorial principles</h2>
+      <ul class="principle-list">
+        <li><strong>Reference and interpretation stay separate.</strong> Catalog pages are lookup records. Blog articles may explain, compare, or curate, but they identify those editorial judgments instead of presenting them as raw game data.</li>
+        <li><strong>Terms follow the game's real structure.</strong> We start with the League of Legends China Server, operated by Tencent; on this site, we shorten it to China Server. Global Server means the server system operated directly by Riot Games. A Server Region is a subdivision within a server, and an esports region such as the LPL Region is not a game server.</li>
+        <li><strong>臻彩 is a chroma, not a separate skin.</strong> We use <em>Prestige Chroma</em> for 臻彩 in English. A Prestige Chroma remains attached to its base skin and may have its own Prestige Chroma Splash Art.</li>
+        <li><strong>Availability is handled carefully.</strong> A patch or event date records when a source associated an item with that release. It does not promise that the item is currently obtainable. Current purchase or event details should be checked against the live official announcement or client.</li>
+        <li><strong>Bilingual pages are reviewed as content.</strong> The Chinese and English versions communicate the same verified claim in language appropriate to their readers; a translation is not used to replace missing research or editorial explanation.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Sources and verification</h2>
+      <p>We prefer first-party material: <a href="https://www.leagueoflegends.com/" target="_blank" rel="noreferrer">Riot Games and League of Legends official pages</a>, and <a href="https://lol.qq.com/" target="_blank" rel="noreferrer">the Tencent-operated League of Legends China Server site</a>, including event announcements, patch information, store notices, and official showcases. When an article depends on a specific announcement, the relevant source is linked in the article.</p>
+      <p>For structured identifiers, patch context, and image paths, the catalog workflow may also use publicly accessible game-data references such as <a href="https://raw.communitydragon.org/" target="_blank" rel="noreferrer">CommunityDragon</a>. These supporting references help identify and compare records; they do not turn this independent archive into an official Riot or Tencent database.</p>
+      <ol class="verification-list">
+        <li>Identify the champion, base skin, chroma, category, and server context before writing a claim.</li>
+        <li>Compare the claim with the strongest available official source and check that dates, names, and acquisition wording match.</li>
+        <li>Review artwork and related records for identity or relationship mistakes, then record the page's publication or review date.</li>
+        <li>When sources disagree or a current status cannot be confirmed, say so clearly and avoid presenting an inference as an official fact.</li>
+      </ol>
+      <p class="source-note">We use League of Legends assets under Riot Games' <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">Legal Jibber Jabber</a> policy. LoL Chroma Art does not claim ownership of those assets.</p>
+    </section>
+
+    <section class="correction-section">
+      <h2>Corrections and updates</h2>
+      <p>If you find a wrong name, relationship, source link, translation, date, or server description, email <a href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20correction">lolchromaart@outlook.com</a>. You can also reach the official X account <a href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@BreadJ</a>.</p>
+      <div class="correction-panel">
+        <h3>What to include</h3>
+        <ul>
+          <li>The page URL and the exact statement or field that needs review.</li>
+          <li>The corrected wording and, when possible, a first-party source link or screenshot.</li>
+          <li>Your preferred language and any context that helps reproduce the issue.</li>
+        </ul>
+      </div>
+      <p>We review reports against the available source material. Confirmed factual errors are corrected in the next content update, and material changes receive a new review date. A suggestion may be declined when it cannot be verified, conflicts with a stronger source, or describes current availability without a current official notice.</p>
     </section>
 
     <section class="contact-section">
-      <h2>Get in Touch</h2>
-      <p>Have questions, suggestions, or just want to say hi? Feel free to reach out.</p>
+      <h2>Get in touch</h2>
+      <p>For questions about a catalog record, editorial decision, source, or correction, use the contact methods above and include the relevant URL. We welcome precise, evidence-based feedback that helps keep this reference useful.</p>
       <ul class="contact-list">
         <li>
           <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM2 1v1.145l5.803 3.546.197-.14.197.14L14 2.145V1zm13.8 2.698L8 9.586 2.2 3.698l-.15.158V12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.856z" fill="currentColor"/></svg>
@@ -57,8 +104,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
         </li>
         <li>
           <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" fill="currentColor"/></svg>
-          <span class="contact-label">X (Twitter)</span>
-          <a class="contact-link" href="https://x.com/BreadJ" target="_blank" rel="noopener noreferrer">@BreadJ</a>
+          <span class="contact-label">X (Official)</span>
+          <a class="contact-link" href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@BreadJ</a>
         </li>
       </ul>
     </section>
@@ -66,34 +113,70 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
 
   {isZh && <article class="about-page">
     <p class="kicker">关于图鉴</p>
-    <h1>什么是《英雄联盟》中国服炫彩原画？</h1>
-    <p>炫彩原画是为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。本站收录的是国服臻彩及其专属原画。</p>
+    <h1>关于 LoL Chroma Art</h1>
+    <p>LoL Chroma Art 是独立的爱好者图鉴，收录《英雄联盟》中国服（China Server）为臻彩单独提供的专属原画。由 LoL Chroma Art 编辑团队维护——我们是独立爱好者，不是 Riot Games 或腾讯。</p>
+    <p class="editorial-meta"><span>维护主体：LoL Chroma Art 编辑团队</span><span>最近核验：2026 年 8 月 25 日</span></p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </figure>
 
     <section>
-      <h2>中国版本中的炫彩原画</h2>
+      <h2>建站缘起</h2>
+      <p>炫彩原画是为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。由腾讯运营的中国服会为部分臻彩提供 Global Server 上看不到的专属原画——这些就是本站收录的内容。</p>
       <p>{CHINA_EXCLUSIVE_DEFINITION.zh}</p>
-      <p>由腾讯运营的《英雄联盟》中国版本会为部分特定炫彩提供独立原画；具体上线时间和获取方式会随活动与版本变化。</p>
+      <p>图鉴于 2026 年 7 月上线，目标是让玩家在一个地方浏览、识别和比较每一张中国服专属臻彩原画。每条记录包含炫彩名称、基础皮肤、版本、分类和原画——发布前均与第一方来源核对。</p>
       {jadeSwordChroma && <figure class="about-art">
         <img src={imageUrl(jadeSwordChroma.images.large)} data-fallback={sourceImageUrl('large', jadeSwordChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
       </figure>}
     </section>
 
     <section>
-      <h2>上架与更新追踪</h2>
-      <p>LoL Chroma Art 记录每件藏品对应的游戏版本，并在获得可靠数据后更新图鉴；当前获取条件应以中国服务器正在进行的活动或商城信息为准。</p>
+      <h2>收录范围</h2>
+      <p>本站将"臻彩"译作 <em>Prestige Chroma</em>。臻彩仍是现有皮肤的炫彩，并非传统至臻皮肤；本站也可能收录其他分类的炫彩原画，重点记录炫彩名称、基础皮肤、版本、分类和独立原画。</p>
+      <p>图鉴记录每条藏品对应的游戏版本，并在获得可靠数据后更新。版本或活动日期表示资料将条目与该次发布关联，并不保证当前仍可获取；当前获取条件应以中国服正在进行的活动或商城信息为准。</p>
     </section>
 
     <section>
-      <h2>臻彩与其他分类</h2>
-      <p>本站将"臻彩"分类译作 Prestige Chroma。臻彩仍是现有皮肤的炫彩，并非传统至臻皮肤；本站也可能收录其他分类的炫彩原画，重点记录炫彩名称、基础皮肤、版本、分类和独立原画。</p>
+      <h2>编辑原则</h2>
+      <ul class="principle-list">
+        <li><strong>区分资料与解读。</strong> 图鉴详情页是用于查找和核对的资料记录；博客文章可以提供解释、比较或策展判断，但会把这些编辑内容与原始游戏资料区分开。</li>
+        <li><strong>按照游戏真实结构使用术语。</strong> China Server 指腾讯在中国大陆运营的《英雄联盟》游戏服务器；Global Server 指 Riot Games 直接运营的服务器体系；Server Region 是游戏服务器内部的大区；LPL Region 等电竞赛区不是游戏服务器。</li>
+        <li><strong>臻彩仍然是炫彩，不是独立皮肤。</strong> 英文统一使用 <em>Prestige Chroma</em> 指代臻彩。臻彩依附于基础皮肤，并可能拥有单独的臻彩原画。</li>
+        <li><strong>谨慎处理获取状态。</strong> 版本或活动日期表示资料将条目与该次发布关联，并不保证当前仍可获取。当前购买或活动信息应以正在生效的官方公告或客户端为准。</li>
+        <li><strong>双语页面都经过内容审阅。</strong> 中文和英文版本表达同一条已核验事实，同时适应各自读者的语言；翻译不会被用来掩盖缺少研究或编辑解释的问题。</li>
+      </ul>
     </section>
-  
+
+    <section>
+      <h2>资料来源与核验方式</h2>
+      <p>我们优先使用第一方资料，包括 <a href="https://www.leagueoflegends.com/" target="_blank" rel="noreferrer">Riot Games 和《英雄联盟》官方页面</a>，以及 <a href="https://lol.qq.com/" target="_blank" rel="noreferrer">腾讯运营的《英雄联盟》中国大陆服官网</a>，具体包括活动公告、版本信息、商城说明和官方展示。文章依赖具体公告时，会在文章中链接对应来源。</p>
+      <p>对于业务标识、版本背景和图片路径，图鉴数据流程也可能参考公开的游戏数据资料，例如 <a href="https://raw.communitydragon.org/" target="_blank" rel="noreferrer">CommunityDragon</a>。这些辅助资料用于识别和比较记录，并不意味着本站是 Riot Games 或腾讯的官方数据库。</p>
+      <ol class="verification-list">
+        <li>先确认英雄、基础皮肤、炫彩、分类和服务器语境，再撰写相关说法。</li>
+        <li>将说法与可获得的最强官方来源对照，检查日期、名称和获取描述是否一致。</li>
+        <li>复查原画及关联条目，避免身份或关系错误，并记录页面发布日期或核验日期。</li>
+        <li>当来源存在差异，或无法确认当前状态时，明确说明不确定性，不把推断写成官方事实。</li>
+      </ol>
+      <p class="source-note">本站依据 Riot Games 的 <a href="https://www.riotgames.com/en/legal" target="_blank" rel="noreferrer">"Legal Jibber Jabber"</a> 政策使用《英雄联盟》素材；LoL Chroma Art 不主张拥有这些素材的所有权。</p>
+    </section>
+
+    <section class="correction-section">
+      <h2>纠错与更新</h2>
+      <p>如果你发现名称、关联关系、来源链接、翻译、日期或服务器描述有误，请发送邮件至 <a href="mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20Art%20%E7%BA%A0%E9%94%99">lolchromaart@outlook.com</a>，也可以通过 <a href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">官方 X 账号 @BreadJ</a> 联系。</p>
+      <div class="correction-panel">
+        <h3>建议提供的信息</h3>
+        <ul>
+          <li>页面网址，以及需要核查的准确说法或字段。</li>
+          <li>建议的正确表述，并尽可能附上第一方来源链接或截图。</li>
+          <li>你使用的语言，以及有助于复现问题的上下文。</li>
+        </ul>
+      </div>
+      <p>我们会将报告与现有资料进行对照。确认属实的事实错误会在下一次内容更新中修正，重大修改会更新核验日期。如果建议无法核验、与更可靠的来源冲突，或在没有当前官方公告的情况下声称某项内容仍可获取，我们可能不会采纳。</p>
+    </section>
+
     <section class="contact-section">
       <h2>联系我们</h2>
-      <p>有任何问题、建议或合作意向，欢迎通过以下方式联系。</p>
+      <p>如果你想询问某条图鉴记录、编辑决定、资料来源或纠错结果，请使用上方联系方式并附上相关网址。欢迎能够帮助这份资料保持准确的具体、可核验反馈。</p>
       <ul class="contact-list">
         <li>
           <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM2 1v1.145l5.803 3.546.197-.14.197.14L14 2.145V1zm13.8 2.698L8 9.586 2.2 3.698l-.15.158V12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.856z" fill="currentColor"/></svg>
@@ -102,8 +185,8 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
         </li>
         <li>
           <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" fill="currentColor"/></svg>
-          <span class="contact-label">X (Twitter)</span>
-          <a class="contact-link" href="https://x.com/BreadJ" target="_blank" rel="noopener noreferrer">@BreadJ</a>
+          <span class="contact-label">X（官方）</span>
+          <a class="contact-link" href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@BreadJ</a>
         </li>
       </ul>
     </section>
@@ -114,10 +197,23 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
     .about-page h1 { font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.08; margin: .45em 0 .6em; font-weight: 500; }
     .about-page section { border-top: 1px solid var(--line); margin-top: 42px; padding-top: 34px; }
     .about-page h2 { font-family: Georgia, "Noto Serif SC", serif; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; margin: 0 0 16px; }
-    .about-page p:not(.kicker) { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; margin: 0; }
+    .about-page h3 { color: #e4c880; font-size: 1.05rem; margin: 0 0 10px; }
+    .about-page p:not(.kicker):not(.editorial-meta) { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; margin: 0; }
     .about-page section p + p { margin-top: 1em; }
+    .about-page a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+    .editorial-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: .84rem; line-height: 1.6; margin: 20px 0 0; }
+    .editorial-meta span + span::before { content: "·"; margin-right: 18px; color: var(--gold); }
     .about-art { width: 100%; margin: 32px 0 0; overflow: hidden; border: 1px solid var(--line); background: #090b15; box-shadow: 0 18px 48px #0008; }
     .about-art img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: center top; }
+    .principle-list, .verification-list { padding-left: 1.35rem; margin: 20px 0 0; }
+    .principle-list li, .verification-list li { color: #c7cad4; font-size: 1.05rem; line-height: 1.85; padding-left: 6px; margin-top: 12px; }
+    .principle-list li:first-child, .verification-list li:first-child { margin-top: 0; }
+    .principle-list strong { color: var(--text); }
+    .source-note { color: var(--muted) !important; font-size: .92rem !important; }
+    .correction-panel { margin-top: 22px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 10px; background: #11131e; }
+    .correction-panel ul { margin: 0; padding-left: 1.25rem; }
+    .correction-panel li { color: #c7cad4; font-size: .98rem; line-height: 1.78; margin-top: 8px; }
+    .correction-panel li:first-child { margin-top: 0; }
     .contact-section { display: flex; flex-direction: column; }
     .contact-list { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
     .contact-list li { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; transition: border-color .2s ease; }
@@ -130,7 +226,13 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'AboutPage', name: t
       .about-page { padding: 52px 0 72px; }
       .about-page h1 { font-size: clamp(2.15rem, 10vw, 3rem); }
       .about-page section { margin-top: 34px; padding-top: 28px; }
-      .about-page p:not(.kicker) { font-size: 1rem; line-height: 1.75; }
+      .about-page p:not(.kicker):not(.editorial-meta) { font-size: 1rem; line-height: 1.75; }
+      .principle-list li, .verification-list li { font-size: 1rem; line-height: 1.78; }
+      .editorial-meta { display: block; }
+      .editorial-meta span { display: block; }
+      .editorial-meta span + span { margin-top: 5px; }
+      .editorial-meta span + span::before { display: none; }
+      .correction-panel { padding: 17px 18px; }
       .contact-list li { padding: 12px 14px; gap: 10px; }
       .contact-label { min-width: 72px; font-size: .78rem; }
       .contact-link { font-size: .88rem; }

@@ -40,7 +40,7 @@ const jsonLd = [
     mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en',
     articleSection: isZh ? '英雄联盟臻彩资讯' : 'League of Legends Prestige Chroma News',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -65,7 +65,7 @@ const jsonLd = [
       <p class="kicker">LUCKY GATE · PRESTIGE CHROMA NEWS</p>
       <h1>{article.titleEn}</h1>
       <p class="article-deck">The July 29 announcement puts three Petals of Spring Prestige Chromas in the Lucky Gate summon pool: Lillia, Katarina, and Yasuo, all using the Emerald colour entry.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
 
     <figure class="article-hero">
@@ -112,7 +112,7 @@ const jsonLd = [
       <p class="kicker">幸运之门 · 臻彩资讯</p>
       <h1>{article.titleZh}</h1>
       <p class="article-deck">7 月 29 日公告预告，幸运之门·召唤将带来踏雪寻梅莉莉娅、卡特琳娜和亚索三款“独步早春”臻彩。</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
 
     <figure class="article-hero">

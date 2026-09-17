@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjacentBlogArticles, articleHref, blogArticles, formatBlogDate } from './articles';
+import { adjacentBlogArticles, articleHref, blogArticles, blogArticlesNewestFirst, formatBlogDate } from './articles';
 
 describe('blog article metadata', () => {
   it('formats ISO publication dates consistently in both languages', () => {
@@ -8,23 +8,24 @@ describe('blog article metadata', () => {
   });
 
   it('returns non-circular adjacent articles in newest-first order', () => {
-    expect(adjacentBlogArticles(blogArticles[0].slug)).toEqual({
+    expect(blogArticlesNewestFirst[0].slug).toBe('brilliant-prestige-chroma-summoning-guide');
+    expect(adjacentBlogArticles(blogArticlesNewestFirst[0].slug)).toEqual({
       newer: undefined,
-      older: blogArticles[1],
+      older: blogArticlesNewestFirst[1],
     });
-    expect(adjacentBlogArticles(blogArticles[1].slug)).toEqual({
-      newer: blogArticles[0],
-      older: blogArticles[2],
+    expect(adjacentBlogArticles(blogArticlesNewestFirst[1].slug)).toEqual({
+      newer: blogArticlesNewestFirst[0],
+      older: blogArticlesNewestFirst[2],
     });
-    expect(adjacentBlogArticles(blogArticles.at(-1)!.slug)).toEqual({
-      newer: blogArticles.at(-2),
+    expect(adjacentBlogArticles(blogArticlesNewestFirst.at(-1)!.slug)).toEqual({
+      newer: blogArticlesNewestFirst.at(-2),
       older: undefined,
     });
     expect(adjacentBlogArticles('missing')).toEqual({ newer: undefined, older: undefined });
   });
 
-  it('publishes twenty-three bilingual articles with unique canonical routes', () => {
-    expect(blogArticles).toHaveLength(23);
+  it('publishes twenty-four bilingual articles with unique canonical routes', () => {
+    expect(blogArticles).toHaveLength(24);
     expect(blogArticles[0]).toMatchObject({
       slug: 'patch-26-18-prestige-chromas',
       href: '/blog/patch-26-18-prestige-chromas/',
@@ -198,6 +199,14 @@ describe('blog article metadata', () => {
       titleZh: '心悦巅峰盛典 — 第 202606 期',
       publishedAt: '2026-07-01',
       sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202607/index.html',
+    });
+    expect(blogArticles.find((article) => article.slug === 'brilliant-prestige-chroma-summoning-guide')).toMatchObject({
+      href: '/blog/brilliant-prestige-chroma-summoning-guide/',
+      titleEn: 'Brilliant Prestige Chroma Summoning: Complete Guide',
+      titleZh: '璀璨臻彩召唤完全指南',
+      publishedAt: '2026-09-15',
+      sourceUrl: 'https://lol.qq.com/act/a202609047293tendraws35/index.html',
+      category: 'guide',
     });
     expect(blogArticles[15].publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(blogArticles[15].readingMinutes).toBeGreaterThan(0);

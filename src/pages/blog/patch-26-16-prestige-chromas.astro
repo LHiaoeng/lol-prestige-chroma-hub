@@ -39,7 +39,7 @@ const jsonLd = [
     keywords: isZh ? '英雄联盟26.16, 臻彩, 臻彩原画, 青花瓷, 艾瑞莉娅, 伊泽瑞尔, 丽桑卓, 拉克丝, 天龙之子, 易, 卡莎, 战斗公主, 安妮' : 'LoL Patch 26.16, prestige chromas, chroma splash art, Porcelain, Irelia, Ezreal, Lissandra, Lux, Heavenscale, Master Yi, Kai\'Sa, Battle Princess, Annie',
     about: { '@type': 'VideoGame', name: 'League of Legends' },
     isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -81,7 +81,7 @@ const jsonLd = [
       <p class="kicker">{isZh ? '26.16 版本 · 臻彩原画' : 'PATCH 26.16 · PRESTIGE CHROMA ART'}</p>
       <h1>{isZh ? article.titleZh : article.titleEn}</h1>
       <p class="article-deck">{isZh ? `26.16 这一批一共 ${patchChromas.length} 款：青花瓷系列一次新增 4 款钻石臻彩，天龙之子加入 2 款，战斗公主安妮再添 1 款。` : `Patch 26.16 brings ${patchChromas.length} additions: four Diamond Porcelain chromas, two Heavenscale chromas, and one Battle Princess Annie.`}</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
     </header>
 
     <figure class="article-hero">

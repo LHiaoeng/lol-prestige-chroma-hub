@@ -42,7 +42,7 @@ const jsonLd = [
     description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
     dateModified: article.publishedAt, mainEntityOfPage: canonical,
     inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -65,7 +65,7 @@ const jsonLd = [
       <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
       <h1>{article.titleEn}</h1>
       <p class="article-deck">The Splendid Treasure Summoning event runs August 7 – September 6, 2026 on the Chinese server. Two prestige chromas and one prestige skin — Surprise Party Vex (Pearl), Spirit Blossom Hwei (Catseye), and Prestige Spirit Blossom Zed — are available through fragment exchange.</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
@@ -152,7 +152,7 @@ const jsonLd = [
       <p class="kicker">LOL 臻彩活动</p>
       <h1>{article.titleZh}</h1>
       <p class="article-deck">8 月 7 日至 9 月 6 日，华彩秘宝·召唤活动上线。两款臻彩和一款至臻皮肤加入碎片兑换商店：惊悚派对 薇古丝 吓走你的沮丧！（300 碎片）、灵魂莲华 彗 雁来（600 碎片）、至臻 灵魂莲华 劫（1000 碎片）。</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
     </header>
     <figure class="article-hero">
       <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />

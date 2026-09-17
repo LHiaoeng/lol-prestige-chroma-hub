@@ -40,7 +40,7 @@ const jsonLd = [
     keywords: isZh ? '英雄联盟26.18, 臻彩, 臻彩原画, 素影霓裳, 嫦娥, 黛安娜, 破败军团, 厄运小姐, K/DA ALL OUT, 阿狸, 恶魔诅咒, 薇恩, 生肖限定臻彩, 钻石臻彩' : 'LoL Patch 26.18, prestige chromas, chroma splash art, Lunar Goddess Diana, Ruined Miss Fortune, K/DA ALL OUT Ahri, Demoncursed Vayne, Lunar Revel, Diamond Prestige Chroma',
     about: { '@type': 'VideoGame', name: 'League of Legends' },
     isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
-    author: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
     publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
   },
   {
@@ -82,7 +82,7 @@ const jsonLd = [
       <p class="kicker">{isZh ? '26.18 版本 · 臻彩原画' : 'PATCH 26.18 · PRESTIGE CHROMA ART'}</p>
       <h1>{isZh ? article.titleZh : article.titleEn}</h1>
       <p class="article-deck">{isZh ? `26.18 这一批一共 ${patchChromas.length} 款，全部来自已经上线的皮肤：广寒仙子嫦娥、破败军团厄运小姐、恶魔诅咒薇恩与 K/DA ALL OUT 阿狸的既有炫彩升级为臻彩，各补一张专属原画，其中两款为钻石臻彩。` : `Patch 26.18 adds ${patchChromas.length} entries, all upgraded from chromas of existing skins: Lunar Goddess Diana, Ruined Miss Fortune, Demoncursed Vayne, and K/DA ALL OUT Ahri each receive dedicated prestige splash art, two of them at Diamond tier.`}</p>
-      <p class="article-meta"><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
     </header>
 
     <figure class="article-hero">

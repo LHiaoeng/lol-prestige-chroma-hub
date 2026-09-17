@@ -163,7 +163,7 @@ describe('blog feature contract', () => {
     expect(page).toContain("'@type': 'CollectionPage'");
     expect(page).toContain("const isZh = locale === 'zh-cn'");
     expect(page).toContain('<article class="featured-post">');
-    expect(page).toContain('blogArticles.map((entry, index)');
+    expect(page).toContain('blogArticlesNewestFirst.map((entry, index)');
     expect(page).toContain('href={articleHref(entry, locale)}');
     expect(page).toContain("formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')");
     expect(page).toContain('data-placeholder="/placeholder.svg"');
@@ -777,11 +777,12 @@ describe('blog feature contract', () => {
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
     expect(page).toContain('class="official-source-link"');
-    expect(page).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
+    expect(source('src/domain/brilliant-summon.ts')).toContain('https://lol.qq.com/act/a202609047293tendraws35/index.html');
     expect(page).toContain("import { brilliantSummonSessions } from '../../domain/brilliant-summon'");
     expect(page).toContain('summon-table');
     expect(page).toContain('const currentSessionId = \'202620\'');
-    expect(page).toContain('[1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]');
+    expect(page).toContain('const currentSummonSession = brilliantSummonSessions.find');
+    expect(source('src/domain/brilliant-summon.ts')).toContain('[1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]');
     expect(page).toContain('<td><strong>All ten</strong></td>');
     expect(page).toContain('<td><strong>十次合计</strong></td>');
     expect(page).toContain('Heartseeker Vayne');

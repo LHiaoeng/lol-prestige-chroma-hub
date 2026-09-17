@@ -4,7 +4,7 @@ import ChromaCard from '../components/ChromaCard.astro';
 import Filters from '../components/Filters.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
-import { articleHref, blogArticles, blogCategoryLabels, formatBlogDate } from '../blog/articles';
+import { articleHref, blogArticlesNewestFirst, blogCategoryLabels, formatBlogDate } from '../blog/articles';
 import { catalog } from '../data/catalog';
 import { imageUrl, safeJsonLd, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
@@ -15,7 +15,7 @@ interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const firstPage = catalog.slice(0, 24);
-const latestArticles = blogArticles.slice(0, 3);
+const latestArticles = blogArticlesNewestFirst.slice(0, 3);
 const featuredChroma = selectFeaturedChroma(catalog);
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 const heroDescriptionEn = CHINA_EXCLUSIVE_DEFINITION.en;
@@ -42,6 +42,12 @@ const jsonLd = isZh ? [
     </div>
     <div class="scroll-hint" aria-hidden="true">
       <span class="scroll-mouse"><span class="scroll-wheel"></span></span>
+    </div>
+  </section>
+  <section class="intro-section" aria-labelledby="intro-title">
+    <div class="intro-content">
+      <h2 id="intro-title">{isZh ? '关于' : 'About'}</h2>
+      <p>{isZh ? <>{'本图鉴收录《英雄联盟》中国服臻彩专属原画，每条记录均与第一方来源核对。使用下方筛选器按英雄、版本或分类查找，点击任意原画进入详情页。了解更多请阅读'}<a href={localizedPath(locale, '/about/')}>{'关于本站'}</a>{'。'}</> : <>This archive catalogs China-Exclusive Prestige Chroma splash arts, each verified against first-party sources. Use the filter below to search by champion, patch, or category. Learn more on the <a href={localizedPath(locale, '/about/')}>about</a> page.</>}</p>
     </div>
   </section>
   <section class="latest-section" aria-labelledby="latest-title">
@@ -104,6 +110,11 @@ const jsonLd = isZh ? [
   .scroll-wheel { display: block; width: 4px; height: 8px; background: var(--gold); border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scroll-wheel 2s ease-in-out infinite; }
   @keyframes scroll-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
   @keyframes scroll-wheel { 0% { opacity: 1; top: 8px; } 100% { opacity: 0; top: 22px; } }
+  .intro-section { width: min(1240px, calc(100% - 48px)); margin-inline: auto; padding-top: 48px; }
+  .intro-content { width: 100%; }
+  .intro-content h2 { font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.75rem, 4vw, 2.2rem); margin: .2em 0; overflow-wrap: anywhere; }
+  .intro-content p { color: #b8bcc6; font-size: .96rem; line-height: 1.75; margin: 0; }
+  .intro-content a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
   .latest-section { width: min(1240px, calc(100% - 48px)); margin-inline: auto; padding-top: 64px; padding-bottom: 72px; }
   .see-all { flex: none; color: var(--gold); font-weight: 700; }
   .guide-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -117,6 +128,8 @@ const jsonLd = isZh ? [
   @media (max-width: 680px) {
     .hero-section { padding:64px 0; }
     .hero-content { width: min(100% - 28px, 1240px); }
+    .intro-section { width: min(100% - 28px, 1240px); padding-top: 36px; }
+    .intro-content p { font-size: .88rem; line-height: 1.65; }
     .latest-section { width: min(100% - 28px, 1240px); padding-top: 48px; padding-bottom: 56px; }
   }
   @media (prefers-reduced-motion: reduce) { .scroll-hint { animation:none; } }
