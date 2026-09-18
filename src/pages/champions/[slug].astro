@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PbeSkinCard from '../../components/PbeSkinCard.astro';
+import PbeSourceNote from '../../components/PbeSourceNote.astro';
+import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
+import { catalog } from '../../data/catalog';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { createEntitySeo } from '../../seo/entity-seo';
+
+export async function getStaticPaths() {
+  const graph = await getCommunityDragonPbeGraph();
+  return graph.champions.map((champion) => ({ params: { slug: champion.slug }, props: { id: champion.id, slug: champion.slug } }));
+}
+interface Props { id: number; slug: string; locale?: Locale }
+const { id, slug } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const graph = await getCommunityDragonPbeGraph();
+const champion = graph.championsById.get(Number(id));
+if (!champion || champion.slug !== slug) throw new Error(`Unknown champion ${id}`);
+const name = isZh ? champion.nameZh ?? champion.nameEn : champion.nameEn;
+const title = isZh ? champion.titleZh ?? champion.titleEn : champion.titleEn;
+const skins = (graph.skinsByChampionId.get(champion.id) ?? []).filter((skin) => !skin.parentSkinId || skin.parentSkinId === skin.id);
+const stageCount = champion.stageRefs.filter((stage) => stage.id && stage.id !== stage.parentSkinId).length;
+const base = skins.find((skin) => skin.isBase) ?? skins[0];
+const archiveChromas = catalog.filter((entry) => entry.heroId === String(champion.id));
+const seo = createEntitySeo('champions', champion.slug, `${name} ${isZh ? '英雄资料' : 'Champion'}`, isZh ? `${name} 的 PBE 英雄、皮肤与阶段任务资料。` : `${name} champion profile with PBE skins, legacy items, and quest stages.`, locale, base?.media.focusedSplashUrl);
+---
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
+  <div class="pbe-page">
+    <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/champions/')}>{isZh ? '英雄' : 'Champions'}</a><span>/</span><span aria-current="page">{name}</span></nav>
+    <header class="pbe-hero">
+      {champion.portraitUrl && <img src={champion.portraitUrl} alt="" width="180" height="180" loading="eager" />}
+      <div><p class="eyebrow">{isZh ? 'PBE 英雄资料' : 'PBE champion profile'}</p><h1>{name}</h1><p class="champion-title">{title}</p>{champion.bioEn && <p class="pbe-meta">{isZh ? champion.bioZh ?? champion.bioEn : champion.bioEn}</p>}<PbeSourceNote locale={locale} /></div>
+    </header>
+    <section class="pbe-section" aria-labelledby="skins-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '皮肤图鉴' : 'Skin gallery'}</p><h2 id="skins-title">{isZh ? `${name} 的全部皮肤` : `${name} skins`}</h2></div><p>{skins.length} {isZh ? '款' : 'skins'}{stageCount ? ` · ${stageCount} ${isZh ? '个阶段' : 'stages'}` : ''}</p></div><div class="pbe-grid">{skins.map((skin) => <PbeSkinCard {skin} championName={name} locale={locale} />)}</div></section>
+    {champion.stageRefs.some((stage) => stage.id || stage.nameEn) && <section class="pbe-section" aria-labelledby="stages-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '阶段任务' : 'Quest stages'}</p><h2 id="stages-title">{isZh ? '阶段皮肤' : 'Event / stage skins'}</h2></div></div><div class="pbe-links">{champion.stageRefs.map((stage) => { const target = stage.id ? graph.skinsById.get(stage.id) : undefined; const parent = graph.skinsById.get(stage.parentSkinId); const href = target ? localizedPath(locale, `/skins/${target.slug}/`) : parent ? `${localizedPath(locale, `/skins/${parent.slug}/`)}#${stage.key}` : localizedPath(locale, `/champions/${champion.slug}/#stages-title`); return <a class="pbe-chip" href={href}>{isZh ? stage.nameZh ?? stage.nameEn : stage.nameEn}</a>; })}</div></section>}
+    {archiveChromas.length > 0 && <section class="pbe-section" aria-labelledby="archive-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '臻彩藏馆' : 'China-exclusive archive'}</p><h2 id="archive-title">{isZh ? '本站臻彩记录' : 'Prestige chroma archive'}</h2></div><p>{archiveChromas.length}</p></div><div class="pbe-grid">{archiveChromas.map((chroma) => <a class="pbe-card" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><h3>{isZh ? chroma.nameZh : chroma.nameEn}</h3><p>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</p></a>)}</div></section>}
+  </div>
+</BaseLayout>

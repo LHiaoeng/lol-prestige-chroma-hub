@@ -10,7 +10,9 @@
 
 英文博客位于 `/blog/`，简体中文博客位于 `/zh-cn/blog/`；两种语言使用相同文章 slug。文章正文直接由共享 Astro 页面维护，构建时只输出当前 URL 对应语言，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章在构建时请求 CommunityDragon 的 `default` 与 `zh_cn` 英雄摘要，并与本地臻彩目录中的英雄 ID 计算差集；浏览器打开页面后再次请求两份摘要刷新当前语言内容，请求失败时保留完整静态快照。公开页面只嵌入已覆盖英雄 ID 与本地版本号，不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
-图鉴首页和中英文博客列表、文章页保留广告位；所有中英文图鉴详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
+图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。臻彩详情页中的英雄名称会链接到按 CommunityDragon 英文真名生成的 `/champions/{slug}/` 与 `/zh-cn/champions/{slug}/` 静态英雄资料页。英雄、皮肤、皮肤系列和宇宙资料统一从 CommunityDragon `pbe` 的 `default`、`zh_cn` 资源构建一次性知识图谱，所有详情页复用同一份快照；阶段任务皮肤、已下架皮肤、聚焦/非聚焦原画、真实存在的动态原画和炫彩均保留。资料页可索引并进入 sitemap，导航在四类实体之间形成闭环。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
+
+PBE 资料路由包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 及其双语详情页。`data/prestige-chromas.json` 仍只作为中国服臻彩编辑型补充目录，不决定 PBE 实体是否存在；炫彩详情页会通过精确 ID 连接到对应 PBE 皮肤、系列、宇宙和英雄。
 
 作者与编辑说明位于 `/editorial-policy/`，简体中文位于 `/zh-cn/editorial-policy/`。页面公开本站的维护主体、编辑原则、资料来源、核验方式和纠错渠道；该页与 About、Privacy 等资料页不承载广告。
 

@@ -1,12 +1,19 @@
 ---
 import ChromaPage from '../../chromas/[slug].astro';
 import { catalog } from '../../../data/catalog';
+import { getChampionIndex } from '../../../data/champion-index';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const requiredIds = [...new Set(catalog.map((chroma) => chroma.heroId))];
+  const championIndex = await getChampionIndex(requiredIds);
+  const slugById = new Map(championIndex.map((entry) => [entry.id, entry.slug]));
   return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
-    .map((slug) => ({ params: { slug }, props: { chroma } })));
+    .map((slug) => ({
+      params: { slug },
+      props: { chroma, championSlug: slugById.get(chroma.heroId)! },
+    })));
 }
 
-const { chroma } = Astro.props;
+const { chroma, championSlug } = Astro.props;
 ---
-<ChromaPage {chroma} locale="zh-cn" />
+<ChromaPage {chroma} {championSlug} locale="zh-cn" />

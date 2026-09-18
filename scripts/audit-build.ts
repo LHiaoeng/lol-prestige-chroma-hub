@@ -65,6 +65,29 @@ export function auditBuild(root: string): string[] {
       throw new Error(`Missing Simplified Chinese counterpart for ${file}: ${counterpart}`);
     }
   }
+  for (const file of files.filter((entry) => entry.endsWith('.html'))) {
+    const html = readFileSync(join(root, file), 'utf8');
+    for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
+      if (!/^\/(?:zh-cn\/)?(?:champions|skins|skinlines|universes)(?:\/|$)/.test(href)) continue;
+      const pathname = new URL(href, 'https://audit.invalid').pathname;
+      const normalized = pathname.endsWith('/') ? pathname : `${pathname}/`;
+      const target = `${normalized.slice(1)}index.html`;
+      if (!fileSet.has(target)) throw new Error(`Dangling internal IA link in ${file}: ${href}`);
+      const fragment = new URL(href, 'https://audit.invalid').hash.slice(1);
+      if (fragment) {
+        const targetHtml = readFileSync(join(root, target), 'utf8');
+        let decodedFragment: string;
+        try {
+          decodedFragment = decodeURIComponent(fragment);
+        } catch {
+          throw new Error(`Invalid internal IA link fragment in ${file}: ${href}`);
+        }
+        if (!targetHtml.includes(`id="${decodedFragment}"`)) {
+          throw new Error(`Missing internal IA link anchor in ${file}: ${href}`);
+        }
+      }
+    }
+  }
   const sitemap = join(root, 'sitemap.xml');
   if (files.includes('sitemap.xml')) {
     const xml = readFileSync(sitemap, 'utf8');

@@ -24,7 +24,7 @@ describe('champion coverage', () => {
       expect.objectContaining({ id: '1', alias: 'Annie', nameEn: 'Annie', nameZh: '安妮' }),
     ]);
     expect(snapshot.champions[0].portraitUrl).toBe(
-      'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/1.png',
+      'https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/1.png',
     );
   });
 

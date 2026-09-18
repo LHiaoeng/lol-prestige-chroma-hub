@@ -2,11 +2,35 @@ const RAW_ORIGIN = 'https://raw.communitydragon.org';
 const ASSET_PREFIX = '/lol-game-data/assets';
 const PLUGIN_PREFIX = 'plugins/';
 const DEFAULT_GAME_DATA_PREFIX = 'plugins/rcp-be-lol-game-data/global/default';
+export const COMMUNITYDRAGON_VERSION = 'pbe';
+
+export function communityDragonDataUrl(file: string, locale: 'default' | 'zh_cn' = 'default'): string {
+  const normalized = file.replace(/^\/+/, '');
+  if (!normalized || normalized.includes('..') || normalized.includes('\\') || !normalized.endsWith('.json')) {
+    throw new Error('Invalid CommunityDragon JSON path');
+  }
+  return `${RAW_ORIGIN}/${COMMUNITYDRAGON_VERSION}/plugins/rcp-be-lol-game-data/global/${locale}/v1/${normalized}`;
+}
 
 export const COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS = {
-  en: `${RAW_ORIGIN}/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json`,
-  zh: `${RAW_ORIGIN}/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/champion-summary.json`,
+  en: communityDragonDataUrl('champion-summary.json', 'default'),
+  zh: communityDragonDataUrl('champion-summary.json', 'zh_cn'),
 } as const;
+
+export type CommunityDragonLanguage = keyof typeof COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS;
+
+function positiveChampionId(input: string): string {
+  const championId = input.trim();
+  if (!/^[1-9]\d*$/.test(championId) || !Number.isSafeInteger(Number(championId))) {
+    throw new Error('Invalid CommunityDragon champion ID');
+  }
+  return championId;
+}
+
+export function communityDragonChampionUrl(championId: string, language: CommunityDragonLanguage): string {
+  const locale = language === 'zh' ? 'zh_cn' : 'default';
+  return communityDragonDataUrl(`champions/${positiveChampionId(championId)}.json`, locale);
+}
 
 function relativeCommunityDragonPath(input: string): string {
   const trimmed = input.trim();
@@ -20,17 +44,23 @@ function relativeCommunityDragonPath(input: string): string {
     if (url.protocol !== 'https:' || url.origin !== RAW_ORIGIN || url.search || url.hash) {
       throw new Error('Invalid CommunityDragon asset URL');
     }
-    path = url.pathname.replace(/^\/(?:latest|pbe)\//i, '');
+    path = url.pathname.replace(/^\/(?:latest|pbe|\d+\.\d+)\//i, '');
   }
 
   path = path.toLowerCase();
+  if (path.startsWith('/game/')) return path.slice(1);
+  if (path.startsWith('/plugins/')) return path.slice(1);
   if (path.startsWith(ASSET_PREFIX)) {
     return `${DEFAULT_GAME_DATA_PREFIX}${path.slice(ASSET_PREFIX.length)}`;
   }
+  if (path.startsWith('assets/')) {
+    return `${DEFAULT_GAME_DATA_PREFIX}/${path}`;
+  }
   if (path.startsWith(PLUGIN_PREFIX)) return path;
+  if (path.startsWith('game/')) return path;
   throw new Error('Unsupported CommunityDragon asset path');
 }
 
 export function communityDragonAssetUrl(assetPath: string): string {
-  return `${RAW_ORIGIN}/latest/${relativeCommunityDragonPath(assetPath)}`;
+  return `${RAW_ORIGIN}/${COMMUNITYDRAGON_VERSION}/${relativeCommunityDragonPath(assetPath)}`;
 }

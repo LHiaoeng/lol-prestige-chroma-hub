@@ -1,0 +1,7 @@
+---
+import SkinPage from '../../../pages/skins/[slug].astro';
+import { getCommunityDragonPbeGraph } from '../../../data/communitydragon-pbe';
+export async function getStaticPaths() { const graph = await getCommunityDragonPbeGraph(); return graph.skins.map((skin) => ({ params: { slug: skin.slug }, props: { id: skin.id, slug: skin.slug } })); }
+const { id, slug } = Astro.props;
+---
+<SkinPage {id} {slug} locale="zh-cn" />

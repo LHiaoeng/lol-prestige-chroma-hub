@@ -2,9 +2,10 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { isSensitiveDeploymentArtifact } from './audit-build';
+import { auditBuild, isSensitiveDeploymentArtifact } from './audit-build';
 import { catalog } from '../src/data/catalog';
 import { blogArticles } from '../src/blog/articles';
+import { championSlug } from '../src/domain/champion-route';
 
 const root = process.cwd();
 const dist = join(root, 'dist');
@@ -13,7 +14,7 @@ describe('static site build', () => {
   beforeAll(() => {
     rmSync(dist, { recursive: true, force: true });
     execFileSync(process.execPath, [join(root, 'node_modules', 'astro', 'bin', 'astro.mjs'), 'build'], { cwd: root, stdio: 'pipe' });
-  }, 60_000);
+  }, 180_000);
 
   it('emits the public routes and SEO metadata', () => {
     expect(existsSync(join(dist, 'index.html'))).toBe(true);
@@ -110,7 +111,7 @@ describe('static site build', () => {
     expect(coverageArticle).toContain('data-coverage-list="en"');
     expect(coverageArticle).not.toContain('data-coverage-list="zh"');
     expect(coverageArticle).toContain('id="champion-coverage-config"');
-    expect(coverageArticle).toContain('https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/');
+    expect(coverageArticle).toContain('https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/');
     expect(coverageArticle).not.toContain('按英文英雄名 A–Z 排列');
     expect(coverageArticle).not.toContain('prestige-chromas.json');
     expect(coverageArticle).not.toContain('按上线时间从早到晚排列');
@@ -119,6 +120,28 @@ describe('static site build', () => {
     expect(Object.keys(JSON.parse(configJson!)).sort()).toEqual(['coveredHeroIds', 'patchVersion']);
     expect(coverageArticle).toContain('.champion-list li{');
     expect(coverageArticle).not.toMatch(/\.champion-list\[data-astro-cid-[^\]]+\] li\[data-astro-cid-/);
+  });
+
+  it('renders bilingual skin artwork with accessible previews and archive links', () => {
+    for (const [prefix, preview, heading] of [
+      ['', 'Open full-size image', 'Chromas'],
+      ['zh-cn/', '查看大图', '炫彩列表'],
+    ]) {
+      const html = readFileSync(join(dist, prefix, 'skins/winterblessed-annie-1040/index.html'), 'utf8');
+      expect(html.match(/<h1\b/g)).toHaveLength(1);
+      expect(html.match(/data-image-viewer-open/g)?.length).toBeGreaterThanOrEqual(2);
+      expect(html).toContain(`aria-label="${preview}"`);
+      expect(html).toContain('data-fallback="/placeholder.svg"');
+      expect(html).toContain(heading);
+      expect(html).toContain(`href="/${prefix}champions/annie/"`);
+      expect(html).toContain(`href="/${prefix}chromas/the-dark-child-annie-winterblessed-annie-rainbow-1047/"`);
+      expect(html).toContain('id="chroma-1041"');
+      expect(html).toContain('class="skin-backdrop"');
+      expect(html).toContain('position:fixed');
+    }
+    const animatedSkin = readFileSync(join(dist, 'skins/arcane-fractured-jinx-222060/index.html'), 'utf8');
+    expect(animatedSkin).toContain('<video autoplay muted loop playsinline');
+    expect(animatedSkin).toContain('class="skin-backdrop"');
   });
 
   it('emits record-specific chroma splash art metadata', () => {
@@ -134,6 +157,61 @@ describe('static site build', () => {
     expect(detail).toContain('<meta name="robots" content="noindex, nofollow">');
     expect(detail).not.toContain('data-ad-boundary=');
     expect(detail).not.toContain('pagead2.googlesyndication.com');
+    expect(detail).toMatch(/href="\/champions\/[a-z0-9-]+\/"/);
+    expect(detail).not.toContain(`href="/champions/${sample.heroId}/"`);
+  });
+
+  it('audits the generated IA links and sitemap uniqueness', () => {
+    expect(() => auditBuild(dist)).not.toThrow();
+    const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
+    const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+    expect(new Set(locations).size).toBe(locations.length);
+  }, 20_000);
+
+  it('keeps generated stage anchors stable and resolvable', () => {
+    const htmlFiles = readdirSync(dist, { recursive: true }).map(String)
+      .filter((file) => file.endsWith('.html'));
+    const htmlByFile = new Map(htmlFiles.map((file) => [file.replaceAll('\\', '/'), readFileSync(join(dist, file), 'utf8')]));
+    const stageAnchors = [...htmlByFile.values()].flatMap((html) => [...html.matchAll(/id="(stage-[^"]+)"/g)].map((match) => match[1]));
+    expect(stageAnchors.length).toBeGreaterThan(0);
+    expect(stageAnchors.every((id) => !id.startsWith('stage-stage-'))).toBe(true);
+    for (const [file, html] of htmlByFile) {
+      for (const [, href] of html.matchAll(/href="(\/(?:zh-cn\/)?skins\/[^\"]+#stage-[^\"]+)"/g)) {
+        const url = new URL(href, 'https://build.test');
+        const pathname = url.pathname.endsWith('/') ? url.pathname : `${url.pathname}/`;
+        const targetFile = `${pathname.slice(1)}index.html`;
+        const targetHtml = htmlByFile.get(targetFile);
+        expect(targetHtml, `${file} -> ${href}`).toBeDefined();
+        expect(targetHtml, `${file} -> ${href}`).toContain(`id="${decodeURIComponent(url.hash.slice(1))}"`);
+      }
+    }
+  });
+
+  it('emits bilingual champion detail pages from CommunityDragon data', () => {
+    const sample = catalog.find((item) => item.heroId === '103') ?? catalog[0];
+    const slug = championSlug('Ahri');
+    const englishPath = join(dist, 'champions', slug, 'index.html');
+    const chinesePath = join(dist, 'zh-cn', 'champions', slug, 'index.html');
+    expect(existsSync(englishPath)).toBe(true);
+    expect(existsSync(chinesePath)).toBe(true);
+    expect(existsSync(join(dist, 'champions', sample.heroId, 'index.html'))).toBe(false);
+    const english = readFileSync(englishPath, 'utf8');
+    const chinese = readFileSync(chinesePath, 'utf8');
+    expect(english).toContain(`<link rel="canonical" href="https://chromaart.lol/champions/${slug}/">`);
+    expect(english).toContain('CommunityDragon');
+    expect(english).toContain('Skin gallery');
+    expect(english).toContain('Ahri');
+    expect(english).toContain('loading="lazy"');
+    expect(english).toContain('alt="Ahri"');
+    expect(english).not.toContain('<meta name="robots" content="noindex, nofollow">');
+    expect(chinese).toContain(`<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/${slug}/">`);
+    expect(chinese).toContain('<html lang="zh-CN"');
+    expect(chinese).toMatch(/<h1[^>]*>阿狸<\/h1>/);
+    expect(chinese).toMatch(/class="champion-title"[^>]*>九尾妖狐<\/p>/);
+    expect(chinese).toContain('皮肤图鉴');
+    expect(chinese).toContain('loading="lazy"');
+    expect(chinese).toContain('alt="九尾妖狐"');
+    expect(chinese).toContain(`href="/zh-cn/chromas/`);
   });
 
   it('uses factual informational SEO copy', () => {
@@ -428,7 +506,7 @@ describe('static site build', () => {
     expect(files.some((file) => /(^|[\\/])api([\\/]|$)/i.test(file))).toBe(false);
     expect(files.some((file) => isSensitiveDeploymentArtifact(file.replaceAll('\\', '/')))).toBe(false);
     expect(deployedCode).not.toContain('/api/');
-  });
+  }, 20_000);
 
   it('bundles browser scripts instead of publishing the legacy app script', () => {
     const files = readdirSync(dist, { recursive: true }).map(String);

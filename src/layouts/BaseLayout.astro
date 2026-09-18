@@ -67,6 +67,12 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
     <header class="site-header">
       <a class="brand" href={localizedPath(locale, '/')} aria-label={isZh ? 'LoL Chroma Art 首页' : 'LoL Chroma Art home'}><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
+        <nav class="browse-nav" aria-label={isZh ? '浏览资料' : 'Browse'}>
+          <a href={localizedPath(locale, '/champions/')}>{isZh ? '英雄' : 'Champions'}</a>
+          <a href={localizedPath(locale, '/skins/')}>{isZh ? '皮肤' : 'Skins'}</a>
+          <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '系列' : 'Skinlines'}</a>
+          <a href={localizedPath(locale, '/universes/')}>{isZh ? '宇宙' : 'Universes'}</a>
+        </nav>
         <a class="header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
         {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'}>{isZh ? 'EN' : '简体中文'}</a>}
       </div>
@@ -87,13 +93,20 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .brand > .brand-text { color: var(--text); }
       .site-header .brand-text, .site-header .browse-nav a, .site-header .header-blog-link, .site-header .language-toggle { text-shadow: 0 1px 7px #000000d9; }
       .header-controls { display: flex; align-items: center; gap: 14px; }
-      .header-blog-link { display: inline-flex; align-items: center; min-height: var(--touch-target); color: var(--text); font-size: .86rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-      .header-blog-link:hover, .header-blog-link:focus-visible { color: var(--gold); }
-      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: transparent; color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; }
+      .browse-nav { display:flex; align-items:center; gap:12px; overflow-x:auto; scrollbar-width:none; }
+      .browse-nav::-webkit-scrollbar { display:none; }
+      .browse-nav a { display:inline-flex; align-items:center; min-height:var(--touch-target); padding:0 12px; border-radius:999px; color:var(--muted); font-size:.78rem; font-weight:700; white-space:nowrap; transition:color .2s ease, background-color .2s ease; }
+      .browse-nav a:hover, .browse-nav a:focus-visible { color:var(--gold); background: color-mix(in srgb, var(--text) 7%, transparent); }
+      .header-blog-link { display: inline-flex; align-items: center; min-height: var(--touch-target); padding: 0 12px; border-radius: 999px; color: var(--text); font-size: .86rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: color .2s ease, background-color .2s ease; }
+      .header-blog-link:hover, .header-blog-link:focus-visible { color: var(--gold); background: color-mix(in srgb, var(--text) 7%, transparent); }
+      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }
+      .language-toggle:hover, .language-toggle:focus-visible { background: color-mix(in srgb, var(--gold) 18%, transparent); }
       .language-toggle::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
       @media (max-width: 767px) {
         .header-controls { gap: 8px; }
-        .header-blog-link { font-size: .76rem; letter-spacing: .05em; }
+        .browse-nav { max-width:48vw; gap:9px; }
+        .browse-nav a { font-size:.72rem; padding-inline: 8px; }
+        .header-blog-link { font-size: .76rem; letter-spacing: .05em; padding-inline: 9px; }
         .language-toggle { padding-inline: 9px; font-size: .75rem; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }

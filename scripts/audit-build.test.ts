@@ -65,6 +65,22 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).not.toThrow();
   });
 
+  it('requires IA link fragments to resolve to an anchor in the generated page', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'skins', 'parent'), { recursive: true });
+    writeFileSync(join(root, 'skins', 'parent', 'index.html'), '<section id="stage-3"></section>');
+    writeFileSync(join(root, 'index.html'), '<a href="/skins/parent/#stage-4">Stage 4</a>');
+    expect(() => auditBuild(root)).toThrow(/anchor|stage-4/i);
+  });
+
+  it('accepts IA link fragments when the generated page contains the anchor', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'skins', 'parent'), { recursive: true });
+    writeFileSync(join(root, 'skins', 'parent', 'index.html'), '<section id="stage-3"></section>');
+    writeFileSync(join(root, 'index.html'), '<a href="/skins/parent/#stage-3">Stage 3</a>');
+    expect(() => auditBuild(root)).not.toThrow();
+  });
+
   it.each([
     'nested/prestige-chromas.json',
     '_astro/page.D4gH3x.js.map',

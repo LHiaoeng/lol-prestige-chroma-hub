@@ -1,0 +1,112 @@
+---
+import ImageViewer from '../../components/ImageViewer.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PbeSkinCard from '../../components/PbeSkinCard.astro';
+import PbeSourceNote from '../../components/PbeSourceNote.astro';
+import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
+import { catalog } from '../../data/catalog';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { createEntitySeo } from '../../seo/entity-seo';
+
+export async function getStaticPaths() { const graph = await getCommunityDragonPbeGraph(); return graph.skins.map((skin) => ({ params: { slug: skin.slug }, props: { id: skin.id, slug: skin.slug } })); }
+interface Props { id: number; slug: string; locale?: Locale }
+const { id, slug } = Astro.props; const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale); const isZh = locale === 'zh-cn';
+const graph = await getCommunityDragonPbeGraph(); const skin = graph.skinsById.get(Number(id));
+if (!skin || skin.slug !== slug) throw new Error(`Unknown skin ${id}`);
+const champion = graph.championsById.get(skin.championId); const championName = champion ? (isZh ? champion.nameZh ?? champion.nameEn : champion.nameEn) : String(skin.championId); const name = isZh ? skin.nameZh ?? skin.nameEn : skin.nameEn;
+const backdropImage = skin.media.focusedSplashUrl ?? skin.media.unfocusedSplashUrl;
+const backdropVideo = skin.media.focusedAnimatedSplashUrl;
+const skinlines = skin.skinlineIds.map((id) => graph.skinlinesById.get(id)).filter(Boolean); const universes = skin.universeIds.map((id) => graph.universesById.get(id)).filter(Boolean);
+const parent = skin.parentSkinId ? graph.skinsById.get(skin.parentSkinId) : undefined; const archive = skin.chromas.map((chroma) => chroma.prestigeArchiveSlug ? catalog.find((entry) => entry.slug === chroma.prestigeArchiveSlug) : undefined).filter(Boolean);
+const seo = createEntitySeo('skins', skin.slug, `${name} ${isZh ? '皮肤' : 'Skin'}`, isZh ? `${name} 的 PBE 皮肤详情、原画、动态原画与炫彩。` : `${name} PBE skin detail with splash art, animated art, and chromas.`, locale, skin.media.focusedSplashUrl);
+const label = (entry: { nameEn: string; nameZh?: string }) => isZh ? entry.nameZh ?? entry.nameEn : entry.nameEn;
+---
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}><div class="skin-backdrop" aria-hidden="true">
+  {backdropImage && <img src={backdropImage} alt="" width="1920" height="1080" loading="eager" />}
+  {backdropVideo && <video autoplay muted loop playsinline preload="metadata" poster={backdropImage} src={backdropVideo}></video>}
+</div><div class="pbe-page skin-detail"><nav class="breadcrumbs" aria-label={isZh ? '面包屑导航' : 'Breadcrumb'}><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/skins/')}>{isZh ? '皮肤' : 'Skins'}</a><span>/</span><span>{name}</span></nav><header class="skin-exhibit">
+  <figure class="skin-artwork">
+    <ImageViewer fallback="/placeholder.svg" src={skin.media.focusedSplashUrl ?? skin.media.unfocusedSplashUrl ?? '/placeholder.svg'} altEn={`${skin.nameEn} splash art`} altZh={`${name} 原画`} {locale} />
+    <figcaption><span>{isZh ? '原画典藏' : 'SPLASH ART COLLECTION'}</span><span>{isZh ? '点击查看完整原画 ↗' : 'Explore full-size art ↗'}</span></figcaption>
+  </figure>
+  <div class="skin-title">
+    <p class="eyebrow">{isZh ? '英雄联盟 · 皮肤图鉴' : 'LEAGUE OF LEGENDS · SKIN GALLERY'}</p>
+    <h1>{name}</h1>
+    <a class="skin-champion" href={localizedPath(locale, `/champions/${champion?.slug ?? ''}/`)}>{championName}<span aria-hidden="true"> ↗</span></a>
+    <dl class="skin-facts">
+      <div><dt>{isZh ? '稀有度' : 'Rarity'}</dt><dd>{skin.rarity ?? '—'}</dd></div>
+      <div><dt>{isZh ? '炫彩' : 'Chromas'}</dt><dd>{String(skin.chromas.length).padStart(2, '0')}</dd></div>
+      <div><dt>{isZh ? '档案编号' : 'Archive ID'}</dt><dd>{skin.id}</dd></div>
+    </dl>
+    <PbeSourceNote {locale} />
+  </div>
+</header>
+<section class="pbe-section skin-story"><p class="eyebrow">{isZh ? '作品档案' : 'ABOUT THE SKIN'}</p><div class="pbe-links">{skin.isBase && <span class="pbe-chip">{isZh ? '基础皮肤' : 'Base skin'}</span>}{skin.isLegacy && <span class="pbe-chip">{isZh ? '已下架' : 'Legacy'}</span>}{skin.parentSkinId && parent && <a class="pbe-chip" href={localizedPath(locale, `/skins/${parent.slug}/`)}>{isZh ? '阶段母体' : 'Parent skin'}: {label(parent)}</a>}</div>{skin.descriptionEn && <p class="pbe-lede">{isZh ? skin.descriptionZh ?? skin.descriptionEn : skin.descriptionEn}</p>}</section>
+
+<section class="pbe-section"><h2>{isZh ? '原画' : 'Splash art'}</h2><div class="pbe-media-grid">{skin.media.focusedSplashUrl && <figure class="pbe-media"><ImageViewer fallback="/placeholder.svg" src={skin.media.focusedSplashUrl} altEn={`${skin.nameEn} focused splash`} altZh={`${name} 聚焦原画`} {locale} /><figcaption>{isZh ? '聚焦原画' : 'Focused splash'}</figcaption></figure>}{skin.media.unfocusedSplashUrl && <figure class="pbe-media"><ImageViewer fallback="/placeholder.svg" src={skin.media.unfocusedSplashUrl} altEn={`${skin.nameEn} unfocused splash`} altZh={`${name} 非聚焦原画`} {locale} /><figcaption>{isZh ? '非聚焦原画' : 'Unfocused splash'}</figcaption></figure>}</div></section>
+{(skin.media.focusedAnimatedSplashUrl || skin.media.unfocusedAnimatedSplashUrl) &&
+<section class="pbe-section"><h2>{isZh ? '动态原画' : 'Animated splash art'}</h2><div class="pbe-media-grid">{skin.media.focusedAnimatedSplashUrl && <figure class="pbe-media"><video controls playsinline preload="metadata" src={skin.media.focusedAnimatedSplashUrl}></video><figcaption>{isZh ? '聚焦动态原画' : 'Focused animated splash'}</figcaption></figure>}{skin.media.unfocusedAnimatedSplashUrl && <figure class="pbe-media"><video controls playsinline preload="metadata" src={skin.media.unfocusedAnimatedSplashUrl}></video><figcaption>{isZh ? '非聚焦动态原画' : 'Unfocused animated splash'}</figcaption></figure>}</div></section>
+}{(skinlines.length || universes.length) > 0 &&
+<section class="pbe-section"><h2>{isZh ? '所属系列与宇宙' : 'Collections'}</h2><div class="pbe-links">{skinlines.map((entry) => <a class="pbe-chip" href={localizedPath(locale, `/skinlines/${entry!.slug}/`)}>{label(entry!)}</a>)}{universes.map((entry) => <a class="pbe-chip" href={localizedPath(locale, `/universes/${entry!.slug}/`)}>{label(entry!)}</a>)}</div></section>
+}{skin.chromas.length > 0 &&
+<section class="pbe-section"><h2>{isZh ? '炫彩列表' : 'Chromas'}</h2><div class="pbe-chroma-grid">{skin.chromas.map((chroma) => { const archiveEntry = chroma.prestigeArchiveSlug ? catalog.find((entry) => entry.slug === chroma.prestigeArchiveSlug) : undefined; return <a class="pbe-chroma" href={archiveEntry ? localizedPath(locale, `/chromas/${archiveEntry.slug}/`) : localizedPath(locale, `/skins/${skin.slug}/#chroma-${chroma.id}`)} id={`chroma-${chroma.id}`}><div>{chroma.imageUrl ? <img src={chroma.imageUrl} alt={isZh ? chroma.nameZh ?? chroma.nameEn ?? `Chroma ${chroma.id}` : chroma.nameEn ?? `Chroma ${chroma.id}`} loading="lazy" /> : <div style="aspect-ratio:1;background:var(--panel2)"></div>}</div><span>{isZh ? chroma.nameZh ?? chroma.nameEn : chroma.nameEn ?? `Chroma ${chroma.id}`}</span>{chroma.colors.length > 0 && <div class="pbe-swatches">{chroma.colors.map((color) => <i style={`background:${color}`} title={color}></i>)}</div>}</a>; })}</div></section>
+}{skin.stages.length > 0 &&
+<section class="pbe-section"><h2>{isZh ? '事件阶段' : 'Event stages'}</h2><div class="pbe-grid">{skin.stages.map((stage) => { const target = stage.id ? graph.skinsById.get(stage.id) : undefined; return target && target.id !== skin.id ? <PbeSkinCard skin={target} championName={championName} locale={locale} /> : <article class="pbe-card" id={stage.key}><h3>{isZh ? stage.nameZh ?? stage.nameEn : stage.nameEn}</h3><p>{isZh ? '该阶段没有独立详情路由，媒体保留在本页。' : 'This stage is retained on the parent page.'}</p></article>; })}</div></section>
+}{archive.length > 0 &&
+<section class="pbe-section"><h2>{isZh ? '本站臻彩对应' : 'Archive matches'}</h2><div class="pbe-links">{archive.map((entry) => <a class="pbe-chip" href={localizedPath(locale, `/chromas/${entry!.slug}/`)}>{isZh ? entry!.nameZh : entry!.nameEn}</a>)}</div></section>
+}</div></BaseLayout>
+
+<style>
+  .skin-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--bg)}
+  .skin-backdrop img,.skin-backdrop video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.58;filter:saturate(1.08) contrast(.96) blur(.5px);transform:scale(1.04)}
+  .skin-backdrop video{z-index:1}
+  .skin-backdrop::before{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,#090b15b8 0%,#090b1548 46%,#090b15ae 100%),linear-gradient(180deg,#090b15a8 0%,#090b1538 42%,#090b15de 100%)}
+  .skin-backdrop::after{content:"";position:absolute;inset:0;z-index:3;background:radial-gradient(ellipse at 52% 18%,#20213b42 0,transparent 54%)}
+  .skin-detail{position:relative;z-index:1}
+  .skin-detail .breadcrumbs{width:100%;margin:0 0 28px;flex-wrap:wrap;font-size:.75rem;line-height:1.7}
+  .skin-exhibit{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(260px,1fr);align-items:center;gap:clamp(28px,4vw,60px);padding:20px 0 48px}
+  .skin-artwork{margin:0;min-width:0;background:var(--bg);border:1px solid var(--line);box-shadow:0 24px 70px #0005}
+  .skin-artwork :global(.image-viewer){height:auto}
+  .skin-detail :global(.viewer-trigger),.skin-detail :global(.viewer-trigger picture){height:auto}
+  .skin-detail :global(.viewer-image){height:auto;object-fit:contain}
+  .skin-artwork figcaption{display:flex;justify-content:space-between;gap:16px;padding:15px 18px;color:var(--muted);font-size:.65rem;letter-spacing:.08em;line-height:1.6;border-top:1px solid var(--line)}
+  .skin-artwork figcaption span:last-child{color:var(--gold);text-align:right}
+  .skin-title{min-width:0}
+  .skin-title .eyebrow{font-size:.62rem;line-height:1.8;letter-spacing:.16em}
+  .skin-title h1{font-size:clamp(2.3rem,3.8vw,4rem);line-height:1.12;letter-spacing:-.035em;margin:22px 0;overflow-wrap:anywhere;text-wrap:balance}
+  .skin-champion{display:inline-flex;align-items:center;gap:24px;min-height:44px;color:var(--gold);font-size:.95rem}
+  .skin-facts{display:grid;grid-template-columns:1.3fr .8fr 1fr;gap:14px;border-top:1px solid var(--line);padding-top:22px;margin:22px 0 0}
+  .skin-facts dt{font-size:.7rem;color:var(--muted);margin-bottom:10px}
+  .skin-facts dd{margin:0;font-size:.88rem;overflow-wrap:anywhere}
+  .skin-title :global(.pbe-note){font-size:.69rem;line-height:1.75;margin-top:24px}
+  .skin-detail .pbe-section{border-top:1px solid var(--line);padding:32px 0 44px}
+  .skin-detail .pbe-section h2{font-size:clamp(1.6rem,2.8vw,2.2rem);margin:0 0 24px;letter-spacing:-.02em}
+  .skin-story{display:grid;grid-template-columns:1fr 3fr;column-gap:48px}
+  .skin-story .eyebrow{grid-row:1 / 3;margin-top:12px}
+  .skin-story .pbe-links:empty{display:none}
+  .skin-story .pbe-lede{grid-column:2;max-width:800px;margin:14px 0 0;font-size:1rem;line-height:1.9;color:var(--text)}
+  .skin-detail .pbe-media{margin:0;border-radius:3px}
+  .skin-detail .pbe-media :global(.image-viewer){height:auto}
+  .skin-detail .pbe-media :global(.viewer-full){aspect-ratio:auto}
+  .skin-detail .pbe-media figcaption{padding:14px 18px;letter-spacing:.04em}
+  .skin-detail .pbe-chip{min-height:44px;border-radius:3px;padding:9px 14px}
+  .skin-detail .pbe-chroma-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+  .skin-detail .pbe-chroma{border-radius:3px;scroll-margin-top:100px}
+  .skin-detail .pbe-chroma img{object-fit:contain;background:radial-gradient(ellipse at center,var(--panel2),var(--bg))}
+  .skin-detail .pbe-chroma span{padding:12px;font-size:.8rem}
+  .skin-detail .pbe-swatches{padding:0 12px 14px}
+  .skin-detail .pbe-chroma:target,.skin-detail .pbe-chroma:hover{border-color:var(--gold)}
+  .skin-detail :global(a:focus-visible),.skin-detail :global(button:focus-visible){outline:2px solid var(--gold);outline-offset:4px}
+  @media(max-width:1023px){.skin-exhibit{grid-template-columns:1fr;gap:28px}.skin-title h1{max-width:900px}.skin-facts{max-width:540px}.skin-story{grid-template-columns:1fr 3fr;gap:24px}}
+  @media(max-width:767px){.skin-detail .breadcrumbs{margin-bottom:16px}.skin-exhibit{padding:0 0 32px;gap:24px}.skin-title h1{font-size:clamp(2.1rem,9vw,3.4rem);margin:14px 0}.skin-artwork figcaption{padding:12px;font-size:.58rem;letter-spacing:0}.skin-detail .pbe-section{padding:26px 0 32px}.skin-story{display:block}.skin-story .pbe-lede{font-size:.92rem}.skin-detail .pbe-chroma-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.skin-facts{gap:12px}.skin-detail .pbe-section h2{margin-bottom:18px}}
+  @media(max-width:767px){
+    :global(body:has(.skin-detail)){--site-header-height:112px}
+    :global(body:has(.skin-detail) .site-header){flex-wrap:wrap;padding-top:10px;padding-bottom:4px}
+    :global(body:has(.skin-detail) .brand){width:100%}
+    :global(body:has(.skin-detail) .header-controls){width:100%;justify-content:space-between;gap:14px}
+    :global(body:has(.skin-detail) .browse-nav){max-width:none;gap:18px}
+    :global(body:has(.skin-detail) .header-blog-link){white-space:nowrap}
+    :global(body:has(.skin-detail) .language-toggle){position:absolute;right:var(--page-gutter);top:8px}
+  }
+  @media(prefers-reduced-motion:reduce){.skin-detail :global(*){scroll-behavior:auto!important;transition:none!important}.skin-backdrop video{display:none}.skin-backdrop img{opacity:.42}}
+</style>

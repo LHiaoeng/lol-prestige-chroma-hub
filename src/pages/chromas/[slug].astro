@@ -6,6 +6,8 @@ import DetailActionMenu from '../../components/DetailActionMenu.astro';
 import ExpandableChromaGroup from '../../components/ExpandableChromaGroup.astro';
 import ImageViewer from '../../components/ImageViewer.astro';
 import { catalog } from '../../data/catalog';
+import { getChampionIndex } from '../../data/champion-index';
+import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { googleSearchUrl, khadaChampionUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
 import { findRelatedGroups } from '../../domain/related';
@@ -14,12 +16,25 @@ import { categoryName } from '../../i18n';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createChromaSeo } from '../../seo/chroma-seo';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const requiredIds = [...new Set(catalog.map((chroma) => chroma.heroId))];
+  const championIndex = await getChampionIndex(requiredIds);
+  const slugById = new Map(championIndex.map((entry) => [entry.id, entry.slug]));
+  const graph = await getCommunityDragonPbeGraph();
   return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
-    .map((slug) => ({ params: { slug }, props: { chroma } })));
+    .map((slug) => ({
+      params: { slug },
+      props: { chroma, championSlug: slugById.get(chroma.heroId)!, pbeSkin: graph.skins.find((skin) => skin.chromas.some((entry) => entry.id === chroma.skinId)) },
+    })));
 }
-interface Props { chroma: typeof catalog[number]; locale?: Locale }
+interface Props { chroma: typeof catalog[number]; championSlug: string; pbeSkin?: import('../../domain/communitydragon-content').SkinRecord; locale?: Locale }
 const { chroma } = Astro.props;
+const { championSlug } = Astro.props;
+const pbeSkinProp = Astro.props.pbeSkin;
+const pbeGraph = await getCommunityDragonPbeGraph();
+const pbeSkin = pbeSkinProp ?? pbeGraph.skins.find((skin) => skin.chromas.some((entry) => entry.id === chroma.skinId));
+const pbeSkinlines = pbeSkin?.skinlineIds.map((id) => pbeGraph.skinlinesById.get(id)).filter(Boolean) ?? [];
+const pbeUniverses = pbeSkin?.universeIds.map((id) => pbeGraph.universesById.get(id)).filter(Boolean) ?? [];
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const seo = createChromaSeo(chroma, locale);
@@ -92,9 +107,10 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
         {chroma.colors.length > 0 && <div><dt>{isZh ? '颜色' : 'Colors'}</dt><dd><ChromaColorCircle colors={chroma.colors} /></dd></div>}
         {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <div class="description-row"><dt>{isZh ? '描述' : 'Description'}</dt><dd>{isZh ? chroma.descriptionZh : chroma.descriptionEn}</dd></div>}
         <div><dt>{isZh ? '原皮' : 'Base skin'}</dt><dd class="detail-value-with-actions"><span>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</span><DetailActionMenu actions={baseSkinActions} {locale} /></dd></div>
-        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span>{isZh ? skinSetsZh : skinSetsEn}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
-        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span>{isZh ? universesZh : universesEn}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
-        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><span>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</span><DetailActionMenu actions={championActions} {locale} /></dd></div>
+        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span class="pbe-links">{pbeSkinlines.length > 0 ? pbeSkinlines.map((line) => <a class="pbe-chip" href={localizedPath(locale, `/skinlines/${line!.slug}/`)}>{isZh ? line!.nameZh ?? line!.nameEn : line!.nameEn}</a>) : (isZh ? skinSetsZh : skinSetsEn)}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
+        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span class="pbe-links">{pbeUniverses.length > 0 ? pbeUniverses.map((universe) => <a class="pbe-chip" href={localizedPath(locale, `/universes/${universe!.slug}/`)}>{isZh ? universe!.nameZh ?? universe!.nameEn : universe!.nameEn}</a>) : (isZh ? universesZh : universesEn)}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
+        {pbeSkin && <div><dt>{isZh ? 'PBE 皮肤' : 'PBE skin'}</dt><dd><a class="champion-detail-link" href={localizedPath(locale, `/skins/${pbeSkin.slug}/`)}>{isZh ? pbeSkin.nameZh ?? pbeSkin.nameEn : pbeSkin.nameEn}</a></dd></div>}
+        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" href={localizedPath(locale, `/champions/${championSlug}/`)}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
         <div><dt>{isZh ? '游戏版本' : 'Patch'}</dt><dd class="detail-value-with-actions"><span>{chroma.gameVer}</span><DetailActionMenu actions={patchActions} {locale} /></dd></div>
       </dl>
       </div>
@@ -139,6 +155,8 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
   .description-row dd{color:var(--muted);line-height:1.7}
   .detail-context-link{margin:18px 0 0;color:var(--muted);font-size:.86rem;line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
+  .champion-detail-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+  .champion-detail-link:hover,.champion-detail-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
   @media(max-width:767px){
     .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
     .detail-background img{opacity:.42;object-position:center top}

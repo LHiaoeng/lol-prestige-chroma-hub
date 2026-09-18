@@ -103,7 +103,7 @@ export const evergreenGuideMaintenance = {
     sources: [
       catalogSource,
       {
-        href: 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json',
+        href: 'https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json',
         labelEn: 'CommunityDragon — current champion summary',
         labelZh: 'CommunityDragon — 当前英雄列表',
         external: true,
