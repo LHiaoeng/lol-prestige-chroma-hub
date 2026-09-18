@@ -101,7 +101,7 @@ const jsonLd = isZh ? [
   </script>
 </BaseLayout>
 <style>
-  .hero-section { position: relative; isolation:isolate; width:100%; max-width:none; height:calc(100svh - var(--site-header-height)); min-height:480px; display:grid; align-items:center; overflow:hidden; padding:80px 0; }
+  .hero-section { position: relative; isolation:isolate; width:100%; max-width:none; margin-top:calc(-1 * var(--site-header-height)); height:100svh; min-height:calc(480px + var(--site-header-height)); display:grid; align-items:center; overflow:hidden; padding:calc(80px + var(--site-header-height)) 0 80px; }
   .hero-content { position: relative; z-index: 1; width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
   .hero-content > p:last-child { max-width: 650px; color: #d4d6df; font-size: 1.05rem; text-shadow: 0 2px 18px #000; }
   .hero-content h1 { text-shadow: 0 5px 30px #000b; }
@@ -126,7 +126,7 @@ const jsonLd = isZh ? [
   .guide-card time { color: var(--muted); font-size: .78rem; margin-top: auto; }
   @media (max-width: 900px) { .guide-list { grid-template-columns: 1fr; } }
   @media (max-width: 680px) {
-    .hero-section { padding:64px 0; }
+    .hero-section { padding:calc(64px + var(--site-header-height)) 0 64px; }
     .hero-content { width: min(100% - 28px, 1240px); }
     .intro-section { width: min(100% - 28px, 1240px); padding-top: 36px; }
     .intro-content p { font-size: .88rem; line-height: 1.65; }

@@ -124,7 +124,7 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
 </script>
 <style>
   :global(main){position:relative;isolation:isolate}
-  .detail-background{position:absolute;z-index:-1;inset:0 0 auto;height:calc(100svh - var(--site-header-height));overflow:hidden;pointer-events:none}
+  .detail-background{position:absolute;z-index:-1;inset:calc(-1 * var(--site-header-height)) 0 auto;height:100svh;overflow:hidden;pointer-events:none}
   .detail-background::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#090b15f2 0%,#090b15a8 45%,#090b1566 75%),linear-gradient(0deg,#090b15 0%,transparent 52%,#090b1570 100%)}
   .detail-background picture{display:block;width:100%;height:100%}
   .detail-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.52;filter:saturate(.85)}
