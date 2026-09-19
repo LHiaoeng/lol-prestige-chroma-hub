@@ -219,7 +219,7 @@ describe('blog feature contract', () => {
     expect(page).toContain('<div class="blog-backdrop">');
     expect(page).toContain('largeSrc={imageUrl(backgroundChroma.images.large)}');
     expect(page).toContain('mediumSrc={imageUrl(backgroundChroma.images.medium)}');
-    expect(page).toContain('height:calc(100svh - var(--site-header-height))');
+    expect(page).toContain('height:100svh; min-height:calc(480px + var(--site-header-height))');
     expect(page.match(/<section class="blog-hero"[\s\S]*?<section class="blog-index">/)?.[0]).toBeDefined();
     expect(backdrop).toContain('<source media="(max-width: 767px)" srcset={mediumSrc}');
     expect(backdrop).toMatch(/<img\s+data-backdrop-image\s+src=\{largeSrc\}/);
@@ -380,7 +380,8 @@ describe('blog feature contract', () => {
   it('derives and refreshes every champion coverage fact', () => {
     const page = source('src/pages/blog/champions-without-prestige-chroma.astro');
     const client = source('src/client/champion-coverage-refresh.ts');
-    expect(page).toContain('fetchChampionCoverage(fetch, coveredHeroIds, patchVersion)');
+    expect(page).toContain('championCoverageRepositorySnapshot');
+    expect(page).not.toContain('fetchChampionCoverage(fetch, coveredHeroIds, patchVersion)');
     expect(page).toContain('championCoverageCopy(snapshot)');
     expect(page).toContain('id="champion-coverage-config"');
     expect(page).toContain('initializeChampionCoverageRefresh(document)');

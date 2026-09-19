@@ -5,8 +5,8 @@ import ArticleMaintenance from '../../components/ArticleMaintenance.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { evergreenGuideMaintenance } from '../../blog/evergreen-guides';
 import { catalog } from '../../data/catalog';
-import { fetchChampionCoverage } from '../../data/champion-coverage';
-import { championCoverageCopy, latestGameVersion } from '../../domain/champion-coverage';
+import { championCoverageRepositorySnapshot } from '../../data/champion-coverage-snapshot';
+import { championCoverageCopy } from '../../domain/champion-coverage';
 import { safeJsonLd } from '../../domain/chroma';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { SITE } from '../../seo/site';
@@ -23,8 +23,8 @@ const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toSt
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
 const coveredHeroIds = [...new Set(catalog.map((item) => item.heroId))];
-const patchVersion = latestGameVersion(catalog.map((item) => item.gameVer));
-const snapshot = await fetchChampionCoverage(fetch, coveredHeroIds, patchVersion);
+const { snapshot } = championCoverageRepositorySnapshot;
+const patchVersion = snapshot.patchVersion;
 const coverageCopy = championCoverageCopy(snapshot);
 const clientConfig = safeJsonLd({ coveredHeroIds, patchVersion });
 const jsonLd = [

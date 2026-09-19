@@ -1,0 +1,998 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "channel": "pbe",
+    "locales": [
+      "default",
+      "zh_cn"
+    ],
+    "urls": {
+      "default": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json",
+      "zh_cn": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/zh_cn/v1/champion-summary.json"
+    },
+    "fetchedAt": "2026-09-19T18:25:41.237Z",
+    "contentVersion": "default:W/\"6aa85cb9-db73\";zh_cn:W/\"6aa9c05c-d83e\""
+  },
+  "snapshot": {
+    "patchVersion": "26.18",
+    "totalChampions": 245,
+    "coveredChampions": 106,
+    "missingChampions": 139,
+    "coveragePercent": 43.3,
+    "champions": [
+      {
+        "id": "60103",
+        "alias": "Jade_Ahri",
+        "nameEn": "Ahri",
+        "nameZh": "阿狸",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60103.png"
+      },
+      {
+        "id": "60084",
+        "alias": "Jade_Akali",
+        "nameEn": "Akali",
+        "nameZh": "阿卡丽",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60084.png"
+      },
+      {
+        "id": "166",
+        "alias": "Akshan",
+        "nameEn": "Akshan",
+        "nameZh": "阿克尚",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/166.png"
+      },
+      {
+        "id": "60012",
+        "alias": "Jade_Alistar",
+        "nameEn": "Alistar",
+        "nameZh": "阿利斯塔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60012.png"
+      },
+      {
+        "id": "799",
+        "alias": "Ambessa",
+        "nameEn": "Ambessa",
+        "nameZh": "安蓓萨",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png"
+      },
+      {
+        "id": "32",
+        "alias": "Amumu",
+        "nameEn": "Amumu",
+        "nameZh": "阿木木",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/32.png"
+      },
+      {
+        "id": "60032",
+        "alias": "Jade_Amumu",
+        "nameEn": "Amumu",
+        "nameZh": "阿木木",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60032.png"
+      },
+      {
+        "id": "34",
+        "alias": "Anivia",
+        "nameEn": "Anivia",
+        "nameZh": "艾尼维亚",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/34.png"
+      },
+      {
+        "id": "60034",
+        "alias": "Jade_Anivia",
+        "nameEn": "Anivia",
+        "nameZh": "艾尼维亚",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60034.png"
+      },
+      {
+        "id": "60001",
+        "alias": "Jade_Annie",
+        "nameEn": "Annie",
+        "nameZh": "安妮",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60001.png"
+      },
+      {
+        "id": "60022",
+        "alias": "Jade_Ashe",
+        "nameEn": "Ashe",
+        "nameZh": "艾希",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60022.png"
+      },
+      {
+        "id": "136",
+        "alias": "AurelionSol",
+        "nameEn": "Aurelion Sol",
+        "nameZh": "奥瑞利安·索尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/136.png"
+      },
+      {
+        "id": "268",
+        "alias": "Azir",
+        "nameEn": "Azir",
+        "nameZh": "阿兹尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/268.png"
+      },
+      {
+        "id": "200",
+        "alias": "Belveth",
+        "nameEn": "Bel'Veth",
+        "nameZh": "卑尔维斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/200.png"
+      },
+      {
+        "id": "60053",
+        "alias": "Jade_Blitzcrank",
+        "nameEn": "Blitzcrank",
+        "nameZh": "布里茨",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60053.png"
+      },
+      {
+        "id": "63",
+        "alias": "Brand",
+        "nameEn": "Brand",
+        "nameZh": "布兰德",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/63.png"
+      },
+      {
+        "id": "60063",
+        "alias": "Jade_Brand",
+        "nameEn": "Brand",
+        "nameZh": "布兰德",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60063.png"
+      },
+      {
+        "id": "60031",
+        "alias": "Jade_Chogath",
+        "nameEn": "Cho'Gath",
+        "nameZh": "科加斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60031.png"
+      },
+      {
+        "id": "60042",
+        "alias": "Jade_Corki",
+        "nameEn": "Corki",
+        "nameZh": "库奇",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60042.png"
+      },
+      {
+        "id": "36",
+        "alias": "DrMundo",
+        "nameEn": "Dr. Mundo",
+        "nameZh": "蒙多医生",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/36.png"
+      },
+      {
+        "id": "60036",
+        "alias": "Jade_DrMundo",
+        "nameEn": "Dr. Mundo",
+        "nameZh": "蒙多医生",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60036.png"
+      },
+      {
+        "id": "119",
+        "alias": "Draven",
+        "nameEn": "Draven",
+        "nameZh": "德莱文",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/119.png"
+      },
+      {
+        "id": "60028",
+        "alias": "Jade_Evelynn",
+        "nameEn": "Evelynn",
+        "nameZh": "伊芙琳",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60028.png"
+      },
+      {
+        "id": "60081",
+        "alias": "Jade_Ezreal",
+        "nameEn": "Ezreal",
+        "nameZh": "伊泽瑞尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60081.png"
+      },
+      {
+        "id": "9",
+        "alias": "FiddleSticks",
+        "nameEn": "Fiddlesticks",
+        "nameZh": "费德提克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/9.png"
+      },
+      {
+        "id": "60009",
+        "alias": "Jade_Fiddlesticks",
+        "nameEn": "Fiddlesticks",
+        "nameZh": "费德提克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60009.png"
+      },
+      {
+        "id": "60114",
+        "alias": "Jade_Fiora",
+        "nameEn": "Fiora",
+        "nameZh": "菲奥娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60114.png"
+      },
+      {
+        "id": "105",
+        "alias": "Fizz",
+        "nameEn": "Fizz",
+        "nameZh": "菲兹",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/105.png"
+      },
+      {
+        "id": "60105",
+        "alias": "Jade_Fizz",
+        "nameEn": "Fizz",
+        "nameZh": "Fizz",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60105.png"
+      },
+      {
+        "id": "3",
+        "alias": "Galio",
+        "nameEn": "Galio",
+        "nameZh": "加里奥",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/3.png"
+      },
+      {
+        "id": "60003",
+        "alias": "Jade_Galio",
+        "nameEn": "Galio",
+        "nameZh": "加里奥",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60003.png"
+      },
+      {
+        "id": "60041",
+        "alias": "Jade_Gangplank",
+        "nameEn": "Gangplank",
+        "nameZh": "普朗克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60041.png"
+      },
+      {
+        "id": "60086",
+        "alias": "Jade_Garen",
+        "nameEn": "Garen",
+        "nameZh": "盖伦",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60086.png"
+      },
+      {
+        "id": "150",
+        "alias": "Gnar",
+        "nameEn": "Gnar",
+        "nameZh": "纳尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/150.png"
+      },
+      {
+        "id": "60079",
+        "alias": "Jade_Gragas",
+        "nameEn": "Gragas",
+        "nameZh": "古拉加斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60079.png"
+      },
+      {
+        "id": "60104",
+        "alias": "Jade_Graves",
+        "nameEn": "Graves",
+        "nameZh": "格雷福斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60104.png"
+      },
+      {
+        "id": "120",
+        "alias": "Hecarim",
+        "nameEn": "Hecarim",
+        "nameZh": "赫卡里姆",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/120.png"
+      },
+      {
+        "id": "74",
+        "alias": "Heimerdinger",
+        "nameEn": "Heimerdinger",
+        "nameZh": "黑默丁格",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/74.png"
+      },
+      {
+        "id": "60074",
+        "alias": "Jade_Heimerdinger",
+        "nameEn": "Heimerdinger",
+        "nameZh": "黑默丁格",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60074.png"
+      },
+      {
+        "id": "420",
+        "alias": "Illaoi",
+        "nameEn": "Illaoi",
+        "nameZh": "俄洛伊",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/420.png"
+      },
+      {
+        "id": "427",
+        "alias": "Ivern",
+        "nameEn": "Ivern",
+        "nameZh": "艾翁",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/427.png"
+      },
+      {
+        "id": "60040",
+        "alias": "Jade_Janna",
+        "nameEn": "Janna",
+        "nameZh": "迦娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60040.png"
+      },
+      {
+        "id": "60059",
+        "alias": "Jade_JarvanIV",
+        "nameEn": "Jarvan IV",
+        "nameZh": "嘉文四世",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60059.png"
+      },
+      {
+        "id": "60024",
+        "alias": "Jade_Jax",
+        "nameEn": "Jax",
+        "nameZh": "贾克斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60024.png"
+      },
+      {
+        "id": "897",
+        "alias": "KSante",
+        "nameEn": "K'Sante",
+        "nameZh": "奎桑提",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/897.png"
+      },
+      {
+        "id": "30",
+        "alias": "Karthus",
+        "nameEn": "Karthus",
+        "nameZh": "卡尔萨斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/30.png"
+      },
+      {
+        "id": "60030",
+        "alias": "Jade_Karthus",
+        "nameEn": "Karthus",
+        "nameZh": "卡尔萨斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60030.png"
+      },
+      {
+        "id": "38",
+        "alias": "Kassadin",
+        "nameEn": "Kassadin",
+        "nameZh": "卡萨丁",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/38.png"
+      },
+      {
+        "id": "60038",
+        "alias": "Jade_Kassadin",
+        "nameEn": "Kassadin",
+        "nameZh": "卡萨丁",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60038.png"
+      },
+      {
+        "id": "60055",
+        "alias": "Jade_Katarina",
+        "nameEn": "Katarina",
+        "nameZh": "卡特琳娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60055.png"
+      },
+      {
+        "id": "60010",
+        "alias": "Jade_Kayle",
+        "nameEn": "Kayle",
+        "nameZh": "凯尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60010.png"
+      },
+      {
+        "id": "85",
+        "alias": "Kennen",
+        "nameEn": "Kennen",
+        "nameZh": "凯南",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/85.png"
+      },
+      {
+        "id": "60085",
+        "alias": "Jade_Kennen",
+        "nameEn": "Kennen",
+        "nameZh": "凯南",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60085.png"
+      },
+      {
+        "id": "203",
+        "alias": "Kindred",
+        "nameEn": "Kindred",
+        "nameZh": "千珏",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/203.png"
+      },
+      {
+        "id": "240",
+        "alias": "Kled",
+        "nameEn": "Kled",
+        "nameZh": "克烈",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/240.png"
+      },
+      {
+        "id": "96",
+        "alias": "KogMaw",
+        "nameEn": "Kog'Maw",
+        "nameZh": "克格莫",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/96.png"
+      },
+      {
+        "id": "60096",
+        "alias": "Jade_KogMaw",
+        "nameEn": "Kog'Maw",
+        "nameZh": "克格莫",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60096.png"
+      },
+      {
+        "id": "60064",
+        "alias": "Jade_LeeSin",
+        "nameEn": "Lee Sin",
+        "nameZh": "李青",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60064.png"
+      },
+      {
+        "id": "60089",
+        "alias": "Jade_Leona",
+        "nameEn": "Leona",
+        "nameZh": "蕾欧娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60089.png"
+      },
+      {
+        "id": "805",
+        "alias": "Locke",
+        "nameEn": "Locke",
+        "nameZh": "洛克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/805.png"
+      },
+      {
+        "id": "60117",
+        "alias": "Jade_Lulu",
+        "nameEn": "Lulu",
+        "nameZh": "璐璐",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60117.png"
+      },
+      {
+        "id": "60099",
+        "alias": "Jade_Lux",
+        "nameEn": "Lux",
+        "nameZh": "拉克丝",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60099.png"
+      },
+      {
+        "id": "60054",
+        "alias": "Jade_Malphite",
+        "nameEn": "Malphite",
+        "nameZh": "墨菲特",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60054.png"
+      },
+      {
+        "id": "90",
+        "alias": "Malzahar",
+        "nameEn": "Malzahar",
+        "nameZh": "玛尔扎哈",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/90.png"
+      },
+      {
+        "id": "60090",
+        "alias": "Jade_Malzahar",
+        "nameEn": "Malzahar",
+        "nameZh": "玛尔扎哈",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60090.png"
+      },
+      {
+        "id": "57",
+        "alias": "Maokai",
+        "nameEn": "Maokai",
+        "nameZh": "茂凯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/57.png"
+      },
+      {
+        "id": "60011",
+        "alias": "Jade_MasterYi",
+        "nameEn": "Master Yi",
+        "nameZh": "易",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60011.png"
+      },
+      {
+        "id": "800",
+        "alias": "Mel",
+        "nameEn": "Mel",
+        "nameZh": "梅尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/800.png"
+      },
+      {
+        "id": "902",
+        "alias": "Milio",
+        "nameEn": "Milio",
+        "nameZh": "米利欧",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/902.png"
+      },
+      {
+        "id": "60021",
+        "alias": "Jade_MissFortune",
+        "nameEn": "Miss Fortune",
+        "nameZh": "厄运小姐",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60021.png"
+      },
+      {
+        "id": "82",
+        "alias": "Mordekaiser",
+        "nameEn": "Mordekaiser",
+        "nameZh": "莫德凯撒",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/82.png"
+      },
+      {
+        "id": "60025",
+        "alias": "Jade_Morgana",
+        "nameEn": "Morgana",
+        "nameZh": "莫甘娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60025.png"
+      },
+      {
+        "id": "950",
+        "alias": "Naafiri",
+        "nameEn": "Naafiri",
+        "nameZh": "纳亚菲利",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/950.png"
+      },
+      {
+        "id": "60267",
+        "alias": "Jade_Nami",
+        "nameEn": "Nami",
+        "nameZh": "Nami",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60267.png"
+      },
+      {
+        "id": "75",
+        "alias": "Nasus",
+        "nameEn": "Nasus",
+        "nameZh": "内瑟斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/75.png"
+      },
+      {
+        "id": "60075",
+        "alias": "Jade_Nasus",
+        "nameEn": "Nasus",
+        "nameZh": "内瑟斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60075.png"
+      },
+      {
+        "id": "111",
+        "alias": "Nautilus",
+        "nameEn": "Nautilus",
+        "nameZh": "诺提勒斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/111.png"
+      },
+      {
+        "id": "60111",
+        "alias": "Jade_Nautilus",
+        "nameEn": "Nautilus",
+        "nameZh": "Nautilus",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60111.png"
+      },
+      {
+        "id": "60076",
+        "alias": "Jade_Nidalee",
+        "nameEn": "Nidalee",
+        "nameZh": "奈德丽",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60076.png"
+      },
+      {
+        "id": "895",
+        "alias": "Nilah",
+        "nameEn": "Nilah",
+        "nameZh": "尼菈",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/895.png"
+      },
+      {
+        "id": "56",
+        "alias": "Nocturne",
+        "nameEn": "Nocturne",
+        "nameZh": "魔腾",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/56.png"
+      },
+      {
+        "id": "20",
+        "alias": "Nunu",
+        "nameEn": "Nunu & Willump",
+        "nameZh": "努努和威朗普",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/20.png"
+      },
+      {
+        "id": "60020",
+        "alias": "Jade_Nunu",
+        "nameEn": "Nunu & Willump",
+        "nameZh": "努努",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60020.png"
+      },
+      {
+        "id": "2",
+        "alias": "Olaf",
+        "nameEn": "Olaf",
+        "nameZh": "奥拉夫",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/2.png"
+      },
+      {
+        "id": "60002",
+        "alias": "Jade_Olaf",
+        "nameEn": "Olaf",
+        "nameZh": "奥拉夫",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60002.png"
+      },
+      {
+        "id": "80",
+        "alias": "Pantheon",
+        "nameEn": "Pantheon",
+        "nameZh": "潘森",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/80.png"
+      },
+      {
+        "id": "60080",
+        "alias": "Jade_Pantheon",
+        "nameEn": "Pantheon",
+        "nameZh": "潘森",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60080.png"
+      },
+      {
+        "id": "60078",
+        "alias": "Jade_Poppy",
+        "nameEn": "Poppy",
+        "nameZh": "波比",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60078.png"
+      },
+      {
+        "id": "246",
+        "alias": "Qiyana",
+        "nameEn": "Qiyana",
+        "nameZh": "奇亚娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/246.png"
+      },
+      {
+        "id": "133",
+        "alias": "Quinn",
+        "nameEn": "Quinn",
+        "nameZh": "奎因",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/133.png"
+      },
+      {
+        "id": "60033",
+        "alias": "Jade_Rammus",
+        "nameEn": "Rammus",
+        "nameZh": "拉莫斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60033.png"
+      },
+      {
+        "id": "421",
+        "alias": "RekSai",
+        "nameEn": "Rek'Sai",
+        "nameZh": "雷克塞",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/421.png"
+      },
+      {
+        "id": "526",
+        "alias": "Rell",
+        "nameEn": "Rell",
+        "nameZh": "芮尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/526.png"
+      },
+      {
+        "id": "888",
+        "alias": "Renata",
+        "nameEn": "Renata Glasc",
+        "nameZh": "烈娜塔 · 戈拉斯克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/888.png"
+      },
+      {
+        "id": "60013",
+        "alias": "Jade_Ryze",
+        "nameEn": "Ryze",
+        "nameZh": "瑞兹",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60013.png"
+      },
+      {
+        "id": "360",
+        "alias": "Samira",
+        "nameEn": "Samira",
+        "nameZh": "莎弥拉",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/360.png"
+      },
+      {
+        "id": "60035",
+        "alias": "Jade_Shaco",
+        "nameEn": "Shaco",
+        "nameZh": "萨科",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60035.png"
+      },
+      {
+        "id": "60098",
+        "alias": "Jade_Shen",
+        "nameEn": "Shen",
+        "nameZh": "慎",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60098.png"
+      },
+      {
+        "id": "60102",
+        "alias": "Jade_Shyvana",
+        "nameEn": "Shyvana",
+        "nameZh": "希瓦娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60102.png"
+      },
+      {
+        "id": "27",
+        "alias": "Singed",
+        "nameEn": "Singed",
+        "nameZh": "辛吉德",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/27.png"
+      },
+      {
+        "id": "60027",
+        "alias": "Jade_Singed",
+        "nameEn": "Singed",
+        "nameZh": "辛吉德",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60027.png"
+      },
+      {
+        "id": "14",
+        "alias": "Sion",
+        "nameEn": "Sion",
+        "nameZh": "赛恩",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/14.png"
+      },
+      {
+        "id": "60014",
+        "alias": "Jade_Sion",
+        "nameEn": "Sion",
+        "nameZh": "赛恩",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60014.png"
+      },
+      {
+        "id": "60015",
+        "alias": "Jade_Sivir",
+        "nameEn": "Sivir",
+        "nameZh": "希维尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60015.png"
+      },
+      {
+        "id": "72",
+        "alias": "Skarner",
+        "nameEn": "Skarner",
+        "nameZh": "斯卡纳",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/72.png"
+      },
+      {
+        "id": "60072",
+        "alias": "Jade_Skarner",
+        "nameEn": "Skarner",
+        "nameZh": "斯卡纳",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60072.png"
+      },
+      {
+        "id": "901",
+        "alias": "Smolder",
+        "nameEn": "Smolder",
+        "nameZh": "斯莫德",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/901.png"
+      },
+      {
+        "id": "60037",
+        "alias": "Jade_Sona",
+        "nameEn": "Sona",
+        "nameZh": "娑娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60037.png"
+      },
+      {
+        "id": "60016",
+        "alias": "Jade_Soraka",
+        "nameEn": "Soraka",
+        "nameZh": "索拉卡",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60016.png"
+      },
+      {
+        "id": "223",
+        "alias": "TahmKench",
+        "nameEn": "Tahm Kench",
+        "nameZh": "塔姆",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/223.png"
+      },
+      {
+        "id": "163",
+        "alias": "Taliyah",
+        "nameEn": "Taliyah",
+        "nameZh": "塔莉垭",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/163.png"
+      },
+      {
+        "id": "44",
+        "alias": "Taric",
+        "nameEn": "Taric",
+        "nameZh": "塔里克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/44.png"
+      },
+      {
+        "id": "60044",
+        "alias": "Jade_Taric",
+        "nameEn": "Taric",
+        "nameZh": "塔里克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60044.png"
+      },
+      {
+        "id": "17",
+        "alias": "Teemo",
+        "nameEn": "Teemo",
+        "nameZh": "提莫",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/17.png"
+      },
+      {
+        "id": "60017",
+        "alias": "Jade_Teemo",
+        "nameEn": "Teemo",
+        "nameZh": "提莫",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60017.png"
+      },
+      {
+        "id": "60018",
+        "alias": "Jade_Tristana",
+        "nameEn": "Tristana",
+        "nameZh": "崔丝塔娜",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60018.png"
+      },
+      {
+        "id": "48",
+        "alias": "Trundle",
+        "nameEn": "Trundle",
+        "nameZh": "特朗德尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/48.png"
+      },
+      {
+        "id": "60023",
+        "alias": "Jade_Tryndamere",
+        "nameEn": "Tryndamere",
+        "nameZh": "泰达米尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60023.png"
+      },
+      {
+        "id": "4",
+        "alias": "TwistedFate",
+        "nameEn": "Twisted Fate",
+        "nameZh": "崔斯特",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/4.png"
+      },
+      {
+        "id": "60004",
+        "alias": "Jade_TwistedFate",
+        "nameEn": "Twisted Fate",
+        "nameZh": "崔斯特",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60004.png"
+      },
+      {
+        "id": "29",
+        "alias": "Twitch",
+        "nameEn": "Twitch",
+        "nameZh": "图奇",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/29.png"
+      },
+      {
+        "id": "60029",
+        "alias": "Jade_Twitch",
+        "nameEn": "Twitch",
+        "nameZh": "图奇",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60029.png"
+      },
+      {
+        "id": "77",
+        "alias": "Udyr",
+        "nameEn": "Udyr",
+        "nameZh": "乌迪尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/77.png"
+      },
+      {
+        "id": "6",
+        "alias": "Urgot",
+        "nameEn": "Urgot",
+        "nameZh": "厄加特",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/6.png"
+      },
+      {
+        "id": "60067",
+        "alias": "Jade_Vayne",
+        "nameEn": "Vayne",
+        "nameZh": "薇恩",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60067.png"
+      },
+      {
+        "id": "60045",
+        "alias": "Jade_Veigar",
+        "nameEn": "Veigar",
+        "nameZh": "维迦",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60045.png"
+      },
+      {
+        "id": "161",
+        "alias": "Velkoz",
+        "nameEn": "Vel'Koz",
+        "nameZh": "维克兹",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/161.png"
+      },
+      {
+        "id": "112",
+        "alias": "Viktor",
+        "nameEn": "Viktor",
+        "nameZh": "维克托",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/112.png"
+      },
+      {
+        "id": "8",
+        "alias": "Vladimir",
+        "nameEn": "Vladimir",
+        "nameZh": "弗拉基米尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/8.png"
+      },
+      {
+        "id": "106",
+        "alias": "Volibear",
+        "nameEn": "Volibear",
+        "nameZh": "沃利贝尔",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/106.png"
+      },
+      {
+        "id": "60019",
+        "alias": "Jade_Warwick",
+        "nameEn": "Warwick",
+        "nameZh": "沃里克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60019.png"
+      },
+      {
+        "id": "60062",
+        "alias": "Jade_Wukong",
+        "nameEn": "Wukong",
+        "nameZh": "孙悟空",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60062.png"
+      },
+      {
+        "id": "101",
+        "alias": "Xerath",
+        "nameEn": "Xerath",
+        "nameZh": "泽拉斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/101.png"
+      },
+      {
+        "id": "60005",
+        "alias": "Jade_XinZhao",
+        "nameEn": "Xin Zhao",
+        "nameZh": "赵信",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60005.png"
+      },
+      {
+        "id": "83",
+        "alias": "Yorick",
+        "nameEn": "Yorick",
+        "nameZh": "约里克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/83.png"
+      },
+      {
+        "id": "154",
+        "alias": "Zac",
+        "nameEn": "Zac",
+        "nameZh": "扎克",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/154.png"
+      },
+      {
+        "id": "115",
+        "alias": "Ziggs",
+        "nameEn": "Ziggs",
+        "nameZh": "吉格斯",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/115.png"
+      },
+      {
+        "id": "26",
+        "alias": "Zilean",
+        "nameEn": "Zilean",
+        "nameZh": "基兰",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/26.png"
+      },
+      {
+        "id": "60026",
+        "alias": "Jade_Zilean",
+        "nameEn": "Zilean",
+        "nameZh": "基兰",
+        "portraitUrl": "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/60026.png"
+      }
+    ]
+  }
+}

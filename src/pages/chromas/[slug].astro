@@ -67,6 +67,8 @@ const patchActions = [
 ];
 const isSummonGuideChroma = brilliantSummonSessions.some((session) => session.rewards.some((reward) => reward.chromaNameEn === chroma.nameEn));
 const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/');
+const runtimeChannel = Astro.url.searchParams.get('channel') === 'latest' ? 'latest' : 'pbe';
+const championRuntimeUrl = localizedPath(locale, `/champions/?id=${chroma.heroId}${runtimeChannel === 'latest' ? '&channel=latest' : ''}`);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale} noindex>
   <div class="detail-background" aria-hidden="true">
@@ -97,8 +99,8 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
         <div><dt>{isZh ? '原皮' : 'Base skin'}</dt><dd class="detail-value-with-actions"><span>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</span><DetailActionMenu actions={baseSkinActions} {locale} /></dd></div>
         {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span>{isZh ? skinSetsZh : skinSetsEn}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
         {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span>{isZh ? universesZh : universesEn}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
-        <div data-chroma-runtime data-champion-id={chroma.heroId} data-skin-id={chroma.skinId}><dt>{isZh ? 'CommunityDragon 皮肤资料' : 'CommunityDragon skin reference'}</dt><dd>{isZh ? '正文已完整显示；可选资料将在浏览器中加载。' : 'The archive entry is complete; optional reference data loads in the browser.'}</dd></div>
-        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" href={localizedPath(locale, `/champions/?id=${chroma.heroId}`)}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
+        <div data-chroma-runtime data-champion-id={chroma.heroId} data-source-skin-id={chroma.sourceSkinId} data-runtime-locale={isZh ? 'zh_cn' : 'default'} aria-busy="false"><dt>{isZh ? 'CommunityDragon 皮肤资料' : 'CommunityDragon skin reference'}</dt><dd data-chroma-runtime-content>{isZh ? '正文已完整显示；可选资料将在浏览器中加载。' : 'The archive entry is complete; optional reference data loads in the browser.'}<span class="chroma-runtime-channel" aria-label={isZh ? '资料通道' : 'Reference channel'}><button type="button" data-chroma-runtime-channel="pbe" aria-pressed={runtimeChannel === 'pbe'}>PBE</button><button type="button" data-chroma-runtime-channel="latest" aria-pressed={runtimeChannel === 'latest'}>{isZh ? '正式服' : 'Live'}</button></span></dd></div>
+        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" href={championRuntimeUrl}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
         <div><dt>{isZh ? '游戏版本' : 'Patch'}</dt><dd class="detail-value-with-actions"><span>{chroma.gameVer}</span><DetailActionMenu actions={patchActions} {locale} /></dd></div>
       </dl>
       </div>
@@ -126,6 +128,10 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
   syncDetailDisclosure();
   desktop.addEventListener('change', syncDetailDisclosure);
 </script>
+<script>
+  import { initChromaRuntime } from '../../client/chroma-runtime';
+  initChromaRuntime(document);
+</script>
 <style>
   :global(main){position:relative;isolation:isolate}
   .detail-background{position:absolute;z-index:-1;inset:calc(-1 * var(--site-header-height)) 0 auto;height:100svh;overflow:hidden;pointer-events:none}
@@ -145,6 +151,7 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   .champion-detail-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
   .champion-detail-link:hover,.champion-detail-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
+  .chroma-runtime-channel{display:inline-flex;gap:6px;margin-left:8px;vertical-align:middle}.chroma-runtime-channel button,.chroma-runtime-retry{border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);padding:5px 9px;font:inherit;font-size:.74rem;cursor:pointer}.chroma-runtime-channel button:hover,.chroma-runtime-channel button:focus-visible,.chroma-runtime-channel button[aria-pressed="true"],.chroma-runtime-retry:hover,.chroma-runtime-retry:focus-visible{border-color:var(--gold);color:var(--gold)}[data-chroma-runtime-content]{display:flex;flex-wrap:wrap;align-items:center;gap:8px;line-height:1.5}[data-chroma-runtime-content] img{width:min(180px,100%);height:auto;border-radius:6px;object-fit:cover}.chroma-runtime-meta,.chroma-runtime-description{color:var(--muted);font-size:.78rem}.chroma-runtime-links{display:inline-flex;flex-wrap:wrap;gap:10px}.chroma-runtime-links a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
   @media(max-width:767px){
     .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
     .detail-background img{opacity:.42;object-position:center top}

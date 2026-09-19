@@ -15,6 +15,7 @@
     "typecheck": "astro check && tsc --noEmit",
     "data:import": "tsx scripts/import-data.ts",
     "data:validate": "tsx scripts/validate-data.ts",
+    "coverage:snapshot": "tsx scripts/update-champion-coverage-snapshot.ts",
     "release:build": "pnpm test && pnpm typecheck && pnpm data:validate && pnpm build && pnpm audit:build",
     "audit:build": "tsx scripts/audit-build.ts",
     "smoke": "tsx scripts/smoke.ts"
