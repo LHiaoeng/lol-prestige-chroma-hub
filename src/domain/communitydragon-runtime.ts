@@ -154,6 +154,26 @@ const universeSchema = z
     skinlineIds: z.array(idSchema).optional(),
   })
   .passthrough();
+const chromaSchema = z
+  .object({
+    id: idSchema,
+    name: z.string().optional(),
+    chromaPath: z.string().optional(),
+  })
+  .passthrough();
+const skinStageSchema = z
+  .object({
+    id: idSchema.optional(),
+    stage: idSchema.optional(),
+    name: z.string().optional(),
+    splashPath: z.string().optional(),
+    uncenteredSplashPath: z.string().optional(),
+    tilePath: z.string().optional(),
+    loadScreenPath: z.string().optional(),
+    splashVideoPath: z.string().optional(),
+    chromas: z.array(chromaSchema).optional(),
+  })
+  .passthrough();
 const skinSchema = z
   .object({
     id: idSchema,
@@ -166,10 +186,14 @@ const skinSchema = z
     tilePath: z.string().optional(),
     loadScreenPath: z.string().optional(),
     splashVideoPath: z.string().optional(),
-    skinLines: z.array(z.unknown()).optional(),
-    chromas: z.array(z.unknown()).optional(),
+    skinLines: z
+      .array(z.union([idSchema, z.object({ id: idSchema }).passthrough()]))
+      .optional(),
+    chromas: z.array(chromaSchema).optional(),
     questSkinInfo: z
-      .object({ tiers: z.array(z.unknown()).optional() })
+      .object({
+        tiers: z.array(skinStageSchema).optional(),
+      })
       .optional(),
   })
   .passthrough();
@@ -194,8 +218,23 @@ function collectionEntries(
   value: unknown,
   label: string,
 ): Record<string, unknown>[] {
-  if (Array.isArray(value)) return value.filter(isRecord);
-  if (isRecord(value)) return Object.values(value).filter(isRecord);
+  if (Array.isArray(value)) {
+    if (!value.every(isRecord))
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        `${label} payload contains a malformed entry`,
+      );
+    return value;
+  }
+  if (isRecord(value)) {
+    const entries = Object.values(value);
+    if (!entries.every(isRecord))
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        `${label} payload contains a malformed entry`,
+      );
+    return entries;
+  }
   throw new CommunityDragonRuntimeError(
     "schema",
     `${label} payload must be an array or object map`,
@@ -223,14 +262,26 @@ function text(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
+function championLabels(
+  raw: { name: string; title?: string },
+  locale: CommunityDragonLocale,
+): { name: string; title?: string } {
+  if (locale !== "zh_cn")
+    return { name: raw.name, title: text(raw.title) };
+  const name = text(raw.title);
+  if (!name) throw new Error("Chinese champion payload is missing its name");
+  return { name, title: text(raw.name) };
+}
+
 function positiveIds(value: unknown): number[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => (isRecord(item) ? item.id : item))
-    .filter(
-      (item): item is number =>
-        typeof item === "number" && Number.isSafeInteger(item) && item > 0,
-    );
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error("Expected an ID list");
+  return value.map((item) => {
+    const id = isRecord(item) ? item.id : item;
+    if (typeof id !== "number" || !Number.isSafeInteger(id) || id <= 0)
+      throw new Error("ID list contains an invalid ID");
+    return id;
+  });
 }
 
 function asset(
@@ -254,16 +305,9 @@ function normalizeMedia(
 }
 
 function normalizeChroma(
-  raw: unknown,
+  raw: z.infer<typeof chromaSchema>,
   channel: RuntimeChannel,
-): RuntimeChroma | undefined {
-  if (
-    !isRecord(raw) ||
-    typeof raw.id !== "number" ||
-    !Number.isSafeInteger(raw.id) ||
-    raw.id <= 0
-  )
-    return undefined;
+): RuntimeChroma {
   return {
     id: raw.id,
     name: text(raw.name),
@@ -278,27 +322,16 @@ function normalizeSkin(
 ): RuntimeSkin {
   const stages: RuntimeSkinStage[] = [];
   for (const [index, value] of (raw.questSkinInfo?.tiers ?? []).entries()) {
-    if (!isRecord(value)) continue;
-    const id =
-      typeof value.id === "number" &&
-      Number.isSafeInteger(value.id) &&
-      value.id > 0
-        ? value.id
-        : undefined;
-    const stageIndex =
-      typeof value.stage === "number" &&
-      Number.isSafeInteger(value.stage) &&
-      value.stage > 0
-        ? value.stage
-        : index + 1;
+    const id = value.id;
+    const stageIndex = value.stage ?? index + 1;
     stages.push({
       id,
       name: text(value.name) ?? `${raw.name} · Stage ${stageIndex}`,
       stageIndex,
       media: normalizeMedia(value, channel),
-      chromas: (Array.isArray(value.chromas) ? value.chromas : [])
-        .map((chroma) => normalizeChroma(chroma, channel))
-        .filter((chroma): chroma is RuntimeChroma => Boolean(chroma)),
+      chromas: (value.chromas ?? []).map((chroma) =>
+        normalizeChroma(chroma, channel),
+      ),
     });
   }
   return {
@@ -312,9 +345,9 @@ function normalizeSkin(
     skinlineIds: positiveIds(raw.skinLines),
     media: normalizeMedia(raw, channel),
     stages,
-    chromas: (raw.chromas ?? [])
-      .map((value) => normalizeChroma(value, channel))
-      .filter((value): value is RuntimeChroma => Boolean(value)),
+    chromas: (raw.chromas ?? []).map((value) =>
+      normalizeChroma(value, channel),
+    ),
   };
 }
 
@@ -501,14 +534,17 @@ export function createCommunityDragonRuntime(
     if (kind === "champions") {
       return request(key, url, options, (value) =>
         parseCollection(value, championSummarySchema, "Champion summary").map(
-          (raw) => ({
-            kind: "champion" as const,
-            id: raw.id,
-            name: raw.name,
-            title: text(raw.title),
-            shortBio: text(raw.shortBio),
-            portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
-          }),
+          (raw) => {
+            const labels = championLabels(raw, options.locale);
+            return {
+              kind: "champion" as const,
+              id: raw.id,
+              name: labels.name,
+              title: labels.title,
+              shortBio: text(raw.shortBio),
+              portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
+            };
+          },
         ),
       );
     }
@@ -604,11 +640,12 @@ export function createCommunityDragonRuntime(
         normalizeSkin(skin, options.channel, championId),
       );
       if (kind === "champion") {
+        const labels = championLabels(raw, options.locale);
         return {
           kind: "champion" as const,
           id: raw.id,
-          name: raw.name,
-          title: text(raw.title),
+          name: labels.name,
+          title: labels.title,
           shortBio: text(raw.shortBio),
           portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
           skins,

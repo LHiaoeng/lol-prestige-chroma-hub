@@ -9,8 +9,16 @@ export async function fetchChampionCoverage(
   patchVersion: string,
 ): Promise<ChampionCoverageSnapshot> {
   const responses = await Promise.all([
-    fetcher(COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.en, { signal: AbortSignal.timeout(10_000) }),
-    fetcher(COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.zh, { signal: AbortSignal.timeout(10_000) }),
+    fetcher(COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.en, {
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer',
+      signal: AbortSignal.timeout(10_000),
+    }),
+    fetcher(COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.zh, {
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer',
+      signal: AbortSignal.timeout(10_000),
+    }),
   ]);
   for (const response of responses) {
     if (!response.ok) throw new Error(`CommunityDragon request failed: ${response.status}`);

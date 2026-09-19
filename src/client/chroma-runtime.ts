@@ -6,6 +6,7 @@ import {
   type RuntimeChampion,
   type RuntimeSkinSummary,
 } from "../domain/communitydragon-runtime";
+import { localizedPath } from "../i18n/config";
 
 export interface ChromaRuntimeSupplement {
   readonly champion: RuntimeChampion;
@@ -23,7 +24,11 @@ export interface ChromaRuntimeSupplementOptions {
 export interface ChromaRuntimeSupplementView {
   loading(): void;
   render(supplement: ChromaRuntimeSupplement): void;
-  failure(error: CommunityDragonRuntimeError, retry: () => void): void;
+  failure(
+    error: CommunityDragonRuntimeError,
+    retry: () => void,
+    preserve?: boolean,
+  ): void;
 }
 
 function asRuntimeError(
@@ -167,11 +172,19 @@ function createDomView(
         : `Champion ID ${champion.id} · Base skin ID ${baseSkin.id}`;
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
+      const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
+      const channelQuery = getChannel() === "latest" ? "&channel=latest" : "";
       const championLink = document.createElement("a");
-      championLink.href = `/champions/?id=${champion.id}${getChannel() === "latest" ? "&channel=latest" : ""}`;
+      championLink.href = localizedPath(
+        siteLocale,
+        `/champions/?id=${champion.id}${channelQuery}`,
+      );
       championLink.textContent = locale === "zh_cn" ? "查看英雄" : "View champion";
       const skinLink = document.createElement("a");
-      skinLink.href = `/skins/?id=${baseSkin.id}&champion=${champion.id}${getChannel() === "latest" ? "&channel=latest" : ""}`;
+      skinLink.href = localizedPath(
+        siteLocale,
+        `/skins/?id=${baseSkin.id}&champion=${champion.id}${channelQuery}`,
+      );
       skinLink.textContent = locale === "zh_cn" ? "查看基础皮肤" : "View base skin";
       links.append(championLink, skinLink);
       const descriptionText = baseSkin.description;
@@ -196,7 +209,7 @@ function createDomView(
       if (description) content.append(description);
       if (image) content.append(image);
     },
-    failure(error, retry) {
+    failure(error, retry, preserve = false) {
       root.removeAttribute("aria-busy");
       const status = renderStatus(runtimeFailureMessage(error, locale));
       const button = document.createElement("button");
@@ -204,7 +217,19 @@ function createDomView(
       button.className = "chroma-runtime-retry";
       button.textContent = locale === "zh_cn" ? "重试" : "Retry";
       button.addEventListener("click", retry, { once: true });
-      content.replaceChildren(status, button);
+      if (!preserve) {
+        content.replaceChildren(status, button);
+        return;
+      }
+      const previousFailure = content.querySelector(
+        "[data-chroma-runtime-error]",
+      );
+      previousFailure?.remove();
+      const failure = document.createElement("span");
+      failure.dataset.chromaRuntimeError = "true";
+      failure.className = "chroma-runtime-error";
+      failure.append(status, button);
+      content.append(failure);
     },
   };
   return view;
@@ -221,43 +246,76 @@ export function initChromaRuntime(document: Document): void {
       return;
     const runtime = createCommunityDragonRuntime();
     let selectedChannel = channelFromLocation(document);
+    let requestedChannel = selectedChannel;
+    let hasLoadedSupplement = false;
     let generation = 0;
     let controller: AbortController | undefined;
-    const view = createDomView(root, locale, () => selectedChannel);
-    const run = (channel: "pbe" | "latest") => {
-      selectedChannel = channel;
+    const view = createDomView(root, locale, () => requestedChannel);
+    const run = async (
+      channel: "pbe" | "latest",
+      commitHistory = false,
+    ): Promise<void> => {
+      const preserveContent = hasLoadedSupplement;
+      requestedChannel = channel;
       controller?.abort();
       controller = new AbortController();
       const current = ++generation;
+      const syncButtons = () => buttons.forEach((button) => {
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.chromaRuntimeChannel === selectedChannel),
+        );
+      });
       const guardedView: ChromaRuntimeSupplementView = {
-        loading: () => { if (current === generation) view.loading(); },
+        loading: () => {
+          if (current === generation && !preserveContent) view.loading();
+        },
         render: (supplement) => { if (current === generation) view.render(supplement); },
-        failure: (error, retry) => {
-          if (current === generation) view.failure(error, retry);
+        failure: (error) => {
+          if (current === generation)
+            view.failure(error, () => void run(channel), preserveContent);
         },
       };
-      void loadChromaRuntimeSupplement(runtime, guardedView, {
+      const loaded = await loadChromaRuntimeSupplement(runtime, guardedView, {
         championId,
         sourceSkinId,
         locale,
         channel,
         signal: controller.signal,
       });
+      if (current !== generation) return;
+      if (loaded) {
+        hasLoadedSupplement = true;
+        selectedChannel = channel;
+        requestedChannel = channel;
+        syncButtons();
+        if (commitHistory) {
+          const url = new URL(
+            document.defaultView?.location.href ?? "https://chromaart.lol/",
+          );
+          if (channel === "latest") url.searchParams.set("channel", "latest");
+          else url.searchParams.delete("channel");
+          document.defaultView?.history.pushState({}, "", url);
+        }
+      } else {
+        requestedChannel = selectedChannel;
+        syncButtons();
+      }
     };
     const buttons = root.querySelectorAll<HTMLButtonElement>("[data-chroma-runtime-channel]");
-    const syncButtons = () => buttons.forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.chromaRuntimeChannel === selectedChannel));
-    });
     buttons.forEach((button) => button.addEventListener("click", () => {
       const next = button.dataset.chromaRuntimeChannel === "latest" ? "latest" : "pbe";
-      const url = new URL(document.defaultView?.location.href ?? "https://chromaart.lol/");
-      if (next === "latest") url.searchParams.set("channel", "latest");
-      else url.searchParams.delete("channel");
-      document.defaultView?.history.pushState({}, "", url);
-      syncButtons();
-      run(next);
+      void run(next, true);
     }));
-    syncButtons();
-    run(selectedChannel);
+    buttons.forEach((button) => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.chromaRuntimeChannel === selectedChannel),
+      );
+    });
+    document.defaultView?.addEventListener("popstate", () => {
+      void run(channelFromLocation(document));
+    });
+    void run(selectedChannel);
   });
 }

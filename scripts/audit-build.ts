@@ -23,6 +23,10 @@ export function auditBuild(root: string): string[] {
   visit(root);
   const sensitive = files.filter(isSensitiveDeploymentArtifact);
   if (sensitive.length) throw new Error(`Sensitive deployment artifacts detected: ${sensitive.join(', ')}`);
+  const runtimeEntityPages = files.filter((file) => /^(?:zh-cn\/)?(?:champions|skins|skinlines|universes)\/[^/]+\/index\.html$/.test(file));
+  if (runtimeEntityPages.length) throw new Error(`Runtime entity pages must not be published: ${runtimeEntityPages.join(', ')}`);
+  const jsonArtifacts = files.filter((file) => file.toLowerCase().endsWith('.json'));
+  if (jsonArtifacts.length) throw new Error(`JSON source artifacts must not be published: ${jsonArtifacts.join(', ')}`);
   if (!files.includes('index.html') || !files.includes('zh-cn/index.html') || !files.includes('404.html')) throw new Error('Required static pages are missing');
   const fileSet = new Set(files);
   const adEligibleSlugs = new Set(blogArticles.filter((article) => article.adEligible).map((article) => article.slug));
@@ -35,11 +39,8 @@ export function auditBuild(root: string): string[] {
     const adBoundaries = [...html.matchAll(/data-ad-boundary="([^"]+)"/g)].map((match) => match[1]);
     const hasAdScript = html.includes('pagead2.googlesyndication.com') || html.includes('adsbygoogle');
 
-    if (detailPath) {
-      if (!/<meta name="robots" content="noindex, nofollow">/.test(html)) {
-        throw new Error(`Catalog detail is missing noindex: ${file}`);
-      }
-      if (adBoundaries.length || hasAdScript) throw new Error(`Catalog detail contains advertising: ${file}`);
+    if (detailPath && (adBoundaries.length || hasAdScript)) {
+      throw new Error(`Catalog detail contains advertising: ${file}`);
     }
 
     if (adBoundaries.length || hasAdScript) {
@@ -94,6 +95,9 @@ export function auditBuild(root: string): string[] {
     const crawlableLocations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
     if (crawlableLocations.some((location) => /^\/(?:zh-cn\/)?chromas\//.test(new URL(location).pathname))) {
       throw new Error('Catalog detail pages must not appear in sitemap.xml');
+    }
+    if (crawlableLocations.some((location) => /^(?:\/zh-cn)?\/(?:champions|skins|skinlines|universes)\/[^/]+\/$/.test(new URL(location).pathname))) {
+      throw new Error('Runtime entity pages must not appear in sitemap.xml');
     }
   }
   return files;

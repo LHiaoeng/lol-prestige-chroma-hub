@@ -7,6 +7,7 @@ import {
   type RuntimeList,
   type RuntimeListKind,
 } from "../domain/communitydragon-runtime";
+import { localizedPath } from "../i18n/config";
 
 export type RuntimePage = RuntimeListKind | "skins";
 
@@ -84,8 +85,9 @@ export function parseRuntimeLocation(
 ): RuntimeLocationState {
   const selectedChannel = channel(url.searchParams.get("channel"));
   if (!selectedChannel) return { mode: "invalid", page };
+  const hasId = url.searchParams.has("id");
   const rawId = url.searchParams.get("id");
-  if (!rawId) {
+  if (!hasId) {
     if (page === "skins")
       return { mode: "intro", page, channel: selectedChannel };
     return { mode: "list", page, channel: selectedChannel };
@@ -412,7 +414,7 @@ function textNode(
 }
 
 function runtimePath(locale: CommunityDragonLocale, page: RuntimePage): string {
-  return `${locale === "zh_cn" ? "/zh-cn" : ""}/${page}/`;
+  return localizedPath(locale === "zh_cn" ? "zh-cn" : "en", `/${page}/`);
 }
 
 function hrefFor(
@@ -547,10 +549,19 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
       toolbar.className = "runtime-toolbar";
       const search = document.createElement("input");
       search.type = "search";
+      search.id = `runtime-${options.page}-search`;
       search.placeholder =
         options.locale === "zh_cn" ? "搜索名称" : "Search names";
       search.setAttribute("aria-label", search.placeholder);
+      const searchLabel = document.createElement("label");
+      searchLabel.className = "runtime-toolbar-field";
+      searchLabel.htmlFor = search.id;
+      searchLabel.append(
+        textNode("span", options.locale === "zh_cn" ? "搜索" : "Search"),
+        search,
+      );
       const sort = document.createElement("select");
+      sort.id = `runtime-${options.page}-sort`;
       sort.setAttribute(
         "aria-label",
         options.locale === "zh_cn" ? "排序" : "Sort",
@@ -564,7 +575,14 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
         option.textContent = label;
         sort.appendChild(option);
       }
-      toolbar.append(search, sort);
+      const sortLabel = document.createElement("label");
+      sortLabel.className = "runtime-toolbar-field";
+      sortLabel.htmlFor = sort.id;
+      sortLabel.append(
+        textNode("span", options.locale === "zh_cn" ? "排序" : "Sort"),
+        sort,
+      );
+      toolbar.append(searchLabel, sortLabel);
       const grid = document.createElement("div");
       grid.className = "pbe-grid runtime-grid";
       const pagination = document.createElement("nav");

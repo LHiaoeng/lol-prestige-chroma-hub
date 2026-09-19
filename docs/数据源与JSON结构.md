@@ -237,6 +237,6 @@ D:\WebstormProjects\lol-prestige-chroma-hub
 - CommunityDragon `global/zh_cn/v1/champion-summary.json` 提供按英雄 ID 对应的中文名；
 - `data/prestige-chromas.json` 的唯一 `heroId` 集合表示已有臻彩原画的英雄。
 
-Astro 构建时请求两份 CommunityDragon 摘要，校验后与本地 `heroId` 求差集，为两个独立语言 URL 分别生成完整静态正文。浏览器会重复请求 CommunityDragon，并只刷新当前 URL 对应语言的可见数据；CommunityDragon 已公开跨域访问，因此不需要本站增加代理 API。构建请求或校验失败时发布失败，浏览器请求失败时继续显示当前语言的构建快照。
+仓库提交的 `data/champion-coverage.snapshot.json` 保存两份摘要计算后的完整结果，Astro 构建只读取该快照，不联网更新。快照记录 PBE 通道、`default` 与 `zh_cn` 区域数据视图、来源 URL、抓取时间、内容版本、补丁版本和覆盖计数；维护时运行 `pnpm coverage:snapshot`，命令会重新读取两个官方摘要并在元数据、计数、ID 和路径校验通过后写回。浏览器可以显式刷新 CommunityDragon 辅助数据，失败时继续显示当前语言的已提交快照，不影响正文。
 
 CommunityDragon 响应中的 `/lol-game-data/assets/...` 等相对资源路径必须由 `src/domain/communitydragon-url.ts` 转换，不得在页面或客户端代码中自行拼接。公开 HTML 只包含计算所需的已覆盖英雄 ID 和本地最高 `gameVer`；完整 `prestige-chromas.json` 仍然不得进入 `public/` 或 `dist/`。

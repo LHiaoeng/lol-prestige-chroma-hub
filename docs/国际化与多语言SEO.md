@@ -7,7 +7,7 @@
 | `en` | 无前缀 | `en` | `en` | `en_US` |
 | `zh-cn` | `/zh-cn/` | `zh-CN` | `zh-CN` | `zh_CN` |
 
-英文是默认语言，保留 `/`、`/blog/`、`/chromas/<slug>/` 等现有路径。简体中文使用 `/zh-cn/`、`/zh-cn/blog/` 和 `/zh-cn/chromas/<slug>/`。详情页同时保留基于 `skinId` 的中英文兼容入口，例如 `/chromas/147063/` 与 `/zh-cn/chromas/147063/`；数字入口的 canonical、hreflang 和站内链接始终指向可读 slug 主地址。图鉴详情页仍可访问，但统一输出 `noindex, nofollow`，且不进入 sitemap。不要创建含义不明确的 `/zh/`。
+英文是默认语言，保留 `/`、`/blog/`、`/chromas/<slug>/` 等现有路径。简体中文使用 `/zh-cn/`、`/zh-cn/blog/` 和 `/zh-cn/chromas/<slug>/`。静态臻彩详情页保持可索引；CommunityDragon 运行时详情使用数字查询参数并由客户端设置 `noindex`，不生成实体 sitemap 条目。不要创建含义不明确的 `/zh/`。
 
 语言由 URL 决定。页面不会根据浏览器语言、IP、请求头或本地偏好自动跳转。Header 的语言入口是普通链接，禁用 JavaScript 后仍可使用。
 
@@ -64,4 +64,4 @@ pnpm data:validate
 pnpm release:build
 ```
 
-发布前抽查英文与简体首页、博客列表、文章、详情、Editorial Policy、About、Privacy、404 与 sitemap，确认可索引页面 canonical 自引用、alternate 双向、详情页 `noindex`、站内链接保持当前语言，且构建产物不包含完整 `prestige-chromas.json`。
+发布前抽查英文与简体首页、博客列表、文章、静态臻彩详情、运行时目录壳、About、Privacy、404 与 sitemap，确认可索引页面 canonical 自引用、alternate 双向、运行时详情 `noindex`、站内链接保持当前语言，且构建产物不包含完整 `prestige-chromas.json`。

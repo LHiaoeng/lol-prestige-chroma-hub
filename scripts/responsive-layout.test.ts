@@ -89,7 +89,7 @@ describe('responsive layout contract', () => {
     expect(hintIndex).toBeGreaterThan(-1);
     expect(hintIndex).toBeLessThan(titleIndex);
     expect(titleIndex).toBeLessThan(detailsIndex);
-    expect(detail).toContain('height:calc(100svh - var(--site-header-height))');
+    expect(detail).toContain('height:100svh;');
     expect(detail).not.toContain('.detail-background{height:540px}');
   });
 

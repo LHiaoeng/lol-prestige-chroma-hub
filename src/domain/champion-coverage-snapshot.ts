@@ -1,16 +1,32 @@
 import { z } from "zod";
 import type { ChampionCoverageSnapshot } from "./champion-coverage";
 
-const officialSummaryUrl = z
-  .string()
-  .url()
-  .refine(
-    (value) =>
-      value.startsWith(
-        "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/",
-      ) && value.endsWith("/v1/champion-summary.json"),
-    "Champion coverage source must be an official PBE summary URL",
+const RAW_ORIGIN = "https://raw.communitydragon.org";
+
+function officialSummaryUrl(locale: "default" | "zh_cn") {
+  return z.string().url().refine((value) => {
+    const url = new URL(value);
+    return (
+      url.origin === RAW_ORIGIN &&
+      url.pathname ===
+        `/pbe/plugins/rcp-be-lol-game-data/global/${locale}/v1/champion-summary.json` &&
+      !url.search &&
+      !url.hash
+    );
+  }, "Champion coverage source must be an official PBE summary URL");
+}
+
+const officialPortraitUrl = z.string().url().refine((value) => {
+  const url = new URL(value);
+  return (
+    url.origin === RAW_ORIGIN &&
+    /^\/pbe\/plugins\/rcp-be-lol-game-data\/global\/default\/v1\/champion-icons\/[1-9]\d*\.png$/.test(
+      url.pathname,
+    ) &&
+    !url.search &&
+    !url.hash
   );
+}, "Champion portrait must be an official PBE champion icon URL");
 
 const snapshotSchema = z.object({
   patchVersion: z.string().regex(/^\d{1,2}\.\d{1,2}$/),
@@ -24,7 +40,7 @@ const snapshotSchema = z.object({
       alias: z.string().min(1),
       nameEn: z.string().min(1),
       nameZh: z.string().min(1),
-      portraitUrl: z.string().url(),
+      portraitUrl: officialPortraitUrl,
     }),
   ),
 });
@@ -35,8 +51,8 @@ const repositorySnapshotSchema = z.object({
     channel: z.literal("pbe"),
     locales: z.tuple([z.literal("default"), z.literal("zh_cn")]),
     urls: z.object({
-      default: officialSummaryUrl,
-      zh_cn: officialSummaryUrl,
+      default: officialSummaryUrl("default"),
+      zh_cn: officialSummaryUrl("zh_cn"),
     }),
     fetchedAt: z.string().datetime({ offset: true }),
     contentVersion: z.string().min(1),
@@ -71,5 +87,10 @@ export function parseChampionCoverageRepositorySnapshot(
     throw new Error("Champion coverage snapshot counts do not add up");
   if (snapshot.champions.length !== snapshot.missingChampions)
     throw new Error("Champion coverage snapshot list count is inconsistent");
+  const expectedCoverage = Number(
+    ((snapshot.coveredChampions / snapshot.totalChampions) * 100).toFixed(1),
+  );
+  if (snapshot.coveragePercent !== expectedCoverage)
+    throw new Error("Champion coverage percentage is inconsistent");
   return parsed;
 }

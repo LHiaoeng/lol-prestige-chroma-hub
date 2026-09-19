@@ -390,7 +390,7 @@ describe('blog feature contract', () => {
     expect(page).not.toContain('已从 CommunityDragon 刷新实时数据。');
     expect(page).not.toContain('下面就是目前<strong>还没有</strong>臻彩原画的英雄。');
     expect(page).not.toContain("Below is every champion that <strong>doesn't have</strong> a prestige chroma splash art yet.");
-    expect(page.match(/data-coverage-refresh/g)).toHaveLength(2);
+    expect(page.match(/data-coverage-refresh(?!-status)/g)).toHaveLength(2);
     expect(client).toContain("querySelectorAll<HTMLButtonElement>('[data-coverage-refresh]')");
     expect(page.indexOf('<h2>By the numbers</h2>')).toBeLessThan(page.indexOf('<h2>Complete list</h2>'));
     expect(page.indexOf('<h2>数据一览</h2>')).toBeLessThan(page.indexOf('<h2>完整名单</h2>'));

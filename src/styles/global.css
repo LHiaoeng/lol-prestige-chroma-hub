@@ -184,6 +184,17 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   gap: 10px;
   margin-bottom: 18px;
 }
+.runtime-toolbar-field {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.runtime-toolbar-field:last-child {
+  flex: 0 1 150px;
+}
 .runtime-toolbar input,
 .runtime-toolbar select {
   min-height: var(--touch-target);
@@ -275,7 +286,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   line-height: 1.8;
 }
 .runtime-retry {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--gold);
   border-radius: 999px;

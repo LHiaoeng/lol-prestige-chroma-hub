@@ -16,8 +16,16 @@ describe('CommunityDragon champion coverage fetch', () => {
       totalChampions: 1,
       missingChampions: 1,
     });
-    expect(fetcher).toHaveBeenNthCalledWith(1, COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.en, expect.any(Object));
-    expect(fetcher).toHaveBeenNthCalledWith(2, COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.zh, expect.any(Object));
+    expect(fetcher).toHaveBeenNthCalledWith(
+      1,
+      COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.en,
+      expect.objectContaining({ credentials: 'omit', referrerPolicy: 'no-referrer' }),
+    );
+    expect(fetcher).toHaveBeenNthCalledWith(
+      2,
+      COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS.zh,
+      expect.objectContaining({ credentials: 'omit', referrerPolicy: 'no-referrer' }),
+    );
   });
 
   it('rejects a non-successful response', async () => {

@@ -113,6 +113,12 @@ describe("runtime URL state", () => {
     ).toMatchObject({ mode: "invalid" });
     expect(
       parseRuntimeLocation(
+        new URL("https://chromaart.lol/champions/?id="),
+        "champions",
+      ),
+    ).toMatchObject({ mode: "invalid" });
+    expect(
+      parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?channel=staging"),
         "champions",
       ),

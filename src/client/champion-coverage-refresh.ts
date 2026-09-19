@@ -87,9 +87,21 @@ export function initializeChampionCoverageRefresh(
   }
 
   const buttons = document.querySelectorAll<HTMLButtonElement>('[data-coverage-refresh]');
+  const status = document.querySelector<HTMLElement>('[data-coverage-refresh-status]');
+  const chinese = Boolean(document.querySelector('[data-coverage-list="zh"]'));
   const refresh = () => refreshChampionCoverage({
     load: () => fetchChampionCoverage(fetcher, config.coveredHeroIds, config.patchVersion),
-    apply: (snapshot) => applyChampionCoverage(document, snapshot),
+    apply: (snapshot) => {
+      applyChampionCoverage(document, snapshot);
+      if (status) status.textContent = chinese
+        ? '已从 CommunityDragon 更新。'
+        : 'Updated from CommunityDragon.';
+    },
+    fallback: () => {
+      if (status) status.textContent = chinese
+        ? '刷新失败，继续显示已保存快照。'
+        : 'Refresh failed; showing the saved snapshot.';
+    },
   });
   const manualRefresh = async () => {
     buttons.forEach((button) => { button.disabled = true; });

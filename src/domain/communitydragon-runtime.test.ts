@@ -9,8 +9,8 @@ import {
 const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
   {
     id: 103,
-    name: locale === "default" ? "Ahri" : "阿狸",
-    title: locale === "default" ? "the Nine-Tailed Fox" : "九尾妖狐",
+    name: locale === "default" ? "Ahri" : "九尾妖狐",
+    title: locale === "default" ? "the Nine-Tailed Fox" : "阿狸",
     shortBio: locale === "default" ? "A vastayan fox." : "一名瓦斯塔亚狐妖。",
     squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
     channel,
@@ -19,8 +19,8 @@ const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
 
 const champion = (locale: CommunityDragonLocale) => ({
   id: 103,
-  name: locale === "default" ? "Ahri" : "阿狸",
-  title: locale === "default" ? "the Nine-Tailed Fox" : "九尾妖狐",
+  name: locale === "default" ? "Ahri" : "九尾妖狐",
+  title: locale === "default" ? "the Nine-Tailed Fox" : "阿狸",
   shortBio: locale === "default" ? "A vastayan fox." : "一名瓦斯塔亚狐妖。",
   squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
   skins: [
@@ -78,7 +78,7 @@ describe("CommunityDragon runtime reference", () => {
       channel: "latest",
     });
 
-    expect(result[0]).toMatchObject({ id: 103, name: "阿狸" });
+    expect(result[0]).toMatchObject({ id: 103, name: "阿狸", title: "九尾妖狐" });
     expect(fetcher).toHaveBeenCalledOnce();
     expect(fetcher.mock.calls[0][0]).toBe(
       "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/champion-summary.json",
@@ -157,6 +157,34 @@ describe("CommunityDragon runtime reference", () => {
 
     expect(result).toMatchObject({ id: 7, name: "Star Guardian" });
     expect((result as { description?: string }).description).toBeUndefined();
+  });
+
+  it("rejects malformed collection entries and skin relationship IDs", async () => {
+    const malformedCollection = createCommunityDragonRuntime(
+      vi.fn(async () => jsonResponse([{ id: 7, name: "Star Guardian" }, null])),
+    );
+    await expect(
+      malformedCollection.list("skinlines", { locale: "default" }),
+    ).rejects.toMatchObject({ code: "schema" });
+
+    const malformedSkin = createCommunityDragonRuntime(
+      vi.fn(async () =>
+        jsonResponse({
+          ...champion("default"),
+          skins: [{
+            id: 103001,
+            name: "Dynasty Ahri",
+            skinLines: [{ id: 0 }],
+          }],
+        }),
+      ),
+    );
+    await expect(
+      malformedSkin.get("skin", 103001, {
+        locale: "default",
+        championId: 103,
+      }),
+    ).rejects.toMatchObject({ code: "schema" });
   });
 
   it("classifies not found, HTTP, schema, and abort failures", async () => {

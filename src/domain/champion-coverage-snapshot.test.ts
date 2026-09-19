@@ -63,5 +63,28 @@ describe("champion coverage repository snapshot", () => {
         },
       }),
     ).toThrow();
+    expect(() =>
+      parseChampionCoverageRepositorySnapshot({
+        ...validSnapshot,
+        snapshot: {
+          ...validSnapshot.snapshot,
+          coveragePercent: 12.5,
+        },
+      }),
+    ).toThrow(/percentage/i);
+    expect(() =>
+      parseChampionCoverageRepositorySnapshot({
+        ...validSnapshot,
+        snapshot: {
+          ...validSnapshot.snapshot,
+          champions: [
+            {
+              ...validSnapshot.snapshot.champions[0],
+              portraitUrl: "https://example.com/champion.png",
+            },
+          ],
+        },
+      }),
+    ).toThrow();
   });
 });

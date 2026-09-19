@@ -70,7 +70,7 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
 const runtimeChannel = Astro.url.searchParams.get('channel') === 'latest' ? 'latest' : 'pbe';
 const championRuntimeUrl = localizedPath(locale, `/champions/?id=${chroma.heroId}${runtimeChannel === 'latest' ? '&channel=latest' : ''}`);
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale} noindex>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
   <div class="detail-background" aria-hidden="true">
     <picture>
       <source media="(max-width: 767px)" srcset={mobileImage} data-fallback={sourceImageUrl('medium', chroma.instanceId)} />
@@ -151,7 +151,7 @@ const championRuntimeUrl = localizedPath(locale, `/champions/?id=${chroma.heroId
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   .champion-detail-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
   .champion-detail-link:hover,.champion-detail-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
-  .chroma-runtime-channel{display:inline-flex;gap:6px;margin-left:8px;vertical-align:middle}.chroma-runtime-channel button,.chroma-runtime-retry{border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);padding:5px 9px;font:inherit;font-size:.74rem;cursor:pointer}.chroma-runtime-channel button:hover,.chroma-runtime-channel button:focus-visible,.chroma-runtime-channel button[aria-pressed="true"],.chroma-runtime-retry:hover,.chroma-runtime-retry:focus-visible{border-color:var(--gold);color:var(--gold)}[data-chroma-runtime-content]{display:flex;flex-wrap:wrap;align-items:center;gap:8px;line-height:1.5}[data-chroma-runtime-content] img{width:min(180px,100%);height:auto;border-radius:6px;object-fit:cover}.chroma-runtime-meta,.chroma-runtime-description{color:var(--muted);font-size:.78rem}.chroma-runtime-links{display:inline-flex;flex-wrap:wrap;gap:10px}.chroma-runtime-links a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+   .chroma-runtime-channel{display:inline-flex;gap:6px;margin-left:8px;vertical-align:middle}.chroma-runtime-channel button,.chroma-runtime-retry{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);padding:5px 9px;font:inherit;font-size:.74rem;cursor:pointer}.chroma-runtime-channel button:hover,.chroma-runtime-channel button:focus-visible,.chroma-runtime-channel button[aria-pressed="true"],.chroma-runtime-retry:hover,.chroma-runtime-retry:focus-visible{border-color:var(--gold);color:var(--gold)}[data-chroma-runtime-content]{display:flex;flex-wrap:wrap;align-items:center;gap:8px;line-height:1.5}[data-chroma-runtime-content] img{width:min(180px,100%);height:auto;border-radius:6px;object-fit:cover}.chroma-runtime-meta,.chroma-runtime-description{color:var(--muted);font-size:.78rem}.chroma-runtime-links{display:inline-flex;flex-wrap:wrap;gap:10px}.chroma-runtime-links a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.chroma-runtime-error{display:inline-flex;align-items:center;gap:8px;color:var(--danger)}
   @media(max-width:767px){
     .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
     .detail-background img{opacity:.42;object-position:center top}
