@@ -1,15 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PbeSourceNote from '../../components/PbeSourceNote.astro';
-import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import RuntimeReferenceRoot from '../../components/RuntimeReferenceRoot.astro';
+import { resolveLocale, type Locale } from '../../i18n/config';
 import { createEntitySeo } from '../../seo/entity-seo';
-const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale; const isZh = locale === 'zh-cn'; const seo = createEntitySeo('universes', undefined, isZh ? '宇宙列表' : 'Universes', isZh ? '浏览英雄联盟 PBE 宇宙与皮肤系列。' : 'Browse League of Legends PBE universes and skinlines.', locale);
-const kind = 'universes';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const isZh = locale === 'zh-cn';
+const hasEntityQuery = Boolean(Astro.url.searchParams.get('id'));
+const seo = createEntitySeo('universes', undefined, isZh ? '宇宙资料' : 'Universe references', isZh ? '在浏览器中读取 CommunityDragon 皮肤宇宙资料。' : 'Browse CommunityDragon skin universe references in the browser.', locale);
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}><div class="pbe-page"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{isZh ? '宇宙' : 'Universes'}</span></nav><header><p class="eyebrow">{isZh ? 'PBE 资料库' : 'PBE database'}</p><h1>{isZh ? '宇宙列表' : 'Universes'}</h1><p class="pbe-lede">{isZh ? '从宇宙进入系列，再进入所属皮肤与英雄，保持完整的资料链路。' : 'Follow a universe to its skinlines, skins, and represented champions.'}</p><PbeSourceNote locale={locale} /></header><section class="pbe-section"><div class="listing-root" data-url={localizedPath(locale, `/listing/${kind}.json`)} data-kind={kind} data-locale={locale}><p class="status" role="status">{isZh ? '加载中…' : 'Loading…'}</p></div><noscript><p>{isZh ? '请启用 JavaScript 以浏览动态列表。' : 'Please enable JavaScript to browse the dynamic listing.'}</p></noscript></section></div>
-  <script>
-    import { initListing } from '../../client/listing';
-    const root = document.querySelector<HTMLElement>('.listing-root');
-    if (root) initListing(root);
-  </script>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex={hasEntityQuery} {locale}>
+  <RuntimeReferenceRoot page="universes" {locale} label={isZh ? '宇宙' : 'Universes'} heading={isZh ? '宇宙资料' : 'Universe references'} lede={isZh ? '宇宙展示自身资料和所属系列，不反向承诺完整皮肤或英雄集合。' : 'Universes show their own reference data and skinline relations without promising a complete reverse skin or champion collection.'} />
 </BaseLayout>

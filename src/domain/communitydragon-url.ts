@@ -3,13 +3,19 @@ const ASSET_PREFIX = '/lol-game-data/assets';
 const PLUGIN_PREFIX = 'plugins/';
 const DEFAULT_GAME_DATA_PREFIX = 'plugins/rcp-be-lol-game-data/global/default';
 export const COMMUNITYDRAGON_VERSION = 'pbe';
+export const COMMUNITYDRAGON_CHANNELS = ['pbe', 'latest'] as const;
+export type CommunityDragonChannel = (typeof COMMUNITYDRAGON_CHANNELS)[number];
 
-export function communityDragonDataUrl(file: string, locale: 'default' | 'zh_cn' = 'default'): string {
+export function communityDragonDataUrl(
+  file: string,
+  locale: 'default' | 'zh_cn' = 'default',
+  channel: CommunityDragonChannel = COMMUNITYDRAGON_VERSION,
+): string {
   const normalized = file.replace(/^\/+/, '');
   if (!normalized || normalized.includes('..') || normalized.includes('\\') || !normalized.endsWith('.json')) {
     throw new Error('Invalid CommunityDragon JSON path');
   }
-  return `${RAW_ORIGIN}/${COMMUNITYDRAGON_VERSION}/plugins/rcp-be-lol-game-data/global/${locale}/v1/${normalized}`;
+  return `${RAW_ORIGIN}/${channel}/plugins/rcp-be-lol-game-data/global/${locale}/v1/${normalized}`;
 }
 
 export const COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS = {
@@ -27,9 +33,13 @@ function positiveChampionId(input: string): string {
   return championId;
 }
 
-export function communityDragonChampionUrl(championId: string, language: CommunityDragonLanguage): string {
+export function communityDragonChampionUrl(
+  championId: string,
+  language: CommunityDragonLanguage,
+  channel: CommunityDragonChannel = COMMUNITYDRAGON_VERSION,
+): string {
   const locale = language === 'zh' ? 'zh_cn' : 'default';
-  return communityDragonDataUrl(`champions/${positiveChampionId(championId)}.json`, locale);
+  return communityDragonDataUrl(`champions/${positiveChampionId(championId)}.json`, locale, channel);
 }
 
 function relativeCommunityDragonPath(input: string): string {
@@ -61,6 +71,6 @@ function relativeCommunityDragonPath(input: string): string {
   throw new Error('Unsupported CommunityDragon asset path');
 }
 
-export function communityDragonAssetUrl(assetPath: string): string {
-  return `${RAW_ORIGIN}/${COMMUNITYDRAGON_VERSION}/${relativeCommunityDragonPath(assetPath)}`;
+export function communityDragonAssetUrl(assetPath: string, channel: CommunityDragonChannel = COMMUNITYDRAGON_VERSION): string {
+  return `${RAW_ORIGIN}/${channel}/${relativeCommunityDragonPath(assetPath)}`;
 }

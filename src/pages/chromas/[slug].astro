@@ -6,8 +6,6 @@ import DetailActionMenu from '../../components/DetailActionMenu.astro';
 import ExpandableChromaGroup from '../../components/ExpandableChromaGroup.astro';
 import ImageViewer from '../../components/ImageViewer.astro';
 import { catalog } from '../../data/catalog';
-import { getChampionIndex } from '../../data/champion-index';
-import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { googleSearchUrl, khadaChampionUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
 import { findRelatedGroups } from '../../domain/related';
@@ -17,24 +15,14 @@ import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createChromaSeo } from '../../seo/chroma-seo';
 
 export async function getStaticPaths() {
-  const requiredIds = [...new Set(catalog.map((chroma) => chroma.heroId))];
-  const championIndex = await getChampionIndex(requiredIds);
-  const slugById = new Map(championIndex.map((entry) => [entry.id, entry.slug]));
-  const graph = await getCommunityDragonPbeGraph();
   return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
     .map((slug) => ({
       params: { slug },
-      props: { chroma, championSlug: slugById.get(chroma.heroId)!, pbeSkin: graph.skins.find((skin) => skin.chromas.some((entry) => entry.id === chroma.skinId)) },
+      props: { chroma },
     })));
 }
-interface Props { chroma: typeof catalog[number]; championSlug: string; pbeSkin?: import('../../domain/communitydragon-content').SkinRecord; locale?: Locale }
+interface Props { chroma: typeof catalog[number]; locale?: Locale }
 const { chroma } = Astro.props;
-const { championSlug } = Astro.props;
-const pbeSkinProp = Astro.props.pbeSkin;
-const pbeGraph = await getCommunityDragonPbeGraph();
-const pbeSkin = pbeSkinProp ?? pbeGraph.skins.find((skin) => skin.chromas.some((entry) => entry.id === chroma.skinId));
-const pbeSkinlines = pbeSkin?.skinlineIds.map((id) => pbeGraph.skinlinesById.get(id)).filter(Boolean) ?? [];
-const pbeUniverses = pbeSkin?.universeIds.map((id) => pbeGraph.universesById.get(id)).filter(Boolean) ?? [];
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const seo = createChromaSeo(chroma, locale);
@@ -107,10 +95,10 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
         {chroma.colors.length > 0 && <div><dt>{isZh ? '颜色' : 'Colors'}</dt><dd><ChromaColorCircle colors={chroma.colors} /></dd></div>}
         {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <div class="description-row"><dt>{isZh ? '描述' : 'Description'}</dt><dd>{isZh ? chroma.descriptionZh : chroma.descriptionEn}</dd></div>}
         <div><dt>{isZh ? '原皮' : 'Base skin'}</dt><dd class="detail-value-with-actions"><span>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</span><DetailActionMenu actions={baseSkinActions} {locale} /></dd></div>
-        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span class="pbe-links">{pbeSkinlines.length > 0 ? pbeSkinlines.map((line) => <a class="pbe-chip" href={localizedPath(locale, `/skinlines/${line!.slug}/`)}>{isZh ? line!.nameZh ?? line!.nameEn : line!.nameEn}</a>) : (isZh ? skinSetsZh : skinSetsEn)}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
-        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span class="pbe-links">{pbeUniverses.length > 0 ? pbeUniverses.map((universe) => <a class="pbe-chip" href={localizedPath(locale, `/universes/${universe!.slug}/`)}>{isZh ? universe!.nameZh ?? universe!.nameEn : universe!.nameEn}</a>) : (isZh ? universesZh : universesEn)}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
-        {pbeSkin && <div><dt>{isZh ? 'PBE 皮肤' : 'PBE skin'}</dt><dd><a class="champion-detail-link" href={localizedPath(locale, `/skins/${pbeSkin.slug}/`)}>{isZh ? pbeSkin.nameZh ?? pbeSkin.nameEn : pbeSkin.nameEn}</a></dd></div>}
-        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" href={localizedPath(locale, `/champions/${championSlug}/`)}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
+        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span>{isZh ? skinSetsZh : skinSetsEn}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
+        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span>{isZh ? universesZh : universesEn}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
+        <div data-chroma-runtime data-champion-id={chroma.heroId} data-skin-id={chroma.skinId}><dt>{isZh ? 'CommunityDragon 皮肤资料' : 'CommunityDragon skin reference'}</dt><dd>{isZh ? '正文已完整显示；可选资料将在浏览器中加载。' : 'The archive entry is complete; optional reference data loads in the browser.'}</dd></div>
+        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" href={localizedPath(locale, `/champions/?id=${chroma.heroId}`)}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
         <div><dt>{isZh ? '游戏版本' : 'Patch'}</dt><dd class="detail-value-with-actions"><span>{chroma.gameVer}</span><DetailActionMenu actions={patchActions} {locale} /></dd></div>
       </dl>
       </div>

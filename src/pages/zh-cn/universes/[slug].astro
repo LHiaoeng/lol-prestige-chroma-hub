@@ -1,7 +1,0 @@
----
-import UniversePage from '../../../pages/universes/[slug].astro';
-import { getCommunityDragonPbeGraph } from '../../../data/communitydragon-pbe';
-export async function getStaticPaths() { const graph = await getCommunityDragonPbeGraph(); return graph.universes.map((universe) => ({ params: { slug: universe.slug }, props: { id: universe.id, slug: universe.slug } })); }
-const { id, slug } = Astro.props;
----
-<UniversePage {id} {slug} locale="zh-cn" />

@@ -308,6 +308,24 @@ https://raw.communitydragon.org/{version}/{relativePath}
 - 无 JavaScript 时，页面壳仍需提供标题、来源、导航和启用脚本提示。
 - 隐私说明必须披露浏览器会直接连接 CommunityDragon 获取资料和媒体。
 
+### 9.1 当前英雄运行时实现
+
+英雄目录现在由静态页面壳和浏览器控制器组成，不在 Astro 构建时读取 CommunityDragon：
+
+| 用途 | URL 形态 | 运行时数据 |
+| --- | --- | --- |
+| 英文英雄列表 | `/champions/` | `default` + `pbe` |
+| 中文英雄列表 | `/zh-cn/champions/` | `zh_cn` + `pbe` |
+| 英雄详情 | `/champions/?id={championId}` | 英雄数字 ID |
+| 正式服视图 | 上述 URL 加 `channel=latest` | 仅切换运行时资料 |
+
+- 英雄列表在浏览器中完成名称搜索、ID/名称排序和分页；页面只渲染当前分页，避免一次性建立全部卡片节点。
+- 英雄详情使用 `champions/{championId}.json`，并从同一份英雄记录提供皮肤正向集合；普通皮肤入口必须继续携带 `champion={championId}`。
+- 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。测试使用注入的假请求，不探测真实站点。
+- 首次加载显示静态标题、来源、区域视图、数据通道和启用脚本提示；请求成功后状态栏显示本次加载时间。详情查询在服务端页面壳和客户端状态中均标记为 `noindex`。
+- 通道切换只有在目标请求成功后才提交 History URL；失败时保留旧内容和旧 URL。网络、HTTP、404、不识别的响应格式和非法参数分别显示不同的可重试状态。
+- CommunityDragon 不可访问不会阻塞 `pnpm build`；静态首页、臻彩详情、博客和固定说明与该运行时链路分离。
+
 ## 10. 官方来源与实现参考
 
 ### 10.1 区域数据展示权威参考

@@ -1,0 +1,47 @@
+---
+import { localizedPath, type Locale } from '../i18n/config';
+
+interface Props {
+  readonly page: 'champions' | 'skins' | 'skinlines' | 'universes';
+  readonly locale: Locale;
+  readonly label: string;
+  readonly heading: string;
+  readonly lede: string;
+}
+
+const { page, locale, label, heading, lede } = Astro.props;
+const isZh = locale === 'zh-cn';
+const runtimeLocale = isZh ? 'zh_cn' : 'default';
+---
+
+<div class="pbe-page runtime-page">
+  <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{label}</span>
+  </nav>
+  <header>
+    <p class="eyebrow">{isZh ? 'CommunityDragon 运行时资料' : 'CommunityDragon runtime reference'}</p>
+    <h1>{heading}</h1>
+    <p class="pbe-lede">{lede}</p>
+    <div class="runtime-source" data-runtime-source aria-label={isZh ? '资料来源与数据通道' : 'Reference source and data channel'}>
+      <span>CommunityDragon</span>
+      <span aria-live="polite"><span data-runtime-channel-label>PBE</span> · {runtimeLocale}</span>
+      <button type="button" data-runtime-channel="pbe" aria-pressed="true">PBE</button>
+      <button type="button" data-runtime-channel="latest" aria-pressed="false">Live</button>
+      <a href="https://raw.communitydragon.org/" target="_blank" rel="noreferrer">RAW</a>
+    </div>
+  </header>
+  <section class="pbe-section">
+    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale}>
+      <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载…' : 'Loading…'}</p>
+      <div data-runtime-content></div>
+    </div>
+    <noscript><p class="runtime-noscript">{isZh ? '请启用 JavaScript 以浏览 CommunityDragon 运行时资料。' : 'Enable JavaScript to browse CommunityDragon runtime references.'}</p></noscript>
+  </section>
+</div>
+
+<script>
+  import { initRuntimeReference } from '../client/runtime-reference';
+  const root = document.querySelector<HTMLElement>('[data-runtime-page]');
+  if (root) initRuntimeReference(root);
+</script>
+
