@@ -44,6 +44,44 @@ _Avoid_: 中国服专属炫彩原画、中文页面中用于替代“臻彩”�
 本站整理和展示中国大陆服臻彩原画及其关联资料的内容集合；面向其他游戏地区玩家时可解释为 `China-Exclusive Prestige Chroma Splash Art Archive`。它不是全部炫彩、全部皮肤或玩家藏品的清单。
 _Avoid_: 臻彩皮肤站、全炫彩数据库
 
+## CommunityDragon 数据
+
+**静态图鉴内容（Static Archive Content）**:
+由本站仓库内受控数据在构建时生成、无需 CommunityDragon 可用也能完整阅读的首页、臻彩详情、博客和固定说明内容；它构成本站的长期内容与 SEO 主体。
+_Avoid_: CommunityDragon 快照、动态资料、把客户端补充信息视为静态正文
+
+**运行时资料（Runtime Reference）**:
+用户浏览时直接从 CommunityDragon 加载的英雄、普通皮肤、皮肤系列和皮肤宇宙资料；它是可失败的辅助资料，不参与静态图鉴内容的完整性判断，也不承担实体详情 SEO。
+_Avoid_: 静态图鉴、本站数据库、构建依赖
+
+**CommunityDragon 实体（CommunityDragon Entity）**:
+运行时资料中的英雄、普通皮肤、皮肤系列或皮肤宇宙；数字 ID 是实体跨数据通道和区域数据视图的共享身份，名称、描述与英文 slug 均不是身份。
+_Avoid_: 用名称或 slug 识别实体、把同 ID 的区域字段合并成一份事实
+
+**数据通道（Data Channel）**:
+本站读取 CommunityDragon 内容时选用的版本通道；`Live` 表示当前正式服滚动数据，`PBE` 表示当前测试服滚动数据。数据通道与页面语言、游戏服务器及区域数据视图相互独立。
+_Avoid_: 语言版本、服务器、把 `latest` 称为固定版本
+
+**正式服数据通道（Live Data Channel）**:
+CommunityDragon 的 `latest` 滚动版本，用于生成当前正式服资料；需要可复现历史状态时应改用明确补丁号，而不是把 `latest` 当作不可变快照。
+_Avoid_: 最新固定版本、直营服语言、生产数据库
+
+**PBE 数据通道（PBE Data Channel）**:
+CommunityDragon 的 `pbe` 滚动版本，用于生成尚在测试中的资料；其内容不代表正式服最终状态。
+_Avoid_: 正式服预览、固定 PBE 版本
+
+**区域数据视图（Regional Data View）**:
+同一数据通道中以共享实体 ID 对齐、但各自保留名称、描述、稀有度、可用性和媒体引用等事实的数据视图；本站英文页面使用 `default`，中文页面使用 `zh_cn`。一个视图缺失实体或字段时保留缺失状态，不由另一视图补值。
+_Avoid_: 翻译包、语言覆盖层、把 `zh_cn` 简化为 `default` 的中文翻译
+
+**共享静态资源（Shared Static Asset）**:
+被区域数据视图引用、但物理文件可由多个视图共同使用的 CommunityDragon 图片、视频或图标；资源位于共享路径不表示引用它的区域事实来自另一数据视图。
+_Avoid_: 区域字段回退、把 `global/default` 资源路径解释为 `default` 数据覆盖
+
+**仓库快照（Repository Snapshot）**:
+为保证静态图鉴内容可重复构建而保存于仓库中的最后一次有效外部资料；它需要通过明确的维护流程更新，不冒充 CommunityDragon 当前实时状态。
+_Avoid_: 运行时缓存、实时数据、构建时联网结果
+
 ## 游戏内容
 
 **炫彩（Chroma）**:

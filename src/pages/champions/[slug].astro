@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PbeSkinCard from '../../components/PbeSkinCard.astro';
+import ChromaCard from '../../components/ChromaCard.astro';
 import PbeSourceNote from '../../components/PbeSourceNote.astro';
 import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
 import { catalog } from '../../data/catalog';
@@ -23,18 +24,84 @@ const title = isZh ? champion.titleZh ?? champion.titleEn : champion.titleEn;
 const skins = (graph.skinsByChampionId.get(champion.id) ?? []).filter((skin) => !skin.parentSkinId || skin.parentSkinId === skin.id);
 const stageCount = champion.stageRefs.filter((stage) => stage.id && stage.id !== stage.parentSkinId).length;
 const base = skins.find((skin) => skin.isBase) ?? skins[0];
+const splash = base?.media.unfocusedSplashUrl ?? base?.media.focusedSplashUrl;
+const bio = isZh ? champion.bioZh ?? champion.bioEn : champion.bioEn;
 const archiveChromas = catalog.filter((entry) => entry.heroId === String(champion.id));
 const seo = createEntitySeo('champions', champion.slug, `${name} ${isZh ? '英雄资料' : 'Champion'}`, isZh ? `${name} 的 PBE 英雄、皮肤与阶段任务资料。` : `${name} champion profile with PBE skins, legacy items, and quest stages.`, locale, base?.media.focusedSplashUrl);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
-  <div class="pbe-page">
+  <div class="pbe-page champion-page">
     <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/champions/')}>{isZh ? '英雄' : 'Champions'}</a><span>/</span><span aria-current="page">{name}</span></nav>
-    <header class="pbe-hero">
-      {champion.portraitUrl && <img src={champion.portraitUrl} alt="" width="180" height="180" loading="eager" />}
-      <div><p class="eyebrow">{isZh ? 'PBE 英雄资料' : 'PBE champion profile'}</p><h1>{name}</h1><p class="champion-title">{title}</p>{champion.bioEn && <p class="pbe-meta">{isZh ? champion.bioZh ?? champion.bioEn : champion.bioEn}</p>}<PbeSourceNote locale={locale} /></div>
+    <header class:list={['champion-hero', { 'champion-hero--text': !splash }]}>
+      <div class="champion-identity">
+        <div class="champion-heading">
+          {champion.portraitUrl && <img class="champion-portrait" src={champion.portraitUrl} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt="" width="64" height="64" loading="eager" />}
+          <div><p class="eyebrow">{isZh ? 'PBE 英雄资料' : 'PBE champion profile'}</p><p class="champion-title">{title}</p></div>
+        </div>
+        <h1>{name}</h1>
+        {bio && <p class="champion-bio">{bio}</p>}
+        <dl class="champion-counts">
+          <div><dt>{isZh ? '皮肤' : 'Skins'}</dt><dd>{skins.length}</dd></div>
+          {stageCount > 0 && <div><dt>{isZh ? '阶段' : 'Stages'}</dt><dd>{stageCount}</dd></div>}
+          {archiveChromas.length > 0 && <div><dt>{isZh ? '臻彩' : 'Prestige chromas'}</dt><dd>{archiveChromas.length}</dd></div>}
+        </dl>
+      </div>
+      {splash && base && <figure class="champion-art">
+        <a href={localizedPath(locale, `/skins/${base.slug}/`)} aria-label={isZh ? `查看${name}的基础原画与资料` : `View ${name} base splash art and details`}>
+          <img src={splash} data-fallback={base.media.focusedSplashUrl ?? '/placeholder.svg'} data-placeholder="/placeholder.svg" alt={isZh ? `${name}基础皮肤原画` : `${name} base skin splash art`} width="1215" height="717" loading="eager" fetchpriority="high" decoding="async" />
+          <span class="champion-art-caption"><span>{isZh ? '基础原画' : 'Original splash art'}</span><span aria-hidden="true">↗</span></span>
+        </a>
+      </figure>}
     </header>
+    <PbeSourceNote locale={locale} />
     <section class="pbe-section" aria-labelledby="skins-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '皮肤图鉴' : 'Skin gallery'}</p><h2 id="skins-title">{isZh ? `${name} 的全部皮肤` : `${name} skins`}</h2></div><p>{skins.length} {isZh ? '款' : 'skins'}{stageCount ? ` · ${stageCount} ${isZh ? '个阶段' : 'stages'}` : ''}</p></div><div class="pbe-grid">{skins.map((skin) => <PbeSkinCard {skin} championName={name} locale={locale} />)}</div></section>
     {champion.stageRefs.some((stage) => stage.id || stage.nameEn) && <section class="pbe-section" aria-labelledby="stages-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '阶段任务' : 'Quest stages'}</p><h2 id="stages-title">{isZh ? '阶段皮肤' : 'Event / stage skins'}</h2></div></div><div class="pbe-links">{champion.stageRefs.map((stage) => { const target = stage.id ? graph.skinsById.get(stage.id) : undefined; const parent = graph.skinsById.get(stage.parentSkinId); const href = target ? localizedPath(locale, `/skins/${target.slug}/`) : parent ? `${localizedPath(locale, `/skins/${parent.slug}/`)}#${stage.key}` : localizedPath(locale, `/champions/${champion.slug}/#stages-title`); return <a class="pbe-chip" href={href}>{isZh ? stage.nameZh ?? stage.nameEn : stage.nameEn}</a>; })}</div></section>}
-    {archiveChromas.length > 0 && <section class="pbe-section" aria-labelledby="archive-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '臻彩藏馆' : 'China-exclusive archive'}</p><h2 id="archive-title">{isZh ? '本站臻彩记录' : 'Prestige chroma archive'}</h2></div><p>{archiveChromas.length}</p></div><div class="pbe-grid">{archiveChromas.map((chroma) => <a class="pbe-card" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}><h3>{isZh ? chroma.nameZh : chroma.nameEn}</h3><p>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</p></a>)}</div></section>}
+    {archiveChromas.length > 0 && <section class="pbe-section" aria-labelledby="archive-title"><div class="section-heading"><div><p class="eyebrow">{isZh ? '臻彩藏馆' : 'China-exclusive archive'}</p><h2 id="archive-title">{isZh ? '本站臻彩记录' : 'Prestige chroma archive'}</h2></div><p>{archiveChromas.length}</p></div><div class="pbe-grid">{archiveChromas.map((chroma) => <div class="archive-entry"><ChromaCard {chroma} {locale} /><p>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</p></div>)}</div></section>}
   </div>
 </BaseLayout>
+
+<style>
+  .champion-page { padding-top: 0; }
+  .champion-page .breadcrumbs { width: 100%; align-items: center; }
+  .breadcrumbs a { display: inline-flex; align-items: center; min-height: var(--touch-target); }
+  .champion-hero { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: center; gap: clamp(24px, 4vw, 56px); padding: 12px 0 32px; border-bottom: 1px solid var(--line); }
+  .champion-hero--text { grid-template-columns: minmax(0, 1fr); }
+  .champion-identity { min-width: 0; }
+  .champion-heading { display: flex; align-items: center; gap: 16px; }
+  .champion-heading > div { min-width: 0; }
+  .champion-portrait { width: 64px; height: 64px; flex: none; object-fit: cover; border: 1px solid var(--line); border-radius: 10px; }
+  .champion-heading .eyebrow { margin: 0 0 8px; line-height: 1.5; }
+  .champion-title { margin: 0; color: var(--gold); font-family: Georgia, 'Noto Serif SC', serif; font-size: 1.1rem; overflow-wrap: anywhere; }
+  .champion-identity h1 { font-size: clamp(2.5rem, 5.5vw, 5rem); line-height: 1.08; letter-spacing: -.035em; margin: 24px 0 20px; overflow-wrap: anywhere; }
+  .champion-bio { max-width: 65ch; color: var(--muted); font-size: .95rem; line-height: 1.85; margin: 0; overflow-wrap: anywhere; }
+  .champion-counts { display: flex; flex-wrap: wrap; gap: 20px 32px; margin: 28px 0 0; }
+  .champion-counts > div { display: flex; flex-direction: column-reverse; gap: 6px; }
+  .champion-counts dt { font-size: .75rem; color: var(--muted); }
+  .champion-counts dd { margin: 0; font-family: Georgia, serif; font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+  .champion-art { min-width: 0; margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  .champion-art a { display: block; }
+  .champion-art img { display: block; width: 100%; height: auto; }
+  .champion-art-caption { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: var(--touch-target); padding: 12px 18px; color: var(--gold); font-size: .8rem; }
+  .champion-art:hover, .champion-art:focus-within { border-color: var(--gold); }
+  .champion-page :global(a:focus-visible) { outline: 2px solid var(--gold); outline-offset: -3px; }
+  .champion-art a:focus-visible { outline-offset: -3px; }
+  .champion-page .pbe-section { padding-top: clamp(36px, 5vw, 64px); }
+  .champion-page .pbe-chip { min-height: var(--touch-target); white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+  .archive-entry { min-width: 0; }
+  .archive-entry > p { color: var(--muted); font-size: .8rem; line-height: 1.6; margin: 10px 2px 0; overflow-wrap: anywhere; }
+  .archive-entry :global(.card-body h2) { font-size: 1.12rem; }
+  @media (max-width: 1023px) {
+    .champion-hero { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .champion-identity h1 { font-size: clamp(2.5rem, 8vw, 4rem); }
+  }
+  @media (max-width: 767px) {
+    .champion-hero { padding-top: 0; }
+    .champion-counts { gap: 16px 24px; }
+    .champion-bio { font-size: .9rem; line-height: 1.75; }
+    .champion-page :global(.pbe-skin-card:hover), .champion-page :global(.pbe-skin-card:focus-within) { transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .champion-page :global(.pbe-skin-card:hover), .champion-page :global(.pbe-skin-card:focus-within) { transform: none; }
+    .archive-entry :global(.chroma-card) { transition: none; transform: none; }
+  }
+</style>

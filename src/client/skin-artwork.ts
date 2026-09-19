@@ -6,6 +6,13 @@ export interface ArtworkOption {
   focus: ArtworkFocus;
 }
 
+interface ArtworkDownloadFilenameInput extends ArtworkOption {
+  nameEn: string;
+  nameZh?: string;
+  locale?: string;
+  url: string;
+}
+
 const artworkPriority: readonly ArtworkOption[] = [
   { kind: 'animated', focus: 'focused' },
   { kind: 'animated', focus: 'unfocused' },
@@ -46,8 +53,8 @@ export function chooseArtworkAfterRemoval(
   return includesArtwork(options, current) ? current : choosePreferredArtwork(options);
 }
 
-const optionFromPanel = (panel: HTMLElement): ArtworkOption | null => {
-  const { kind, focus } = panel.dataset;
+const optionFromElement = (element: HTMLElement): ArtworkOption | null => {
+  const { kind, focus } = element.dataset;
   if ((kind !== 'static' && kind !== 'animated') || (focus !== 'focused' && focus !== 'unfocused')) return null;
   return { kind, focus };
 };
@@ -59,8 +66,6 @@ const labelsFor = (locale: string) => locale === 'zh-cn'
       current: '当前',
       show: '显示',
       toggle: '再次点击切换至',
-      staticHint: '点击查看大图',
-      animatedHint: '使用播放控件',
     }
   : {
       kinds: { static: 'Static artwork', animated: 'Animated artwork' },
@@ -68,8 +73,6 @@ const labelsFor = (locale: string) => locale === 'zh-cn'
       current: 'Current',
       show: 'Show',
       toggle: 'Click again to switch to',
-      staticHint: 'Open full-size art',
-      animatedHint: 'Use playback controls',
     };
 
 export function artworkDisplayLabel(option: ArtworkOption, locale: string): string {
@@ -81,20 +84,43 @@ export function isArtworkMediaElement(tagName: string): boolean {
   return tagName === 'IMG' || tagName === 'VIDEO';
 }
 
+export function artworkFileExtension(url: string, kind: ArtworkKind): string {
+  const extension = new URL(url, 'https://lolchroma.art').pathname.match(/\.([a-z0-9]{2,5})$/i)?.[1]?.toLowerCase();
+  return extension ?? (kind === 'animated' ? 'webm' : 'jpg');
+}
+
+const safeFilenamePart = (value: string): string => value
+  .normalize('NFKC')
+  .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+  .replace(/\s+/g, '-')
+  .replace(/-+/g, '-')
+  .replace(/^[.\s-]+|[.\s-]+$/g, '');
+
+export function artworkDownloadFilename(input: ArtworkDownloadFilenameInput): string {
+  const extension = artworkFileExtension(input.url, input.kind);
+  const isZh = input.locale === 'zh-cn';
+  const name = isZh ? input.nameZh?.trim() || input.nameEn : input.nameEn;
+  const parts = isZh
+    ? [name, input.focus === 'focused' ? '聚焦' : '非聚焦', input.kind === 'animated' ? '动态原画' : '静态原画']
+    : [name, input.focus, input.kind, 'splash'];
+  const basename = parts.map(safeFilenamePart).filter(Boolean).join('-');
+  return `${basename || 'league-of-legends-artwork'}.${extension}`;
+}
+
 export function bindSkinArtworks(root: ParentNode = document): void {
   root.querySelectorAll<HTMLElement>('[data-skin-artwork]').forEach((artwork) => {
     if (artwork.dataset.artworkBound) return;
     artwork.dataset.artworkBound = '1';
 
     const buttons = [...artwork.querySelectorAll<HTMLButtonElement>('[data-artwork-kind]')];
-    const caption = artwork.querySelector<HTMLElement>('[data-artwork-caption]');
-    const hint = artwork.querySelector<HTMLElement>('[data-artwork-hint]');
+    let downloadLinks = [...artwork.querySelectorAll<HTMLAnchorElement>('[data-artwork-download]')];
+    const downloadMenu = artwork.querySelector<HTMLDetailsElement>('[data-artwork-download-menu]');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const labels = labelsFor(artwork.dataset.locale ?? 'en');
     let panels = [...artwork.querySelectorAll<HTMLElement>('[data-artwork-panel]')];
-    let selection = panels.map(optionFromPanel).find((option, index) => option && !panels[index]?.hidden) ?? choosePreferredArtwork(panels.map(optionFromPanel).filter((option): option is ArtworkOption => option !== null));
+    let selection = panels.map(optionFromElement).find((option, index) => option && !panels[index]?.hidden) ?? choosePreferredArtwork(panels.map(optionFromElement).filter((option): option is ArtworkOption => option !== null));
 
-    const options = (): ArtworkOption[] => panels.map(optionFromPanel).filter((option): option is ArtworkOption => option !== null);
+    const options = (): ArtworkOption[] => panels.map(optionFromElement).filter((option): option is ArtworkOption => option !== null);
     const focusOptions = (kind: ArtworkKind): ArtworkFocus[] => options().filter((option) => option.kind === kind).map((option) => option.focus);
 
     const sync = () => {
@@ -104,7 +130,7 @@ export function bindSkinArtworks(root: ParentNode = document): void {
       }
 
       const activePanel = panels.find((panel) => {
-        const option = optionFromPanel(panel);
+        const option = optionFromElement(panel);
         return option ? sameArtwork(option, selection!) : false;
       });
       panels.forEach((panel) => {
@@ -139,13 +165,18 @@ export function bindSkinArtworks(root: ParentNode = document): void {
         button.title = buttonText;
       });
 
-      const availableFocuses = focusOptions(selection.kind);
-      const alternate = availableFocuses.find((focus) => focus !== selection!.focus);
-      if (caption) caption.textContent = artworkDisplayLabel(selection, artwork.dataset.locale ?? 'en');
-      if (hint) {
-        const baseHint = selection.kind === 'animated' ? labels.animatedHint : labels.staticHint;
-        hint.textContent = alternate ? `${baseHint} · ${labels.toggle}${labels.focuses[alternate]}` : baseHint;
-      }
+      downloadLinks.forEach((link) => {
+        const option = optionFromElement(link);
+        if (!option || !includesArtwork(options(), option)) {
+          link.remove();
+          return;
+        }
+        if (sameArtwork(option, selection!)) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+      downloadLinks = downloadLinks.filter((link) => link.isConnected);
+      if (downloadLinks.length === 0) downloadMenu?.remove();
+
     };
 
     buttons.forEach((button) => button.addEventListener('click', () => {
@@ -155,6 +186,44 @@ export function bindSkinArtworks(root: ParentNode = document): void {
       selection = chooseArtworkOnKindClick(options(), selection, kind);
       sync();
     }));
+
+    downloadLinks.forEach((link) => link.addEventListener('click', async (event) => {
+      event.preventDefault();
+      if (link.getAttribute('aria-busy') === 'true') return;
+      link.setAttribute('aria-busy', 'true');
+      try {
+        const response = await fetch(link.href);
+        if (!response.ok) throw new Error(`Artwork download failed with ${response.status}`);
+        const objectUrl = URL.createObjectURL(await response.blob());
+        const download = document.createElement('a');
+        download.href = objectUrl;
+        download.download = link.download;
+        download.hidden = true;
+        document.body.append(download);
+        download.click();
+        download.remove();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+        if (downloadMenu) downloadMenu.open = false;
+      } catch {
+        window.open(link.href, '_blank', 'noopener,noreferrer');
+      } finally {
+        link.removeAttribute('aria-busy');
+      }
+    }));
+
+    document.addEventListener('click', (event) => {
+      if (downloadMenu?.open && event.target instanceof Node && !downloadMenu.contains(event.target)) downloadMenu.open = false;
+    });
+    downloadMenu?.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        downloadMenu.open = false;
+        downloadMenu.querySelector<HTMLElement>('summary')?.focus();
+      }
+    });
+    downloadMenu?.addEventListener('toggle', () => {
+      if (!downloadMenu.open) return;
+      requestAnimationFrame(() => downloadMenu.querySelector<HTMLAnchorElement>('[data-artwork-download][aria-current="true"]')?.focus());
+    });
 
     artwork.addEventListener('error', (event) => {
       const target = event.target;

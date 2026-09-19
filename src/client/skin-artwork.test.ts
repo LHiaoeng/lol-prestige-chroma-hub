@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  artworkDownloadFilename,
   artworkDisplayLabel,
   chooseArtworkAfterRemoval,
   chooseArtworkOnKindClick,
@@ -70,5 +71,25 @@ describe('skin artwork selection', () => {
     expect(isArtworkMediaElement('IMG')).toBe(true);
     expect(isArtworkMediaElement('VIDEO')).toBe(true);
     expect(isArtworkMediaElement('SOURCE')).toBe(false);
+  });
+
+  it('localizes safe download filenames from the page language', () => {
+    expect(artworkDownloadFilename({
+      nameEn: 'K/DA ALL OUT Ahri',
+      nameZh: 'K/DA ALL OUT 阿狸',
+      locale: 'zh-cn',
+      kind: 'animated',
+      focus: 'focused',
+      url: 'https://example.com/art.webm?version=1',
+    })).toBe('K-DA-ALL-OUT-阿狸-聚焦-动态原画.webm');
+
+    expect(artworkDownloadFilename({
+      nameEn: 'Spirit Blossom Lillia',
+      nameZh: '灵魂莲华 莉莉娅',
+      locale: 'fr',
+      kind: 'static',
+      focus: 'unfocused',
+      url: 'https://example.com/art.jpg',
+    })).toBe('Spirit-Blossom-Lillia-unfocused-static-splash.jpg');
   });
 });

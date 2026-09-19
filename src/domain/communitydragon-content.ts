@@ -44,7 +44,17 @@ export interface SkinRecord {
   readonly descriptionZh?: string;
   readonly isBase: boolean;
   readonly isLegacy?: boolean;
+  readonly isLegacyZh?: boolean;
+  /** CommunityDragon exposes `isLegacy`, but not a reliable standalone limited flag. */
+  readonly availability?: 'standard' | 'legacy' | 'limited' | 'unknown';
+  readonly availabilityZh?: 'standard' | 'legacy' | 'limited' | 'unknown';
   readonly rarity?: string;
+  readonly rarityZh?: string;
+  /** China-server display tier. It is independent from the global `rarity` key. */
+  readonly regionRarityIdZh?: number;
+  readonly rarityLabelZh?: string;
+  readonly rarityGemUrl?: string;
+  readonly rarityGemUrlZh?: string;
   readonly skinlineIds: readonly number[];
   readonly universeIds: readonly number[];
   readonly media: SkinMedia;
@@ -156,6 +166,59 @@ function safeMedia(raw: any): SkinMedia {
   };
 }
 
+const RARITY_GEM_FILES: Readonly<Record<string, string>> = {
+  kUltimate: 'ultimate.png',
+  kMythic: 'mythic.png',
+  kLegendary: 'legendary.png',
+  kEpic: 'epic.png',
+  kExalted: 'exalted.png',
+  kTranscendent: 'transcendent.png',
+};
+
+const CHINA_REGION_RARITIES: Readonly<Record<number, { label: string; filename: string }>> = {
+  4: { label: '史诗', filename: 'cn-gem-4.png' },
+  5: { label: '传说', filename: 'cn-gem-5.png' },
+  6: { label: '未知', filename: 'cn-gem-6.png' },
+  7: { label: '限定', filename: 'cn-gem-7.png' },
+  8: { label: '神话', filename: 'cn-gem-8.png' },
+  9: { label: '终极', filename: 'cn-gem-9.png' },
+  10: { label: '圣堂', filename: 'cn-gem-10.png' },
+  11: { label: '卓越', filename: 'cn-gem-11.png' },
+};
+
+function regionRarityId(primary: unknown, fallback: unknown): number | undefined {
+  const candidate = Number.isInteger(primary) ? Number(primary) : Number.isInteger(fallback) ? Number(fallback) : undefined;
+  return candidate && candidate > 0 ? candidate : undefined;
+}
+
+function chinaRegionRarity(id: number | undefined): { label: string; imageUrl: string } | undefined {
+  const rarity = id ? CHINA_REGION_RARITIES[id] : undefined;
+  return rarity ? {
+    label: rarity.label,
+    imageUrl: communityDragonAssetUrl(`/lol-game-data/assets/v1/rarity-gem-icons/${rarity.filename}`),
+  } : undefined;
+}
+
+function rarityGemUrl(raw: any, rarity: string | undefined): string | undefined {
+  const explicitPath = localizedText(raw?.rarityGemPath);
+  if (explicitPath) return communityDragonAssetUrl(explicitPath);
+  const filename = rarity ? RARITY_GEM_FILES[rarity] : undefined;
+  return filename ? communityDragonAssetUrl(`/lol-game-data/assets/v1/rarity-gem-icons/${filename}`) : undefined;
+}
+
+function preferredBoolean(primary: unknown, fallback: unknown): boolean | undefined {
+  if (typeof primary === 'boolean') return primary;
+  if (typeof fallback === 'boolean') return fallback;
+  return undefined;
+}
+
+function availability(primary: any, fallback: any): SkinRecord['availability'] {
+  if (primary?.availability === 'limited' || fallback?.availability === 'limited') return 'limited';
+  if (primary?.isLegacy === true || fallback?.isLegacy === true) return 'legacy';
+  if (primary?.isLegacy === false || fallback?.isLegacy === false) return 'standard';
+  return undefined;
+}
+
 function chromas(raw: any, localeMap: Map<number, any>, archives: Map<number, string>): ChromaRecord[] {
   if (!Array.isArray(raw?.chromas)) return [];
   return raw.chromas.filter((c: any) => Number.isInteger(c?.id) && c.id > 0).map((c: any) => ({
@@ -168,9 +231,9 @@ function chromas(raw: any, localeMap: Map<number, any>, archives: Map<number, st
   }));
 }
 
-function normalizeSkin(raw: any, zhRaw: any, championId: number, archives: Map<number, string>, parentSkinId?: number): SkinRecord {
+function normalizeSkin(raw: any, zhRaw: any, canonicalRaw: any, canonicalZhRaw: any, championId: number, archives: Map<number, string>, parentSkinId?: number): SkinRecord {
   const id = Number(raw.id);
-  const nameEn = localizedText(raw.name) ?? `Skin ${id}`;
+  const nameEn = localizedText(raw.name) ?? localizedText(canonicalRaw?.name) ?? `Skin ${id}`;
   const skinlineIds = uniqueIds(Array.isArray(raw.skinLines) ? raw.skinLines.map((v: any) => Number(v?.id ?? v)) : []);
   const slug = entitySlug(nameEn, id);
   const localeMap = new Map<number, any>((Array.isArray(zhRaw?.chromas) ? zhRaw.chromas : []).filter((c: any) => c?.id).map((c: any) => [Number(c.id), c]));
@@ -189,17 +252,27 @@ function normalizeSkin(raw: any, zhRaw: any, championId: number, archives: Map<n
       chromas: chromas(tier, new Map<number, any>(), archives),
     };
   });
+  const regionRarityIdZh = regionRarityId(canonicalZhRaw?.regionRarityId, zhRaw?.regionRarityId);
+  const chinaRarity = chinaRegionRarity(regionRarityIdZh);
   return {
     id,
     slug,
     championId,
     nameEn,
-    nameZh: localizedText(zhRaw?.name),
-    descriptionEn: localizedText(raw.description),
-    descriptionZh: localizedText(zhRaw?.description),
-    isBase: raw.isBase === true,
-    isLegacy: raw.isLegacy === true,
-    rarity: localizedText(raw.rarity),
+    nameZh: localizedText(zhRaw?.name) ?? localizedText(canonicalZhRaw?.name),
+    descriptionEn: localizedText(raw.description) ?? localizedText(canonicalRaw?.description),
+    descriptionZh: localizedText(zhRaw?.description) ?? localizedText(canonicalZhRaw?.description),
+    isBase: raw.isBase === true || canonicalRaw?.isBase === true,
+    isLegacy: preferredBoolean(raw.isLegacy, canonicalRaw?.isLegacy),
+    isLegacyZh: preferredBoolean(zhRaw?.isLegacy, canonicalZhRaw?.isLegacy),
+    availability: availability(raw, canonicalRaw),
+    availabilityZh: availability(zhRaw, canonicalZhRaw),
+    rarity: localizedText(raw.rarity) ?? localizedText(canonicalRaw?.rarity),
+    rarityZh: localizedText(zhRaw?.rarity) ?? localizedText(canonicalZhRaw?.rarity),
+    regionRarityIdZh,
+    rarityLabelZh: chinaRarity?.label,
+    rarityGemUrl: rarityGemUrl(canonicalRaw ?? raw, localizedText(raw.rarity) ?? localizedText(canonicalRaw?.rarity)),
+    rarityGemUrlZh: chinaRarity?.imageUrl ?? rarityGemUrl(canonicalZhRaw ?? zhRaw, localizedText(zhRaw?.rarity) ?? localizedText(canonicalZhRaw?.rarity)),
     skinlineIds,
     universeIds: [],
     media: safeMedia(raw),
@@ -214,7 +287,8 @@ function localizedMap(input: unknown): Map<number, any> {
 }
 
 export function buildPbeGraph(snapshot: PbeRawSnapshot): PbeGraph {
-  asRecordMap(snapshot.defaultSkins);
+  const defaultSkinMap = asRecordMap(snapshot.defaultSkins);
+  const zhSkinMap = asRecordMap(snapshot.zhSkins ?? []);
   const archives = new Map(catalog.flatMap((entry) => [[entry.skinId, entry.slug] as const]));
   const defaultSummary = z.array(z.object({ id: z.number().int(), name: z.string().trim().min(1), title: z.string().optional(), shortBio: z.string().optional(), squarePortraitPath: z.string().optional() })).parse(snapshot.defaultSummary);
   assertUniqueIds(defaultSummary, 'champion summary');
@@ -244,7 +318,8 @@ export function buildPbeGraph(snapshot: PbeRawSnapshot): PbeGraph {
       }
     }
     for (const raw of enSkins) {
-      const skin = normalizeSkin(raw, zhSkins.get(Number(raw.id)), summary.id, archives);
+      const skinId = Number(raw.id);
+      const skin = normalizeSkin(raw, zhSkins.get(skinId), defaultSkinMap.get(skinId), zhSkinMap.get(skinId), summary.id, archives);
       const existingSkin = skinsById.get(skin.id);
       if (existingSkin && existingSkin.championId !== skin.championId) throw new Error(`Duplicate skin id: ${skin.id}`);
       if (!existingSkin) skinsById.set(skin.id, skin);

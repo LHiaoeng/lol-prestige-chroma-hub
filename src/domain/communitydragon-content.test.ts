@@ -4,7 +4,11 @@ import { buildPbeGraph } from './communitydragon-content';
 const snapshot = {
   defaultSummary: [{ id: 103, name: 'Ahri', title: 'The Nine-Tailed Fox', shortBio: 'bio', squarePortraitPath: '/lol-game-data/assets/v1/champion-icons/103.png' }],
   zhSummary: [{ id: 103, name: '九尾妖狐', title: '阿狸', shortBio: '简介' }],
-  defaultSkins: { 103000: { id: 103000 } }, zhSkins: { 103000: { id: 103000 } },
+  defaultSkins: { 103000: { id: 103000 }, 103085: { id: 103085, rarity: 'kEpic' } },
+  zhSkins: {
+    103000: { id: 103000 },
+    103085: { id: 103085, rarity: 'kEpic', regionRarityId: 7, rarityGemPath: '/lol-game-data/assets/v1/rarity-gem-icons/7_large.png' },
+  },
   defaultSkinlines: [{ id: 99, name: 'K/DA', description: 'music' }], zhSkinlines: [{ id: 99, name: 'K/DA', description: '音乐' }],
   defaultUniverses: [{ id: 200, name: 'Pop', description: 'world', imagePath: '', skinSets: [99] }], zhUniverses: [{ id: 200, name: '流行', description: '世界', imagePath: '', skinSets: [99] }],
   championDetails: [{ id: 103, default: { id: 103, name: 'Ahri', title: 'The Nine-Tailed Fox', shortBio: 'bio', squarePortraitPath: '/lol-game-data/assets/v1/champion-icons/103.png', skins: [{ id: 103000, name: 'Ahri', isBase: true, splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Base.jpg', uncenteredSplashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Base-u.jpg' }, { id: 103085, name: 'Risen Legend Ahri', isBase: false, isLegacy: false, skinLines: [{ id: 99 }], splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Skin.jpg', questSkinInfo: { tiers: [{ id: 103085, name: 'Risen Legend Ahri', stage: 1, splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Skin.jpg' }, { id: 103086, name: 'Immortalized Legend Ahri', stage: 2, splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Skin2.jpg', splashVideoPath: '/game/ahri.webm' }, { name: 'Ascended Legend Ahri', stage: 3, splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Skin3.jpg' }] } }] }, zh: { id: 103, name: '九尾妖狐', title: '阿狸', shortBio: '简介', squarePortraitPath: '/lol-game-data/assets/v1/champion-icons/103.png', skins: [{ id: 103000, name: '阿狸', isBase: true, splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Base.jpg' }, { id: 103085, name: '名望阿狸', isBase: false, skinLines: [{ id: 99 }], splashPath: '/lol-game-data/assets/ASSETS/Characters/Ahri/Skin.jpg' }] } }],
@@ -39,6 +43,13 @@ describe('PBE content graph', () => {
       championDetails: [...snapshot.championDetails, { id: 1001, default: highId }],
     });
     expect(graph.championsById.has(1001)).toBe(true);
+  });
+
+  it('uses the China region rarity instead of the global rarity on Chinese pages', () => {
+    const skin = buildPbeGraph(snapshot).skinsById.get(103085)!;
+    expect(skin.regionRarityIdZh).toBe(7);
+    expect(skin.rarityLabelZh).toBe('限定');
+    expect(skin.rarityGemUrlZh).toContain('/rarity-gem-icons/cn-gem-7.png');
   });
 
   it('fails fast when canonical entity IDs are duplicated', () => {

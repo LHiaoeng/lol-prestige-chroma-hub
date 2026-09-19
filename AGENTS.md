@@ -47,6 +47,10 @@
 
 ## Agent skills
 
+### Frontend design
+
+页面设计、视觉升级、响应式调整与界面评审使用 `.agents/skills/frontend-design/SKILL.md`；纯数据、文案和非视觉逻辑修改不触发。
+
 ### Issue tracker
 
 Issue 与规格统一通过 GitHub Issues 跟踪。详见 `docs/agents/issue-tracker.md`。

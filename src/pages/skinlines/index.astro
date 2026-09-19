@@ -1,9 +1,15 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PbeSourceNote from '../../components/PbeSourceNote.astro';
-import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createEntitySeo } from '../../seo/entity-seo';
-const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale; const isZh = locale === 'zh-cn'; const graph = await getCommunityDragonPbeGraph(); const seo = createEntitySeo('skinlines', undefined, isZh ? '皮肤系列列表' : 'Skinlines', isZh ? '浏览英雄联盟 PBE 皮肤系列与所属皮肤。' : 'Browse League of Legends PBE skinlines and their skins.', locale);
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale; const isZh = locale === 'zh-cn'; const seo = createEntitySeo('skinlines', undefined, isZh ? '皮肤系列列表' : 'Skinlines', isZh ? '浏览英雄联盟 PBE 皮肤系列与所属皮肤。' : 'Browse League of Legends PBE skinlines and their skins.', locale);
+const kind = 'skinlines';
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}><div class="pbe-page"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{isZh ? '皮肤系列' : 'Skinlines'}</span></nav><header><p class="eyebrow">{isZh ? 'PBE 资料库' : 'PBE database'}</p><h1>{isZh ? '皮肤系列列表' : 'Skinlines'}</h1><p class="pbe-lede">{isZh ? '系列图片以 PBE 提供的真实资源为准，没有资源时保留文字信息。' : 'Editorial index of skinlines; artwork is shown only when PBE provides it.'}</p><PbeSourceNote locale={locale} /></header><section class="pbe-section"><div class="pbe-grid">{graph.skinlines.map((line) => { const skins = graph.skinsBySkinlineId.get(line.id) ?? []; const name = isZh ? line.nameZh ?? line.nameEn : line.nameEn; return <a class="pbe-card" href={localizedPath(locale, `/skinlines/${line.slug}/`)}><p class="eyebrow">{line.id}</p><h2>{name}</h2><p>{isZh ? line.descriptionZh ?? line.descriptionEn : line.descriptionEn}</p><span class="count">{skins.length} {isZh ? '款皮肤' : 'skins'}</span></a>; })}</div></section></div></BaseLayout>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}><div class="pbe-page"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{isZh ? '皮肤系列' : 'Skinlines'}</span></nav><header><p class="eyebrow">{isZh ? 'PBE 资料库' : 'PBE database'}</p><h1>{isZh ? '皮肤系列列表' : 'Skinlines'}</h1><p class="pbe-lede">{isZh ? '系列图片以 PBE 提供的真实资源为准，没有资源时保留文字信息。' : 'Editorial index of skinlines; artwork is shown only when PBE provides it.'}</p><PbeSourceNote locale={locale} /></header><section class="pbe-section"><div class="listing-root" data-url={localizedPath(locale, `/listing/${kind}.json`)} data-kind={kind} data-locale={locale}><p class="status" role="status">{isZh ? '加载中…' : 'Loading…'}</p></div><noscript><p>{isZh ? '请启用 JavaScript 以浏览动态列表。' : 'Please enable JavaScript to browse the dynamic listing.'}</p></noscript></section></div>
+  <script>
+    import { initListing } from '../../client/listing';
+    const root = document.querySelector<HTMLElement>('.listing-root');
+    if (root) initListing(root);
+  </script>
+</BaseLayout>

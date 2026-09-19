@@ -1,14 +1,18 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PbeSourceNote from '../../components/PbeSourceNote.astro';
-import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createEntitySeo } from '../../seo/entity-seo';
 const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
 const isZh = locale === 'zh-cn';
-const graph = await getCommunityDragonPbeGraph();
 const seo = createEntitySeo('champions', undefined, isZh ? '英雄列表' : 'Champions', isZh ? '浏览 CommunityDragon PBE 英雄与全部皮肤。' : 'Browse League of Legends champions and their complete PBE skin archive.', locale);
+const kind = 'champions';
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
-  <div class="pbe-page"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{isZh ? '英雄' : 'Champions'}</span></nav><header><p class="eyebrow">{isZh ? 'PBE 资料库' : 'PBE database'}</p><h1>{isZh ? '英雄列表' : 'Champions'}</h1><p class="pbe-lede">{isZh ? '按英雄浏览全部皮肤，包含已下架与阶段任务皮肤。' : 'Explore every champion, including legacy and quest-stage skins.'}</p><PbeSourceNote locale={locale} /></header><section class="pbe-section"><div class="pbe-grid">{graph.champions.map((champion) => { const name = isZh ? champion.nameZh ?? champion.nameEn : champion.nameEn; const skins = graph.skinsByChampionId.get(champion.id) ?? []; const stages = champion.stageRefs.filter((stage) => stage.id && stage.id !== stage.parentSkinId).length; return <a class="pbe-card" href={localizedPath(locale, `/champions/${champion.slug}/`)}>{champion.portraitUrl && <img src={champion.portraitUrl} alt="" width="88" height="88" loading="lazy" style="width:88px;aspect-ratio:1;object-fit:cover;border-radius:8px;float:right" />}<p class="eyebrow">{String(champion.id).padStart(3, '0')}</p><h2>{name}</h2><p>{isZh ? champion.titleZh ?? champion.titleEn : champion.titleEn}</p><span class="count">{skins.length} {isZh ? '款皮肤' : 'skins'}{stages ? ` · ${stages} stages` : ''}</span></a>; })}</div></section></div>
+  <div class="pbe-page"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{isZh ? '英雄' : 'Champions'}</span></nav><header><p class="eyebrow">{isZh ? 'PBE 资料库' : 'PBE database'}</p><h1>{isZh ? '英雄列表' : 'Champions'}</h1><p class="pbe-lede">{isZh ? '按英雄浏览全部皮肤，包含已下架与阶段任务皮肤。' : 'Explore every champion, including legacy and quest-stage skins.'}</p><PbeSourceNote locale={locale} /></header><section class="pbe-section"><div class="listing-root" data-url={localizedPath(locale, `/listing/${kind}.json`)} data-kind={kind} data-locale={locale}><p class="status" role="status">{isZh ? '加载中…' : 'Loading…'}</p></div><noscript><p>{isZh ? '请启用 JavaScript 以浏览动态列表。' : 'Please enable JavaScript to browse the dynamic listing.'}</p></noscript></section></div>
+  <script>
+    import { initListing } from '../../client/listing';
+    const root = document.querySelector<HTMLElement>('.listing-root');
+    if (root) initListing(root);
+  </script>
 </BaseLayout>
