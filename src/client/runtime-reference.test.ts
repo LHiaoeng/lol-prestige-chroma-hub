@@ -71,8 +71,12 @@ function view(): RuntimeView & {
       result.rendered = item;
       result.events.push("detail");
     }),
+    renderRelations: vi.fn((items: RuntimeList) => {
+      result.events.push(`relations:${items.length}`);
+    }),
     invalid: vi.fn(() => result.events.push("invalid")),
     failure: vi.fn(() => result.events.push("failure")),
+    relationFailure: vi.fn(() => result.events.push("relation-failure")),
   };
   return result;
 }
@@ -190,6 +194,72 @@ describe("RuntimeController", () => {
     expect(navigation.url.search).toBe("");
     expect(navigation.pushes).toHaveLength(0);
     expect(viewState.events.at(-1)).toBe("failure");
+  });
+
+  it("renders named skinline relations after the core and isolates relation failure", async () => {
+    const skinline = {
+      kind: "skinline" as const,
+      id: 7,
+      name: "Star Guardian",
+      universeIds: [200],
+    };
+    const universe = {
+      kind: "universe" as const,
+      id: 200,
+      name: "Star Guardian universe",
+      skinlineIds: [7],
+    };
+    const service = runtime({
+      get: vi.fn(async () => skinline),
+      list: vi.fn(async (kind) => (kind === "universes" ? [universe] : [])),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/skinlines/?id=7");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "skinlines",
+      locale: "default",
+    });
+
+    await controller.start();
+
+    expect(viewState.events).toEqual([
+      "loading:false",
+      "detail",
+      "relations:1",
+    ]);
+    expect(viewState.rendered).toMatchObject({ name: "Star Guardian" });
+    expect(service.list).toHaveBeenCalledWith(
+      "universes",
+      expect.objectContaining({ channel: "pbe" }),
+    );
+  });
+
+  it("keeps the core detail when a relation request fails", async () => {
+    const skinline = {
+      kind: "skinline" as const,
+      id: 7,
+      name: "Star Guardian",
+      universeIds: [200],
+    };
+    const service = runtime({
+      get: vi.fn(async () => skinline),
+      list: vi.fn(async () => {
+        throw new Error("relation offline");
+      }),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/skinlines/?id=7");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "skinlines",
+      locale: "default",
+    });
+
+    await controller.start();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(viewState.events).toContain("detail");
+    expect(viewState.events).toContain("relation-failure");
+    expect(viewState.events).not.toContain("failure");
   });
 
   it("ignores a late response from a cancelled navigation", async () => {

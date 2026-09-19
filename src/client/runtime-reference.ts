@@ -27,8 +27,13 @@ export interface RuntimeView {
     item: RuntimeEntity,
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
   ): void;
+  renderRelations?(
+    items: RuntimeList,
+    state: Extract<RuntimeLocationState, { mode: "detail" }>,
+  ): void;
   invalid(message: string): void;
   failure(error: CommunityDragonRuntimeError, retry: () => void): void;
+  relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
   intro?(): void;
 }
 
@@ -162,6 +167,55 @@ function loadedAt(locale: CommunityDragonLocale): string {
   }).format(new Date());
 }
 
+type RuntimeDetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
+
+function relationKind(
+  state: RuntimeDetailState,
+): Extract<RuntimeListKind, "skinlines" | "universes"> | undefined {
+  if (state.kind === "skinline") return "universes";
+  if (state.kind === "universe") return "skinlines";
+  return undefined;
+}
+
+function relatedItems(
+  entity: RuntimeEntity,
+  state: RuntimeDetailState,
+  items: RuntimeList,
+): RuntimeList {
+  if (state.kind === "skinline" && entity.kind === "skinline") {
+    return items.filter(
+      (item) =>
+        item.kind === "universe" &&
+        (entity.universeIds.includes(item.id) ||
+          item.skinlineIds.includes(state.id)),
+    );
+  }
+  if (state.kind === "universe" && entity.kind === "universe") {
+    return items.filter(
+      (item) =>
+        item.kind === "skinline" &&
+        (entity.skinlineIds.includes(item.id) ||
+          item.universeIds.includes(state.id)),
+    );
+  }
+  return [];
+}
+
+function asRuntimeError(
+  error: unknown,
+  locale: CommunityDragonLocale,
+): CommunityDragonRuntimeError {
+  return error instanceof CommunityDragonRuntimeError
+    ? error
+    : new CommunityDragonRuntimeError(
+        "network",
+        locale === "zh_cn"
+          ? "CommunityDragon 请求失败。"
+          : "The CommunityDragon request failed.",
+        { cause: error },
+      );
+}
+
 export class RuntimeController {
   private abortController: AbortController | undefined;
   private generation = 0;
@@ -236,6 +290,15 @@ export class RuntimeController {
         });
         if (generation !== this.generation) return;
         this.view.renderDetail(result, state);
+        const listKind = relationKind(state);
+        if (listKind)
+          void this.loadRelations(
+            result,
+            state,
+            listKind,
+            generation,
+            controller,
+          );
       }
       if (generation !== this.generation) return;
       this.hasContent = true;
@@ -247,18 +310,34 @@ export class RuntimeController {
         error.code === "aborted"
       )
         return;
-      const runtimeError =
-        error instanceof CommunityDragonRuntimeError
-          ? error
-          : new CommunityDragonRuntimeError(
-              "network",
-              this.options.locale === "zh_cn"
-                ? "CommunityDragon 请求失败。"
-                : "The CommunityDragon request failed.",
-              { cause: error },
-            );
+      const runtimeError = asRuntimeError(error, this.options.locale);
       this.view.failure(runtimeError, () => {
         void this.load(url, commit);
+      });
+    }
+  }
+
+  private async loadRelations(
+    entity: RuntimeEntity,
+    state: RuntimeDetailState,
+    kind: Extract<RuntimeListKind, "skinlines" | "universes">,
+    generation: number,
+    controller: AbortController,
+  ): Promise<void> {
+    try {
+      const items = await this.runtime.list(kind, {
+        locale: this.options.locale,
+        channel: state.channel,
+        signal: controller.signal,
+      });
+      if (generation !== this.generation) return;
+      this.view.renderRelations?.(relatedItems(entity, state, items), state);
+    } catch (error) {
+      if (generation !== this.generation) return;
+      const runtimeError = asRuntimeError(error, this.options.locale);
+      if (runtimeError.code === "aborted") return;
+      this.view.relationFailure?.(runtimeError, () => {
+        void this.loadRelations(entity, state, kind, generation, controller);
       });
     }
   }
@@ -403,6 +482,7 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
     if (channelLabel)
       channelLabel.textContent = selected === "latest" ? "Live" : "PBE";
   };
+  let relationSlot: HTMLElement | undefined;
   const view: RuntimeView = {
     loading(preserve) {
       options.root.setAttribute("aria-busy", "true");
@@ -423,6 +503,7 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
       }
     },
     renderList(items, state) {
+      relationSlot = undefined;
       setRuntimeNoindex(false);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
@@ -560,6 +641,7 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
       render();
     },
     renderDetail(item, state) {
+      relationSlot = undefined;
       setRuntimeNoindex(true);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
@@ -629,40 +711,36 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
       } else if (item.kind === "skinline") {
         if (item.description)
           article.appendChild(textNode("p", item.description, "runtime-lede"));
-        const links = document.createElement("div");
-        links.className = "pbe-links";
-        item.universeIds.forEach((id) =>
-          links.appendChild(
-            linkWithNavigation(
-              String(id),
-              hrefFor(options.locale, "universes", {
-                id,
-                channel: state.channel,
-              }),
-              controller,
-            ),
-          ),
+        const section = document.createElement("section");
+        section.appendChild(
+          textNode("h2", options.locale === "zh_cn" ? "所属宇宙" : "Universes"),
         );
-        article.appendChild(links);
+        relationSlot = textNode(
+          "p",
+          options.locale === "zh_cn"
+            ? "正在加载关联资料…"
+            : "Loading related references…",
+          "runtime-relation-state",
+        );
+        section.appendChild(relationSlot);
+        article.appendChild(section);
       } else {
         appendMedia(article, item.imageUrl, item.name);
         if (item.description)
           article.appendChild(textNode("p", item.description, "runtime-lede"));
-        const links = document.createElement("div");
-        links.className = "pbe-links";
-        item.skinlineIds.forEach((id) =>
-          links.appendChild(
-            linkWithNavigation(
-              String(id),
-              hrefFor(options.locale, "skinlines", {
-                id,
-                channel: state.channel,
-              }),
-              controller,
-            ),
-          ),
+        const section = document.createElement("section");
+        section.appendChild(
+          textNode("h2", options.locale === "zh_cn" ? "所属系列" : "Skinlines"),
         );
-        article.appendChild(links);
+        relationSlot = textNode(
+          "p",
+          options.locale === "zh_cn"
+            ? "正在加载关联资料…"
+            : "Loading related references…",
+          "runtime-relation-state",
+        );
+        section.appendChild(relationSlot);
+        article.appendChild(section);
       }
       content.replaceChildren(article);
       status.textContent =
@@ -670,7 +748,50 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
           ? `资料加载完成 · ${loadedAt(options.locale)}`
           : `Reference loaded · ${loadedAt(options.locale)}`;
     },
+    renderRelations(items, state) {
+      if (!relationSlot) return;
+      const controller = options.getController();
+      const targetPage = state.kind === "skinline" ? "universes" : "skinlines";
+      if (!items.length) {
+        relationSlot.textContent =
+          options.locale === "zh_cn"
+            ? "当前区域数据视图没有可显示的关联资料。"
+            : "No related references are available in this regional view.";
+        return;
+      }
+      const links = document.createElement("div");
+      links.className = "pbe-links";
+      items.forEach((item) =>
+        links.appendChild(
+          linkWithNavigation(
+            item.name,
+            hrefFor(options.locale, targetPage, {
+              id: item.id,
+              channel: state.channel,
+            }),
+            controller,
+          ),
+        ),
+      );
+      relationSlot.replaceChildren(links);
+    },
+    relationFailure(error, retry) {
+      if (!relationSlot) return;
+      relationSlot.replaceChildren(
+        textNode("span", runtimeFailureMessage(error, options.locale)),
+      );
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "runtime-retry";
+      button.textContent =
+        options.locale === "zh_cn"
+          ? "重试关联资料"
+          : "Retry related references";
+      button.addEventListener("click", retry, { once: true });
+      relationSlot.append(" ", button);
+    },
     invalid(message) {
+      relationSlot = undefined;
       setRuntimeNoindex(true);
       options.root.removeAttribute("aria-busy");
       status.textContent = message;
@@ -688,6 +809,7 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
       status.appendChild(button);
     },
     intro() {
+      relationSlot = undefined;
       options.root.removeAttribute("aria-busy");
       status.textContent =
         options.locale === "zh_cn"
