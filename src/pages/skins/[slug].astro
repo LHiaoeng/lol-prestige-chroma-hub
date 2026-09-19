@@ -6,6 +6,7 @@ import PbeSourceNote from '../../components/PbeSourceNote.astro';
 import { getCommunityDragonPbeGraph } from '../../data/communitydragon-pbe';
 import { catalog } from '../../data/catalog';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { artworkDisplayLabel, choosePreferredArtwork, type ArtworkOption } from '../../client/skin-artwork';
 import { createEntitySeo } from '../../seo/entity-seo';
 
 export async function getStaticPaths() { const graph = await getCommunityDragonPbeGraph(); return graph.skins.map((skin) => ({ params: { slug: skin.slug }, props: { id: skin.id, slug: skin.slug } })); }
@@ -20,33 +21,64 @@ const skinlines = skin.skinlineIds.map((id) => graph.skinlinesById.get(id)).filt
 const parent = skin.parentSkinId ? graph.skinsById.get(skin.parentSkinId) : undefined; const archive = skin.chromas.map((chroma) => chroma.prestigeArchiveSlug ? catalog.find((entry) => entry.slug === chroma.prestigeArchiveSlug) : undefined).filter(Boolean);
 const seo = createEntitySeo('skins', skin.slug, `${name} ${isZh ? '皮肤' : 'Skin'}`, isZh ? `${name} 的 PBE 皮肤详情、原画、动态原画与炫彩。` : `${name} PBE skin detail with splash art, animated art, and chromas.`, locale, skin.media.focusedSplashUrl);
 const label = (entry: { nameEn: string; nameZh?: string }) => isZh ? entry.nameZh ?? entry.nameEn : entry.nameEn;
+const artworkOptions = [
+  skin.media.focusedAnimatedSplashUrl && { kind: 'animated', focus: 'focused' },
+  skin.media.unfocusedAnimatedSplashUrl && { kind: 'animated', focus: 'unfocused' },
+  skin.media.focusedSplashUrl && { kind: 'static', focus: 'focused' },
+  skin.media.unfocusedSplashUrl && { kind: 'static', focus: 'unfocused' },
+].filter((option): option is ArtworkOption => Boolean(option));
+const initialArtwork = choosePreferredArtwork(artworkOptions);
+const hasStaticArtwork = artworkOptions.some((option) => option.kind === 'static');
+const hasAnimatedArtwork = artworkOptions.some((option) => option.kind === 'animated');
+const initialArtworkKind = initialArtwork?.kind ?? 'static';
+const initialArtworkFocus = initialArtwork?.focus ?? 'focused';
+const initialArtworkLabel = initialArtwork ? artworkDisplayLabel(initialArtwork, locale) : '';
+const staticArtworkHint = isZh ? '点击查看大图 ↗' : 'Open full-size art ↗';
+const animatedArtworkHint = isZh ? '使用播放控件' : 'Use playback controls';
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}><div class="skin-backdrop" aria-hidden="true">
   {backdropImage && <img src={backdropImage} alt="" width="1920" height="1080" loading="eager" />}
   {backdropVideo && <video autoplay muted loop playsinline preload="metadata" src={backdropVideo}></video>}
 </div><div class="pbe-page skin-detail"><nav class="breadcrumbs" aria-label={isZh ? '面包屑导航' : 'Breadcrumb'}><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/skins/')}>{isZh ? '皮肤' : 'Skins'}</a><span>/</span><span>{name}</span></nav><header class="skin-exhibit">
-  <figure class="skin-artwork">
-    <ImageViewer fallback="/placeholder.svg" src={skin.media.focusedSplashUrl ?? skin.media.unfocusedSplashUrl ?? '/placeholder.svg'} altEn={`${skin.nameEn} splash art`} altZh={`${name} 原画`} {locale} />
-    <figcaption><span>{isZh ? '原画典藏' : 'SPLASH ART COLLECTION'}</span><span>{isZh ? '点击查看完整原画 ↗' : 'Explore full-size art ↗'}</span></figcaption>
-  </figure>
+  {(hasStaticArtwork || hasAnimatedArtwork) && <figure class="skin-artwork" data-skin-artwork data-locale={locale}>
+    <div class="skin-artwork-toolbar">
+      <span>{isZh ? '原画典藏' : 'SPLASH ART COLLECTION'}</span>
+      <div class="skin-artwork-actions" role="group" aria-label={isZh ? '原画类型与聚焦切换' : 'Artwork type and focus controls'}>
+        {hasStaticArtwork && <button type="button" data-artwork-kind="static" aria-controls="skin-artwork-stage" aria-pressed={initialArtworkKind === 'static'} aria-label={isZh ? '静态原画；重复点击切换聚焦视图' : 'Static artwork; click again to toggle focus'} title={isZh ? '静态原画（再次点击切换聚焦）' : 'Static artwork (click again to toggle focus)'}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m5 17 4.5-4.5 3 3 2.5-2.5 4 4"/></svg>
+        </button>}
+        {hasAnimatedArtwork && <button type="button" data-artwork-kind="animated" aria-controls="skin-artwork-stage" aria-pressed={initialArtworkKind === 'animated'} aria-label={isZh ? '动态原画；重复点击切换聚焦视图' : 'Animated artwork; click again to toggle focus'} title={isZh ? '动态原画（再次点击切换聚焦）' : 'Animated artwork (click again to toggle focus)'}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 9 5 3-5 3Z"/><path d="M7 4v3M17 4v3M7 17v3M17 17v3"/></svg>
+        </button>}
+      </div>
+    </div>
+    <div class="skin-artwork-stage" id="skin-artwork-stage" data-skin-artwork-stage>
+      {skin.media.focusedAnimatedSplashUrl && <div class="skin-artwork-panel" data-artwork-panel data-kind="animated" data-focus="focused" data-label={isZh ? '聚焦动态原画' : 'Focused animated splash'} data-hint={animatedArtworkHint} hidden={!(initialArtworkKind === 'animated' && initialArtworkFocus === 'focused')}><video muted loop controls playsinline preload="metadata" src={skin.media.focusedAnimatedSplashUrl} aria-label={isZh ? `${name} 聚焦动态原画` : `${skin.nameEn} focused animated splash`}></video></div>}
+      {skin.media.unfocusedAnimatedSplashUrl && <div class="skin-artwork-panel" data-artwork-panel data-kind="animated" data-focus="unfocused" data-label={isZh ? '非聚焦动态原画' : 'Unfocused animated splash'} data-hint={animatedArtworkHint} hidden={!(initialArtworkKind === 'animated' && initialArtworkFocus === 'unfocused')}><video muted loop controls playsinline preload="metadata" src={skin.media.unfocusedAnimatedSplashUrl} aria-label={isZh ? `${name} 非聚焦动态原画` : `${skin.nameEn} unfocused animated splash`}></video></div>}
+      {skin.media.focusedSplashUrl && <div class="skin-artwork-panel" data-artwork-panel data-kind="static" data-focus="focused" data-label={isZh ? '聚焦原画' : 'Focused splash art'} data-hint={staticArtworkHint} hidden={!(initialArtworkKind === 'static' && initialArtworkFocus === 'focused')}><ImageViewer fallback="/placeholder.svg" src={skin.media.focusedSplashUrl} altEn={`${skin.nameEn} focused splash art`} altZh={`${name} 聚焦原画`} {locale} /></div>}
+      {skin.media.unfocusedSplashUrl && <div class="skin-artwork-panel" data-artwork-panel data-kind="static" data-focus="unfocused" data-label={isZh ? '非聚焦原画' : 'Unfocused splash art'} data-hint={staticArtworkHint} hidden={!(initialArtworkKind === 'static' && initialArtworkFocus === 'unfocused')}><ImageViewer fallback="/placeholder.svg" src={skin.media.unfocusedSplashUrl} altEn={`${skin.nameEn} unfocused splash art`} altZh={`${name} 非聚焦原画`} {locale} /></div>}
+    </div>
+    <figcaption><span data-artwork-caption aria-live="polite">{initialArtworkLabel}</span><span data-artwork-hint>{initialArtworkKind === 'animated' ? animatedArtworkHint : staticArtworkHint}</span></figcaption>
+  </figure>}
   <div class="skin-title">
-    <p class="eyebrow">{isZh ? '英雄联盟 · 皮肤图鉴' : 'LEAGUE OF LEGENDS · SKIN GALLERY'}</p>
-    <h1>{name}</h1>
-    <a class="skin-champion" href={localizedPath(locale, `/champions/${champion?.slug ?? ''}/`)}>{championName}<span aria-hidden="true"> ↗</span></a>
-    <dl class="skin-facts">
-      <div><dt>{isZh ? '稀有度' : 'Rarity'}</dt><dd>{skin.rarity ?? '—'}</dd></div>
-      <div><dt>{isZh ? '炫彩' : 'Chromas'}</dt><dd>{String(skin.chromas.length).padStart(2, '0')}</dd></div>
-      <div><dt>{isZh ? '档案编号' : 'Archive ID'}</dt><dd>{skin.id}</dd></div>
-    </dl>
-    <PbeSourceNote {locale} />
+    <div class="skin-heading">
+      <p class="eyebrow">{isZh ? '英雄联盟 · 皮肤图鉴' : 'LEAGUE OF LEGENDS · SKIN GALLERY'}</p>
+      <h1>{name}</h1>
+      <a class="skin-champion" href={localizedPath(locale, `/champions/${champion?.slug ?? ''}/`)}>{championName}<span aria-hidden="true"> ↗</span></a>
+    </div>
+    <div class="skin-archive-meta">
+      <dl class="skin-facts">
+        <div><dt>{isZh ? '稀有度' : 'Rarity'}</dt><dd>{skin.rarity ?? '—'}</dd></div>
+        <div><dt>{isZh ? '炫彩' : 'Chromas'}</dt><dd>{String(skin.chromas.length).padStart(2, '0')}</dd></div>
+        <div><dt>{isZh ? '档案编号' : 'Archive ID'}</dt><dd>{skin.id}</dd></div>
+      </dl>
+      <PbeSourceNote {locale} />
+    </div>
   </div>
 </header>
 <section class="pbe-section skin-story"><p class="eyebrow">{isZh ? '作品档案' : 'ABOUT THE SKIN'}</p><div class="pbe-links">{skin.isBase && <span class="pbe-chip">{isZh ? '基础皮肤' : 'Base skin'}</span>}{skin.isLegacy && <span class="pbe-chip">{isZh ? '已下架' : 'Legacy'}</span>}{skin.parentSkinId && parent && <a class="pbe-chip" href={localizedPath(locale, `/skins/${parent.slug}/`)}>{isZh ? '阶段母体' : 'Parent skin'}: {label(parent)}</a>}</div>{skin.descriptionEn && <p class="pbe-lede">{isZh ? skin.descriptionZh ?? skin.descriptionEn : skin.descriptionEn}</p>}</section>
 
-<section class="pbe-section"><h2>{isZh ? '原画' : 'Splash art'}</h2><div class="pbe-media-grid">{skin.media.focusedSplashUrl && <figure class="pbe-media"><ImageViewer fallback="/placeholder.svg" src={skin.media.focusedSplashUrl} altEn={`${skin.nameEn} focused splash`} altZh={`${name} 聚焦原画`} {locale} /><figcaption>{isZh ? '聚焦原画' : 'Focused splash'}</figcaption></figure>}{skin.media.unfocusedSplashUrl && <figure class="pbe-media"><ImageViewer fallback="/placeholder.svg" src={skin.media.unfocusedSplashUrl} altEn={`${skin.nameEn} unfocused splash`} altZh={`${name} 非聚焦原画`} {locale} /><figcaption>{isZh ? '非聚焦原画' : 'Unfocused splash'}</figcaption></figure>}</div></section>
-{(skin.media.focusedAnimatedSplashUrl || skin.media.unfocusedAnimatedSplashUrl) &&
-<section class="pbe-section"><h2>{isZh ? '动态原画' : 'Animated splash art'}</h2><div class="pbe-media-grid">{skin.media.focusedAnimatedSplashUrl && <figure class="pbe-media"><video controls playsinline preload="metadata" src={skin.media.focusedAnimatedSplashUrl}></video><figcaption>{isZh ? '聚焦动态原画' : 'Focused animated splash'}</figcaption></figure>}{skin.media.unfocusedAnimatedSplashUrl && <figure class="pbe-media"><video controls playsinline preload="metadata" src={skin.media.unfocusedAnimatedSplashUrl}></video><figcaption>{isZh ? '非聚焦动态原画' : 'Unfocused animated splash'}</figcaption></figure>}</div></section>
-}{(skinlines.length || universes.length) > 0 &&
+{(skinlines.length || universes.length) > 0 &&
 <section class="pbe-section"><h2>{isZh ? '所属系列与宇宙' : 'Collections'}</h2><div class="pbe-links">{skinlines.map((entry) => <a class="pbe-chip" href={localizedPath(locale, `/skinlines/${entry!.slug}/`)}>{label(entry!)}</a>)}{universes.map((entry) => <a class="pbe-chip" href={localizedPath(locale, `/universes/${entry!.slug}/`)}>{label(entry!)}</a>)}</div></section>
 }{skin.chromas.length > 0 &&
 <section class="pbe-section"><h2>{isZh ? '炫彩列表' : 'Chromas'}</h2><div class="pbe-chroma-grid">{skin.chromas.map((chroma) => { const archiveEntry = chroma.prestigeArchiveSlug ? catalog.find((entry) => entry.slug === chroma.prestigeArchiveSlug) : undefined; return <a class="pbe-chroma" href={archiveEntry ? localizedPath(locale, `/chromas/${archiveEntry.slug}/`) : localizedPath(locale, `/skins/${skin.slug}/#chroma-${chroma.id}`)} id={`chroma-${chroma.id}`}><div>{chroma.imageUrl ? <img src={chroma.imageUrl} alt={isZh ? chroma.nameZh ?? chroma.nameEn ?? `Chroma ${chroma.id}` : chroma.nameEn ?? `Chroma ${chroma.id}`} loading="lazy" /> : <div style="aspect-ratio:1;background:var(--panel2)"></div>}</div><span>{isZh ? chroma.nameZh ?? chroma.nameEn : chroma.nameEn ?? `Chroma ${chroma.id}`}</span>{chroma.colors.length > 0 && <div class="pbe-swatches">{chroma.colors.map((color) => <i style={`background:${color}`} title={color}></i>)}</div>}</a>; })}</div></section>
@@ -56,30 +88,54 @@ const label = (entry: { nameEn: string; nameZh?: string }) => isZh ? entry.nameZ
 <section class="pbe-section"><h2>{isZh ? '本站臻彩对应' : 'Archive matches'}</h2><div class="pbe-links">{archive.map((entry) => <a class="pbe-chip" href={localizedPath(locale, `/chromas/${entry!.slug}/`)}>{isZh ? entry!.nameZh : entry!.nameEn}</a>)}</div></section>
 }</div></BaseLayout>
 
+<script>
+  import { bindSkinArtworks } from '../../client/skin-artwork';
+  bindSkinArtworks();
+</script>
+
 <style>
   .skin-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--bg)}
-  .skin-backdrop img,.skin-backdrop video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.58;filter:saturate(1.08) contrast(.96) blur(.5px);transform:scale(1.04)}
+  .skin-backdrop img,.skin-backdrop video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34;filter:saturate(.9) contrast(.94) blur(2px);transform:scale(1.035)}
   .skin-backdrop video{z-index:1}
-  .skin-backdrop::before{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,#090b15b8 0%,#090b1548 46%,#090b15ae 100%),linear-gradient(180deg,#090b15a8 0%,#090b1538 42%,#090b15de 100%)}
-  .skin-backdrop::after{content:"";position:absolute;inset:0;z-index:3;background:radial-gradient(ellipse at 52% 18%,#20213b42 0,transparent 54%)}
+  .skin-backdrop::before{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,#090b15dc 0%,#090b1578 50%,#090b15dc 100%),linear-gradient(180deg,#090b15a8 0%,#090b155c 34%,#090b15f5 100%)}
+  .skin-backdrop::after{content:"";position:absolute;inset:0;z-index:3;background:radial-gradient(ellipse at 50% 20%,#20213b35 0,transparent 58%)}
   @media(prefers-reduced-motion:no-preference){.skin-backdrop:has(video) img{display:none}}
-  .skin-detail{position:relative;z-index:1}
-  .skin-detail .breadcrumbs{width:100%;margin:0 0 28px;flex-wrap:wrap;font-size:.75rem;line-height:1.7}
-  .skin-exhibit{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(260px,1fr);align-items:center;gap:clamp(28px,4vw,60px);padding:20px 0 48px}
-  .skin-artwork{margin:0;min-width:0;background:var(--bg);border:1px solid var(--line);box-shadow:0 24px 70px #0005}
+  .skin-detail{position:relative;z-index:1;width:min(1440px,calc(100% - (var(--page-gutter) * 2)));padding-top:22px}
+  .skin-detail .breadcrumbs{width:100%;margin:0 0 18px;padding:12px 0;flex-wrap:wrap;font-size:.75rem;line-height:1.7}
+  .skin-exhibit{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding:0 0 clamp(54px,7vw,96px)}
+  .skin-artwork{position:relative;margin:0;min-width:0;padding:8px;background:#090b15d9;border:1px solid #65583e;box-shadow:0 34px 100px #000a}
+  .skin-artwork::before,.skin-artwork::after{content:"";position:absolute;z-index:1;width:42px;height:42px;pointer-events:none}
+  .skin-artwork::before{inset:-1px auto auto -1px;border-top:1px solid var(--gold);border-left:1px solid var(--gold)}
+  .skin-artwork::after{inset:auto -1px -1px auto;border-right:1px solid var(--gold);border-bottom:1px solid var(--gold)}
+  .skin-artwork-toolbar{display:flex;min-height:52px;align-items:center;justify-content:space-between;gap:16px;padding:0 2px 8px;color:var(--muted);font-size:.63rem;font-weight:700;letter-spacing:.12em}
+  .skin-artwork-actions{display:flex;gap:7px}
+  .skin-artwork-actions button{position:relative;display:grid;width:var(--touch-target);height:var(--touch-target);padding:0;place-items:center;border:1px solid var(--line);border-radius:6px;background:#090b15c7;color:var(--muted);cursor:pointer}
+  .skin-artwork-actions button[aria-pressed="true"]{border-color:var(--gold);background:var(--gold);color:#121019}
+  .skin-artwork-actions button:hover{border-color:var(--gold);color:var(--gold)}
+  .skin-artwork-actions button[aria-pressed="true"]:hover{color:#121019}
+  .skin-artwork-actions button[data-current-focus]::after{content:"";position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:currentColor}
+  .skin-artwork-actions button[data-current-focus="unfocused"]::after{width:9px;border-radius:999px}
+  .skin-artwork-actions svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .skin-artwork-stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:#05060c}
+  .skin-artwork-panel{width:100%;height:100%}
+  .skin-artwork-panel[hidden]{display:none}
+  .skin-artwork-panel video{display:block;width:100%;height:100%;object-fit:contain;background:#05060c}
   .skin-artwork :global(.image-viewer){height:auto}
+  .skin-artwork-panel :global(.image-viewer),.skin-artwork-panel :global(.viewer-trigger),.skin-artwork-panel :global(.viewer-trigger picture){height:100%}
   .skin-detail :global(.viewer-trigger),.skin-detail :global(.viewer-trigger picture){height:auto}
   .skin-detail :global(.viewer-image){height:auto;object-fit:contain}
-  .skin-artwork figcaption{display:flex;justify-content:space-between;gap:16px;padding:15px 18px;color:var(--muted);font-size:.65rem;letter-spacing:.08em;line-height:1.6;border-top:1px solid var(--line)}
+  .skin-artwork-panel :global(.viewer-image){width:100%;height:100%;object-fit:contain}
+  .skin-artwork figcaption{display:flex;justify-content:space-between;gap:16px;padding:15px 10px 7px;color:var(--muted);font-size:.65rem;letter-spacing:.11em;line-height:1.6;text-transform:uppercase}
   .skin-artwork figcaption span:last-child{color:var(--gold);text-align:right}
-  .skin-title{min-width:0}
+  .skin-title{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,.65fr);align-items:end;gap:clamp(36px,6vw,92px);min-width:0;padding:clamp(30px,4vw,54px) 0 0}
+  .skin-heading,.skin-archive-meta{min-width:0}
   .skin-title .eyebrow{font-size:.62rem;line-height:1.8;letter-spacing:.16em}
-  .skin-title h1{font-size:clamp(2.3rem,3.8vw,4rem);line-height:1.12;letter-spacing:-.035em;margin:22px 0;overflow-wrap:anywhere;text-wrap:balance}
+  .skin-title h1{max-width:900px;font-size:clamp(3rem,6vw,6.4rem);line-height:.98;letter-spacing:-.045em;margin:18px 0 14px;overflow-wrap:anywhere;text-wrap:balance}
   .skin-champion{display:inline-flex;align-items:center;gap:24px;min-height:44px;color:var(--gold);font-size:.95rem}
-  .skin-facts{display:grid;grid-template-columns:1.3fr .8fr 1fr;gap:14px;border-top:1px solid var(--line);padding-top:22px;margin:22px 0 0}
-  .skin-facts dt{font-size:.7rem;color:var(--muted);margin-bottom:10px}
-  .skin-facts dd{margin:0;font-size:.88rem;overflow-wrap:anywhere}
-  .skin-title :global(.pbe-note){font-size:.69rem;line-height:1.75;margin-top:24px}
+  .skin-facts{display:grid;grid-template-columns:1.25fr .75fr 1fr;gap:18px;border-top:1px solid #65583e;padding-top:20px;margin:0}
+  .skin-facts dt{font-size:.65rem;color:var(--muted);margin-bottom:9px;letter-spacing:.06em;text-transform:uppercase}
+  .skin-facts dd{margin:0;font-family:Georgia,"Noto Serif SC",serif;font-size:1rem;overflow-wrap:anywhere}
+  .skin-title :global(.pbe-note){font-size:.69rem;line-height:1.75;margin-top:20px}
   .skin-detail .pbe-section{border-top:1px solid var(--line);padding:32px 0 44px}
   .skin-detail .pbe-section h2{font-size:clamp(1.6rem,2.8vw,2.2rem);margin:0 0 24px;letter-spacing:-.02em}
   .skin-story{display:grid;grid-template-columns:1fr 3fr;column-gap:48px}
@@ -98,8 +154,9 @@ const label = (entry: { nameEn: string; nameZh?: string }) => isZh ? entry.nameZ
   .skin-detail .pbe-swatches{padding:0 12px 14px}
   .skin-detail .pbe-chroma:target,.skin-detail .pbe-chroma:hover{border-color:var(--gold)}
   .skin-detail :global(a:focus-visible),.skin-detail :global(button:focus-visible){outline:2px solid var(--gold);outline-offset:4px}
-  @media(max-width:1023px){.skin-exhibit{grid-template-columns:1fr;gap:28px}.skin-title h1{max-width:900px}.skin-facts{max-width:540px}.skin-story{grid-template-columns:1fr 3fr;gap:24px}}
-  @media(max-width:767px){.skin-detail .breadcrumbs{margin-bottom:16px}.skin-exhibit{padding:0 0 32px;gap:24px}.skin-title h1{font-size:clamp(2.1rem,9vw,3.4rem);margin:14px 0}.skin-artwork figcaption{padding:12px;font-size:.58rem;letter-spacing:0}.skin-detail .pbe-section{padding:26px 0 32px}.skin-story{display:block}.skin-story .pbe-lede{font-size:.92rem}.skin-detail .pbe-chroma-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.skin-facts{gap:12px}.skin-detail .pbe-section h2{margin-bottom:18px}}
+  @media(max-width:1023px){.skin-title{grid-template-columns:1fr;align-items:start;gap:30px}.skin-title h1{max-width:900px}.skin-archive-meta{max-width:620px}.skin-story{grid-template-columns:1fr 3fr;gap:24px}}
+  @media(max-width:767px){.skin-detail{width:calc(100% - (var(--page-gutter) * 2));padding-top:10px}.skin-detail .breadcrumbs{margin-bottom:8px;padding:8px 0}.skin-exhibit{padding:0 0 42px}.skin-artwork{padding:5px;box-shadow:0 20px 52px #0008}.skin-artwork::before,.skin-artwork::after{width:26px;height:26px}.skin-artwork-toolbar{min-height:49px;padding-bottom:5px}.skin-artwork figcaption{padding:11px 3px 3px;font-size:.58rem;letter-spacing:0}.skin-title{padding-top:30px;gap:24px}.skin-title h1{font-size:clamp(2.4rem,12vw,4.4rem);margin:12px 0 8px}.skin-detail .pbe-section{padding:26px 0 32px}.skin-story{display:block}.skin-story .pbe-lede{font-size:.92rem}.skin-detail .pbe-chroma-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.skin-facts{gap:12px}.skin-detail .pbe-section h2{margin-bottom:18px}}
+  @media(max-width:359px){.skin-artwork figcaption{display:grid;gap:3px}.skin-artwork figcaption span:last-child{text-align:left}}
   @media(max-width:767px){
     :global(body:has(.skin-detail)){--site-header-height:112px}
     :global(body:has(.skin-detail) .site-header){flex-wrap:wrap;padding-top:10px;padding-bottom:4px}
