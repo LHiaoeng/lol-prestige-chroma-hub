@@ -62,6 +62,7 @@ export interface RuntimeSkinSummary {
   readonly description?: string;
   readonly skinlineIds: readonly number[];
   readonly media: RuntimeMedia;
+  readonly stages: readonly RuntimeSkinStage[];
 }
 
 export interface RuntimeChampion extends RuntimeChampionSummary {
@@ -71,6 +72,14 @@ export interface RuntimeChampion extends RuntimeChampionSummary {
 export interface RuntimeSkin extends RuntimeSkinSummary {
   readonly kind: "skin";
   readonly championId: number;
+  readonly chromas: readonly RuntimeChroma[];
+}
+
+export interface RuntimeSkinStage {
+  readonly id?: number;
+  readonly name: string;
+  readonly stageIndex: number;
+  readonly media: RuntimeMedia;
   readonly chromas: readonly RuntimeChroma[];
 }
 
@@ -159,6 +168,9 @@ const skinSchema = z
     splashVideoPath: z.string().optional(),
     skinLines: z.array(z.unknown()).optional(),
     chromas: z.array(z.unknown()).optional(),
+    questSkinInfo: z
+      .object({ tiers: z.array(z.unknown()).optional() })
+      .optional(),
   })
   .passthrough();
 const championDetailSchema = championSummarySchema.extend({
@@ -264,6 +276,31 @@ function normalizeSkin(
   channel: RuntimeChannel,
   championId: number,
 ): RuntimeSkin {
+  const stages: RuntimeSkinStage[] = [];
+  for (const [index, value] of (raw.questSkinInfo?.tiers ?? []).entries()) {
+    if (!isRecord(value)) continue;
+    const id =
+      typeof value.id === "number" &&
+      Number.isSafeInteger(value.id) &&
+      value.id > 0
+        ? value.id
+        : undefined;
+    const stageIndex =
+      typeof value.stage === "number" &&
+      Number.isSafeInteger(value.stage) &&
+      value.stage > 0
+        ? value.stage
+        : index + 1;
+    stages.push({
+      id,
+      name: text(value.name) ?? `${raw.name} · Stage ${stageIndex}`,
+      stageIndex,
+      media: normalizeMedia(value, channel),
+      chromas: (Array.isArray(value.chromas) ? value.chromas : [])
+        .map((chroma) => normalizeChroma(chroma, channel))
+        .filter((chroma): chroma is RuntimeChroma => Boolean(chroma)),
+    });
+  }
   return {
     kind: "skin",
     id: raw.id,
@@ -274,6 +311,7 @@ function normalizeSkin(
     description: text(raw.description),
     skinlineIds: positiveIds(raw.skinLines),
     media: normalizeMedia(raw, channel),
+    stages,
     chromas: (raw.chromas ?? [])
       .map((value) => normalizeChroma(value, channel))
       .filter((value): value is RuntimeChroma => Boolean(value)),

@@ -38,6 +38,17 @@ const champion = (locale: CommunityDragonLocale) => ({
       splashPath:
         "/lol-game-data/assets/ASSETS/Characters/Ahri/Skins/Skin01/Ahri_Splash.jpg",
       skinLines: [{ id: 7 }],
+      questSkinInfo: {
+        tiers: [
+          {
+            id: 103002,
+            stage: 2,
+            name: "Dynasty Ahri · Stage 2",
+            splashPath:
+              "/lol-game-data/assets/ASSETS/Characters/Ahri/Skins/Skin01/Stage2.jpg",
+          },
+        ],
+      },
       chromas: [],
     },
   ],
@@ -110,6 +121,15 @@ describe("CommunityDragon runtime reference", () => {
       id: 103001,
       championId: 103,
       name: "Dynasty Ahri",
+    });
+    expect(result).toMatchObject({
+      stages: [
+        {
+          id: 103002,
+          stageIndex: 2,
+          name: "Dynasty Ahri · Stage 2",
+        },
+      ],
     });
     expect(fetcher.mock.calls[0][0]).toContain("/champions/103.json");
     expect(fetcher.mock.calls[0][0]).not.toContain("skins.json");

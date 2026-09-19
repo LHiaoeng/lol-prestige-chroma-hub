@@ -169,12 +169,13 @@ function loadedAt(locale: CommunityDragonLocale): string {
 
 type RuntimeDetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
 
-function relationKind(
+function relationKinds(
   state: RuntimeDetailState,
-): Extract<RuntimeListKind, "skinlines" | "universes"> | undefined {
-  if (state.kind === "skinline") return "universes";
-  if (state.kind === "universe") return "skinlines";
-  return undefined;
+): readonly Extract<RuntimeListKind, "skinlines" | "universes">[] {
+  if (state.kind === "skinline") return ["universes"];
+  if (state.kind === "universe") return ["skinlines"];
+  if (state.kind === "skin") return ["skinlines", "universes"];
+  return [];
 }
 
 function relatedItems(
@@ -196,6 +197,15 @@ function relatedItems(
         item.kind === "skinline" &&
         (entity.skinlineIds.includes(item.id) ||
           item.universeIds.includes(state.id)),
+    );
+  }
+  if (state.kind === "skin" && entity.kind === "skin") {
+    const skinlineIds = entity.skinlineIds;
+    return items.filter(
+      (item) =>
+        (item.kind === "skinline" && skinlineIds.includes(item.id)) ||
+        (item.kind === "universe" &&
+          item.skinlineIds.some((id) => skinlineIds.includes(id))),
     );
   }
   return [];
@@ -290,12 +300,12 @@ export class RuntimeController {
         });
         if (generation !== this.generation) return;
         this.view.renderDetail(result, state);
-        const listKind = relationKind(state);
-        if (listKind)
+        const listKinds = relationKinds(state);
+        if (listKinds.length)
           void this.loadRelations(
             result,
             state,
-            listKind,
+            listKinds,
             generation,
             controller,
           );
@@ -320,24 +330,45 @@ export class RuntimeController {
   private async loadRelations(
     entity: RuntimeEntity,
     state: RuntimeDetailState,
-    kind: Extract<RuntimeListKind, "skinlines" | "universes">,
+    kinds: readonly Extract<RuntimeListKind, "skinlines" | "universes">[],
     generation: number,
     controller: AbortController,
   ): Promise<void> {
     try {
-      const items = await this.runtime.list(kind, {
-        locale: this.options.locale,
-        channel: state.channel,
-        signal: controller.signal,
-      });
+      const results = await Promise.allSettled(
+        kinds.map((kind) =>
+          this.runtime.list(kind, {
+            locale: this.options.locale,
+            channel: state.channel,
+            signal: controller.signal,
+          }),
+        ),
+      );
       if (generation !== this.generation) return;
+      const items = results.flatMap((result) =>
+        result.status === "fulfilled" ? result.value : [],
+      );
       this.view.renderRelations?.(relatedItems(entity, state, items), state);
+      const rejected = results.find(
+        (result): result is PromiseRejectedResult =>
+          result.status === "rejected",
+      );
+      if (rejected) {
+        const runtimeError = asRuntimeError(
+          rejected.reason,
+          this.options.locale,
+        );
+        if (runtimeError.code === "aborted") return;
+        this.view.relationFailure?.(runtimeError, () => {
+          void this.loadRelations(entity, state, kinds, generation, controller);
+        });
+      }
     } catch (error) {
       if (generation !== this.generation) return;
       const runtimeError = asRuntimeError(error, this.options.locale);
       if (runtimeError.code === "aborted") return;
       this.view.relationFailure?.(runtimeError, () => {
-        void this.loadRelations(entity, state, kind, generation, controller);
+        void this.loadRelations(entity, state, kinds, generation, controller);
       });
     }
   }
@@ -694,6 +725,21 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
         );
         if (item.description)
           article.appendChild(textNode("p", item.description, "runtime-lede"));
+        if (item.stages.length) {
+          const stages = document.createElement("section");
+          stages.appendChild(
+            textNode("h2", options.locale === "zh_cn" ? "阶段" : "Stages"),
+          );
+          for (const stage of item.stages) {
+            stages.appendChild(textNode("h3", stage.name));
+            appendMedia(
+              stages,
+              stage.media.focusedSplashUrl ?? stage.media.tileUrl,
+              stage.name,
+            );
+          }
+          article.appendChild(stages);
+        }
         if (item.chromas.length) {
           const chromas = document.createElement("section");
           chromas.appendChild(
@@ -708,6 +754,24 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
           );
           article.appendChild(chromas);
         }
+        const relations = document.createElement("section");
+        relations.appendChild(
+          textNode(
+            "h2",
+            options.locale === "zh_cn"
+              ? "所属系列与宇宙"
+              : "Skinlines and universes",
+          ),
+        );
+        relationSlot = textNode(
+          "p",
+          options.locale === "zh_cn"
+            ? "正在加载关联资料…"
+            : "Loading related references…",
+          "runtime-relation-state",
+        );
+        relations.appendChild(relationSlot);
+        article.appendChild(relations);
       } else if (item.kind === "skinline") {
         if (item.description)
           article.appendChild(textNode("p", item.description, "runtime-lede"));
@@ -751,7 +815,6 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
     renderRelations(items, state) {
       if (!relationSlot) return;
       const controller = options.getController();
-      const targetPage = state.kind === "skinline" ? "universes" : "skinlines";
       if (!items.length) {
         relationSlot.textContent =
           options.locale === "zh_cn"
@@ -765,10 +828,14 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
         links.appendChild(
           linkWithNavigation(
             item.name,
-            hrefFor(options.locale, targetPage, {
-              id: item.id,
-              channel: state.channel,
-            }),
+            hrefFor(
+              options.locale,
+              item.kind === "skinline" ? "skinlines" : "universes",
+              {
+                id: item.id,
+                channel: state.channel,
+              },
+            ),
             controller,
           ),
         ),
@@ -777,8 +844,10 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
     },
     relationFailure(error, retry) {
       if (!relationSlot) return;
-      relationSlot.replaceChildren(
-        textNode("span", runtimeFailureMessage(error, options.locale)),
+      const notice = textNode(
+        "p",
+        runtimeFailureMessage(error, options.locale),
+        "runtime-relation-error",
       );
       const button = document.createElement("button");
       button.type = "button";
@@ -788,7 +857,8 @@ function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
           ? "重试关联资料"
           : "Retry related references";
       button.addEventListener("click", retry, { once: true });
-      relationSlot.append(" ", button);
+      notice.append(" ", button);
+      relationSlot.appendChild(notice);
     },
     invalid(message) {
       relationSlot = undefined;

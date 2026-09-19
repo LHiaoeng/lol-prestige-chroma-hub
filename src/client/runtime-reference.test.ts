@@ -221,6 +221,7 @@ describe("RuntimeController", () => {
     });
 
     await controller.start();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(viewState.events).toEqual([
       "loading:false",
@@ -260,6 +261,60 @@ describe("RuntimeController", () => {
     expect(viewState.events).toContain("detail");
     expect(viewState.events).toContain("relation-failure");
     expect(viewState.events).not.toContain("failure");
+  });
+
+  it("loads skinline and universe relations concurrently without a skin directory", async () => {
+    const skin = {
+      kind: "skin" as const,
+      id: 103001,
+      championId: 103,
+      name: "Dynasty Ahri",
+      isBase: false,
+      skinlineIds: [7],
+      media: {},
+      chromas: [],
+      stages: [],
+    };
+    const pending = new Map<string, (items: RuntimeList) => void>();
+    let active = 0;
+    let maxActive = 0;
+    const service = runtime({
+      get: vi.fn(async () => skin),
+      list: vi.fn((kind) => {
+        active += 1;
+        maxActive = Math.max(maxActive, active);
+        return new Promise<RuntimeList>((resolve) => {
+          pending.set(kind, (items) => {
+            active -= 1;
+            resolve(items);
+          });
+        });
+      }),
+    });
+    const viewState = view();
+    const navigation = history(
+      "https://chromaart.lol/skins/?id=103001&champion=103",
+    );
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "skins",
+      locale: "default",
+    });
+
+    await controller.start();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(maxActive).toBe(2);
+    expect([...pending.keys()]).toEqual(["skinlines", "universes"]);
+    pending.get("skinlines")?.([
+      { kind: "skinline", id: 7, name: "Star Guardian", universeIds: [200] },
+    ]);
+    pending.get("universes")?.([
+      { kind: "universe", id: 200, name: "Star Guardian", skinlineIds: [7] },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(viewState.events).toContain("relations:2");
+    expect(service.list).not.toHaveBeenCalledWith("skins", expect.anything());
   });
 
   it("ignores a late response from a cancelled navigation", async () => {
