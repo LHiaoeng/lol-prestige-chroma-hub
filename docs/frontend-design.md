@@ -81,7 +81,7 @@ browser-app.ts 读取嵌入目录
 | `/chromas/{skinId}/` | 数字兼容入口 | 与对应规范详情页相同，Canonical 指向描述性 slug |
 | `/champions/` | PBE 英雄目录壳 | 浏览器加载英雄列表；详情使用 `?id={championId}` |
 | `/skins/` | PBE 皮肤目录壳 | 不提供全量列表；详情使用 `?id={skinId}&champion={championId}` |
-| `/skinlines/` | PBE 皮肤系列目录壳 | 浏览器加载系列列表与 `?id={skinlineId}` 详情 |
+| `/skinlines/` | PBE 皮肤系列目录壳 | 浏览器加载系列列表；详情使用 `/skinlines/detail/?id={skinlineId}` |
 | `/universes/` | PBE 宇宙目录壳 | 浏览器加载宇宙列表与 `?id={universeId}` 详情 |
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
 | `/editorial-policy/` | 作者与编辑说明 | 维护主体、编辑原则、资料来源、核验方式与纠错流程 |
