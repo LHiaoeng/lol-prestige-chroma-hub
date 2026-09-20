@@ -13,6 +13,7 @@ const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
     title: locale === "default" ? "the Nine-Tailed Fox" : "阿狸",
     shortBio: locale === "default" ? "A vastayan fox." : "一名瓦斯塔亚狐妖。",
     squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
+    roles: ["mage", "assassin"],
     channel,
   },
 ];
@@ -23,6 +24,7 @@ const champion = (locale: CommunityDragonLocale) => ({
   title: locale === "default" ? "the Nine-Tailed Fox" : "阿狸",
   shortBio: locale === "default" ? "A vastayan fox." : "一名瓦斯塔亚狐妖。",
   squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
+  roles: ["mage", "assassin"],
   skins: [
     {
       id: 103000,
@@ -105,6 +107,7 @@ describe("CommunityDragon runtime reference", () => {
           description: "the Nine-Tailed Fox",
           alias: "Ahri",
           squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
+          roles: ["mage", "assassin"],
         },
         {
           id: 60103,
@@ -120,7 +123,12 @@ describe("CommunityDragon runtime reference", () => {
     await expect(
       runtime.list("champions", { locale: "default", channel: "pbe" }),
     ).resolves.toMatchObject([
-      { id: 103, name: "Ahri", title: "the Nine-Tailed Fox" },
+      {
+        id: 103,
+        name: "Ahri",
+        title: "the Nine-Tailed Fox",
+        roles: ["mage", "assassin"],
+      },
     ]);
   });
 

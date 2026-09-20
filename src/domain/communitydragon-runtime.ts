@@ -47,6 +47,7 @@ export interface RuntimeChampionSummary {
   readonly id: number;
   readonly name: string;
   readonly alias?: string;
+  readonly roles?: readonly string[];
   readonly title?: string;
   readonly shortBio?: string;
   readonly portraitUrl?: string;
@@ -131,6 +132,7 @@ const championSummarySchema = z
     description: z.string().nullable().optional(),
     shortBio: z.string().nullable().optional(),
     squarePortraitPath: z.string().nullable().optional(),
+    roles: z.array(z.string()).nullable().optional(),
   })
   .passthrough();
 const skinlineSchema = z
@@ -404,6 +406,7 @@ export function parseRuntimeList(
           id: raw.id,
           name: labels.name,
           alias: text(raw.alias),
+          roles: raw.roles ?? [],
           title: labels.title,
           shortBio: text(raw.shortBio),
           portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
@@ -507,6 +510,7 @@ export function parseRuntimeEntity(
       kind: "champion",
       id: raw.id,
       name: labels.name,
+      roles: raw.roles ?? [],
       title: labels.title,
       shortBio: text(raw.shortBio),
       portraitUrl: asset(text(raw.squarePortraitPath), options.channel),

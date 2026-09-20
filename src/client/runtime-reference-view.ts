@@ -104,9 +104,11 @@ function appendMedia(
   parent: HTMLElement,
   url: string | undefined,
   alt: string,
+  className?: string,
 ): void {
   if (!url) return;
   const image = document.createElement("img");
+  if (className) image.className = className;
   image.src = url;
   image.alt = alt;
   image.loading = "lazy";
@@ -114,6 +116,16 @@ function appendMedia(
   image.addEventListener("error", () => image.remove(), { once: true });
   parent.appendChild(image);
 }
+
+const championRoleOptions = [
+  ["", "All", "全部"],
+  ["assassin", "Assassin", "刺客"],
+  ["fighter", "Fighter", "战士"],
+  ["mage", "Mage", "法师"],
+  ["marksman", "Marksman", "射手"],
+  ["support", "Support", "辅助"],
+  ["tank", "Tank", "坦克"],
+] as const;
 
 function setRuntimeNoindex(enabled: boolean): void {
   const existing = document.head.querySelector<HTMLMetaElement>(
@@ -189,46 +201,76 @@ export function createDomRuntimeView(
           ? `已加载 ${items.length} 条资料`
           : `${items.length} references loaded`;
       const controller = options.getController();
+      const isChampionList = options.page === "champions";
       const toolbar = document.createElement("div");
       toolbar.className = "runtime-toolbar";
-      const search = document.createElement("input");
-      search.type = "search";
-      search.id = `runtime-${options.page}-search`;
-      search.placeholder =
-        options.locale === "zh_cn" ? "搜索名称" : "Search names";
-      search.setAttribute("aria-label", search.placeholder);
-      const searchLabel = document.createElement("label");
-      searchLabel.className = "runtime-toolbar-field";
-      searchLabel.htmlFor = search.id;
-      searchLabel.append(
-        textNode("span", options.locale === "zh_cn" ? "搜索" : "Search"),
-        search,
-      );
-      const sort = document.createElement("select");
-      sort.id = `runtime-${options.page}-sort`;
-      sort.setAttribute(
-        "aria-label",
-        options.locale === "zh_cn" ? "排序" : "Sort",
-      );
-      for (const [value, label] of [
-        ["name", options.locale === "zh_cn" ? "名称" : "Name"],
-        ["id", "ID"],
-      ] as const) {
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = label;
-        sort.appendChild(option);
+      let roleFilter: HTMLSelectElement | undefined;
+      let search: HTMLInputElement | undefined;
+      let sort: HTMLSelectElement | undefined;
+      if (isChampionList) {
+        const select = document.createElement("select");
+        roleFilter = select;
+        select.id = "runtime-champions-role";
+        select.setAttribute(
+          "aria-label",
+          options.locale === "zh_cn" ? "英雄职业" : "Champion role",
+        );
+        championRoleOptions.forEach(([value, enLabel, zhLabel]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = options.locale === "zh_cn" ? zhLabel : enLabel;
+          select.appendChild(option);
+        });
+        const roleLabel = document.createElement("label");
+        roleLabel.className = "runtime-toolbar-field";
+        roleLabel.htmlFor = select.id;
+        roleLabel.append(
+          textNode("span", options.locale === "zh_cn" ? "职业" : "Role"),
+          select,
+        );
+        toolbar.append(roleLabel);
+      } else {
+        search = document.createElement("input");
+        search.type = "search";
+        search.id = `runtime-${options.page}-search`;
+        search.placeholder =
+          options.locale === "zh_cn" ? "搜索名称" : "Search names";
+        search.setAttribute("aria-label", search.placeholder);
+        const searchLabel = document.createElement("label");
+        searchLabel.className = "runtime-toolbar-field";
+        searchLabel.htmlFor = search.id;
+        searchLabel.append(
+          textNode("span", options.locale === "zh_cn" ? "搜索" : "Search"),
+          search,
+        );
+        sort = document.createElement("select");
+        sort.id = `runtime-${options.page}-sort`;
+        sort.setAttribute(
+          "aria-label",
+          options.locale === "zh_cn" ? "排序" : "Sort",
+        );
+        for (const [value, label] of [
+          ["name", options.locale === "zh_cn" ? "名称" : "Name"],
+          ["id", "ID"],
+        ] as const) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          sort.appendChild(option);
+        }
+        const sortLabel = document.createElement("label");
+        sortLabel.className = "runtime-toolbar-field";
+        sortLabel.htmlFor = sort.id;
+        sortLabel.append(
+          textNode("span", options.locale === "zh_cn" ? "排序" : "Sort"),
+          sort,
+        );
+        toolbar.append(searchLabel, sortLabel);
       }
-      const sortLabel = document.createElement("label");
-      sortLabel.className = "runtime-toolbar-field";
-      sortLabel.htmlFor = sort.id;
-      sortLabel.append(
-        textNode("span", options.locale === "zh_cn" ? "排序" : "Sort"),
-        sort,
-      );
-      toolbar.append(searchLabel, sortLabel);
       const grid = document.createElement("div");
-      grid.className = "runtime-grid";
+      grid.className = isChampionList
+        ? "runtime-grid runtime-champion-grid"
+        : "runtime-grid";
       const pagination = document.createElement("nav");
       pagination.className = "pagination runtime-pagination";
       pagination.setAttribute(
@@ -236,19 +278,26 @@ export function createDomRuntimeView(
         options.locale === "zh_cn" ? "资料分页" : "Reference pages",
       );
       let currentPage = 1;
-      const pageSize = 24;
+      const pageSize = isChampionList ? Number.MAX_SAFE_INTEGER : 24;
       const render = () => {
-        const query = search.value.trim().toLocaleLowerCase();
+        const query = search?.value.trim().toLocaleLowerCase() ?? "";
+        const role = roleFilter?.value ?? "";
         const filtered = items
           .filter(
             (item) => !query || item.name.toLocaleLowerCase().includes(query),
           )
+          .filter(
+            (item) =>
+              !role ||
+              (item.kind === "champion" && item.roles?.includes(role) === true),
+          )
           .slice()
-          .sort((left, right) =>
-            sort.value === "id"
+          .sort((left, right) => {
+            if (isChampionList) return 0;
+            return sort?.value === "id"
               ? left.id - right.id
-              : left.name.localeCompare(right.name),
-          );
+              : left.name.localeCompare(right.name);
+          });
         const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
         currentPage = Math.min(currentPage, pageCount);
         const pageStart = (currentPage - 1) * pageSize;
@@ -261,32 +310,39 @@ export function createDomRuntimeView(
                   ? "skinlines"
                   : "universes";
             const card = document.createElement("article");
-            card.className = "runtime-card";
-            if (
-              item.kind === "champion" ||
-              item.kind === "skinline" ||
-              item.kind === "universe"
-            )
-              appendMedia(
-                card,
-                item.kind === "champion" ? item.portraitUrl : item.imageUrl,
-                item.name,
-              );
+            card.className = isChampionList
+              ? "runtime-card runtime-champion-card"
+              : "runtime-card";
             const link = linkWithNavigation(
-              item.name,
+              isChampionList ? "" : item.name,
               hrefFor(options.locale, page, {
                 id: item.id,
                 channel: state.channel,
               }),
               controller,
-              "runtime-card-link",
+              isChampionList
+                ? "runtime-card-link runtime-champion-link"
+                : "runtime-card-link",
             );
+            if (
+              item.kind === "champion" ||
+              item.kind === "skinline" ||
+              item.kind === "universe"
+            ) {
+              appendMedia(
+                isChampionList ? link : card,
+                item.kind === "champion" ? item.portraitUrl : item.imageUrl,
+                item.name,
+                isChampionList ? "runtime-champion-portrait" : undefined,
+              );
+            }
+            if (isChampionList) link.append(textNode("span", item.name));
             card.appendChild(link);
             return card;
           }),
         );
         pagination.replaceChildren();
-        if (pageCount > 1) {
+        if (!isChampionList && pageCount > 1) {
           const addPageButton = (page: number, label: string) => {
             const button = document.createElement("button");
             button.type = "button";
@@ -314,19 +370,28 @@ export function createDomRuntimeView(
             );
         }
         status.textContent = filtered.length
-          ? options.locale === "zh_cn"
+          ? isChampionList
+            ? options.locale === "zh_cn"
+              ? `显示 ${filtered.length} 名英雄`
+              : `${filtered.length} champions`
+            : options.locale === "zh_cn"
               ? `显示第 ${currentPage}/${pageCount} 页，共 ${filtered.length} 条资料`
               : `Page ${currentPage}/${pageCount} · ${filtered.length} references`
           : options.locale === "zh_cn"
             ? "没有匹配结果"
             : "No matching references";
       };
-      search.addEventListener("input", () => {
+      search?.addEventListener("input", () => {
         currentPage = 1;
         render();
       });
-      sort.addEventListener("change", render);
-      content.replaceChildren(toolbar, grid, pagination);
+      sort?.addEventListener("change", render);
+      roleFilter?.addEventListener("change", () => {
+        currentPage = 1;
+        render();
+      });
+      if (isChampionList) content.replaceChildren(toolbar, grid);
+      else content.replaceChildren(toolbar, grid, pagination);
       render();
     },
     renderDetail(item, state) {

@@ -172,6 +172,80 @@ describe("runtime DOM boundaries", () => {
     expect(root.querySelector("[data-runtime-source]")).toBeNull();
   });
 
+  it("uses the reference role filter and compact champion cards", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: { origin: "https://chromaart.lol", pathname: "/champions/" },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "champions",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(),
+    });
+    view.renderList(
+      [
+        {
+          kind: "champion",
+          id: 103,
+          name: "Ahri",
+          roles: ["mage", "assassin"],
+          portraitUrl: "https://example.test/ahri.png",
+        },
+        {
+          kind: "champion",
+          id: 1,
+          name: "Annie",
+          roles: ["mage"],
+          portraitUrl: "https://example.test/annie.png",
+        },
+        {
+          kind: "champion",
+          id: 201,
+          name: "Braum",
+          roles: ["support", "tank"],
+          portraitUrl: "https://example.test/braum.png",
+        },
+      ],
+      { mode: "list", page: "champions", channel: "pbe" },
+    );
+
+    const role = content.querySelector("select");
+    expect(
+      role?.querySelectorAll("option").map((option) => option.textContent),
+    ).toEqual([
+      "All",
+      "Assassin",
+      "Fighter",
+      "Mage",
+      "Marksman",
+      "Support",
+      "Tank",
+    ]);
+    expect(content.querySelector("input")).toBeNull();
+    expect(content.querySelector(".runtime-pagination")).toBeNull();
+    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(3);
+
+    role!.value = "mage";
+    role!.listeners.get("change")?.[0]?.();
+
+    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(2);
+    expect(content.querySelector(".runtime-champion-link")?.children).toHaveLength(
+      2,
+    );
+  });
+
   it("keeps static chroma copy and channel controls when the supplement changes", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

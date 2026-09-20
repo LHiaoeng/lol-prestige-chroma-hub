@@ -233,6 +233,43 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   font-size: 1.08rem;
   line-height: 1.4;
 }
+.runtime-champion-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+.runtime-card.runtime-champion-card {
+  min-height: 0;
+  border-color: transparent;
+  background: transparent;
+  overflow: visible;
+}
+.runtime-card.runtime-champion-card:hover,
+.runtime-card.runtime-champion-card:focus-within {
+  border-color: transparent;
+}
+.runtime-card-link.runtime-champion-link {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  min-height: 80px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 300;
+}
+.runtime-card-link.runtime-champion-link:hover,
+.runtime-card-link.runtime-champion-link:focus-visible {
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--panel2) 78%, transparent);
+  color: var(--text);
+}
+.runtime-card.runtime-champion-card img.runtime-champion-portrait {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
 .runtime-detail {
   display: grid;
   gap: 20px;
@@ -308,6 +345,21 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   }
   .runtime-card img {
     height: 108px;
+  }
+  .runtime-champion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .runtime-card-link.runtime-champion-link {
+    grid-template-columns: 64px minmax(0, 1fr);
+    min-height: 64px;
+    gap: 8px;
+    padding: 4px;
+    font-size: 0.88rem;
+  }
+  .runtime-card.runtime-champion-card img.runtime-champion-portrait {
+    width: 64px;
+    height: 64px;
   }
   .runtime-card-link {
     padding: 12px;
