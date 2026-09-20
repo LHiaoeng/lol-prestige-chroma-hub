@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { communityDragonAssetUrl } from './communitydragon-url';
+import type { RuntimeChampionSummary } from './communitydragon-runtime';
 
 const championSummaryRecordSchema = z.object({
   id: z.number().int(),
@@ -71,13 +72,17 @@ export function buildChampionCoverage(
   }
 
   const chineseById = new Map(chinese.map((record) => [record.id, record]));
+  for (const record of english) {
+    if (!chineseById.has(record.id))
+      throw new Error(`Chinese champion ${record.id} is missing`);
+  }
   const champions = english
     .filter((record) => !covered.has(String(record.id)))
     .map((record) => ({
       id: String(record.id),
       alias: record.alias,
       nameEn: record.name,
-      nameZh: chineseById.get(record.id)?.description || record.name,
+      nameZh: chineseById.get(record.id)!.description,
       portraitUrl: communityDragonAssetUrl(record.squarePortraitPath),
     }))
     .sort((left, right) => left.nameEn.localeCompare(right.nameEn, 'en', { sensitivity: 'base' }));
@@ -88,6 +93,48 @@ export function buildChampionCoverage(
     coveredChampions,
     missingChampions: champions.length,
     coveragePercent: Number(((coveredChampions / english.length) * 100).toFixed(1)),
+    champions,
+  };
+}
+
+export function buildChampionCoverageFromRuntime(
+  input: readonly RuntimeChampionSummary[],
+  coveredHeroIds: readonly string[],
+  patchVersion: string,
+): ChampionCoverageSnapshot {
+  if (!/^\d{1,2}\.\d{1,2}$/.test(patchVersion)) throw new Error('Invalid patch version');
+  if (input.length === 0) throw new Error('Champion summary is empty');
+  const ids = new Set<number>();
+  for (const champion of input) {
+    if (!Number.isSafeInteger(champion.id) || champion.id <= 0)
+      throw new Error(`Invalid champion ID: ${champion.id}`);
+    if (ids.has(champion.id)) throw new Error(`Duplicate champion ID: ${champion.id}`);
+    ids.add(champion.id);
+  }
+  const covered = new Set(coveredHeroIds);
+  for (const id of covered) {
+    if (!ids.has(Number(id))) throw new Error(`Unknown covered champion ID: ${id}`);
+  }
+
+  const champions = input
+    .filter((champion) => !covered.has(String(champion.id)))
+    .map((champion) => {
+      return {
+        id: String(champion.id),
+        alias: champion.alias ?? String(champion.id),
+        nameEn: champion.name,
+        nameZh: champion.name,
+        portraitUrl: champion.portraitUrl ?? '',
+      };
+    })
+    .sort((left, right) => left.nameEn.localeCompare(right.nameEn, 'en', { sensitivity: 'base' }));
+  const coveredChampions = input.length - champions.length;
+  return {
+    patchVersion,
+    totalChampions: input.length,
+    coveredChampions,
+    missingChampions: champions.length,
+    coveragePercent: Number(((coveredChampions / input.length) * 100).toFixed(1)),
     champions,
   };
 }

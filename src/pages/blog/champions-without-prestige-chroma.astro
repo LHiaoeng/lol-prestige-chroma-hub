@@ -26,7 +26,7 @@ const coveredHeroIds = [...new Set(catalog.map((item) => item.heroId))];
 const { snapshot } = championCoverageRepositorySnapshot;
 const patchVersion = snapshot.patchVersion;
 const coverageCopy = championCoverageCopy(snapshot);
-const clientConfig = safeJsonLd({ coveredHeroIds, patchVersion });
+const clientConfig = safeJsonLd({ coveredHeroIds, locale: isZh ? 'zh_cn' : 'default', patchVersion });
 const jsonLd = [
   {
     '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,

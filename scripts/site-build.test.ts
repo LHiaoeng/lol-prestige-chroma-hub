@@ -121,7 +121,7 @@ describe('static site build', () => {
     expect(coverageArticle).not.toContain('按上线时间从早到晚排列');
     const configJson = coverageArticle.match(/<script[^>]*id="champion-coverage-config"[^>]*>([\s\S]*?)<\/script>/)?.[1];
     expect(configJson).toBeDefined();
-    expect(Object.keys(JSON.parse(configJson!)).sort()).toEqual(['coveredHeroIds', 'patchVersion']);
+    expect(Object.keys(JSON.parse(configJson!)).sort()).toEqual(['coveredHeroIds', 'locale', 'patchVersion']);
     expect(coverageArticle).toContain('.champion-list li{');
     expect(coverageArticle).not.toMatch(/\.champion-list\[data-astro-cid-[^\]]+\] li\[data-astro-cid-/);
   });
@@ -134,6 +134,8 @@ describe('static site build', () => {
         expect(html).toContain('class="runtime-reference-root"');
         expect(html).toContain('data-runtime-channel="pbe"');
         expect(html).toContain('data-runtime-channel="latest"');
+        expect(html).toContain('<meta name="robots" content="noindex, nofollow">');
+        expect(html).toContain(`<link rel="canonical" href="https://chromaart.lol/${prefix}${page}/">`);
       }
     }
     const files = readdirSync(dist, { recursive: true }).map(String).map((file) => file.replaceAll('\\', '/'));

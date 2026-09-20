@@ -1,8 +1,13 @@
 import {
+  buildChampionCoverageFromRuntime,
   championCoverageCopy,
   type ChampionCoverageSnapshot,
 } from '../domain/champion-coverage';
-import { fetchChampionCoverage, type FetchLike } from '../data/champion-coverage';
+import type { CommunityDragonLocale } from '../domain/communitydragon-runtime';
+import {
+  createCommunityDragonRuntime,
+  type CommunityDragonRuntime,
+} from './communitydragon-runtime';
 
 interface RefreshOptions {
   readonly load: () => Promise<ChampionCoverageSnapshot>;
@@ -12,7 +17,27 @@ interface RefreshOptions {
 
 interface ClientConfig {
   readonly coveredHeroIds: string[];
+  readonly locale: CommunityDragonLocale;
   readonly patchVersion: string;
+}
+
+export async function loadChampionCoverage(
+  runtime: CommunityDragonRuntime,
+  locale: CommunityDragonLocale,
+  coveredHeroIds: readonly string[],
+  patchVersion: string,
+  signal?: AbortSignal,
+): Promise<ChampionCoverageSnapshot> {
+  const summaries = await runtime.list('champions', {
+    locale,
+    channel: 'pbe',
+    signal,
+  });
+  return buildChampionCoverageFromRuntime(
+    summaries.filter((item) => item.kind === 'champion'),
+    coveredHeroIds,
+    patchVersion,
+  );
 }
 
 export async function refreshChampionCoverage(options: RefreshOptions): Promise<boolean> {
@@ -66,18 +91,23 @@ function readClientConfig(document: Document): ClientConfig {
   if (!configElement?.textContent) throw new Error('Champion coverage config is missing');
   const value: unknown = JSON.parse(configElement.textContent);
   if (!value || typeof value !== 'object') throw new Error('Champion coverage config is invalid');
-  const candidate = value as { coveredHeroIds?: unknown; patchVersion?: unknown };
+  const candidate = value as { coveredHeroIds?: unknown; locale?: unknown; patchVersion?: unknown };
   if (!Array.isArray(candidate.coveredHeroIds)
     || !candidate.coveredHeroIds.every((id) => typeof id === 'string')
+    || (candidate.locale !== 'default' && candidate.locale !== 'zh_cn')
     || typeof candidate.patchVersion !== 'string') {
     throw new Error('Champion coverage config is invalid');
   }
-  return { coveredHeroIds: candidate.coveredHeroIds, patchVersion: candidate.patchVersion };
+  return {
+    coveredHeroIds: candidate.coveredHeroIds,
+    locale: candidate.locale,
+    patchVersion: candidate.patchVersion,
+  };
 }
 
 export function initializeChampionCoverageRefresh(
   document: Document,
-  fetcher: FetchLike = fetch,
+  runtime: CommunityDragonRuntime = createCommunityDragonRuntime(),
 ): Promise<boolean> {
   let config: ClientConfig;
   try {
@@ -90,7 +120,12 @@ export function initializeChampionCoverageRefresh(
   const status = document.querySelector<HTMLElement>('[data-coverage-refresh-status]');
   const chinese = Boolean(document.querySelector('[data-coverage-list="zh"]'));
   const refresh = () => refreshChampionCoverage({
-    load: () => fetchChampionCoverage(fetcher, config.coveredHeroIds, config.patchVersion),
+    load: () => loadChampionCoverage(
+      runtime,
+      config.locale,
+      config.coveredHeroIds,
+      config.patchVersion,
+    ),
     apply: (snapshot) => {
       applyChampionCoverage(document, snapshot);
       if (status) status.textContent = chinese

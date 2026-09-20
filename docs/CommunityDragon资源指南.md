@@ -156,7 +156,7 @@ CommunityDragon JSON 中常见的图片路径不是完整 URL。按以下规则�
 其中：
 
 - 路径先去除首尾空白，再统一为小写。
-- 裸 `assets/...` 先补成 `/lol-game-data/assets/assets/...`。
+- 裸 `assets/...` 表示资源根下的 `assets/...`，直接映射为 `plugins/rcp-be-lol-game-data/global/default/assets/...`；不得再额外拼接一层 `assets`，因此不会产生 `assets/assets/...` 歧义。
 - 已经是 `plugins/...` 的路径保留原有 `region`、`lang` 和文件层级。
 - `game/...` 路径直接从目标版本根目录拼接，不转换到 `rcp-be-lol-game-data`。
 - `/lol-game-data/assets/...` 映射到 `global/default`，不会根据 JSON 来源语言自动改成 `zh_cn`。
@@ -324,6 +324,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 - 英雄详情使用 `champions/{championId}.json`，并从同一份英雄记录提供皮肤正向集合；普通皮肤入口必须继续携带 `champion={championId}`。
 - 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。`src/domain/communitydragon-runtime.ts` 只负责 Schema、身份复核与路径规范化等纯规则，`src/client/communitydragon-runtime.ts` 负责浏览器请求、页面内去重和取消；测试通过后者注入假请求，不探测真实站点。
 - 首次加载显示静态标题、来源、区域视图、数据通道和启用脚本提示；请求成功后状态栏显示本次加载时间。运行时详情由客户端状态标记为 `noindex`，静态臻彩页不依赖该辅助资料即可保持可索引正文。
+- 四个运行时目录共用带 canonical 的静态页面壳；由于静态托管无法按查询参数改变首响应，页面壳统一输出 `noindex`，确保 `?id=` 详情在脚本执行前也不会进入索引。
 - 通道切换只有在目标请求成功后才提交 History URL；失败时保留旧内容和旧 URL。网络、HTTP、404、不识别的响应格式和非法参数分别显示不同的可重试状态。
 - CommunityDragon 不可访问不会阻塞 `pnpm build`；静态首页、臻彩详情、博客和固定说明与该运行时链路分离。
 
@@ -348,6 +349,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 - 补充请求只读取对应英雄 JSON，并在返回的 `skins` 集合中复核英雄 ID、基础皮肤 ID 和 `isBase`；失败只替换补充区，静态正文和主要操作保持可用。补充区可重试，图片失败只移除该图片。
 - 臻彩页默认使用 `pbe`，只有显式 `channel=latest` 才读取正式服滚动资料；通道按钮和补充区后续运行时链接同步当前通道，不改变仓库中的臻彩事实。
 - 覆盖率文章使用已提交的 `data/champion-coverage.snapshot.json` 生成双语静态正文。普通 `pnpm build` 不联网更新快照；需要维护时运行 `pnpm coverage:snapshot`，命令会分别读取 `default` 与 `zh_cn` 的 PBE 英雄摘要，并要求官方 URL、HTTP 成功状态、`ETag` 或 `Last-Modified`、补丁版本和计数校验全部通过。
+- 覆盖率文章在浏览器中刷新时只通过 `src/client/communitydragon-runtime.ts` 的 `list("champions")` seam 读取当前页面区域：英文只请求 `default`，中文只请求 `zh_cn`，每次刷新只发一个当前区域请求；当前区域缺失或请求失败时保留仓库快照，不从另一地区补值。
 - 快照记录 `schemaVersion`、来源通道、两个区域数据视图、来源 URL、抓取时间、内容版本、补丁版本、总数、已覆盖数、缺失数和缺失英雄列表。非法快照或覆盖计数不一致会阻止维护流程写入；浏览器刷新失败时保留提交的快照内容。
 
 ## 10. 官方来源与实现参考

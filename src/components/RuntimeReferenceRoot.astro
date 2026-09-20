@@ -42,6 +42,8 @@ const runtimeLocaleLabel = isZh ? '中文' : 'English';
 
 <script>
   import { initRuntimeReference } from '../client/runtime-reference';
+  import { bindRuntimeLanguageToggle } from '../client/runtime-url-state';
+  bindRuntimeLanguageToggle(document);
   const root = document.querySelector<HTMLElement>('[data-runtime-page]');
   if (root) initRuntimeReference(root);
 </script>

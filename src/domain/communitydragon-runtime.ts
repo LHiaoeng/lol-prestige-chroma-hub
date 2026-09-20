@@ -46,6 +46,7 @@ export interface RuntimeChampionSummary {
   readonly kind: "champion";
   readonly id: number;
   readonly name: string;
+  readonly alias?: string;
   readonly title?: string;
   readonly shortBio?: string;
   readonly portraitUrl?: string;
@@ -122,6 +123,7 @@ const championSummarySchema = z
   .object({
     id: idSchema,
     name: z.string().trim().min(1),
+    alias: z.string().optional(),
     title: z.string().optional(),
     shortBio: z.string().optional(),
     squarePortraitPath: z.string().optional(),
@@ -366,6 +368,7 @@ export function parseRuntimeList(
           kind: "champion" as const,
           id: raw.id,
           name: labels.name,
+          alias: text(raw.alias),
           title: labels.title,
           shortBio: text(raw.shortBio),
           portraitUrl: asset(text(raw.squarePortraitPath), options.channel),

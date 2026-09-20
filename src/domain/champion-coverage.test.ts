@@ -7,6 +7,7 @@ const en = [
   { id: 1, name: 'Annie', description: 'the Dark Child', alias: 'Annie', squarePortraitPath: '/lol-game-data/assets/v1/champion-icons/1.png' },
 ];
 const zh = [
+  { id: 2, name: '狂战士', description: '奥拉夫', alias: 'Olaf', squarePortraitPath: '/lol-game-data/assets/v1/champion-icons/2.png' },
   { id: 1, name: '黑暗之女', description: '安妮', alias: 'Annie', squarePortraitPath: '/lol-game-data/assets/v1/champion-icons/1.png' },
 ];
 
@@ -28,8 +29,8 @@ describe('champion coverage', () => {
     );
   });
 
-  it('uses the English name when the Chinese summary has no matching ID', () => {
-    expect(buildChampionCoverage(en, zh, ['1'], '26.14').champions[0].nameZh).toBe('Olaf');
+  it('rejects a missing Chinese regional record instead of falling back to English', () => {
+    expect(() => buildChampionCoverage(en, zh.filter((record) => record.id !== 2), ['1'], '26.14')).toThrow(/Chinese champion 2/i);
   });
 
   it('rejects duplicate positive IDs and covered IDs absent from the English source', () => {
