@@ -110,6 +110,14 @@ class TestDocument {
   readonly head = new TestElement("head");
   defaultView: { location: { href: string; search: string } } | null = null;
 
+  querySelector<T extends TestElement>(selector: string): T | null {
+    return this.head.querySelector<T>(selector);
+  }
+
+  querySelectorAll<T extends TestElement>(selector: string): T[] {
+    return this.head.querySelectorAll<T>(selector);
+  }
+
   createElement(tagName: string): TestElement {
     return new TestElement(tagName);
   }
@@ -121,9 +129,9 @@ class TestDocument {
   }
 }
 
-function history(): RuntimeHistory {
+function history(initial = "https://chromaart.lol/champions/"): RuntimeHistory {
   return {
-    url: new URL("https://chromaart.lol/champions/"),
+    url: new URL(initial),
     push() {},
     replace() {},
     onPopState() {
@@ -161,6 +169,7 @@ describe("runtime DOM boundaries", () => {
       getController: () => ({ navigate: vi.fn() }) as never,
       history: history(),
     });
+    view.loading(false, "latest");
     view.renderList([], { mode: "list", page: "champions", channel: "latest" });
 
     expect(channelLabel.textContent).toBe("latest");
@@ -344,6 +353,65 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
+  it("links skinline list cards to independent detail paths", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/skinlines/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "skinlines",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history("https://chromaart.lol/skinlines/?channel=pbe"),
+    });
+
+    view.renderList(
+      [
+        {
+          kind: "skinline",
+          id: 7,
+          name: "Star Guardian",
+          universeIds: [200],
+        },
+      ],
+      { mode: "list", page: "skinlines", channel: "latest" },
+    );
+
+    expect(content.querySelector("a")?.href).toBe(
+      "/skinlines/detail/?id=7&channel=latest",
+    );
+
+    const navigation = history("https://chromaart.lol/skinlines/?channel=pbe");
+    navigation.push(new URL("https://chromaart.lol/skinlines/?channel=pbe"));
+    view.renderList(
+      [
+        {
+          kind: "skinline",
+          id: 7,
+          name: "Star Guardian",
+          universeIds: [200],
+        },
+      ],
+      { mode: "list", page: "skinlines", channel: "pbe" },
+    );
+    expect(content.querySelector("a")?.href).toBe(
+      "/skinlines/detail/?id=7&channel=pbe",
+    );
+  });
+
   it("renders a champion detail and links skins to independent detail paths", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
@@ -408,6 +476,69 @@ describe("runtime DOM boundaries", () => {
       "/skins/detail/?id=103001&champion=103&channel=latest",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
+  });
+
+  it("links skinline relations to independent universe detail paths", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/skinlines/detail/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "skinlines",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(),
+    });
+
+    view.renderDetail(
+      {
+        kind: "skinline",
+        id: 7,
+        name: "Star Guardian",
+        universeIds: [200],
+      },
+      {
+        mode: "detail",
+        page: "skinlines",
+        kind: "skinline",
+        id: 7,
+        channel: "latest",
+      },
+    );
+    view.renderRelations!(
+      [
+        {
+          kind: "universe",
+          id: 200,
+          name: "Star Guardian",
+          skinlineIds: [7],
+        },
+      ],
+      {
+        mode: "detail",
+        page: "skinlines",
+        kind: "skinline",
+        id: 7,
+        channel: "latest",
+      },
+    );
+
+    expect(content.querySelector("a")?.href).toBe(
+      "/universes/detail/?id=200&channel=latest",
+    );
   });
 
   it("keeps static chroma copy and channel controls when the supplement changes", () => {

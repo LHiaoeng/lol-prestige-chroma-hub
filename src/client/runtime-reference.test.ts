@@ -129,6 +129,31 @@ describe("runtime URL state", () => {
     });
   });
 
+  it("keeps the skinline list route in list mode and parses its detail route separately", () => {
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/skinlines/?id=7&channel=latest"),
+        "skinlines",
+        "list",
+      ),
+    ).toEqual({ mode: "list", page: "skinlines", channel: "latest" });
+    expect(
+      parseRuntimeLocation(
+        new URL(
+          "https://chromaart.lol/skinlines/detail/?id=7&channel=latest",
+        ),
+        "skinlines",
+        "detail",
+      ),
+    ).toEqual({
+      mode: "detail",
+      page: "skinlines",
+      kind: "skinline",
+      id: 7,
+      channel: "latest",
+    });
+  });
+
   it("defaults to pbe and parses positive safe IDs without guessing invalid values", () => {
     expect(
       parseRuntimeLocation(
@@ -383,6 +408,36 @@ describe("RuntimeController", () => {
     expect(viewState.events.at(-1)).toBe("failure");
   });
 
+  it("restores the committed URL when a popstate load fails", async () => {
+    const service = runtime({
+      list: vi.fn(async (_kind, options) => {
+        if (options.channel === "latest") throw new Error("offline");
+        return summary;
+      }),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/champions/");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "list",
+      locale: "default",
+    });
+    await controller.start();
+
+    navigation.push(
+      new URL("https://chromaart.lol/champions/?channel=latest"),
+    );
+    navigation.emitPopstate();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(navigation.url.search).toBe("");
+    expect(navigation.replaces).toEqual([
+      "https://chromaart.lol/champions/",
+    ]);
+    expect(viewState.rendered).toBe(summary);
+    expect(viewState.events.at(-1)).toBe("failure");
+  });
+
   it("renders named skinline relations after the core and isolates relation failure", async () => {
     const skinline = {
       kind: "skinline" as const,
@@ -401,9 +456,12 @@ describe("RuntimeController", () => {
       list: vi.fn(async (kind) => (kind === "universes" ? [universe] : [])),
     });
     const viewState = view();
-    const navigation = history("https://chromaart.lol/skinlines/?id=7");
+    const navigation = history(
+      "https://chromaart.lol/skinlines/detail/?id=7",
+    );
     const controller = new RuntimeController(service, viewState, navigation, {
       page: "skinlines",
+      pageMode: "detail",
       locale: "default",
     });
 
@@ -436,9 +494,12 @@ describe("RuntimeController", () => {
       }),
     });
     const viewState = view();
-    const navigation = history("https://chromaart.lol/skinlines/?id=7");
+    const navigation = history(
+      "https://chromaart.lol/skinlines/detail/?id=7",
+    );
     const controller = new RuntimeController(service, viewState, navigation, {
       page: "skinlines",
+      pageMode: "detail",
       locale: "default",
     });
 

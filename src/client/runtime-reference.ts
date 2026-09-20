@@ -28,7 +28,7 @@ export interface RuntimeHistory {
 }
 
 export interface RuntimeView {
-  loading(preserve: boolean): void;
+  loading(preserve: boolean, channel?: "pbe" | "latest"): void;
   renderList(
     items: RuntimeList,
     state: Extract<RuntimeLocationState, { mode: "list" }>,
@@ -194,6 +194,7 @@ export class RuntimeController {
   private abortController: AbortController | undefined;
   private generation = 0;
   private hasContent = false;
+  private committedUrl: URL | undefined;
   private unsubscribePopState: (() => void) | undefined;
 
   constructor(
@@ -205,6 +206,7 @@ export class RuntimeController {
 
   start(): Promise<void> {
     this.unsubscribePopState?.();
+    this.committedUrl = new URL(this.history.url);
     this.unsubscribePopState = this.history.onPopState(() => {
       void this.load(this.history.url, false);
     });
@@ -249,7 +251,7 @@ export class RuntimeController {
     this.abortController?.abort();
     const controller = new AbortController();
     this.abortController = controller;
-    this.view.loading(this.hasContent);
+    this.view.loading(this.hasContent, state.channel);
     try {
       if (state.mode === "list") {
         const result = await this.runtime.list(state.page, {
@@ -258,6 +260,7 @@ export class RuntimeController {
           signal: controller.signal,
         });
         if (generation !== this.generation) return;
+        this.commitUrl(url, commit);
         this.view.renderList(result, state);
       } else {
         const result = await this.runtime.get(state.kind, state.id, {
@@ -267,6 +270,7 @@ export class RuntimeController {
           signal: controller.signal,
         });
         if (generation !== this.generation) return;
+        this.commitUrl(url, commit);
         this.view.renderDetail(result, state);
         const listKinds = relationKinds(state);
         if (listKinds.length)
@@ -280,7 +284,6 @@ export class RuntimeController {
       }
       if (generation !== this.generation) return;
       this.hasContent = true;
-      if (commit && this.history.url.href !== url.href) this.history.push(url);
     } catch (error) {
       if (generation !== this.generation) return;
       if (
@@ -289,10 +292,23 @@ export class RuntimeController {
       )
         return;
       const runtimeError = asCommunityDragonError(error, this.options.locale);
+      if (
+        !commit &&
+        this.committedUrl &&
+        this.history.url.href === url.href &&
+        this.committedUrl.href !== url.href
+      )
+        this.history.replace(this.committedUrl);
+      const retryCommit = commit || this.history.url.href !== url.href;
       this.view.failure(runtimeError, () => {
-        void this.load(url, commit);
+        void this.load(url, retryCommit);
       });
     }
+  }
+
+  private commitUrl(url: URL, commit: boolean): void {
+    if (commit && this.history.url.href !== url.href) this.history.push(url);
+    this.committedUrl = new URL(url);
   }
 
   private async loadRelations(

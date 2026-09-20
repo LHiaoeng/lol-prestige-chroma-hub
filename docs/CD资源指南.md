@@ -168,10 +168,12 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 ```text
 /champions/
 /champions/detail/?id={championId}
-/skins/?id={skinId}&champion={championId}
-/skinlines/?id={skinlineId}
-/universes/?id={universeId}
+/skins/detail/?id={skinId}&champion={championId}
+/skinlines/detail/?id={skinlineId}
+/universes/detail/?id={universeId}
 ```
+
+`/skinlines/` 与 `/universes/` 只负责列表发现；列表卡片使用对应的 `/detail/` 普通链接。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。
 
 ### 3.3 英雄与皮肤字段、分类和图片
 

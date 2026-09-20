@@ -1,6 +1,10 @@
 import { type CommunityDragonLocale } from "../domain/communitydragon-runtime";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
+import {
+  bindRuntimeChannelLinks,
+  bindRuntimeLanguageToggle,
+} from "./runtime-url-state";
 import type {
   RuntimeHistory,
   RuntimePage,
@@ -66,12 +70,14 @@ function hrefFor(
   page: RuntimePage,
   values: { id?: number; championId?: number; channel: "pbe" | "latest" },
   mode: "list" | "detail" = "list",
+  preserveExplicitPbe = false,
 ): URL {
   const url = new URL(runtimePath(locale, page, mode), window.location.origin);
   if (values.id) url.searchParams.set("id", String(values.id));
   if (values.championId)
     url.searchParams.set("champion", String(values.championId));
-  if (values.channel === "latest") url.searchParams.set("channel", "latest");
+  if (values.channel === "latest" || preserveExplicitPbe)
+    url.searchParams.set("channel", values.channel);
   return url;
 }
 
@@ -169,6 +175,8 @@ export function createDomRuntimeView(
   const channelLabel = source.querySelector<HTMLElement>(
     "[data-runtime-channel-label]",
   );
+  const preservesExplicitPbe = () =>
+    options.history.url.searchParams.get("channel") === "pbe";
   const updateChannel = (selected: "pbe" | "latest") => {
     source
       .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
@@ -177,13 +185,16 @@ export function createDomRuntimeView(
         button.setAttribute("aria-pressed", String(active));
         if (button.dataset.runtimeChannel)
           button.textContent = button.dataset.runtimeChannel;
-      });
+    });
     if (channelLabel) channelLabel.textContent = selected;
+    bindRuntimeChannelLinks(document, options.history.url);
+    bindRuntimeLanguageToggle(document, options.history.url);
   };
   let relationSlot: HTMLElement | undefined;
   const view: RuntimeView = {
-    loading(preserve) {
+    loading(preserve, channel) {
       options.root.setAttribute("aria-busy", "true");
+      if (!preserve && channel) updateChannel(channel);
       status.textContent =
         options.locale === "zh_cn"
           ? "正在加载游戏资料…"
@@ -324,7 +335,7 @@ export function createDomRuntimeView(
               hrefFor(options.locale, page, {
                 id: item.id,
                 channel: state.channel,
-              }, isChampionList ? "detail" : "list"),
+              }, "detail", preservesExplicitPbe()),
               controller,
               isChampionList
                 ? "runtime-card-link runtime-champion-link"
@@ -432,7 +443,7 @@ export function createDomRuntimeView(
                 id: skin.id,
                 championId: item.id,
                 channel: state.channel,
-              }, "detail"),
+              }, "detail", preservesExplicitPbe()),
               controller,
             ),
           );
@@ -450,7 +461,7 @@ export function createDomRuntimeView(
             hrefFor(options.locale, "champions", {
               id: item.championId,
               channel: state.channel,
-            }),
+            }, "list", preservesExplicitPbe()),
             controller,
           ),
         );
@@ -504,6 +515,7 @@ export function createDomRuntimeView(
         relations.appendChild(relationSlot);
         article.appendChild(relations);
       } else if (item.kind === "skinline") {
+        appendMedia(article, item.imageUrl, item.name);
         if (item.description)
           article.appendChild(textNode("p", item.description, "runtime-lede"));
         const section = document.createElement("section");
@@ -566,6 +578,8 @@ export function createDomRuntimeView(
                 id: item.id,
                 channel: state.channel,
               },
+              "detail",
+              preservesExplicitPbe(),
             ),
             controller,
           ),

@@ -524,6 +524,44 @@ describe("static site build", () => {
     expect(
       existsSync(join(dist, "zh-cn", "champions", "103", "index.html")),
     ).toBe(false);
+
+    const skinlineList = readFileSync(
+      join(dist, "skinlines", "index.html"),
+      "utf8",
+    );
+    const skinlineDetail = readFileSync(
+      join(dist, "skinlines", "detail", "index.html"),
+      "utf8",
+    );
+    const chineseSkinlineList = readFileSync(
+      join(dist, "zh-cn", "skinlines", "index.html"),
+      "utf8",
+    );
+    const chineseSkinlineDetail = readFileSync(
+      join(dist, "zh-cn", "skinlines", "detail", "index.html"),
+      "utf8",
+    );
+    expect(skinlineList).toContain('data-runtime-mode="list"');
+    expect(skinlineList).not.toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(skinlineDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/skinlines/detail/">',
+    );
+    expect(skinlineDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(skinlineDetail).toContain('data-runtime-mode="detail"');
+    expect(skinlineDetail).toContain('href="/skinlines/"');
+    expect(chineseSkinlineList).toContain('data-runtime-mode="list"');
+    expect(chineseSkinlineDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/zh-cn/skinlines/detail/">',
+    );
+    expect(chineseSkinlineDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(chineseSkinlineDetail).toContain('data-runtime-mode="detail"');
+    expect(chineseSkinlineDetail).toContain('href="/zh-cn/skinlines/"');
   });
 
   it("uses factual informational SEO copy", () => {
