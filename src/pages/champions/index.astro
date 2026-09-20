@@ -9,5 +9,5 @@ const isZh = locale === 'zh-cn';
 const seo = createEntitySeo('champions', undefined, isZh ? '英雄资料' : 'Champion references', isZh ? '在浏览器中读取英雄资料，并按语言与版本数据源保持独立。' : 'Browse champion references in the browser with independent locale and version data sources.', locale);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
-  <RuntimeReferenceRoot page="champions" {locale} label={isZh ? '英雄' : 'Champions'} heading={isZh ? '英雄资料' : 'Champion references'} lede={isZh ? '浏览英雄，并打开对应的皮肤收藏。' : 'Browse champions and open their skin collections.'} />
+  <RuntimeReferenceRoot page="champions" mode="list" {locale} label={isZh ? '英雄' : 'Champions'} heading={isZh ? '英雄资料' : 'Champion references'} lede={isZh ? '浏览英雄，并打开对应的皮肤收藏。' : 'Browse champions and open their skin collections.'} />
 </BaseLayout>

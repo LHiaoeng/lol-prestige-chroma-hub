@@ -18,6 +18,7 @@ export {
 } from "./runtime-reference-view";
 
 export type RuntimePage = RuntimeListKind | "skins";
+export type RuntimePageMode = "legacy" | "list" | "detail";
 
 export interface RuntimeHistory {
   readonly url: URL;
@@ -74,6 +75,7 @@ export type RuntimeLocationState =
 export interface RuntimeControllerOptions {
   readonly page: RuntimePage;
   readonly locale: CommunityDragonLocale;
+  readonly pageMode?: RuntimePageMode;
 }
 
 function positiveSafeInteger(value: string | null): number | undefined {
@@ -90,11 +92,19 @@ function channel(value: string | null): "pbe" | "latest" | undefined {
 export function parseRuntimeLocation(
   url: URL,
   page: RuntimePage,
+  pageMode: RuntimePageMode = "legacy",
 ): RuntimeLocationState {
   const selectedChannel = channel(url.searchParams.get("channel"));
   if (!selectedChannel) return { mode: "invalid", page };
   const hasId = url.searchParams.has("id");
   const rawId = url.searchParams.get("id");
+  if (pageMode === "list") {
+    if (page === "skins")
+      return { mode: "intro", page, channel: selectedChannel };
+    return { mode: "list", page, channel: selectedChannel };
+  }
+  if (pageMode === "detail" && !hasId)
+    return { mode: "invalid", page, channel: selectedChannel };
   if (!hasId) {
     if (page === "skins")
       return { mode: "intro", page, channel: selectedChannel };
@@ -213,7 +223,11 @@ export class RuntimeController {
   }
 
   private async load(url: URL, commit: boolean): Promise<void> {
-    const state = parseRuntimeLocation(url, this.options.page);
+    const state = parseRuntimeLocation(
+      url,
+      this.options.page,
+      this.options.pageMode,
+    );
     if (state.mode === "invalid") {
       this.abortController?.abort();
       this.generation += 1;
@@ -330,9 +344,18 @@ export class RuntimeController {
 
 export function initRuntimeReference(root: HTMLElement): RuntimeController {
   const page = root.dataset.runtimePage as RuntimePage | undefined;
+  const pageMode = root.dataset.runtimeMode as RuntimePageMode | undefined;
   const locale = root.dataset.runtimeLocale as
     CommunityDragonLocale | undefined;
-  if (!page || !locale || (locale !== "default" && locale !== "zh_cn"))
+  if (
+    !page ||
+    !locale ||
+    (locale !== "default" && locale !== "zh_cn") ||
+    (pageMode &&
+      pageMode !== "legacy" &&
+      pageMode !== "list" &&
+      pageMode !== "detail")
+  )
     throw new Error("Runtime reference root is missing a valid page or locale");
   const source = root
     .closest<HTMLElement>(".runtime-page")
@@ -349,7 +372,11 @@ export function initRuntimeReference(root: HTMLElement): RuntimeController {
     getController: () => controller,
     history,
   });
-  controller = new RuntimeController(runtime, view, history, { page, locale });
+  controller = new RuntimeController(runtime, view, history, {
+    page,
+    pageMode,
+    locale,
+  });
   void controller.start();
   return controller;
 }

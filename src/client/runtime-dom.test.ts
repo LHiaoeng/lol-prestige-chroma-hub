@@ -233,9 +233,13 @@ describe("runtime DOM boundaries", () => {
       "Support",
       "Tank",
     ]);
-    expect(content.querySelector("input")).toBeNull();
-    expect(content.querySelector(".runtime-pagination")).toBeNull();
+    expect(content.querySelector("input")).not.toBeNull();
+    expect(content.querySelectorAll("select")).toHaveLength(2);
+    expect(content.querySelector(".runtime-pagination")).not.toBeNull();
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(3);
+    expect(content.querySelector(".runtime-champion-link")?.href).toBe(
+      "/champions/detail/?id=103",
+    );
 
     role!.value = "mage";
     role!.listeners.get("change")?.[0]?.();
@@ -243,6 +247,100 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(2);
     expect(content.querySelector(".runtime-champion-link")?.children).toHaveLength(
       2,
+    );
+  });
+
+  it("searches, sorts, and paginates the champion list", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: { origin: "https://chromaart.lol", pathname: "/champions/" },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "champions",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(),
+    });
+
+    view.renderList(
+      Array.from({ length: 25 }, (_, index) => ({
+        kind: "champion" as const,
+        id: index + 1,
+        name: `Champion ${String(25 - index).padStart(2, "0")}`,
+        roles: [],
+        portraitUrl: `https://example.test/${index + 1}.png`,
+      })),
+      { mode: "list", page: "champions", channel: "pbe" },
+    );
+
+    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(24);
+    expect(content.querySelector(".runtime-pagination")?.children).toHaveLength(
+      3,
+    );
+
+    const search = content.querySelector("input")!;
+    search.value = "Champion 25";
+    search.listeners.get("input")?.[0]?.();
+
+    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(1);
+    expect(content.querySelector(".runtime-champion-link")?.href).toBe(
+      "/champions/detail/?id=1",
+    );
+  });
+
+  it("localizes role labels and preserves locale and latest in champion links", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: { origin: "https://chromaart.lol", pathname: "/zh-cn/champions/" },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "zh_cn",
+      page: "champions",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(),
+    });
+
+    view.renderList(
+      [
+        {
+          kind: "champion",
+          id: 103,
+          name: "阿狸",
+          roles: ["mage", "assassin"],
+          portraitUrl: "https://example.test/ahri.png",
+        },
+      ],
+      { mode: "list", page: "champions", channel: "latest" },
+    );
+
+    expect(
+      content
+        .querySelectorAll("select")[0]
+        ?.querySelectorAll("option")
+        .map((option) => option.textContent),
+    ).toEqual(["全部", "刺客", "战士", "法师", "射手", "辅助", "坦克"]);
+    expect(content.querySelector(".runtime-champion-link")?.href).toBe(
+      "/zh-cn/champions/detail/?id=103&channel=latest",
     );
   });
 
@@ -338,15 +436,17 @@ describe("runtime DOM boundaries", () => {
   it("leaves cross-page runtime links to normal browser navigation", () => {
     expect(
       shouldHandleRuntimeNavigation(
-        new URL("https://chromaart.lol/skins/?id=103001&champion=103"),
+        new URL(
+          "https://chromaart.lol/skins/detail/?id=103001&champion=103",
+        ),
         "/champions/",
       ),
     ).toBe(false);
     expect(
       shouldHandleRuntimeNavigation(
-        new URL("https://chromaart.lol/champions/?id=103"),
+        new URL("https://chromaart.lol/champions/detail/?id=103"),
         "/champions/",
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 });

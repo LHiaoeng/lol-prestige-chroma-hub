@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RuntimeReferenceRoot from '../../../components/RuntimeReferenceRoot.astro';
+import { resolveLocale, type Locale } from '../../../i18n/config';
+import { createEntitySeo } from '../../../seo/entity-seo';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const isZh = locale === 'zh-cn';
+const seo = createEntitySeo('champions/detail', undefined, isZh ? '英雄详情' : 'Champion detail', isZh ? '在浏览器中读取指定英雄资料及其皮肤集合。' : 'Read a selected champion and its skin collection in the browser.', locale);
+---
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
+  <RuntimeReferenceRoot page="champions" mode="detail" {locale} label={isZh ? '英雄' : 'Champions'} heading={isZh ? '英雄详情' : 'Champion detail'} lede={isZh ? '查看当前区域数据视图中的英雄资料。' : 'View the champion reference for the current regional data view.'} />
+</BaseLayout>

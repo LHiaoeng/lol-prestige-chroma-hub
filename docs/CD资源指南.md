@@ -166,7 +166,8 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 推荐的运行时 URL：
 
 ```text
-/champions/?id={championId}
+/champions/
+/champions/detail/?id={championId}
 /skins/?id={skinId}&champion={championId}
 /skinlines/?id={skinlineId}
 /universes/?id={universeId}

@@ -424,7 +424,7 @@ describe("static site build", () => {
       .map((file) => file.replaceAll("\\", "/"));
     expect(
       files.some((file) =>
-        /(?:^|\/)(?:champions|skins|skinlines|universes)\/[^/]+\/index\.html$/.test(
+        /(?:^|\/)(?:champions|skins|skinlines|universes)\/(?!detail\/)[^/]+\/index\.html$/.test(
           file,
         ),
       ),
@@ -457,7 +457,7 @@ describe("static site build", () => {
     );
     expect(detail).not.toContain("data-ad-boundary=");
     expect(detail).not.toContain("pagead2.googlesyndication.com");
-    expect(detail).toContain(`href="/champions/?id=${sample.heroId}"`);
+    expect(detail).toContain(`href="/champions/detail/?id=${sample.heroId}"`);
     expect(detail).not.toMatch(/href="\/champions\/[a-z0-9-]+\/"/);
   });
 
@@ -476,6 +476,14 @@ describe("static site build", () => {
       join(dist, "zh-cn", "champions", "index.html"),
       "utf8",
     );
+    const englishDetail = readFileSync(
+      join(dist, "champions", "detail", "index.html"),
+      "utf8",
+    );
+    const chineseDetail = readFileSync(
+      join(dist, "zh-cn", "champions", "detail", "index.html"),
+      "utf8",
+    );
     expect(english).toContain(
       '<link rel="canonical" href="https://chromaart.lol/champions/">',
     );
@@ -488,6 +496,22 @@ describe("static site build", () => {
     );
     expect(chinese).toContain('<html lang="zh-CN"');
     expect(chinese).toContain("请启用 JavaScript 以浏览动态游戏资料。");
+    expect(englishDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/champions/detail/">',
+    );
+    expect(englishDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(englishDetail).toContain('data-runtime-mode="detail"');
+    expect(englishDetail).toContain('href="/champions/"');
+    expect(chineseDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">',
+    );
+    expect(chineseDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(chineseDetail).toContain('data-runtime-mode="detail"');
+    expect(chineseDetail).toContain('href="/zh-cn/champions/"');
     expect(existsSync(join(dist, "champions", "103", "index.html"))).toBe(
       false,
     );

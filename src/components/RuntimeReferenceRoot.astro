@@ -7,16 +7,18 @@ interface Props {
   readonly label: string;
   readonly heading: string;
   readonly lede: string;
+  readonly mode?: 'list' | 'detail';
 }
 
-const { page, locale, label, heading, lede } = Astro.props;
+const { page, locale, label, heading, lede, mode } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
+const listPath = localizedPath(locale, `/${page}/`);
 ---
 
 <div class="runtime-page">
   <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
-    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{label}</span>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>{mode === 'detail' ? <><a href={listPath}>{label}</a><span>/</span><span>{isZh ? `${label}详情` : `${label} detail`}</span></> : <span>{label}</span>}
   </nav>
   <header>
     <h1>{heading}</h1>
@@ -28,7 +30,7 @@ const runtimeLocale = isZh ? 'zh_cn' : 'default';
     </div>
   </header>
   <section class="runtime-section">
-    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale}>
+    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode}>
       <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载…' : 'Loading…'}</p>
       <div data-runtime-content></div>
     </div>

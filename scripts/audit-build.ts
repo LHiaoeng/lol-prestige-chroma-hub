@@ -23,7 +23,7 @@ export function auditBuild(root: string): string[] {
   visit(root);
   const sensitive = files.filter(isSensitiveDeploymentArtifact);
   if (sensitive.length) throw new Error(`Sensitive deployment artifacts detected: ${sensitive.join(', ')}`);
-  const runtimeEntityPages = files.filter((file) => /^(?:zh-cn\/)?(?:champions|skins|skinlines|universes)\/[^/]+\/index\.html$/.test(file));
+  const runtimeEntityPages = files.filter((file) => /^(?:zh-cn\/)?(?:champions|skins|skinlines|universes)\/(?!detail\/)[^/]+\/index\.html$/.test(file));
   if (runtimeEntityPages.length) throw new Error(`Runtime entity pages must not be published: ${runtimeEntityPages.join(', ')}`);
   const jsonArtifacts = files.filter((file) => file.toLowerCase().endsWith('.json'));
   if (jsonArtifacts.length) throw new Error(`JSON source artifacts must not be published: ${jsonArtifacts.join(', ')}`);
@@ -96,7 +96,7 @@ export function auditBuild(root: string): string[] {
     if (crawlableLocations.some((location) => /^\/(?:zh-cn\/)?chromas\//.test(new URL(location).pathname))) {
       throw new Error('Catalog detail pages must not appear in sitemap.xml');
     }
-    if (crawlableLocations.some((location) => /^(?:\/zh-cn)?\/(?:champions|skins|skinlines|universes)\/[^/]+\/$/.test(new URL(location).pathname))) {
+    if (crawlableLocations.some((location) => /^(?:\/zh-cn)?\/(?:champions|skins|skinlines|universes)\/(?!detail\/)[^/]+\/$/.test(new URL(location).pathname))) {
       throw new Error('Runtime entity pages must not appear in sitemap.xml');
     }
   }

@@ -49,16 +49,25 @@ function textNode(
   return element;
 }
 
-function runtimePath(locale: CommunityDragonLocale, page: RuntimePage): string {
-  return localizedPath(locale === "zh_cn" ? "zh-cn" : "en", `/${page}/`);
+function runtimePath(
+  locale: CommunityDragonLocale,
+  page: RuntimePage,
+  mode: "list" | "detail" = "list",
+): string {
+  const suffix = mode === "detail" ? "/detail/" : "/";
+  return localizedPath(
+    locale === "zh_cn" ? "zh-cn" : "en",
+    `/${page}${suffix}`,
+  );
 }
 
 function hrefFor(
   locale: CommunityDragonLocale,
   page: RuntimePage,
   values: { id?: number; championId?: number; channel: "pbe" | "latest" },
+  mode: "list" | "detail" = "list",
 ): URL {
-  const url = new URL(runtimePath(locale, page), window.location.origin);
+  const url = new URL(runtimePath(locale, page, mode), window.location.origin);
   if (values.id) url.searchParams.set("id", String(values.id));
   if (values.championId)
     url.searchParams.set("champion", String(values.championId));
@@ -205,8 +214,20 @@ export function createDomRuntimeView(
       const toolbar = document.createElement("div");
       toolbar.className = "runtime-toolbar";
       let roleFilter: HTMLSelectElement | undefined;
-      let search: HTMLInputElement | undefined;
-      let sort: HTMLSelectElement | undefined;
+      const search = document.createElement("input");
+      search.type = "search";
+      search.id = `runtime-${options.page}-search`;
+      search.placeholder =
+        options.locale === "zh_cn" ? "搜索名称" : "Search names";
+      search.setAttribute("aria-label", search.placeholder);
+      const searchLabel = document.createElement("label");
+      searchLabel.className = "runtime-toolbar-field";
+      searchLabel.htmlFor = search.id;
+      searchLabel.append(
+        textNode("span", options.locale === "zh_cn" ? "搜索" : "Search"),
+        search,
+      );
+      toolbar.append(searchLabel);
       if (isChampionList) {
         const select = document.createElement("select");
         roleFilter = select;
@@ -229,44 +250,30 @@ export function createDomRuntimeView(
           select,
         );
         toolbar.append(roleLabel);
-      } else {
-        search = document.createElement("input");
-        search.type = "search";
-        search.id = `runtime-${options.page}-search`;
-        search.placeholder =
-          options.locale === "zh_cn" ? "搜索名称" : "Search names";
-        search.setAttribute("aria-label", search.placeholder);
-        const searchLabel = document.createElement("label");
-        searchLabel.className = "runtime-toolbar-field";
-        searchLabel.htmlFor = search.id;
-        searchLabel.append(
-          textNode("span", options.locale === "zh_cn" ? "搜索" : "Search"),
-          search,
-        );
-        sort = document.createElement("select");
-        sort.id = `runtime-${options.page}-sort`;
-        sort.setAttribute(
-          "aria-label",
-          options.locale === "zh_cn" ? "排序" : "Sort",
-        );
-        for (const [value, label] of [
-          ["name", options.locale === "zh_cn" ? "名称" : "Name"],
-          ["id", "ID"],
-        ] as const) {
-          const option = document.createElement("option");
-          option.value = value;
-          option.textContent = label;
-          sort.appendChild(option);
-        }
-        const sortLabel = document.createElement("label");
-        sortLabel.className = "runtime-toolbar-field";
-        sortLabel.htmlFor = sort.id;
-        sortLabel.append(
-          textNode("span", options.locale === "zh_cn" ? "排序" : "Sort"),
-          sort,
-        );
-        toolbar.append(searchLabel, sortLabel);
       }
+      const sort = document.createElement("select");
+      sort.id = `runtime-${options.page}-sort`;
+      sort.setAttribute(
+        "aria-label",
+        options.locale === "zh_cn" ? "排序" : "Sort",
+      );
+      for (const [value, label] of [
+        ["name", options.locale === "zh_cn" ? "名称" : "Name"],
+        ["id", "ID"],
+      ] as const) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        sort.appendChild(option);
+      }
+      const sortLabel = document.createElement("label");
+      sortLabel.className = "runtime-toolbar-field";
+      sortLabel.htmlFor = sort.id;
+      sortLabel.append(
+        textNode("span", options.locale === "zh_cn" ? "排序" : "Sort"),
+        sort,
+      );
+      toolbar.append(sortLabel);
       const grid = document.createElement("div");
       grid.className = isChampionList
         ? "runtime-grid runtime-champion-grid"
@@ -278,9 +285,9 @@ export function createDomRuntimeView(
         options.locale === "zh_cn" ? "资料分页" : "Reference pages",
       );
       let currentPage = 1;
-      const pageSize = isChampionList ? Number.MAX_SAFE_INTEGER : 24;
+      const pageSize = 24;
       const render = () => {
-        const query = search?.value.trim().toLocaleLowerCase() ?? "";
+        const query = search.value.trim().toLocaleLowerCase();
         const role = roleFilter?.value ?? "";
         const filtered = items
           .filter(
@@ -293,10 +300,9 @@ export function createDomRuntimeView(
           )
           .slice()
           .sort((left, right) => {
-            if (isChampionList) return 0;
-            return sort?.value === "id"
-              ? left.id - right.id
-              : left.name.localeCompare(right.name);
+            if (sort.value === "id")
+              return left.id - right.id || left.name.localeCompare(right.name);
+            return left.name.localeCompare(right.name) || left.id - right.id;
           });
         const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
         currentPage = Math.min(currentPage, pageCount);
@@ -318,7 +324,7 @@ export function createDomRuntimeView(
               hrefFor(options.locale, page, {
                 id: item.id,
                 channel: state.channel,
-              }),
+              }, isChampionList ? "detail" : "list"),
               controller,
               isChampionList
                 ? "runtime-card-link runtime-champion-link"
@@ -342,7 +348,7 @@ export function createDomRuntimeView(
           }),
         );
         pagination.replaceChildren();
-        if (!isChampionList && pageCount > 1) {
+        if (pageCount > 1) {
           const addPageButton = (page: number, label: string) => {
             const button = document.createElement("button");
             button.type = "button";
@@ -381,17 +387,19 @@ export function createDomRuntimeView(
             ? "没有匹配结果"
             : "No matching references";
       };
-      search?.addEventListener("input", () => {
+      search.addEventListener("input", () => {
         currentPage = 1;
         render();
       });
-      sort?.addEventListener("change", render);
+      sort.addEventListener("change", () => {
+        currentPage = 1;
+        render();
+      });
       roleFilter?.addEventListener("change", () => {
         currentPage = 1;
         render();
       });
-      if (isChampionList) content.replaceChildren(toolbar, grid);
-      else content.replaceChildren(toolbar, grid, pagination);
+      content.replaceChildren(toolbar, grid, pagination);
       render();
     },
     renderDetail(item, state) {

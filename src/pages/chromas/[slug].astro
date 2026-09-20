@@ -68,7 +68,7 @@ const patchActions = [
 const isSummonGuideChroma = brilliantSummonSessions.some((session) => session.rewards.some((reward) => reward.chromaNameEn === chroma.nameEn));
 const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/');
 const runtimeChannel = Astro.url.searchParams.get('channel') === 'latest' ? 'latest' : 'pbe';
-const championRuntimeUrl = localizedPath(locale, `/champions/?id=${chroma.heroId}${runtimeChannel === 'latest' ? '&channel=latest' : ''}`);
+const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma.heroId}${runtimeChannel === 'latest' ? '&channel=latest' : ''}`);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
   <div class="detail-background" aria-hidden="true">

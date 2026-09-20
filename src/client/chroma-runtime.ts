@@ -146,7 +146,7 @@ export function createDomView(
       const championLink = document.createElement("a");
       championLink.href = localizedPath(
         siteLocale,
-        `/champions/?id=${champion.id}${channelQuery}`,
+        `/champions/detail/?id=${champion.id}${channelQuery}`,
       );
       championLink.textContent =
         locale === "zh_cn" ? "查看英雄" : "View champion";

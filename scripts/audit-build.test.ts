@@ -73,6 +73,22 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).toThrow(/runtime entity/i);
   });
 
+  it('allows fixed runtime detail shells', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'champions', 'detail'), { recursive: true });
+    mkdirSync(join(root, 'zh-cn', 'champions', 'detail'), { recursive: true });
+    writeFileSync(
+      join(root, 'champions', 'detail', 'index.html'),
+      '<link rel="canonical" href="https://chromaart.lol/champions/detail/">',
+    );
+    writeFileSync(
+      join(root, 'zh-cn', 'champions', 'detail', 'index.html'),
+      '<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">',
+    );
+
+    expect(() => auditBuild(root)).not.toThrow();
+  });
+
   it.each([
     'nested/prestige-chromas.json',
     '_astro/page.D4gH3x.js.map',

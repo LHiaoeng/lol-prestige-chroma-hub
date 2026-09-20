@@ -56,10 +56,12 @@ function history(initial: string): RuntimeHistory & {
 function view(): RuntimeView & {
   events: string[];
   rendered?: RuntimeList | RuntimeEntity;
+  retry?: () => void;
 } {
   const result = {
     events: [] as string[],
     rendered: undefined as RuntimeList | RuntimeEntity | undefined,
+    retry: undefined as (() => void) | undefined,
     loading: vi.fn((preserve: boolean) =>
       result.events.push(`loading:${preserve}`),
     ),
@@ -75,7 +77,10 @@ function view(): RuntimeView & {
       result.events.push(`relations:${items.length}`);
     }),
     invalid: vi.fn(() => result.events.push("invalid")),
-    failure: vi.fn(() => result.events.push("failure")),
+    failure: vi.fn((_error, retry: () => void) => {
+      result.retry = retry;
+      result.events.push("failure");
+    }),
     relationFailure: vi.fn(() => result.events.push("relation-failure")),
   };
   return result;
@@ -92,6 +97,38 @@ function runtime(
 }
 
 describe("runtime URL state", () => {
+  it("keeps the champion list route in list mode and requires an ID on the detail route", () => {
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/champions/?id=103&channel=latest"),
+        "champions",
+        "list",
+      ),
+    ).toEqual({ mode: "list", page: "champions", channel: "latest" });
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/champions/detail/?channel=pbe"),
+        "champions",
+        "detail",
+      ),
+    ).toMatchObject({ mode: "invalid", channel: "pbe" });
+    expect(
+      parseRuntimeLocation(
+        new URL(
+          "https://chromaart.lol/champions/detail/?id=103&channel=latest",
+        ),
+        "champions",
+        "detail",
+      ),
+    ).toEqual({
+      mode: "detail",
+      page: "champions",
+      kind: "champion",
+      id: 103,
+      channel: "latest",
+    });
+  });
+
   it("defaults to pbe and parses positive safe IDs without guessing invalid values", () => {
     expect(
       parseRuntimeLocation(
@@ -160,6 +197,92 @@ describe("RuntimeController", () => {
 
     expect(viewState.events).toEqual(["loading:false", "list"]);
     expect(navigation.pushes).toHaveLength(0);
+  });
+
+  it("does not turn an old champion list URL with an ID into a detail request", async () => {
+    const service = runtime();
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/champions/?id=103");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "list",
+      locale: "default",
+    });
+
+    await controller.start();
+
+    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.get).not.toHaveBeenCalled();
+    expect(viewState.events).toEqual(["loading:false", "list"]);
+  });
+
+  it("passes the current locale and channel to the champion list request", async () => {
+    const service = runtime();
+    const viewState = view();
+    const navigation = history(
+      "https://chromaart.lol/zh-cn/champions/?channel=latest",
+    );
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "list",
+      locale: "zh_cn",
+    });
+
+    await controller.start();
+
+    expect(service.list).toHaveBeenCalledWith(
+      "champions",
+      expect.objectContaining({ locale: "zh_cn", channel: "latest" }),
+    );
+  });
+
+  it("recovers a failed champion list request through retry", async () => {
+    let attempts = 0;
+    const service = runtime({
+      list: vi.fn(async () => {
+        attempts += 1;
+        if (attempts === 1) throw new Error("offline");
+        return summary;
+      }),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/champions/");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "list",
+      locale: "default",
+    });
+
+    await controller.start();
+    expect(viewState.events).toEqual(["loading:false", "failure"]);
+    expect(viewState.retry).toBeDefined();
+
+    viewState.retry!();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(viewState.events).toEqual([
+      "loading:false",
+      "failure",
+      "loading:false",
+      "list",
+    ]);
+  });
+
+  it("does not request CommunityDragon when a detail URL has no ID", async () => {
+    const service = runtime();
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/champions/detail/");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "detail",
+      locale: "default",
+    });
+
+    await controller.start();
+
+    expect(service.list).not.toHaveBeenCalled();
+    expect(service.get).not.toHaveBeenCalled();
+    expect(viewState.events).toEqual(["invalid"]);
   });
 
   it("keeps failure categories distinguishable and retryable", () => {
@@ -340,13 +463,18 @@ describe("RuntimeController", () => {
       ),
     });
     const viewState = view();
-    const navigation = history("https://chromaart.lol/champions/?id=103");
+    const navigation = history(
+      "https://chromaart.lol/champions/detail/?id=103",
+    );
     const controller = new RuntimeController(service, viewState, navigation, {
       page: "champions",
+      pageMode: "detail",
       locale: "default",
     });
     const first = controller.start();
-    await controller.navigate(new URL("https://chromaart.lol/champions/?id=1"));
+    await controller.navigate(
+      new URL("https://chromaart.lol/champions/detail/?id=1"),
+    );
     resolveOld(champion);
     await first;
 
