@@ -14,6 +14,8 @@
 
 运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 及其双语目录壳；英雄详情使用 `?id={championId}`，皮肤详情使用 `?id={skinId}&champion={championId}`，系列和宇宙详情使用对应数字 ID。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 
+CommunityDragon 的通用 RAW 访问规则、版本与区域数据视图，以及英雄联盟和云顶之弈资源说明，见 [CommunityDragon 资源指南](docs/CD资源指南.md)。
+
 作者与编辑说明位于 `/editorial-policy/`，简体中文位于 `/zh-cn/editorial-policy/`。页面公开本站的维护主体、编辑原则、资料来源、核验方式和纠错渠道；该页与 About、Privacy 等资料页不承载广告。
 
 ## 本地开发

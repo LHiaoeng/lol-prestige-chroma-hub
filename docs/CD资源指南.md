@@ -1,66 +1,30 @@
-# CommunityDragon 资源指南（Agent）
+# CommunityDragon 资源指南
 
-> 读取条件：处理 CommunityDragon 公开资源、`pbe` / `latest` JSON、图片路径、客户端资源或资源索引时读取本文件。
->
-> 范围：记录 CommunityDragon 公开资源、官方 RAW 访问规则，以及本项目对这些资源的使用边界。
->
-> 官方资源域名：`raw.communitydragon.org`。
+> 本文用于处理 CommunityDragon 的公开 JSON、图片、客户端资源和资源目录。
+> CommunityDragon 的内容会随版本和区域数据视图变化；本文只定义本项目认可的读取方式和边界。
 
-## 0. Agent 执行契约
+## 1. 文档范围与基本概念
 
-按以下顺序处理本项目的 CommunityDragon 资源：
-
-1. 确定内容链路：首页、臻彩详情、博客和固定说明属于静态图鉴内容；英雄、普通皮肤、皮肤系列和皮肤宇宙属于运行时资料。
-2. 确定版本数据源：缺少显式选择时使用 `pbe`；显式 `channel=pbe` 与 `channel=latest` 都有效。
-3. 确定区域数据视图：英文页面只使用 `default`；简体中文页面只使用 `zh_cn`。
-4. 确定资源类型：区分 JSON、`plugins/...` 客户端资源和 `game/...` 游戏客户端资源。
-5. 读取 JSON：以数字 ID 识别实体，从 JSON 字段获取图片路径，不从名称、slug 或业务 ID 格式猜测资源。
-6. 归一化路径：按第 3 节规则把 JSON 中的资源路径转换为 RAW 相对路径。
-7. 生成官方 URL：只使用批准的 HTTPS RAW 域名和白名单路径，格式为 `https://raw.communitydragon.org/{version}/{relativePath}`。
-8. 完成检查：确认版本数据源、区域数据视图和资源类型没有被混用，并保留真实的缺失、404 和空目录状态。
-
-完成标准：每个资源都能明确给出来源 JSON 或目录、版本数据源、区域数据视图、相对路径和官方 RAW URL；运行时页面还必须能够显示加载、缺失、失败和重试状态。
-
-### 0.1 两个独立维度
-
-本项目将版本数据源和区域数据视图作为两个正交维度：
-
-| 页面             | 版本数据源        | 区域数据视图 |
-| ---------------- | ----------------- | ------------ |
-| 英文 `pbe` 页面    | `pbe`    | `default`    |
-| 英文 `latest` 页面  | `latest` | `default`    |
-| 中文 `pbe` 页面    | `pbe`    | `zh_cn`      |
-| 中文 `latest` 页面  | `latest` | `zh_cn`      |
-
-- `pbe` 与 `latest` 都是滚动数据源，不是两套静态站点。
-- `default` 与 `zh_cn` 是各自完整的区域数据视图，不是“英文原始数据 + 中文翻译覆盖”。
-- 数字 ID 是跨版本数据源和区域数据视图的共享身份；名称、描述、稀有度、限定状态和可用性等字段属于当前视图的事实。
-- 当前视图缺失字段时保持缺失，不使用另一地区或另一版本数据源补值。
-- 当前区域记录引用 `global/default` 下的共享图片不构成数据回退；物理资源路径与区域业务事实是两件事。
-
-### 0.2 静态内容与运行时资料
+CommunityDragon 提供 Riot 客户端和游戏资源的公开导出。官方 RAW 资源域名为：
 
 ```text
-仓库数据 / 仓库快照 → Astro 构建 → 首页、臻彩详情、博客、固定说明
-CommunityDragon RAW → 浏览器加载 → 英雄、普通皮肤、皮肤系列、皮肤宇宙
+https://raw.communitydragon.org/
 ```
 
-- 静态构建必须在 CommunityDragon 不可访问时成功，不在普通构建中在线刷新数据。
-- 运行时资料是可失败的辅助内容，不承担逐实体 SEO；运行时实体详情使用 `noindex`，静态臻彩详情保留 SEO 内容。
-- 静态臻彩页可以在正文完成后加载少量关联资料，但失败不得影响静态正文、主要操作或 SEO。
-- 英雄覆盖率文章由显式维护并提交的仓库快照生成；浏览器刷新只是可失败的渐进增强。
+本项目将资源分为两类：
 
-## 1. 官方 RAW 入口
+```text
+仓库数据 / 快照 → Astro 构建 → 首页、臻彩详情、博客和固定说明
+CommunityDragon RAW → 浏览器加载 → 英雄联盟和云顶之弈的运行时资料
+```
 
-| 用途             | 官方入口                                                                                   | 说明                                                                                                           |
-| ---------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| RAW 根目录       | `https://raw.communitydragon.org/{version}/`                                               | 浏览指定版本的 `game/`、`plugins/`、`locales/`、`cdragon/` 等目录；运行时通道使用 `pbe` 或 `latest`。 |
-| 内容版本         | `https://raw.communitydragon.org/{version}/content-metadata.json`                          | 部分版本提供内容版本元数据；以实际目录为准。                                                                   |
-| 目录 JSON 列表   | `https://raw.communitydragon.org/json/{version}/`                                          | 在 RAW 路径前加 `json/` 获取机器可读的目录列表。                                                               |
-| 游戏客户端资源   | `https://raw.communitydragon.org/{version}/game/`                                          | 游戏客户端导出的图片、二进制和其他资源。                                                                       |
-| 客户端插件资源   | `https://raw.communitydragon.org/{version}/plugins/`                                       | LCU/客户端插件资源。                                                                                           |
-| CDragon 便利数据 | `https://raw.communitydragon.org/{version}/cdragon/`                                       | CommunityDragon 根据 Riot 文件整理的便利数据，例如 TFT 数据。                                                  |
-| Bin 文件浏览器   | [`https://raw.communitydragon.org/binviewer/`](https://raw.communitydragon.org/binviewer/) | 浏览和检查 CommunityDragon bin 文件的官方 Web UI。                                                             |
+- 静态页面不在普通构建时在线刷新 CommunityDragon；CommunityDragon 不可访问时，静态站仍应能够构建。
+- 运行时资料是可失败的辅助内容，不承担静态页面正文或实体详情 SEO。
+- 资源事实以 CommunityDragon JSON 和官方目录为准；第三方项目只能作为字段展示和解析方式的参考。
+
+## 2. 通用规则
+
+### 2.1 RAW URL 与版本选择
 
 通用 URL：
 
@@ -68,342 +32,277 @@ CommunityDragon RAW → 浏览器加载 → 英雄、普通皮肤、皮肤系列
 https://raw.communitydragon.org/{version}/{relativePath}
 ```
 
-常用版本值：
+常用入口：
 
-```text
-pbe       当前 `pbe` 滚动资源
-latest    当前 `latest` 滚动资源
-{patch}   固定补丁目录，例如 16.18
-```
+| 用途 | URL |
+| --- | --- |
+| RAW 根目录 | `https://raw.communitydragon.org/{version}/` |
+| 目录 JSON 列表 | `https://raw.communitydragon.org/json/{version}/` |
+| 游戏客户端资源 | `https://raw.communitydragon.org/{version}/game/` |
+| 客户端插件资源 | `https://raw.communitydragon.org/{version}/plugins/` |
+| CDragon 便利数据 | `https://raw.communitydragon.org/{version}/cdragon/` |
+| Bin 文件浏览器 | [`https://raw.communitydragon.org/binviewer/`](https://raw.communitydragon.org/binviewer/) |
 
-## 2. 常用 JSON
+版本值：
 
-### 2.1 JSON URL 模板
+- `pbe`：当前测试服滚动资源。本项目运行时默认使用它。
+- `latest`：当前正式服滚动资源。运行时只有显式指定 `channel=latest` 时使用。
+- `{patch}`：固定补丁目录，例如 `16.18`，用于人工研究或显式维护，不作为运行时通道。
 
-```text
-https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/{file}.json
-```
+`pbe` 和 `latest` 都是滚动数据源，不是不可变快照。需要复现历史状态时使用明确补丁号，并记录抓取时间和内容版本。
 
-`{version}` 替换为 `pbe`、`latest` 或具体补丁号；`{lang}` 替换为 `default`、`zh_cn` 或目标目录中实际存在的语言代码。
+### 2.2 区域数据视图
 
-### 2.2 常用资源清单
+版本数据源和区域数据视图是两个独立维度：
 
-| 中文资源       | English            | 文件                      | 官方 RAW 相对路径                                                       |
-| -------------- | ------------------ | ------------------------- | ----------------------------------------------------------------------- |
-| 英雄摘要       | Champion Summary   | `champion-summary.json`   | `plugins/rcp-be-lol-game-data/global/{lang}/v1/champion-summary.json`   |
-| 完整皮肤目录   | Skins              | `skins.json`              | `plugins/rcp-be-lol-game-data/global/{lang}/v1/skins.json`              |
-| 皮肤系列       | Skinlines          | `skinlines.json`          | `plugins/rcp-be-lol-game-data/global/{lang}/v1/skinlines.json`          |
-| 宇宙           | Universes          | `universes.json`          | `plugins/rcp-be-lol-game-data/global/{lang}/v1/universes.json`          |
-| 英雄           | Companions         | `companions.json`         | `plugins/rcp-be-lol-game-data/global/{lang}/v1/companions.json`         |
-| 终结特效       | Nexus Finishers    | `nexusfinishers.json`     | `plugins/rcp-be-lol-game-data/global/{lang}/v1/nexusfinishers.json`     |
-| 召唤师图标     | Summoner Icons     | `summoner-icons.json`     | `plugins/rcp-be-lol-game-data/global/{lang}/v1/summoner-icons.json`     |
-| 召唤师图标套装 | Summoner Icon Sets | `summoner-icon-sets.json` | `plugins/rcp-be-lol-game-data/global/{lang}/v1/summoner-icon-sets.json` |
-| 表情           | Summoner Emotes    | `summoner-emotes.json`    | `plugins/rcp-be-lol-game-data/global/{lang}/v1/summoner-emotes.json`    |
-| 成就头衔       | Achievement Titles | `achievementtitles.json`  | `plugins/rcp-be-lol-game-data/global/{lang}/v1/achievementtitles.json`  |
-| 守卫皮肤       | Ward Skins         | `ward-skins.json`         | `plugins/rcp-be-lol-game-data/global/{lang}/v1/ward-skins.json`         |
-| 守卫皮肤套装   | Ward Skin Sets     | `ward-skin-sets.json`     | `plugins/rcp-be-lol-game-data/global/{lang}/v1/ward-skin-sets.json`     |
-| 云顶攻击特效   | TFT Damage Skins   | `tftdamageskins.json`     | `plugins/rcp-be-lol-game-data/global/{lang}/v1/tftdamageskins.json`     |
-| 云顶棋盘皮肤   | TFT Map Skins      | `tftmapskins.json`        | `plugins/rcp-be-lol-game-data/global/{lang}/v1/tftmapskins.json`        |
-| 云顶传送门     | TFT Portals        | `tftzoomskins.json`       | `plugins/rcp-be-lol-game-data/global/{lang}/v1/tftzoomskins.json`       |
+| 页面语言 | 区域数据视图 |
+| --- | --- |
+| 英文 | `default` |
+| 简体中文 | `zh_cn` |
 
-以下为 `pbe` 示例；将路径中的 `pbe` 替换为 `latest` 或具体补丁号即可访问其他版本。
-
-示例：
-
-```text
-中文皮肤 JSON：
-https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/zh_cn/v1/skins.json
-
-默认语言皮肤 JSON：
-https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/skins.json
-```
-
-`skins.json` 只作为人工研究或显式维护资源。本项目的运行时页面不得把它用作皮肤列表、皮肤详情、系列反向索引或宇宙反向索引的默认依赖。2026-09-20 的核查中，该文件未压缩约为 5.9–6.2 MB。
-
-### 2.3 英雄详情 JSON
-
-英雄摘要是列表数据；单个英雄详情和该英雄的皮肤正向集合使用：
-
-```text
-https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/champions/{championId}.json
-```
-
-`{championId}` 必须替换为真实英雄数字 ID。目录为空、实体只存在于另一数据通道或当前快照未导出时，官方 RAW 可能返回 `404`。
-
-皮肤详情通过 URL 中的皮肤 ID 与英雄定位提示读取对应英雄详情，再按皮肤 ID 查找并复核目标身份。不得根据皮肤 ID 的数字格式猜测英雄 ID；缺少英雄定位提示时，只允许读取必要的小型索引，不得回退到完整 `skins.json`。
-
-### 2.4 英雄分类数据
-
-英雄分类直接读取 `champion-summary.json` 每条英雄记录的 `roles` 数组，不根据英雄名称、数字 ID 或图片路径推导分类。列表请求使用当前页面对应的区域数据视图：英文使用 `default`，中文使用 `zh_cn`。
-
-```json
-{
-  "id": 103,
-  "alias": "Ahri",
-  "roles": ["mage", "assassin"]
-}
-```
-
-分类处理规则：
-
-1. 从当前 `{version}`、`{lang}` 的 `champion-summary.json` 读取 `roles`；缺失字段按“没有可用分类”处理，不猜测或从另一语言补值。
-2. 页面只提供参考项目使用的六个分类键：`assassin`、`fighter`、`mage`、`marksman`、`support`、`tank`。参考项目的 `classes` 值是英文显示标签；本项目再将这些固定键本地化为“刺客、战士、法师、射手、辅助、坦克”。
-3. “全部”不添加过滤条件；选择分类时使用精确成员匹配 `roles.includes(role)`。英雄可以有多个角色，因此会同时出现在多个分类中；例如 Ahri 同时属于法师和刺客。
-4. `roles` 是机器字段，界面只展示本地化后的分类名称，不向用户暴露字段名、数据源路径或其他内部解析信息。
-5. 如果 CommunityDragon 返回未知角色值，保留原始数据供校验，但不自动新增用户界面分类；新增分类必须先核对参考实现和实际数据，再同步类型、测试与文档。
-
-这里的六个分类键来自参考项目的 `classes` 映射；该映射定义固定的可选分类键及英文显示标签，英雄本身的分类仍以记录中的 `roles` 为准。参考项目页面使用 `champion.roles.includes(role)` 完成筛选，而不是重新计算角色：
-
-- [参考项目英雄列表筛选](https://raw.githubusercontent.com/BennyExtreme00/lol-skin-explorer/main/pages/index.js)
-- [参考项目分类键与显示名称](https://raw.githubusercontent.com/BennyExtreme00/lol-skin-explorer/main/data/helpers.js)
-- [参考项目英雄缓存入口](https://raw.githubusercontent.com/BennyExtreme00/lol-skin-explorer/main/data/patch.js)
-
-## 3. 图片路径映射规则
-
-### 3.1 官方 JSON 资源路径
-
-CommunityDragon JSON 中常见的图片路径不是完整 URL。按以下规则映射：
-
-| JSON 路径                                                                 | 官方 RAW 相对路径                                                                               |
-| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `/lol-game-data/assets/ASSETS/Characters/Ahri/Skins/Base/Ahri_Splash.png` | `plugins/rcp-be-lol-game-data/global/default/assets/characters/ahri/skins/base/ahri_splash.png` |
-| `/lol-game-data/assets/v1/champion-icons/1.png`                           | `plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/1.png`                           |
-| `ASSETS/Characters/Ahri/Skins/Base/Ahri_Splash.png`                       | `plugins/rcp-be-lol-game-data/global/default/assets/characters/ahri/skins/base/ahri_splash.png` |
-| `plugins/rcp-be-lol-game-data/global/zh_cn/v1/champions/1.json`           | 原样保留 `plugins/rcp-be-lol-game-data/global/zh_cn/v1/champions/1.json`                        |
-| `/game/assets/characters/ahri/...`                                        | `game/assets/characters/ahri/...`                                                               |
-
-核心映射：
-
-```text
-/lol-game-data/assets/<path>
-    → plugins/rcp-be-lol-game-data/global/default/<lowercased-path>
-```
-
-其中：
-
-- 路径先去除首尾空白，再统一为小写。
-- 裸 `assets/...` 表示资源根下的 `assets/...`，直接映射为 `plugins/rcp-be-lol-game-data/global/default/assets/...`；不得再额外拼接一层 `assets`，因此不会产生 `assets/assets/...` 歧义。
-- 已经是 `plugins/...` 的路径保留原有 `region`、`lang` 和文件层级。
-- `game/...` 路径直接从目标版本根目录拼接，不转换到 `rcp-be-lol-game-data`。
-- `/lol-game-data/assets/...` 映射到 `global/default`，不会根据 JSON 来源语言自动改成 `zh_cn`。
-- 已经是官方 RAW 完整 URL 的地址可以直接使用；需要切换版本时，先提取相对路径，再按目标版本重新拼接。
-
-### 3.2 完整图片 URL
-
-```text
-imageUrl = https://raw.communitydragon.org/{version}/{relativePath}
-```
-
-例：
-
-```text
-relativePath = plugins/rcp-be-lol-game-data/global/default/assets/characters/ahri/skins/base/ahri_splash.png
-imageUrl = https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/characters/ahri/skins/base/ahri_splash.png
-```
-
-图片和 JSON 使用相同的版本：`pbe` JSON 配 `pbe` 图片，`latest` JSON 配 `latest` 图片，固定版本配同一补丁号图片。
-
-## 4. 常用图片目录
-
-完整目录 URL：
-
-```text
-https://raw.communitydragon.org/{version}/{relativeDirectory}
-```
-
-| 资源类型                                  | 官方 RAW 相对目录                                                                     | 常见语言           |
-| ----------------------------------------- | ------------------------------------------------------------------------------------- | ------------------ |
-| 英雄详情 / Champion Details               | `plugins/rcp-be-lol-game-data/global/{lang}/v1/champions/`                            | `zh_cn`、`default` |
-| 英雄炫彩 / Champion Chroma Images         | `plugins/rcp-be-lol-game-data/global/{lang}/v1/champion-chroma-images/`               | `zh_cn`、`default` |
-| 头像 / Profile Icons                      | `plugins/rcp-be-lol-game-data/global/{lang}/v1/profile-icons/`                        | `zh_cn`、`default` |
-| 成就头衔 / Player Titles                  | `plugins/rcp-be-lol-game-data/global/{lang}/assets/playertitles/`                     | `zh_cn`、`default` |
-| 英雄与皮肤图片 / Characters               | `plugins/rcp-be-lol-game-data/global/{lang}/assets/characters/`                       | `zh_cn`、`default` |
-| 表情事件 / Summoner Emote Events          | `plugins/rcp-be-lol-game-data/global/{lang}/assets/loadouts/summoneremotes/events/`   | `zh_cn`、`default` |
-| 终结特效 / Nexus Finishers                | `plugins/rcp-be-lol-game-data/global/{lang}/assets/loadouts/nexusfinishers/`          | `zh_cn`、`default` |
-| 守卫皮肤 / Ward Skin Images               | `plugins/rcp-be-lol-game-data/global/{lang}/content/src/leagueclient/wardskinimages/` | `zh_cn`、`default` |
-| 稀有宝石图标 / Rarity Gem Icons           | `plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/`                    | `default`          |
-| 云顶攻击特效 / TFT Damage Skins           | `plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftdamageskins/`         | `default`          |
-| 云顶棋盘 / TFT Map Skins                  | `plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftmapskins/`            | `default`          |
-| 云顶传送门 / TFT Portals                  | `plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftzoomskins/`           | `default`          |
-| 云顶移动端礼包 / TFT Mobile Bundle Offers | `plugins/rcp-be-lol-game-data/global/default/assets/ux/tftmobile/store/bundleoffers/` | `default`          |
-| 徽章 / Emblem Images                      | `plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/`                         | `zh_cn`            |
-
-目录资源可能因版本、语言或当前快照返回空目录或 `404`。本项目保留真实失败状态，不自动改用另一数据通道或区域数据视图。
-
-## 5. JSON 图片字段
-
-先读取字段值，再应用第 3 节路径映射规则：
-
-| JSON                                         | 字段                                                               | 资源                                                                                                                                                                                                                 |
-| -------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `champion-summary.json`                      | `squarePortraitPath`                                               | 英雄方形头像                                                                                                                                                                                                         |
-| `champions/{championId}.json`                | `squarePortraitPath`                                               | 英雄方形头像                                                                                                                                                                                                         |
-| `champions/{championId}.json` / `skins.json` | `splashPath`、`uncenteredSplashPath`、`tilePath`、`loadScreenPath` | 皮肤原画、缩略图、载入图                                                                                                                                                                                             |
-| `champions/{championId}.json` / `skins.json` | `chromaPath`                                                       | 炫彩资源                                                                                                                                                                                                             |
-| `champions/{championId}.json` / `skins.json` | `rarity`、`regionRarityId`、`rarityGemPath`                        | `default` 按 `rarity` 映射全球稀有度；`zh_cn` 的国服展示等级以 `regionRarityId` 为准，4–11 分别对应史诗、传说、未知、限定、神话、终极、圣堂、卓越，图标使用 `rarity-gem-icons/cn-gem-{id}.png`。两套字段语义不可混用 |
-| `universes.json`                             | `imagePath`                                                        | 宇宙图片                                                                                                                                                                                                             |
-| `achievementtitles.json`                     | `iconPath`、`backgroundImagePath`                                  | 成就头衔图标和背景                                                                                                                                                                                                   |
-| `nexusfinishers.json`                        | `iconPath`、`splashPath`、`videoPath`                              | 终结特效图标、展示图和视频                                                                                                                                                                                           |
-
-`skinlines.json` 主要提供皮肤系列名称和描述；如果具体快照增加资源字段，沿用同一映射规则。
-
-## 6. 官方资源边界
-
-- 版本别名（如 `pbe`、`latest`）对应滚动资源时，名称、数值、资源路径和文件内容可能变化。
-- `content-metadata.json` 的版本值会变化，适合用于缓存刷新和抓取记录。
-- RAW 目录结构可能被重新组织；优先通过 JSON 或目录列表发现实际文件。
-- JSON、图片、视频和 bin 文件的可用性不保证完全一致；缺失时记录真实状态。
-- RAW 资源属于公开静态资源目录，不等同于 Riot 官方 API。
-- 本文只定义官方 RAW 资源路径；其他域名不作为 CommunityDragon 资源地址。
-- 浏览器只请求当前页面所需的区域数据视图，不预取另一语言，不轮询，也不在页面重新获得焦点时刷新。
-- 请求省略凭据与 Referer。查询参数只能选择已批准的数据通道、区域数据视图和数字实体 ID，不能控制域名或任意资源路径。
-- 页面内以数据通道、区域数据视图和资源键缓存进行中的 Promise 与已完成响应；跨导航缓存交给浏览器 HTTP 缓存和验证器。
-- 不使用 `localStorage`、`sessionStorage`、IndexedDB 或 Service Worker 持久保存 CommunityDragon 响应。
-- CommunityDragon 取消跨域或改变目录时应明确失败；本站代理、镜像或跨源后备需要新的架构决策。
-
-## 7. Agent 完成检查清单
-
-- [ ] 使用 `raw.communitydragon.org` 作为资源域名。
-- [ ] 已明确数据通道：默认 `pbe`，显式 `pbe` 或 `latest`，并让 JSON 与图片使用同一数据通道。
-- [ ] 已按页面语言选择区域数据视图：英文 `default`，简体中文 `zh_cn`。
-- [ ] 数字 ID 用于实体身份，名称和 slug 未被当作跨视图身份。
-- [ ] 图片路径来自 JSON 字段或已验证的官方目录。
-- [ ] `/lol-game-data/assets/...` 已映射到 `global/default`。
-- [ ] `plugins/...` 和 `game/...` 路径没有被错误转换。
-- [ ] 没有请求完整 `skins.json` 作为运行时默认依赖。
-- [ ] 404、空目录或缺失字段保留真实状态，没有跨区域或跨通道补值。
-- [ ] 运行时请求可取消、可重试，并不会让旧响应覆盖新的页面状态。
-- [ ] 需要复现时保存数据通道、区域数据视图、抓取时间、内容版本和原始 RAW URL。
-
-## 8. 中英文资源路径切换
-
-资源语言由路径中的 `{lang}` 控制，资源版本由 `{version}` 控制；两者独立切换。
-
-### 8.1 JSON 路径
-
-统一模板：
+常用 JSON 模板：
 
 ```text
 https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/{file}.json
 ```
 
-同一个资源的中英文路径示例：
+规则：
 
-```text
-英文或默认语言：
-https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/default/v1/skins.json
+- 数字 ID 用于识别实体；名称、slug、描述、稀有度和可用性属于当前版本与区域视图的事实。
+- 当前视图缺失字段时保留缺失，不从另一语言或另一版本补值。
+- 当前区域记录引用 `global/default` 下的共享媒体，不代表业务字段发生跨区域回退。
+- 其他语言目录只能用于人工研究，不能直接接入本项目现有页面语言映射。
 
-简体中文：
-https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/zh_cn/v1/skins.json
-```
+### 2.3 路径转换规则
 
-切换规则：
+JSON 中的资源路径通常不是完整 URL。先读取 JSON 字段，再转换为 RAW 相对路径：
 
-- 英文或默认语言使用 `global/default`。
-- 简体中文使用 `global/zh_cn`。
-- 本项目页面目前只映射 `default` 与 `zh_cn`；研究其他语言时必须使用目标版本目录中真实存在的 locale，不得把它接入现有页面语言映射。
-- 同一次读取中，相关 JSON 应使用同一个 `{version}` 和 `{lang}`。
-- 语言目录不存在、文件缺失或返回 `404` 时，保留真实状态；本项目不自动改用 `default`。
+| JSON 路径 | RAW 相对路径 |
+| --- | --- |
+| `/lol-game-data/assets/{path}` | `plugins/rcp-be-lol-game-data/global/default/assets/{path}` |
+| `assets/{path}` 或 `ASSETS/{path}` | `plugins/rcp-be-lol-game-data/global/default/assets/{path}` |
+| `plugins/...` | 原样保留，包括其中的区域和语言目录 |
+| `game/...` | 原样保留，从版本根目录拼接 |
+| 官方 RAW 完整 URL | 先提取相对路径，再按目标版本重新拼接 |
 
-### 8.2 图片路径
+处理路径时：
 
-图片是否切换语言，先看 JSON 字段返回的路径类型：
+1. 去除首尾空白并统一为小写。
+2. 不重复添加 `assets`，避免产生 `assets/assets/...`。
+3. 不把 `game/...` 转换成 `plugins/rcp-be-lol-game-data/...`。
+4. 不因为 JSON 使用 `zh_cn` 就强行把共享媒体路径改成 `zh_cn`。
 
-| JSON 字段路径类型                             | 处理方式                                                                                         |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `/lol-game-data/assets/...` 或裸 `ASSETS/...` | 按第 3 节映射到 `global/default`；这类资源不要仅因 JSON 使用 `zh_cn` 就强行改成 `global/zh_cn`。 |
-| 已经是 `plugins/.../global/{lang}/...`        | 保留路径中的 `{lang}`；要切换语言时，将 `default` 替换为 `zh_cn`，并确认目标文件真实存在。       |
-| `game/assets/...`                             | 直接从 `{version}/game/` 拼接；该路径不增加 `global/{lang}`。                                    |
-| 已经是官方 RAW 完整 URL                       | 先提取相对路径，再按目标 `{version}` 重新拼接；不要重复追加域名或版本。                          |
-
-完整 URL 模板：
+图片或其他媒体的最终地址为：
 
 ```text
 https://raw.communitydragon.org/{version}/{relativePath}
 ```
 
-切换语言时，只替换资源路径中的 `{lang}`；切换版本时，只替换 URL 中的 `{version}`。如果路径本身不含 `{lang}`，说明该资源按版本共享，不要人为增加语言目录。
+JSON 和媒体必须使用同一 `{version}`。路径来自 JSON 字段或已验证的官方目录，不根据名称、slug 或数字格式猜测。
 
-## 9. 运行时加载约束
+### 2.4 响应与失败处理
 
-- 运行时资料入口只接受 `pbe`、`latest`；固定补丁目录保留给人工研究和显式维护流程。
-- URL 缺少 `channel` 或显式使用 `channel=pbe` 时读取 `pbe`；显式使用 `channel=latest` 时读取 `latest`，其他值属于无效链接，页面必须在发出 CommunityDragon 请求前拒绝。
-- 英雄、系列和宇宙提供列表与详情；普通皮肤不提供全量列表，用户从英雄详情进入皮肤详情。
-- 核心实体请求优先。核心成功后，相关系列或宇宙最多三个并发请求，各关联区独立处理失败。
-- 通道切换先加载目标数据，成功后再更新内容和 URL；失败时保留旧内容与旧 URL。
-- 页面切换、重新加载或销毁时取消旧请求，迟到响应不得覆盖当前状态。
-- 无 JavaScript 时，页面壳仍需提供标题、导航、版本数据源选择和启用脚本提示。
+- 目录为空、文件不存在、404、缺失字段和格式不符合预期，都保留为真实状态。
+- 不自动改用另一版本、另一语言、另一数据通道或未经批准的镜像、代理和域名。
+- 运行时界面分别提供加载中、空状态、失败和可重试状态；媒体失败不应清除已经成功加载的文字资料。
+- 页面切换、重新加载或销毁时取消旧请求，迟到响应不得覆盖当前页面状态。
+- 通道切换应先加载目标数据，成功后再更新内容和 URL；失败时保留旧内容和旧 URL。
+
+### 2.5 缓存、请求和安全边界
+
+- 浏览器只请求当前页面所需的版本、区域和资源，不预取另一语言、不轮询，也不在重新获得焦点时刷新。
+- 页面内可以按“数据通道 + 区域数据视图 + 资源键”缓存进行中的 Promise 和已完成响应；跨导航缓存交给浏览器 HTTP 缓存和验证器。
+- 不使用 `localStorage`、`sessionStorage`、IndexedDB 或 Service Worker 持久保存 CommunityDragon 响应。
+- 请求省略凭据与 Referer；查询参数只允许选择已批准的版本、区域和数字实体 ID。
+- 无 JavaScript 时，页面壳仍应提供标题、导航、版本选择说明和启用脚本提示。
 - 隐私说明必须披露浏览器会直接连接 CommunityDragon 获取资料和媒体。
 
-### 9.1 当前英雄运行时实现
+### 2.6 通用检查清单
 
-英雄目录现在由静态页面壳和浏览器控制器组成，不在 Astro 构建时读取 CommunityDragon：
+- [ ] 使用 `raw.communitydragon.org` 作为资源域名。
+- [ ] 已明确版本：运行时只能使用 `pbe` 或 `latest`，且 JSON 与媒体版本一致。
+- [ ] 已按页面语言选择 `default` 或 `zh_cn`。
+- [ ] 实体身份使用数字 ID，没有从名称、slug 或数字格式推导身份。
+- [ ] 图片路径来自 JSON 字段或已验证的官方目录。
+- [ ] 已正确区分 `plugins/...`、`game/...` 和 `/lol-game-data/assets/...`。
+- [ ] 404、空目录和缺失字段没有被静默回退或伪造默认值。
+- [ ] 运行时请求可取消、可重试，旧响应不能覆盖新状态。
+- [ ] 需要复现时记录版本、区域、抓取时间、内容版本和原始 URL。
 
-| 用途         | URL 形态                      | 运行时数据        |
-| ------------ | ----------------------------- | ----------------- |
-| 英文英雄列表 | `/champions/`                 | `default` + `pbe` |
-| 中文英雄列表 | `/zh-cn/champions/`           | `zh_cn` + `pbe`   |
-| 英雄详情     | `/champions/?id={championId}` | 英雄数字 ID       |
-| 正式版本视图 | 上述 URL 加 `channel=latest`  | 仅切换运行时资料  |
+## 3. 英雄联盟资源
 
-- 英雄列表在浏览器中完成名称搜索、ID/名称排序和分页；页面只渲染当前分页，避免一次性建立全部卡片节点。
-- 英雄分类遵循 [2.4 英雄分类数据](#24-英雄分类数据) 的契约：直接使用 `champion-summary.json` 中的 `roles`，以 `roles.includes(role)` 精确筛选；多角色英雄出现在每个匹配分类中，未知角色不自动成为新的界面选项。
-- 英雄详情使用 `champions/{championId}.json`，并从同一份英雄记录提供皮肤正向集合；普通皮肤入口必须继续携带 `champion={championId}`。
-- 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。`src/domain/communitydragon-runtime.ts` 只负责 Schema、身份复核与路径规范化等纯规则，`src/client/communitydragon-runtime.ts` 负责浏览器请求、页面内去重和取消；测试通过后者注入假请求，不探测真实站点。
-- 首次加载显示静态标题、版本数据源和启用脚本提示；英文与中文页面分别使用 `default` 与 `zh_cn`，但不在主界面展示内部区域标识；请求成功后状态栏只显示加载状态。运行时详情由客户端状态标记为 `noindex`，静态臻彩页不依赖该辅助资料即可保持可索引正文。
-- 四个运行时目录共用带 canonical 的可索引静态页面壳并进入 sitemap；带 `?id=` 的运行时详情在客户端确认有效实体状态后添加 `noindex`，不生成独立静态实体页面。
-- 通道切换只有在目标请求成功后才提交 History URL；失败时保留旧内容和旧 URL。网络、HTTP、404、不识别的响应格式和非法参数分别显示不同的可重试状态。
-- CommunityDragon 不可访问不会阻塞 `pnpm build`；静态首页、臻彩详情、博客和固定说明与该运行时链路分离。
+### 3.1 常用 JSON
 
-### 9.2 系列与宇宙关联
+英雄联盟客户端数据通常位于：
 
-- `/skinlines/?id={id}` 的核心记录来自系列列表；核心成功后再读取当前区域、当前通道的宇宙列表，并按双方记录中的数字 ID 关系筛选可导航链接。
-- `/universes/?id={id}` 使用对称策略：先显示宇宙自身资料，再读取系列列表筛选所属系列。两条路径都不读取 `skins.json`，也不生成完整皮肤或英雄反向目录。
-- 关联区独立显示“加载中 / 无可显示关系 / 失败并重试”；关联请求失败不会清空已显示的系列或宇宙名称、描述和图片。
-- 关系名称始终来自当前 `default` 或 `zh_cn` 列表；当前视图没有名称或关系时保持缺失，不借用另一地区的字段。由当前记录引用的共享媒体仍按官方 RAW 路径加载，媒体失败只移除对应图片。
+```text
+https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/
+```
 
-### 9.3 英雄到皮肤
+| 资源 | 文件或路径 | 用途 |
+| --- | --- | --- |
+| 英雄摘要 | `champion-summary.json` | 英雄列表、数字 ID、名称、角色和头像 |
+| 英雄详情 | `champions/{championId}.json` | 单个英雄及其皮肤正向集合 |
+| 完整皮肤目录 | `skins.json` | 人工研究或显式维护，不作为运行时默认依赖 |
+| 皮肤系列 | `skinlines.json` | 系列名称、描述和数字 ID |
+| 宇宙 | `universes.json` | 宇宙名称、描述、图片和系列关系 |
+| 其他客户端数据 | `nexusfinishers.json`、`summoner-icons.json` 等 | 终结特效、召唤师图标等附属资源 |
 
-- 英雄详情使用当前英雄 JSON 的 `skins` 正向集合生成入口，皮肤链接固定为 `/skins/?id={skinId}&champion={championId}`；不从皮肤 ID 的数字格式推断英雄。
-- 皮肤核心请求只读取带英雄定位提示的 `champions/{championId}.json`，按皮肤 ID 再次校验身份；正常路径不会请求完整 `skins.json`。
-- 核心皮肤成功后并行读取系列和宇宙列表（最多两个关联请求），按当前皮肤的 `skinLines` 与宇宙的系列 ID 过滤导航。关联失败只追加可重试提示，不删除皮肤名称、描述或主媒体。
-- 皮肤阶段从当前英雄记录的 `questSkinInfo.tiers` 读取；每个阶段的图片和炫彩媒体独立按当前通道解析。图片加载失败会隐藏损坏媒体，文字资料仍保留。
-- 皮肤定位提示缺失、响应英雄 ID 不一致、目标皮肤不存在以及目标通道没有该皮肤都属于明确失败，不回退到另一通道、另一地区或完整目录。
+单个英雄详情：
 
-### 9.4 静态臻彩与覆盖率快照
+```text
+https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/champions/{championId}.json
+```
 
-- 臻彩详情页的标题、正文、图片、主要操作、SEO 和静态关联名称先由仓库目录直接输出；CommunityDragon 只在浏览器中补充当前英雄和 `sourceSkinId` 对应的基础皮肤资料。
-- 补充请求只读取对应英雄 JSON，并在返回的 `skins` 集合中复核英雄 ID、基础皮肤 ID 和 `isBase`；失败只替换补充区，静态正文和主要操作保持可用。补充区可重试，图片失败只移除该图片。
-- 臻彩页默认使用 `pbe`，显式 `channel=pbe` 或 `channel=latest` 时读取对应通道；版本数据源按钮和补充区后续运行时链接同步当前选择，不改变仓库中的臻彩事实。
-- 覆盖率文章使用已提交的 `data/champion-coverage.snapshot.json` 生成双语静态正文。普通 `pnpm build` 不联网更新快照；需要维护时运行 `pnpm coverage:snapshot`，命令会分别读取 `default` 与 `zh_cn` 的 `pbe` 英雄摘要，并要求官方 URL、HTTP 成功状态、`ETag` 或 `Last-Modified`、补丁版本和计数校验全部通过。
-- 覆盖率文章在浏览器中刷新时只通过 `src/client/communitydragon-runtime.ts` 的 `list("champions")` seam 读取当前页面区域：英文只请求 `default`，中文只请求 `zh_cn`，每次刷新只发一个当前区域请求；当前区域缺失或请求失败时保留仓库快照，不从另一地区补值。
-- 快照记录 `schemaVersion`、来源通道、两个区域数据视图、来源 URL、抓取时间、内容版本、补丁版本、总数、已覆盖数、缺失数和缺失英雄列表。非法快照或覆盖计数不一致会阻止维护流程写入；浏览器刷新失败时保留提交的快照内容。
+### 3.2 英雄、皮肤、系列与宇宙的关联
 
-## 10. 官方来源与实现参考
+- 英雄列表使用 `champion-summary.json`。
+- 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合生成皮肤入口。
+- 皮肤详情必须携带英雄定位提示，读取对应 `champions/{championId}.json` 后按皮肤 ID 复核身份。
+- 皮肤系列和宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
+- 运行时不使用完整 `skins.json` 生成皮肤列表、系列反向索引或宇宙反向索引。
+- 不根据皮肤 ID 的数字格式猜测英雄 ID；缺少英雄定位提示时，只允许读取必要的小型索引。
 
-### 10.1 区域数据展示权威参考
+推荐的运行时 URL：
 
-遇到 CommunityDragon 字段含义、区域稀有度、皮肤分组、系列与宇宙关联、资源路径或展示差异问题时，优先对照以下两个开源项目的对应区域实现：
+```text
+/champions/?id={championId}
+/skins/?id={skinId}&champion={championId}
+/skinlines/?id={skinlineId}
+/universes/?id={universeId}
+```
 
-| 区域数据视图     | 参考项目                                                                                        | 参考范围                                                                                                       |
-| ---------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 国服 `zh_cn`     | [BuguoguoLoLCreator/lol-skin-explorer](https://github.com/BuguoguoLoLCreator/lol-skin-explorer) | 国服名称、国服稀有度与腾讯服务器专属内容的读取、整理和展示。该项目基于下方直营服项目分支，并针对国服数据扩展。 |
-| 直营服 `default` | [BennyExtreme00/lol-skin-explorer](https://github.com/BennyExtreme00/lol-skin-explorer)         | 直营服英雄、皮肤、系列、宇宙和 `pbe` 数据的读取、关联及展示；英雄列表从缓存记录读取 `roles`，按六个固定分类筛选。 |
+### 3.3 英雄与皮肤字段、分类和图片
 
-使用规则：
+英雄分类直接使用 `champion-summary.json` 中的 `roles`，不根据名称、ID 或图片路径推导：
 
-- 这两个仓库是本项目认可的区域数据**展示实现参考**；CommunityDragon RAW JSON 和官方目录仍是数据事实与资源路径的最终来源。
-- `zh_cn` 展示问题先检查国服参考项目，`default` 展示问题先检查直营服参考项目；不要用其中一个区域的处理逻辑覆盖另一区域事实。
-- 可以参考其字段解析、稀有度映射、实体关联和资源定位思路，但应针对当前 CommunityDragon 响应重新验证，不能假定第三方仓库代码与滚动数据始终同步。
-- 引用或移植具体代码前检查其许可证、当前分支和实现上下文；本项目既有 ADR、Schema、安全边界和测试要求仍然有效。
+- 可选分类键固定为 `assassin`、`fighter`、`mage`、`marksman`、`support`、`tank`。
+- 筛选使用精确成员匹配 `roles.includes(role)`。
+- 英雄可以同时属于多个分类；未知角色保留供校验，但不自动新增界面分类。
+- 页面展示本地化后的分类名称，不向用户暴露字段名和内部路径。
 
-### 10.2 官方来源
+常见字段：
+
+| JSON | 字段 | 用途 |
+| --- | --- | --- |
+| 英雄摘要或英雄详情 | `squarePortraitPath` | 英雄方形头像 |
+| 英雄详情或皮肤目录 | `splashPath`、`uncenteredSplashPath`、`tilePath`、`loadScreenPath` | 皮肤展示图、缩略图和载入图 |
+| 英雄详情或皮肤目录 | `chromaPath` | 炫彩资源 |
+| 皮肤记录 | `skinLines`、`isBase`、`questSkinInfo.tiers` | 系列关系、基础皮肤和阶段信息 |
+| 系列 | `imagePath` 等实际存在的媒体字段 | 系列图片 |
+| 宇宙 | `imagePath` | 宇宙图片 |
+
+常用目录：
+
+| 资源类型 | RAW 相对目录 |
+| --- | --- |
+| 英雄详情 | `plugins/rcp-be-lol-game-data/global/{lang}/v1/champions/` |
+| 英雄炫彩图片 | `plugins/rcp-be-lol-game-data/global/{lang}/v1/champion-chroma-images/` |
+| 英雄与皮肤图片 | `plugins/rcp-be-lol-game-data/global/{lang}/assets/characters/` |
+| 成就头衔 | `plugins/rcp-be-lol-game-data/global/{lang}/assets/playertitles/` |
+| 终结特效 | `plugins/rcp-be-lol-game-data/global/{lang}/assets/loadouts/nexusfinishers/` |
+| 稀有度图标 | `plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/` |
+
+稀有度规则：
+
+- `default` 视图使用记录中的 `rarity` 和对应全球稀有度图标。
+- `zh_cn` 视图的国服展示等级以 `regionRarityId` 为准，不能与 `rarity` 混用。
+- 当前区域缺少稀有度或图标时保留缺失，不从另一视图补值。
+
+### 3.4 运行时读取规则
+
+- 英文页面使用 `default`，中文页面使用 `zh_cn`；运行时默认通道为 `pbe`。
+- 英雄目录由静态页面壳和浏览器控制器组成；浏览器完成搜索、排序、分类、分页和详情读取。
+- 核心实体优先加载；系列和宇宙属于独立的关联请求，最多并发读取必要数据。
+- 网络、HTTP、404、取消和响应格式错误分别显示明确状态，并支持重试。
+- 英雄、皮肤、系列和宇宙详情属于运行时资料，客户端确认有效实体后设置 `noindex`；静态臻彩页面不依赖这些资料即可保持正文和 SEO 可用。
+
+静态臻彩页面只把 CommunityDragon 作为基础皮肤补充：
+
+- 标题、正文、主图、SEO 和主要操作来自仓库目录。
+- 浏览器根据当前英雄和 `sourceSkinId` 读取基础皮肤，并复核英雄 ID、皮肤 ID 和 `isBase`。
+- 补充请求失败只影响补充区，不清空静态正文；媒体失败只移除对应媒体。
+
+英雄覆盖率文章使用提交到仓库的 `data/champion-coverage.snapshot.json`。普通构建不联网更新快照；维护快照时分别读取 `default` 和 `zh_cn` 的 `pbe` 摘要，并校验来源 URL、HTTP 状态、`ETag` 或 `Last-Modified`、补丁版本和覆盖计数。
+
+### 3.5 英雄联盟参考资料
+
+- [直营服 Skin Explorer](https://github.com/BennyExtreme00/lol-skin-explorer)：`default` 数据视图的字段展示、英雄角色和实体关联参考。
+- [国服 Skin Explorer](https://github.com/BuguoguoLoLCreator/lol-skin-explorer)：`zh_cn` 数据视图、国服名称和稀有度参考。
+- [Riot Skins 101](https://www.leagueoflegends.com/en-ph/news/dev/skins-101/)：Legacy 和 Limited 等概念参考。
+
+这些项目不是本项目的数据源；引用其字段解析或展示逻辑前，仍需按当前 CommunityDragon 响应重新验证。
+
+## 4. 云顶之弈资源
+
+### 4.1 常用 JSON
+
+云顶相关客户端数据通常位于：
+
+```text
+https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/
+```
+
+常见资源：
+
+| 资源 | 文件 | 用途 |
+| --- | --- | --- |
+| 攻击特效 | `tftdamageskins.json` | 云顶攻击特效目录 |
+| 棋盘皮肤 | `tftmapskins.json` | 云顶棋盘皮肤目录 |
+| 传送门 | `tftzoomskins.json` | 云顶传送门目录 |
+
+CommunityDragon 也提供 CDragon 便利数据：
+
+```text
+https://raw.communitydragon.org/{version}/cdragon/
+```
+
+使用 CDragon 数据前，必须确认目标版本中实际存在对应文件和字段；不能把便利数据路径当成所有云顶资源的固定契约。
+
+### 4.2 云顶资源目录与图片路径
+
+常用 RAW 相对目录：
+
+| 资源 | RAW 相对目录 |
+| --- | --- |
+| 攻击特效 | `plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftdamageskins/` |
+| 棋盘皮肤 | `plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftmapskins/` |
+| 传送门 | `plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftzoomskins/` |
+| 移动端礼包 | `plugins/rcp-be-lol-game-data/global/default/assets/ux/tftmobile/store/bundleoffers/` |
+
+图片路径仍按[通用路径转换规则](#23-路径转换规则)处理：优先读取 JSON 返回的字段，不根据资源名称或编号拼接路径。
+
+### 4.3 云顶资源的版本与语言规则
+
+- 运行时只使用 `pbe` 或显式指定的 `latest`，JSON 与媒体必须使用同一版本。
+- 当前云顶资源目录主要位于 `global/default`；如果目标 JSON 明确返回其他区域路径，保留 JSON 中的真实路径。
+- 不因页面语言是中文就强行把云顶资源改到 `zh_cn`；目标目录不存在时保留缺失状态。
+- 云顶资源可能随版本新增、删除或更换目录；优先以目标版本 JSON 和目录列表为准。
+- 资源列表和详情应使用数字 ID 或 JSON 提供的稳定身份字段，不根据名称或图片文件名推导身份。
+
+### 4.4 云顶运行时读取规则
+
+- 云顶资源属于运行时资料时，遵循通用的加载、取消、缓存、失败和重试规则。
+- 某一类资源失败时，只显示该资源区的失败状态，不影响其他已加载资源。
+- 资源只用于页面明确需要的列表或详情，不预取完整目录，也不把滚动数据写入持久化浏览器存储。
+- 构建流程不依赖云顶 CommunityDragon 在线可用性；需要固定内容时，应先生成并提交经过校验的仓库快照。
+
+### 4.5 云顶示例
+
+```text
+JSON：
+https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/tftmapskins.json
+
+资源目录：
+https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/tftmapskins/
+```
+
+以上仅为路径模板示例；实际文件、字段和媒体可用性必须以目标版本响应为准。
+
+## 5. 官方来源与参考资料
 
 - [CommunityDragon RAW](https://raw.communitydragon.org/)
 - [CommunityDragon RAW assets](https://raw.communitydragon.org/latest/)
 - [CommunityDragon Docs](https://github.com/CommunityDragon/Docs)
-- [CommunityDragon Docs – Asset paths](https://github.com/CommunityDragon/Docs/blob/master/assets.md)
+- [CommunityDragon Docs — Asset paths](https://github.com/CommunityDragon/Docs/blob/master/assets.md)
 - [CommunityDragon CDTB](https://github.com/CommunityDragon/CDTB)
-- [Skin Explorer rarity 映射参考](https://github.com/BennyExtreme00/lol-skin-explorer/blob/main/data/helpers.js)
-- [Skin Explorer 英雄列表与 `roles` 筛选参考](https://github.com/BennyExtreme00/lol-skin-explorer/blob/main/pages/index.js)
-- [Riot Skins 101：Legacy 与 Limited 的定义](https://www.leagueoflegends.com/en-ph/news/dev/skins-101/)

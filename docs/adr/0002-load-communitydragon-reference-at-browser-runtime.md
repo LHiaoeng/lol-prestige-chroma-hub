@@ -6,6 +6,8 @@ status: accepted
 
 LoL Chroma Art 将首页、臻彩详情、博客和固定说明保留为仓库数据驱动的静态图鉴内容，并把英雄、普通皮肤、皮肤系列和皮肤宇宙改为浏览器直接读取 CommunityDragon 的运行时资料。该决定让静态站能够在 CommunityDragon 不可用或断网时继续构建和发布，避免为 `pbe` 与 `latest` 生成大量实体页面，同时接受运行时资料不承担实体 SEO、源站故障会使辅助资料暂时不可用的取舍。
 
+RAW 入口、版本通道、区域数据视图、路径转换，以及英雄联盟和云顶之弈资源的具体说明，统一维护在 [CommunityDragon 资源指南](../CD资源指南.md)；本 ADR 只记录本站将英雄联盟运行时资料移至浏览器加载的架构决策。
+
 ## 决策
 
 - 运行时资料默认读取 `pbe`，URL 显式使用 `channel=pbe` 或 `channel=latest` 时读取对应通道；英文页面只读 `default`，中文页面只读 `zh_cn`。

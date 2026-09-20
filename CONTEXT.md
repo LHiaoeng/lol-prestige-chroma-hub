@@ -46,6 +46,8 @@ _Avoid_: 臻彩皮肤站、全炫彩数据库
 
 ## CommunityDragon 数据
 
+CommunityDragon 的资源读取规范见 [CommunityDragon 资源指南](docs/CD资源指南.md)。该指南统一说明 RAW URL、版本通道、区域数据视图和路径转换，并分别记录英雄联盟与云顶之弈资源；本节只定义本站领域中的核心术语和边界。
+
 **静态图鉴内容（Static Archive Content）**:
 由本站仓库内受控数据在构建时生成、无需 CommunityDragon 可用也能完整阅读的首页、臻彩详情、博客和固定说明内容；它构成本站的长期内容与 SEO 主体。
 _Avoid_: CommunityDragon 快照、动态资料、把客户端补充信息视为静态正文
