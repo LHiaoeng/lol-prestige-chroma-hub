@@ -87,7 +87,7 @@ function linkWithNavigation(
   label: string,
   url: URL,
   controller: RuntimeControllerLike,
-  className = "pbe-chip",
+  className = "runtime-chip",
 ): HTMLAnchorElement {
   const link = document.createElement("a");
   link.className = className;
@@ -240,7 +240,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       );
       toolbar.append(searchLabel, sortLabel);
       const grid = document.createElement("div");
-      grid.className = "pbe-grid runtime-grid";
+      grid.className = "runtime-grid";
       const pagination = document.createElement("nav");
       pagination.className = "pagination runtime-pagination";
       pagination.setAttribute(
@@ -273,7 +273,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
                   ? "skinlines"
                   : "universes";
             const card = document.createElement("article");
-            card.className = "pbe-card runtime-card";
+            card.className = "runtime-card";
             if (
               item.kind === "champion" ||
               item.kind === "skinline" ||
@@ -366,7 +366,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
           textNode("h2", options.locale === "zh_cn" ? "皮肤" : "Skins"),
         );
         const links = document.createElement("div");
-        links.className = "pbe-links";
+        links.className = "runtime-links";
         for (const skin of item.skins)
           links.appendChild(
             linkWithNavigation(
@@ -497,7 +497,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         return;
       }
       const links = document.createElement("div");
-      links.className = "pbe-links";
+      links.className = "runtime-links";
       items.forEach((item) =>
         links.appendChild(
           linkWithNavigation(

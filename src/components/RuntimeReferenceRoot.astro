@@ -15,14 +15,14 @@ const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const runtimeLocaleLabel = isZh ? '中文' : 'English';
 ---
 
-<div class="pbe-page runtime-page">
+<div class="runtime-page">
   <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
     <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span>{label}</span>
   </nav>
   <header>
     <p class="eyebrow">{isZh ? 'CommunityDragon 运行时资料' : 'CommunityDragon runtime reference'}</p>
     <h1>{heading}</h1>
-    <p class="pbe-lede">{lede}</p>
+    <p class="runtime-lede">{lede}</p>
     <div class="runtime-source" data-runtime-source aria-label={isZh ? '资料来源与数据通道' : 'Reference source and data channel'}>
       <span>CommunityDragon</span>
       <span aria-live="polite"><span data-runtime-channel-label>PBE</span> · {runtimeLocaleLabel}</span>
@@ -31,7 +31,7 @@ const runtimeLocaleLabel = isZh ? '中文' : 'English';
       <a href="https://raw.communitydragon.org/" target="_blank" rel="noopener noreferrer">RAW</a>
     </div>
   </header>
-  <section class="pbe-section">
+  <section class="runtime-section">
     <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale}>
       <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载…' : 'Loading…'}</p>
       <div data-runtime-content></div>
