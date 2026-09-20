@@ -1,6 +1,4 @@
-import {
-  type CommunityDragonLocale,
-} from "../domain/communitydragon-runtime";
+import { type CommunityDragonLocale } from "../domain/communitydragon-runtime";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import type {
@@ -140,7 +138,9 @@ function setRuntimeNoindex(enabled: boolean): void {
   }
 }
 
-export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
+export function createDomRuntimeView(
+  options: DomRuntimeViewOptions,
+): RuntimeView {
   const { source } = options;
   const status =
     options.root.querySelector<HTMLElement>("[data-runtime-status]") ??
@@ -167,9 +167,11 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       channelLabel.textContent =
         selected === "latest"
           ? options.locale === "zh_cn"
-            ? "正式服"
-            : "Live"
-          : "PBE";
+            ? "正式版本"
+            : "Latest"
+          : options.locale === "zh_cn"
+            ? "PBE版本"
+            : "PBE";
   };
   let relationSlot: HTMLElement | undefined;
   const view: RuntimeView = {
@@ -177,8 +179,8 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       options.root.setAttribute("aria-busy", "true");
       status.textContent =
         options.locale === "zh_cn"
-          ? "正在加载 CommunityDragon 资料…"
-          : "Loading CommunityDragon reference…";
+          ? "正在加载游戏资料…"
+          : "Loading game reference…";
       if (!preserve) {
         const skeleton = document.createElement("div");
         skeleton.className = "runtime-skeleton-grid";

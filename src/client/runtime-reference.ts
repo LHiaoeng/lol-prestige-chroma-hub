@@ -11,11 +11,11 @@ import {
 } from "./communitydragon-runtime";
 import { asCommunityDragonError } from "./communitydragon-errors";
 export { runtimeFailureMessage } from "./communitydragon-errors";
-import {
-  browserHistory,
+import { browserHistory, createDomRuntimeView } from "./runtime-reference-view";
+export {
   createDomRuntimeView,
+  shouldHandleRuntimeNavigation,
 } from "./runtime-reference-view";
-export { createDomRuntimeView, shouldHandleRuntimeNavigation } from "./runtime-reference-view";
 
 export type RuntimePage = RuntimeListKind | "skins";
 
@@ -219,7 +219,7 @@ export class RuntimeController {
       this.generation += 1;
       this.view.invalid(
         this.options.locale === "zh_cn"
-          ? "链接无效，请检查实体 ID 与数据通道。"
+          ? "链接无效，请检查实体 ID 与版本数据源。"
           : "This link is invalid. Check the entity ID and data channel.",
       );
       return;
@@ -337,8 +337,7 @@ export function initRuntimeReference(root: HTMLElement): RuntimeController {
   const source = root
     .closest<HTMLElement>(".runtime-page")
     ?.querySelector<HTMLElement>("[data-runtime-source]");
-  if (!source)
-    throw new Error("Runtime reference source controls are missing");
+  if (!source) throw new Error("Runtime reference source controls are missing");
   const history = browserHistory();
   const runtime = createCommunityDragonRuntime();
   let controller!: RuntimeController;

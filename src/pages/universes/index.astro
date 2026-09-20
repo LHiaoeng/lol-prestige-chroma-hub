@@ -6,8 +6,8 @@ import { createEntitySeo } from '../../seo/entity-seo';
 
 const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
 const isZh = locale === 'zh-cn';
-const seo = createEntitySeo('universes', undefined, isZh ? '宇宙资料' : 'Universe references', isZh ? '在浏览器中读取 CommunityDragon 皮肤宇宙资料。' : 'Browse CommunityDragon skin universe references in the browser.', locale);
+const seo = createEntitySeo('universes', undefined, isZh ? '宇宙资料' : 'Universe references', isZh ? '在浏览器中读取皮肤宇宙资料。' : 'Browse skin universe references in the browser.', locale);
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
   <RuntimeReferenceRoot page="universes" {locale} label={isZh ? '宇宙' : 'Universes'} heading={isZh ? '宇宙资料' : 'Universe references'} lede={isZh ? '宇宙展示自身资料和所属系列，不反向承诺完整皮肤或英雄集合。' : 'Universes show their own reference data and skinline relations without promising a complete reverse skin or champion collection.'} />
 </BaseLayout>

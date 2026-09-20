@@ -6,8 +6,8 @@ import { createEntitySeo } from '../../seo/entity-seo';
 
 const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
 const isZh = locale === 'zh-cn';
-const seo = createEntitySeo('champions', undefined, isZh ? '英雄资料' : 'Champion references', isZh ? '在浏览器中读取 CommunityDragon 英雄资料，并按语言与数据通道保持独立。' : 'Browse CommunityDragon champion references in the browser with independent locale and data-channel views.', locale);
+const seo = createEntitySeo('champions', undefined, isZh ? '英雄资料' : 'Champion references', isZh ? '在浏览器中读取英雄资料，并按语言与版本数据源保持独立。' : 'Browse champion references in the browser with independent locale and version data sources.', locale);
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
-  <RuntimeReferenceRoot page="champions" {locale} label={isZh ? '英雄' : 'Champions'} heading={isZh ? '英雄资料' : 'Champion references'} lede={isZh ? '列表、英雄详情和皮肤正向集合会在浏览器中加载；CommunityDragon 暂时不可用时保留明确失败状态。' : 'Lists, champion details, and forward skin collections load in the browser; source failures remain explicit and retryable.'} />
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+  <RuntimeReferenceRoot page="champions" {locale} label={isZh ? '英雄' : 'Champions'} heading={isZh ? '英雄资料' : 'Champion references'} lede={isZh ? '列表、英雄详情和皮肤正向集合会在浏览器中加载；资料源暂时不可用时保留明确失败状态。' : 'Lists, champion details, and forward skin collections load in the browser; source failures remain explicit and retryable.'} />
 </BaseLayout>

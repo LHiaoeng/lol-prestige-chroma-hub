@@ -6,8 +6,8 @@ import { createEntitySeo } from '../../seo/entity-seo';
 
 const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
 const isZh = locale === 'zh-cn';
-const seo = createEntitySeo('skins', undefined, isZh ? '皮肤资料' : 'Skin references', isZh ? '从英雄资料进入单个 CommunityDragon 皮肤详情；本站不提供全量皮肤目录。' : 'Open individual CommunityDragon skin references from champion details; no complete skin directory is provided.', locale);
+const seo = createEntitySeo('skins', undefined, isZh ? '皮肤资料' : 'Skin references', isZh ? '从英雄资料进入单个皮肤详情；本站不提供全量皮肤目录。' : 'Open individual skin references from champion details; no complete skin directory is provided.', locale);
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
   <RuntimeReferenceRoot page="skins" {locale} label={isZh ? '皮肤' : 'Skins'} heading={isZh ? '皮肤资料' : 'Skin references'} lede={isZh ? '请从英雄资料进入皮肤详情。每次请求都携带英雄定位提示，避免下载完整 skins.json。' : 'Open a skin from a champion reference. Each request carries a champion hint and avoids downloading the complete skins.json directory.'} />
 </BaseLayout>

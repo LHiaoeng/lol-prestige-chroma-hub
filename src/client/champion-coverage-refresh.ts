@@ -2,12 +2,12 @@ import {
   buildChampionCoverageFromRuntime,
   championCoverageCopy,
   type ChampionCoverageSnapshot,
-} from '../domain/champion-coverage';
-import type { CommunityDragonLocale } from '../domain/communitydragon-runtime';
+} from "../domain/champion-coverage";
+import type { CommunityDragonLocale } from "../domain/communitydragon-runtime";
 import {
   createCommunityDragonRuntime,
   type CommunityDragonRuntime,
-} from './communitydragon-runtime';
+} from "./communitydragon-runtime";
 
 interface RefreshOptions {
   readonly load: () => Promise<ChampionCoverageSnapshot>;
@@ -28,19 +28,21 @@ export async function loadChampionCoverage(
   patchVersion: string,
   signal?: AbortSignal,
 ): Promise<ChampionCoverageSnapshot> {
-  const summaries = await runtime.list('champions', {
+  const summaries = await runtime.list("champions", {
     locale,
-    channel: 'pbe',
+    channel: "pbe",
     signal,
   });
   return buildChampionCoverageFromRuntime(
-    summaries.filter((item) => item.kind === 'champion'),
+    summaries.filter((item) => item.kind === "champion"),
     coveredHeroIds,
     patchVersion,
   );
 }
 
-export async function refreshChampionCoverage(options: RefreshOptions): Promise<boolean> {
+export async function refreshChampionCoverage(
+  options: RefreshOptions,
+): Promise<boolean> {
   try {
     const snapshot = await options.load();
     options.apply(snapshot);
@@ -51,34 +53,41 @@ export async function refreshChampionCoverage(options: RefreshOptions): Promise<
   }
 }
 
-export function applyChampionCoverage(document: Document, snapshot: ChampionCoverageSnapshot): void {
+export function applyChampionCoverage(
+  document: Document,
+  snapshot: ChampionCoverageSnapshot,
+): void {
   const copy = championCoverageCopy(snapshot);
-  document.querySelectorAll<HTMLElement>('[data-coverage-text]').forEach((element) => {
-    const key = element.dataset.coverageText as keyof typeof copy;
-    const value = copy[key];
-    if (typeof value === 'string') element.textContent = value;
-  });
+  document
+    .querySelectorAll<HTMLElement>("[data-coverage-text]")
+    .forEach((element) => {
+      const key = element.dataset.coverageText as keyof typeof copy;
+      const value = copy[key];
+      if (typeof value === "string") element.textContent = value;
+    });
 
-  for (const list of document.querySelectorAll<HTMLUListElement>('[data-coverage-list]')) {
-    const language = list.dataset.coverageList === 'zh' ? 'zh' : 'en';
+  for (const list of document.querySelectorAll<HTMLUListElement>(
+    "[data-coverage-list]",
+  )) {
+    const language = list.dataset.coverageList === "zh" ? "zh" : "en";
     const fragment = document.createDocumentFragment();
     snapshot.champions.forEach((champion, index) => {
-      const item = document.createElement('li');
-      const number = document.createElement('span');
-      number.className = 'champ-id';
+      const item = document.createElement("li");
+      const number = document.createElement("span");
+      number.className = "champ-id";
       number.textContent = `${index + 1}.`;
-      const image = document.createElement('img');
-      image.className = 'champ-avatar';
+      const image = document.createElement("img");
+      image.className = "champ-avatar";
       image.src = champion.portraitUrl;
-      image.alt = '';
+      image.alt = "";
       image.width = 32;
       image.height = 32;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-      image.setAttribute('aria-hidden', 'true');
-      const name = document.createElement('span');
-      name.className = 'champ-name';
-      name.textContent = language === 'zh' ? champion.nameZh : champion.nameEn;
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.setAttribute("aria-hidden", "true");
+      const name = document.createElement("span");
+      name.className = "champ-name";
+      name.textContent = language === "zh" ? champion.nameZh : champion.nameEn;
       item.append(number, image, name);
       fragment.append(item);
     });
@@ -87,16 +96,26 @@ export function applyChampionCoverage(document: Document, snapshot: ChampionCove
 }
 
 function readClientConfig(document: Document): ClientConfig {
-  const configElement = document.querySelector<HTMLScriptElement>('#champion-coverage-config');
-  if (!configElement?.textContent) throw new Error('Champion coverage config is missing');
+  const configElement = document.querySelector<HTMLScriptElement>(
+    "#champion-coverage-config",
+  );
+  if (!configElement?.textContent)
+    throw new Error("Champion coverage config is missing");
   const value: unknown = JSON.parse(configElement.textContent);
-  if (!value || typeof value !== 'object') throw new Error('Champion coverage config is invalid');
-  const candidate = value as { coveredHeroIds?: unknown; locale?: unknown; patchVersion?: unknown };
-  if (!Array.isArray(candidate.coveredHeroIds)
-    || !candidate.coveredHeroIds.every((id) => typeof id === 'string')
-    || (candidate.locale !== 'default' && candidate.locale !== 'zh_cn')
-    || typeof candidate.patchVersion !== 'string') {
-    throw new Error('Champion coverage config is invalid');
+  if (!value || typeof value !== "object")
+    throw new Error("Champion coverage config is invalid");
+  const candidate = value as {
+    coveredHeroIds?: unknown;
+    locale?: unknown;
+    patchVersion?: unknown;
+  };
+  if (
+    !Array.isArray(candidate.coveredHeroIds) ||
+    !candidate.coveredHeroIds.every((id) => typeof id === "string") ||
+    (candidate.locale !== "default" && candidate.locale !== "zh_cn") ||
+    typeof candidate.patchVersion !== "string"
+  ) {
+    throw new Error("Champion coverage config is invalid");
   }
   return {
     coveredHeroIds: candidate.coveredHeroIds,
@@ -116,36 +135,52 @@ export function initializeChampionCoverageRefresh(
     return Promise.resolve(false);
   }
 
-  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-coverage-refresh]');
-  const status = document.querySelector<HTMLElement>('[data-coverage-refresh-status]');
+  const buttons = document.querySelectorAll<HTMLButtonElement>(
+    "[data-coverage-refresh]",
+  );
+  const status = document.querySelector<HTMLElement>(
+    "[data-coverage-refresh-status]",
+  );
   const chinese = Boolean(document.querySelector('[data-coverage-list="zh"]'));
-  const refresh = () => refreshChampionCoverage({
-    load: () => loadChampionCoverage(
-      runtime,
-      config.locale,
-      config.coveredHeroIds,
-      config.patchVersion,
-    ),
-    apply: (snapshot) => {
-      applyChampionCoverage(document, snapshot);
-      if (status) status.textContent = chinese
-        ? '已从 CommunityDragon 更新。'
-        : 'Updated from CommunityDragon.';
-    },
-    fallback: () => {
-      if (status) status.textContent = chinese
-        ? '刷新失败，继续显示已保存快照。'
-        : 'Refresh failed; showing the saved snapshot.';
-    },
-  });
+  const refresh = () =>
+    refreshChampionCoverage({
+      load: () =>
+        loadChampionCoverage(
+          runtime,
+          config.locale,
+          config.coveredHeroIds,
+          config.patchVersion,
+        ),
+      apply: (snapshot) => {
+        applyChampionCoverage(document, snapshot);
+        if (status)
+          status.textContent = chinese
+            ? "已从游戏资料源更新。"
+            : "Updated from the game data source.";
+      },
+      fallback: () => {
+        if (status)
+          status.textContent = chinese
+            ? "刷新失败，继续显示已保存快照。"
+            : "Refresh failed; showing the saved snapshot.";
+      },
+    });
   const manualRefresh = async () => {
-    buttons.forEach((button) => { button.disabled = true; });
+    buttons.forEach((button) => {
+      button.disabled = true;
+    });
     try {
       await refresh();
     } finally {
-      buttons.forEach((button) => { button.disabled = false; });
+      buttons.forEach((button) => {
+        button.disabled = false;
+      });
     }
   };
-  buttons.forEach((button) => button.addEventListener('click', () => { void manualRefresh(); }));
+  buttons.forEach((button) =>
+    button.addEventListener("click", () => {
+      void manualRefresh();
+    }),
+  );
   return refresh();
 }

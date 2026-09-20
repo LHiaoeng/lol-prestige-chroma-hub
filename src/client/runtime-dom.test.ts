@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
-import {
-  channelFromLocation,
-  createDomView,
-} from "./chroma-runtime";
+import { channelFromLocation, createDomView } from "./chroma-runtime";
 import {
   createDomRuntimeView,
   shouldHandleRuntimeNavigation,
@@ -11,9 +8,9 @@ import {
 } from "./runtime-reference";
 
 function dataProperty(attribute: string): string {
-  return attribute.slice(5).replace(/-([a-z])/g, (_match, letter: string) =>
-    letter.toUpperCase(),
-  );
+  return attribute
+    .slice(5)
+    .replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase());
 }
 
 class TestElement {
@@ -53,7 +50,9 @@ class TestElement {
   }
 
   replaceChildren(...children: TestElement[]): void {
-    this.children.forEach((child) => { child.parentElement = null; });
+    this.children.forEach((child) => {
+      child.parentElement = null;
+    });
     this.children.length = 0;
     this.append(...children);
   }
@@ -86,8 +85,10 @@ class TestElement {
     if (data) return dataProperty(`data-${data[1]}`) in this.dataset;
     const metaData = selector.match(/^meta\[data-([a-z0-9-]+)\]$/);
     if (metaData)
-      return this.tagName === "meta" &&
-        dataProperty(`data-${metaData[1]}`) in this.dataset;
+      return (
+        this.tagName === "meta" &&
+        dataProperty(`data-${metaData[1]}`) in this.dataset
+      );
     return selector.startsWith(".")
       ? this.className.split(" ").includes(selector.slice(1))
       : this.tagName === selector;
@@ -125,7 +126,9 @@ function history(): RuntimeHistory {
     url: new URL("https://chromaart.lol/champions/"),
     push() {},
     replace() {},
-    onPopState() { return () => {}; },
+    onPopState() {
+      return () => {};
+    },
   };
 }
 
@@ -155,12 +158,12 @@ describe("runtime DOM boundaries", () => {
       source: source as unknown as HTMLElement,
       locale: "zh_cn",
       page: "champions",
-      getController: () => ({ navigate: vi.fn() } as never),
+      getController: () => ({ navigate: vi.fn() }) as never,
       history: history(),
     });
     view.renderList([], { mode: "list", page: "champions", channel: "latest" });
 
-    expect(channelLabel.textContent).toBe("正式服");
+    expect(channelLabel.textContent).toBe("正式版本");
     expect(pbe.getAttribute("aria-pressed")).toBe("false");
     expect(latest.getAttribute("aria-pressed")).toBe("true");
     expect(root.querySelector("[data-runtime-source]")).toBeNull();
@@ -207,7 +210,9 @@ describe("runtime DOM boundaries", () => {
         search: "?channel=staging",
       },
     };
-    expect(channelFromLocation(document as unknown as Document)).toBeUndefined();
+    expect(
+      channelFromLocation(document as unknown as Document),
+    ).toBeUndefined();
   });
 
   it("leaves cross-page runtime links to normal browser navigation", () => {

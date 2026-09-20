@@ -100,8 +100,12 @@ function sourceLabel(
   locale: CommunityDragonLocale,
 ): string {
   return locale === "zh_cn"
-    ? `CommunityDragon · ${channel === "latest" ? "正式服" : "PBE"}`
-    : `CommunityDragon · ${channel === "latest" ? "Live" : "PBE"}`;
+    ? channel === "latest"
+      ? "正式版本"
+      : "PBE版本"
+    : channel === "latest"
+      ? "Latest"
+      : "PBE";
 }
 
 export function createDomView(
@@ -109,7 +113,9 @@ export function createDomView(
   locale: CommunityDragonLocale,
   getChannel: () => "pbe" | "latest",
 ): ChromaRuntimeSupplementView {
-  let content = root.querySelector<HTMLElement>("[data-chroma-runtime-content]");
+  let content = root.querySelector<HTMLElement>(
+    "[data-chroma-runtime-content]",
+  );
   if (!content) {
     content = document.createElement("dd");
     content.dataset.chromaRuntimeContent = "true";
@@ -132,8 +138,8 @@ export function createDomView(
       content.replaceChildren(
         renderStatus(
           locale === "zh_cn"
-            ? "正在加载可选 CommunityDragon 资料…"
-            : "Loading optional CommunityDragon reference…",
+            ? "正在加载可选游戏资料…"
+            : "Loading optional game reference…",
         ),
       );
     },
@@ -144,9 +150,10 @@ export function createDomView(
       title.textContent = `${champion.name} · ${baseSkin.name}`;
       const meta = document.createElement("span");
       meta.className = "chroma-runtime-meta";
-      meta.textContent = locale === "zh_cn"
-        ? `英雄 ID ${champion.id} · 基础皮肤 ID ${baseSkin.id}`
-        : `Champion ID ${champion.id} · Base skin ID ${baseSkin.id}`;
+      meta.textContent =
+        locale === "zh_cn"
+          ? `英雄 ID ${champion.id} · 基础皮肤 ID ${baseSkin.id}`
+          : `Champion ID ${champion.id} · Base skin ID ${baseSkin.id}`;
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
@@ -156,13 +163,15 @@ export function createDomView(
         siteLocale,
         `/champions/?id=${champion.id}${channelQuery}`,
       );
-      championLink.textContent = locale === "zh_cn" ? "查看英雄" : "View champion";
+      championLink.textContent =
+        locale === "zh_cn" ? "查看英雄" : "View champion";
       const skinLink = document.createElement("a");
       skinLink.href = localizedPath(
         siteLocale,
         `/skins/?id=${baseSkin.id}&champion=${champion.id}${channelQuery}`,
       );
-      skinLink.textContent = locale === "zh_cn" ? "查看基础皮肤" : "View base skin";
+      skinLink.textContent =
+        locale === "zh_cn" ? "查看基础皮肤" : "View base skin";
       links.append(championLink, skinLink);
       const descriptionText = baseSkin.description;
       const description = descriptionText
@@ -219,7 +228,10 @@ export function initChromaRuntime(document: Document): void {
     const sourceSkinId = Number(root.dataset.sourceSkinId);
     const locale: CommunityDragonLocale =
       root.dataset.runtimeLocale === "zh_cn" ? "zh_cn" : "default";
-    if (!Number.isSafeInteger(championId) || !Number.isSafeInteger(sourceSkinId))
+    if (
+      !Number.isSafeInteger(championId) ||
+      !Number.isSafeInteger(sourceSkinId)
+    )
       return;
     const runtime = createCommunityDragonRuntime();
     const initialChannel = channelFromLocation(document);
@@ -229,13 +241,16 @@ export function initChromaRuntime(document: Document): void {
     let generation = 0;
     let controller: AbortController | undefined;
     const view = createDomView(root, locale, () => requestedChannel);
-    const buttons = root.querySelectorAll<HTMLButtonElement>("[data-chroma-runtime-channel]");
-    const syncButtons = () => buttons.forEach((button) => {
-      button.setAttribute(
-        "aria-pressed",
-        String(button.dataset.chromaRuntimeChannel === selectedChannel),
-      );
-    });
+    const buttons = root.querySelectorAll<HTMLButtonElement>(
+      "[data-chroma-runtime-channel]",
+    );
+    const syncButtons = () =>
+      buttons.forEach((button) => {
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.chromaRuntimeChannel === selectedChannel),
+        );
+      });
     const run = async (
       channel: "pbe" | "latest",
       commitHistory = false,
@@ -249,8 +264,12 @@ export function initChromaRuntime(document: Document): void {
         loading: () => {
           if (current === generation && !preserveContent) view.loading();
         },
-        render: (supplement) => { if (current === generation) view.render(supplement); },
-        invalid: (message) => { if (current === generation) view.invalid(message); },
+        render: (supplement) => {
+          if (current === generation) view.render(supplement);
+        },
+        invalid: (message) => {
+          if (current === generation) view.invalid(message);
+        },
         failure: (error) => {
           if (current === generation)
             view.failure(error, () => void run(channel), preserveContent);
@@ -282,10 +301,13 @@ export function initChromaRuntime(document: Document): void {
         syncButtons();
       }
     };
-    buttons.forEach((button) => button.addEventListener("click", () => {
-      const next = button.dataset.chromaRuntimeChannel === "latest" ? "latest" : "pbe";
-      void run(next, true);
-    }));
+    buttons.forEach((button) =>
+      button.addEventListener("click", () => {
+        const next =
+          button.dataset.chromaRuntimeChannel === "latest" ? "latest" : "pbe";
+        void run(next, true);
+      }),
+    );
     buttons.forEach((button) => {
       button.setAttribute(
         "aria-pressed",
@@ -299,7 +321,7 @@ export function initChromaRuntime(document: Document): void {
         generation += 1;
         view.invalid(
           locale === "zh_cn"
-            ? "链接无效，请选择有效的资料通道。"
+            ? "链接无效，请选择有效的版本数据源。"
             : "This link is invalid. Choose a valid reference channel.",
         );
         return;
@@ -311,7 +333,7 @@ export function initChromaRuntime(document: Document): void {
     } else {
       view.invalid(
         locale === "zh_cn"
-          ? "链接无效，请选择有效的资料通道。"
+          ? "链接无效，请选择有效的版本数据源。"
           : "This link is invalid. Choose a valid reference channel.",
       );
     }

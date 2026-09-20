@@ -4,6 +4,7 @@ import {
 } from "../domain/communitydragon-url";
 import {
   CommunityDragonRuntimeError,
+  normalizeRuntimeOptions,
   parseRuntimeEntity,
   parseRuntimeList,
   type CommunityDragonLocale,
@@ -64,22 +65,16 @@ export function createCommunityDragonRuntime(
     options: RuntimeRequestOptions,
   ): Required<Pick<RuntimeRequestOptions, "locale" | "channel">> &
     Pick<RuntimeRequestOptions, "signal" | "championId"> {
-    const channel = options.channel ?? DEFAULT_CHANNEL;
-    if (options.locale !== "default" && options.locale !== "zh_cn")
-      throw new CommunityDragonRuntimeError(
-        "invalid-request",
-        "Unsupported CommunityDragon locale",
-      );
-    if (channel !== "pbe" && channel !== "latest")
-      throw new CommunityDragonRuntimeError(
-        "invalid-request",
-        "Unsupported CommunityDragon channel",
-      );
-    return {
+    const normalized = normalizeRuntimeOptions({
       locale: options.locale,
-      channel,
-      signal: options.signal,
+      channel: options.channel ?? DEFAULT_CHANNEL,
       championId: options.championId,
+    });
+    return {
+      locale: normalized.locale,
+      channel: normalized.channel,
+      signal: options.signal,
+      championId: normalized.championId,
     };
   }
 

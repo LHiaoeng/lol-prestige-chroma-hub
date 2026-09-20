@@ -251,8 +251,7 @@ function championLabels(
   raw: { name: string; title?: string },
   locale: CommunityDragonLocale,
 ): { name: string; title?: string } {
-  if (locale !== "zh_cn")
-    return { name: raw.name, title: text(raw.title) };
+  if (locale !== "zh_cn") return { name: raw.name, title: text(raw.title) };
   const name = text(raw.title);
   if (!name) throw new Error("Chinese champion payload is missing its name");
   return { name, title: text(raw.name) };
@@ -336,7 +335,7 @@ function normalizeSkin(
   };
 }
 
-function parseOptions(
+export function normalizeRuntimeOptions(
   options: RuntimeParseOptions,
 ): Required<Pick<RuntimeParseOptions, "locale" | "channel">> &
   Pick<RuntimeParseOptions, "championId"> {
@@ -359,22 +358,24 @@ export function parseRuntimeList(
   value: unknown,
   input: RuntimeParseOptions,
 ): RuntimeList {
-  const options = parseOptions(input);
+  const options = normalizeRuntimeOptions(input);
   if (kind === "champions")
-    return parseCollection(value, championSummarySchema, "Champion summary").map(
-      (raw) => {
-        const labels = championLabels(raw, options.locale);
-        return {
-          kind: "champion" as const,
-          id: raw.id,
-          name: labels.name,
-          alias: text(raw.alias),
-          title: labels.title,
-          shortBio: text(raw.shortBio),
-          portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
-        };
-      },
-    );
+    return parseCollection(
+      value,
+      championSummarySchema,
+      "Champion summary",
+    ).map((raw) => {
+      const labels = championLabels(raw, options.locale);
+      return {
+        kind: "champion" as const,
+        id: raw.id,
+        name: labels.name,
+        alias: text(raw.alias),
+        title: labels.title,
+        shortBio: text(raw.shortBio),
+        portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
+      };
+    });
   if (kind === "skinlines")
     return parseCollection(value, skinlineSchema, "Skinline").map((raw) => ({
       kind: "skinline" as const,
@@ -400,7 +401,7 @@ export function parseRuntimeEntity(
   value: unknown,
   input: RuntimeParseOptions,
 ): RuntimeEntity {
-  const options = parseOptions(input);
+  const options = normalizeRuntimeOptions(input);
   if (!Number.isSafeInteger(id) || id <= 0)
     throw new CommunityDragonRuntimeError(
       "invalid-request",
@@ -408,7 +409,8 @@ export function parseRuntimeEntity(
     );
   if (
     kind === "skin" &&
-    (!Number.isSafeInteger(options.championId) || (options.championId ?? 0) <= 0)
+    (!Number.isSafeInteger(options.championId) ||
+      (options.championId ?? 0) <= 0)
   )
     throw new CommunityDragonRuntimeError(
       "invalid-request",
