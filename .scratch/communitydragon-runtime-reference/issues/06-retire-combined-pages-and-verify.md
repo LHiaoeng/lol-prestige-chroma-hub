@@ -15,4 +15,4 @@
 - [x] 首页、臻彩详情、博客、覆盖率文章及其他原有静态页面的内容、数据链路、交互、SEO 和测试保持现状，本任务不修改这些页面。
 - [x] CommunityDragon 资源指南、ADR 和维护文档与最终独立页面架构一致，不保留旧双模式说明。
 
-**Verification:** `pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm audit:build`, `git diff --check`, plus manual browser acceptance against the local static preview for bilingual lists/details, independent navigation, `pbe`/`latest`, history, invalid links, the retired `/skins/` route, and retry UI.
+**Verification:** `pnpm release:build` (including `pnpm test`, `pnpm typecheck`, `pnpm data:validate`, `pnpm build`, and `pnpm audit:build`), `git diff --check`, plus manual browser acceptance against the local static preview for bilingual lists/details, independent navigation, `pbe`/`latest`, history, invalid links, the retired `/skins/` route, and retry UI.

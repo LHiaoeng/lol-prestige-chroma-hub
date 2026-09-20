@@ -12,7 +12,7 @@
 - [x] 皮肤核心资料优先显示，系列和宇宙随后独立加载；关联失败不移除核心内容，媒体失败不妨碍文字阅读。
 - [x] 页面提供返回英雄详情及前往系列、宇宙详情的普通链接，并在语言和页面导航中保留皮肤 ID、英雄提示与数据通道。
 - [x] 详情初始 HTML 带 `noindex`；目标通道没有该皮肤时显示明确不存在状态，不跨通道或跨区域回退。
-- [x] 在真实浏览器中，中英文用户能够从英雄进入皮肤、刷新分享、返回英雄、导航关联、切换通道并恢复关联或媒体失败，无阻断性控制台异常。
+- [x] 在真实浏览器中，中英文用户能够从英雄进入皮肤、刷新分享、返回英雄、导航关联、切换通道并恢复关联或媒体失败；未观察到阻断性页面异常。
 - [x] 自动化测试覆盖参数校验、英雄定位、皮肤身份复核、定位不一致、目标不存在、渐进关联、并发取消、媒体失败和禁止完整皮肤目录请求。
 
 **Implementation notes:**
@@ -21,4 +21,4 @@
 - Skin detail loads the hinted champion resource, then resolves the requested skin by ID without reading `skins.json`; an old `/skins/?id=...` URL is not a compatibility entry.
 - Core skin content renders before skinline and universe relations; failed relations and media do not remove the core text. Links use ordinary cross-page navigation and preserve language, hint, and explicit `pbe`/`latest` channel state.
 
-**Verification:** `pnpm test` (36 files, 264 tests), `pnpm typecheck` (0 errors), `git diff --check`, and manual browser checks for bilingual loading/navigation, legacy list URLs, channel switching, back/forward restoration, invalid parameters, and console errors.
+**Verification:** `pnpm release:build` (36 files, 264 tests; typecheck, data validation, static build, and build audit included), `git diff --check`, and manual browser checks for bilingual loading/navigation, legacy list URLs, channel switching, back/forward restoration, invalid parameters, and retry UI.
