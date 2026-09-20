@@ -82,9 +82,6 @@ function view(): RuntimeView & {
       result.events.push("failure");
     }),
     relationFailure: vi.fn(() => result.events.push("relation-failure")),
-    intro: vi.fn((channel?: "pbe" | "latest") =>
-      result.events.push(`intro:${channel ?? "pbe"}`),
-    ),
   };
   return result;
 }
@@ -182,41 +179,47 @@ describe("runtime URL state", () => {
     });
   });
 
-  it("defaults to pbe and parses positive safe IDs without guessing invalid values", () => {
+  it("keeps legacy list URLs in list mode and defaults their channel to pbe", () => {
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id=103"),
         "champions",
+        "list",
       ),
-    ).toMatchObject({ mode: "detail", id: 103, channel: "pbe" });
+    ).toEqual({ mode: "list", page: "champions", channel: "pbe" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id=103&channel=latest"),
         "champions",
+        "list",
       ),
-    ).toMatchObject({ mode: "detail", id: 103, channel: "latest" });
+    ).toEqual({ mode: "list", page: "champions", channel: "latest" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id=103&channel=pbe"),
         "champions",
+        "list",
       ),
-    ).toMatchObject({ mode: "detail", id: 103, channel: "pbe" });
+    ).toEqual({ mode: "list", page: "champions", channel: "pbe" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id=0"),
         "champions",
+        "list",
       ),
-    ).toMatchObject({ mode: "invalid" });
+    ).toMatchObject({ mode: "list" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id="),
         "champions",
+        "list",
       ),
-    ).toMatchObject({ mode: "invalid" });
+    ).toMatchObject({ mode: "list" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?channel=staging"),
         "champions",
+        "list",
       ),
     ).toMatchObject({ mode: "invalid" });
   });
@@ -228,7 +231,7 @@ describe("runtime URL state", () => {
         "skins",
         "list",
       ),
-    ).toEqual({ mode: "intro", page: "skins", channel: "pbe" });
+    ).toEqual({ mode: "invalid", page: "skins", channel: "pbe" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/skins/?id=103001"),
@@ -252,6 +255,7 @@ describe("RuntimeController", () => {
     const navigation = history("https://chromaart.lol/champions/");
     const controller = new RuntimeController(runtime(), viewState, navigation, {
       page: "champions",
+      pageMode: "list",
       locale: "default",
     });
 
@@ -278,10 +282,10 @@ describe("RuntimeController", () => {
     expect(viewState.events).toEqual(["loading:false", "list"]);
   });
 
-  it("commits channel changes on the skin reference intro without fetching", async () => {
+  it("rejects the retired skin entry route without fetching", async () => {
     const service = runtime();
     const viewState = view();
-    const navigation = history("https://chromaart.lol/skins/");
+    const navigation = history("https://chromaart.lol/skins/?id=103001");
     const controller = new RuntimeController(service, viewState, navigation, {
       page: "skins",
       pageMode: "list",
@@ -289,17 +293,10 @@ describe("RuntimeController", () => {
     });
 
     await controller.start();
-    await controller.navigate(
-      new URL("https://chromaart.lol/skins/?channel=latest"),
-    );
 
     expect(service.list).not.toHaveBeenCalled();
     expect(service.get).not.toHaveBeenCalled();
-    expect(navigation.url.search).toBe("?channel=latest");
-    expect(navigation.pushes).toEqual([
-      "https://chromaart.lol/skins/?channel=latest",
-    ]);
-    expect(viewState.events).toEqual(["intro:pbe", "intro:latest"]);
+    expect(viewState.events).toEqual(["invalid"]);
   });
 
   it("passes the current locale and channel to the champion list request", async () => {
@@ -454,6 +451,7 @@ describe("RuntimeController", () => {
     const navigation = history("https://chromaart.lol/champions/");
     const controller = new RuntimeController(service, viewState, navigation, {
       page: "champions",
+      pageMode: "list",
       locale: "default",
     });
     await controller.start();
@@ -663,6 +661,7 @@ describe("RuntimeController", () => {
     );
     const controller = new RuntimeController(service, viewState, navigation, {
       page: "skins",
+      pageMode: "detail",
       locale: "default",
     });
 

@@ -17,8 +17,8 @@
 
 **Implementation notes:**
 
-- English routes are `/skins/` and `/skins/detail/?id={skinId}&champion={championId}`; Simplified Chinese routes add the `/zh-cn/` prefix.
-- `/skins/` remains an informational entry shell and ignores legacy `?id=` detail parameters. Skin detail loads the hinted champion resource, then resolves the requested skin by ID without reading `skins.json`.
+- The only skin route is `/skins/detail/?id={skinId}&champion={championId}`; Simplified Chinese routes add the `/zh-cn/` prefix. There is no `/skins/` directory entry.
+- Skin detail loads the hinted champion resource, then resolves the requested skin by ID without reading `skins.json`; an old `/skins/?id=...` URL is not a compatibility entry.
 - Core skin content renders before skinline and universe relations; failed relations and media do not remove the core text. Links use ordinary cross-page navigation and preserve language, hint, and explicit `pbe`/`latest` channel state.
 
 **Verification:** `pnpm test` (36 files, 264 tests), `pnpm typecheck` (0 errors), `git diff --check`, and manual browser checks for bilingual loading/navigation, legacy list URLs, channel switching, back/forward restoration, invalid parameters, and console errors.

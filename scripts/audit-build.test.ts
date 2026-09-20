@@ -89,6 +89,14 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).not.toThrow();
   });
 
+  it('rejects the retired skin entry shells', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'skins'));
+    writeFileSync(join(root, 'skins', 'index.html'), '<html></html>');
+
+    expect(() => auditBuild(root)).toThrow(/skin entry/i);
+  });
+
   it.each([
     'nested/prestige-chromas.json',
     '_astro/page.D4gH3x.js.map',

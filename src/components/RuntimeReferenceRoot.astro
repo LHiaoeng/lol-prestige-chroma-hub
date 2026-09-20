@@ -7,18 +7,18 @@ interface Props {
   readonly label: string;
   readonly heading: string;
   readonly lede: string;
-  readonly mode?: 'list' | 'detail';
+  readonly mode: 'list' | 'detail';
 }
 
 const { page, locale, label, heading, lede, mode } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
-const listPath = localizedPath(locale, `/${page}/`);
+const listPath = page === 'skins' ? undefined : localizedPath(locale, `/${page}/`);
 ---
 
 <div class="runtime-page">
   <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
-    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>{mode === 'detail' ? <><a href={listPath} data-runtime-channel-link>{label}</a><span>/</span><span aria-current="page">{isZh ? `${label}详情` : `${label} detail`}</span></> : <span aria-current="page">{label}</span>}
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>{mode === 'detail' ? <>{listPath && <><a href={listPath} data-runtime-channel-link>{label}</a><span>/</span></>}<span aria-current="page">{isZh ? `${label}详情` : `${label} detail`}</span></> : <span aria-current="page">{label}</span>}
   </nav>
   <header>
     <h1>{heading}</h1>

@@ -79,10 +79,10 @@ browser-app.ts 读取嵌入目录
 | `/zh-cn/` | 简体中文首页和完整目录 | 中文 Hero、筛选、状态、卡片、分页 |
 | `/chromas/{slug}/` | 规范详情页 | 原画、完整资料、外部操作、相关推荐 |
 | `/chromas/{skinId}/` | 数字兼容入口 | 与对应规范详情页相同，Canonical 指向描述性 slug |
-| `/champions/` | PBE 英雄目录壳 | 浏览器加载英雄列表；详情使用 `/champions/detail/?id={championId}` |
-| `/skins/` | PBE 皮肤入口壳 | 不提供全量列表；详情使用 `/skins/detail/?id={skinId}&champion={championId}` |
-| `/skinlines/` | PBE 皮肤系列目录壳 | 浏览器加载系列列表；详情使用 `/skinlines/detail/?id={skinlineId}` |
-| `/universes/` | PBE 宇宙目录壳 | 浏览器加载宇宙列表；详情使用 `/universes/detail/?id={universeId}` |
+| `/champions/` | 英雄目录壳 | 浏览器加载英雄列表；详情使用 `/champions/detail/?id={championId}` |
+| `/skins/detail/` | 皮肤详情壳 | 需要 `id` 与 `champion`；不提供全量皮肤列表 |
+| `/skinlines/` | 皮肤系列目录壳 | 浏览器加载系列列表；详情使用 `/skinlines/detail/?id={skinlineId}` |
+| `/universes/` | 宇宙目录壳 | 浏览器加载宇宙列表；详情使用 `/universes/detail/?id={universeId}` |
 | `/about/` | 概念说明 | 中英文介绍、示例原画、获取与更新说明 |
 | `/editorial-policy/` | 作者与编辑说明 | 维护主体、编辑原则、资料来源、核验方式与纠错流程 |
 | `/zh-cn/editorial-policy/` | 简体中文作者与编辑说明 | 与英文页面对应的中文可信度说明 |
@@ -240,9 +240,9 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 ### 8.0 运行时目录与详情
 
-四个 PBE 入口只输出静态壳，展示标题、`pbe`/`latest` 通道控制、加载状态和无脚本提示；页面语言决定区域数据视图，但不把内部 locale 或原始请求地址放进主界面。英雄、系列和宇宙的列表与详情分别使用独立页面壳；普通皮肤不提供全量列表，只从英雄详情进入 `/skins/detail/`。英雄列表对齐参考项目，使用小方形头像与名称组成的可点击网格；系列和宇宙列表保留各自的搜索、排序与分页。英雄、系列和宇宙详情使用数字 `id`，皮肤详情额外要求 `champion` 数字提示；详情核心资料成功后再加载系列或宇宙关联。详情状态由客户端控制器负责，统一支持加载骨架、空结果、结构化失败、重试、取消和迟到响应保护。
+运行时入口只输出静态壳，展示标题、`pbe`/`latest` 通道控制、加载状态和无脚本提示；页面语言决定区域数据视图，但不把内部 locale 或原始请求地址放进主界面。英雄、系列和宇宙的列表与详情分别使用独立页面壳；普通皮肤不提供全量列表，只从英雄详情进入 `/skins/detail/`。英雄列表对齐参考项目，使用小方形头像与名称组成的可点击网格；系列和宇宙列表保留各自的搜索、排序与分页。英雄、系列和宇宙详情使用数字 `id`，皮肤详情额外要求 `champion` 数字提示；详情核心资料成功后再加载系列或宇宙关联。详情状态由客户端控制器负责，统一支持加载骨架、结构化失败、重试、取消和迟到响应保护。
 
-运行时详情使用 `noindex`，不生成实体静态 HTML，也不进入 sitemap。旧的 slug 实体 URL 不提供兼容页或跳转；Cloudflare Static Assets 对这些路径返回站点 404。CommunityDragon 直接由浏览器请求，默认 PBE，显式 `channel=latest` 才读取正式服滚动资料；路径、区域、通道和响应契约由领域层统一校验。静态臻彩详情保留完整 SEO 内容，不设置运行时 `noindex`。
+运行时详情使用 `noindex`，不生成实体静态 HTML，也不进入 sitemap。旧的 slug 实体 URL 不提供兼容页或跳转；Cloudflare Static Assets 对这些路径返回站点 404。CommunityDragon 直接由浏览器请求，默认 `pbe`，显式 `channel=latest` 才读取 `latest` 滚动资料；路径、区域、通道和响应契约由领域层统一校验。静态臻彩详情保留完整 SEO 内容，不设置运行时 `noindex`。
 
 臻彩详情是静态优先页面：正文、图片、SEO、主要操作和静态关系不依赖外部源站；正文完成后可补充对应英雄和基础皮肤资料。补充失败提供轻量重试并保留正文，媒体失败只移除媒体，不改变静态事实。
 

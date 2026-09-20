@@ -45,8 +45,8 @@ https://raw.communitydragon.org/{version}/{relativePath}
 
 版本值：
 
-- `pbe`：当前测试服滚动资源。本项目运行时默认使用它。
-- `latest`：当前正式服滚动资源。运行时只有显式指定 `channel=latest` 时使用。
+- `pbe`：当前滚动资源。本项目运行时默认使用它。
+- `latest`：当前滚动资源。运行时只有显式指定 `channel=latest` 时使用。
 - `{patch}`：固定补丁目录，例如 `16.18`，用于人工研究或显式维护，不作为运行时通道。
 
 `pbe` 和 `latest` 都是滚动数据源，不是不可变快照。需要复现历史状态时使用明确补丁号，并记录抓取时间和内容版本。
@@ -173,7 +173,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 /universes/detail/?id={universeId}
 ```
 
-英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/skins/` 只提供普通皮肤入口说明，不提供全量列表；`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。宇宙详情只读取宇宙记录及其所属系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
+英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；普通皮肤不提供目录页，只从英雄详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。宇宙详情只读取宇宙记录及其所属系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
 
 ### 3.3 英雄与皮肤字段、分类和图片
 

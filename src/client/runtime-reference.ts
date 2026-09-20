@@ -18,7 +18,7 @@ export {
 } from "./runtime-reference-view";
 
 export type RuntimePage = RuntimeListKind | "skins";
-export type RuntimePageMode = "legacy" | "list" | "detail";
+export type RuntimePageMode = "list" | "detail";
 
 export interface RuntimeHistory {
   readonly url: URL;
@@ -44,7 +44,6 @@ export interface RuntimeView {
   invalid(message: string, channel?: "pbe" | "latest"): void;
   failure(error: CommunityDragonRuntimeError, retry: () => void): void;
   relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
-  intro?(channel?: "pbe" | "latest"): void;
 }
 
 export type RuntimeLocationState =
@@ -62,11 +61,6 @@ export type RuntimeLocationState =
       readonly channel: "pbe" | "latest";
     }
   | {
-      readonly mode: "intro";
-      readonly page: "skins";
-      readonly channel: "pbe" | "latest";
-    }
-  | {
       readonly mode: "invalid";
       readonly page: RuntimePage;
       readonly channel?: "pbe" | "latest";
@@ -75,7 +69,7 @@ export type RuntimeLocationState =
 export interface RuntimeControllerOptions {
   readonly page: RuntimePage;
   readonly locale: CommunityDragonLocale;
-  readonly pageMode?: RuntimePageMode;
+  readonly pageMode: RuntimePageMode;
 }
 
 function positiveSafeInteger(value: string | null): number | undefined {
@@ -92,24 +86,18 @@ function channel(value: string | null): "pbe" | "latest" | undefined {
 export function parseRuntimeLocation(
   url: URL,
   page: RuntimePage,
-  pageMode: RuntimePageMode = "legacy",
+  pageMode: RuntimePageMode,
 ): RuntimeLocationState {
   const selectedChannel = channel(url.searchParams.get("channel"));
   if (!selectedChannel) return { mode: "invalid", page };
+  if (pageMode === "list") {
+    if (page === "skins") return { mode: "invalid", page, channel: selectedChannel };
+    return { mode: "list", page, channel: selectedChannel };
+  }
   const hasId = url.searchParams.has("id");
   const rawId = url.searchParams.get("id");
-  if (pageMode === "list") {
-    if (page === "skins")
-      return { mode: "intro", page, channel: selectedChannel };
-    return { mode: "list", page, channel: selectedChannel };
-  }
   if (pageMode === "detail" && !hasId)
     return { mode: "invalid", page, channel: selectedChannel };
-  if (!hasId) {
-    if (page === "skins")
-      return { mode: "intro", page, channel: selectedChannel };
-    return { mode: "list", page, channel: selectedChannel };
-  }
   const id = positiveSafeInteger(rawId);
   if (!id) return { mode: "invalid", page, channel: selectedChannel };
   if (page === "skins") {
@@ -241,14 +229,6 @@ export class RuntimeController {
       );
       return;
     }
-    if (state.mode === "intro") {
-      this.abortController?.abort();
-      this.generation += 1;
-      this.commitUrl(url, commit);
-      this.view.intro?.(state.channel);
-      return;
-    }
-
     const generation = ++this.generation;
     this.abortController?.abort();
     const controller = new AbortController();
@@ -368,11 +348,10 @@ export function initRuntimeReference(root: HTMLElement): RuntimeController {
   if (
     !page ||
     !locale ||
+    !pageMode ||
     (locale !== "default" && locale !== "zh_cn") ||
-    (pageMode &&
-      pageMode !== "legacy" &&
-      pageMode !== "list" &&
-      pageMode !== "detail")
+    (pageMode !== "list" && pageMode !== "detail") ||
+    (page === "skins" && pageMode === "list")
   )
     throw new Error("Runtime reference root is missing a valid page or locale");
   const source = root

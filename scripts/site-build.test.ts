@@ -401,7 +401,7 @@ describe("static site build", () => {
 
   it("keeps runtime directories as static shells without entity HTML", () => {
     for (const prefix of ["", "zh-cn/"]) {
-      for (const page of ["champions", "skins", "skinlines", "universes"]) {
+      for (const page of ["champions", "skinlines", "universes"]) {
         const html = readFileSync(
           join(dist, prefix, page, "index.html"),
           "utf8",
@@ -418,6 +418,7 @@ describe("static site build", () => {
           `<link rel="canonical" href="https://chromaart.lol/${prefix}${page}/">`,
         );
       }
+      expect(existsSync(join(dist, prefix, "skins", "index.html"))).toBe(false);
     }
     const files = readdirSync(dist, { recursive: true })
       .map(String)
@@ -616,7 +617,7 @@ describe("static site build", () => {
     expect(skinDetail).toContain('<title>Skin detail | LoL Chroma Art</title>');
     expect(skinDetail).toContain('data-runtime-page="skins"');
     expect(skinDetail).toContain('data-runtime-mode="detail"');
-    expect(skinDetail).toContain('href="/skins/"');
+    expect(skinDetail).not.toContain('href="/skins/"');
     expect(chineseSkinDetail).toContain(
       '<link rel="canonical" href="https://chromaart.lol/zh-cn/skins/detail/">',
     );
@@ -626,7 +627,7 @@ describe("static site build", () => {
     expect(chineseSkinDetail).toContain("<title>皮肤详情 | LoL Chroma Art</title>");
     expect(chineseSkinDetail).toContain('data-runtime-page="skins"');
     expect(chineseSkinDetail).toContain('data-runtime-mode="detail"');
-    expect(chineseSkinDetail).toContain('href="/zh-cn/skins/"');
+    expect(chineseSkinDetail).not.toContain('href="/zh-cn/skins/"');
   });
 
   it("uses factual informational SEO copy", () => {

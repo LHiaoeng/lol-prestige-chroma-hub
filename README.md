@@ -10,9 +10,9 @@
 
 英文博客位于 `/blog/`，简体中文博客位于 `/zh-cn/blog/`；两种语言使用相同文章 slug。文章正文直接由共享 Astro 页面维护，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章由已提交的 `data/champion-coverage.snapshot.json` 生成完整静态正文；浏览器打开页面后可以显式刷新辅助数据，失败时保留快照。普通构建不在线更新快照，维护者使用 `pnpm coverage:snapshot` 在核对两个区域数据视图、来源 URL、抓取时间和内容版本后更新它。公开页面不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
-图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤、皮肤系列和宇宙只保留双语静态目录壳，详情通过浏览器直接读取当前区域和数据通道的 CommunityDragon 资料；动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和基础皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
+图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤系列和宇宙保留双语静态列表与详情壳，普通皮肤只保留独立详情壳；这些运行时资料页通过浏览器直接读取当前区域和数据通道的 CommunityDragon 资料，动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和基础皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
 
-运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 及其双语目录壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
+运行时资料入口包括 `/champions/`、`/skinlines/`、`/universes/` 三个双语目录壳，以及独立的英雄、普通皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 
 CommunityDragon 的通用 RAW 访问规则、版本与区域数据视图，以及英雄联盟和云顶之弈资源说明，见 [CommunityDragon 资源指南](docs/CD资源指南.md)。
 
