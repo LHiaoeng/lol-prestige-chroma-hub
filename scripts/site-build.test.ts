@@ -557,6 +557,14 @@ describe("static site build", () => {
       join(dist, "zh-cn", "universes", "detail", "index.html"),
       "utf8",
     );
+    const skinDetail = readFileSync(
+      join(dist, "skins", "detail", "index.html"),
+      "utf8",
+    );
+    const chineseSkinDetail = readFileSync(
+      join(dist, "zh-cn", "skins", "detail", "index.html"),
+      "utf8",
+    );
     expect(skinlineList).toContain('data-runtime-mode="list"');
     expect(skinlineList).not.toContain(
       '<meta name="robots" content="noindex, nofollow">',
@@ -599,6 +607,26 @@ describe("static site build", () => {
     );
     expect(chineseUniverseDetail).toContain('data-runtime-mode="detail"');
     expect(chineseUniverseDetail).toContain('href="/zh-cn/universes/"');
+    expect(skinDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/skins/detail/">',
+    );
+    expect(skinDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(skinDetail).toContain('<title>Skin detail | LoL Chroma Art</title>');
+    expect(skinDetail).toContain('data-runtime-page="skins"');
+    expect(skinDetail).toContain('data-runtime-mode="detail"');
+    expect(skinDetail).toContain('href="/skins/"');
+    expect(chineseSkinDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/zh-cn/skins/detail/">',
+    );
+    expect(chineseSkinDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(chineseSkinDetail).toContain("<title>皮肤详情 | LoL Chroma Art</title>");
+    expect(chineseSkinDetail).toContain('data-runtime-page="skins"');
+    expect(chineseSkinDetail).toContain('data-runtime-mode="detail"');
+    expect(chineseSkinDetail).toContain('href="/zh-cn/skins/"');
   });
 
   it("uses factual informational SEO copy", () => {

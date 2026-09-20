@@ -217,6 +217,45 @@ describe("runtime DOM boundaries", () => {
     expect(latest.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("keeps the requested channel visible on the skin reference intro", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/skins/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const label = new TestElement("span");
+    label.dataset.runtimeChannelLabel = "";
+    const pbe = new TestElement("button");
+    pbe.dataset.runtimeChannel = "pbe";
+    const latest = new TestElement("button");
+    latest.dataset.runtimeChannel = "latest";
+    source.append(label, pbe, latest);
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "skins",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history("https://chromaart.lol/skins/?channel=latest"),
+    });
+
+    view.intro!("latest");
+
+    expect(label.textContent).toBe("latest");
+    expect(latest.getAttribute("aria-pressed")).toBe("true");
+    expect(pbe.getAttribute("aria-pressed")).toBe("false");
+  });
+
   it("uses the reference role filter and compact champion cards", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
@@ -510,6 +549,71 @@ describe("runtime DOM boundaries", () => {
     );
     expect(content.querySelector("a")?.href).toBe(
       "/skins/detail/?id=103001&champion=103&channel=latest",
+    );
+    expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
+  });
+
+  it("renders a skin detail with a link back to the champion detail", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/skins/detail/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "skins",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(
+        "https://chromaart.lol/skins/detail/?id=103001&champion=103&channel=latest",
+      ),
+    });
+
+    view.renderDetail(
+      {
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        name: "Dynasty Ahri",
+        description: "A dynasty-inspired skin.",
+        isBase: false,
+        skinlineIds: [],
+        media: {
+          focusedSplashUrl: "https://example.test/dynasty.jpg",
+        },
+        stages: [],
+        chromas: [],
+      },
+      {
+        mode: "detail",
+        page: "skins",
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        channel: "latest",
+      },
+    );
+
+    expect(content.querySelector("h1")?.textContent).toBe("Dynasty Ahri");
+    expect(content.querySelector("img")?.src).toBe(
+      "https://example.test/dynasty.jpg",
+    );
+    expect(content.querySelector("a")?.href).toBe(
+      "/champions/detail/?id=103&channel=latest",
+    );
+    expect(content.querySelector(".runtime-lede")?.textContent).toBe(
+      "A dynasty-inspired skin.",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });

@@ -223,12 +223,21 @@ describe("runtime URL state", () => {
       parseRuntimeLocation(
         new URL("https://chromaart.lol/skins/?id=103001"),
         "skins",
+        "list",
+      ),
+    ).toEqual({ mode: "intro", page: "skins", channel: "pbe" });
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/skins/?id=103001"),
+        "skins",
+        "detail",
       ),
     ).toMatchObject({ mode: "invalid" });
     expect(
       parseRuntimeLocation(
-        new URL("https://chromaart.lol/skins/?id=103001&champion=103"),
+        new URL("https://chromaart.lol/skins/detail/?id=103001&champion=103"),
         "skins",
+        "detail",
       ),
     ).toMatchObject({ mode: "detail", id: 103001, championId: 103 });
   });

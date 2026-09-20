@@ -153,7 +153,7 @@ export function createDomView(
       const skinLink = document.createElement("a");
       skinLink.href = localizedPath(
         siteLocale,
-        `/skins/?id=${baseSkin.id}&champion=${champion.id}${channelQuery}`,
+        `/skins/detail/?id=${baseSkin.id}&champion=${champion.id}${channelQuery}`,
       );
       skinLink.textContent =
         locale === "zh_cn" ? "查看基础皮肤" : "View base skin";

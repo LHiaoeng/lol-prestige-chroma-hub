@@ -461,7 +461,7 @@ export function createDomRuntimeView(
             hrefFor(options.locale, "champions", {
               id: item.championId,
               channel: state.channel,
-            }, "list", preservesExplicitPbe()),
+            }, "detail", preservesExplicitPbe()),
             controller,
           ),
         );
@@ -624,9 +624,10 @@ export function createDomRuntimeView(
       status.appendChild(document.createTextNode(" "));
       status.appendChild(button);
     },
-    intro() {
+    intro(channel) {
       relationSlot = undefined;
       options.root.removeAttribute("aria-busy");
+      if (channel) updateChannel(channel);
       status.textContent =
         options.locale === "zh_cn"
           ? "请从英雄资料进入皮肤详情。"

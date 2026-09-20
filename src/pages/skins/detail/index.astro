@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RuntimeReferenceRoot from '../../../components/RuntimeReferenceRoot.astro';
+import { resolveLocale, type Locale } from '../../../i18n/config';
+import { createEntitySeo } from '../../../seo/entity-seo';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const isZh = locale === 'zh-cn';
+const seo = createEntitySeo(
+  'skins/detail',
+  undefined,
+  isZh ? '皮肤详情' : 'Skin detail',
+  isZh
+    ? '在浏览器中读取指定皮肤资料及其系列、宇宙关联。'
+    : 'Read a selected skin and its skinline and universe connections in the browser.',
+  locale,
+);
+---
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
+  <RuntimeReferenceRoot page="skins" mode="detail" {locale} label={isZh ? '皮肤' : 'Skins'} heading={isZh ? '皮肤详情' : 'Skin detail'} lede={isZh ? '查看当前区域数据视图中的皮肤资料。' : 'View the skin reference for the current regional data view.'} />
+</BaseLayout>

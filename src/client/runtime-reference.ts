@@ -44,7 +44,7 @@ export interface RuntimeView {
   invalid(message: string, channel?: "pbe" | "latest"): void;
   failure(error: CommunityDragonRuntimeError, retry: () => void): void;
   relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
-  intro?(): void;
+  intro?(channel?: "pbe" | "latest"): void;
 }
 
 export type RuntimeLocationState =
@@ -244,7 +244,7 @@ export class RuntimeController {
     if (state.mode === "intro") {
       this.abortController?.abort();
       this.generation += 1;
-      this.view.intro?.();
+      this.view.intro?.(state.channel);
       return;
     }
 
