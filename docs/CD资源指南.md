@@ -132,6 +132,32 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 
 皮肤详情通过 URL 中的皮肤 ID 与英雄定位提示读取对应英雄详情，再按皮肤 ID 查找并复核目标身份。不得根据皮肤 ID 的数字格式猜测英雄 ID；缺少英雄定位提示时，只允许读取必要的小型索引，不得回退到完整 `skins.json`。
 
+### 2.4 英雄分类数据
+
+英雄分类直接读取 `champion-summary.json` 每条英雄记录的 `roles` 数组，不根据英雄名称、数字 ID 或图片路径推导分类。列表请求使用当前页面对应的区域数据视图：英文使用 `default`，中文使用 `zh_cn`。
+
+```json
+{
+  "id": 103,
+  "alias": "Ahri",
+  "roles": ["mage", "assassin"]
+}
+```
+
+分类处理规则：
+
+1. 从当前 `{version}`、`{lang}` 的 `champion-summary.json` 读取 `roles`；缺失字段按“没有可用分类”处理，不猜测或从另一语言补值。
+2. 页面只提供参考项目使用的六个分类键：`assassin`、`fighter`、`mage`、`marksman`、`support`、`tank`。参考项目的 `classes` 值是英文显示标签；本项目再将这些固定键本地化为“刺客、战士、法师、射手、辅助、坦克”。
+3. “全部”不添加过滤条件；选择分类时使用精确成员匹配 `roles.includes(role)`。英雄可以有多个角色，因此会同时出现在多个分类中；例如 Ahri 同时属于法师和刺客。
+4. `roles` 是机器字段，界面只展示本地化后的分类名称，不向用户暴露字段名、数据源路径或其他内部解析信息。
+5. 如果 CommunityDragon 返回未知角色值，保留原始数据供校验，但不自动新增用户界面分类；新增分类必须先核对参考实现和实际数据，再同步类型、测试与文档。
+
+这里的六个分类键来自参考项目的 `classes` 映射；该映射定义固定的可选分类键及英文显示标签，英雄本身的分类仍以记录中的 `roles` 为准。参考项目页面使用 `champion.roles.includes(role)` 完成筛选，而不是重新计算角色：
+
+- [参考项目英雄列表筛选](https://raw.githubusercontent.com/BennyExtreme00/lol-skin-explorer/main/pages/index.js)
+- [参考项目分类键与显示名称](https://raw.githubusercontent.com/BennyExtreme00/lol-skin-explorer/main/data/helpers.js)
+- [参考项目英雄缓存入口](https://raw.githubusercontent.com/BennyExtreme00/lol-skin-explorer/main/data/patch.js)
+
 ## 3. 图片路径映射规则
 
 ### 3.1 官方 JSON 资源路径
@@ -321,6 +347,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 | 正式版本视图 | 上述 URL 加 `channel=latest`  | 仅切换运行时资料  |
 
 - 英雄列表在浏览器中完成名称搜索、ID/名称排序和分页；页面只渲染当前分页，避免一次性建立全部卡片节点。
+- 英雄分类遵循 [2.4 英雄分类数据](#24-英雄分类数据) 的契约：直接使用 `champion-summary.json` 中的 `roles`，以 `roles.includes(role)` 精确筛选；多角色英雄出现在每个匹配分类中，未知角色不自动成为新的界面选项。
 - 英雄详情使用 `champions/{championId}.json`，并从同一份英雄记录提供皮肤正向集合；普通皮肤入口必须继续携带 `champion={championId}`。
 - 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。`src/domain/communitydragon-runtime.ts` 只负责 Schema、身份复核与路径规范化等纯规则，`src/client/communitydragon-runtime.ts` 负责浏览器请求、页面内去重和取消；测试通过后者注入假请求，不探测真实站点。
 - 首次加载显示静态标题、版本数据源和启用脚本提示；英文与中文页面分别使用 `default` 与 `zh_cn`，但不在主界面展示内部区域标识；请求成功后状态栏只显示加载状态。运行时详情由客户端状态标记为 `noindex`，静态臻彩页不依赖该辅助资料即可保持可索引正文。
@@ -361,7 +388,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 | 区域数据视图     | 参考项目                                                                                        | 参考范围                                                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | 国服 `zh_cn`     | [BuguoguoLoLCreator/lol-skin-explorer](https://github.com/BuguoguoLoLCreator/lol-skin-explorer) | 国服名称、国服稀有度与腾讯服务器专属内容的读取、整理和展示。该项目基于下方直营服项目分支，并针对国服数据扩展。 |
-| 直营服 `default` | [BennyExtreme00/lol-skin-explorer](https://github.com/BennyExtreme00/lol-skin-explorer)         | 直营服英雄、皮肤、系列、宇宙和 `pbe` 数据的读取、关联及展示。                                                    |
+| 直营服 `default` | [BennyExtreme00/lol-skin-explorer](https://github.com/BennyExtreme00/lol-skin-explorer)         | 直营服英雄、皮肤、系列、宇宙和 `pbe` 数据的读取、关联及展示；英雄列表从缓存记录读取 `roles`，按六个固定分类筛选。 |
 
 使用规则：
 
@@ -378,4 +405,5 @@ https://raw.communitydragon.org/{version}/{relativePath}
 - [CommunityDragon Docs – Asset paths](https://github.com/CommunityDragon/Docs/blob/master/assets.md)
 - [CommunityDragon CDTB](https://github.com/CommunityDragon/CDTB)
 - [Skin Explorer rarity 映射参考](https://github.com/BennyExtreme00/lol-skin-explorer/blob/main/data/helpers.js)
+- [Skin Explorer 英雄列表与 `roles` 筛选参考](https://github.com/BennyExtreme00/lol-skin-explorer/blob/main/pages/index.js)
 - [Riot Skins 101：Legacy 与 Limited 的定义](https://www.leagueoflegends.com/en-ph/news/dev/skins-101/)
