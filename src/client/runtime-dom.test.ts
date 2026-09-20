@@ -181,6 +181,42 @@ describe("runtime DOM boundaries", () => {
     expect(root.querySelector("[data-runtime-source]")).toBeNull();
   });
 
+  it("keeps the valid channel visible when an entity link is invalid", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const channelLabel = new TestElement("span");
+    channelLabel.dataset.runtimeChannelLabel = "";
+    const pbe = new TestElement("button");
+    pbe.dataset.runtimeChannel = "pbe";
+    const latest = new TestElement("button");
+    latest.dataset.runtimeChannel = "latest";
+    source.append(channelLabel, pbe, latest);
+
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "universes",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(
+        "https://chromaart.lol/universes/detail/?id=0&channel=latest",
+      ),
+    });
+
+    view.invalid("This link is invalid.", "latest");
+
+    expect(channelLabel.textContent).toBe("latest");
+    expect(pbe.getAttribute("aria-pressed")).toBe("false");
+    expect(latest.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("uses the reference role filter and compact champion cards", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
@@ -539,6 +575,81 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector("a")?.href).toBe(
       "/universes/detail/?id=200&channel=latest",
     );
+  });
+
+  it("renders universe details with media and independent skinline links", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/universes/detail/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "universes",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(
+        "https://chromaart.lol/universes/detail/?id=200&channel=latest",
+      ),
+    });
+
+    view.renderDetail(
+      {
+        kind: "universe",
+        id: 200,
+        name: "Star Guardian universe",
+        description: "A bright parallel world.",
+        imageUrl: "https://example.test/universe.png",
+        skinlineIds: [7],
+      },
+      {
+        mode: "detail",
+        page: "universes",
+        kind: "universe",
+        id: 200,
+        channel: "latest",
+      },
+    );
+    view.renderRelations!(
+      [
+        {
+          kind: "skinline",
+          id: 7,
+          name: "Star Guardian",
+          universeIds: [200],
+        },
+      ],
+      {
+        mode: "detail",
+        page: "universes",
+        kind: "universe",
+        id: 200,
+        channel: "latest",
+      },
+    );
+
+    expect(content.querySelector("h1")?.textContent).toBe(
+      "Star Guardian universe",
+    );
+    expect(content.querySelector("img")?.src).toBe(
+      "https://example.test/universe.png",
+    );
+    expect(content.querySelector("a")?.href).toBe(
+      "/skinlines/detail/?id=7&channel=latest",
+    );
+    expect(content.querySelectorAll("a")).toHaveLength(1);
+    expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });
 
   it("keeps static chroma copy and channel controls when the supplement changes", () => {

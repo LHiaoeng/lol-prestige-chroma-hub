@@ -154,6 +154,31 @@ describe("runtime URL state", () => {
     });
   });
 
+  it("keeps the universe list route in list mode and parses its detail route separately", () => {
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/universes/?id=200&channel=latest"),
+        "universes",
+        "list",
+      ),
+    ).toEqual({ mode: "list", page: "universes", channel: "latest" });
+    expect(
+      parseRuntimeLocation(
+        new URL(
+          "https://chromaart.lol/universes/detail/?id=200&channel=latest",
+        ),
+        "universes",
+        "detail",
+      ),
+    ).toEqual({
+      mode: "detail",
+      page: "universes",
+      kind: "universe",
+      id: 200,
+      channel: "latest",
+    });
+  });
+
   it("defaults to pbe and parses positive safe IDs without guessing invalid values", () => {
     expect(
       parseRuntimeLocation(
@@ -478,6 +503,63 @@ describe("RuntimeController", () => {
       "universes",
       expect.objectContaining({ channel: "pbe" }),
     );
+  });
+
+  it("loads a universe detail and only requests its skinline relations", async () => {
+    const universe = {
+      kind: "universe" as const,
+      id: 200,
+      name: "Star Guardian universe",
+      description: "A bright parallel world.",
+      skinlineIds: [7],
+    };
+    const skinline = {
+      kind: "skinline" as const,
+      id: 7,
+      name: "Star Guardian",
+      universeIds: [200],
+    };
+    const service = runtime({
+      get: vi.fn(async () => universe),
+      list: vi.fn(async (kind) => (kind === "skinlines" ? [skinline] : [])),
+    });
+    const viewState = view();
+    const navigation = history(
+      "https://chromaart.lol/universes/detail/?id=200&channel=latest",
+    );
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "universes",
+      pageMode: "detail",
+      locale: "default",
+    });
+
+    await controller.start();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(service.get).toHaveBeenCalledWith(
+      "universe",
+      200,
+      expect.objectContaining({ locale: "default", channel: "latest" }),
+    );
+    expect(service.list).toHaveBeenCalledWith(
+      "skinlines",
+      expect.objectContaining({ locale: "default", channel: "latest" }),
+    );
+    expect(service.list).not.toHaveBeenCalledWith(
+      "universes",
+      expect.anything(),
+    );
+    expect(service.list).not.toHaveBeenCalledWith("skins", expect.anything());
+    expect(viewState.rendered).toMatchObject({
+      kind: "universe",
+      id: 200,
+      description: "A bright parallel world.",
+    });
+    expect(viewState.events).toEqual([
+      "loading:false",
+      "detail",
+      "relations:1",
+    ]);
   });
 
   it("keeps the core detail when a relation request fails", async () => {

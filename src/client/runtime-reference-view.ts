@@ -605,9 +605,10 @@ export function createDomRuntimeView(
       notice.append(" ", button);
       relationSlot.appendChild(notice);
     },
-    invalid(message) {
+    invalid(message, channel) {
       relationSlot = undefined;
       setRuntimeNoindex(true);
+      if (channel) updateChannel(channel);
       options.root.removeAttribute("aria-busy");
       status.textContent = message;
       content.replaceChildren();

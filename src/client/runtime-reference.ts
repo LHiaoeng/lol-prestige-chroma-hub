@@ -41,7 +41,7 @@ export interface RuntimeView {
     items: RuntimeList,
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
   ): void;
-  invalid(message: string): void;
+  invalid(message: string, channel?: "pbe" | "latest"): void;
   failure(error: CommunityDragonRuntimeError, retry: () => void): void;
   relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
   intro?(): void;
@@ -237,6 +237,7 @@ export class RuntimeController {
         this.options.locale === "zh_cn"
           ? "链接无效，请检查实体 ID 与版本数据源。"
           : "This link is invalid. Check the entity ID and data channel.",
+        state.channel,
       );
       return;
     }

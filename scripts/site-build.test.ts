@@ -541,6 +541,22 @@ describe("static site build", () => {
       join(dist, "zh-cn", "skinlines", "detail", "index.html"),
       "utf8",
     );
+    const universeList = readFileSync(
+      join(dist, "universes", "index.html"),
+      "utf8",
+    );
+    const universeDetail = readFileSync(
+      join(dist, "universes", "detail", "index.html"),
+      "utf8",
+    );
+    const chineseUniverseList = readFileSync(
+      join(dist, "zh-cn", "universes", "index.html"),
+      "utf8",
+    );
+    const chineseUniverseDetail = readFileSync(
+      join(dist, "zh-cn", "universes", "detail", "index.html"),
+      "utf8",
+    );
     expect(skinlineList).toContain('data-runtime-mode="list"');
     expect(skinlineList).not.toContain(
       '<meta name="robots" content="noindex, nofollow">',
@@ -562,6 +578,27 @@ describe("static site build", () => {
     );
     expect(chineseSkinlineDetail).toContain('data-runtime-mode="detail"');
     expect(chineseSkinlineDetail).toContain('href="/zh-cn/skinlines/"');
+    expect(universeList).toContain('data-runtime-mode="list"');
+    expect(universeList).not.toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(universeDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/universes/detail/">',
+    );
+    expect(universeDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(universeDetail).toContain('data-runtime-mode="detail"');
+    expect(universeDetail).toContain('href="/universes/"');
+    expect(chineseUniverseList).toContain('data-runtime-mode="list"');
+    expect(chineseUniverseDetail).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/zh-cn/universes/detail/">',
+    );
+    expect(chineseUniverseDetail).toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(chineseUniverseDetail).toContain('data-runtime-mode="detail"');
+    expect(chineseUniverseDetail).toContain('href="/zh-cn/universes/"');
   });
 
   it("uses factual informational SEO copy", () => {
