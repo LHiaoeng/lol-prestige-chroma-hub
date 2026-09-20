@@ -82,6 +82,9 @@ function view(): RuntimeView & {
       result.events.push("failure");
     }),
     relationFailure: vi.fn(() => result.events.push("relation-failure")),
+    intro: vi.fn((channel?: "pbe" | "latest") =>
+      result.events.push(`intro:${channel ?? "pbe"}`),
+    ),
   };
   return result;
 }
@@ -273,6 +276,30 @@ describe("RuntimeController", () => {
     expect(service.list).toHaveBeenCalledTimes(1);
     expect(service.get).not.toHaveBeenCalled();
     expect(viewState.events).toEqual(["loading:false", "list"]);
+  });
+
+  it("commits channel changes on the skin reference intro without fetching", async () => {
+    const service = runtime();
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/skins/");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "skins",
+      pageMode: "list",
+      locale: "default",
+    });
+
+    await controller.start();
+    await controller.navigate(
+      new URL("https://chromaart.lol/skins/?channel=latest"),
+    );
+
+    expect(service.list).not.toHaveBeenCalled();
+    expect(service.get).not.toHaveBeenCalled();
+    expect(navigation.url.search).toBe("?channel=latest");
+    expect(navigation.pushes).toEqual([
+      "https://chromaart.lol/skins/?channel=latest",
+    ]);
+    expect(viewState.events).toEqual(["intro:pbe", "intro:latest"]);
   });
 
   it("passes the current locale and channel to the champion list request", async () => {

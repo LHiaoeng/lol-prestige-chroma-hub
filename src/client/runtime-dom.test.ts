@@ -832,6 +832,43 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".chroma-runtime-meta")).toBeNull();
   });
 
+  it("preserves an explicit pbe channel in static chroma detail links", () => {
+    const document = new TestDocument();
+    document.defaultView = {
+      location: {
+        href: "https://chromaart.lol/chromas/ahri/?channel=pbe",
+        search: "?channel=pbe",
+      },
+    };
+    vi.stubGlobal("document", document);
+    const root = new TestElement("div");
+    const content = new TestElement("span");
+    content.dataset.chromaRuntimeContent = "";
+    root.append(content);
+
+    const view = createDomView(root as unknown as HTMLElement, "default", () => "pbe");
+    view.render({
+      champion: {
+        kind: "champion",
+        id: 103,
+        name: "Ahri",
+        skins: [],
+      },
+      baseSkin: {
+        id: 103001,
+        name: "Dynasty Ahri",
+        isBase: true,
+        skinlineIds: [],
+        media: {},
+        stages: [],
+      },
+    });
+
+    expect(content.querySelectorAll("a").map((link) => link.href)).toContain(
+      "/skins/detail/?id=103001&champion=103&channel=pbe",
+    );
+  });
+
   it("rejects an unsupported channel without normalizing it to pbe", () => {
     const document = new TestDocument();
     document.defaultView = {

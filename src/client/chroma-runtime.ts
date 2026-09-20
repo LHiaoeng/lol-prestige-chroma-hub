@@ -99,6 +99,13 @@ function sourceLabel(channel: "pbe" | "latest"): string {
   return channel;
 }
 
+function explicitChannelQuery(): string {
+  const href = document.defaultView?.location.href;
+  if (!href) return "";
+  const value = new URL(href).searchParams.get("channel");
+  return value === "pbe" || value === "latest" ? `&channel=${value}` : "";
+}
+
 export function createDomView(
   root: HTMLElement,
   locale: CommunityDragonLocale,
@@ -142,7 +149,7 @@ export function createDomView(
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
-      const channelQuery = getChannel() === "latest" ? "&channel=latest" : "";
+      const channelQuery = explicitChannelQuery();
       const championLink = document.createElement("a");
       championLink.href = localizedPath(
         siteLocale,

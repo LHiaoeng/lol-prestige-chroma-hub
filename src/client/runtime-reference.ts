@@ -244,6 +244,7 @@ export class RuntimeController {
     if (state.mode === "intro") {
       this.abortController?.abort();
       this.generation += 1;
+      this.commitUrl(url, commit);
       this.view.intro?.(state.channel);
       return;
     }
