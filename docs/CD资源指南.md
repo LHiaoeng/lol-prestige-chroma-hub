@@ -173,7 +173,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 /universes/detail/?id={universeId}
 ```
 
-英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。宇宙详情只读取宇宙记录及其所属系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
+英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/skins/` 只提供普通皮肤入口说明，不提供全量列表；`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。宇宙详情只读取宇宙记录及其所属系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
 
 ### 3.3 英雄与皮肤字段、分类和图片
 
