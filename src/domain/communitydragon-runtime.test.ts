@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   CommunityDragonRuntimeError,
-  createCommunityDragonRuntime,
   type CommunityDragonLocale,
   type RuntimeChannel,
 } from "./communitydragon-runtime";
+import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
 
 const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
   {

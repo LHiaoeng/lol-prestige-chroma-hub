@@ -301,6 +301,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 ## 9. 运行时加载约束
 
 - 运行时资料入口只接受 `pbe`、`latest` 两个数据通道；固定补丁目录保留给人工研究和显式维护流程。
+- URL 缺少 `channel` 或显式使用 `channel=pbe` 时读取 PBE；其他非 `latest` 值属于无效链接，页面必须在发出 CommunityDragon 请求前拒绝。
 - 英雄、系列和宇宙提供列表与详情；普通皮肤不提供全量列表，用户从英雄详情进入皮肤详情。
 - 核心实体请求优先。核心成功后，相关系列或宇宙最多三个并发请求，各关联区独立处理失败。
 - 通道切换先加载目标数据，成功后再更新内容和 URL；失败时保留旧内容与旧 URL。
@@ -312,16 +313,16 @@ https://raw.communitydragon.org/{version}/{relativePath}
 
 英雄目录现在由静态页面壳和浏览器控制器组成，不在 Astro 构建时读取 CommunityDragon：
 
-| 用途 | URL 形态 | 运行时数据 |
-| --- | --- | --- |
-| 英文英雄列表 | `/champions/` | `default` + `pbe` |
-| 中文英雄列表 | `/zh-cn/champions/` | `zh_cn` + `pbe` |
-| 英雄详情 | `/champions/?id={championId}` | 英雄数字 ID |
-| 正式服视图 | 上述 URL 加 `channel=latest` | 仅切换运行时资料 |
+| 用途         | URL 形态                      | 运行时数据        |
+| ------------ | ----------------------------- | ----------------- |
+| 英文英雄列表 | `/champions/`                 | `default` + `pbe` |
+| 中文英雄列表 | `/zh-cn/champions/`           | `zh_cn` + `pbe`   |
+| 英雄详情     | `/champions/?id={championId}` | 英雄数字 ID       |
+| 正式服视图   | 上述 URL 加 `channel=latest`  | 仅切换运行时资料  |
 
 - 英雄列表在浏览器中完成名称搜索、ID/名称排序和分页；页面只渲染当前分页，避免一次性建立全部卡片节点。
 - 英雄详情使用 `champions/{championId}.json`，并从同一份英雄记录提供皮肤正向集合；普通皮肤入口必须继续携带 `champion={championId}`。
-- 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。测试使用注入的假请求，不探测真实站点。
+- 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。`src/domain/communitydragon-runtime.ts` 只负责 Schema、身份复核与路径规范化等纯规则，`src/client/communitydragon-runtime.ts` 负责浏览器请求、页面内去重和取消；测试通过后者注入假请求，不探测真实站点。
 - 首次加载显示静态标题、来源、区域视图、数据通道和启用脚本提示；请求成功后状态栏显示本次加载时间。运行时详情由客户端状态标记为 `noindex`，静态臻彩页不依赖该辅助资料即可保持可索引正文。
 - 通道切换只有在目标请求成功后才提交 History URL；失败时保留旧内容和旧 URL。网络、HTTP、404、不识别的响应格式和非法参数分别显示不同的可重试状态。
 - CommunityDragon 不可访问不会阻塞 `pnpm build`；静态首页、臻彩详情、博客和固定说明与该运行时链路分离。

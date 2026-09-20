@@ -4,10 +4,10 @@ import {
   type ChromaRuntimeSupplementView,
 } from "./chroma-runtime";
 import type {
-  CommunityDragonRuntime,
   RuntimeChampion,
 } from "../domain/communitydragon-runtime";
 import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
+import type { CommunityDragonRuntime } from "./communitydragon-runtime";
 
 const champion: RuntimeChampion = {
   kind: "champion",
@@ -29,6 +29,7 @@ function view(): ChromaRuntimeSupplementView & { events: string[] } {
   const events: string[] = [];
   return {
     events,
+    invalid: vi.fn((message: string) => events.push(`invalid:${message}`)),
     loading: vi.fn(() => events.push("loading")),
     render: vi.fn(() => events.push("render")),
     failure: vi.fn(() => events.push("failure")),

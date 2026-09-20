@@ -271,6 +271,9 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
 .runtime-detail .pbe-links {
   gap: 10px;
 }
+.runtime-detail .pbe-chip {
+  min-height: 44px;
+}
 .runtime-relation-state,
 .runtime-relation-error {
   color: var(--muted);

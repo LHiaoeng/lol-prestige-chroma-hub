@@ -1,8 +1,6 @@
 import { z } from "zod";
 import {
   communityDragonAssetUrl,
-  communityDragonDataUrl,
-  communityDragonChampionUrl,
   type CommunityDragonChannel,
 } from "./communitydragon-url";
 
@@ -38,10 +36,9 @@ export class CommunityDragonRuntimeError extends Error {
   }
 }
 
-export interface RuntimeRequestOptions {
+export interface RuntimeParseOptions {
   readonly locale: CommunityDragonLocale;
   readonly channel?: RuntimeChannel;
-  readonly signal?: AbortSignal;
   readonly championId?: number;
 }
 
@@ -120,11 +117,6 @@ export type RuntimeList = readonly (
 )[];
 export type RuntimeEntity =
   RuntimeChampion | RuntimeSkin | RuntimeSkinline | RuntimeUniverse;
-export type RuntimeFetcher = (
-  input: string,
-  init?: RequestInit,
-) => Promise<Response>;
-
 const idSchema = z.number().int().positive();
 const championSummarySchema = z
   .object({
@@ -200,15 +192,6 @@ const skinSchema = z
 const championDetailSchema = championSummarySchema.extend({
   skins: z.array(skinSchema),
 });
-
-interface CacheEntry {
-  readonly controller: AbortController;
-  readonly consumers: Set<symbol>;
-  readonly promise: Promise<unknown>;
-  settled: boolean;
-}
-
-const DEFAULT_CHANNEL: RuntimeChannel = "pbe";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -351,295 +334,33 @@ function normalizeSkin(
   };
 }
 
-function localePath(locale: CommunityDragonLocale): "en" | "zh" {
-  return locale === "zh_cn" ? "zh" : "en";
-}
-
-function makeKey(
-  kind: string,
-  id: number | string,
-  options: RuntimeRequestOptions,
-): string {
-  return `${options.channel ?? DEFAULT_CHANNEL}:${options.locale}:${kind}:${id}:${options.championId ?? ""}`;
-}
-
-function abortError(): CommunityDragonRuntimeError {
-  return new CommunityDragonRuntimeError(
-    "aborted",
-    "CommunityDragon request was cancelled",
-  );
-}
-
-export interface CommunityDragonRuntime {
-  list(
-    kind: RuntimeListKind,
-    options: RuntimeRequestOptions,
-  ): Promise<RuntimeList>;
-  get(
-    kind: RuntimeEntityKind,
-    id: number,
-    options: RuntimeRequestOptions,
-  ): Promise<RuntimeEntity>;
-}
-
-export function createCommunityDragonRuntime(
-  fetcher: RuntimeFetcher = fetch,
-): CommunityDragonRuntime {
-  const completed = new Map<string, unknown>();
-  const inFlight = new Map<string, CacheEntry>();
-
-  function validateOptions(
-    options: RuntimeRequestOptions,
-  ): Required<Pick<RuntimeRequestOptions, "locale" | "channel">> &
-    Pick<RuntimeRequestOptions, "signal" | "championId"> {
-    const channel = options.channel ?? DEFAULT_CHANNEL;
-    if (options.locale !== "default" && options.locale !== "zh_cn")
-      throw new CommunityDragonRuntimeError(
-        "invalid-request",
-        "Unsupported CommunityDragon locale",
-      );
-    if (channel !== "pbe" && channel !== "latest")
-      throw new CommunityDragonRuntimeError(
-        "invalid-request",
-        "Unsupported CommunityDragon channel",
-      );
-    return {
-      locale: options.locale,
-      channel,
-      signal: options.signal,
-      championId: options.championId,
-    };
-  }
-
-  async function request<T>(
-    key: string,
-    url: string,
-    options: RuntimeRequestOptions,
-    parse: (value: unknown) => T,
-  ): Promise<T> {
-    const signal = options.signal;
-    if (signal?.aborted) throw abortError();
-    const cached = completed.get(key);
-    if (cached !== undefined) return cached as T;
-
-    let entry = inFlight.get(key);
-    if (!entry) {
-      const controller = new AbortController();
-      const promise = (async () => {
-        let response: Response;
-        try {
-          response = await fetcher(url, {
-            credentials: "omit",
-            referrerPolicy: "no-referrer",
-            signal: controller.signal,
-          });
-        } catch (error) {
-          if (controller.signal.aborted) throw abortError();
-          throw new CommunityDragonRuntimeError(
-            "network",
-            `CommunityDragon request failed: ${url}`,
-            { url, cause: error },
-          );
-        }
-        if (response.status === 404)
-          throw new CommunityDragonRuntimeError(
-            "not-found",
-            `CommunityDragon resource was not found: ${url}`,
-            { status: 404, url },
-          );
-        if (!response.ok)
-          throw new CommunityDragonRuntimeError(
-            "http",
-            `CommunityDragon returned HTTP ${response.status}: ${url}`,
-            { status: response.status, url },
-          );
-        let value: unknown;
-        try {
-          value = await response.json();
-        } catch (error) {
-          throw new CommunityDragonRuntimeError(
-            "schema",
-            `CommunityDragon returned invalid JSON: ${url}`,
-            { url, cause: error },
-          );
-        }
-        try {
-          return parse(value);
-        } catch (error) {
-          if (error instanceof CommunityDragonRuntimeError) throw error;
-          throw new CommunityDragonRuntimeError(
-            "schema",
-            `CommunityDragon payload failed validation: ${url}`,
-            { url, cause: error },
-          );
-        }
-      })();
-      entry = { controller, consumers: new Set(), promise, settled: false };
-      inFlight.set(key, entry);
-      void promise
-        .then(
-          (value) => completed.set(key, value),
-          () => undefined,
-        )
-        .finally(() => {
-          entry!.settled = true;
-          inFlight.delete(key);
-        });
-    }
-
-    const current = entry;
-    const token = Symbol(key);
-    current.consumers.add(token);
-    return new Promise<T>((resolve, reject) => {
-      let finished = false;
-      const cleanup = () => {
-        if (signal) signal.removeEventListener("abort", onAbort);
-        current.consumers.delete(token);
-      };
-      const onAbort = () => {
-        if (finished) return;
-        finished = true;
-        cleanup();
-        if (!current.settled && current.consumers.size === 0)
-          current.controller.abort();
-        reject(abortError());
-      };
-      if (signal) signal.addEventListener("abort", onAbort, { once: true });
-      void current.promise.then(
-        (value) => {
-          if (finished) return;
-          finished = true;
-          cleanup();
-          resolve(value as T);
-        },
-        (error: unknown) => {
-          if (finished) return;
-          finished = true;
-          cleanup();
-          reject(error);
-        },
-      );
-    });
-  }
-
-  function list(
-    kind: RuntimeListKind,
-    input: RuntimeRequestOptions,
-  ): Promise<RuntimeList> {
-    const options = validateOptions(input);
-    const path =
-      kind === "champions" ? "champion-summary.json" : `${kind}.json`;
-    const url = communityDragonDataUrl(path, options.locale, options.channel);
-    const key = makeKey("list", kind, options);
-    if (kind === "champions") {
-      return request(key, url, options, (value) =>
-        parseCollection(value, championSummarySchema, "Champion summary").map(
-          (raw) => {
-            const labels = championLabels(raw, options.locale);
-            return {
-              kind: "champion" as const,
-              id: raw.id,
-              name: labels.name,
-              title: labels.title,
-              shortBio: text(raw.shortBio),
-              portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
-            };
-          },
-        ),
-      );
-    }
-    if (kind === "skinlines") {
-      return request(key, url, options, (value) =>
-        parseCollection(value, skinlineSchema, "Skinline").map((raw) => ({
-          kind: "skinline" as const,
-          id: raw.id,
-          name: raw.name,
-          description: text(raw.description),
-          imageUrl: asset(text(raw.imagePath), options.channel),
-          universeIds: raw.universeIds ?? [],
-        })),
-      );
-    }
-    return request(key, url, options, (value) =>
-      parseCollection(value, universeSchema, "Universe").map((raw) => ({
-        kind: "universe" as const,
-        id: raw.id,
-        name: raw.name,
-        description: text(raw.description),
-        imageUrl: asset(text(raw.imagePath), options.channel),
-        skinlineIds: raw.skinlineIds ?? raw.skinSets ?? [],
-      })),
+function parseOptions(
+  options: RuntimeParseOptions,
+): Required<Pick<RuntimeParseOptions, "locale" | "channel">> &
+  Pick<RuntimeParseOptions, "championId"> {
+  const channel = options.channel ?? "pbe";
+  if (options.locale !== "default" && options.locale !== "zh_cn")
+    throw new CommunityDragonRuntimeError(
+      "invalid-request",
+      "Unsupported CommunityDragon locale",
     );
-  }
-
-  function get(
-    kind: RuntimeEntityKind,
-    id: number,
-    input: RuntimeRequestOptions,
-  ): Promise<RuntimeEntity> {
-    const options = validateOptions(input);
-    if (!Number.isSafeInteger(id) || id <= 0)
-      return Promise.reject(
-        new CommunityDragonRuntimeError(
-          "invalid-request",
-          "Entity ID must be a positive safe integer",
-        ),
-      );
-    if (
-      kind === "skin" &&
-      (!Number.isSafeInteger(options.championId) ||
-        (options.championId ?? 0) <= 0)
-    ) {
-      return Promise.reject(
-        new CommunityDragonRuntimeError(
-          "invalid-request",
-          "Skin details require a positive champion hint",
-        ),
-      );
-    }
-    if (kind === "skinline" || kind === "universe") {
-      const listKind = kind === "skinline" ? "skinlines" : "universes";
-      return list(listKind, options).then((items) => {
-        const result = items.find(
-          (item) => item.kind === kind && item.id === id,
-        );
-        if (!result)
-          throw new CommunityDragonRuntimeError(
-            "not-found",
-            `${kind} ${id} was not found`,
-          );
-        return result as RuntimeSkinline | RuntimeUniverse;
-      });
-    }
-
-    const championId = kind === "skin" ? options.championId! : id;
-    const url = communityDragonChampionUrl(
-      String(championId),
-      localePath(options.locale),
-      options.channel,
+  if (channel !== "pbe" && channel !== "latest")
+    throw new CommunityDragonRuntimeError(
+      "invalid-request",
+      "Unsupported CommunityDragon channel",
     );
-    const key = makeKey(kind, id, options);
-    return request(key, url, options, (value) => {
-      let raw: z.infer<typeof championDetailSchema>;
-      try {
-        raw = championDetailSchema.parse(value);
-      } catch (error) {
-        throw new CommunityDragonRuntimeError(
-          "schema",
-          `Champion ${championId} detail failed validation`,
-          { url, cause: error },
-        );
-      }
-      if (raw.id !== championId)
-        throw new CommunityDragonRuntimeError(
-          "schema",
-          `Champion detail ID ${raw.id} does not match ${championId}`,
-          { url },
-        );
-      const skins = raw.skins.map((skin) =>
-        normalizeSkin(skin, options.channel, championId),
-      );
-      if (kind === "champion") {
+  return { locale: options.locale, channel, championId: options.championId };
+}
+
+export function parseRuntimeList(
+  kind: RuntimeListKind,
+  value: unknown,
+  input: RuntimeParseOptions,
+): RuntimeList {
+  const options = parseOptions(input);
+  if (kind === "champions")
+    return parseCollection(value, championSummarySchema, "Champion summary").map(
+      (raw) => {
         const labels = championLabels(raw, options.locale);
         return {
           kind: "champion" as const,
@@ -648,19 +369,97 @@ export function createCommunityDragonRuntime(
           title: labels.title,
           shortBio: text(raw.shortBio),
           portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
-          skins,
         };
-      }
-      const skin = skins.find((candidate) => candidate.id === id);
-      if (!skin)
-        throw new CommunityDragonRuntimeError(
-          "not-found",
-          `Skin ${id} was not found for champion ${championId}`,
-          { url },
-        );
-      return skin;
-    });
+      },
+    );
+  if (kind === "skinlines")
+    return parseCollection(value, skinlineSchema, "Skinline").map((raw) => ({
+      kind: "skinline" as const,
+      id: raw.id,
+      name: raw.name,
+      description: text(raw.description),
+      imageUrl: asset(text(raw.imagePath), options.channel),
+      universeIds: raw.universeIds ?? [],
+    }));
+  return parseCollection(value, universeSchema, "Universe").map((raw) => ({
+    kind: "universe" as const,
+    id: raw.id,
+    name: raw.name,
+    description: text(raw.description),
+    imageUrl: asset(text(raw.imagePath), options.channel),
+    skinlineIds: raw.skinlineIds ?? raw.skinSets ?? [],
+  }));
+}
+
+export function parseRuntimeEntity(
+  kind: RuntimeEntityKind,
+  id: number,
+  value: unknown,
+  input: RuntimeParseOptions,
+): RuntimeEntity {
+  const options = parseOptions(input);
+  if (!Number.isSafeInteger(id) || id <= 0)
+    throw new CommunityDragonRuntimeError(
+      "invalid-request",
+      "Entity ID must be a positive safe integer",
+    );
+  if (
+    kind === "skin" &&
+    (!Number.isSafeInteger(options.championId) || (options.championId ?? 0) <= 0)
+  )
+    throw new CommunityDragonRuntimeError(
+      "invalid-request",
+      "Skin details require a positive champion hint",
+    );
+  if (kind === "skinline" || kind === "universe") {
+    const listKind = kind === "skinline" ? "skinlines" : "universes";
+    const result = parseRuntimeList(listKind, value, options).find(
+      (item) => item.kind === kind && item.id === id,
+    );
+    if (!result)
+      throw new CommunityDragonRuntimeError(
+        "not-found",
+        `${kind} ${id} was not found`,
+      );
+    return result as RuntimeSkinline | RuntimeUniverse;
   }
 
-  return { list, get };
+  const championId = kind === "skin" ? options.championId! : id;
+  let raw: z.infer<typeof championDetailSchema>;
+  try {
+    raw = championDetailSchema.parse(value);
+  } catch (error) {
+    throw new CommunityDragonRuntimeError(
+      "schema",
+      `Champion ${championId} detail failed validation`,
+      { cause: error },
+    );
+  }
+  if (raw.id !== championId)
+    throw new CommunityDragonRuntimeError(
+      "schema",
+      `Champion detail ID ${raw.id} does not match ${championId}`,
+    );
+  const skins = raw.skins.map((skin) =>
+    normalizeSkin(skin, options.channel, championId),
+  );
+  if (kind === "champion") {
+    const labels = championLabels(raw, options.locale);
+    return {
+      kind: "champion",
+      id: raw.id,
+      name: labels.name,
+      title: labels.title,
+      shortBio: text(raw.shortBio),
+      portraitUrl: asset(text(raw.squarePortraitPath), options.channel),
+      skins,
+    };
+  }
+  const skin = skins.find((candidate) => candidate.id === id);
+  if (!skin)
+    throw new CommunityDragonRuntimeError(
+      "not-found",
+      `Skin ${id} was not found for champion ${championId}`,
+    );
+  return skin;
 }

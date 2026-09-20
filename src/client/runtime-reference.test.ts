@@ -7,11 +7,11 @@ import {
   type RuntimeView,
 } from "./runtime-reference";
 import type {
-  CommunityDragonRuntime,
   RuntimeEntity,
   RuntimeList,
 } from "../domain/communitydragon-runtime";
 import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
+import type { CommunityDragonRuntime } from "./communitydragon-runtime";
 
 const champion = {
   kind: "champion" as const,
