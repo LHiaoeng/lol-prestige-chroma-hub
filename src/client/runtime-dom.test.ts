@@ -135,7 +135,7 @@ function history(): RuntimeHistory {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
-  it("binds source controls outside the content root and localizes channel labels", () => {
+  it("binds source controls outside the content root and uses exact channel tokens", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     const root = new TestElement("div");
@@ -151,7 +151,9 @@ describe("runtime DOM boundaries", () => {
     pbe.dataset.runtimeChannel = "pbe";
     const latest = new TestElement("button");
     latest.dataset.runtimeChannel = "latest";
-    source.append(channelLabel, pbe, latest);
+    const sourceLink = new TestElement("a");
+    sourceLink.dataset.runtimeSourceLink = "";
+    source.append(channelLabel, pbe, latest, sourceLink);
 
     const view = createDomRuntimeView({
       root: root as unknown as HTMLElement,
@@ -163,7 +165,12 @@ describe("runtime DOM boundaries", () => {
     });
     view.renderList([], { mode: "list", page: "champions", channel: "latest" });
 
-    expect(channelLabel.textContent).toBe("正式版本");
+    expect(channelLabel.textContent).toBe("latest");
+    expect(pbe.textContent).toBe("pbe");
+    expect(latest.textContent).toBe("latest");
+    expect(sourceLink.href).toBe(
+      "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/champion-summary.json",
+    );
     expect(pbe.getAttribute("aria-pressed")).toBe("false");
     expect(latest.getAttribute("aria-pressed")).toBe("true");
     expect(root.querySelector("[data-runtime-source]")).toBeNull();
@@ -202,7 +209,49 @@ describe("runtime DOM boundaries", () => {
     expect(root.querySelector("[data-chroma-runtime-channel]")).toBe(button);
   });
 
-  it("rejects an unsupported channel without normalizing it to PBE", () => {
+  it("uses the exact channel token for optional supplement status", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    const root = new TestElement("div");
+    const content = new TestElement("span");
+    content.dataset.chromaRuntimeContent = "";
+    root.append(content);
+
+    const view = createDomView(
+      root as unknown as HTMLElement,
+      "zh_cn",
+      () => "latest",
+    );
+    view.render({
+      champion: {
+        kind: "champion",
+        id: 103,
+        name: "阿狸",
+        skins: [
+          {
+            id: 103001,
+            name: "玉狐",
+            isBase: true,
+            skinlineIds: [],
+            media: {},
+            stages: [],
+          },
+        ],
+      },
+      baseSkin: {
+        id: 103001,
+        name: "玉狐",
+        isBase: true,
+        skinlineIds: [],
+        media: {},
+        stages: [],
+      },
+    });
+
+    expect(content.children[0].textContent).toBe("latest");
+  });
+
+  it("rejects an unsupported channel without normalizing it to pbe", () => {
     const document = new TestDocument();
     document.defaultView = {
       location: {

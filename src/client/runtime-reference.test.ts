@@ -92,7 +92,7 @@ function runtime(
 }
 
 describe("runtime URL state", () => {
-  it("defaults to PBE and parses positive safe IDs without guessing invalid values", () => {
+  it("defaults to pbe and parses positive safe IDs without guessing invalid values", () => {
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id=103"),
@@ -105,6 +105,12 @@ describe("runtime URL state", () => {
         "champions",
       ),
     ).toMatchObject({ mode: "detail", id: 103, channel: "latest" });
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/champions/?id=103&channel=pbe"),
+        "champions",
+      ),
+    ).toMatchObject({ mode: "detail", id: 103, channel: "pbe" });
     expect(
       parseRuntimeLocation(
         new URL("https://chromaart.lol/champions/?id=0"),

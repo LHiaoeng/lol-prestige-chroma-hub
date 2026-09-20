@@ -35,7 +35,7 @@ const validSnapshot = {
 };
 
 describe("champion coverage repository snapshot", () => {
-  it("accepts the audited bilingual PBE envelope", () => {
+  it("accepts the audited bilingual pbe envelope", () => {
     expect(parseChampionCoverageRepositorySnapshot(validSnapshot)).toEqual(
       validSnapshot,
     );

@@ -1,8 +1,13 @@
 import { type CommunityDragonLocale } from "../domain/communitydragon-runtime";
+import {
+  communityDragonChampionUrl,
+  communityDragonDataUrl,
+} from "../domain/communitydragon-url";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import type {
   RuntimeHistory,
+  RuntimeLocationState,
   RuntimePage,
   RuntimeView,
 } from "./runtime-reference";
@@ -72,6 +77,37 @@ function hrefFor(
     url.searchParams.set("champion", String(values.championId));
   if (values.channel === "latest") url.searchParams.set("channel", "latest");
   return url;
+}
+
+function sourceUrlFor(
+  state: RuntimeLocationState,
+  locale: CommunityDragonLocale,
+): string | undefined {
+  if (state.mode === "list") {
+    const file =
+      state.page === "champions"
+        ? "champion-summary.json"
+        : `${state.page}.json`;
+    return communityDragonDataUrl(file, locale, state.channel);
+  }
+  if (state.mode !== "detail") return undefined;
+  if (state.kind === "champion")
+    return communityDragonChampionUrl(
+      String(state.id),
+      locale === "zh_cn" ? "zh" : "en",
+      state.channel,
+    );
+  if (state.kind === "skin")
+    return communityDragonChampionUrl(
+      String(state.championId),
+      locale === "zh_cn" ? "zh" : "en",
+      state.channel,
+    );
+  return communityDragonDataUrl(
+    state.kind === "skinline" ? "skinlines.json" : "universes.json",
+    locale,
+    state.channel,
+  );
 }
 
 export function shouldHandleRuntimeNavigation(
@@ -156,22 +192,28 @@ export function createDomRuntimeView(
   const channelLabel = source.querySelector<HTMLElement>(
     "[data-runtime-channel-label]",
   );
+  const sourceLink = source.querySelector<HTMLAnchorElement>(
+    "[data-runtime-source-link]",
+  );
   const updateChannel = (selected: "pbe" | "latest") => {
     source
       .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
       .forEach((button) => {
         const active = button.dataset.runtimeChannel === selected;
         button.setAttribute("aria-pressed", String(active));
+        if (button.dataset.runtimeChannel)
+          button.textContent = button.dataset.runtimeChannel;
       });
-    if (channelLabel)
-      channelLabel.textContent =
-        selected === "latest"
-          ? options.locale === "zh_cn"
-            ? "正式版本"
-            : "Latest"
-          : options.locale === "zh_cn"
-            ? "PBE版本"
-            : "PBE";
+    if (channelLabel) channelLabel.textContent = selected;
+  };
+  const updateSource = (state: RuntimeLocationState): void => {
+    const url = sourceUrlFor(state, options.locale);
+    if (!sourceLink || !url) return;
+    sourceLink.href = url;
+    sourceLink.setAttribute(
+      "aria-label",
+      options.locale === "zh_cn" ? "原始资料链接" : "Raw source link",
+    );
   };
   let relationSlot: HTMLElement | undefined;
   const view: RuntimeView = {
@@ -198,6 +240,7 @@ export function createDomRuntimeView(
       setRuntimeNoindex(false);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
+      updateSource(state);
       status.textContent =
         options.locale === "zh_cn"
           ? `已加载 ${items.length} 条资料`
@@ -352,6 +395,7 @@ export function createDomRuntimeView(
       setRuntimeNoindex(true);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
+      updateSource(state);
       const controller = options.getController();
       const article = document.createElement("article");
       article.className = "runtime-detail";

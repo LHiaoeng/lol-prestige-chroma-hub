@@ -12,7 +12,7 @@
 
 图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤、皮肤系列和宇宙只保留双语静态目录壳，详情通过浏览器直接读取当前区域和数据通道的 CommunityDragon 资料；动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和基础皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
 
-运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 及其双语目录壳；英雄详情使用 `?id={championId}`，皮肤详情使用 `?id={skinId}&champion={championId}`，系列和宇宙详情使用对应数字 ID。默认通道是 PBE，只有显式 `channel=latest` 才读取正式服滚动资料。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
+运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 及其双语目录壳；英雄详情使用 `?id={championId}`，皮肤详情使用 `?id={skinId}&champion={championId}`，系列和宇宙详情使用对应数字 ID。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 
 作者与编辑说明位于 `/editorial-policy/`，简体中文位于 `/zh-cn/editorial-policy/`。页面公开本站的维护主体、编辑原则、资料来源、核验方式和纠错渠道；该页与 About、Privacy 等资料页不承载广告。
 

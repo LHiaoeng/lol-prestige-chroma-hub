@@ -1,6 +1,6 @@
 # CommunityDragon 资源指南（Agent）
 
-> 读取条件：处理 CommunityDragon 公开资源、PBE/正式版本 JSON、图片路径、客户端资源或资源索引时读取本文件。
+> 读取条件：处理 CommunityDragon 公开资源、`pbe` / `latest` JSON、图片路径、客户端资源或资源索引时读取本文件。
 >
 > 范围：记录 CommunityDragon 公开资源、官方 RAW 访问规则，以及本项目对这些资源的使用边界。
 >
@@ -11,7 +11,7 @@
 按以下顺序处理本项目的 CommunityDragon 资源：
 
 1. 确定内容链路：首页、臻彩详情、博客和固定说明属于静态图鉴内容；英雄、普通皮肤、皮肤系列和皮肤宇宙属于运行时资料。
-2. 确定版本数据源：缺少显式选择时使用测试版本数据源 `pbe`；只有 `channel=latest` 使用正式版本数据源 `latest`。
+2. 确定版本数据源：缺少显式选择时使用 `pbe`；显式 `channel=pbe` 与 `channel=latest` 都有效。
 3. 确定区域数据视图：英文页面只使用 `default`；简体中文页面只使用 `zh_cn`。
 4. 确定资源类型：区分 JSON、`plugins/...` 客户端资源和 `game/...` 游戏客户端资源。
 5. 读取 JSON：以数字 ID 识别实体，从 JSON 字段获取图片路径，不从名称、slug 或业务 ID 格式猜测资源。
@@ -27,12 +27,12 @@
 
 | 页面             | 版本数据源        | 区域数据视图 |
 | ---------------- | ----------------- | ------------ |
-| 英文测试版本页面 | `pbe` 测试版本    | `default`    |
-| 英文正式版本页面 | `latest` 正式版本 | `default`    |
-| 中文测试版本页面 | `pbe` 测试版本    | `zh_cn`      |
-| 中文正式版本页面 | `latest` 正式版本 | `zh_cn`      |
+| 英文 `pbe` 页面    | `pbe`    | `default`    |
+| 英文 `latest` 页面  | `latest` | `default`    |
+| 中文 `pbe` 页面    | `pbe`    | `zh_cn`      |
+| 中文 `latest` 页面  | `latest` | `zh_cn`      |
 
-- `pbe` 是测试版本数据源，`latest` 是正式版本数据源；二者都是滚动数据源，不是两套静态站点。
+- `pbe` 与 `latest` 都是滚动数据源，不是两套静态站点。
 - `default` 与 `zh_cn` 是各自完整的区域数据视图，不是“英文原始数据 + 中文翻译覆盖”。
 - 数字 ID 是跨版本数据源和区域数据视图的共享身份；名称、描述、稀有度、限定状态和可用性等字段属于当前视图的事实。
 - 当前视图缺失字段时保持缺失，不使用另一地区或另一版本数据源补值。
@@ -54,7 +54,7 @@ CommunityDragon RAW → 浏览器加载 → 英雄、普通皮肤、皮肤系列
 
 | 用途             | 官方入口                                                                                   | 说明                                                                                                           |
 | ---------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| RAW 根目录       | `https://raw.communitydragon.org/{version}/`                                               | 浏览指定版本的 `game/`、`plugins/`、`locales/`、`cdragon/` 等目录；PBE 使用 `pbe`，正式滚动版本使用 `latest`。 |
+| RAW 根目录       | `https://raw.communitydragon.org/{version}/`                                               | 浏览指定版本的 `game/`、`plugins/`、`locales/`、`cdragon/` 等目录；运行时通道使用 `pbe` 或 `latest`。 |
 | 内容版本         | `https://raw.communitydragon.org/{version}/content-metadata.json`                          | 部分版本提供内容版本元数据；以实际目录为准。                                                                   |
 | 目录 JSON 列表   | `https://raw.communitydragon.org/json/{version}/`                                          | 在 RAW 路径前加 `json/` 获取机器可读的目录列表。                                                               |
 | 游戏客户端资源   | `https://raw.communitydragon.org/{version}/game/`                                          | 游戏客户端导出的图片、二进制和其他资源。                                                                       |
@@ -71,8 +71,8 @@ https://raw.communitydragon.org/{version}/{relativePath}
 常用版本值：
 
 ```text
-pbe       当前 PBE 滚动资源
-latest    当前正式滚动资源
+pbe       当前 `pbe` 滚动资源
+latest    当前 `latest` 滚动资源
 {patch}   固定补丁目录，例如 16.18
 ```
 
@@ -106,7 +106,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 云顶棋盘皮肤   | TFT Map Skins      | `tftmapskins.json`        | `plugins/rcp-be-lol-game-data/global/{lang}/v1/tftmapskins.json`        |
 | 云顶传送门     | TFT Portals        | `tftzoomskins.json`       | `plugins/rcp-be-lol-game-data/global/{lang}/v1/tftzoomskins.json`       |
 
-以下为 PBE 示例；将路径中的 `pbe` 替换为 `latest` 或具体补丁号即可访问其他版本。
+以下为 `pbe` 示例；将路径中的 `pbe` 替换为 `latest` 或具体补丁号即可访问其他版本。
 
 示例：
 
@@ -175,7 +175,7 @@ relativePath = plugins/rcp-be-lol-game-data/global/default/assets/characters/ahr
 imageUrl = https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/characters/ahri/skins/base/ahri_splash.png
 ```
 
-图片和 JSON 使用相同的版本：PBE JSON 配 PBE 图片，正式 JSON 配 `latest` 或同一补丁号图片。
+图片和 JSON 使用相同的版本：`pbe` JSON 配 `pbe` 图片，`latest` JSON 配 `latest` 图片，固定版本配同一补丁号图片。
 
 ## 4. 常用图片目录
 
@@ -238,7 +238,7 @@ https://raw.communitydragon.org/{version}/{relativeDirectory}
 ## 7. Agent 完成检查清单
 
 - [ ] 使用 `raw.communitydragon.org` 作为资源域名。
-- [ ] 已明确数据通道：默认 `pbe` 或显式 `latest`，并让 JSON 与图片使用同一数据通道。
+- [ ] 已明确数据通道：默认 `pbe`，显式 `pbe` 或 `latest`，并让 JSON 与图片使用同一数据通道。
 - [ ] 已按页面语言选择区域数据视图：英文 `default`，简体中文 `zh_cn`。
 - [ ] 数字 ID 用于实体身份，名称和 slug 未被当作跨视图身份。
 - [ ] 图片路径来自 JSON 字段或已验证的官方目录。
@@ -300,8 +300,8 @@ https://raw.communitydragon.org/{version}/{relativePath}
 
 ## 9. 运行时加载约束
 
-- 运行时资料入口只接受测试版本数据源 `pbe`、正式版本数据源 `latest`；固定补丁目录保留给人工研究和显式维护流程。
-- URL 缺少 `channel` 或显式使用 `channel=pbe` 时读取测试版本数据源；其他非 `latest` 值属于无效链接，页面必须在发出 CommunityDragon 请求前拒绝。
+- 运行时资料入口只接受 `pbe`、`latest`；固定补丁目录保留给人工研究和显式维护流程。
+- URL 缺少 `channel` 或显式使用 `channel=pbe` 时读取 `pbe`；显式使用 `channel=latest` 时读取 `latest`，其他值属于无效链接，页面必须在发出 CommunityDragon 请求前拒绝。
 - 英雄、系列和宇宙提供列表与详情；普通皮肤不提供全量列表，用户从英雄详情进入皮肤详情。
 - 核心实体请求优先。核心成功后，相关系列或宇宙最多三个并发请求，各关联区独立处理失败。
 - 通道切换先加载目标数据，成功后再更新内容和 URL；失败时保留旧内容与旧 URL。
@@ -347,8 +347,8 @@ https://raw.communitydragon.org/{version}/{relativePath}
 
 - 臻彩详情页的标题、正文、图片、主要操作、SEO 和静态关联名称先由仓库目录直接输出；CommunityDragon 只在浏览器中补充当前英雄和 `sourceSkinId` 对应的基础皮肤资料。
 - 补充请求只读取对应英雄 JSON，并在返回的 `skins` 集合中复核英雄 ID、基础皮肤 ID 和 `isBase`；失败只替换补充区，静态正文和主要操作保持可用。补充区可重试，图片失败只移除该图片。
-- 臻彩页默认使用测试版本数据源 `pbe`，只有显式 `channel=latest` 才读取正式版本数据源；版本数据源按钮和补充区后续运行时链接同步当前选择，不改变仓库中的臻彩事实。
-- 覆盖率文章使用已提交的 `data/champion-coverage.snapshot.json` 生成双语静态正文。普通 `pnpm build` 不联网更新快照；需要维护时运行 `pnpm coverage:snapshot`，命令会分别读取 `default` 与 `zh_cn` 的 PBE 英雄摘要，并要求官方 URL、HTTP 成功状态、`ETag` 或 `Last-Modified`、补丁版本和计数校验全部通过。
+- 臻彩页默认使用 `pbe`，显式 `channel=pbe` 或 `channel=latest` 时读取对应通道；版本数据源按钮和补充区后续运行时链接同步当前选择，不改变仓库中的臻彩事实。
+- 覆盖率文章使用已提交的 `data/champion-coverage.snapshot.json` 生成双语静态正文。普通 `pnpm build` 不联网更新快照；需要维护时运行 `pnpm coverage:snapshot`，命令会分别读取 `default` 与 `zh_cn` 的 `pbe` 英雄摘要，并要求官方 URL、HTTP 成功状态、`ETag` 或 `Last-Modified`、补丁版本和计数校验全部通过。
 - 覆盖率文章在浏览器中刷新时只通过 `src/client/communitydragon-runtime.ts` 的 `list("champions")` seam 读取当前页面区域：英文只请求 `default`，中文只请求 `zh_cn`，每次刷新只发一个当前区域请求；当前区域缺失或请求失败时保留仓库快照，不从另一地区补值。
 - 快照记录 `schemaVersion`、来源通道、两个区域数据视图、来源 URL、抓取时间、内容版本、补丁版本、总数、已覆盖数、缺失数和缺失英雄列表。非法快照或覆盖计数不一致会阻止维护流程写入；浏览器刷新失败时保留提交的快照内容。
 
@@ -361,7 +361,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 | 区域数据视图     | 参考项目                                                                                        | 参考范围                                                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | 国服 `zh_cn`     | [BuguoguoLoLCreator/lol-skin-explorer](https://github.com/BuguoguoLoLCreator/lol-skin-explorer) | 国服名称、国服稀有度与腾讯服务器专属内容的读取、整理和展示。该项目基于下方直营服项目分支，并针对国服数据扩展。 |
-| 直营服 `default` | [BennyExtreme00/lol-skin-explorer](https://github.com/BennyExtreme00/lol-skin-explorer)         | 直营服英雄、皮肤、系列、宇宙和 PBE 数据的读取、关联及展示。                                                    |
+| 直营服 `default` | [BennyExtreme00/lol-skin-explorer](https://github.com/BennyExtreme00/lol-skin-explorer)         | 直营服英雄、皮肤、系列、宇宙和 `pbe` 数据的读取、关联及展示。                                                    |
 
 使用规则：
 

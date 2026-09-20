@@ -95,17 +95,8 @@ export function channelFromLocation(
   return undefined;
 }
 
-function sourceLabel(
-  channel: "pbe" | "latest",
-  locale: CommunityDragonLocale,
-): string {
-  return locale === "zh_cn"
-    ? channel === "latest"
-      ? "正式版本"
-      : "PBE版本"
-    : channel === "latest"
-      ? "Latest"
-      : "PBE";
+function sourceLabel(channel: "pbe" | "latest"): string {
+  return channel;
 }
 
 export function createDomView(
@@ -145,7 +136,7 @@ export function createDomView(
     },
     render({ champion, baseSkin }) {
       root.removeAttribute("aria-busy");
-      const status = renderStatus(sourceLabel(getChannel(), locale));
+      const status = renderStatus(sourceLabel(getChannel()));
       const title = document.createElement("strong");
       title.textContent = `${champion.name} · ${baseSkin.name}`;
       const meta = document.createElement("span");
@@ -250,6 +241,8 @@ export function initChromaRuntime(document: Document): void {
           "aria-pressed",
           String(button.dataset.chromaRuntimeChannel === selectedChannel),
         );
+        if (button.dataset.chromaRuntimeChannel)
+          button.textContent = button.dataset.chromaRuntimeChannel;
       });
     const run = async (
       channel: "pbe" | "latest",
@@ -313,6 +306,8 @@ export function initChromaRuntime(document: Document): void {
         "aria-pressed",
         String(button.dataset.chromaRuntimeChannel === selectedChannel),
       );
+      if (button.dataset.chromaRuntimeChannel)
+        button.textContent = button.dataset.chromaRuntimeChannel;
     });
     document.defaultView?.addEventListener("popstate", () => {
       const channel = channelFromLocation(document);

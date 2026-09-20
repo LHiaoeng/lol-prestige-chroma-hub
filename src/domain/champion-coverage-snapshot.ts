@@ -13,7 +13,7 @@ function officialSummaryUrl(locale: "default" | "zh_cn") {
       !url.search &&
       !url.hash
     );
-  }, "Champion coverage source must be an official PBE summary URL");
+  }, "Champion coverage source must be an official `pbe` summary URL");
 }
 
 const officialPortraitUrl = z.string().url().refine((value) => {
@@ -26,7 +26,7 @@ const officialPortraitUrl = z.string().url().refine((value) => {
     !url.search &&
     !url.hash
   );
-}, "Champion portrait must be an official PBE champion icon URL");
+}, "Champion portrait must be an official `pbe` champion icon URL");
 
 const snapshotSchema = z.object({
   patchVersion: z.string().regex(/^\d{1,2}\.\d{1,2}$/),

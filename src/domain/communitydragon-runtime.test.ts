@@ -89,6 +89,34 @@ describe("CommunityDragon runtime reference", () => {
     });
   });
 
+  it("normalizes the live champion summary shape and skips its placeholder row", async () => {
+    const fetcher = vi.fn(async () =>
+      jsonResponse([
+        {
+          id: -1,
+          name: "None",
+          description: "",
+          alias: "None",
+          squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/-1.png",
+        },
+        {
+          id: 103,
+          name: "Ahri",
+          description: "the Nine-Tailed Fox",
+          alias: "Ahri",
+          squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
+        },
+      ]),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.list("champions", { locale: "default", channel: "pbe" }),
+    ).resolves.toMatchObject([
+      { id: 103, name: "Ahri", title: "the Nine-Tailed Fox" },
+    ]);
+  });
+
   it("deduplicates in-flight requests by channel, locale, and resource", async () => {
     let resolveResponse!: (response: Response) => void;
     const response = new Promise<Response>((resolve) => {
@@ -133,6 +161,58 @@ describe("CommunityDragon runtime reference", () => {
     });
     expect(fetcher.mock.calls[0][0]).toContain("/champions/103.json");
     expect(fetcher.mock.calls[0][0]).not.toContain("skins.json");
+  });
+
+  it("accepts nullable fields used by live champion detail responses", async () => {
+    const raw = champion("default");
+    const fetcher = vi.fn(async () =>
+      jsonResponse({
+        ...raw,
+        skins: [
+          {
+            ...raw.skins[0],
+            description: null,
+            skinLines: null,
+            chromas: null,
+            splashVideoPath: null,
+          },
+        ],
+      }),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.get("champion", 103, { locale: "default", channel: "pbe" }),
+    ).resolves.toMatchObject({
+      kind: "champion",
+      id: 103,
+      skins: [{ id: 103000, skinlineIds: [], chromas: [] }],
+    });
+  });
+
+  it("skips zero-valued placeholder rows in relation directories", async () => {
+    const runtime = createCommunityDragonRuntime(
+      vi.fn(async (input: string) =>
+        jsonResponse(
+          input.includes("skinlines")
+            ? [
+                { id: 0, name: "", description: "" },
+                { id: 7, name: "Star Guardian", description: "" },
+              ]
+            : [
+                { id: 0, name: "", description: "", skinSets: [] },
+                { id: 200, name: "Star Guardian", description: "", skinSets: [7] },
+              ],
+        ),
+      ),
+    );
+
+    await expect(
+      runtime.list("skinlines", { locale: "default", channel: "pbe" }),
+    ).resolves.toMatchObject([{ id: 7, name: "Star Guardian" }]);
+    await expect(
+      runtime.list("universes", { locale: "default", channel: "pbe" }),
+    ).resolves.toMatchObject([{ id: 200, name: "Star Guardian", skinlineIds: [7] }]);
   });
 
   it("rejects a skin request without a safe champion hint before fetching", async () => {
@@ -185,6 +265,24 @@ describe("CommunityDragon runtime reference", () => {
         championId: 103,
       }),
     ).rejects.toMatchObject({ code: "schema" });
+  });
+
+  it("classifies unsafe asset paths without requesting a fallback resource", async () => {
+    const runtime = createCommunityDragonRuntime(
+      vi.fn(async () =>
+        jsonResponse([
+          {
+            id: 7,
+            name: "Star Guardian",
+            imagePath: "https://example.com/unsafe.png",
+          },
+        ]),
+      ),
+    );
+
+    await expect(
+      runtime.list("skinlines", { locale: "default", channel: "latest" }),
+    ).rejects.toMatchObject({ code: "unsafe-url" });
   });
 
   it("classifies not found, HTTP, schema, and abort failures", async () => {

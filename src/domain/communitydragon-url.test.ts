@@ -6,7 +6,7 @@ import {
 } from './communitydragon-url';
 
 describe('CommunityDragon URL conversion', () => {
-  it('converts game asset and plugin paths to normalized PBE URLs', () => {
+  it('converts game asset and plugin paths to normalized pbe URLs', () => {
     expect(communityDragonAssetUrl('/lol-game-data/assets/ASSETS/Characters/Annie/Icon.PNG')).toBe(
       'https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/characters/annie/icon.png',
     );
