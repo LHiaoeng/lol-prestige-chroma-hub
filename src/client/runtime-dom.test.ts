@@ -344,6 +344,72 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
+  it("renders a champion detail and links skins to independent detail paths", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/champions/detail/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "champions",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(),
+    });
+
+    view.renderDetail(
+      {
+        kind: "champion",
+        id: 103,
+        name: "Ahri",
+        title: "the Nine-Tailed Fox",
+        shortBio: "A vastayan fox.",
+        portraitUrl: "https://example.test/ahri.png",
+        skins: [
+          {
+            id: 103001,
+            name: "Dynasty Ahri",
+            isBase: false,
+            skinlineIds: [],
+            media: {},
+            stages: [],
+          },
+        ],
+      },
+      {
+        mode: "detail",
+        page: "champions",
+        kind: "champion",
+        id: 103,
+        channel: "latest",
+      },
+    );
+
+    expect(content.querySelector("h1")?.textContent).toBe("Ahri");
+    expect(content.querySelector(".eyebrow")?.textContent).toBe(
+      "the Nine-Tailed Fox",
+    );
+    expect(content.querySelector(".runtime-lede")?.textContent).toBe(
+      "A vastayan fox.",
+    );
+    expect(content.querySelector("a")?.href).toBe(
+      "/skins/detail/?id=103001&champion=103&channel=latest",
+    );
+    expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
+  });
+
   it("keeps static chroma copy and channel controls when the supplement changes", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

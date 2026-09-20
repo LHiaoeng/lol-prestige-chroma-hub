@@ -18,7 +18,7 @@ const listPath = localizedPath(locale, `/${page}/`);
 
 <div class="runtime-page">
   <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
-    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>{mode === 'detail' ? <><a href={listPath}>{label}</a><span>/</span><span>{isZh ? `${label}详情` : `${label} detail`}</span></> : <span>{label}</span>}
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>{mode === 'detail' ? <><a href={listPath} data-runtime-channel-link>{label}</a><span>/</span><span aria-current="page">{isZh ? `${label}详情` : `${label} detail`}</span></> : <span aria-current="page">{label}</span>}
   </nav>
   <header>
     <h1>{heading}</h1>
@@ -40,8 +40,9 @@ const listPath = localizedPath(locale, `/${page}/`);
 
 <script>
   import { initRuntimeReference } from '../client/runtime-reference';
-  import { bindRuntimeLanguageToggle } from '../client/runtime-url-state';
+  import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../client/runtime-url-state';
   bindRuntimeLanguageToggle(document);
+  bindRuntimeChannelLinks(document);
   const root = document.querySelector<HTMLElement>('[data-runtime-page]');
   if (root) initRuntimeReference(root);
 </script>

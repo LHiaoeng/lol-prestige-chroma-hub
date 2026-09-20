@@ -502,7 +502,11 @@ describe("static site build", () => {
     expect(englishDetail).toContain(
       '<meta name="robots" content="noindex, nofollow">',
     );
+    expect(englishDetail).toContain(
+      "<title>Champion detail | LoL Chroma Art</title>",
+    );
     expect(englishDetail).toContain('data-runtime-mode="detail"');
+    expect(englishDetail).toContain('data-runtime-channel-link');
     expect(englishDetail).toContain('href="/champions/"');
     expect(chineseDetail).toContain(
       '<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">',
@@ -510,7 +514,9 @@ describe("static site build", () => {
     expect(chineseDetail).toContain(
       '<meta name="robots" content="noindex, nofollow">',
     );
+    expect(chineseDetail).toContain("<title>英雄详情 | LoL Chroma Art</title>");
     expect(chineseDetail).toContain('data-runtime-mode="detail"');
+    expect(chineseDetail).toContain('data-runtime-channel-link');
     expect(chineseDetail).toContain('href="/zh-cn/champions/"');
     expect(existsSync(join(dist, "champions", "103", "index.html"))).toBe(
       false,

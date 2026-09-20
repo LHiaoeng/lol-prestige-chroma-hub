@@ -178,6 +178,18 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher.mock.calls[0][0]).not.toContain("skins.json");
   });
 
+  it("validates champion detail identity against the requested ID", async () => {
+    const fetcher = vi.fn(async (_input: string) =>
+      jsonResponse({ ...champion("default"), id: 104 }),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.get("champion", 103, { locale: "default", channel: "latest" }),
+    ).rejects.toMatchObject({ code: "schema" });
+    expect(fetcher.mock.calls[0][0]).toContain("/champions/103.json");
+  });
+
   it("accepts nullable fields used by live champion detail responses", async () => {
     const raw = champion("default");
     const fetcher = vi.fn(async () =>

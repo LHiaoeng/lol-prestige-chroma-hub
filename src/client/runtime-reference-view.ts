@@ -432,7 +432,7 @@ export function createDomRuntimeView(
                 id: skin.id,
                 championId: item.id,
                 channel: state.channel,
-              }),
+              }, "detail"),
               controller,
             ),
           );

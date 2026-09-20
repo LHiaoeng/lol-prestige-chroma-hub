@@ -285,6 +285,58 @@ describe("RuntimeController", () => {
     expect(viewState.events).toEqual(["invalid"]);
   });
 
+  it("rejects an invalid champion detail ID without requesting CommunityDragon", async () => {
+    const service = runtime();
+    const viewState = view();
+    const navigation = history(
+      "https://chromaart.lol/champions/detail/?id=0&channel=latest",
+    );
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "detail",
+      locale: "default",
+    });
+
+    await controller.start();
+
+    expect(service.list).not.toHaveBeenCalled();
+    expect(service.get).not.toHaveBeenCalled();
+    expect(viewState.events).toEqual(["invalid"]);
+  });
+
+  it("loads a champion detail with its locale and channel", async () => {
+    const service = runtime({
+      get: vi.fn(async () => ({
+        ...champion,
+        title: "the Nine-Tailed Fox",
+        shortBio: "A vastayan fox.",
+      })),
+    });
+    const viewState = view();
+    const navigation = history(
+      "https://chromaart.lol/champions/detail/?id=103&channel=latest",
+    );
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "champions",
+      pageMode: "detail",
+      locale: "default",
+    });
+
+    await controller.start();
+
+    expect(service.get).toHaveBeenCalledWith(
+      "champion",
+      103,
+      expect.objectContaining({ locale: "default", channel: "latest" }),
+    );
+    expect(viewState.events).toEqual(["loading:false", "detail"]);
+    expect(viewState.rendered).toMatchObject({
+      kind: "champion",
+      id: 103,
+      title: "the Nine-Tailed Fox",
+    });
+  });
+
   it("keeps failure categories distinguishable and retryable", () => {
     expect(
       runtimeFailureMessage(
