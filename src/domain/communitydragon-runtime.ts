@@ -119,6 +119,9 @@ export type RuntimeList = readonly (
 export type RuntimeEntity =
   RuntimeChampion | RuntimeSkin | RuntimeSkinline | RuntimeUniverse;
 const idSchema = z.number().int().positive();
+const JADE_CHAMPION_ID_MIN = 60000;
+const JADE_CHAMPION_ID_MAX = 70000;
+const JADE_CHAMPION_ALIAS_PREFIX = "Jade_";
 const championSummarySchema = z
   .object({
     id: z.number().int(),
@@ -378,6 +381,13 @@ export function parseRuntimeList(
           raw.id === -1 &&
           raw.alias === "None" &&
           text(raw.squarePortraitPath)?.endsWith("/-1.png")
+        )
+          return false;
+        // CommunityDragon exposes Jade chromas as synthetic champion records.
+        if (
+          raw.id >= JADE_CHAMPION_ID_MIN &&
+          raw.id < JADE_CHAMPION_ID_MAX &&
+          raw.alias?.startsWith(JADE_CHAMPION_ALIAS_PREFIX)
         )
           return false;
         if (!Number.isSafeInteger(raw.id) || raw.id <= 0)

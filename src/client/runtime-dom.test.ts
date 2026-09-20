@@ -151,9 +151,7 @@ describe("runtime DOM boundaries", () => {
     pbe.dataset.runtimeChannel = "pbe";
     const latest = new TestElement("button");
     latest.dataset.runtimeChannel = "latest";
-    const sourceLink = new TestElement("a");
-    sourceLink.dataset.runtimeSourceLink = "";
-    source.append(channelLabel, pbe, latest, sourceLink);
+    source.append(channelLabel, pbe, latest);
 
     const view = createDomRuntimeView({
       root: root as unknown as HTMLElement,
@@ -168,11 +166,9 @@ describe("runtime DOM boundaries", () => {
     expect(channelLabel.textContent).toBe("latest");
     expect(pbe.textContent).toBe("pbe");
     expect(latest.textContent).toBe("latest");
-    expect(sourceLink.href).toBe(
-      "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/champion-summary.json",
-    );
     expect(pbe.getAttribute("aria-pressed")).toBe("false");
     expect(latest.getAttribute("aria-pressed")).toBe("true");
+    expect(source.querySelector("[data-runtime-source-link]")).toBeNull();
     expect(root.querySelector("[data-runtime-source]")).toBeNull();
   });
 
@@ -249,6 +245,7 @@ describe("runtime DOM boundaries", () => {
     });
 
     expect(content.children[0].textContent).toBe("latest");
+    expect(content.querySelector(".chroma-runtime-meta")).toBeNull();
   });
 
   it("rejects an unsupported channel without normalizing it to pbe", () => {

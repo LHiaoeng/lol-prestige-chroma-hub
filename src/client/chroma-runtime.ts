@@ -139,12 +139,6 @@ export function createDomView(
       const status = renderStatus(sourceLabel(getChannel()));
       const title = document.createElement("strong");
       title.textContent = `${champion.name} · ${baseSkin.name}`;
-      const meta = document.createElement("span");
-      meta.className = "chroma-runtime-meta";
-      meta.textContent =
-        locale === "zh_cn"
-          ? `英雄 ID ${champion.id} · 基础皮肤 ID ${baseSkin.id}`
-          : `Champion ID ${champion.id} · Base skin ID ${baseSkin.id}`;
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
@@ -182,7 +176,7 @@ export function createDomView(
         image.height = 180;
         image.addEventListener("error", () => image.remove(), { once: true });
       }
-      content.replaceChildren(status, title, meta, links);
+      content.replaceChildren(status, title, links);
       if (description) content.append(description);
       if (image) content.append(image);
     },

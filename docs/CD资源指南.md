@@ -306,7 +306,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 - 核心实体请求优先。核心成功后，相关系列或宇宙最多三个并发请求，各关联区独立处理失败。
 - 通道切换先加载目标数据，成功后再更新内容和 URL；失败时保留旧内容与旧 URL。
 - 页面切换、重新加载或销毁时取消旧请求，迟到响应不得覆盖当前状态。
-- 无 JavaScript 时，页面壳仍需提供标题、来源、导航和启用脚本提示。
+- 无 JavaScript 时，页面壳仍需提供标题、导航、版本数据源选择和启用脚本提示。
 - 隐私说明必须披露浏览器会直接连接 CommunityDragon 获取资料和媒体。
 
 ### 9.1 当前英雄运行时实现
@@ -323,7 +323,7 @@ https://raw.communitydragon.org/{version}/{relativePath}
 - 英雄列表在浏览器中完成名称搜索、ID/名称排序和分页；页面只渲染当前分页，避免一次性建立全部卡片节点。
 - 英雄详情使用 `champions/{championId}.json`，并从同一份英雄记录提供皮肤正向集合；普通皮肤入口必须继续携带 `champion={championId}`。
 - 页面通过 `list` / `get` 运行时 seam 统一处理 RAW URL、`default`/`zh_cn`、`pbe`/`latest`、Schema、缓存、取消和结构化错误。`src/domain/communitydragon-runtime.ts` 只负责 Schema、身份复核与路径规范化等纯规则，`src/client/communitydragon-runtime.ts` 负责浏览器请求、页面内去重和取消；测试通过后者注入假请求，不探测真实站点。
-- 首次加载显示静态标题、来源、区域视图、版本数据源和启用脚本提示；请求成功后状态栏显示本次加载时间。运行时详情由客户端状态标记为 `noindex`，静态臻彩页不依赖该辅助资料即可保持可索引正文。
+- 首次加载显示静态标题、版本数据源和启用脚本提示；英文与中文页面分别使用 `default` 与 `zh_cn`，但不在主界面展示内部区域标识；请求成功后状态栏只显示加载状态。运行时详情由客户端状态标记为 `noindex`，静态臻彩页不依赖该辅助资料即可保持可索引正文。
 - 四个运行时目录共用带 canonical 的可索引静态页面壳并进入 sitemap；带 `?id=` 的运行时详情在客户端确认有效实体状态后添加 `noindex`，不生成独立静态实体页面。
 - 通道切换只有在目标请求成功后才提交 History URL；失败时保留旧内容和旧 URL。网络、HTTP、404、不识别的响应格式和非法参数分别显示不同的可重试状态。
 - CommunityDragon 不可访问不会阻塞 `pnpm build`；静态首页、臻彩详情、博客和固定说明与该运行时链路分离。

@@ -1,27 +1,14 @@
 import { type CommunityDragonLocale } from "../domain/communitydragon-runtime";
-import {
-  communityDragonChampionUrl,
-  communityDragonDataUrl,
-} from "../domain/communitydragon-url";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import type {
   RuntimeHistory,
-  RuntimeLocationState,
   RuntimePage,
   RuntimeView,
 } from "./runtime-reference";
 
 export interface RuntimeControllerLike {
   navigate(url: URL): Promise<void>;
-}
-
-function loadedAt(locale: CommunityDragonLocale): string {
-  return new Intl.DateTimeFormat(locale === "zh_cn" ? "zh-CN" : "en", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(new Date());
 }
 
 export interface DomRuntimeViewOptions {
@@ -77,37 +64,6 @@ function hrefFor(
     url.searchParams.set("champion", String(values.championId));
   if (values.channel === "latest") url.searchParams.set("channel", "latest");
   return url;
-}
-
-function sourceUrlFor(
-  state: RuntimeLocationState,
-  locale: CommunityDragonLocale,
-): string | undefined {
-  if (state.mode === "list") {
-    const file =
-      state.page === "champions"
-        ? "champion-summary.json"
-        : `${state.page}.json`;
-    return communityDragonDataUrl(file, locale, state.channel);
-  }
-  if (state.mode !== "detail") return undefined;
-  if (state.kind === "champion")
-    return communityDragonChampionUrl(
-      String(state.id),
-      locale === "zh_cn" ? "zh" : "en",
-      state.channel,
-    );
-  if (state.kind === "skin")
-    return communityDragonChampionUrl(
-      String(state.championId),
-      locale === "zh_cn" ? "zh" : "en",
-      state.channel,
-    );
-  return communityDragonDataUrl(
-    state.kind === "skinline" ? "skinlines.json" : "universes.json",
-    locale,
-    state.channel,
-  );
 }
 
 export function shouldHandleRuntimeNavigation(
@@ -192,9 +148,6 @@ export function createDomRuntimeView(
   const channelLabel = source.querySelector<HTMLElement>(
     "[data-runtime-channel-label]",
   );
-  const sourceLink = source.querySelector<HTMLAnchorElement>(
-    "[data-runtime-source-link]",
-  );
   const updateChannel = (selected: "pbe" | "latest") => {
     source
       .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
@@ -205,15 +158,6 @@ export function createDomRuntimeView(
           button.textContent = button.dataset.runtimeChannel;
       });
     if (channelLabel) channelLabel.textContent = selected;
-  };
-  const updateSource = (state: RuntimeLocationState): void => {
-    const url = sourceUrlFor(state, options.locale);
-    if (!sourceLink || !url) return;
-    sourceLink.href = url;
-    sourceLink.setAttribute(
-      "aria-label",
-      options.locale === "zh_cn" ? "原始资料链接" : "Raw source link",
-    );
   };
   let relationSlot: HTMLElement | undefined;
   const view: RuntimeView = {
@@ -240,7 +184,6 @@ export function createDomRuntimeView(
       setRuntimeNoindex(false);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
-      updateSource(state);
       status.textContent =
         options.locale === "zh_cn"
           ? `已加载 ${items.length} 条资料`
@@ -339,10 +282,6 @@ export function createDomRuntimeView(
               "runtime-card-link",
             );
             card.appendChild(link);
-            const meta =
-              item.kind === "champion" ? item.title : item.description;
-            if (meta)
-              card.appendChild(textNode("p", meta, "runtime-card-meta"));
             return card;
           }),
         );
@@ -376,8 +315,8 @@ export function createDomRuntimeView(
         }
         status.textContent = filtered.length
           ? options.locale === "zh_cn"
-            ? `显示第 ${currentPage}/${pageCount} 页，共 ${filtered.length} 条资料 · 加载于 ${loadedAt(options.locale)}`
-            : `Page ${currentPage}/${pageCount} · ${filtered.length} references · loaded at ${loadedAt(options.locale)}`
+              ? `显示第 ${currentPage}/${pageCount} 页，共 ${filtered.length} 条资料`
+              : `Page ${currentPage}/${pageCount} · ${filtered.length} references`
           : options.locale === "zh_cn"
             ? "没有匹配结果"
             : "No matching references";
@@ -395,7 +334,6 @@ export function createDomRuntimeView(
       setRuntimeNoindex(true);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
-      updateSource(state);
       const controller = options.getController();
       const article = document.createElement("article");
       article.className = "runtime-detail";
@@ -529,8 +467,8 @@ export function createDomRuntimeView(
       content.replaceChildren(article);
       status.textContent =
         options.locale === "zh_cn"
-          ? `资料加载完成 · ${loadedAt(options.locale)}`
-          : `Reference loaded · ${loadedAt(options.locale)}`;
+          ? "资料加载完成"
+          : "Reference loaded";
     },
     renderRelations(items, state) {
       if (!relationSlot) return;

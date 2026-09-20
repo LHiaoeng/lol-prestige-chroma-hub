@@ -129,8 +129,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   color: var(--muted);
   font-size: 0.76rem;
 }
-.runtime-source button,
-.runtime-source a {
+.runtime-source button {
   display: inline-flex;
   min-height: var(--touch-target);
   align-items: center;
@@ -146,9 +145,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
 }
 .runtime-source button:hover,
 .runtime-source button:focus-visible,
-.runtime-source button[aria-pressed="true"],
-.runtime-source a:hover,
-.runtime-source a:focus-visible {
+.runtime-source button[aria-pressed="true"] {
   border-color: var(--gold);
   color: var(--gold);
 }
@@ -236,9 +233,6 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   font-size: 1.08rem;
   line-height: 1.4;
 }
-.runtime-card-meta {
-  padding: 0 16px 16px;
-}
 .runtime-detail {
   display: grid;
   gap: 20px;
@@ -306,8 +300,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   .runtime-source {
     gap: 6px;
   }
-  .runtime-source button,
-  .runtime-source a {
+  .runtime-source button {
     padding-inline: 10px;
   }
   .runtime-card {
@@ -319,9 +312,6 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   .runtime-card-link {
     padding: 12px;
     font-size: 0.94rem;
-  }
-  .runtime-card-meta {
-    padding: 0 12px 12px;
   }
   .runtime-skeleton-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

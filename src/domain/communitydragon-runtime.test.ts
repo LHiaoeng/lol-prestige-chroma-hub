@@ -106,6 +106,13 @@ describe("CommunityDragon runtime reference", () => {
           alias: "Ahri",
           squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/103.png",
         },
+        {
+          id: 60103,
+          name: "Ahri",
+          description: "the Nine-Tailed Fox",
+          alias: "Jade_Ahri",
+          squarePortraitPath: "/lol-game-data/assets/v1/champion-icons/60103.png",
+        },
       ]),
     );
     const runtime = createCommunityDragonRuntime(fetcher);
