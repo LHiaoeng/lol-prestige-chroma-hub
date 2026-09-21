@@ -28,6 +28,7 @@ const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
 
 const champion = (locale: CommunityDragonLocale) => ({
   id: 103,
+  alias: "Ahri",
   name: locale === "default" ? "Ahri" : "九尾妖狐",
   title: locale === "default" ? "the Nine-Tailed Fox" : "阿狸",
   shortBio: locale === "default" ? "A vastayan fox." : "一名瓦斯塔亚狐妖。",
@@ -171,6 +172,7 @@ describe("CommunityDragon runtime reference", () => {
       kind: "skin",
       id: 103001,
       championId: 103,
+      championAlias: "Ahri",
       name: "Dynasty Ahri",
     });
     expect(result).toMatchObject({

@@ -4,6 +4,10 @@ import {
   type RuntimeList,
   type RuntimeMedia,
 } from "../domain/communitydragon-runtime";
+import {
+  runtimeSkinActions,
+  type RuntimeSkinAction,
+} from "../domain/detail-actions";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import {
   projectChampionSkinListItems,
@@ -148,6 +152,21 @@ function appendMedia(
   parent.appendChild(image);
 }
 
+function appendExternalAction(
+  parent: HTMLElement,
+  action: RuntimeSkinAction,
+): void {
+  const link = document.createElement("a");
+  link.className = "runtime-chip runtime-external-link";
+  link.setAttribute("href", action.href);
+  link.href = action.href;
+  link.textContent = action.label;
+  link.setAttribute("target", "_blank");
+  link.setAttribute("rel", "noopener noreferrer");
+  link.setAttribute("aria-label", action.label);
+  parent.appendChild(link);
+}
+
 const championRoleOptions = [
   ["", "All", "全部"],
   ["assassin", "Assassin", "刺客"],
@@ -164,7 +183,8 @@ type MissingRuntimeField =
   | "artwork"
   | "portrait"
   | "thumbnail"
-  | "roles";
+  | "roles"
+  | "colors";
 
 function runtimeMissingLabel(
   locale: CommunityDragonLocale,
@@ -178,6 +198,7 @@ function runtimeMissingLabel(
       portrait: "头像缺失",
       thumbnail: "缩略图缺失",
       roles: "定位缺失",
+      colors: "颜色缺失",
     }[field];
   }
   return {
@@ -187,6 +208,7 @@ function runtimeMissingLabel(
     portrait: "Portrait unavailable",
     thumbnail: "Thumbnail unavailable",
     roles: "Role data unavailable",
+    colors: "Colors unavailable",
   }[field];
 }
 
@@ -350,6 +372,73 @@ function appendHistoricalArtwork(
     item.appendChild(media);
     parent.appendChild(item);
   });
+}
+
+function appendChromaColors(
+  parent: HTMLElement,
+  colors: readonly string[] | undefined,
+  locale: CommunityDragonLocale,
+): void {
+  if (!colors?.length) {
+    appendMissingField(parent, locale, "colors");
+    return;
+  }
+  const palette = document.createElement("span");
+  palette.className = "runtime-chroma-palette";
+  palette.setAttribute(
+    "aria-label",
+    locale === "zh_cn" ? "炫彩颜色" : "Chroma colors",
+  );
+  colors.forEach((color) => {
+    const row = document.createElement("span");
+    row.className = "runtime-chroma-color-row";
+    const swatch = document.createElement("span");
+    swatch.className = "runtime-chroma-color";
+    swatch.setAttribute("style", `background:${color}`);
+    swatch.setAttribute("aria-hidden", "true");
+    row.appendChild(swatch);
+    row.appendChild(textNode("code", color));
+    palette.appendChild(row);
+  });
+  parent.appendChild(palette);
+}
+
+function appendChromaCard(
+  parent: HTMLElement,
+  options: {
+    readonly name: string;
+    readonly imageUrl?: string;
+    readonly colors?: readonly string[];
+    readonly isBase: boolean;
+    readonly locale: CommunityDragonLocale;
+  },
+): void {
+  const card = document.createElement("article");
+  card.className = options.isBase
+    ? "runtime-chroma-card runtime-chroma-base"
+    : "runtime-chroma-card";
+  const media = document.createElement("div");
+  media.className = "runtime-chroma-media";
+  if (options.imageUrl) appendMedia(media, options.imageUrl, options.name);
+  else appendMissingField(media, options.locale, "thumbnail");
+  card.appendChild(media);
+
+  const meta = document.createElement("div");
+  meta.className = "runtime-chroma-meta";
+  meta.appendChild(textNode("h3", options.name, "runtime-chroma-name"));
+  if (options.isBase) {
+    meta.appendChild(
+      textNode(
+        "p",
+        options.locale === "zh_cn" ? "不是炫彩" : "Not a chroma",
+        "runtime-chroma-note",
+      ),
+    );
+  } else {
+    appendChromaColors(meta, options.colors, options.locale);
+  }
+  card.appendChild(meta);
+  parent.appendChild(card);
 }
 
 function setRuntimeNoindex(enabled: boolean): void {
@@ -873,19 +962,49 @@ export function createDomRuntimeView(
           article.appendChild(stages);
         }
 
-        if (item.chromas.length) {
-          const chromas = document.createElement("section");
-          chromas.appendChild(
-            textNode("h2", options.locale === "zh_cn" ? "炫彩" : "Chromas"),
-          );
-          item.chromas.forEach((chroma) =>
-            appendMedia(
-              chromas,
-              chroma.imageUrl,
-              chroma.name ?? String(chroma.id),
+        const chromas = document.createElement("section");
+        chromas.className = "runtime-skin-chromas";
+        const chromaHeading = document.createElement("h2");
+        chromaHeading.append(
+          textNode("span", options.locale === "zh_cn" ? "炫彩" : "Chromas"),
+          textNode("span", String(item.chromas.length), "runtime-chroma-count"),
+        );
+        chromas.appendChild(chromaHeading);
+        const chromaGrid = document.createElement("div");
+        chromaGrid.className = "runtime-chroma-grid";
+        appendChromaCard(chromaGrid, {
+          name: options.locale === "zh_cn" ? "默认配色" : "Base",
+          imageUrl: item.media.tileUrl,
+          isBase: true,
+          locale: options.locale,
+        });
+        item.chromas.forEach((chroma) =>
+          appendChromaCard(chromaGrid, {
+            name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
+            imageUrl: chroma.imageUrl,
+            colors: chroma.colors,
+            isBase: false,
+            locale: options.locale,
+          }),
+        );
+        chromas.appendChild(chromaGrid);
+        article.appendChild(chromas);
+
+        const actions = runtimeSkinActions(options.locale, item);
+        if (actions.length) {
+          const actionSection = document.createElement("section");
+          actionSection.className = "runtime-skin-actions";
+          actionSection.appendChild(
+            textNode(
+              "h2",
+              options.locale === "zh_cn" ? "第三方入口" : "External references",
             ),
           );
-          article.appendChild(chromas);
+          const actionLinks = document.createElement("div");
+          actionLinks.className = "runtime-links";
+          actions.forEach((action) => appendExternalAction(actionLinks, action));
+          actionSection.appendChild(actionLinks);
+          article.appendChild(actionSection);
         }
 
         const relations = document.createElement("section");

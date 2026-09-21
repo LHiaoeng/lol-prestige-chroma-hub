@@ -766,6 +766,93 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
+  it("renders the skin self item, true chromas, colors, and locale-specific external actions", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/skins/detail/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "skins",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(
+        "https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002",
+      ),
+    });
+
+    view.renderDetail(
+      {
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        championAlias: "Ahri",
+        stageId: 103002,
+        name: "Dynasty Ahri · Ascended",
+        isBase: false,
+        skinlineIds: [],
+        media: { tileUrl: "https://example.test/stage-tile.jpg" },
+        stages: [],
+        chromas: [
+          {
+            id: 103051,
+            name: "Dynasty Ahri · Ruby",
+            imageUrl: "https://example.test/ruby.png",
+            colors: ["#FF0000", "#00FF00"],
+          },
+          {
+            id: 103052,
+            name: "Dynasty Ahri · Pearl",
+            imageUrl: "https://example.test/pearl.png",
+            colors: [],
+          },
+        ],
+      },
+      {
+        mode: "detail",
+        page: "skins",
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        stageId: 103002,
+        channel: "pbe",
+      },
+    );
+
+    expect(content.querySelector(".runtime-chroma-count")?.textContent).toBe("2");
+    expect(content.querySelectorAll(".runtime-chroma-card")).toHaveLength(3);
+    const base = content.querySelector(".runtime-chroma-base");
+    expect(base?.querySelector(".runtime-chroma-name")?.textContent).toBe("Base");
+    expect(base?.querySelector(".runtime-chroma-note")?.textContent).toBe("Not a chroma");
+    expect(base?.querySelector(".runtime-chroma-color")).toBeNull();
+    expect(content.querySelector(".runtime-chroma-media")?.querySelector("img")?.src).toBe(
+      "https://example.test/stage-tile.jpg",
+    );
+    expect(content.querySelectorAll(".runtime-chroma-color")).toHaveLength(2);
+
+    const externalLinks = content.querySelectorAll(".runtime-external-link");
+    expect(externalLinks).toHaveLength(2);
+    expect(externalLinks.map((link) => link.textContent)).toEqual([
+      "SkinSpotlights",
+      "Teemo.GG",
+    ]);
+    expect(externalLinks[0]?.getAttribute("target")).toBe("_blank");
+    expect(externalLinks[0]?.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(externalLinks[1]?.href).toContain("skinid=ahri-1");
+  });
+
   it("links skinline relations to independent universe detail paths", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

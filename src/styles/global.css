@@ -353,6 +353,90 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   height: 18px;
   object-fit: contain;
 }
+.runtime-skin-chromas h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.runtime-chroma-count {
+  color: var(--muted);
+  font-family: Inter,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.runtime-chroma-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+.runtime-chroma-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.runtime-chroma-card:focus-within,
+.runtime-chroma-card:hover {
+  border-color: var(--gold);
+}
+.runtime-chroma-media {
+  min-height: 96px;
+  background: var(--panel2);
+}
+.runtime-chroma-media > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+.runtime-chroma-media > .runtime-missing {
+  display: grid;
+  min-height: 180px;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+}
+.runtime-chroma-meta {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+.runtime-chroma-name {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.runtime-chroma-note,
+.runtime-chroma-palette,
+.runtime-chroma-color-row {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.runtime-chroma-note {
+  margin: 0;
+}
+.runtime-chroma-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.runtime-chroma-color-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.runtime-chroma-color {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #ffffff55;
+  border-radius: 50%;
+}
+.runtime-skin-actions .runtime-chip {
+  min-height: 44px;
+}
 .runtime-detail {
   display: grid;
   gap: 20px;

@@ -88,6 +88,7 @@ export interface RuntimeChampion extends RuntimeChampionSummary {
 export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly kind: "skin";
   readonly championId: number;
+  readonly championAlias?: string;
   readonly championName?: string;
   readonly name: string;
   readonly stageId?: number;
@@ -559,6 +560,7 @@ function normalizeSkin(
   channel: RuntimeChannel,
   locale: CommunityDragonLocale,
   championId: number,
+  championAlias?: string,
 ): RuntimeSkin {
   const stages = (raw.questSkinInfo?.tiers ?? [])
     .map((value, index) => normalizeStage(value, channel, locale, index))
@@ -576,6 +578,7 @@ function normalizeSkin(
     kind: "skin",
     id: raw.id,
     championId,
+    championAlias,
     name: raw.name,
     isBase: raw.isBase === true,
     isLegacy: raw.isLegacy ?? undefined,
@@ -755,7 +758,13 @@ export function parseRuntimeEntity(
       `Champion detail ID ${raw.id} does not match ${championId}`,
     );
   const skins = raw.skins.map((skin) =>
-    normalizeSkin(skin, options.channel, options.locale, championId),
+    normalizeSkin(
+      skin,
+      options.channel,
+      options.locale,
+      championId,
+      text(raw.alias),
+    ),
   );
   const labels = championLabels(raw, options.locale);
   if (kind === "champion") {
@@ -763,6 +772,7 @@ export function parseRuntimeEntity(
       kind: "champion",
       id: raw.id,
       name: labels.name,
+      alias: text(raw.alias),
       roles: raw.roles ?? [],
       title: labels.title,
       shortBio: text(raw.shortBio),
