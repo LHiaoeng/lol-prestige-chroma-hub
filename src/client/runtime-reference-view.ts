@@ -190,10 +190,6 @@ function runtimeMissingLabel(
   }[field];
 }
 
-function regularRarityLabel(locale: CommunityDragonLocale): string {
-  return locale === "zh_cn" ? "普通" : "Regular";
-}
-
 function roleLabel(role: string, locale: CommunityDragonLocale): string {
   const option = championRoleOptions.find(([value]) => value === role);
   if (!option) return role;
@@ -210,27 +206,35 @@ function appendMissingField(
   );
 }
 
+type RuntimeRarityView = {
+  readonly label?: string;
+  readonly iconUrl?: string;
+};
+
+function hasRenderableRarity(
+  rarity: RuntimeRarityView | undefined,
+): boolean {
+  return Boolean(rarity?.label || rarity?.iconUrl);
+}
+
 function appendRarity(
   parent: HTMLElement,
-  rarity: { readonly label?: string; readonly iconUrl?: string } | undefined,
-  locale: CommunityDragonLocale,
+  rarity: RuntimeRarityView | undefined,
 ): void {
   const badge = document.createElement("span");
   badge.className = "runtime-rarity";
-  if (!rarity?.label) {
-    badge.textContent = regularRarityLabel(locale);
-    parent.appendChild(badge);
-    return;
-  }
-  if (rarity.iconUrl) {
+  const label = rarity?.label;
+  const iconUrl = rarity?.iconUrl;
+  if (!hasRenderableRarity(rarity)) return;
+  if (iconUrl) {
     const icon = document.createElement("img");
-    icon.src = rarity.iconUrl;
-    icon.alt = rarity.label;
+    icon.src = iconUrl;
+    icon.alt = label ?? "";
     icon.loading = "lazy";
     icon.decoding = "async";
     badge.appendChild(icon);
   }
-  badge.appendChild(textNode("span", rarity.label));
+  if (label) badge.appendChild(textNode("span", label));
   parent.appendChild(badge);
 }
 
@@ -736,7 +740,7 @@ export function createDomRuntimeView(
             const meta = document.createElement("span");
             meta.className = "runtime-skin-reference-meta";
             meta.appendChild(textNode("span", skinName));
-            appendRarity(meta, skin.rarity, options.locale);
+            appendRarity(meta, skin.rarity);
             link.appendChild(meta);
             card.appendChild(link);
             grid.appendChild(card);
@@ -763,13 +767,15 @@ export function createDomRuntimeView(
 
         const summary = document.createElement("dl");
         summary.className = "runtime-skin-summary";
-        const rarityTerm = textNode(
-          "dt",
-          options.locale === "zh_cn" ? "稀有度" : "Rarity",
-        );
-        const rarityValue = document.createElement("dd");
-        appendRarity(rarityValue, item.rarity, options.locale);
-        summary.append(rarityTerm, rarityValue);
+        if (hasRenderableRarity(item.rarity)) {
+          const rarityTerm = textNode(
+            "dt",
+            options.locale === "zh_cn" ? "稀有度" : "Rarity",
+          );
+          const rarityValue = document.createElement("dd");
+          appendRarity(rarityValue, item.rarity);
+          summary.append(rarityTerm, rarityValue);
+        }
         const descriptionTerm = textNode(
           "dt",
           options.locale === "zh_cn" ? "描述" : "Description",

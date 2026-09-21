@@ -5,6 +5,7 @@ import type {
   RuntimeRarity,
   RuntimeSkinSummary,
   RuntimeSkin,
+  RuntimeSkinStage,
   RuntimeStageSkin,
   RuntimeSkinEntity,
 } from "./communitydragon-runtime";
@@ -73,6 +74,15 @@ function stageSortValue(stageIndex: number | undefined): number {
   return stageIndex ?? Number.MAX_SAFE_INTEGER;
 }
 
+function stageRarity(
+  skin: RuntimeSkinEntity,
+  stage: RuntimeSkinStage,
+): RuntimeRarity | undefined {
+  return stage.raritySpecified === true || stage.rarity !== undefined
+    ? stage.rarity
+    : skin.rarity;
+}
+
 function compareReferenceItems(
   left: RuntimeSkinReferenceItem,
   right: RuntimeSkinReferenceItem,
@@ -132,7 +142,7 @@ function stageItem(
     description: stage.description ?? skin.description,
     isBase: skin.isBase,
     isLegacy: skin.isLegacy,
-    rarity: stage.rarity ?? skin.rarity,
+    rarity: stageRarity(skin, stage),
     skinlineIds: stage.skinlineIds ?? skin.skinlineIds,
     universeIds: stage.universeIds ?? skin.universeIds ?? [],
     media: stage.media,
@@ -166,7 +176,7 @@ export function projectRuntimeSkinTarget(
     stageIndex: stage.stageIndex,
     name: stage.name,
     description: stage.description ?? skin.description,
-    rarity: stage.rarity ?? skin.rarity,
+    rarity: stageRarity(skin, stage),
     skinlineIds: stage.skinlineIds ?? skin.skinlineIds,
     universeIds: stage.universeIds ?? skin.universeIds,
     media: stage.media,

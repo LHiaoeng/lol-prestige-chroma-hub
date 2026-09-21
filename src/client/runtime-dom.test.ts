@@ -533,10 +533,8 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(
       2,
     );
-    expect(content.querySelector(".runtime-rarity")?.textContent).toBe(
-      "Regular",
-    );
-    expect(content.querySelectorAll(".runtime-rarity")[1]?.querySelector("span")?.textContent).toBe(
+    expect(content.querySelectorAll(".runtime-rarity")).toHaveLength(1);
+    expect(content.querySelector(".runtime-rarity")?.querySelector("span")?.textContent).toBe(
       "Legendary",
     );
     expect(

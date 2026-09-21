@@ -109,6 +109,8 @@ export interface RuntimeSkinStage {
   readonly stageIndex: number;
   readonly description?: string;
   readonly rarity?: RuntimeRarity;
+  /** Whether the source stage explicitly supplied rarity metadata. */
+  readonly raritySpecified?: boolean;
   readonly skinlineIds?: readonly number[];
   readonly universeIds?: readonly number[];
   readonly media: RuntimeMedia;
@@ -389,7 +391,7 @@ function normalizeMedia(
   };
 }
 
-const defaultRarityInfo: Readonly<Record<string, { label: string; icon: string }>> = {
+const defaultRarityInfo: Readonly<Record<string, { label: string; icon?: string }>> = {
   kEpic: { label: "Epic", icon: "epic.png" },
   kLegendary: { label: "Legendary", icon: "legendary.png" },
   kMythic: { label: "Mythic", icon: "mythic.png" },
@@ -419,9 +421,9 @@ function normalizeRarity(
 ): RuntimeRarity | undefined {
   if (locale === "default") {
     const key = text(raw.rarity);
-    if (!key || key === "kNoRarity") return undefined;
+    if (!key || key === "kNoRarity" || key === "kRare") return undefined;
     const info = defaultRarityInfo[key];
-    const iconPath = info?.icon ?? text(raw.rarityGemPath);
+    const iconPath = info?.icon ?? (info ? undefined : text(raw.rarityGemPath));
     return {
       key,
       label: info?.label ?? key,
@@ -448,6 +450,17 @@ function normalizeRarity(
       ? asset(`/lol-game-data/assets/v1/rarity-gem-icons/${iconPath}`, channel)
       : undefined,
   };
+}
+
+function hasExplicitRarity(
+  raw: Record<string, unknown>,
+  locale: CommunityDragonLocale,
+): boolean {
+  if (locale === "default") return text(raw.rarity) !== undefined;
+  return (
+    typeof raw.regionRarityId === "number" &&
+    Number.isSafeInteger(raw.regionRarityId)
+  );
 }
 
 function historicalEntries(value: unknown): Record<string, unknown>[] {
@@ -530,6 +543,7 @@ function normalizeStage(
         : index + 1,
     description: text(raw.description),
     rarity: normalizeRarity(raw, locale, channel),
+    raritySpecified: hasExplicitRarity(raw, locale),
     skinlineIds: raw.skinLines ? positiveIds(raw.skinLines) : undefined,
     universeIds: raw.universeIds ?? undefined,
     media: normalizeMedia(raw, channel),

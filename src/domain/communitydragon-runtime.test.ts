@@ -310,6 +310,124 @@ describe("CommunityDragon runtime reference", () => {
     })).not.toHaveProperty("rarity.key");
   });
 
+  it("hides kRare like kNoRarity instead of inventing a rarity badge", () => {
+    const raw = {
+      ...champion("default"),
+      skins: [
+        {
+          ...champion("default").skins[1],
+          rarity: "kRare",
+          regionRarityId: 0,
+          rarityGemPath: null,
+        },
+      ],
+    };
+
+    expect(
+      parseRuntimeEntity("skin", 103001, raw, {
+        locale: "default",
+        channel: "latest",
+        championId: 103,
+      }),
+    ).toHaveProperty("rarity", undefined);
+  });
+
+  it("does not inherit a parent rarity when a stage explicitly has no rarity", () => {
+    const raw = {
+      ...champion("default"),
+      skins: [
+        {
+          ...champion("default").skins[1],
+          rarity: "kLegendary",
+          questSkinInfo: {
+            tiers: [
+              {
+                id: 103002,
+                stage: 2,
+                name: "Dynasty Ahri · Stage 2",
+                rarity: "kRare",
+              },
+            ],
+          },
+        },
+      ],
+    };
+
+    const parsed = parseRuntimeEntity("skin", 103001, raw, {
+      locale: "default",
+      channel: "latest",
+      championId: 103,
+    });
+
+    expect(parsed).toMatchObject({
+      rarity: { key: "kLegendary" },
+      stages: [{ rarity: undefined, raritySpecified: true }],
+    });
+    if (parsed.kind !== "skin") throw new Error("Expected a skin entity");
+    expect(
+      projectSkinReferenceItems(parsed).find((item) => item.kind === "stage"),
+    ).toMatchObject({ rarity: undefined });
+  });
+
+  it("uses only the current locale's rarity field for stage inheritance", () => {
+    const defaultRaw = {
+      ...champion("default"),
+      skins: [
+        {
+          ...champion("default").skins[1],
+          rarity: "kLegendary",
+          questSkinInfo: {
+            tiers: [{ id: 103002, stage: 2, regionRarityId: 0 }],
+          },
+        },
+      ],
+    };
+    const defaultParsed = parseRuntimeEntity("skin", 103001, defaultRaw, {
+      locale: "default",
+      channel: "latest",
+      championId: 103,
+    });
+    if (defaultParsed.kind !== "skin")
+      throw new Error("Expected a default skin entity");
+    expect(
+      projectSkinReferenceItems(defaultParsed).find(
+        (item) => item.kind === "stage",
+      ),
+    ).toMatchObject({ rarity: { key: "kLegendary" } });
+
+    const chineseRaw = {
+      ...champion("zh_cn"),
+      skins: [
+        {
+          ...champion("zh_cn").skins[1],
+          regionRarityId: 5,
+          questSkinInfo: {
+            tiers: [
+              {
+                id: 103002,
+                stage: 2,
+                rarity: "kLegendary",
+                regionRarityId: 0,
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const chineseParsed = parseRuntimeEntity("skin", 103001, chineseRaw, {
+      locale: "zh_cn",
+      channel: "latest",
+      championId: 103,
+    });
+    if (chineseParsed.kind !== "skin")
+      throw new Error("Expected a Chinese skin entity");
+    expect(
+      projectSkinReferenceItems(chineseParsed).find(
+        (item) => item.kind === "stage",
+      ),
+    ).toMatchObject({ rarity: undefined });
+  });
+
   it("keeps the Chinese rarity badge family separate from global rarity icons", () => {
     const raw = {
       ...champion("default"),
