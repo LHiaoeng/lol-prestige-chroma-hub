@@ -6,6 +6,7 @@ import {
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
+  type RuntimeSkin,
 } from "./communitydragon-runtime";
 import {
   projectChampionSkinListItems,
@@ -655,6 +656,26 @@ describe("CommunityDragon runtime reference", () => {
       { stableKey: "103:103001", kind: "skin" },
       { stableKey: "103:103001:stage:103002", kind: "stage" },
     ]);
+    const secondStageOwner = {
+      ...result.skins[1],
+      id: 103010,
+      name: "Second stage owner",
+      stages: result.skins[1].stages.map((stage) => ({
+        ...stage,
+        name: "Same stage ID from another owner",
+      })),
+    };
+    expect(
+      projectChampionSkinListItems(result.id, [
+        result.skins[1],
+        secondStageOwner,
+      ]),
+    ).toMatchObject([
+      { stableKey: "103:103001", kind: "skin" },
+      { stableKey: "103:103001:stage:103002", kind: "stage" },
+      { stableKey: "103:103010", kind: "skin" },
+      { stableKey: "103:103010:stage:103002", kind: "stage" },
+    ]);
     expect(
       projectChampionSkinReferenceItems(result.id, [
         result.skins[1],
@@ -689,9 +710,11 @@ describe("CommunityDragon runtime reference", () => {
     expect(sortSkinReferenceItems(items, "release")).toBe(items);
   });
 
-  it("rejects a duplicate stage identity instead of guessing which stage to open", () => {
-    expect(() =>
-      parseRuntimeEntity("skin", 103001, {
+  it("deduplicates duplicate stage identities while keeping the first source record", () => {
+    const result = parseRuntimeEntity(
+      "skin",
+      103001,
+      {
         ...champion("default"),
         skins: [
           {
@@ -704,11 +727,17 @@ describe("CommunityDragon runtime reference", () => {
             },
           },
         ],
-      }, {
+      },
+      {
         locale: "default",
         championId: 103,
-      }),
-    ).toThrow(CommunityDragonRuntimeError);
+      },
+    ) as RuntimeSkin;
+
+    expect(result.stages).toMatchObject([
+      { id: 103002, stageIndex: 1, name: "First" },
+    ]);
+    expect(result.stages).toHaveLength(1);
   });
 
   it("resolves a stage target from its parent skin response without another request", async () => {

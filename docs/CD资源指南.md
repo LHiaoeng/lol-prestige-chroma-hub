@@ -169,7 +169,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 ### 3.2 英雄、皮肤、皮肤系列与皮肤宇宙的关联
 
 - 英雄列表使用 `champion-summary.json`。
-- 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合及其中有效的 `questSkinInfo.tiers` 阶段生成统一皮肤入口；按最终皮肤 ID 去重，tier 与顶层记录冲突时 tier 优先。
+- 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合及其中有效的 `questSkinInfo.tiers` 阶段生成统一皮肤入口；顶层项按皮肤 ID 去重，阶段项按所属皮肤 ID 与阶段 ID 去重，tier ID 与顶层记录冲突时 tier 优先。
 - 皮肤详情必须携带英雄定位提示，读取对应 `champions/{championId}.json` 后按皮肤 ID 复核身份。
 - 皮肤系列和皮肤宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
 - 运行时不提供全量皮肤目录；只有皮肤系列详情、皮肤宇宙详情和 PBE 新增页可以显式读取完整 `skins.json`，按稳定数字 ID 投影关联皮肤集合。英雄目录、英雄详情、普通皮肤详情、首页、臻彩详情和博客不得因此加载该资源。

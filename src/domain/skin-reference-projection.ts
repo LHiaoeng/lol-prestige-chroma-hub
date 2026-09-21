@@ -162,19 +162,29 @@ function deduplicateReferenceItems(
   return [...unique.values()];
 }
 
-function championSkinIdentity(item: RuntimeSkinReferenceItem): number {
-  return item.kind === "stage" ? item.stageId ?? item.skinId : item.skinId;
+function championSkinIdentity(item: RuntimeSkinReferenceItem): string {
+  if (item.kind === "stage")
+    return `stage:${item.skinId}:${item.stageId ?? item.skinId}`;
+  return `skin:${item.skinId}`;
 }
 
 function deduplicateChampionSkinItems(
   items: readonly RuntimeSkinReferenceItem[],
 ): readonly RuntimeSkinReferenceItem[] {
-  const unique = new Map<number, RuntimeSkinReferenceItem>();
+  // Stage IDs replace a colliding top-level ID, while the parent skin ID
+  // keeps equal stage IDs from different owners as separate entries.
+  const stageIds = new Set(
+    items.flatMap((item) =>
+      item.kind === "stage" && item.stageId !== undefined
+        ? [item.stageId]
+        : [],
+    ),
+  );
+  const unique = new Map<string, RuntimeSkinReferenceItem>();
   for (const item of items) {
+    if (item.kind === "skin" && stageIds.has(item.skinId)) continue;
     const identity = championSkinIdentity(item);
-    const existing = unique.get(identity);
-    if (!existing || (existing.kind === "skin" && item.kind === "stage"))
-      unique.set(identity, item);
+    if (!unique.has(identity)) unique.set(identity, item);
   }
   return [...unique.values()];
 }

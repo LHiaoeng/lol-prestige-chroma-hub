@@ -8,7 +8,7 @@
 
 - [x] 英雄目录卡片展示名称、头像和定位，同时保留现有名称搜索、定位筛选、稳定排序和分页。
 - [x] 英雄详情展示英雄名称，不单独展示 `isBase: true` 的英雄默认外观。
-- [x] 英雄详情将 `skins[]` 顶层皮肤和有效 `questSkinInfo.tiers[]` 阶段统一投影为皮肤资料项；按最终皮肤 ID 去重，顶层记录与 tier ID 冲突时保留 tier 资料。
+- [x] 英雄详情将 `skins[]` 顶层皮肤和有效 `questSkinInfo.tiers[]` 阶段统一投影为皮肤资料项；顶层项按皮肤 ID 去重，阶段项按所属皮肤 ID 与阶段 ID 去重，tier ID 与顶层皮肤 ID 冲突时保留 tier 资料。
 - [x] 英雄详情皮肤卡片使用各自顶层资料项的 `tilePath` 正方形缩略图，不以聚焦原画或其他媒体替代缩略图。
 - [x] 皮肤列表默认按发布顺序，并提供参考项目同样的稀有度排序筛选；同稀有度保持稳定顺序。
 - [x] 英雄详情成功后不显示“资料加载完成”或等价的英文完成状态文案。
@@ -21,7 +21,7 @@
 ## Comments
 
 - 已在 `src/client/runtime-reference-view.ts` 接入英雄定位、由顶层皮肤与任务阶段组成的去重正方形缩略图资料卡、发布顺序/稀有度排序筛选与无稀有度皮肤的隐藏规则；英雄详情不再渲染默认外观或成功完成状态文案，并继续移除称号和简介。
-- 已在 `src/domain/skin-reference-projection.ts` 将顶层皮肤和有效阶段投影为统一资料项，按最终皮肤 ID 稳定去重并让 tier 覆盖同 ID 顶层项；阶段详情仍使用英雄 ID、所属皮肤 ID、阶段 ID 与数据通道定位。
+- 已在 `src/domain/skin-reference-projection.ts` 将顶层皮肤和有效阶段投影为统一资料项，顶层项按皮肤 ID、阶段项按所属皮肤 ID 与阶段 ID 稳定去重，并让 tier 覆盖同 ID 顶层项；阶段详情仍使用英雄 ID、所属皮肤 ID、阶段 ID 与数据通道定位。
 - 阶段只有在原始数据完全未提供稀有度字段时才继承所属皮肤稀有度；阶段显式为 `kNoRarity`、`kRare` 或 `regionRarityId: 0` 时保持无稀有度，不被所属皮肤徽章覆盖。
 - 已按参考项目拆分直营服与国服的稀有度宝石映射：`default` 使用 `rarity` 对应的 `epic.png`/`legendary.png` 等图标，`zh_cn` 使用 `regionRarityId` 对应的 `cn-gem-{id}.png`；国服不再套用直营服图标或直接使用 `*_large.png`。
 - 已同步 `docs/frontend-design.md` 的运行时英雄目录与详情契约，并沿用 `docs/design-system.md` 中的英雄页面视觉规则。

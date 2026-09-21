@@ -570,18 +570,15 @@ function normalizeSkin(
   championId: number,
   championAlias?: string,
 ): RuntimeSkin {
-  const stages = (raw.questSkinInfo?.tiers ?? [])
+  const parsedStages = (raw.questSkinInfo?.tiers ?? [])
     .map((value, index) => normalizeStage(value, channel, locale, index))
     .filter((value): value is RuntimeSkinStage => Boolean(value));
-  const stageIds = new Set<number>();
-  for (const stage of stages) {
-    if (stage.id !== undefined && stageIds.has(stage.id))
-      throw new CommunityDragonRuntimeError(
-        "schema",
-        `Skin ${raw.id} contains duplicate stage ID ${stage.id}`,
-      );
-    if (stage.id !== undefined) stageIds.add(stage.id);
+  const uniqueStages = new Map<number, RuntimeSkinStage>();
+  for (const stage of parsedStages) {
+    if (stage.id === undefined) continue;
+    if (!uniqueStages.has(stage.id)) uniqueStages.set(stage.id, stage);
   }
+  const stages = [...uniqueStages.values()];
   return {
     kind: "skin",
     id: raw.id,
