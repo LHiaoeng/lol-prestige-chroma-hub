@@ -143,7 +143,7 @@ function history(initial = "https://chromaart.lol/champions/"): RuntimeHistory {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
-  it("binds source controls outside the content root and uses exact channel tokens", () => {
+  it("binds source controls outside the content root and uses player-facing channel labels", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     const root = new TestElement("div");
@@ -172,9 +172,9 @@ describe("runtime DOM boundaries", () => {
     view.loading(false, "latest");
     view.renderList([], { mode: "list", page: "champions", channel: "latest" });
 
-    expect(channelLabel.textContent).toBe("latest");
-    expect(pbe.textContent).toBe("pbe");
-    expect(latest.textContent).toBe("latest");
+    expect(channelLabel.textContent).toBe("正式服");
+    expect(pbe.textContent).toBe("PBE");
+    expect(latest.textContent).toBe("正式服");
     expect(pbe.getAttribute("aria-pressed")).toBe("false");
     expect(latest.getAttribute("aria-pressed")).toBe("true");
     expect(source.querySelector("[data-runtime-source-link]")).toBeNull();
@@ -212,7 +212,7 @@ describe("runtime DOM boundaries", () => {
 
     view.invalid("This link is invalid.", "latest");
 
-    expect(channelLabel.textContent).toBe("latest");
+    expect(channelLabel.textContent).toBe("Live");
     expect(pbe.getAttribute("aria-pressed")).toBe("false");
     expect(latest.getAttribute("aria-pressed")).toBe("true");
   });

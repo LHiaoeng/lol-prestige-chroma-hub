@@ -2,10 +2,18 @@ import { describe, expect, it } from 'vitest';
 import {
   COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS,
   communityDragonAssetUrl,
+  communityDragonChannelLabel,
   communityDragonChampionUrl,
 } from './communitydragon-url';
 
 describe('CommunityDragon URL conversion', () => {
+  it('maps technical channel tokens to player-facing labels', () => {
+    expect(communityDragonChannelLabel('pbe', 'default')).toBe('PBE');
+    expect(communityDragonChannelLabel('pbe', 'zh_cn')).toBe('PBE');
+    expect(communityDragonChannelLabel('latest', 'default')).toBe('Live');
+    expect(communityDragonChannelLabel('latest', 'zh_cn')).toBe('正式服');
+  });
+
   it('converts game asset and plugin paths to normalized pbe URLs', () => {
     expect(communityDragonAssetUrl('/lol-game-data/assets/ASSETS/Characters/Annie/Icon.PNG')).toBe(
       'https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/characters/annie/icon.png',

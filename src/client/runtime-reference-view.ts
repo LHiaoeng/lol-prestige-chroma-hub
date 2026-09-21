@@ -1,4 +1,5 @@
 import { type CommunityDragonLocale } from "../domain/communitydragon-runtime";
+import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import {
@@ -184,9 +185,16 @@ export function createDomRuntimeView(
         const active = button.dataset.runtimeChannel === selected;
         button.setAttribute("aria-pressed", String(active));
         if (button.dataset.runtimeChannel)
-          button.textContent = button.dataset.runtimeChannel;
+          button.textContent = communityDragonChannelLabel(
+            button.dataset.runtimeChannel as "pbe" | "latest",
+            options.locale,
+          );
     });
-    if (channelLabel) channelLabel.textContent = selected;
+    if (channelLabel)
+      channelLabel.textContent = communityDragonChannelLabel(
+        selected,
+        options.locale,
+      );
     bindRuntimeChannelLinks(document, options.history.url);
     bindRuntimeLanguageToggle(document, options.history.url);
   };
@@ -561,8 +569,8 @@ export function createDomRuntimeView(
       if (!items.length) {
         relationSlot.textContent =
           options.locale === "zh_cn"
-            ? "当前区域数据视图没有可显示的关联资料。"
-            : "No related references are available in this regional view.";
+            ? "当前语言没有可显示的关联资料。"
+            : "No related references are available in this language.";
         return;
       }
       const links = document.createElement("div");

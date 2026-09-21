@@ -5,10 +5,19 @@ const DEFAULT_GAME_DATA_PREFIX = 'plugins/rcp-be-lol-game-data/global/default';
 export const COMMUNITYDRAGON_VERSION = 'pbe';
 export const COMMUNITYDRAGON_CHANNELS = ['pbe', 'latest'] as const;
 export type CommunityDragonChannel = (typeof COMMUNITYDRAGON_CHANNELS)[number];
+export type CommunityDragonLocalizationView = 'default' | 'zh_cn';
+
+export function communityDragonChannelLabel(
+  channel: CommunityDragonChannel,
+  view: CommunityDragonLocalizationView,
+): string {
+  if (channel === 'pbe') return 'PBE';
+  return view === 'zh_cn' ? '正式服' : 'Live';
+}
 
 export function communityDragonDataUrl(
   file: string,
-  locale: 'default' | 'zh_cn' = 'default',
+  locale: CommunityDragonLocalizationView = 'default',
   channel: CommunityDragonChannel = COMMUNITYDRAGON_VERSION,
 ): string {
   const normalized = file.replace(/^\/+/, '');

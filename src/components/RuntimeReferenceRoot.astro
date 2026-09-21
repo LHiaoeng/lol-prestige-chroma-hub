@@ -1,5 +1,6 @@
 ---
 import { localizedPath, type Locale } from '../i18n/config';
+import { communityDragonChannelLabel } from '../domain/communitydragon-url';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes';
@@ -14,6 +15,8 @@ const { page, locale, label, heading, lede, mode } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const listPath = page === 'skins' ? undefined : localizedPath(locale, `/${page}/`);
+const pbeLabel = communityDragonChannelLabel('pbe', runtimeLocale);
+const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
 ---
 
 <div class="runtime-page">
@@ -24,9 +27,9 @@ const listPath = page === 'skins' ? undefined : localizedPath(locale, `/${page}/
     <h1>{heading}</h1>
     <p class="runtime-lede">{lede}</p>
     <div class="runtime-source" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-      <span aria-live="polite"><span data-runtime-channel-label>pbe</span></span>
-      <button type="button" data-runtime-channel="pbe" aria-pressed="true">pbe</button>
-      <button type="button" data-runtime-channel="latest" aria-pressed="false">latest</button>
+      <span aria-live="polite"><span data-runtime-channel-label>{pbeLabel}</span></span>
+      <button type="button" data-runtime-channel="pbe" aria-pressed="true">{pbeLabel}</button>
+      <button type="button" data-runtime-channel="latest" aria-pressed="false">{latestLabel}</button>
     </div>
   </header>
   <section class="runtime-section">

@@ -407,7 +407,7 @@ describe("static site build", () => {
           "utf8",
         );
         expect(html).not.toContain("CommunityDragon");
-        expect(html).toContain(">pbe<");
+        expect(html).toContain(">PBE<");
         expect(html).toContain('class="runtime-reference-root"');
         expect(html).toContain('data-runtime-channel="pbe"');
         expect(html).toContain('data-runtime-channel="latest"');

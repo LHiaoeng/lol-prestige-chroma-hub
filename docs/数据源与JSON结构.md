@@ -134,11 +134,11 @@ D:\WebstormProjects\lol-prestige-chroma-hub\data\prestige-chromas.json
 | `heroId` | string | `heroId` | 管理系统中为正整数，生成时转换成字符串 |
 | `heroNameZh` | string | `heroName` | 非空，英雄中文名称 |
 | `heroNameEn` | string | `heroNameEng` | 非空，英雄英文名称；参与详情页 slug 计算 |
-| `sourceSkinId` | number | `sourceSkinId` | 正整数，原皮肤业务 ID |
+| `sourceSkinId` | number | `sourceSkinId` | 正整数，炫彩所属皮肤业务 ID |
 | `skinSets` | object[] | `sourceSkinSkinlineIdSet` + 皮肤套装表 | 按业务 ID 升序、去重；没有关联时输出空数组 |
 | `universes` | object[] | `sourceSkinUniverseIdSet` + 皮肤宇宙表 | 按业务 ID 升序、去重；没有关联时输出空数组 |
-| `skinNameZh` | string | `sourceSkinName` | 非空，原皮肤中文名称 |
-| `skinNameEn` | string | `sourceSkinNameEng` | 非空，原皮肤英文名称 |
+| `skinNameZh` | string | `sourceSkinName` | 非空，炫彩所属皮肤中文名称 |
+| `skinNameEn` | string | `sourceSkinNameEng` | 非空，炫彩所属皮肤英文名称 |
 | `categoryId` | string | `categoryId` | 非空安全标识 |
 | `categoryName` | string | `categoryName` | 非空，分类显示名称 |
 | `tagId` | string | `tagId` | 非空安全标识，用于分类图标定位 |
@@ -239,6 +239,6 @@ D:\WebstormProjects\lol-prestige-chroma-hub
 - CommunityDragon `global/zh_cn/v1/champion-summary.json` 提供按英雄 ID 对应的中文名；
 - `data/prestige-chromas.json` 的唯一 `heroId` 集合表示已有臻彩原画的英雄。
 
-仓库提交的 `data/champion-coverage.snapshot.json` 保存两份摘要计算后的完整结果，Astro 构建只读取该快照，不联网更新。快照记录 PBE 通道、`default` 与 `zh_cn` 区域数据视图、来源 URL、抓取时间、内容版本、补丁版本和覆盖计数；维护时运行 `pnpm coverage:snapshot`，命令会重新读取两个官方摘要并在元数据、计数、ID 和路径校验通过后写回。浏览器可以显式刷新 CommunityDragon 辅助数据，失败时继续显示当前语言的已提交快照，不影响正文。
+仓库提交的 `data/champion-coverage.snapshot.json` 保存两份摘要计算后的完整结果，Astro 构建只读取该快照，不联网更新。快照记录 `pbe` 数据通道、`default` 与 `zh_cn` 本地化视图、来源 URL、抓取时间、内容版本、补丁版本和覆盖计数；维护时运行 `pnpm coverage:snapshot`，命令会重新读取两个官方摘要并在元数据、计数、ID 和路径校验通过后写回。浏览器可以显式刷新 CommunityDragon 辅助数据，失败时继续显示当前语言的已提交快照，不影响正文。
 
 CommunityDragon 响应中的 `/lol-game-data/assets/...` 等相对资源路径必须由 `src/domain/communitydragon-url.ts` 转换，不得在页面或客户端代码中自行拼接。公开 HTML 只包含计算所需的已覆盖英雄 ID 和本地最高 `gameVer`；完整 `prestige-chromas.json` 仍然不得进入 `public/` 或 `dist/`。

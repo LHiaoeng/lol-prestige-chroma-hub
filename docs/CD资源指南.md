@@ -1,7 +1,7 @@
 # CommunityDragon 资源指南
 
 > 本文用于处理 CommunityDragon 的公开 JSON、图片、客户端资源和资源目录。
-> CommunityDragon 的内容会随版本和区域数据视图变化；本文只定义本项目认可的读取方式和边界。
+> CommunityDragon 的内容会随数据通道和本地化视图变化；本文只定义本项目认可的读取方式和边界。
 
 ## 1. 文档范围与基本概念
 
@@ -51,11 +51,20 @@ https://raw.communitydragon.org/{version}/{relativePath}
 
 `pbe` 和 `latest` 都是滚动数据源，不是不可变快照。需要复现历史状态时使用明确补丁号，并记录抓取时间和内容版本。
 
-### 2.2 区域数据视图
+数据源 token 与玩家界面名称分层使用：
 
-版本数据源和区域数据视图是两个独立维度：
+| 数据源 token | 中文界面 | 英文界面 |
+| --- | --- | --- |
+| `pbe` | `PBE` | `PBE` |
+| `latest` | 正式服 | `Live` |
 
-| 页面语言 | 区域数据视图 |
+URL、请求、缓存键和领域值使用数据源 token；按钮、当前来源、状态反馈和无障碍文案使用玩家界面名称。
+
+### 2.2 本地化视图
+
+数据通道和本地化视图是两个独立维度：
+
+| 页面语言 | 本地化视图 token |
 | --- | --- |
 | 英文 | `default` |
 | 简体中文 | `zh_cn` |
@@ -68,10 +77,11 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 
 规则：
 
-- 数字 ID 用于识别实体；名称、slug、描述、稀有度和可用性属于当前版本与区域视图的事实。
+- 数字 ID 用于识别实体；名称、slug、描述、稀有度和可用性属于当前数据通道与本地化视图的事实。
 - 当前视图缺失字段时保留缺失，不从另一语言或另一版本补值。
-- 当前区域记录引用 `global/default` 下的共享媒体，不代表业务字段发生跨区域回退。
+- 当前本地化记录引用 `global/default` 下的共享媒体，不代表业务字段发生跨视图回退。
 - 其他语言目录只能用于人工研究，不能直接接入本项目现有页面语言映射。
+- `default` 与 `zh_cn` 是资源 token，不代表直营服或国服；玩家界面通常不显示它们。
 
 ### 2.3 路径转换规则
 
@@ -111,7 +121,7 @@ JSON 和媒体必须使用同一 `{version}`。路径来自 JSON 字段或已验
 ### 2.5 缓存、请求和安全边界
 
 - 浏览器只请求当前页面所需的版本、区域和资源，不预取另一语言、不轮询，也不在重新获得焦点时刷新。
-- 页面内可以按“数据通道 + 区域数据视图 + 资源键”缓存进行中的 Promise 和已完成响应；跨导航缓存交给浏览器 HTTP 缓存和验证器。
+- 页面内可以按“数据通道 + 本地化视图 + 资源键”缓存进行中的 Promise 和已完成响应；跨导航缓存交给浏览器 HTTP 缓存和验证器。
 - 不使用 `localStorage`、`sessionStorage`、IndexedDB 或 Service Worker 持久保存 CommunityDragon 响应。
 - 请求省略凭据与 Referer；查询参数只允许选择已批准的版本、区域和数字实体 ID。
 - 无 JavaScript 时，页面壳仍应提供标题、导航、版本选择说明和启用脚本提示。
@@ -131,7 +141,7 @@ JSON 和媒体必须使用同一 `{version}`。路径来自 JSON 字段或已验
 
 ## 3. 英雄联盟资源
 
-英雄、普通皮肤、皮肤系列、皮肤宇宙与 `pbe` 新增页面应展示的信息范围，见 [英雄联盟资料页面信息规范](./英雄联盟资料页面信息规范.md)。本指南继续负责数据来源、身份、区域数据视图和路径规则，不规定页面布局。
+英雄、皮肤、皮肤系列、皮肤宇宙与 PBE 新增页面应展示的信息范围，见 [英雄联盟资料页面信息规范](./英雄联盟资料页面信息规范.md)。本指南继续负责数据来源、身份、本地化视图和路径规则，不规定页面布局。
 
 ### 3.1 常用 JSON
 
@@ -147,7 +157,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 英雄详情 | `champions/{championId}.json` | 单个英雄及其皮肤正向集合 |
 | 完整皮肤目录 | `skins.json` | 人工研究或显式维护，不作为运行时默认依赖 |
 | 皮肤系列 | `skinlines.json` | 系列名称、描述和数字 ID |
-| 宇宙 | `universes.json` | 宇宙名称、描述、图片和系列关系 |
+| 皮肤宇宙 | `universes.json` | 皮肤宇宙名称、描述、图片和皮肤系列关系 |
 | 其他客户端数据 | `nexusfinishers.json`、`summoner-icons.json` 等 | 终结特效、召唤师图标等附属资源 |
 
 单个英雄详情：
@@ -156,12 +166,12 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{lang}/v1/champions/{championId}.json
 ```
 
-### 3.2 英雄、皮肤、系列与宇宙的关联
+### 3.2 英雄、皮肤、皮肤系列与皮肤宇宙的关联
 
 - 英雄列表使用 `champion-summary.json`。
 - 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合生成皮肤入口。
 - 皮肤详情必须携带英雄定位提示，读取对应 `champions/{championId}.json` 后按皮肤 ID 复核身份。
-- 皮肤系列和宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
+- 皮肤系列和皮肤宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
 - 运行时不使用完整 `skins.json` 生成皮肤列表、系列反向索引或宇宙反向索引。
 - 不根据皮肤 ID 的数字格式猜测英雄 ID；缺少英雄定位提示时，只允许读取必要的小型索引。
 
@@ -175,7 +185,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 /universes/detail/?id={universeId}
 ```
 
-英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；普通皮肤不提供目录页，只从英雄详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。宇宙详情只读取宇宙记录及其所属系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
+英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；皮肤不提供目录页，只从英雄详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。皮肤宇宙详情只读取皮肤宇宙记录及其所属皮肤系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
 
 ### 3.3 英雄与皮肤字段、分类和图片
 
@@ -193,9 +203,9 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 英雄摘要或英雄详情 | `squarePortraitPath` | 英雄方形头像 |
 | 英雄详情或皮肤目录 | `splashPath`、`uncenteredSplashPath`、`tilePath`、`loadScreenPath` | 皮肤展示图、缩略图和载入图 |
 | 英雄详情或皮肤目录 | `chromaPath` | 炫彩资源 |
-| 皮肤记录 | `skinLines`、`isBase`、`questSkinInfo.tiers` | 系列关系、基础皮肤和阶段信息 |
+| 皮肤记录 | `skinLines`、`isBase`、`questSkinInfo.tiers` | 系列关系、英雄默认外观标记和阶段信息 |
 | 系列 | `imagePath` 等实际存在的媒体字段 | 系列图片 |
-| 宇宙 | `imagePath` | 宇宙图片 |
+| 皮肤宇宙 | `imagePath` | 皮肤宇宙图片 |
 
 常用目录：
 
@@ -217,18 +227,18 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 ### 3.4 运行时读取规则
 
 - 英文页面使用 `default`，中文页面使用 `zh_cn`；运行时默认通道为 `pbe`。
-- `pbe` 新增按同一区域数据视图比较 `pbe` 与 `latest` 的实体数字 ID，只包含 `pbe` 独有的英雄、普通皮肤、皮肤系列和皮肤宇宙；已有实体的字段或媒体变化不计入新增。
+- PBE 新增按同一本地化视图比较 `pbe` 与 `latest` 的实体数字 ID，只包含 `pbe` 独有的英雄、皮肤、皮肤系列和皮肤宇宙；已有实体的字段或媒体变化不计入新增。
 - 英雄目录由静态页面壳和浏览器控制器组成；浏览器完成搜索、排序、分类、分页和详情读取。
-- 核心实体优先加载；系列和宇宙属于独立的关联请求，最多并发读取必要数据。
+- 核心实体优先加载；皮肤系列和皮肤宇宙属于独立的关联请求，最多并发读取必要数据。
 - 网络、HTTP、404、取消和响应格式错误分别显示明确状态，并支持重试。
-- 英雄、皮肤、系列和宇宙详情属于运行时资料，客户端确认有效实体后设置 `noindex`；静态臻彩页面不依赖这些资料即可保持正文和 SEO 可用。
-- 多阶段皮肤中具有有效数字 ID 的阶段作为独立普通皮肤资料；阶段自己的名称和媒体优先，缺失的描述、稀有度、皮肤系列和皮肤宇宙只从同一响应所属皮肤继承。
-- 普通皮肤详情中的炫彩数量只统计真正的炫彩；普通皮肤本身可以作为基础皮肤项与炫彩并列显示，但不属于炫彩，也不携带炫彩颜色。
+- 英雄、皮肤、皮肤系列和皮肤宇宙详情属于运行时资料，客户端确认有效实体后设置 `noindex`；静态臻彩页面不依赖这些资料即可保持正文和 SEO 可用。
+- 多阶段皮肤中具有有效数字 ID 的阶段生成独立可查看的皮肤资料项，但仍是所属皮肤的子记录，不成为新的 CommunityDragon 实体；阶段自己的名称和媒体优先，缺失的描述、稀有度、皮肤系列和皮肤宇宙只从同一响应所属皮肤继承。
+- 皮肤详情中的炫彩数量只统计真正的炫彩；当前皮肤本身可以作为皮肤本体项与炫彩并列显示，但不属于炫彩，也不携带炫彩颜色。
 
-静态臻彩页面只把 CommunityDragon 作为基础皮肤补充：
+静态臻彩页面只把 CommunityDragon 作为炫彩所属皮肤补充：
 
 - 标题、正文、主图、SEO 和主要操作来自仓库目录。
-- 浏览器根据当前英雄和 `sourceSkinId` 读取基础皮肤，并复核英雄 ID、皮肤 ID 和 `isBase`。
+- 浏览器根据当前英雄和 `sourceSkinId` 读取炫彩所属皮肤，并复核英雄 ID 与皮肤 ID；`isBase` 仅表示英雄默认外观，不是炫彩所属关系的判据。
 - 补充请求失败只影响补充区，不清空静态正文；媒体失败只移除对应媒体。
 
 英雄覆盖率文章使用提交到仓库的 `data/champion-coverage.snapshot.json`。普通构建不联网更新快照；维护快照时分别读取 `default` 和 `zh_cn` 的 `pbe` 摘要，并校验来源 URL、HTTP 状态、`ETag` 或 `Last-Modified`、补丁版本和覆盖计数。
