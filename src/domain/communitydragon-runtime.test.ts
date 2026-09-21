@@ -889,6 +889,45 @@ describe("CommunityDragon runtime reference", () => {
     );
   });
 
+  it("resolves the live skins.json owner convention when championId is omitted", () => {
+    expect(
+      parseRuntimeSkinCollection(
+        {
+          "103001": {
+            id: 103001,
+            name: "Dynasty Ahri",
+            isBase: false,
+            skinLines: [{ id: 7 }],
+            tilePath:
+              "/lol-game-data/assets/ASSETS/Characters/Ahri/Skins/Skin01/Ahri_Square.png",
+          },
+        },
+        { locale: "default", channel: "pbe" },
+      ),
+    ).toMatchObject([{ id: 103001, championId: 103 }]);
+  });
+
+  it("preserves source-provided external preview video URLs", () => {
+    expect(
+      parseRuntimeSkinCollection(
+        {
+          "103001": {
+            id: 103001,
+            name: "Dynasty Ahri",
+            isBase: false,
+            previewVideoUrl: "https://www.youtube.com/watch?v=example",
+          },
+        },
+        { locale: "default", channel: "pbe" },
+      ),
+    ).toMatchObject([
+      {
+        id: 103001,
+        media: { previewVideoUrl: "https://www.youtube.com/watch?v=example" },
+      },
+    ]);
+  });
+
   it("rejects a skin request without a safe champion hint before fetching", async () => {
     const fetcher = vi.fn(async (_input: string, _init?: RequestInit) =>
       jsonResponse({}),

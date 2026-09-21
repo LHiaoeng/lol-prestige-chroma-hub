@@ -376,6 +376,34 @@ function asset(
   }
 }
 
+function externalMediaUrl(
+  value: string | undefined,
+): string | undefined {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || !url.hostname)
+      throw new Error("Expected an HTTPS URL");
+    return url.toString();
+  } catch (error) {
+    throw new CommunityDragonRuntimeError(
+      "unsafe-url",
+      "CommunityDragon returned an unsafe external media URL",
+      { cause: error },
+    );
+  }
+}
+
+function mediaUrl(
+  value: string | undefined,
+  channel: RuntimeChannel,
+): string | undefined {
+  if (!value) return undefined;
+  return /^https?:\/\//i.test(value)
+    ? externalMediaUrl(value)
+    : asset(value, channel);
+}
+
 function normalizeMedia(
   raw: Record<string, unknown>,
   channel: RuntimeChannel,
@@ -387,7 +415,7 @@ function normalizeMedia(
     loadScreenUrl: asset(text(raw.loadScreenPath), channel),
     animatedSplashUrl: asset(text(raw.splashVideoPath), channel),
     loadScreenVintageUrl: asset(text(raw.loadScreenVintagePath), channel),
-    previewVideoUrl: asset(text(raw.previewVideoUrl), channel),
+    previewVideoUrl: mediaUrl(text(raw.previewVideoUrl), channel),
     collectionSplashVideoUrl: asset(
       text(raw.collectionSplashVideoPath),
       channel,
@@ -718,6 +746,11 @@ interface RuntimeSkinCollectionEntry {
   readonly championId?: number;
 }
 
+function communityDragonChampionIdFromSkinId(skinId: number): number | undefined {
+  const championId = Math.floor(skinId / 1000);
+  return championId > 0 ? championId : undefined;
+}
+
 function skinCollectionEntries(value: unknown): RuntimeSkinCollectionEntry[] {
   if (Array.isArray(value))
     return value.map((raw) => ({
@@ -795,7 +828,10 @@ export function parseRuntimeSkinCollection(
         { cause: error },
       );
     }
-    const resolvedChampionId = championId ?? parsed.championId;
+    const resolvedChampionId =
+      championId ??
+      parsed.championId ??
+      communityDragonChampionIdFromSkinId(parsed.id);
     if (resolvedChampionId === undefined)
       throw new CommunityDragonRuntimeError(
         "schema",
