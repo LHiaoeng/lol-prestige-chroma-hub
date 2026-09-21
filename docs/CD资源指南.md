@@ -155,7 +155,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | --- | --- | --- |
 | 英雄摘要 | `champion-summary.json` | 英雄列表、数字 ID、名称、角色和头像 |
 | 英雄详情 | `champions/{championId}.json` | 单个英雄及其皮肤正向集合 |
-| 完整皮肤目录 | `skins.json` | 人工研究或显式维护，不作为运行时默认依赖 |
+| 完整皮肤目录 | `skins.json` | 皮肤系列、皮肤宇宙和 PBE 新增页面按需读取；不作为其他运行时页面的默认依赖 |
 | 皮肤系列 | `skinlines.json` | 系列名称、描述和数字 ID |
 | 皮肤宇宙 | `universes.json` | 皮肤宇宙名称、描述、图片和皮肤系列关系 |
 | 其他客户端数据 | `nexusfinishers.json`、`summoner-icons.json` 等 | 终结特效、召唤师图标等附属资源 |
@@ -169,10 +169,10 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 ### 3.2 英雄、皮肤、皮肤系列与皮肤宇宙的关联
 
 - 英雄列表使用 `champion-summary.json`。
-- 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合生成皮肤入口。
+- 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合及其中有效的 `questSkinInfo.tiers` 阶段生成统一皮肤入口；按最终皮肤 ID 去重，tier 与顶层记录冲突时 tier 优先。
 - 皮肤详情必须携带英雄定位提示，读取对应 `champions/{championId}.json` 后按皮肤 ID 复核身份。
 - 皮肤系列和皮肤宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
-- 运行时不使用完整 `skins.json` 生成皮肤列表、系列反向索引或宇宙反向索引。
+- 运行时不提供全量皮肤目录；只有皮肤系列详情、皮肤宇宙详情和 PBE 新增页可以显式读取完整 `skins.json`，按稳定数字 ID 投影关联皮肤集合。英雄目录、英雄详情、普通皮肤详情、首页、臻彩详情和博客不得因此加载该资源。
 - 不根据皮肤 ID 的数字格式猜测英雄 ID；缺少英雄定位提示时，只允许读取必要的小型索引。
 
 推荐的运行时 URL：
@@ -188,7 +188,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 
 阶段链接必须同时携带英雄 ID、所属皮肤 ID 和来源提供的有效阶段 ID；只有缺少有效正整数 ID 的阶段不会形成独立资料项。阶段名称缺失时保留资料项并显示缺失状态，不生成来源不存在的阶段名称。
 
-英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；皮肤不提供目录页，只从英雄详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。皮肤宇宙详情只读取皮肤宇宙记录及其所属皮肤系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
+英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；皮肤不提供目录页，只从英雄详情、系列详情或宇宙详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。系列和宇宙详情按需读取完整 `skins.json`，只通过稳定数字 ID 形成关联集合；其他页面不加载该资源。
 
 ### 3.3 英雄与皮肤字段、分类和图片
 

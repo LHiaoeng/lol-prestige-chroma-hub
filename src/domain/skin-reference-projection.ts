@@ -162,6 +162,35 @@ function deduplicateReferenceItems(
   return [...unique.values()];
 }
 
+function championSkinIdentity(item: RuntimeSkinReferenceItem): number {
+  return item.kind === "stage" ? item.stageId ?? item.skinId : item.skinId;
+}
+
+function deduplicateChampionSkinItems(
+  items: readonly RuntimeSkinReferenceItem[],
+): readonly RuntimeSkinReferenceItem[] {
+  const unique = new Map<number, RuntimeSkinReferenceItem>();
+  for (const item of items) {
+    const identity = championSkinIdentity(item);
+    const existing = unique.get(identity);
+    if (!existing || (existing.kind === "skin" && item.kind === "stage"))
+      unique.set(identity, item);
+  }
+  return [...unique.values()];
+}
+
+function championSkinEntity(
+  championId: number,
+  skin: RuntimeSkinSummary,
+): RuntimeSkin {
+  return {
+    ...skin,
+    kind: "skin",
+    championId,
+    chromas: [],
+  };
+}
+
 export function projectRuntimeSkinTarget(
   skin: RuntimeSkin,
   stageId?: number,
@@ -213,36 +242,23 @@ export function projectChampionSkinReferenceItems(
   skins: readonly RuntimeSkinSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
   const items = skins
-    .flatMap((skin) =>
-      projectSkinReferenceItems({
-        ...skin,
-        kind: "skin",
-        championId,
-        chromas: [],
-      }),
-    );
-  return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
+    .flatMap((skin) => projectSkinReferenceItems(championSkinEntity(championId, skin)));
+  return [...deduplicateChampionSkinItems(items)].sort(compareReferenceItems);
 }
 
 /**
- * Project the champion page's skin grid like the reference project: show one
- * card per top-level skin and keep quest stages available only through the
- * owning skin's detail route.
+ * Project the champion page's skin grid from top-level skins and their valid
+ * stages. Stage IDs are independent list identities and replace a top-level
+ * item when both records use the same ID.
  */
 export function projectChampionSkinListItems(
   championId: number,
   skins: readonly RuntimeSkinSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
-  return [...deduplicateReferenceItems(
-    skins.map((skin) =>
-      skinItem({
-        ...skin,
-        kind: "skin",
-        championId,
-        chromas: [],
-      }),
-    ),
-  )].sort(compareReferenceItems);
+  const items = skins
+    .filter((skin) => !skin.isBase)
+    .flatMap((skin) => projectSkinReferenceItems(championSkinEntity(championId, skin)));
+  return [...deduplicateChampionSkinItems(items)].sort(compareReferenceItems);
 }
 
 function rarityRank(item: RuntimeSkinReferenceItem): number {

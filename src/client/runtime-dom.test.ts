@@ -533,7 +533,7 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(
       2,
     );
-    expect(content.querySelectorAll(".runtime-rarity")).toHaveLength(1);
+    expect(content.querySelectorAll(".runtime-rarity")).toHaveLength(2);
     expect(content.querySelector(".runtime-rarity")?.querySelector("span")?.textContent).toBe(
       "Legendary",
     );
@@ -542,8 +542,8 @@ describe("runtime DOM boundaries", () => {
         (card) => card.querySelector("img")?.src,
       ),
     ).toEqual([
-      "https://example.test/ahri-base-tile.jpg",
       "https://example.test/dynasty-tile.jpg",
+      "https://example.test/dynasty-stage-tile.jpg",
     ]);
     const skinSort = content.querySelector("select");
     expect(skinSort?.value).toBe("release");
@@ -557,14 +557,14 @@ describe("runtime DOM boundaries", () => {
             .querySelector(".runtime-skin-reference-meta")
             ?.querySelector("span")?.textContent,
       ),
-    ).toEqual(["Dynasty Ahri", "Ahri"]);
+    ).toEqual(["Dynasty Ahri", "Dynasty Ahri · Stage 2"]);
     skinSort.value = "release";
     skinSort.listeners.get("change")?.forEach((listener) => listener());
     expect(content.querySelectorAll(".runtime-skin-reference-card")[0]?.querySelector("a")?.href).toBe(
-      "/skins/detail/?id=103000&champion=103&channel=latest",
+      "/skins/detail/?id=103001&champion=103&channel=latest",
     );
     expect(content.querySelectorAll(".runtime-skin-reference-card")[1]?.querySelector("a")?.href).toBe(
-      "/skins/detail/?id=103001&champion=103&channel=latest",
+      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });

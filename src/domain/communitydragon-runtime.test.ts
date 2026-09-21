@@ -558,7 +558,7 @@ describe("CommunityDragon runtime reference", () => {
     ]);
   });
 
-  it("deduplicates champion skin cards and keeps quest stages out of the grid", () => {
+  it("expands champion skin cards with stages and gives tier IDs priority", () => {
     const result = parseRuntimeEntity(
       "champion",
       103,
@@ -568,12 +568,31 @@ describe("CommunityDragon runtime reference", () => {
 
     expect(
       projectChampionSkinListItems(result.id, [
+        result.skins[0],
+        {
+          ...result.skins[0],
+          id: 103002,
+          name: "Top-level collision",
+          isBase: false,
+        },
+        result.skins[1],
+      ]),
+    ).toMatchObject([
+      { stableKey: "103:103001", kind: "skin" },
+      {
+        stableKey: "103:103001:stage:103002",
+        kind: "stage",
+        name: "Dynasty Ahri · Stage 2",
+      },
+    ]);
+    expect(
+      projectChampionSkinListItems(result.id, [
         ...result.skins,
         result.skins[1],
       ]),
     ).toMatchObject([
-      { stableKey: "103:103000", kind: "skin" },
       { stableKey: "103:103001", kind: "skin" },
+      { stableKey: "103:103001:stage:103002", kind: "stage" },
     ]);
     expect(
       projectChampionSkinReferenceItems(result.id, [
