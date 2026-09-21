@@ -109,11 +109,29 @@ describe('build audit', () => {
     'database/export.sql.gz',
     'database/export.SQL.BR',
     'database/export.sql.zip',
+    'runtime/skin.jpg',
+    'communitydragon/skins.json',
   ])('rejects sensitive deployment artifact %s', (artifact) => {
     const root = createBuild();
     const path = join(root, artifact);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, 'sensitive');
     expect(() => auditBuild(root)).toThrow(/sensitive/i);
+  });
+
+  it('rejects a copied CommunityDragon response', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'runtime'), { recursive: true });
+    writeFileSync(join(root, 'runtime', 'skins.json'), '[]');
+
+    expect(() => auditBuild(root)).toThrow(/deployment artifacts/i);
+  });
+
+  it('rejects nested PBE entity pages', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'pbe-additions', 'champions', '103'), { recursive: true });
+    writeFileSync(join(root, 'pbe-additions', 'champions', '103', 'index.html'), '<html></html>');
+
+    expect(() => auditBuild(root)).toThrow(/PBE entity/i);
   });
 });

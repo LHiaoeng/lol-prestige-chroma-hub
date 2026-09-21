@@ -7,7 +7,7 @@ import { canDisplayAds } from '../src/domain/ad-policy';
 export function isSensitiveDeploymentArtifact(file: string): boolean {
   return /\.map$/i.test(file)
     || /(^|\/)prestige-chromas\.json$/i.test(file)
-    || /(^|\/)(data|assets|migrations?)\//i.test(file)
+    || /(^|\/)(data|assets|migrations?|runtime|communitydragon|remote-media)\//i.test(file)
     || /\.(?:db|sqlite|sqlite3)(?:-(?:wal|shm|journal))?$/i.test(file)
     || /\.sql(?:\.(?:gz|br|zip))?$/i.test(file);
 }
@@ -25,6 +25,8 @@ export function auditBuild(root: string): string[] {
   if (sensitive.length) throw new Error(`Sensitive deployment artifacts detected: ${sensitive.join(', ')}`);
   const runtimeEntityPages = files.filter((file) => /^(?:zh-cn\/)?(?:champions|skins|skinlines|universes)\/(?!detail\/)[^/]+\/index\.html$/.test(file));
   if (runtimeEntityPages.length) throw new Error(`Runtime entity pages must not be published: ${runtimeEntityPages.join(', ')}`);
+  const nestedPbeEntityPages = files.filter((file) => /^(?:zh-cn\/)?pbe-additions\/.+\/index\.html$/.test(file));
+  if (nestedPbeEntityPages.length) throw new Error(`PBE entity pages must not be published: ${nestedPbeEntityPages.join(', ')}`);
   const retiredSkinEntryPages = files.filter((file) => /^(?:zh-cn\/)?skins\/index\.html$/.test(file));
   if (retiredSkinEntryPages.length) throw new Error(`Retired skin entry shells must not be published: ${retiredSkinEntryPages.join(', ')}`);
   const jsonArtifacts = files.filter((file) => file.toLowerCase().endsWith('.json'));

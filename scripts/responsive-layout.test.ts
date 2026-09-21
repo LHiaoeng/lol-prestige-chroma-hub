@@ -59,6 +59,19 @@ describe('responsive layout contract', () => {
     expect(actions).toContain('calc(100vw - 28px)');
   });
 
+  it('keeps runtime and PBE reference pages usable at the mobile breakpoint', () => {
+    const runtimeRoot = source('src/components/RuntimeReferenceRoot.astro');
+    const runtimeView = source('src/client/runtime-reference-view.ts');
+    const css = source('src/styles/global.css');
+    expect(runtimeRoot).toContain('data-runtime-page={page}');
+    expect(runtimeRoot).toContain("const runtimeLocale = isZh ? 'zh_cn' : 'default'");
+    expect(runtimeView).toContain('runtime-pbe-grid');
+    expect(runtimeView).toContain('runtime-pbe-card-link');
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[\s\S]*?\.runtime-page\{/);
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)\s*\{\s*\.runtime-pbe-versions[\s\S]*?\.runtime-pbe-grid\s*\{/);
+    expect(css).toContain('min-height: var(--touch-target)');
+  });
+
   it('centers the header language toggle label in both axes', () => {
     const layout = source('src/layouts/BaseLayout.astro');
     expect(layout).toContain('.language-toggle { display: inline-flex; align-items: center; justify-content: center;');

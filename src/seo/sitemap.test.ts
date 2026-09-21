@@ -13,6 +13,13 @@ describe("SEO sitemap", () => {
     expect(xml).toContain("<loc>https://chromaart.lol/blog/</loc>");
     expect(xml).toContain("<loc>https://chromaart.lol/champions/</loc>");
     expect(xml).toContain("<loc>https://chromaart.lol/zh-cn/champions/</loc>");
+    expect(xml).toContain("<loc>https://chromaart.lol/pbe-additions/</loc>");
+    expect(xml).toContain(
+      "<loc>https://chromaart.lol/zh-cn/pbe-additions/</loc>",
+    );
+    expect(xml).toContain(
+      'hreflang="zh-CN" href="https://chromaart.lol/zh-cn/pbe-additions/"',
+    );
     expect(xml).not.toContain("<loc>https://chromaart.lol/skins/</loc>");
     expect(xml).not.toContain("<loc>https://chromaart.lol/zh-cn/skins/</loc>");
     expect(xml).not.toContain("/champions/103/");

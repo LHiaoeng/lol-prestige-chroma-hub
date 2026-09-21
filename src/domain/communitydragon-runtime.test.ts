@@ -938,6 +938,65 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher).toHaveBeenCalledOnce();
   });
 
+  it("loads every PBE comparison resource for both channels", async () => {
+    const fetcher = vi.fn(async (input: string) => {
+      if (input.includes("compat-version-metadata.json")) {
+        return jsonResponse({
+          version: input.includes("/latest/") ? "16.18" : "16.19",
+        });
+      }
+      if (input.includes("champion-summary.json")) {
+        return jsonResponse(
+          summary(
+            input.includes("/zh_cn/") ? "zh_cn" : "default",
+            input.includes("/latest/") ? "latest" : "pbe",
+          ),
+        );
+      }
+      return jsonResponse([]);
+    });
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.getPbeAdditions!({ locale: "zh_cn", channel: "pbe" }),
+    ).resolves.toMatchObject({
+      versions: { pbe: "16.19", latest: "16.18" },
+      counts: { champions: 0, skins: 0, skinlines: 0, universes: 0 },
+    });
+
+    expect(fetcher).toHaveBeenCalledTimes(10);
+    for (const channel of ["pbe", "latest"]) {
+      for (const path of [
+        "champion-summary.json",
+        "skins.json",
+        "skinlines.json",
+        "universes.json",
+      ]) {
+        expect(fetcher).toHaveBeenCalledWith(
+          `https://raw.communitydragon.org/${channel}/plugins/rcp-be-lol-game-data/global/zh_cn/v1/${path}`,
+          expect.anything(),
+        );
+      }
+      expect(fetcher).toHaveBeenCalledWith(
+        `https://raw.communitydragon.org/${channel}/compat-version-metadata.json`,
+        expect.anything(),
+      );
+    }
+  });
+
+  it("fails the PBE comparison when a required resource is unavailable", async () => {
+    const fetcher = vi.fn(async (input: string) =>
+      input.includes("compat-version-metadata.json") && input.includes("/latest/")
+        ? jsonResponse({ message: "offline" }, 503)
+        : jsonResponse([]),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.getPbeAdditions!({ locale: "default", channel: "pbe" }),
+    ).rejects.toMatchObject({ code: "http", status: 503 });
+  });
+
   it("resolves the live skins.json owner convention when championId is omitted", () => {
     expect(
       parseRuntimeSkinCollection(

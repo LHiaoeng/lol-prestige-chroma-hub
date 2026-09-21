@@ -27,7 +27,7 @@ const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
     <h1>{heading}</h1>
     <p class="runtime-lede">{lede}</p>
     <div class="runtime-source" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-      {mode === 'pbe' ? <span>{isZh ? `${pbeLabel} 与 ${latestLabel} 比较` : `${pbeLabel} vs ${latestLabel}`}</span> : <>
+      {mode === 'pbe' ? <span>{isZh ? `${pbeLabel} 与${latestLabel}比较` : `${pbeLabel} vs ${latestLabel}`}</span> : <>
         <span aria-live="polite"><span data-runtime-channel-label>{pbeLabel}</span></span>
         <button type="button" data-runtime-channel="pbe" aria-pressed="true">{pbeLabel}</button>
         <button type="button" data-runtime-channel="latest" aria-pressed="false">{latestLabel}</button>

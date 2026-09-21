@@ -630,6 +630,58 @@ describe("static site build", () => {
     expect(chineseSkinDetail).not.toContain('href="/zh-cn/skins/"');
   });
 
+  it("emits crawlable bilingual PBE additions shells with matching SEO metadata", () => {
+    const english = readFileSync(
+      join(dist, "pbe-additions", "index.html"),
+      "utf8",
+    );
+    const chinese = readFileSync(
+      join(dist, "zh-cn", "pbe-additions", "index.html"),
+      "utf8",
+    );
+
+    expect(english).toContain(
+      "<title>PBE additions | LoL Chroma Art</title>",
+    );
+    expect(english).toContain(
+      '<meta name="description" content="Compare new champions, skins, skinlines, and universes between PBE and Live.">',
+    );
+    expect(english).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/pbe-additions/">',
+    );
+    expect(english).toContain(
+      '<link rel="alternate" hreflang="zh-CN" href="https://chromaart.lol/zh-cn/pbe-additions/">',
+    );
+    expect(english).toContain(
+      '<link rel="alternate" hreflang="x-default" href="https://chromaart.lol/pbe-additions/">',
+    );
+    expect(english).not.toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(english).toContain('data-runtime-page="pbe-additions"');
+    expect(english).toContain('data-runtime-mode="pbe"');
+    expect(english).toContain("PBE vs Live");
+
+    expect(chinese).toContain('<html lang="zh-CN"');
+    expect(chinese).toContain("<title>PBE 新增 | LoL Chroma Art</title>");
+    expect(chinese).toContain(
+      '<meta name="description" content="比较 PBE 与正式服的英雄、皮肤、皮肤系列和皮肤宇宙新增资料。">',
+    );
+    expect(chinese).toContain(
+      '<link rel="canonical" href="https://chromaart.lol/zh-cn/pbe-additions/">',
+    );
+    expect(chinese).toContain(
+      '<link rel="alternate" hreflang="en" href="https://chromaart.lol/pbe-additions/">',
+    );
+    expect(chinese).toContain(
+      '<link rel="alternate" hreflang="x-default" href="https://chromaart.lol/pbe-additions/">',
+    );
+    expect(chinese).not.toContain(
+      '<meta name="robots" content="noindex, nofollow">',
+    );
+    expect(chinese).toContain("PBE 与正式服比较");
+  });
+
   it("uses factual informational SEO copy", () => {
     const home = readFileSync(join(dist, "index.html"), "utf8");
     const chineseHome = readFileSync(join(dist, "zh-cn", "index.html"), "utf8");

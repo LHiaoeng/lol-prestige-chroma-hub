@@ -11,6 +11,7 @@ import type {
   RuntimeEntity,
   RuntimeList,
 } from "../domain/communitydragon-runtime";
+import type { RuntimePbeAdditions } from "../domain/pbe-additions";
 import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
 import type { CommunityDragonRuntime } from "./communitydragon-runtime";
 
@@ -57,12 +58,14 @@ function history(initial: string): RuntimeHistory & {
 function view(): RuntimeView & {
   events: string[];
   rendered?: RuntimeList | RuntimeEntity;
+  renderedPbe?: RuntimePbeAdditions;
   retry?: () => void;
   skinRetry?: () => void;
 } {
   const result = {
     events: [] as string[],
     rendered: undefined as RuntimeList | RuntimeEntity | undefined,
+    renderedPbe: undefined as RuntimePbeAdditions | undefined,
     retry: undefined as (() => void) | undefined,
     skinRetry: undefined as (() => void) | undefined,
     loading: vi.fn((preserve: boolean) =>
@@ -75,6 +78,10 @@ function view(): RuntimeView & {
     renderDetail: vi.fn((item: RuntimeEntity) => {
       result.rendered = item;
       result.events.push("detail");
+    }),
+    renderPbeAdditions: vi.fn((items: RuntimePbeAdditions) => {
+      result.renderedPbe = items;
+      result.events.push(`pbe:${items.total}`);
     }),
     renderRelations: vi.fn((items: RuntimeList) => {
       result.events.push(`relations:${items.length}`);
@@ -311,6 +318,82 @@ describe("RuntimeController", () => {
 
     expect(viewState.events).toEqual(["loading:false", "list"]);
     expect(navigation.pushes).toHaveLength(0);
+  });
+
+  it("loads PBE additions as an atomic comparison without a channel URL", async () => {
+    const additions: RuntimePbeAdditions = {
+      versions: { pbe: "16.19", latest: "16.18" },
+      total: 1,
+      counts: { champions: 1, skins: 0, skinlines: 0, universes: 0 },
+      champions: [champion],
+      skins: [],
+      skinlines: [],
+      universes: [],
+      pbeSkinlines: [],
+    };
+    const service = runtime({
+      getPbeAdditions: vi.fn(async (options) => {
+        expect(options).toMatchObject({ locale: "zh_cn" });
+        return additions;
+      }),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/zh-cn/pbe-additions/");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "pbe-additions",
+      pageMode: "pbe",
+      locale: "zh_cn",
+    });
+
+    await controller.start();
+
+    expect(viewState.events).toEqual(["loading:false", "pbe:1"]);
+    expect(viewState.renderedPbe).toBe(additions);
+    expect(navigation.url.search).toBe("");
+  });
+
+  it("keeps PBE failures retryable and does not render a partial comparison", async () => {
+    let attempts = 0;
+    const additions: RuntimePbeAdditions = {
+      versions: { pbe: "16.19", latest: "16.18" },
+      total: 0,
+      counts: { champions: 0, skins: 0, skinlines: 0, universes: 0 },
+      champions: [],
+      skins: [],
+      skinlines: [],
+      universes: [],
+      pbeSkinlines: [],
+    };
+    const service = runtime({
+      getPbeAdditions: vi.fn(async () => {
+        attempts += 1;
+        if (attempts === 1) throw new Error("comparison offline");
+        return additions;
+      }),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/pbe-additions/");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "pbe-additions",
+      pageMode: "pbe",
+      locale: "default",
+    });
+
+    await controller.start();
+    expect(viewState.events).toEqual(["loading:false", "failure"]);
+    expect(viewState.renderedPbe).toBeUndefined();
+    expect(viewState.retry).toBeTypeOf("function");
+
+    viewState.retry!();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(viewState.events).toEqual([
+      "loading:false",
+      "failure",
+      "loading:false",
+      "pbe:0",
+    ]);
+    expect(viewState.renderedPbe).toBe(additions);
   });
 
   it("does not turn an old champion list URL with an ID into a detail request", async () => {
