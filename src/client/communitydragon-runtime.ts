@@ -1,7 +1,13 @@
 import {
   communityDragonChampionUrl,
   communityDragonDataUrl,
+  communityDragonVersionMetadataUrl,
 } from "../domain/communitydragon-url";
+import {
+  projectPbeAdditions,
+  type RuntimePbeAdditions,
+  type RuntimePbeComparisonCollection,
+} from "../domain/pbe-additions";
 import {
   projectRuntimeSkinTarget,
   projectUniverseReferenceGroups,
@@ -15,14 +21,18 @@ import {
   parseRuntimeEntity,
   parseRuntimeList,
   parseRuntimeSkinCollection,
+  parseRuntimeVersionMetadata,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
+  type RuntimeChampionSummary,
   type RuntimeEntity,
   type RuntimeEntityKind,
   type RuntimeList,
   type RuntimeListKind,
   type RuntimeSkin,
+  type RuntimeSkinline,
+  type RuntimeUniverse,
 } from "../domain/communitydragon-runtime";
 
 export type RuntimeFetcher = (
@@ -57,6 +67,7 @@ export interface CommunityDragonRuntime {
     skinlineIds: readonly number[],
     options: RuntimeRequestOptions,
   ): Promise<readonly RuntimeSkinReferenceGroup[]>;
+  getPbeAdditions?(options: RuntimeRequestOptions): Promise<RuntimePbeAdditions>;
 }
 
 interface CacheEntry {
@@ -325,6 +336,58 @@ export function createCommunityDragonRuntime(
     );
   }
 
+  function getVersionMetadata(
+    input: RuntimeRequestOptions,
+    channel: RuntimeChannel,
+  ) {
+    const options = validateOptions({ ...input, channel });
+    const url = communityDragonVersionMetadataUrl(channel);
+    return request(
+      `version-metadata:${channel}`,
+      url,
+      options,
+      parseRuntimeVersionMetadata,
+    );
+  }
+
+  async function getPbeAdditions(
+    input: RuntimeRequestOptions,
+  ): Promise<RuntimePbeAdditions> {
+    const baseOptions = validateOptions(input);
+    const loadChannel = async (
+      channel: RuntimeChannel,
+    ): Promise<RuntimePbeComparisonCollection> => {
+      const options = { ...baseOptions, channel };
+      const [championList, skins, skinlineList, universeList, version] =
+        await Promise.all([
+          list("champions", options),
+          listSkinCollection(options),
+          list("skinlines", options),
+          list("universes", options),
+          getVersionMetadata(options, channel),
+        ]);
+      return {
+        champions: championList.filter(
+          (item): item is RuntimeChampionSummary => item.kind === "champion",
+        ),
+        skins,
+        skinlines: skinlineList.filter(
+          (item): item is RuntimeSkinline => item.kind === "skinline",
+        ),
+        universes: universeList.filter(
+          (item): item is RuntimeUniverse => item.kind === "universe",
+        ),
+        version,
+      };
+    };
+
+    const [pbe, latest] = await Promise.all([
+      loadChannel("pbe"),
+      loadChannel("latest"),
+    ]);
+    return projectPbeAdditions({ pbe, latest });
+  }
+
   function listSkinlineSkins(
     skinlineId: number,
     input: RuntimeRequestOptions,
@@ -369,5 +432,5 @@ export function createCommunityDragonRuntime(
     );
   }
 
-  return { list, get, listSkinlineSkins, listUniverseSkins };
+  return { list, get, listSkinlineSkins, listUniverseSkins, getPbeAdditions };
 }

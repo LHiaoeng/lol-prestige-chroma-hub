@@ -724,3 +724,142 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
     font-size: clamp(2rem, 11vw, 3.2rem);
   }
 }
+.runtime-pbe-versions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+}
+.runtime-pbe-version {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.runtime-pbe-version dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.runtime-pbe-version dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+.runtime-pbe-version a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 3px;
+}
+.runtime-pbe-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-bottom: 36px;
+  color: var(--muted);
+}
+.runtime-pbe-summary strong {
+  color: var(--gold);
+}
+.runtime-pbe-section + .runtime-pbe-section {
+  margin-top: 42px;
+}
+.runtime-pbe-section h2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 1.45rem;
+}
+.runtime-pbe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+}
+.runtime-pbe-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.runtime-pbe-card:hover,
+.runtime-pbe-card:focus-within {
+  border-color: var(--gold);
+}
+.runtime-pbe-card-link {
+  display: block;
+  color: var(--text);
+}
+.runtime-pbe-text-link {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 12px;
+}
+.runtime-pbe-card-link img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.2;
+  object-fit: cover;
+  background: var(--panel2);
+}
+.runtime-pbe-card-link > .runtime-missing {
+  display: flex;
+  min-height: 148px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+.runtime-pbe-card-name,
+.runtime-pbe-card-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.runtime-pbe-card-meta {
+  justify-content: space-between;
+  align-items: flex-start;
+  color: var(--text);
+  font-weight: 600;
+}
+.runtime-pbe-card-owner,
+.runtime-pbe-card-relations {
+  margin: 0;
+  padding: 0 12px 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+.runtime-pbe-card-owner .runtime-relation-link,
+.runtime-pbe-card-relations .runtime-relation-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-right: 8px;
+}
+@media (max-width: 767px) {
+  .runtime-pbe-versions {
+    grid-template-columns: 1fr;
+  }
+  .runtime-pbe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .runtime-pbe-card-link > .runtime-missing {
+    min-height: 108px;
+  }
+  .runtime-pbe-card-name,
+  .runtime-pbe-card-meta,
+  .runtime-pbe-card-owner,
+  .runtime-pbe-card-relations {
+    padding-inline: 10px;
+  }
+}

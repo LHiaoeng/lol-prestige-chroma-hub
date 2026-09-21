@@ -51,6 +51,7 @@ export function renderSitemap(): string {
     "/champions/",
     "/skinlines/",
     "/universes/",
+    "/pbe-additions/",
   ];
   const fixed = SITE_LOCALES.flatMap((locale) => [
     ...crawlablePaths.map((pathname) => page(pathname, locale)),

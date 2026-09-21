@@ -44,6 +44,10 @@ export interface RuntimeParseOptions {
   readonly stageId?: number;
 }
 
+export interface RuntimeVersionMetadata {
+  readonly version?: string;
+}
+
 export interface RuntimeRarity {
   readonly id?: number;
   readonly key?: string;
@@ -286,6 +290,9 @@ const skinSchema = z
 const championDetailSchema = championSummarySchema.extend({
   skins: z.array(skinSchema),
 });
+const versionMetadataSchema = z
+  .object({ version: z.string().nullable().optional() })
+  .passthrough();
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -337,6 +344,21 @@ function parseCollection<T extends z.ZodType>(
 
 function text(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+export function parseRuntimeVersionMetadata(
+  value: unknown,
+): RuntimeVersionMetadata {
+  try {
+    const parsed = versionMetadataSchema.parse(value);
+    return { version: text(parsed.version) };
+  } catch (error) {
+    throw new CommunityDragonRuntimeError(
+      "schema",
+      "CommunityDragon version metadata failed schema validation",
+      { cause: error },
+    );
+  }
 }
 
 function championLabels(

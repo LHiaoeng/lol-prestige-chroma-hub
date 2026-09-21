@@ -27,6 +27,12 @@ export function communityDragonDataUrl(
   return `${RAW_ORIGIN}/${channel}/plugins/rcp-be-lol-game-data/global/${locale}/v1/${normalized}`;
 }
 
+export function communityDragonVersionMetadataUrl(
+  channel: CommunityDragonChannel = COMMUNITYDRAGON_VERSION,
+): string {
+  return `${RAW_ORIGIN}/${channel}/compat-version-metadata.json`;
+}
+
 export const COMMUNITYDRAGON_CHAMPION_SUMMARY_URLS = {
   en: communityDragonDataUrl('champion-summary.json', 'default'),
   zh: communityDragonDataUrl('champion-summary.json', 'zh_cn'),

@@ -9,6 +9,7 @@ import type {
   RuntimeSkinReferenceGroup,
   RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
+import type { RuntimePbeAdditions } from "../domain/pbe-additions";
 import {
   createCommunityDragonRuntime,
   type CommunityDragonRuntime,
@@ -21,8 +22,8 @@ export {
   shouldHandleRuntimeNavigation,
 } from "./runtime-reference-view";
 
-export type RuntimePage = RuntimeListKind | "skins";
-export type RuntimePageMode = "list" | "detail";
+export type RuntimePage = RuntimeListKind | "skins" | "pbe-additions";
+export type RuntimePageMode = "list" | "detail" | "pbe";
 
 export interface RuntimeHistory {
   readonly url: URL;
@@ -41,6 +42,7 @@ export interface RuntimeView {
     item: RuntimeEntity,
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
   ): void;
+  renderPbeAdditions?(items: RuntimePbeAdditions): void;
   renderRelations?(
     items: RuntimeList,
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
@@ -93,6 +95,10 @@ export type RuntimeLocationState =
       readonly mode: "invalid";
       readonly page: RuntimePage;
       readonly channel?: "pbe" | "latest";
+    }
+  | {
+      readonly mode: "pbe";
+      readonly page: "pbe-additions";
     };
 
 export interface RuntimeControllerOptions {
@@ -119,6 +125,7 @@ export function parseRuntimeLocation(
 ): RuntimeLocationState {
   const selectedChannel = channel(url.searchParams.get("channel"));
   if (!selectedChannel) return { mode: "invalid", page };
+  if (page === "pbe-additions") return { mode: "pbe", page };
   if (pageMode === "list") {
     if (page === "skins") return { mode: "invalid", page, channel: selectedChannel };
     return { mode: "list", page, channel: selectedChannel };
@@ -159,6 +166,7 @@ export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
   const next = new URL(url);
   next.search = "";
   if (state.mode === "invalid") return next;
+  if (state.mode === "pbe") return next;
   if (state.mode === "detail") {
     next.searchParams.set("id", String(state.id));
     if (state.kind === "skin" && state.championId)
@@ -271,9 +279,26 @@ export class RuntimeController {
     this.abortController?.abort();
     const controller = new AbortController();
     this.abortController = controller;
-    this.view.loading(this.hasContent, state.channel);
+    this.view.loading(
+      this.hasContent,
+      state.mode === "pbe" ? undefined : state.channel,
+    );
     try {
-      if (state.mode === "list") {
+      if (state.mode === "pbe") {
+        const getPbeAdditions = this.runtime.getPbeAdditions;
+        if (!getPbeAdditions)
+          throw new CommunityDragonRuntimeError(
+            "not-found",
+            "PBE additions are unavailable",
+          );
+        const result = await getPbeAdditions({
+          locale: this.options.locale,
+          signal: controller.signal,
+        });
+        if (generation !== this.generation) return;
+        this.commitUrl(url, commit);
+        this.view.renderPbeAdditions?.(result);
+      } else if (state.mode === "list") {
         const result = await this.runtime.list(state.page, {
           locale: this.options.locale,
           channel: state.channel,
@@ -470,8 +495,10 @@ export function initRuntimeReference(root: HTMLElement): RuntimeController {
     !locale ||
     !pageMode ||
     (locale !== "default" && locale !== "zh_cn") ||
-    (pageMode !== "list" && pageMode !== "detail") ||
-    (page === "skins" && pageMode === "list")
+    (pageMode !== "list" && pageMode !== "detail" && pageMode !== "pbe") ||
+    (page === "skins" && pageMode === "list") ||
+    (page === "pbe-additions" && pageMode !== "pbe") ||
+    (page !== "pbe-additions" && pageMode === "pbe")
   )
     throw new Error("Runtime reference root is missing a valid page or locale");
   const source = root

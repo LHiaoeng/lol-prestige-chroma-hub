@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RuntimeReferenceRoot from '../../../components/RuntimeReferenceRoot.astro';
+import { resolveLocale, type Locale } from '../../../i18n/config';
+import { createEntitySeo } from '../../../seo/entity-seo';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const isZh = locale === 'zh-cn';
+const seo = createEntitySeo(
+  'pbe-additions',
+  undefined,
+  isZh ? 'PBE 新增' : 'PBE additions',
+  isZh ? '比较 PBE 与正式服的英雄、皮肤、皮肤系列和皮肤宇宙新增资料。' : 'Compare new champions, skins, skinlines, and universes between PBE and Live.',
+  locale,
+);
+---
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+  <RuntimeReferenceRoot page="pbe-additions" mode="pbe" {locale} label={isZh ? 'PBE 新增' : 'PBE additions'} heading={isZh ? 'PBE 新增' : 'PBE additions'} lede={isZh ? '在同一语言视图内比较 PBE 与正式服的新增资料。' : 'Compare additions between PBE and Live in one localization view.'} />
+</BaseLayout>

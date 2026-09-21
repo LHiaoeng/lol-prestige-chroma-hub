@@ -27,6 +27,7 @@ export interface RuntimeSkinReferenceItem {
   readonly target: RuntimeSkinTarget;
   readonly stableKey: string;
   readonly name?: string;
+  readonly championName?: string;
   readonly description?: string;
   readonly isBase: boolean;
   readonly isLegacy?: boolean;
@@ -111,6 +112,7 @@ function skinItem(skin: RuntimeSkinEntity): RuntimeSkinReferenceItem {
     target,
     stableKey: stableKey(target),
     name: skin.name,
+    championName: skin.championName,
     description: skin.description,
     isBase: skin.isBase,
     isLegacy: skin.isLegacy,
@@ -144,6 +146,7 @@ function stageItem(
     target,
     stableKey: stableKey(target),
     name: stage.name,
+    championName: skin.championName,
     description: stage.description ?? skin.description,
     isBase: skin.isBase,
     isLegacy: skin.isLegacy,
