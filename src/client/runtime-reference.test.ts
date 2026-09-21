@@ -82,6 +82,9 @@ function view(): RuntimeView & {
     renderSkinlineSkins: vi.fn((items) => {
       result.events.push(`skinline-skins:${items.length}`);
     }),
+    renderUniverseSkins: vi.fn((groups) => {
+      result.events.push(`universe-skins:${groups.length}`);
+    }),
     invalid: vi.fn(() => result.events.push("invalid")),
     failure: vi.fn((_error, retry: () => void) => {
       result.retry = retry;
@@ -602,6 +605,7 @@ describe("RuntimeController", () => {
     const service = runtime({
       get: vi.fn(async () => universe),
       list: vi.fn(async (kind) => (kind === "skinlines" ? [skinline] : [])),
+      listUniverseSkins: vi.fn(async () => []),
     });
     const viewState = view();
     const navigation = history(
@@ -635,11 +639,15 @@ describe("RuntimeController", () => {
       id: 200,
       description: "A bright parallel world.",
     });
-    expect(viewState.events).toEqual([
-      "loading:false",
-      "detail",
-      "relations:1",
-    ]);
+    expect(viewState.events).toContain("loading:false");
+    expect(viewState.events).toContain("detail");
+    expect(viewState.events).toContain("relations:1");
+    expect(viewState.events).toContain("universe-skins:0");
+    expect(service.listUniverseSkins).toHaveBeenCalledWith(
+      200,
+      [7],
+      expect.objectContaining({ locale: "default", channel: "latest" }),
+    );
   });
 
   it("loads a skinline's full skin collection independently of its universe relation", async () => {

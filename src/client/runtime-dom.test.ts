@@ -454,6 +454,48 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
+  it("renders universe list cards with skinline names resolved by ID", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/universes/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "universes",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history("https://chromaart.lol/universes/"),
+    });
+
+    view.renderList(
+      [{ kind: "universe", id: 200, name: "Star Guardian", skinlineIds: [7] }],
+      { mode: "list", page: "universes", channel: "pbe" },
+    );
+    view.renderListRelations!(
+      [{ kind: "skinline", id: 7, name: "Star Guardian", universeIds: [200] }],
+      { mode: "list", page: "universes", channel: "pbe" },
+    );
+
+    expect(content.querySelector(".runtime-universe-skinlines")?.textContent).toBe(
+      "Star Guardian",
+    );
+    expect(content.querySelector("a")?.href).toBe(
+      "/universes/detail/?id=200",
+    );
+  });
+
   it("renders deduplicated square-thumbnail skin cards, sorting, and rarity", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
@@ -955,7 +997,7 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
-  it("renders universe details with media and independent skinline links", () => {
+  it("renders universe descriptions, skinline links, and grouped skins", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
@@ -1020,13 +1062,48 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector("h1")?.textContent).toBe(
       "Star Guardian universe",
     );
-    expect(content.querySelector("img")?.src).toBe(
-      "https://example.test/universe.png",
-    );
+    expect(content.querySelector("img")).toBeNull();
     expect(content.querySelector("a")?.href).toBe(
       "/skinlines/detail/?id=7&channel=latest",
     );
-    expect(content.querySelectorAll("a")).toHaveLength(1);
+    view.renderUniverseSkins!(
+      [
+        {
+          skinlineId: 7,
+          items: [
+            {
+              kind: "skin",
+              id: 103001,
+              skinId: 103001,
+              championId: 103,
+              target: { championId: 103, skinId: 103001 },
+              stableKey: "103:103001",
+              name: "Dynasty Ahri",
+              isBase: false,
+              skinlineIds: [7],
+              universeIds: [200],
+              media: { tileUrl: "https://example.test/skin-tile.jpg" },
+              historicalArt: [],
+              chromas: [],
+              thumbnailUrl: "https://example.test/skin-tile.jpg",
+            },
+          ],
+        },
+      ],
+      {
+        mode: "detail",
+        page: "universes",
+        kind: "universe",
+        id: 200,
+        channel: "latest",
+      },
+    );
+    expect(content.querySelector(".runtime-universe-skin-group")?.querySelector("h3")?.textContent).toBe(
+      "Star Guardian",
+    );
+    expect(content.querySelector(".runtime-skin-reference-link")?.href).toBe(
+      "/skins/detail/?id=103001&champion=103&channel=latest",
+    );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });
 

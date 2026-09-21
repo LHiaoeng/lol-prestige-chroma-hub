@@ -39,6 +39,11 @@ export interface RuntimeSkinReferenceItem {
   readonly thumbnailUrl?: string;
 }
 
+export interface RuntimeSkinReferenceGroup {
+  readonly skinlineId: number;
+  readonly items: readonly RuntimeSkinReferenceItem[];
+}
+
 export type RuntimeSkinReferenceSort = "release" | "rarity";
 
 const defaultRarityRank: Readonly<Record<string, number>> = {
@@ -323,4 +328,35 @@ export function projectSkinlineReferenceItems(
     ),
   );
   return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
+}
+
+/**
+ * Project a universe's complete skin collection into one stable group per
+ * skinline relation. The relation IDs come from the universe directory; skin
+ * records only decide which of those groups contain each item.
+ */
+export function projectUniverseReferenceGroups(
+  skins: readonly RuntimeSkinEntity[],
+  universeId: number,
+  skinlineIds: readonly number[],
+): readonly RuntimeSkinReferenceGroup[] {
+  const groups = [...new Set(skinlineIds)]
+    .filter((id) => Number.isSafeInteger(id) && id > 0)
+    .sort((left, right) => left - right)
+    .map((skinlineId) => {
+      const items = skins.flatMap((skin) =>
+        projectSkinReferenceItems(skin).filter(
+          (item) =>
+            !item.isBase &&
+            item.skinlineIds.includes(skinlineId) &&
+            (item.universeIds.length === 0 ||
+              item.universeIds.includes(universeId)),
+        ),
+      );
+      return {
+        skinlineId,
+        items: [...deduplicateReferenceItems(items)].sort(compareReferenceItems),
+      };
+    });
+  return groups;
 }

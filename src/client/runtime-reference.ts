@@ -5,7 +5,10 @@ import {
   type RuntimeList,
   type RuntimeListKind,
 } from "../domain/communitydragon-runtime";
-import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
+import type {
+  RuntimeSkinReferenceGroup,
+  RuntimeSkinReferenceItem,
+} from "../domain/skin-reference-projection";
 import {
   createCommunityDragonRuntime,
   type CommunityDragonRuntime,
@@ -46,10 +49,26 @@ export interface RuntimeView {
     items: readonly RuntimeSkinReferenceItem[],
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
   ): void;
+  renderUniverseSkins?(
+    groups: readonly RuntimeSkinReferenceGroup[],
+    state: Extract<RuntimeLocationState, { mode: "detail" }>,
+  ): void;
+  renderListRelations?(
+    items: RuntimeList,
+    state: Extract<RuntimeLocationState, { mode: "list" }>,
+  ): void;
   invalid(message: string, channel?: "pbe" | "latest"): void;
   failure(error: CommunityDragonRuntimeError, retry: () => void): void;
   relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
   skinlineSkinsFailure?(
+    error: CommunityDragonRuntimeError,
+    retry: () => void,
+  ): void;
+  universeSkinsFailure?(
+    error: CommunityDragonRuntimeError,
+    retry: () => void,
+  ): void;
+  listRelationsFailure?(
     error: CommunityDragonRuntimeError,
     retry: () => void,
   ): void;
@@ -263,6 +282,8 @@ export class RuntimeController {
         if (generation !== this.generation) return;
         this.commitUrl(url, commit);
         this.view.renderList(result, state);
+        if (state.page === "universes")
+          void this.loadUniverseListRelations(state, generation, controller);
       } else {
         const result = await this.runtime.get(state.kind, state.id, {
           locale: this.options.locale,
@@ -285,6 +306,8 @@ export class RuntimeController {
           );
         if (state.kind === "skinline")
           void this.loadSkinlineSkins(state, generation, controller);
+        if (state.kind === "universe" && result.kind === "universe")
+          void this.loadUniverseSkins(result, state, generation, controller);
       }
       if (generation !== this.generation) return;
       this.hasContent = true;
@@ -334,6 +357,58 @@ export class RuntimeController {
       if (runtimeError.code === "aborted") return;
       this.view.skinlineSkinsFailure?.(runtimeError, () => {
         void this.loadSkinlineSkins(state, generation, controller);
+      });
+    }
+  }
+
+  private async loadUniverseSkins(
+    entity: Extract<RuntimeEntity, { kind: "universe" }>,
+    state: Extract<RuntimeLocationState, { mode: "detail" }>,
+    generation: number,
+    controller: AbortController,
+  ): Promise<void> {
+    if (!this.runtime.listUniverseSkins) return;
+    try {
+      const groups = await this.runtime.listUniverseSkins(
+        state.id,
+        entity.skinlineIds,
+        {
+          locale: this.options.locale,
+          channel: state.channel,
+          signal: controller.signal,
+        },
+      );
+      if (generation !== this.generation) return;
+      this.view.renderUniverseSkins?.(groups, state);
+    } catch (error) {
+      if (generation !== this.generation) return;
+      const runtimeError = asCommunityDragonError(error, this.options.locale);
+      if (runtimeError.code === "aborted") return;
+      this.view.universeSkinsFailure?.(runtimeError, () => {
+        void this.loadUniverseSkins(entity, state, generation, controller);
+      });
+    }
+  }
+
+  private async loadUniverseListRelations(
+    state: Extract<RuntimeLocationState, { mode: "list" }>,
+    generation: number,
+    controller: AbortController,
+  ): Promise<void> {
+    try {
+      const items = await this.runtime.list("skinlines", {
+        locale: this.options.locale,
+        channel: state.channel,
+        signal: controller.signal,
+      });
+      if (generation !== this.generation) return;
+      this.view.renderListRelations?.(items, state);
+    } catch (error) {
+      if (generation !== this.generation) return;
+      const runtimeError = asCommunityDragonError(error, this.options.locale);
+      if (runtimeError.code === "aborted") return;
+      this.view.listRelationsFailure?.(runtimeError, () => {
+        void this.loadUniverseListRelations(state, generation, controller);
       });
     }
   }

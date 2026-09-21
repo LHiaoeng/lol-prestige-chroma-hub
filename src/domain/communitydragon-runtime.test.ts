@@ -13,6 +13,7 @@ import {
   projectChampionSkinReferenceItems,
   projectSkinReferenceItems,
   projectSkinlineReferenceItems,
+  projectUniverseReferenceGroups,
   sortSkinReferenceItems,
 } from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
@@ -371,6 +372,44 @@ describe("CommunityDragon runtime reference", () => {
         stageId: 103002,
         championId: 103,
       },
+    ]);
+  });
+
+  it("groups universe skins by related skinline and keeps valid stages", () => {
+    const skins = parseRuntimeSkinCollection(
+      [
+        {
+          championId: 103,
+          id: 103001,
+          name: "Dynasty Ahri",
+          isBase: false,
+          skinLines: [{ id: 7 }],
+          universeIds: [200],
+          questSkinInfo: {
+            tiers: [{ id: 103002, stage: 2, name: "Ascended Ahri" }],
+          },
+        },
+        {
+          championId: 103,
+          id: 103003,
+          name: "Other Ahri",
+          isBase: false,
+          skinLines: [{ id: 8 }],
+          universeIds: [201],
+        },
+      ],
+      { locale: "default", channel: "latest" },
+    );
+
+    expect(projectUniverseReferenceGroups(skins, 200, [8, 7, 7])).toMatchObject([
+      {
+        skinlineId: 7,
+        items: [
+          { kind: "skin", skinId: 103001 },
+          { kind: "stage", skinId: 103001, stageId: 103002 },
+        ],
+      },
+      { skinlineId: 8, items: [] },
     ]);
   });
 
@@ -887,6 +926,16 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher.mock.calls[0][0]).toBe(
       "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/skins.json",
     );
+
+    await expect(
+      runtime.listUniverseSkins?.(200, [7], {
+        locale: "zh_cn",
+        channel: "latest",
+      }),
+    ).resolves.toMatchObject([
+      { skinlineId: 7, items: [{ skinId: 103001, championId: 103 }] },
+    ]);
+    expect(fetcher).toHaveBeenCalledOnce();
   });
 
   it("resolves the live skins.json owner convention when championId is omitted", () => {

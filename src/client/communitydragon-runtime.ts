@@ -4,7 +4,9 @@ import {
 } from "../domain/communitydragon-url";
 import {
   projectRuntimeSkinTarget,
+  projectUniverseReferenceGroups,
   projectSkinlineReferenceItems,
+  type RuntimeSkinReferenceGroup,
   type RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
 import {
@@ -50,6 +52,11 @@ export interface CommunityDragonRuntime {
     skinlineId: number,
     options: RuntimeRequestOptions,
   ): Promise<readonly RuntimeSkinReferenceItem[]>;
+  listUniverseSkins?(
+    universeId: number,
+    skinlineIds: readonly number[],
+    options: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSkinReferenceGroup[]>;
 }
 
 interface CacheEntry {
@@ -303,18 +310,10 @@ export function createCommunityDragonRuntime(
     );
   }
 
-  function listSkinlineSkins(
-    skinlineId: number,
+  function listSkinCollection(
     input: RuntimeRequestOptions,
-  ): Promise<readonly RuntimeSkinReferenceItem[]> {
+  ): Promise<readonly RuntimeSkin[]> {
     const options = validateOptions(input);
-    if (!Number.isSafeInteger(skinlineId) || skinlineId <= 0)
-      return Promise.reject(
-        new CommunityDragonRuntimeError(
-          "invalid-request",
-          "Skinline ID must be a positive safe integer",
-        ),
-      );
     const url = communityDragonDataUrl(
       "skins.json",
       options.locale,
@@ -322,12 +321,53 @@ export function createCommunityDragonRuntime(
     );
     const key = `${options.channel}:${options.locale}:skin-collection`;
     return request(key, url, options, (value) =>
-      projectSkinlineReferenceItems(
-        parseRuntimeSkinCollection(value, options),
-        skinlineId,
-      ),
+      parseRuntimeSkinCollection(value, options),
     );
   }
 
-  return { list, get, listSkinlineSkins };
+  function listSkinlineSkins(
+    skinlineId: number,
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSkinReferenceItem[]> {
+    if (!Number.isSafeInteger(skinlineId) || skinlineId <= 0)
+      return Promise.reject(
+        new CommunityDragonRuntimeError(
+          "invalid-request",
+          "Skinline ID must be a positive safe integer",
+        ),
+      );
+    return listSkinCollection(input).then((skins) =>
+      projectSkinlineReferenceItems(skins, skinlineId),
+    );
+  }
+
+  function listUniverseSkins(
+    universeId: number,
+    skinlineIds: readonly number[],
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSkinReferenceGroup[]> {
+    if (!Number.isSafeInteger(universeId) || universeId <= 0)
+      return Promise.reject(
+        new CommunityDragonRuntimeError(
+          "invalid-request",
+          "Universe ID must be a positive safe integer",
+        ),
+      );
+    if (
+      !skinlineIds.every(
+        (id) => Number.isSafeInteger(id) && id > 0,
+      )
+    )
+      return Promise.reject(
+        new CommunityDragonRuntimeError(
+          "invalid-request",
+          "Universe skinline IDs must be positive safe integers",
+        ),
+      );
+    return listSkinCollection(input).then((skins) =>
+      projectUniverseReferenceGroups(skins, universeId, skinlineIds),
+    );
+  }
+
+  return { list, get, listSkinlineSkins, listUniverseSkins };
 }

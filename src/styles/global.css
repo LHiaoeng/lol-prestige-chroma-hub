@@ -607,6 +607,26 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   font-size: 0.9rem;
   font-weight: 600;
 }
+.runtime-universe-meta {
+  display: grid;
+  gap: 6px;
+}
+.runtime-universe-skinlines {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+.runtime-universe-skin-group + .runtime-universe-skin-group {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.runtime-universe-skin-group h3 {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+}
 .runtime-relation-error {
   color: var(--danger);
 }
