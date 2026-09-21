@@ -534,7 +534,7 @@ describe("runtime DOM boundaries", () => {
       2,
     );
     expect(content.querySelector(".runtime-rarity")?.textContent).toBe(
-      "Rarity unavailable",
+      "Regular",
     );
     expect(content.querySelectorAll(".runtime-rarity")[1]?.querySelector("span")?.textContent).toBe(
       "Legendary",

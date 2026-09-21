@@ -164,7 +164,6 @@ type MissingRuntimeField =
   | "artwork"
   | "portrait"
   | "thumbnail"
-  | "rarity"
   | "roles";
 
 function runtimeMissingLabel(
@@ -178,7 +177,6 @@ function runtimeMissingLabel(
       artwork: "原画缺失",
       portrait: "头像缺失",
       thumbnail: "缩略图缺失",
-      rarity: "稀有度缺失",
       roles: "定位缺失",
     }[field];
   }
@@ -188,9 +186,12 @@ function runtimeMissingLabel(
     artwork: "Artwork unavailable",
     portrait: "Portrait unavailable",
     thumbnail: "Thumbnail unavailable",
-    rarity: "Rarity unavailable",
     roles: "Role data unavailable",
   }[field];
+}
+
+function regularRarityLabel(locale: CommunityDragonLocale): string {
+  return locale === "zh_cn" ? "普通" : "Regular";
 }
 
 function roleLabel(role: string, locale: CommunityDragonLocale): string {
@@ -216,27 +217,20 @@ function appendRarity(
 ): void {
   const badge = document.createElement("span");
   badge.className = "runtime-rarity";
-  if (!rarity) {
-    badge.textContent = runtimeMissingLabel(locale, "rarity");
-    badge.className = "runtime-rarity runtime-missing";
+  if (!rarity?.label) {
+    badge.textContent = regularRarityLabel(locale);
     parent.appendChild(badge);
     return;
   }
   if (rarity.iconUrl) {
     const icon = document.createElement("img");
     icon.src = rarity.iconUrl;
-    icon.alt = rarity.label ?? "";
+    icon.alt = rarity.label;
     icon.loading = "lazy";
     icon.decoding = "async";
     badge.appendChild(icon);
   }
-  badge.appendChild(
-    textNode(
-      "span",
-      rarity.label ?? runtimeMissingLabel(locale, "rarity"),
-      rarity.label ? undefined : "runtime-missing",
-    ),
-  );
+  badge.appendChild(textNode("span", rarity.label));
   parent.appendChild(badge);
 }
 
