@@ -22,8 +22,8 @@
 
 - 已在 `src/client/runtime-reference-view.ts` 接入英雄定位、去重后的顶层皮肤正方形缩略图资料卡、发布顺序/稀有度排序筛选与稀有度缺失态；英雄详情不再渲染默认外观或成功完成状态文案，并继续移除称号和简介。
 - 已在 `src/domain/skin-reference-projection.ts` 增加英雄皮肤集合的统一资料项投影、稳定去重、稳定排序和按本地化稀有度排序；阶段仍通过所属皮肤详情投影，使用英雄 ID、所属皮肤 ID、阶段 ID 与数据通道。
-- 已按参考项目的稀有度宝石映射修正 `default` 与 `zh_cn` 的徽章图标：国服标签仍由 `regionRarityId` 决定，图标不再直接使用可能不匹配的 `rarityGemPath`。
+- 已按参考项目拆分直营服与国服的稀有度宝石映射：`default` 使用 `rarity` 对应的 `epic.png`/`legendary.png` 等图标，`zh_cn` 使用 `regionRarityId` 对应的 `cn-gem-{id}.png`；国服不再套用直营服图标或直接使用 `*_large.png`。
 - 已同步 `docs/frontend-design.md` 的运行时英雄目录与详情契约，并沿用 `docs/design-system.md` 中的英雄页面视觉规则。
-- 自动化验证通过：`pnpm test`（36 个测试文件、277 个用例）、`pnpm typecheck`、`pnpm data:validate`、`pnpm build`、`pnpm audit:build`。
+- 自动化验证通过：`pnpm test`（36 个测试文件、278 个用例）、`pnpm typecheck`、`pnpm data:validate`、`pnpm build`、`pnpm audit:build`。
 - 真实浏览器验收尚未执行，完成 Issue 前需人工检查中英文页面、键盘操作和移动端布局。
-- 最终代码审查指出的国服稀有度徽章映射问题已修复，仍需人工检查真实页面上的图标与阶段去重结果后关闭本 Issue。
+- 已核对参考项目，发现并修复国服与直营服稀有度徽章资源族不一致的问题；仍需人工检查真实页面上的图标与阶段去重结果后关闭本 Issue。

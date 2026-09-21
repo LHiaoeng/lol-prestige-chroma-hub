@@ -300,7 +300,7 @@ describe("CommunityDragon runtime reference", () => {
         id: 5,
         label: "传说",
         iconUrl:
-          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/legendary.png",
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/cn-gem-5.png",
       },
     });
     expect(parseRuntimeEntity("skin", 103001, raw, {
@@ -308,6 +308,35 @@ describe("CommunityDragon runtime reference", () => {
       channel: "latest",
       championId: 103,
     })).not.toHaveProperty("rarity.key");
+  });
+
+  it("keeps the Chinese rarity badge family separate from global rarity icons", () => {
+    const raw = {
+      ...champion("default"),
+      skins: [
+        {
+          ...champion("default").skins[1],
+          rarity: "kLegendary",
+          regionRarityId: 7,
+          rarityGemPath: "/lol-game-data/assets/v1/rarity-gem-icons/7_large.png",
+        },
+      ],
+    };
+
+    expect(
+      parseRuntimeEntity("skin", 103001, raw, {
+        locale: "zh_cn",
+        channel: "latest",
+        championId: 103,
+      }),
+    ).toMatchObject({
+      rarity: {
+        id: 7,
+        label: "限定",
+        iconUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/cn-gem-7.png",
+      },
+    });
   });
 
   it("projects the owning skin and stages with stable targets and allowed inheritance", () => {

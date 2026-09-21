@@ -19,4 +19,5 @@
 
 - 已建立运行时皮肤/阶段投影、稳定目标与排序；阶段详情复用所属英雄响应，不请求完整 `skins.json`。
 - 已补充本地化稀有度、完整媒体、历史原画、炫彩颜色和阶段定位测试。
+- 已核对国服与直营服稀有度事实：`default` 使用 `rarity` 和直营服图标，`zh_cn` 使用 `regionRarityId` 和 `cn-gem-{id}.png` 国服图标，两套映射不互相替代。
 - 验证通过：`pnpm test`、`pnpm typecheck`、`pnpm data:validate`、`pnpm build`、`pnpm audit:build`。

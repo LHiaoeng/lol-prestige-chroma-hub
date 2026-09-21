@@ -399,17 +399,17 @@ const defaultRarityInfo: Readonly<Record<string, { label: string; icon: string }
 };
 
 const regionRarityInfo: Readonly<Record<number, { label: string; icon?: string }>> = {
-  1: { label: "典藏" },
-  2: { label: "勇士" },
-  3: { label: "王者" },
-  4: { label: "史诗", icon: "epic.png" },
-  5: { label: "传说", icon: "legendary.png" },
-  6: { label: "未知" },
-  7: { label: "限定" },
-  8: { label: "神话", icon: "mythic.png" },
-  9: { label: "终极", icon: "ultimate.png" },
-  10: { label: "圣堂", icon: "exalted.png" },
-  11: { label: "卓越", icon: "transcendent.png" },
+  1: { label: "典藏", icon: "cn-gem-1.png" },
+  2: { label: "勇士", icon: "cn-gem-2.png" },
+  3: { label: "王者", icon: "cn-gem-3.png" },
+  4: { label: "史诗", icon: "cn-gem-4.png" },
+  5: { label: "传说", icon: "cn-gem-5.png" },
+  6: { label: "未知", icon: "cn-gem-6.png" },
+  7: { label: "限定", icon: "cn-gem-7.png" },
+  8: { label: "神话", icon: "cn-gem-8.png" },
+  9: { label: "终极", icon: "cn-gem-9.png" },
+  10: { label: "圣堂", icon: "cn-gem-10.png" },
+  11: { label: "卓越", icon: "cn-gem-11.png" },
 };
 
 function normalizeRarity(
