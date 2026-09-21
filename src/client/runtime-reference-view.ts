@@ -6,7 +6,7 @@ import {
 } from "../domain/communitydragon-runtime";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import {
-  projectChampionSkinReferenceItems,
+  projectChampionSkinListItems,
   sortSkinReferenceItems,
 } from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
@@ -708,7 +708,7 @@ export function createDomRuntimeView(
         section.appendChild(controls);
         const grid = document.createElement("div");
         grid.className = "runtime-skin-reference-grid";
-        const skinItems = projectChampionSkinReferenceItems(item.id, item.skins);
+        const skinItems = projectChampionSkinListItems(item.id, item.skins);
         const renderSkinItems = () => {
           grid.replaceChildren();
           const sortedItems = sortSkinReferenceItems(

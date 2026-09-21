@@ -453,7 +453,7 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
-  it("renders square-thumbnail skin reference cards, sorting, rarity, and stage links", () => {
+  it("renders deduplicated square-thumbnail skin cards, sorting, and rarity", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
@@ -531,7 +531,7 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-champion-base")).toBeNull();
     expect(status.textContent).toBe("");
     expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(
-      3,
+      2,
     );
     expect(content.querySelector(".runtime-rarity")?.textContent).toBe(
       "Rarity unavailable",
@@ -546,7 +546,6 @@ describe("runtime DOM boundaries", () => {
     ).toEqual([
       "https://example.test/ahri-base-tile.jpg",
       "https://example.test/dynasty-tile.jpg",
-      "https://example.test/dynasty-stage-tile.jpg",
     ]);
     const skinSort = content.querySelector("select");
     expect(skinSort?.value).toBe("release");
@@ -560,12 +559,9 @@ describe("runtime DOM boundaries", () => {
             .querySelector(".runtime-skin-reference-meta")
             ?.querySelector("span")?.textContent,
       ),
-    ).toEqual(["Dynasty Ahri", "Dynasty Ahri · Stage 2", "Ahri"]);
+    ).toEqual(["Dynasty Ahri", "Ahri"]);
     skinSort.value = "release";
     skinSort.listeners.get("change")?.forEach((listener) => listener());
-    expect(content.querySelectorAll(".runtime-skin-reference-card")[2]?.querySelector("a")?.href).toBe(
-      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
-    );
     expect(content.querySelectorAll(".runtime-skin-reference-card")[0]?.querySelector("a")?.href).toBe(
       "/skins/detail/?id=103000&champion=103&channel=latest",
     );

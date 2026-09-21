@@ -142,6 +142,16 @@ function stageItem(
   };
 }
 
+function deduplicateReferenceItems(
+  items: readonly RuntimeSkinReferenceItem[],
+): readonly RuntimeSkinReferenceItem[] {
+  const unique = new Map<string, RuntimeSkinReferenceItem>();
+  for (const item of items) {
+    if (!unique.has(item.stableKey)) unique.set(item.stableKey, item);
+  }
+  return [...unique.values()];
+}
+
 export function projectRuntimeSkinTarget(
   skin: RuntimeSkin,
   stageId?: number,
@@ -180,7 +190,7 @@ export function projectSkinReferenceItems(
       return item ? [item] : [];
     }),
   ];
-  return items.sort(compareReferenceItems);
+  return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
 }
 
 /**
@@ -192,7 +202,7 @@ export function projectChampionSkinReferenceItems(
   championId: number,
   skins: readonly RuntimeSkinSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
-  return skins
+  const items = skins
     .flatMap((skin) =>
       projectSkinReferenceItems({
         ...skin,
@@ -200,8 +210,29 @@ export function projectChampionSkinReferenceItems(
         championId,
         chromas: [],
       }),
-    )
-    .sort(compareReferenceItems);
+    );
+  return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
+}
+
+/**
+ * Project the champion page's skin grid like the reference project: show one
+ * card per top-level skin and keep quest stages available only through the
+ * owning skin's detail route.
+ */
+export function projectChampionSkinListItems(
+  championId: number,
+  skins: readonly RuntimeSkinSummary[],
+): readonly RuntimeSkinReferenceItem[] {
+  return [...deduplicateReferenceItems(
+    skins.map((skin) =>
+      skinItem({
+        ...skin,
+        kind: "skin",
+        championId,
+        chromas: [],
+      }),
+    ),
+  )].sort(compareReferenceItems);
 }
 
 function rarityRank(item: RuntimeSkinReferenceItem): number {

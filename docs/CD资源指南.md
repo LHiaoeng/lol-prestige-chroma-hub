@@ -226,8 +226,8 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 
 稀有度规则：
 
-- `default` 视图使用记录中的 `rarity` 和对应全球稀有度图标。
-- `zh_cn` 视图的国服展示等级以 `regionRarityId` 为准，不能与 `rarity` 混用。
+- `default` 视图使用记录中的 `rarity`，已知类型按参考项目映射到 `epic.png`、`legendary.png`、`mythic.png`、`ultimate.png`、`transcendent.png` 或 `exalted.png`；未知类型才保留源记录提供的图标路径。
+- `zh_cn` 视图的国服展示等级以 `regionRarityId` 为准，不能与 `rarity` 的标签混用；已知区域等级使用对应的通用稀有度宝石图标，不直接采用可能与类型不匹配的 `rarityGemPath`。
 - 当前区域缺少稀有度或图标时保留缺失，不从另一视图补值。
 
 ### 3.4 运行时读取规则

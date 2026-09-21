@@ -7,6 +7,7 @@ import {
   type RuntimeChampion,
 } from "./communitydragon-runtime";
 import {
+  projectChampionSkinListItems,
   projectChampionSkinReferenceItems,
   projectSkinReferenceItems,
   sortSkinReferenceItems,
@@ -264,7 +265,7 @@ describe("CommunityDragon runtime reference", () => {
         key: "kLegendary",
         label: "Legendary",
         iconUrl:
-          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/5_large.png",
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/legendary.png",
       },
       media: {
         focusedSplashUrl:
@@ -299,7 +300,7 @@ describe("CommunityDragon runtime reference", () => {
         id: 5,
         label: "传说",
         iconUrl:
-          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/5_large.png",
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/legendary.png",
       },
     });
     expect(parseRuntimeEntity("skin", 103001, raw, {
@@ -406,6 +407,31 @@ describe("CommunityDragon runtime reference", () => {
         target: { championId: 103, skinId: 103001, stageId: 103002 },
       },
     ]);
+  });
+
+  it("deduplicates champion skin cards and keeps quest stages out of the grid", () => {
+    const result = parseRuntimeEntity(
+      "champion",
+      103,
+      champion("default"),
+      { locale: "default", championId: 103 },
+    ) as RuntimeChampion;
+
+    expect(
+      projectChampionSkinListItems(result.id, [
+        ...result.skins,
+        result.skins[1],
+      ]),
+    ).toMatchObject([
+      { stableKey: "103:103000", kind: "skin" },
+      { stableKey: "103:103001", kind: "skin" },
+    ]);
+    expect(
+      projectChampionSkinReferenceItems(result.id, [
+        result.skins[1],
+        result.skins[1],
+      ]),
+    ).toHaveLength(2);
   });
 
   it("sorts champion skin references by rarity while preserving stable ties", () => {

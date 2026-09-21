@@ -398,18 +398,18 @@ const defaultRarityInfo: Readonly<Record<string, { label: string; icon: string }
   kExalted: { label: "Exalted", icon: "exalted.png" },
 };
 
-const regionRarityInfo: Readonly<Record<number, { label: string }>> = {
+const regionRarityInfo: Readonly<Record<number, { label: string; icon?: string }>> = {
   1: { label: "典藏" },
   2: { label: "勇士" },
   3: { label: "王者" },
-  4: { label: "史诗" },
-  5: { label: "传说" },
+  4: { label: "史诗", icon: "epic.png" },
+  5: { label: "传说", icon: "legendary.png" },
   6: { label: "未知" },
   7: { label: "限定" },
-  8: { label: "神话" },
-  9: { label: "终极" },
-  10: { label: "圣堂" },
-  11: { label: "卓越" },
+  8: { label: "神话", icon: "mythic.png" },
+  9: { label: "终极", icon: "ultimate.png" },
+  10: { label: "圣堂", icon: "exalted.png" },
+  11: { label: "卓越", icon: "transcendent.png" },
 };
 
 function normalizeRarity(
@@ -421,16 +421,17 @@ function normalizeRarity(
     const key = text(raw.rarity);
     if (!key || key === "kNoRarity") return undefined;
     const info = defaultRarityInfo[key];
-    const iconPath = text(raw.rarityGemPath) ?? info?.icon;
+    const iconPath = info?.icon ?? text(raw.rarityGemPath);
     return {
       key,
       label: info?.label ?? key,
       iconUrl: iconPath
-        ? asset(
-            text(raw.rarityGemPath) ??
-              `/lol-game-data/assets/v1/rarity-gem-icons/${iconPath}`,
-            channel,
-          )
+          ? asset(
+              info?.icon
+                ? `/lol-game-data/assets/v1/rarity-gem-icons/${iconPath}`
+                : iconPath,
+              channel,
+            )
         : undefined,
     };
   }
@@ -439,11 +440,13 @@ function normalizeRarity(
   if (typeof id !== "number" || !Number.isSafeInteger(id) || id <= 0)
     return undefined;
   const info = regionRarityInfo[id];
-  const iconPath = text(raw.rarityGemPath);
+  const iconPath = info?.icon;
   return {
     id,
     label: info?.label,
-    iconUrl: iconPath ? asset(iconPath, channel) : undefined,
+    iconUrl: iconPath
+      ? asset(`/lol-game-data/assets/v1/rarity-gem-icons/${iconPath}`, channel)
+      : undefined,
   };
 }
 
