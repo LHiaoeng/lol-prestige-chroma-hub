@@ -85,13 +85,23 @@ export interface RuntimeChampion extends RuntimeChampionSummary {
   readonly skins: readonly RuntimeSkinSummary[];
 }
 
-export interface RuntimeSkin extends RuntimeSkinSummary {
+export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly kind: "skin";
   readonly championId: number;
+  readonly championName?: string;
+  readonly name: string;
   readonly stageId?: number;
   readonly stageIndex?: number;
   readonly chromas: readonly RuntimeChroma[];
 }
+
+export interface RuntimeStageSkin extends Omit<RuntimeSkin, "name"> {
+  /** A source stage may have an identity but no player-facing name. */
+  readonly name?: string;
+  readonly stageId: number;
+}
+
+export type RuntimeSkinEntity = RuntimeSkin | RuntimeStageSkin;
 
 export interface RuntimeSkinStage {
   readonly id?: number;
@@ -147,7 +157,10 @@ export type RuntimeList = readonly (
   RuntimeChampionSummary | RuntimeSkinline | RuntimeUniverse
 )[];
 export type RuntimeEntity =
-  RuntimeChampion | RuntimeSkin | RuntimeSkinline | RuntimeUniverse;
+  | RuntimeChampion
+  | RuntimeSkinEntity
+  | RuntimeSkinline
+  | RuntimeUniverse;
 const idSchema = z.number().int().positive();
 const JADE_CHAMPION_ID_MIN = 60000;
 const JADE_CHAMPION_ID_MAX = 70000;
@@ -502,8 +515,7 @@ function normalizeStage(
   if (
     typeof id !== "number" ||
     !Number.isSafeInteger(id) ||
-    id <= 0 ||
-    !name
+    id <= 0
   )
     return undefined;
   return {
@@ -728,8 +740,8 @@ export function parseRuntimeEntity(
   const skins = raw.skins.map((skin) =>
     normalizeSkin(skin, options.channel, options.locale, championId),
   );
+  const labels = championLabels(raw, options.locale);
   if (kind === "champion") {
-    const labels = championLabels(raw, options.locale);
     return {
       kind: "champion",
       id: raw.id,
@@ -747,12 +759,13 @@ export function parseRuntimeEntity(
       "not-found",
       `Skin ${id} was not found for champion ${championId}`,
     );
-  if (options.stageId === undefined) return skin;
+  if (options.stageId === undefined)
+    return { ...skin, championName: labels.name };
   const stage = projectRuntimeSkinTarget(skin, options.stageId);
   if (!stage)
     throw new CommunityDragonRuntimeError(
       "not-found",
       `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
     );
-  return stage;
+  return { ...stage, championName: labels.name };
 }

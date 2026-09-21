@@ -285,6 +285,11 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-champion-link")?.href).toBe(
       "/champions/detail/?id=103",
     );
+    expect(
+      content
+        .querySelectorAll(".runtime-champion-card")[0]
+        ?.querySelector(".runtime-champion-roles")?.textContent,
+    ).toBe("Mage, Assassin");
 
     role!.value = "mage";
     role!.listeners.get("change")?.[0]?.();
@@ -448,7 +453,7 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
-  it("renders a champion detail and links skins to independent detail paths", () => {
+  it("renders champion artwork, skin reference cards, rarity, and stage links", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
@@ -478,17 +483,35 @@ describe("runtime DOM boundaries", () => {
         kind: "champion",
         id: 103,
         name: "Ahri",
-        title: "the Nine-Tailed Fox",
-        shortBio: "A vastayan fox.",
-        portraitUrl: "https://example.test/ahri.png",
         skins: [
+          {
+            id: 103000,
+            name: "Ahri",
+            isBase: true,
+            skinlineIds: [],
+            media: {
+              focusedSplashUrl: "https://example.test/ahri-base.jpg",
+            },
+            stages: [],
+          },
           {
             id: 103001,
             name: "Dynasty Ahri",
             isBase: false,
             skinlineIds: [],
-            media: {},
-            stages: [],
+            rarity: { label: "Legendary", key: "kLegendary" },
+            media: { tileUrl: "https://example.test/dynasty-tile.jpg" },
+            stages: [
+              {
+                id: 103002,
+                name: "Dynasty Ahri · Stage 2",
+                stageIndex: 2,
+                media: {
+                  tileUrl: "https://example.test/dynasty-stage-tile.jpg",
+                },
+                chromas: [],
+              },
+            ],
           },
         ],
       },
@@ -502,13 +525,30 @@ describe("runtime DOM boundaries", () => {
     );
 
     expect(content.querySelector("h1")?.textContent).toBe("Ahri");
-    expect(content.querySelector(".eyebrow")?.textContent).toBe(
-      "the Nine-Tailed Fox",
+    expect(content.querySelector(".eyebrow")).toBeNull();
+    expect(content.querySelector(".runtime-lede")).toBeNull();
+    expect(content.querySelector(".runtime-champion-base")?.querySelector("img")?.src).toBe(
+      "https://example.test/ahri-base.jpg",
     );
-    expect(content.querySelector(".runtime-lede")?.textContent).toBe(
-      "A vastayan fox.",
+    expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(
+      3,
     );
-    expect(content.querySelector("a")?.href).toBe(
+    expect(content.querySelector(".runtime-rarity")?.textContent).toBe(
+      "Rarity unavailable",
+    );
+    expect(content.querySelectorAll(".runtime-rarity")[1]?.querySelector("span")?.textContent).toBe(
+      "Legendary",
+    );
+    expect(content.querySelectorAll(".runtime-skin-reference-card")[1]?.querySelector("img")?.src).toBe(
+      "https://example.test/dynasty-tile.jpg",
+    );
+    expect(content.querySelectorAll(".runtime-skin-reference-card")[2]?.querySelector("a")?.href).toBe(
+      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
+    );
+    expect(content.querySelectorAll(".runtime-skin-reference-card")[0]?.querySelector("a")?.href).toBe(
+      "/skins/detail/?id=103000&champion=103&channel=latest",
+    );
+    expect(content.querySelectorAll(".runtime-skin-reference-card")[1]?.querySelector("a")?.href).toBe(
       "/skins/detail/?id=103001&champion=103&channel=latest",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
@@ -588,6 +628,127 @@ describe("runtime DOM boundaries", () => {
       "A dynasty-inspired skin.",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
+  });
+
+  it("renders localized rarity, all core media, historical artwork, and relations", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", {
+      location: {
+        origin: "https://chromaart.lol",
+        pathname: "/skins/detail/",
+      },
+    });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const source = new TestElement("div");
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: source as unknown as HTMLElement,
+      locale: "default",
+      page: "skins",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(
+        "https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
+      ),
+    });
+
+    view.renderDetail(
+      {
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        championName: "Ahri",
+        stageId: 103002,
+        name: "Dynasty Ahri · Ascended",
+        description: "Inherited description.",
+        rarity: { label: "Legendary", key: "kLegendary" },
+        isBase: false,
+        skinlineIds: [7],
+        universeIds: [200],
+        media: {
+          focusedSplashUrl: "https://example.test/focused.jpg",
+          unfocusedSplashUrl: "https://example.test/uncentered.jpg",
+          tileUrl: "https://example.test/tile.jpg",
+          loadScreenUrl: "https://example.test/load.jpg",
+          animatedSplashUrl: "https://example.test/animated.webm",
+        },
+        historicalArt: [
+          {
+            version: "14.1",
+            media: { focusedSplashUrl: "https://example.test/history.jpg" },
+          },
+        ],
+        stages: [
+          {
+            id: 103002,
+            name: "Dynasty Ahri · Ascended",
+            stageIndex: 2,
+            media: { focusedSplashUrl: "https://example.test/stage.jpg" },
+            chromas: [],
+          },
+        ],
+        chromas: [],
+      },
+      {
+        mode: "detail",
+        page: "skins",
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        stageId: 103002,
+        channel: "latest",
+      },
+    );
+
+    const mediaSection = content.querySelector(".runtime-skin-media");
+    expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(5);
+    expect(mediaSection?.querySelector("video")?.src).toBe(
+      "https://example.test/animated.webm",
+    );
+    expect(content.querySelector(".runtime-rarity")?.querySelector("span")?.textContent).toBe(
+      "Legendary",
+    );
+    expect(content.querySelector(".runtime-skin-history")?.querySelector("h3")?.textContent).toBe(
+      "14.1",
+    );
+    expect(content.querySelector(".runtime-stage-media")?.querySelector("img")?.src).toBe(
+      "https://example.test/stage.jpg",
+    );
+    expect(content.querySelector("a")?.href).toBe(
+      "/champions/detail/?id=103&channel=latest",
+    );
+
+    view.renderRelations!(
+      [
+        { kind: "skinline", id: 7, name: "Star Guardian", universeIds: [200] },
+        { kind: "universe", id: 200, name: "Star Guardian", skinlineIds: [7] },
+      ],
+      {
+        mode: "detail",
+        page: "skins",
+        kind: "skin",
+        id: 103001,
+        championId: 103,
+        stageId: 103002,
+        channel: "latest",
+      },
+    );
+
+    expect(
+      content.querySelectorAll("a").find((link) => link.href.includes("/skinlines/detail/"))?.href,
+    ).toBe(
+      "/skinlines/detail/?id=7&channel=latest",
+    );
+    expect(
+      content.querySelectorAll("a").find((link) => link.href.includes("/universes/detail/"))?.href,
+    ).toBe(
+      "/universes/detail/?id=200&channel=latest",
+    );
   });
 
   it("links skinline relations to independent universe detail paths", () => {

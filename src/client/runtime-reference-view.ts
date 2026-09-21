@@ -1,5 +1,11 @@
-import { type CommunityDragonLocale } from "../domain/communitydragon-runtime";
+import {
+  type CommunityDragonLocale,
+  type RuntimeHistoricalArtwork,
+  type RuntimeList,
+  type RuntimeMedia,
+} from "../domain/communitydragon-runtime";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
+import { projectChampionSkinReferenceItems } from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import {
@@ -148,6 +154,202 @@ const championRoleOptions = [
   ["support", "Support", "辅助"],
   ["tank", "Tank", "坦克"],
 ] as const;
+
+type MissingRuntimeField =
+  | "name"
+  | "description"
+  | "artwork"
+  | "portrait"
+  | "thumbnail"
+  | "rarity"
+  | "roles";
+
+function runtimeMissingLabel(
+  locale: CommunityDragonLocale,
+  field: MissingRuntimeField,
+): string {
+  if (locale === "zh_cn") {
+    return {
+      name: "名称缺失",
+      description: "描述缺失",
+      artwork: "原画缺失",
+      portrait: "头像缺失",
+      thumbnail: "缩略图缺失",
+      rarity: "稀有度缺失",
+      roles: "定位缺失",
+    }[field];
+  }
+  return {
+    name: "Name unavailable",
+    description: "Description unavailable",
+    artwork: "Artwork unavailable",
+    portrait: "Portrait unavailable",
+    thumbnail: "Thumbnail unavailable",
+    rarity: "Rarity unavailable",
+    roles: "Role data unavailable",
+  }[field];
+}
+
+function roleLabel(role: string, locale: CommunityDragonLocale): string {
+  const option = championRoleOptions.find(([value]) => value === role);
+  if (!option) return role;
+  return locale === "zh_cn" ? option[2] : option[1];
+}
+
+function appendMissingField(
+  parent: HTMLElement,
+  locale: CommunityDragonLocale,
+  field: MissingRuntimeField,
+): void {
+  parent.appendChild(
+    textNode("span", runtimeMissingLabel(locale, field), "runtime-missing"),
+  );
+}
+
+function appendRarity(
+  parent: HTMLElement,
+  rarity: { readonly label?: string; readonly iconUrl?: string } | undefined,
+  locale: CommunityDragonLocale,
+): void {
+  const badge = document.createElement("span");
+  badge.className = "runtime-rarity";
+  if (!rarity) {
+    badge.textContent = runtimeMissingLabel(locale, "rarity");
+    badge.className = "runtime-rarity runtime-missing";
+    parent.appendChild(badge);
+    return;
+  }
+  if (rarity.iconUrl) {
+    const icon = document.createElement("img");
+    icon.src = rarity.iconUrl;
+    icon.alt = rarity.label ?? "";
+    icon.loading = "lazy";
+    icon.decoding = "async";
+    badge.appendChild(icon);
+  }
+  badge.appendChild(
+    textNode(
+      "span",
+      rarity.label ?? runtimeMissingLabel(locale, "rarity"),
+      rarity.label ? undefined : "runtime-missing",
+    ),
+  );
+  parent.appendChild(badge);
+}
+
+type DetailMediaKey =
+  | "focusedSplashUrl"
+  | "unfocusedSplashUrl"
+  | "tileUrl"
+  | "loadScreenUrl"
+  | "animatedSplashUrl";
+
+interface DetailMediaDescriptor {
+  readonly key: DetailMediaKey;
+  readonly kind: "image" | "video";
+  readonly en: string;
+  readonly zh: string;
+}
+
+const detailMediaDescriptors: readonly DetailMediaDescriptor[] = [
+  { key: "focusedSplashUrl", kind: "image", en: "Focused artwork", zh: "聚焦原画" },
+  { key: "unfocusedSplashUrl", kind: "image", en: "Unfocused artwork", zh: "未裁剪原画" },
+  { key: "tileUrl", kind: "image", en: "Thumbnail", zh: "缩略图" },
+  { key: "loadScreenUrl", kind: "image", en: "Loading screen", zh: "载入图" },
+  { key: "animatedSplashUrl", kind: "video", en: "Animated artwork", zh: "动态原画" },
+];
+
+const historyMediaDescriptors = detailMediaDescriptors.filter(
+  ({ key }) =>
+    key === "focusedSplashUrl" ||
+    key === "unfocusedSplashUrl" ||
+    key === "animatedSplashUrl",
+);
+
+function appendMediaResource(
+  parent: HTMLElement,
+  url: string,
+  alt: string,
+  descriptor: DetailMediaDescriptor,
+  label: string,
+): void {
+  const figure = document.createElement("figure");
+  figure.className = "runtime-media-item";
+  const resource =
+    descriptor.kind === "video"
+      ? document.createElement("video")
+      : document.createElement("img");
+  resource.src = url;
+  if (descriptor.kind === "video") {
+    resource.setAttribute("aria-label", alt);
+    resource.setAttribute("controls", "");
+    resource.setAttribute("playsinline", "");
+  } else {
+    const image = resource as HTMLImageElement;
+    image.alt = alt;
+    image.loading = "lazy";
+    image.decoding = "async";
+  }
+  resource.addEventListener("error", () => resource.remove(), { once: true });
+  figure.appendChild(resource);
+  figure.appendChild(
+    textNode(
+      "figcaption",
+      label,
+      "runtime-media-caption",
+    ),
+  );
+  parent.appendChild(figure);
+}
+
+function appendMediaCollection(
+  parent: HTMLElement,
+  media: RuntimeMedia,
+  locale: CommunityDragonLocale,
+  altBase: string,
+  descriptors: readonly DetailMediaDescriptor[] = detailMediaDescriptors,
+): number {
+  let count = 0;
+  descriptors.forEach((descriptor) => {
+    const url = media[descriptor.key];
+    if (!url) return;
+    appendMediaResource(
+      parent,
+      url,
+      `${altBase} · ${locale === "zh_cn" ? descriptor.zh : descriptor.en}`,
+      descriptor,
+      locale === "zh_cn" ? descriptor.zh : descriptor.en,
+    );
+    count += 1;
+  });
+  return count;
+}
+
+function appendHistoricalArtwork(
+  parent: HTMLElement,
+  history: readonly RuntimeHistoricalArtwork[],
+  locale: CommunityDragonLocale,
+  altBase: string,
+): void {
+  history.forEach((entry) => {
+    const item = document.createElement("article");
+    item.className = "runtime-history-item";
+    item.appendChild(
+      textNode(
+        "h3",
+        entry.version ??
+          (locale === "zh_cn" ? "版本信息缺失" : "Version unavailable"),
+      ),
+    );
+    const media = document.createElement("div");
+    media.className = "runtime-media-grid runtime-history-media";
+    appendMediaCollection(media, entry.media, locale, altBase, historyMediaDescriptors);
+    if (!media.children.length)
+      appendMissingField(media, locale, "artwork");
+    item.appendChild(media);
+    parent.appendChild(item);
+  });
+}
 
 function setRuntimeNoindex(enabled: boolean): void {
   const existing = document.head.querySelector<HTMLMetaElement>(
@@ -360,14 +562,40 @@ export function createDomRuntimeView(
               item.kind === "skinline" ||
               item.kind === "universe"
             ) {
-              appendMedia(
-                isChampionList ? link : card,
-                item.kind === "champion" ? item.portraitUrl : item.imageUrl,
-                item.name,
-                isChampionList ? "runtime-champion-portrait" : undefined,
-              );
+              const mediaParent = isChampionList ? link : card;
+              const mediaUrl =
+                item.kind === "champion" ? item.portraitUrl : item.imageUrl;
+              if (mediaUrl) {
+                appendMedia(
+                  mediaParent,
+                  mediaUrl,
+                  item.name,
+                  isChampionList ? "runtime-champion-portrait" : undefined,
+                );
+              } else if (isChampionList && item.kind === "champion") {
+                appendMissingField(mediaParent, options.locale, "portrait");
+              }
             }
-            if (isChampionList) link.append(textNode("span", item.name));
+            if (isChampionList && item.kind === "champion") {
+              const meta = document.createElement("span");
+              meta.className = "runtime-champion-meta";
+              meta.appendChild(textNode("span", item.name));
+              const roles = document.createElement("span");
+              roles.className = "runtime-champion-roles";
+              roles.setAttribute(
+                "aria-label",
+                options.locale === "zh_cn" ? "英雄定位" : "Champion roles",
+              );
+              const roleNames = item.roles?.filter(Boolean).map((role) =>
+                roleLabel(role, options.locale),
+              );
+              roles.textContent = roleNames?.length
+                ? roleNames.join(options.locale === "zh_cn" ? "、" : ", ")
+                : runtimeMissingLabel(options.locale, "roles");
+              if (!roleNames?.length) roles.className += " runtime-missing";
+              meta.appendChild(roles);
+              link.appendChild(meta);
+            }
             card.appendChild(link);
             return card;
           }),
@@ -435,64 +663,161 @@ export function createDomRuntimeView(
       const controller = options.getController();
       const article = document.createElement("article");
       article.className = "runtime-detail";
-      const heading = textNode("h1", item.name);
+      const heading = textNode(
+        "h1",
+        item.name ?? runtimeMissingLabel(options.locale, "name"),
+      );
       article.appendChild(heading);
       if (item.kind === "champion") {
-        if (item.title)
-          article.appendChild(textNode("p", item.title, "eyebrow"));
-        if (item.shortBio)
-          article.appendChild(textNode("p", item.shortBio, "runtime-lede"));
-        appendMedia(article, item.portraitUrl, item.name);
+        const baseSkin = item.skins.find((skin) => skin.isBase);
+        const baseSection = document.createElement("section");
+        baseSection.className = "runtime-champion-base";
+        baseSection.appendChild(
+          textNode(
+            "h2",
+            options.locale === "zh_cn" ? "英雄默认外观" : "Default appearance",
+          ),
+        );
+        const baseArtwork = baseSkin?.media.focusedSplashUrl ??
+          baseSkin?.media.unfocusedSplashUrl;
+        if (baseArtwork) appendMedia(baseSection, baseArtwork, item.name);
+        else appendMissingField(baseSection, options.locale, "artwork");
+        article.appendChild(baseSection);
+
         const section = document.createElement("section");
         section.appendChild(
-          textNode("h2", options.locale === "zh_cn" ? "皮肤" : "Skins"),
+          textNode(
+            "h2",
+            options.locale === "zh_cn" ? "皮肤资料" : "Skin references",
+          ),
         );
-        const links = document.createElement("div");
-        links.className = "runtime-links";
-        for (const skin of item.skins)
-          links.appendChild(
-            linkWithNavigation(
-              skin.name,
-              hrefFor(options.locale, "skins", {
-                id: skin.id,
-                championId: item.id,
-                channel: state.channel,
-              }, "detail", preservesExplicitPbe()),
-              controller,
-            ),
-          );
-        section.appendChild(links);
-        article.appendChild(section);
-      } else if (item.kind === "skin") {
-        appendMedia(
-          article,
-          item.media.focusedSplashUrl ?? item.media.tileUrl,
-          item.name,
-        );
-        article.appendChild(
-          linkWithNavigation(
-            options.locale === "zh_cn" ? "查看英雄" : "View champion",
-            hrefFor(options.locale, "champions", {
-              id: item.championId,
+        const grid = document.createElement("div");
+        grid.className = "runtime-skin-reference-grid";
+        const skinItems = projectChampionSkinReferenceItems(item.id, item.skins);
+        if (!skinItems.length) {
+          appendMissingField(grid, options.locale, "thumbnail");
+        }
+        for (const skin of skinItems) {
+          const card = document.createElement("article");
+          card.className = "runtime-skin-reference-card";
+          const link = linkWithNavigation(
+            "",
+            hrefFor(options.locale, "skins", {
+              id: skin.skinId,
+              championId: item.id,
+              stageId: skin.stageId,
               channel: state.channel,
             }, "detail", preservesExplicitPbe()),
             controller,
-          ),
+            "runtime-skin-reference-link",
+          );
+          const skinName =
+            skin.name ?? runtimeMissingLabel(options.locale, "name");
+          link.setAttribute("aria-label", skinName);
+          if (skin.thumbnailUrl)
+            appendMedia(link, skin.thumbnailUrl, skinName);
+          else appendMissingField(link, options.locale, "thumbnail");
+          const meta = document.createElement("span");
+          meta.className = "runtime-skin-reference-meta";
+          meta.appendChild(textNode("span", skinName));
+          appendRarity(meta, skin.rarity, options.locale);
+          link.appendChild(meta);
+          card.appendChild(link);
+          grid.appendChild(card);
+        }
+        section.appendChild(grid);
+        article.appendChild(section);
+      } else if (item.kind === "skin") {
+        const championLink = linkWithNavigation(
+          item.championName ??
+            (options.locale === "zh_cn"
+              ? `英雄 #${item.championId}`
+              : `Champion #${item.championId}`),
+          hrefFor(options.locale, "champions", {
+            id: item.championId,
+            channel: state.channel,
+          }, "detail", preservesExplicitPbe()),
+          controller,
         );
+        championLink.className = "runtime-relation-link";
+        article.appendChild(championLink);
+
+        const summary = document.createElement("dl");
+        summary.className = "runtime-skin-summary";
+        const rarityTerm = textNode(
+          "dt",
+          options.locale === "zh_cn" ? "稀有度" : "Rarity",
+        );
+        const rarityValue = document.createElement("dd");
+        appendRarity(rarityValue, item.rarity, options.locale);
+        summary.append(rarityTerm, rarityValue);
+        const descriptionTerm = textNode(
+          "dt",
+          options.locale === "zh_cn" ? "描述" : "Description",
+        );
+        const descriptionValue = document.createElement("dd");
         if (item.description)
-          article.appendChild(textNode("p", item.description, "runtime-lede"));
+          descriptionValue.appendChild(
+            textNode("p", item.description, "runtime-lede"),
+          );
+        else appendMissingField(descriptionValue, options.locale, "description");
+        summary.append(descriptionTerm, descriptionValue);
+        article.appendChild(summary);
+
+        const mediaSection = document.createElement("section");
+        mediaSection.className = "runtime-skin-media";
+        mediaSection.appendChild(
+          textNode("h2", options.locale === "zh_cn" ? "媒体" : "Media"),
+        );
+        const mediaGrid = document.createElement("div");
+        mediaGrid.className = "runtime-media-grid";
+        if (
+          appendMediaCollection(
+            mediaGrid,
+            item.media,
+            options.locale,
+            item.name ?? runtimeMissingLabel(options.locale, "name"),
+          ) === 0
+        )
+          appendMissingField(mediaGrid, options.locale, "artwork");
+        mediaSection.appendChild(mediaGrid);
+        article.appendChild(mediaSection);
+
+        const historicalArt = item.historicalArt ?? [];
+        if (historicalArt.length) {
+          const historySection = document.createElement("section");
+          historySection.className = "runtime-skin-history";
+          historySection.appendChild(
+            textNode(
+              "h2",
+              options.locale === "zh_cn" ? "历史版本原画" : "Historical artwork",
+            ),
+          );
+          appendHistoricalArtwork(
+            historySection,
+            historicalArt,
+            options.locale,
+            item.name ?? runtimeMissingLabel(options.locale, "name"),
+          );
+          article.appendChild(historySection);
+        }
+
         if (item.stages.length) {
           const stages = document.createElement("section");
+          stages.className = "runtime-skin-stages";
           stages.appendChild(
             textNode("h2", options.locale === "zh_cn" ? "阶段" : "Stages"),
           );
           for (const stage of item.stages) {
-            if (!stage.name) continue;
+            const stageName =
+              stage.name ?? runtimeMissingLabel(options.locale, "name");
+            const stageItem = document.createElement("article");
+            stageItem.className = "runtime-stage-item";
             const stageHeading = document.createElement("h3");
             if (stage.id) {
               stageHeading.appendChild(
                 linkWithNavigation(
-                  stage.name,
+                  stageName,
                   hrefFor(options.locale, "skins", {
                     id: item.id,
                     championId: item.championId,
@@ -503,17 +828,26 @@ export function createDomRuntimeView(
                 ),
               );
             } else {
-              stageHeading.appendChild(textNode("span", stage.name));
+              stageHeading.appendChild(textNode("span", stageName));
             }
-            stages.appendChild(stageHeading);
-            appendMedia(
-              stages,
-              stage.media.focusedSplashUrl ?? stage.media.tileUrl,
-              stage.name,
-            );
+            stageItem.appendChild(stageHeading);
+            const stageMedia = document.createElement("div");
+            stageMedia.className = "runtime-media-grid runtime-stage-media";
+            if (
+              appendMediaCollection(
+                stageMedia,
+                stage.media,
+                options.locale,
+                stageName,
+              ) === 0
+            )
+              appendMissingField(stageMedia, options.locale, "artwork");
+            stageItem.appendChild(stageMedia);
+            stages.appendChild(stageItem);
           }
           article.appendChild(stages);
         }
+
         if (item.chromas.length) {
           const chromas = document.createElement("section");
           chromas.appendChild(
@@ -528,22 +862,21 @@ export function createDomRuntimeView(
           );
           article.appendChild(chromas);
         }
+
         const relations = document.createElement("section");
+        relations.className = "runtime-skin-relations";
         relations.appendChild(
           textNode(
             "h2",
-            options.locale === "zh_cn"
-              ? "所属系列与宇宙"
-              : "Skinlines and universes",
+            options.locale === "zh_cn" ? "所属关系" : "Related references",
           ),
         );
-        relationSlot = textNode(
-          "p",
+        relationSlot = document.createElement("div");
+        relationSlot.className = "runtime-relation-state";
+        relationSlot.textContent =
           options.locale === "zh_cn"
             ? "正在加载关联资料…"
-            : "Loading related references…",
-          "runtime-relation-state",
-        );
+            : "Loading related references…";
         relations.appendChild(relationSlot);
         article.appendChild(relations);
       } else if (item.kind === "skinline") {
@@ -597,27 +930,55 @@ export function createDomRuntimeView(
             : "No related references are available in this language.";
         return;
       }
-      const links = document.createElement("div");
-      links.className = "runtime-links";
-      items.forEach((item) =>
-        links.appendChild(
-          linkWithNavigation(
-            item.name,
-            hrefFor(
-              options.locale,
-              item.kind === "skinline" ? "skinlines" : "universes",
-              {
-                id: item.id,
-                channel: state.channel,
-              },
-              "detail",
-              preservesExplicitPbe(),
+      const grouped = new Map<"skinline" | "universe", RuntimeList>();
+      items.forEach((item) => {
+        if (item.kind !== "skinline" && item.kind !== "universe") return;
+        const group = grouped.get(item.kind) ?? [];
+        grouped.set(item.kind, [...group, item]);
+      });
+      const relationGroups = ["skinline", "universe"] as const;
+      relationSlot.replaceChildren(
+        ...relationGroups.flatMap((kind) => {
+          const groupItems = grouped.get(kind) ?? [];
+          if (!groupItems.length) return [];
+          const group = document.createElement("div");
+          group.className = "runtime-relation-group";
+          group.appendChild(
+            textNode(
+              "h3",
+              kind === "skinline"
+                ? options.locale === "zh_cn"
+                  ? "皮肤系列"
+                  : "Skinlines"
+                : options.locale === "zh_cn"
+                  ? "皮肤宇宙"
+                  : "Universes",
             ),
-            controller,
-          ),
-        ),
+          );
+          const links = document.createElement("div");
+          links.className = "runtime-links";
+          groupItems.forEach((item) =>
+            links.appendChild(
+              linkWithNavigation(
+                item.name,
+                hrefFor(
+                  options.locale,
+                  item.kind === "skinline" ? "skinlines" : "universes",
+                  {
+                    id: item.id,
+                    channel: state.channel,
+                  },
+                  "detail",
+                  preservesExplicitPbe(),
+                ),
+                controller,
+              ),
+            ),
+          );
+          group.appendChild(links);
+          return [group];
+        }),
       );
-      relationSlot.replaceChildren(links);
     },
     relationFailure(error, retry) {
       if (!relationSlot) return;

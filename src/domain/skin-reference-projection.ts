@@ -3,7 +3,10 @@ import type {
   RuntimeHistoricalArtwork,
   RuntimeMedia,
   RuntimeRarity,
+  RuntimeSkinSummary,
   RuntimeSkin,
+  RuntimeStageSkin,
+  RuntimeSkinEntity,
 } from "./communitydragon-runtime";
 
 export interface RuntimeSkinTarget {
@@ -22,7 +25,7 @@ export interface RuntimeSkinReferenceItem {
   readonly stageIndex?: number;
   readonly target: RuntimeSkinTarget;
   readonly stableKey: string;
-  readonly name: string;
+  readonly name?: string;
   readonly description?: string;
   readonly isBase: boolean;
   readonly isLegacy?: boolean;
@@ -49,15 +52,16 @@ function compareReferenceItems(
   left: RuntimeSkinReferenceItem,
   right: RuntimeSkinReferenceItem,
 ): number {
+  if (left.skinId !== right.skinId) return left.skinId - right.skinId;
   if (left.kind !== right.kind) return left.kind === "skin" ? -1 : 1;
   return (
     stageSortValue(left.stageIndex) - stageSortValue(right.stageIndex) ||
     (left.stageId ?? 0) - (right.stageId ?? 0) ||
-    left.name.localeCompare(right.name)
+    (left.name ?? "").localeCompare(right.name ?? "")
   );
 }
 
-function skinItem(skin: RuntimeSkin): RuntimeSkinReferenceItem {
+function skinItem(skin: RuntimeSkinEntity): RuntimeSkinReferenceItem {
   const target = { championId: skin.championId, skinId: skin.id };
   return {
     kind: "skin",
@@ -81,10 +85,10 @@ function skinItem(skin: RuntimeSkin): RuntimeSkinReferenceItem {
 }
 
 function stageItem(
-  skin: RuntimeSkin,
-  stage: RuntimeSkin["stages"][number],
+  skin: RuntimeSkinEntity,
+  stage: RuntimeSkinEntity["stages"][number],
 ): RuntimeSkinReferenceItem | undefined {
-  if (stage.id === undefined || !stage.name) return undefined;
+  if (stage.id === undefined) return undefined;
   const target = {
     championId: skin.championId,
     skinId: skin.id,
@@ -116,13 +120,14 @@ function stageItem(
 export function projectRuntimeSkinTarget(
   skin: RuntimeSkin,
   stageId?: number,
-): RuntimeSkin | undefined {
+): RuntimeSkin | RuntimeStageSkin | undefined {
   if (stageId === undefined) return skin;
   const stage = skin.stages.find((candidate) => candidate.id === stageId);
-  if (!stage?.name) return undefined;
+  if (!stage || stage.id === undefined) return undefined;
+  const resolvedStageId = stage.id;
   return {
     ...skin,
-    stageId: stage.id,
+    stageId: resolvedStageId,
     stageIndex: stage.stageIndex,
     name: stage.name,
     description: stage.description ?? skin.description,
@@ -141,7 +146,7 @@ export function projectRuntimeSkinTarget(
  * media or chromas; only the explicitly allowed owner fields are inherited.
  */
 export function projectSkinReferenceItems(
-  skin: RuntimeSkin,
+  skin: RuntimeSkinEntity,
 ): readonly RuntimeSkinReferenceItem[] {
   const items = [
     skinItem(skin),
@@ -153,8 +158,29 @@ export function projectSkinReferenceItems(
   return items.sort(compareReferenceItems);
 }
 
+/**
+ * Project all of a champion response's skins into the shared page-facing
+ * records. Champion responses expose skin summaries, so the champion ID is
+ * supplied by the response identity rather than inferred from names or IDs.
+ */
+export function projectChampionSkinReferenceItems(
+  championId: number,
+  skins: readonly RuntimeSkinSummary[],
+): readonly RuntimeSkinReferenceItem[] {
+  return skins
+    .flatMap((skin) =>
+      projectSkinReferenceItems({
+        ...skin,
+        kind: "skin",
+        championId,
+        chromas: [],
+      }),
+    )
+    .sort(compareReferenceItems);
+}
+
 export function findSkinReferenceItem(
-  skin: RuntimeSkin,
+  skin: RuntimeSkinEntity,
   target: RuntimeSkinTarget,
 ): RuntimeSkinReferenceItem | undefined {
   if (

@@ -176,11 +176,13 @@ function relatedItems(
   }
   if (state.kind === "skin" && entity.kind === "skin") {
     const skinlineIds = entity.skinlineIds;
+    const universeIds = entity.universeIds ?? [];
     return items.filter(
       (item) =>
         (item.kind === "skinline" && skinlineIds.includes(item.id)) ||
         (item.kind === "universe" &&
-          item.skinlineIds.some((id) => skinlineIds.includes(id))),
+          (universeIds.includes(item.id) ||
+            item.skinlineIds.some((id) => skinlineIds.includes(id)))),
     );
   }
   return [];

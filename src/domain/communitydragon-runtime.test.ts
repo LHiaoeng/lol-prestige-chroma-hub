@@ -4,8 +4,12 @@ import {
   parseRuntimeEntity,
   type CommunityDragonLocale,
   type RuntimeChannel,
+  type RuntimeChampion,
 } from "./communitydragon-runtime";
-import { projectSkinReferenceItems } from "./skin-reference-projection";
+import {
+  projectChampionSkinReferenceItems,
+  projectSkinReferenceItems,
+} from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
 
 const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
@@ -180,7 +184,7 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher.mock.calls[0][0]).not.toContain("skins.json");
   });
 
-  it("keeps only named stages with valid IDs and never invents a stage name", async () => {
+  it("keeps every valid stage ID without inventing a missing stage name", async () => {
     const fetcher = vi.fn(async () =>
       jsonResponse({
         ...champion("default"),
@@ -207,7 +211,10 @@ describe("CommunityDragon runtime reference", () => {
         championId: 103,
       }),
     ).resolves.toMatchObject({
-      stages: [{ id: 103010, name: "Ascended Ahri", stageIndex: 2 }],
+      stages: [
+        { id: 103010, name: "Ascended Ahri", stageIndex: 2 },
+        { id: 103011, stageIndex: 3 },
+      ],
     });
   });
 
@@ -376,6 +383,30 @@ describe("CommunityDragon runtime reference", () => {
     ]);
   });
 
+  it("projects a champion's skins and stages with the champion identity", () => {
+    const result = parseRuntimeEntity(
+      "champion",
+      103,
+      champion("default"),
+      { locale: "default", championId: 103 },
+    ) as RuntimeChampion;
+
+    expect(projectChampionSkinReferenceItems(result.id, result.skins)).toMatchObject([
+      {
+        stableKey: "103:103000",
+        target: { championId: 103, skinId: 103000 },
+      },
+      {
+        stableKey: "103:103001",
+        target: { championId: 103, skinId: 103001 },
+      },
+      {
+        stableKey: "103:103001:stage:103002",
+        target: { championId: 103, skinId: 103001, stageId: 103002 },
+      },
+    ]);
+  });
+
   it("rejects a duplicate stage identity instead of guessing which stage to open", () => {
     expect(() =>
       parseRuntimeEntity("skin", 103001, {
@@ -424,6 +455,33 @@ describe("CommunityDragon runtime reference", () => {
       }),
     ).rejects.toMatchObject({ code: "not-found" });
     expect(fetcher).toHaveBeenCalledOnce();
+  });
+
+  it("opens a valid unnamed stage without fabricating a player-facing name", async () => {
+    const fetcher = vi.fn(async () =>
+      jsonResponse({
+        ...champion("default"),
+        skins: [
+          {
+            ...champion("default").skins[1],
+            questSkinInfo: { tiers: [{ id: 103011, stage: 3 }] },
+          },
+        ],
+      }),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.get("skin", 103001, {
+        locale: "default",
+        championId: 103,
+        stageId: 103011,
+      }),
+    ).resolves.toMatchObject({
+      stageId: 103011,
+      name: undefined,
+      description: undefined,
+    });
   });
 
   it("validates champion detail identity against the requested ID", async () => {

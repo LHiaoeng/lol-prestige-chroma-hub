@@ -669,7 +669,8 @@ describe("RuntimeController", () => {
       championId: 103,
       name: "Dynasty Ahri",
       isBase: false,
-      skinlineIds: [7],
+      skinlineIds: [],
+      universeIds: [200],
       media: {},
       chromas: [],
       stages: [],
@@ -713,7 +714,7 @@ describe("RuntimeController", () => {
     ]);
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(viewState.events).toContain("relations:2");
+    expect(viewState.events).toContain("relations:1");
     expect(service.list).not.toHaveBeenCalledWith("skins", expect.anything());
   });
 

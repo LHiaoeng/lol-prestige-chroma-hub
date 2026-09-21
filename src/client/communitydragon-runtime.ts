@@ -285,7 +285,7 @@ export function createCommunityDragonRuntime(
             "not-found",
             `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
           );
-        return stage;
+        return { ...stage, championName: champion.name };
       });
     }
     const key = `${options.channel}:${options.locale}:entity:${kind}:${id}:${options.championId ?? ""}`;
