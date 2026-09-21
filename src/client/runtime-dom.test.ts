@@ -491,7 +491,12 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-universe-skinlines")?.textContent).toBe(
       "Star Guardian",
     );
-    expect(content.querySelector("a")?.href).toBe(
+    const link = content.querySelector("a");
+    expect(link?.textContent).toBe("");
+    expect(link?.querySelector(".runtime-universe-meta")?.querySelector("span")?.textContent).toBe(
+      "Star Guardian",
+    );
+    expect(link?.href).toBe(
       "/universes/detail/?id=200",
     );
   });

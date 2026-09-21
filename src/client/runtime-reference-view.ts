@@ -842,7 +842,7 @@ export function createDomRuntimeView(
               ? "runtime-card runtime-champion-card"
               : "runtime-card";
             const link = linkWithNavigation(
-              isChampionList ? "" : item.name,
+              isChampionList || item.kind === "universe" ? "" : item.name,
               hrefFor(options.locale, page, {
                 id: item.id,
                 channel: state.channel,
