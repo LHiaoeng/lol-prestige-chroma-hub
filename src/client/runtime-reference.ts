@@ -58,6 +58,7 @@ export type RuntimeLocationState =
       readonly kind: "champion" | "skin" | "skinline" | "universe";
       readonly id: number;
       readonly championId?: number;
+      readonly stageId?: number;
       readonly channel: "pbe" | "latest";
     }
   | {
@@ -103,12 +104,17 @@ export function parseRuntimeLocation(
   if (page === "skins") {
     const championId = positiveSafeInteger(url.searchParams.get("champion"));
     if (!championId) return { mode: "invalid", page, channel: selectedChannel };
+    const hasStage = url.searchParams.has("stage");
+    const stageId = positiveSafeInteger(url.searchParams.get("stage"));
+    if (hasStage && !stageId)
+      return { mode: "invalid", page, channel: selectedChannel };
     return {
       mode: "detail",
       page,
       kind: "skin",
       id,
       championId,
+      stageId,
       channel: selectedChannel,
     };
   }
@@ -129,6 +135,8 @@ export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
     next.searchParams.set("id", String(state.id));
     if (state.kind === "skin" && state.championId)
       next.searchParams.set("champion", String(state.championId));
+    if (state.kind === "skin" && state.stageId)
+      next.searchParams.set("stage", String(state.stageId));
   }
   if (state.channel === "latest") next.searchParams.set("channel", "latest");
   return next;
@@ -249,6 +257,7 @@ export class RuntimeController {
           locale: this.options.locale,
           channel: state.channel,
           championId: state.championId,
+          stageId: state.stageId,
           signal: controller.signal,
         });
         if (generation !== this.generation) return;

@@ -3,6 +3,7 @@ import {
   communityDragonAssetUrl,
   type CommunityDragonChannel,
 } from "./communitydragon-url";
+import { projectRuntimeSkinTarget } from "./skin-reference-projection";
 
 export type RuntimeChannel = CommunityDragonChannel;
 export type CommunityDragonLocale = "default" | "zh_cn";
@@ -40,6 +41,19 @@ export interface RuntimeParseOptions {
   readonly locale: CommunityDragonLocale;
   readonly channel?: RuntimeChannel;
   readonly championId?: number;
+  readonly stageId?: number;
+}
+
+export interface RuntimeRarity {
+  readonly id?: number;
+  readonly key?: string;
+  readonly label?: string;
+  readonly iconUrl?: string;
+}
+
+export interface RuntimeHistoricalArtwork {
+  readonly version?: string;
+  readonly media: RuntimeMedia;
 }
 
 export interface RuntimeChampionSummary {
@@ -59,8 +73,11 @@ export interface RuntimeSkinSummary {
   readonly isBase: boolean;
   readonly isLegacy?: boolean;
   readonly description?: string;
+  readonly rarity?: RuntimeRarity;
   readonly skinlineIds: readonly number[];
+  readonly universeIds?: readonly number[];
   readonly media: RuntimeMedia;
+  readonly historicalArt?: readonly RuntimeHistoricalArtwork[];
   readonly stages: readonly RuntimeSkinStage[];
 }
 
@@ -71,14 +88,21 @@ export interface RuntimeChampion extends RuntimeChampionSummary {
 export interface RuntimeSkin extends RuntimeSkinSummary {
   readonly kind: "skin";
   readonly championId: number;
+  readonly stageId?: number;
+  readonly stageIndex?: number;
   readonly chromas: readonly RuntimeChroma[];
 }
 
 export interface RuntimeSkinStage {
   readonly id?: number;
-  readonly name: string;
+  readonly name?: string;
   readonly stageIndex: number;
+  readonly description?: string;
+  readonly rarity?: RuntimeRarity;
+  readonly skinlineIds?: readonly number[];
+  readonly universeIds?: readonly number[];
   readonly media: RuntimeMedia;
+  readonly historicalArt?: readonly RuntimeHistoricalArtwork[];
   readonly chromas: readonly RuntimeChroma[];
 }
 
@@ -86,6 +110,7 @@ export interface RuntimeChroma {
   readonly id: number;
   readonly name?: string;
   readonly imageUrl?: string;
+  readonly colors?: readonly string[];
 }
 
 export interface RuntimeMedia {
@@ -94,6 +119,10 @@ export interface RuntimeMedia {
   readonly tileUrl?: string;
   readonly loadScreenUrl?: string;
   readonly animatedSplashUrl?: string;
+  readonly loadScreenVintageUrl?: string;
+  readonly previewVideoUrl?: string;
+  readonly collectionSplashVideoUrl?: string;
+  readonly collectionCardHoverVideoUrl?: string;
 }
 
 export interface RuntimeSkinline {
@@ -159,19 +188,40 @@ const chromaSchema = z
     id: idSchema,
     name: z.string().nullable().optional(),
     chromaPath: z.string().nullable().optional(),
+    colors: z
+      .array(z.string().regex(/^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/))
+      .nullable()
+      .optional(),
   })
   .passthrough();
 const skinStageSchema = z
   .object({
-    id: idSchema.nullable().optional(),
-    stage: idSchema.nullable().optional(),
+    id: z.number().int().nullable().optional(),
+    stage: z.number().int().nullable().optional(),
     name: z.string().nullable().optional(),
+    shortName: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    rarity: z.string().nullable().optional(),
+    regionRarityId: z.number().int().nonnegative().nullable().optional(),
+    rarityGemPath: z.string().nullable().optional(),
     splashPath: z.string().nullable().optional(),
     uncenteredSplashPath: z.string().nullable().optional(),
     tilePath: z.string().nullable().optional(),
     loadScreenPath: z.string().nullable().optional(),
+    loadScreenVintagePath: z.string().nullable().optional(),
     splashVideoPath: z.string().nullable().optional(),
+    previewVideoUrl: z.string().nullable().optional(),
+    collectionSplashVideoPath: z.string().nullable().optional(),
+    collectionCardHoverVideoPath: z.string().nullable().optional(),
+    skinLines: z
+      .array(z.union([idSchema, z.object({ id: idSchema }).passthrough()]))
+      .nullable()
+      .optional(),
+    universeIds: z.array(idSchema).nullable().optional(),
     chromas: z.array(chromaSchema).nullable().optional(),
+    historicalVersions: z.unknown().optional(),
+    history: z.unknown().optional(),
+    changes: z.unknown().optional(),
   })
   .passthrough();
 const skinSchema = z
@@ -181,16 +231,27 @@ const skinSchema = z
     isBase: z.boolean().nullable().optional(),
     isLegacy: z.boolean().nullable().optional(),
     description: z.string().nullable().optional(),
+    rarity: z.string().nullable().optional(),
+    regionRarityId: z.number().int().nonnegative().nullable().optional(),
+    rarityGemPath: z.string().nullable().optional(),
     splashPath: z.string().nullable().optional(),
     uncenteredSplashPath: z.string().nullable().optional(),
     tilePath: z.string().nullable().optional(),
     loadScreenPath: z.string().nullable().optional(),
+    loadScreenVintagePath: z.string().nullable().optional(),
     splashVideoPath: z.string().nullable().optional(),
+    previewVideoUrl: z.string().nullable().optional(),
+    collectionSplashVideoPath: z.string().nullable().optional(),
+    collectionCardHoverVideoPath: z.string().nullable().optional(),
     skinLines: z
       .array(z.union([idSchema, z.object({ id: idSchema }).passthrough()]))
       .nullable()
       .optional(),
+    universeIds: z.array(idSchema).nullable().optional(),
     chromas: z.array(chromaSchema).nullable().optional(),
+    historicalVersions: z.unknown().optional(),
+    history: z.unknown().optional(),
+    changes: z.unknown().optional(),
     questSkinInfo: z
       .object({
         tiers: z.array(skinStageSchema).nullable().optional(),
@@ -302,7 +363,118 @@ function normalizeMedia(
     tileUrl: asset(text(raw.tilePath), channel),
     loadScreenUrl: asset(text(raw.loadScreenPath), channel),
     animatedSplashUrl: asset(text(raw.splashVideoPath), channel),
+    loadScreenVintageUrl: asset(text(raw.loadScreenVintagePath), channel),
+    previewVideoUrl: asset(text(raw.previewVideoUrl), channel),
+    collectionSplashVideoUrl: asset(
+      text(raw.collectionSplashVideoPath),
+      channel,
+    ),
+    collectionCardHoverVideoUrl: asset(
+      text(raw.collectionCardHoverVideoPath),
+      channel,
+    ),
   };
+}
+
+const defaultRarityInfo: Readonly<Record<string, { label: string; icon: string }>> = {
+  kEpic: { label: "Epic", icon: "epic.png" },
+  kLegendary: { label: "Legendary", icon: "legendary.png" },
+  kMythic: { label: "Mythic", icon: "mythic.png" },
+  kUltimate: { label: "Ultimate", icon: "ultimate.png" },
+  kTranscendent: { label: "Transcendent", icon: "transcendent.png" },
+  kExalted: { label: "Exalted", icon: "exalted.png" },
+};
+
+const regionRarityInfo: Readonly<Record<number, { label: string }>> = {
+  1: { label: "典藏" },
+  2: { label: "勇士" },
+  3: { label: "王者" },
+  4: { label: "史诗" },
+  5: { label: "传说" },
+  6: { label: "未知" },
+  7: { label: "限定" },
+  8: { label: "神话" },
+  9: { label: "终极" },
+  10: { label: "圣堂" },
+  11: { label: "卓越" },
+};
+
+function normalizeRarity(
+  raw: Record<string, unknown>,
+  locale: CommunityDragonLocale,
+  channel: RuntimeChannel,
+): RuntimeRarity | undefined {
+  if (locale === "default") {
+    const key = text(raw.rarity);
+    if (!key || key === "kNoRarity") return undefined;
+    const info = defaultRarityInfo[key];
+    const iconPath = text(raw.rarityGemPath) ?? info?.icon;
+    return {
+      key,
+      label: info?.label ?? key,
+      iconUrl: iconPath
+        ? asset(
+            text(raw.rarityGemPath) ??
+              `/lol-game-data/assets/v1/rarity-gem-icons/${iconPath}`,
+            channel,
+          )
+        : undefined,
+    };
+  }
+
+  const id = raw.regionRarityId;
+  if (typeof id !== "number" || !Number.isSafeInteger(id) || id <= 0)
+    return undefined;
+  const info = regionRarityInfo[id];
+  const iconPath = text(raw.rarityGemPath);
+  return {
+    id,
+    label: info?.label,
+    iconUrl: iconPath ? asset(iconPath, channel) : undefined,
+  };
+}
+
+function historicalEntries(value: unknown): Record<string, unknown>[] {
+  if (Array.isArray(value)) {
+    if (!value.every(isRecord))
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        "Skin history contains a malformed entry",
+      );
+    return value;
+  }
+  if (isRecord(value))
+    return Object.entries(value).flatMap(([version, entry]) => {
+      if (!isRecord(entry))
+        throw new CommunityDragonRuntimeError(
+          "schema",
+          "Skin history contains a malformed entry",
+        );
+      return [{ version, ...entry }];
+    });
+  throw new CommunityDragonRuntimeError(
+    "schema",
+    "Skin history must be an array or object map",
+  );
+}
+
+function normalizeHistoricalArt(
+  raw: Record<string, unknown>,
+  channel: RuntimeChannel,
+): RuntimeHistoricalArtwork[] {
+  const source =
+    raw.historicalVersions ?? raw.history ?? raw.changes;
+  if (source === undefined || source === null) return [];
+  const result: RuntimeHistoricalArtwork[] = [];
+  for (const entry of historicalEntries(source)) {
+    const version =
+      text(entry.version) ??
+      text(entry.patch) ??
+      text(entry.gameVersion);
+    const media = normalizeMedia(entry, channel);
+    if (Object.values(media).some(Boolean)) result.push({ version, media });
+  }
+  return result;
 }
 
 function normalizeChroma(
@@ -313,27 +485,63 @@ function normalizeChroma(
     id: raw.id,
     name: text(raw.name),
     imageUrl: asset(text(raw.chromaPath), channel),
+    colors: raw.colors
+      ? [...new Set(raw.colors.map((color) => color.toUpperCase()))]
+      : undefined,
+  };
+}
+
+function normalizeStage(
+  raw: z.infer<typeof skinStageSchema>,
+  channel: RuntimeChannel,
+  locale: CommunityDragonLocale,
+  index: number,
+): RuntimeSkinStage | undefined {
+  const id = raw.id;
+  const name = text(raw.name) ?? text(raw.shortName);
+  if (
+    typeof id !== "number" ||
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    !name
+  )
+    return undefined;
+  return {
+    id,
+    name,
+    stageIndex:
+      typeof raw.stage === "number" && raw.stage > 0
+        ? raw.stage
+        : index + 1,
+    description: text(raw.description),
+    rarity: normalizeRarity(raw, locale, channel),
+    skinlineIds: raw.skinLines ? positiveIds(raw.skinLines) : undefined,
+    universeIds: raw.universeIds ?? undefined,
+    media: normalizeMedia(raw, channel),
+    historicalArt: normalizeHistoricalArt(raw, channel),
+    chromas: (raw.chromas ?? []).map((chroma) =>
+      normalizeChroma(chroma, channel),
+    ),
   };
 }
 
 function normalizeSkin(
   raw: z.infer<typeof skinSchema>,
   channel: RuntimeChannel,
+  locale: CommunityDragonLocale,
   championId: number,
 ): RuntimeSkin {
-  const stages: RuntimeSkinStage[] = [];
-  for (const [index, value] of (raw.questSkinInfo?.tiers ?? []).entries()) {
-    const id = value.id ?? undefined;
-    const stageIndex = value.stage ?? index + 1;
-    stages.push({
-      id,
-      name: text(value.name) ?? `${raw.name} · Stage ${stageIndex}`,
-      stageIndex,
-      media: normalizeMedia(value, channel),
-      chromas: (value.chromas ?? []).map((chroma) =>
-        normalizeChroma(chroma, channel),
-      ),
-    });
+  const stages = (raw.questSkinInfo?.tiers ?? [])
+    .map((value, index) => normalizeStage(value, channel, locale, index))
+    .filter((value): value is RuntimeSkinStage => Boolean(value));
+  const stageIds = new Set<number>();
+  for (const stage of stages) {
+    if (stage.id !== undefined && stageIds.has(stage.id))
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        `Skin ${raw.id} contains duplicate stage ID ${stage.id}`,
+      );
+    if (stage.id !== undefined) stageIds.add(stage.id);
   }
   return {
     kind: "skin",
@@ -343,8 +551,11 @@ function normalizeSkin(
     isBase: raw.isBase === true,
     isLegacy: raw.isLegacy ?? undefined,
     description: text(raw.description),
+    rarity: normalizeRarity(raw, locale, channel),
     skinlineIds: positiveIds(raw.skinLines),
+    universeIds: raw.universeIds ?? undefined,
     media: normalizeMedia(raw, channel),
+    historicalArt: normalizeHistoricalArt(raw, channel),
     stages,
     chromas: (raw.chromas ?? []).map((value) =>
       normalizeChroma(value, channel),
@@ -355,7 +566,7 @@ function normalizeSkin(
 export function normalizeRuntimeOptions(
   options: RuntimeParseOptions,
 ): Required<Pick<RuntimeParseOptions, "locale" | "channel">> &
-  Pick<RuntimeParseOptions, "championId"> {
+  Pick<RuntimeParseOptions, "championId" | "stageId"> {
   const channel = options.channel ?? "pbe";
   if (options.locale !== "default" && options.locale !== "zh_cn")
     throw new CommunityDragonRuntimeError(
@@ -367,7 +578,20 @@ export function normalizeRuntimeOptions(
       "invalid-request",
       "Unsupported CommunityDragon channel",
     );
-  return { locale: options.locale, channel, championId: options.championId };
+  if (
+    options.stageId !== undefined &&
+    (!Number.isSafeInteger(options.stageId) || options.stageId <= 0)
+  )
+    throw new CommunityDragonRuntimeError(
+      "invalid-request",
+      "Stage ID must be a positive safe integer",
+    );
+  return {
+    locale: options.locale,
+    channel,
+    championId: options.championId,
+    stageId: options.stageId,
+  };
 }
 
 export function parseRuntimeList(
@@ -502,7 +726,7 @@ export function parseRuntimeEntity(
       `Champion detail ID ${raw.id} does not match ${championId}`,
     );
   const skins = raw.skins.map((skin) =>
-    normalizeSkin(skin, options.channel, championId),
+    normalizeSkin(skin, options.channel, options.locale, championId),
   );
   if (kind === "champion") {
     const labels = championLabels(raw, options.locale);
@@ -523,5 +747,12 @@ export function parseRuntimeEntity(
       "not-found",
       `Skin ${id} was not found for champion ${championId}`,
     );
-  return skin;
+  if (options.stageId === undefined) return skin;
+  const stage = projectRuntimeSkinTarget(skin, options.stageId);
+  if (!stage)
+    throw new CommunityDragonRuntimeError(
+      "not-found",
+      `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
+    );
+  return stage;
 }

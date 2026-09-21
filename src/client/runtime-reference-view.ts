@@ -69,7 +69,12 @@ function runtimePath(
 function hrefFor(
   locale: CommunityDragonLocale,
   page: RuntimePage,
-  values: { id?: number; championId?: number; channel: "pbe" | "latest" },
+  values: {
+    id?: number;
+    championId?: number;
+    stageId?: number;
+    channel: "pbe" | "latest";
+  },
   mode: "list" | "detail" = "list",
   preserveExplicitPbe = false,
 ): URL {
@@ -77,6 +82,7 @@ function hrefFor(
   if (values.id) url.searchParams.set("id", String(values.id));
   if (values.championId)
     url.searchParams.set("champion", String(values.championId));
+  if (values.stageId) url.searchParams.set("stage", String(values.stageId));
   if (values.channel === "latest" || preserveExplicitPbe)
     url.searchParams.set("channel", values.channel);
   return url;
@@ -481,7 +487,25 @@ export function createDomRuntimeView(
             textNode("h2", options.locale === "zh_cn" ? "阶段" : "Stages"),
           );
           for (const stage of item.stages) {
-            stages.appendChild(textNode("h3", stage.name));
+            if (!stage.name) continue;
+            const stageHeading = document.createElement("h3");
+            if (stage.id) {
+              stageHeading.appendChild(
+                linkWithNavigation(
+                  stage.name,
+                  hrefFor(options.locale, "skins", {
+                    id: item.id,
+                    championId: item.championId,
+                    stageId: stage.id,
+                    channel: state.channel,
+                  }, "detail", preservesExplicitPbe()),
+                  controller,
+                ),
+              );
+            } else {
+              stageHeading.appendChild(textNode("span", stage.name));
+            }
+            stages.appendChild(stageHeading);
             appendMedia(
               stages,
               stage.media.focusedSplashUrl ?? stage.media.tileUrl,

@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   CommunityDragonRuntimeError,
+  parseRuntimeEntity,
   type CommunityDragonLocale,
   type RuntimeChannel,
 } from "./communitydragon-runtime";
+import { projectSkinReferenceItems } from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
 
 const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
@@ -176,6 +178,252 @@ describe("CommunityDragon runtime reference", () => {
     });
     expect(fetcher.mock.calls[0][0]).toContain("/champions/103.json");
     expect(fetcher.mock.calls[0][0]).not.toContain("skins.json");
+  });
+
+  it("keeps only named stages with valid IDs and never invents a stage name", async () => {
+    const fetcher = vi.fn(async () =>
+      jsonResponse({
+        ...champion("default"),
+        skins: [
+          {
+            ...champion("default").skins[1],
+            questSkinInfo: {
+              tiers: [
+                { id: 103010, stage: 2, name: "Ascended Ahri" },
+                { id: 103011, stage: 3 },
+                { stage: 4, name: "No identity" },
+                { id: 0, stage: 5, name: "Invalid ID" },
+              ],
+            },
+          },
+        ],
+      }),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.get("skin", 103001, {
+        locale: "default",
+        championId: 103,
+      }),
+    ).resolves.toMatchObject({
+      stages: [{ id: 103010, name: "Ascended Ahri", stageIndex: 2 }],
+    });
+  });
+
+  it("normalizes locale-specific rarity, complete media, history, and chroma colors", () => {
+    const raw = {
+      ...champion("default"),
+      skins: [
+        {
+          id: 103001,
+          name: "Dynasty Ahri",
+          isBase: false,
+          rarity: "kLegendary",
+          regionRarityId: 5,
+          rarityGemPath: "/lol-game-data/assets/v1/rarity-gem-icons/5_large.png",
+          splashPath: "/lol-game-data/assets/splash.jpg",
+          uncenteredSplashPath: "/lol-game-data/assets/uncentered.jpg",
+          tilePath: "/lol-game-data/assets/tile.jpg",
+          loadScreenPath: "/lol-game-data/assets/load.jpg",
+          loadScreenVintagePath: "/lol-game-data/assets/load-vintage.jpg",
+          splashVideoPath: "/lol-game-data/assets/splash.webm",
+          previewVideoUrl: "/lol-game-data/assets/preview.webm",
+          collectionSplashVideoPath: "/lol-game-data/assets/collection.webm",
+          collectionCardHoverVideoPath: "/lol-game-data/assets/card.webm",
+          historicalVersions: [
+            { version: "14.1", splashPath: "/lol-game-data/assets/old.jpg" },
+          ],
+          skinLines: [{ id: 7 }],
+          chromas: [
+            {
+              id: 103051,
+              name: "Dynasty Ahri (Ruby)",
+              chromaPath: "/lol-game-data/assets/ruby.png",
+              colors: ["#ff0000", "#FF0000", "#00FF00"],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(parseRuntimeEntity("skin", 103001, raw, {
+      locale: "default",
+      channel: "latest",
+      championId: 103,
+    })).toMatchObject({
+      rarity: {
+        key: "kLegendary",
+        label: "Legendary",
+        iconUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/5_large.png",
+      },
+      media: {
+        focusedSplashUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/splash.jpg",
+        loadScreenVintageUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/load-vintage.jpg",
+        previewVideoUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/preview.webm",
+        collectionSplashVideoUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/collection.webm",
+        collectionCardHoverVideoUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/card.webm",
+      },
+      historicalArt: [
+        {
+          version: "14.1",
+          media: {
+            focusedSplashUrl:
+              "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/old.jpg",
+          },
+        },
+      ],
+      chromas: [{ colors: ["#FF0000", "#00FF00"] }],
+    });
+
+    expect(parseRuntimeEntity("skin", 103001, raw, {
+      locale: "zh_cn",
+      channel: "latest",
+      championId: 103,
+    })).toMatchObject({
+      rarity: {
+        id: 5,
+        label: "传说",
+        iconUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/5_large.png",
+      },
+    });
+    expect(parseRuntimeEntity("skin", 103001, raw, {
+      locale: "zh_cn",
+      channel: "latest",
+      championId: 103,
+    })).not.toHaveProperty("rarity.key");
+  });
+
+  it("projects the owning skin and stages with stable targets and allowed inheritance", () => {
+    const skin = parseRuntimeEntity("skin", 103001, {
+      ...champion("default"),
+      skins: [
+        {
+          ...champion("default").skins[1],
+          description: "Owner description",
+          rarity: "kEpic",
+          skinLines: [{ id: 7 }],
+          universeIds: [200],
+          questSkinInfo: {
+            tiers: [
+              {
+                id: 103003,
+                stage: 2,
+                name: "Second form",
+                tilePath: "/lol-game-data/assets/ASSETS/stage-2-tile.jpg",
+                chromas: [
+                  {
+                    id: 103053,
+                    name: "Stage chroma",
+                    colors: ["#AABBCC"],
+                  },
+                ],
+              },
+              {
+                id: 103002,
+                stage: 1,
+                name: "First form",
+                description: "Stage description",
+              },
+            ],
+          },
+        },
+      ],
+    }, {
+      locale: "default",
+      championId: 103,
+    }) as Extract<ReturnType<typeof parseRuntimeEntity>, { kind: "skin" }>;
+
+    expect(projectSkinReferenceItems(skin)).toMatchObject([
+      {
+        kind: "skin",
+        id: 103001,
+        target: { championId: 103, skinId: 103001 },
+        name: "Dynasty Ahri",
+        rarity: { key: "kEpic" },
+        skinlineIds: [7],
+        universeIds: [200],
+      },
+      {
+        kind: "stage",
+        id: 103001,
+        stageId: 103002,
+        target: { championId: 103, skinId: 103001, stageId: 103002 },
+        name: "First form",
+        description: "Stage description",
+        rarity: { key: "kEpic" },
+        skinlineIds: [7],
+        universeIds: [200],
+      },
+      {
+        kind: "stage",
+        id: 103001,
+        stageId: 103003,
+        target: { championId: 103, skinId: 103001, stageId: 103003 },
+        name: "Second form",
+        description: "Owner description",
+        rarity: { key: "kEpic" },
+        media: { tileUrl: expect.stringContaining("stage-2-tile.jpg") },
+        chromas: [{ colors: ["#AABBCC"] }],
+      },
+    ]);
+  });
+
+  it("rejects a duplicate stage identity instead of guessing which stage to open", () => {
+    expect(() =>
+      parseRuntimeEntity("skin", 103001, {
+        ...champion("default"),
+        skins: [
+          {
+            ...champion("default").skins[1],
+            questSkinInfo: {
+              tiers: [
+                { id: 103002, stage: 1, name: "First" },
+                { id: 103002, stage: 2, name: "Duplicate" },
+              ],
+            },
+          },
+        ],
+      }, {
+        locale: "default",
+        championId: 103,
+      }),
+    ).toThrow(CommunityDragonRuntimeError);
+  });
+
+  it("resolves a stage target from its parent skin response without another request", async () => {
+    const fetcher = vi.fn(async () => jsonResponse(champion("default")));
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.get("skin", 103001, {
+        locale: "default",
+        championId: 103,
+        stageId: 103002,
+      }),
+    ).resolves.toMatchObject({
+      id: 103001,
+      stageId: 103002,
+      name: "Dynasty Ahri · Stage 2",
+      media: { focusedSplashUrl: expect.stringContaining("stage2.jpg") },
+    });
+    expect(fetcher).toHaveBeenCalledOnce();
+
+    await expect(
+      runtime.get("skin", 103001, {
+        locale: "default",
+        championId: 103,
+        stageId: 999999,
+      }),
+    ).rejects.toMatchObject({ code: "not-found" });
+    expect(fetcher).toHaveBeenCalledOnce();
   });
 
   it("validates champion detail identity against the requested ID", async () => {

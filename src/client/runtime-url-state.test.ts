@@ -26,15 +26,15 @@ function documentWith(
 }
 
 describe('runtime URL state binding', () => {
-  it('keeps only valid id, champion, and channel values on the language link', () => {
+  it('keeps only valid id, champion, stage, and channel values on the language link', () => {
     const toggle = anchor('/zh-cn/champions/detail/?stale=1');
     bindRuntimeLanguageToggle(
       documentWith(toggle),
-      new URL('https://chromaart.lol/champions/detail/?id=103&champion=103&channel=latest&tracking=drop'),
+      new URL('https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002&channel=latest&tracking=drop'),
     );
 
     expect(toggle.setHref).toHaveBeenCalledWith(
-      '/zh-cn/champions/detail/?id=103&champion=103&channel=latest',
+      '/zh-cn/champions/detail/?id=103001&champion=103&stage=103002&channel=latest',
     );
   });
 

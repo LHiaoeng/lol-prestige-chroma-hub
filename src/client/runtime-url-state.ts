@@ -3,6 +3,7 @@ const positiveInteger = /^[1-9]\d*$/;
 export interface RuntimeUrlState {
   readonly id?: string;
   readonly champion?: string;
+  readonly stage?: string;
   readonly channel?: 'pbe' | 'latest';
 }
 
@@ -15,12 +16,18 @@ function readPositiveInteger(value: string | null): string | undefined {
 export function readRuntimeUrlState(url: URL): RuntimeUrlState {
   const id = readPositiveInteger(url.searchParams.get('id'));
   const champion = readPositiveInteger(url.searchParams.get('champion'));
+  const stage = readPositiveInteger(url.searchParams.get('stage'));
   const rawChannel = url.searchParams.get('channel');
   const channel = rawChannel === 'pbe' || rawChannel === 'latest' ? rawChannel : undefined;
-  return { id, champion, channel };
+  return stage === undefined
+    ? { id, champion, channel }
+    : { id, champion, stage, channel };
 }
 
-function queryFor(state: RuntimeUrlState, include: readonly ('id' | 'champion' | 'channel')[]): string {
+function queryFor(
+  state: RuntimeUrlState,
+  include: readonly ('id' | 'champion' | 'stage' | 'channel')[],
+): string {
   const params = new URLSearchParams();
   for (const key of include) {
     const value = state[key];
@@ -49,7 +56,7 @@ export function bindRuntimeLanguageToggle(document: Document, currentUrl = brows
   if (!toggle) return;
   const target = targetUrl(toggle, currentUrl);
   if (!target) return;
-  target.search = queryFor(readRuntimeUrlState(currentUrl), ['id', 'champion', 'channel']);
+  target.search = queryFor(readRuntimeUrlState(currentUrl), ['id', 'champion', 'stage', 'channel']);
   updateAnchor(toggle, target);
 }
 

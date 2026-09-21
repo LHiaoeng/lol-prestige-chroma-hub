@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   RuntimeController,
+  formatRuntimeState,
   runtimeFailureMessage,
   parseRuntimeLocation,
   type RuntimeHistory,
@@ -241,11 +242,45 @@ describe("runtime URL state", () => {
     ).toMatchObject({ mode: "invalid" });
     expect(
       parseRuntimeLocation(
-        new URL("https://chromaart.lol/skins/detail/?id=103001&champion=103"),
+        new URL(
+          "https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002",
+        ),
         "skins",
         "detail",
       ),
-    ).toMatchObject({ mode: "detail", id: 103001, championId: 103 });
+    ).toMatchObject({
+      mode: "detail",
+      id: 103001,
+      championId: 103,
+      stageId: 103002,
+    });
+  });
+
+  it("rejects an invalid stage query without requesting a guessed skin target", () => {
+    expect(
+      parseRuntimeLocation(
+        new URL("https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=0"),
+        "skins",
+        "detail",
+      ),
+    ).toMatchObject({ mode: "invalid" });
+  });
+
+  it("formats a stage target with its parent skin identity and channel", () => {
+    expect(
+      formatRuntimeState(
+        new URL("https://chromaart.lol/skins/detail/"),
+        {
+          mode: "detail",
+          page: "skins",
+          kind: "skin",
+          id: 103001,
+          championId: 103,
+          stageId: 103002,
+          channel: "latest",
+        },
+      ).search,
+    ).toBe("?id=103001&champion=103&stage=103002&channel=latest");
   });
 });
 

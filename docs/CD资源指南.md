@@ -181,9 +181,12 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 /champions/
 /champions/detail/?id={championId}
 /skins/detail/?id={skinId}&champion={championId}
+/skins/detail/?id={skinId}&champion={championId}&stage={stageId}
 /skinlines/detail/?id={skinlineId}
 /universes/detail/?id={universeId}
 ```
+
+阶段链接必须同时携带英雄 ID、所属皮肤 ID 和来源提供的有效阶段 ID；缺少名称或正整数 ID 的阶段不会形成独立资料项。
 
 英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；皮肤不提供目录页，只从英雄详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。皮肤宇宙详情只读取皮肤宇宙记录及其所属皮肤系列的正向关联，不反向加载完整 `skins.json`，也不承诺完整皮肤或英雄集合。
 
@@ -202,8 +205,11 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | --- | --- | --- |
 | 英雄摘要或英雄详情 | `squarePortraitPath` | 英雄方形头像 |
 | 英雄详情或皮肤目录 | `splashPath`、`uncenteredSplashPath`、`tilePath`、`loadScreenPath` | 皮肤展示图、缩略图和载入图 |
+| 皮肤记录或阶段记录 | `splashVideoPath`、`previewVideoUrl`、`collectionSplashVideoPath`、`collectionCardHoverVideoPath`、`loadScreenVintagePath` | 动态原画、预览、合集媒体和来源提供的历史载入图 |
 | 英雄详情或皮肤目录 | `chromaPath` | 炫彩资源 |
 | 皮肤记录 | `skinLines`、`isBase`、`questSkinInfo.tiers` | 系列关系、英雄默认外观标记和阶段信息 |
+| 皮肤记录或阶段记录 | `rarity`、`regionRarityId`、`rarityGemPath` | 英文全球稀有度、中文区域稀有度及对应图标 |
+| 炫彩记录 | `colors` | 来源提供的炫彩颜色，缺失时保持缺失 |
 | 系列 | `imagePath` 等实际存在的媒体字段 | 系列图片 |
 | 皮肤宇宙 | `imagePath` | 皮肤宇宙图片 |
 
@@ -233,6 +239,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 - 网络、HTTP、404、取消和响应格式错误分别显示明确状态，并支持重试。
 - 英雄、皮肤、皮肤系列和皮肤宇宙详情属于运行时资料，客户端确认有效实体后设置 `noindex`；静态臻彩页面不依赖这些资料即可保持正文和 SEO 可用。
 - 多阶段皮肤中具有有效数字 ID 的阶段生成独立可查看的皮肤资料项，但仍是所属皮肤的子记录，不成为新的 CommunityDragon 实体；阶段自己的名称和媒体优先，缺失的描述、稀有度、皮肤系列和皮肤宇宙只从同一响应所属皮肤继承。
+- 运行时皮肤投影按当前本地化视图选择稀有度：英文使用 `rarity`，中文使用 `regionRarityId`；阶段没有自己的描述、稀有度、系列或宇宙关系时才继承所属皮肤，同一响应中缺失的媒体和炫彩不从其他阶段补齐。
 - 皮肤详情中的炫彩数量只统计真正的炫彩；当前皮肤本身可以作为皮肤本体项与炫彩并列显示，但不属于炫彩，也不携带炫彩颜色。
 
 静态臻彩页面只把 CommunityDragon 作为炫彩所属皮肤补充：

@@ -2,6 +2,7 @@ import {
   communityDragonChampionUrl,
   communityDragonDataUrl,
 } from "../domain/communitydragon-url";
+import { projectRuntimeSkinTarget } from "../domain/skin-reference-projection";
 import {
   CommunityDragonRuntimeError,
   normalizeRuntimeOptions,
@@ -9,10 +10,12 @@ import {
   parseRuntimeList,
   type CommunityDragonLocale,
   type RuntimeChannel,
+  type RuntimeChampion,
   type RuntimeEntity,
   type RuntimeEntityKind,
   type RuntimeList,
   type RuntimeListKind,
+  type RuntimeSkin,
 } from "../domain/communitydragon-runtime";
 
 export type RuntimeFetcher = (
@@ -25,6 +28,7 @@ export interface RuntimeRequestOptions {
   readonly channel?: RuntimeChannel;
   readonly signal?: AbortSignal;
   readonly championId?: number;
+  readonly stageId?: number;
 }
 
 export interface CommunityDragonRuntime {
@@ -64,17 +68,19 @@ export function createCommunityDragonRuntime(
   function validateOptions(
     options: RuntimeRequestOptions,
   ): Required<Pick<RuntimeRequestOptions, "locale" | "channel">> &
-    Pick<RuntimeRequestOptions, "signal" | "championId"> {
+    Pick<RuntimeRequestOptions, "signal" | "championId" | "stageId"> {
     const normalized = normalizeRuntimeOptions({
       locale: options.locale,
       channel: options.channel ?? DEFAULT_CHANNEL,
       championId: options.championId,
+      stageId: options.stageId,
     });
     return {
       locale: normalized.locale,
       channel: normalized.channel,
       signal: options.signal,
       championId: normalized.championId,
+      stageId: normalized.stageId,
     };
   }
 
@@ -227,6 +233,17 @@ export function createCommunityDragonRuntime(
           "Skin details require a positive champion hint",
         ),
       );
+    if (
+      kind === "skin" &&
+      options.stageId !== undefined &&
+      (!Number.isSafeInteger(options.stageId) || options.stageId <= 0)
+    )
+      return Promise.reject(
+        new CommunityDragonRuntimeError(
+          "invalid-request",
+          "Stage ID must be a positive safe integer",
+        ),
+      );
     if (kind === "skinline" || kind === "universe") {
       const listKind = kind === "skinline" ? "skinlines" : "universes";
       const url = communityDragonDataUrl(
@@ -246,6 +263,31 @@ export function createCommunityDragonRuntime(
       options.locale === "zh_cn" ? "zh" : "en",
       options.channel,
     );
+    if (kind === "skin") {
+      const key = `${options.channel}:${options.locale}:champion-resource:${championId}`;
+      return request<RuntimeChampion>(key, url, options, (value) =>
+        parseRuntimeEntity("champion", championId, value, {
+          ...options,
+          stageId: undefined,
+        }) as RuntimeChampion,
+      ).then((champion) => {
+        const skin = champion.skins.find(
+          (candidate) => candidate.id === id,
+        ) as RuntimeSkin | undefined;
+        if (!skin)
+          throw new CommunityDragonRuntimeError(
+            "not-found",
+            `Skin ${id} was not found for champion ${championId}`,
+          );
+        const stage = projectRuntimeSkinTarget(skin, options.stageId);
+        if (!stage)
+          throw new CommunityDragonRuntimeError(
+            "not-found",
+            `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
+          );
+        return stage;
+      });
+    }
     const key = `${options.channel}:${options.locale}:entity:${kind}:${id}:${options.championId ?? ""}`;
     return request(key, url, options, (value) =>
       parseRuntimeEntity(kind, id, value, options),

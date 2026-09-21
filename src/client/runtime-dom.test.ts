@@ -553,7 +553,15 @@ describe("runtime DOM boundaries", () => {
         media: {
           focusedSplashUrl: "https://example.test/dynasty.jpg",
         },
-        stages: [],
+        stages: [
+          {
+            id: 103002,
+            name: "Dynasty Ahri · Stage 2",
+            stageIndex: 2,
+            media: {},
+            chromas: [],
+          },
+        ],
         chromas: [],
       },
       {
@@ -572,6 +580,9 @@ describe("runtime DOM boundaries", () => {
     );
     expect(content.querySelector("a")?.href).toBe(
       "/champions/detail/?id=103&channel=latest",
+    );
+    expect(content.querySelectorAll("a")[1]?.href).toBe(
+      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
     );
     expect(content.querySelector(".runtime-lede")?.textContent).toBe(
       "A dynasty-inspired skin.",
