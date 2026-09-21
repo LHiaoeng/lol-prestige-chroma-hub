@@ -5,6 +5,7 @@ import {
   type RuntimeList,
   type RuntimeListKind,
 } from "../domain/communitydragon-runtime";
+import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 import {
   createCommunityDragonRuntime,
   type CommunityDragonRuntime,
@@ -41,9 +42,17 @@ export interface RuntimeView {
     items: RuntimeList,
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
   ): void;
+  renderSkinlineSkins?(
+    items: readonly RuntimeSkinReferenceItem[],
+    state: Extract<RuntimeLocationState, { mode: "detail" }>,
+  ): void;
   invalid(message: string, channel?: "pbe" | "latest"): void;
   failure(error: CommunityDragonRuntimeError, retry: () => void): void;
   relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
+  skinlineSkinsFailure?(
+    error: CommunityDragonRuntimeError,
+    retry: () => void,
+  ): void;
 }
 
 export type RuntimeLocationState =
@@ -274,6 +283,8 @@ export class RuntimeController {
             generation,
             controller,
           );
+        if (state.kind === "skinline")
+          void this.loadSkinlineSkins(state, generation, controller);
       }
       if (generation !== this.generation) return;
       this.hasContent = true;
@@ -302,6 +313,29 @@ export class RuntimeController {
   private commitUrl(url: URL, commit: boolean): void {
     if (commit && this.history.url.href !== url.href) this.history.push(url);
     this.committedUrl = new URL(url);
+  }
+
+  private async loadSkinlineSkins(
+    state: Extract<RuntimeLocationState, { mode: "detail" }>,
+    generation: number,
+    controller: AbortController,
+  ): Promise<void> {
+    try {
+      const items = await this.runtime.listSkinlineSkins(state.id, {
+        locale: this.options.locale,
+        channel: state.channel,
+        signal: controller.signal,
+      });
+      if (generation !== this.generation) return;
+      this.view.renderSkinlineSkins?.(items, state);
+    } catch (error) {
+      if (generation !== this.generation) return;
+      const runtimeError = asCommunityDragonError(error, this.options.locale);
+      if (runtimeError.code === "aborted") return;
+      this.view.skinlineSkinsFailure?.(runtimeError, () => {
+        void this.loadSkinlineSkins(state, generation, controller);
+      });
+    }
   }
 
   private async loadRelations(

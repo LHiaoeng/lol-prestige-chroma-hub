@@ -434,6 +434,7 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector("a")?.href).toBe(
       "/skinlines/detail/?id=7&channel=latest",
     );
+    expect(content.querySelector("img")).toBeNull();
 
     const navigation = history("https://chromaart.lol/skinlines/?channel=pbe");
     navigation.push(new URL("https://chromaart.lol/skinlines/?channel=pbe"));
@@ -800,6 +801,7 @@ describe("runtime DOM boundaries", () => {
         championId: 103,
         championAlias: "Ahri",
         stageId: 103002,
+        chromaImageUrl: "https://example.test/base-chroma.png",
         name: "Dynasty Ahri · Ascended",
         isBase: false,
         skinlineIds: [],
@@ -834,13 +836,19 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-chroma-count")?.textContent).toBe("2");
     expect(content.querySelectorAll(".runtime-chroma-card")).toHaveLength(3);
     const base = content.querySelector(".runtime-chroma-base");
-    expect(base?.querySelector(".runtime-chroma-name")?.textContent).toBe("Base");
-    expect(base?.querySelector(".runtime-chroma-note")?.textContent).toBe("Not a chroma");
-    expect(base?.querySelector(".runtime-chroma-color")).toBeNull();
-    expect(content.querySelector(".runtime-chroma-media")?.querySelector("img")?.src).toBe(
-      "https://example.test/stage-tile.jpg",
+    expect(base?.querySelector(".runtime-chroma-name")?.textContent).toBe(
+      "Dynasty Ahri · Ascended",
     );
-    expect(content.querySelectorAll(".runtime-chroma-color")).toHaveLength(2);
+    expect(base?.querySelector(".runtime-chroma-note")).toBeNull();
+    expect(base?.querySelector(".color-circle")?.className).toContain("non-chroma");
+    expect(base?.querySelector(".color-wrap")?.getAttribute("aria-label")).toBe(
+      "Not a chroma",
+    );
+    expect(base?.querySelector(".color-tooltip")).toBeNull();
+    expect(content.querySelector(".runtime-chroma-media")?.querySelector("img")?.src).toBe(
+      "https://example.test/base-chroma.png",
+    );
+    expect(content.querySelectorAll(".color-row")).toHaveLength(2);
 
     const externalLinks = content.querySelectorAll(".runtime-external-link");
     expect(externalLinks).toHaveLength(2);
@@ -910,9 +918,40 @@ describe("runtime DOM boundaries", () => {
         channel: "latest",
       },
     );
+    view.renderSkinlineSkins!(
+      [
+        {
+          kind: "stage",
+          id: 103001,
+          skinId: 103001,
+          championId: 103,
+          stageId: 103002,
+          target: { championId: 103, skinId: 103001, stageId: 103002 },
+          stableKey: "103:103001:stage:103002",
+          name: "Dynasty Ahri · Stage 2",
+          isBase: false,
+          skinlineIds: [7],
+          universeIds: [],
+          media: { tileUrl: "https://example.test/stage-tile.jpg" },
+          historicalArt: [],
+          chromas: [],
+          thumbnailUrl: "https://example.test/stage-tile.jpg",
+        },
+      ],
+      {
+        mode: "detail",
+        page: "skinlines",
+        kind: "skinline",
+        id: 7,
+        channel: "latest",
+      },
+    );
 
     expect(content.querySelector("a")?.href).toBe(
       "/universes/detail/?id=200&channel=latest",
+    );
+    expect(content.querySelector(".runtime-skin-reference-link")?.href).toBe(
+      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
     );
   });
 

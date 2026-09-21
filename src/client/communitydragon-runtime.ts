@@ -2,12 +2,17 @@ import {
   communityDragonChampionUrl,
   communityDragonDataUrl,
 } from "../domain/communitydragon-url";
-import { projectRuntimeSkinTarget } from "../domain/skin-reference-projection";
+import {
+  projectRuntimeSkinTarget,
+  projectSkinlineReferenceItems,
+  type RuntimeSkinReferenceItem,
+} from "../domain/skin-reference-projection";
 import {
   CommunityDragonRuntimeError,
   normalizeRuntimeOptions,
   parseRuntimeEntity,
   parseRuntimeList,
+  parseRuntimeSkinCollection,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
@@ -41,6 +46,10 @@ export interface CommunityDragonRuntime {
     id: number,
     options: RuntimeRequestOptions,
   ): Promise<RuntimeEntity>;
+  listSkinlineSkins(
+    skinlineId: number,
+    options: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSkinReferenceItem[]>;
 }
 
 interface CacheEntry {
@@ -294,5 +303,31 @@ export function createCommunityDragonRuntime(
     );
   }
 
-  return { list, get };
+  function listSkinlineSkins(
+    skinlineId: number,
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSkinReferenceItem[]> {
+    const options = validateOptions(input);
+    if (!Number.isSafeInteger(skinlineId) || skinlineId <= 0)
+      return Promise.reject(
+        new CommunityDragonRuntimeError(
+          "invalid-request",
+          "Skinline ID must be a positive safe integer",
+        ),
+      );
+    const url = communityDragonDataUrl(
+      "skins.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:skin-collection`;
+    return request(key, url, options, (value) =>
+      projectSkinlineReferenceItems(
+        parseRuntimeSkinCollection(value, options),
+        skinlineId,
+      ),
+    );
+  }
+
+  return { list, get, listSkinlineSkins };
 }

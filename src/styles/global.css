@@ -408,31 +408,81 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   font-size: 0.95rem;
   line-height: 1.4;
 }
-.runtime-chroma-note,
-.runtime-chroma-palette,
-.runtime-chroma-color-row {
+.runtime-chroma-note {
   color: var(--muted);
   font-size: 0.76rem;
 }
 .runtime-chroma-note {
   margin: 0;
 }
-.runtime-chroma-palette {
-  display: flex;
-  flex-wrap: wrap;
+.color-wrap {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+}
+.color-circle {
+  display: block;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border: 2px solid #d7b56d;
+  border-radius: 50%;
+  box-shadow: 0 1px 5px #0008;
+}
+.color-circle.empty {
+  opacity: 0.5;
+}
+.color-circle.non-chroma {
+  position: relative;
+  overflow: hidden;
+  border-style: solid;
+}
+.color-circle.non-chroma::after {
+  position: absolute;
+  inset: 50% 1px auto;
+  height: 2px;
+  background: #d45b1f;
+  content: "";
+  transform: rotate(-45deg);
+}
+.color-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  min-width: 126px;
+  padding: 9px;
+  border: 1px solid #2b3045;
+  border-radius: 6px;
+  background: #111526;
+  transform: translateX(-50%);
+  box-shadow: 0 8px 24px #0008;
+}
+.color-wrap:hover .color-tooltip,
+.color-wrap:focus .color-tooltip {
+  display: grid;
   gap: 7px;
 }
-.runtime-chroma-color-row {
-  display: inline-flex;
+.color-row {
+  display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 5px;
+  white-space: nowrap;
 }
-.runtime-chroma-color {
-  display: inline-block;
+.color-row i {
   width: 18px;
   height: 18px;
   border: 1px solid #ffffff55;
   border-radius: 50%;
+}
+.color-row code {
+  color: #f4f0e6;
+  font-size: 0.75rem;
 }
 .runtime-skin-actions .runtime-chip {
   min-height: 44px;
@@ -559,6 +609,10 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
 }
 .runtime-relation-error {
   color: var(--danger);
+}
+.runtime-empty-state {
+  color: var(--muted);
+  line-height: 1.7;
 }
 .runtime-lede {
   max-width: 70ch;

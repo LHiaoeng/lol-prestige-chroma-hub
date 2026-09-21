@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   CommunityDragonRuntimeError,
   parseRuntimeEntity,
+  parseRuntimeSkinCollection,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
@@ -10,6 +11,7 @@ import {
   projectChampionSkinListItems,
   projectChampionSkinReferenceItems,
   projectSkinReferenceItems,
+  projectSkinlineReferenceItems,
   sortSkinReferenceItems,
 } from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
@@ -236,6 +238,7 @@ describe("CommunityDragon runtime reference", () => {
           splashPath: "/lol-game-data/assets/splash.jpg",
           uncenteredSplashPath: "/lol-game-data/assets/uncentered.jpg",
           tilePath: "/lol-game-data/assets/tile.jpg",
+          chromaPath: "/lol-game-data/assets/base-chroma.png",
           loadScreenPath: "/lol-game-data/assets/load.jpg",
           loadScreenVintagePath: "/lol-game-data/assets/load-vintage.jpg",
           splashVideoPath: "/lol-game-data/assets/splash.webm",
@@ -281,6 +284,8 @@ describe("CommunityDragon runtime reference", () => {
         collectionCardHoverVideoUrl:
           "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/card.webm",
       },
+      chromaImageUrl:
+        "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/base-chroma.png",
       historicalArt: [
         {
           version: "14.1",
@@ -310,6 +315,62 @@ describe("CommunityDragon runtime reference", () => {
       channel: "latest",
       championId: 103,
     })).not.toHaveProperty("rarity.key");
+  });
+
+  it("projects only the requested skinline's skins and valid stages from the full collection", () => {
+    const skins = parseRuntimeSkinCollection(
+      [
+        {
+          championId: 103,
+          id: 103001,
+          name: "Dynasty Ahri",
+          isBase: false,
+          skinLines: [{ id: 7 }],
+          tilePath: "/lol-game-data/assets/dynasty-tile.jpg",
+          questSkinInfo: {
+            tiers: [
+              {
+                id: 103002,
+                stage: 2,
+                name: "Dynasty Ahri · Stage 2",
+                tilePath: "/lol-game-data/assets/stage-tile.jpg",
+              },
+            ],
+          },
+        },
+        {
+          championId: 103,
+          id: 103003,
+          name: "Other Ahri",
+          isBase: false,
+          skinLines: [{ id: 8 }],
+        },
+        {
+          championId: 103,
+          id: 103000,
+          name: "Ahri",
+          isBase: true,
+          skinLines: [{ id: 7 }],
+        },
+      ],
+      { locale: "default", channel: "latest" },
+    );
+
+    expect(projectSkinlineReferenceItems(skins, 7)).toMatchObject([
+      {
+        kind: "skin",
+        skinId: 103001,
+        championId: 103,
+        thumbnailUrl:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/dynasty-tile.jpg",
+      },
+      {
+        kind: "stage",
+        skinId: 103001,
+        stageId: 103002,
+        championId: 103,
+      },
+    ]);
   });
 
   it("hides kRare like kNoRarity instead of inventing a rarity badge", () => {
@@ -767,6 +828,36 @@ describe("CommunityDragon runtime reference", () => {
     await expect(
       runtime.list("universes", { locale: "default", channel: "pbe" }),
     ).resolves.toMatchObject([{ id: 200, name: "Star Guardian", skinlineIds: [7] }]);
+  });
+
+  it("loads the full skin collection only through the skinline association seam", async () => {
+    const fetcher = vi.fn(async (input: string) =>
+      jsonResponse(
+        input.includes("skins.json")
+          ? [
+              {
+                championId: 103,
+                id: 103001,
+                name: "Dynasty Ahri",
+                isBase: false,
+                skinLines: [{ id: 7 }],
+              },
+            ]
+          : [],
+      ),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(
+      runtime.listSkinlineSkins(7, {
+        locale: "zh_cn",
+        channel: "latest",
+      }),
+    ).resolves.toMatchObject([{ id: 103001, championId: 103 }]);
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(fetcher.mock.calls[0][0]).toBe(
+      "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/skins.json",
+    );
   });
 
   it("rejects a skin request without a safe champion hint before fetching", async () => {

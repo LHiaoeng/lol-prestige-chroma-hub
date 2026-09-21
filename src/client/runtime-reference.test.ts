@@ -58,11 +58,13 @@ function view(): RuntimeView & {
   events: string[];
   rendered?: RuntimeList | RuntimeEntity;
   retry?: () => void;
+  skinRetry?: () => void;
 } {
   const result = {
     events: [] as string[],
     rendered: undefined as RuntimeList | RuntimeEntity | undefined,
     retry: undefined as (() => void) | undefined,
+    skinRetry: undefined as (() => void) | undefined,
     loading: vi.fn((preserve: boolean) =>
       result.events.push(`loading:${preserve}`),
     ),
@@ -77,12 +79,19 @@ function view(): RuntimeView & {
     renderRelations: vi.fn((items: RuntimeList) => {
       result.events.push(`relations:${items.length}`);
     }),
+    renderSkinlineSkins: vi.fn((items) => {
+      result.events.push(`skinline-skins:${items.length}`);
+    }),
     invalid: vi.fn(() => result.events.push("invalid")),
     failure: vi.fn((_error, retry: () => void) => {
       result.retry = retry;
       result.events.push("failure");
     }),
     relationFailure: vi.fn(() => result.events.push("relation-failure")),
+    skinlineSkinsFailure: vi.fn((_error, retry: () => void) => {
+      result.skinRetry = retry;
+      result.events.push("skinline-skins-failure");
+    }),
   };
   return result;
 }
@@ -93,6 +102,7 @@ function runtime(
   return {
     list: vi.fn(async () => summary),
     get: vi.fn(async () => champion),
+    listSkinlineSkins: vi.fn(async () => []),
     ...overrides,
   };
 }
@@ -565,6 +575,7 @@ describe("RuntimeController", () => {
     expect(viewState.events).toEqual([
       "loading:false",
       "detail",
+      "skinline-skins:0",
       "relations:1",
     ]);
     expect(viewState.rendered).toMatchObject({ name: "Star Guardian" });
@@ -629,6 +640,87 @@ describe("RuntimeController", () => {
       "detail",
       "relations:1",
     ]);
+  });
+
+  it("loads a skinline's full skin collection independently of its universe relation", async () => {
+    const skinline = {
+      kind: "skinline" as const,
+      id: 7,
+      name: "Star Guardian",
+      universeIds: [200],
+    };
+    const item = {
+      kind: "skin" as const,
+      id: 103001,
+      skinId: 103001,
+      championId: 103,
+      target: { championId: 103, skinId: 103001 },
+      stableKey: "103:103001",
+      name: "Dynasty Ahri",
+      isBase: false,
+      skinlineIds: [7],
+      universeIds: [],
+      media: {},
+      historicalArt: [],
+      chromas: [],
+      thumbnailUrl: "https://example.test/tile.jpg",
+    };
+    const service = runtime({
+      get: vi.fn(async () => skinline),
+      list: vi.fn(async (kind) =>
+        kind === "universes"
+          ? [{ kind: "universe" as const, id: 200, name: "Star Guardian", skinlineIds: [7] }]
+          : [],
+      ),
+      listSkinlineSkins: vi.fn(async () => [item]),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/skinlines/detail/?id=7");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "skinlines",
+      pageMode: "detail",
+      locale: "default",
+    });
+
+    await controller.start();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(service.listSkinlineSkins).toHaveBeenCalledWith(
+      7,
+      expect.objectContaining({ locale: "default", channel: "pbe" }),
+    );
+    expect(viewState.events).toContain("skinline-skins:1");
+    expect(service.list).not.toHaveBeenCalledWith("skins", expect.anything());
+  });
+
+  it("keeps skinline core and universe navigation when the full skin collection fails", async () => {
+    const skinline = {
+      kind: "skinline" as const,
+      id: 7,
+      name: "Star Guardian",
+      universeIds: [200],
+    };
+    const service = runtime({
+      get: vi.fn(async () => skinline),
+      listSkinlineSkins: vi.fn(async () => {
+        throw new Error("skins offline");
+      }),
+    });
+    const viewState = view();
+    const navigation = history("https://chromaart.lol/skinlines/detail/?id=7");
+    const controller = new RuntimeController(service, viewState, navigation, {
+      page: "skinlines",
+      pageMode: "detail",
+      locale: "default",
+    });
+
+    await controller.start();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(viewState.events).toContain("detail");
+    expect(viewState.events).toContain("skinline-skins-failure");
+    expect(viewState.events).not.toContain("failure");
+    expect(viewState.skinRetry).toBeTypeOf("function");
   });
 
   it("keeps the core detail when a relation request fails", async () => {

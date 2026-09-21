@@ -37,7 +37,11 @@ function view(): ChromaRuntimeSupplementView & { events: string[] } {
 }
 
 function runtime(get: CommunityDragonRuntime["get"]): CommunityDragonRuntime {
-  return { get, list: vi.fn(async () => []) };
+  return {
+    get,
+    list: vi.fn(async () => []),
+    listSkinlineSkins: vi.fn(async () => []),
+  };
 }
 
 describe("static chroma runtime supplement", () => {

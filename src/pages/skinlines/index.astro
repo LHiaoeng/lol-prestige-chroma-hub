@@ -9,5 +9,5 @@ const isZh = locale === 'zh-cn';
 const seo = createEntitySeo('skinlines', undefined, isZh ? '皮肤系列资料' : 'Skinline references', isZh ? '在浏览器中读取皮肤系列资料。' : 'Browse skinline references in the browser.', locale);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
-  <RuntimeReferenceRoot page="skinlines" mode="list" {locale} label={isZh ? '皮肤系列' : 'Skinlines'} heading={isZh ? '皮肤系列资料' : 'Skinline references'} lede={isZh ? '浏览皮肤系列及其所属宇宙。' : 'Browse skinlines and their universe connections.'} />
+  <RuntimeReferenceRoot page="skinlines" mode="list" {locale} label={isZh ? '皮肤系列' : 'Skinlines'} heading={isZh ? '皮肤系列资料' : 'Skinline references'} lede={isZh ? '浏览皮肤系列名称。' : 'Browse skinline names.'} />
 </BaseLayout>

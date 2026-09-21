@@ -209,6 +209,7 @@ export function projectRuntimeSkinTarget(
     skinlineIds: stage.skinlineIds ?? skin.skinlineIds,
     universeIds: stage.universeIds ?? skin.universeIds,
     media: stage.media,
+    chromaImageUrl: stage.chromaImageUrl,
     historicalArt: stage.historicalArt,
     chromas: stage.chromas,
   };
@@ -295,4 +296,21 @@ export function findSkinReferenceItem(
   return projectSkinReferenceItems(skin).find(
     (item) => item.stableKey === stableKey(target),
   );
+}
+
+/**
+ * Select the top-level skins and valid stages that explicitly belong to one
+ * skinline. The stage projection inherits the owner's skinline IDs only when
+ * the source omitted stage-specific relationship data.
+ */
+export function projectSkinlineReferenceItems(
+  skins: readonly RuntimeSkinEntity[],
+  skinlineId: number,
+): readonly RuntimeSkinReferenceItem[] {
+  const items = skins.flatMap((skin) =>
+    projectSkinReferenceItems(skin).filter(
+      (item) => !item.isBase && item.skinlineIds.includes(skinlineId),
+    ),
+  );
+  return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
 }

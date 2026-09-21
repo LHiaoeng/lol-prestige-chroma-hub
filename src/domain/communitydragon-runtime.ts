@@ -91,6 +91,8 @@ export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly championAlias?: string;
   readonly championName?: string;
   readonly name: string;
+  /** The source-provided image used by the skin's default chroma item. */
+  readonly chromaImageUrl?: string;
   readonly stageId?: number;
   readonly stageIndex?: number;
   readonly chromas: readonly RuntimeChroma[];
@@ -115,6 +117,8 @@ export interface RuntimeSkinStage {
   readonly skinlineIds?: readonly number[];
   readonly universeIds?: readonly number[];
   readonly media: RuntimeMedia;
+  /** The source-provided image used by the stage's default chroma item. */
+  readonly chromaImageUrl?: string;
   readonly historicalArt?: readonly RuntimeHistoricalArtwork[];
   readonly chromas: readonly RuntimeChroma[];
 }
@@ -223,6 +227,7 @@ const skinStageSchema = z
     splashPath: z.string().nullable().optional(),
     uncenteredSplashPath: z.string().nullable().optional(),
     tilePath: z.string().nullable().optional(),
+    chromaPath: z.string().nullable().optional(),
     loadScreenPath: z.string().nullable().optional(),
     loadScreenVintagePath: z.string().nullable().optional(),
     splashVideoPath: z.string().nullable().optional(),
@@ -243,6 +248,7 @@ const skinStageSchema = z
 const skinSchema = z
   .object({
     id: idSchema,
+    championId: idSchema.optional(),
     name: z.string().trim().min(1),
     isBase: z.boolean().nullable().optional(),
     isLegacy: z.boolean().nullable().optional(),
@@ -253,6 +259,7 @@ const skinSchema = z
     splashPath: z.string().nullable().optional(),
     uncenteredSplashPath: z.string().nullable().optional(),
     tilePath: z.string().nullable().optional(),
+    chromaPath: z.string().nullable().optional(),
     loadScreenPath: z.string().nullable().optional(),
     loadScreenVintagePath: z.string().nullable().optional(),
     splashVideoPath: z.string().nullable().optional(),
@@ -548,6 +555,7 @@ function normalizeStage(
     skinlineIds: raw.skinLines ? positiveIds(raw.skinLines) : undefined,
     universeIds: raw.universeIds ?? undefined,
     media: normalizeMedia(raw, channel),
+    chromaImageUrl: asset(text(raw.chromaPath), channel),
     historicalArt: normalizeHistoricalArt(raw, channel),
     chromas: (raw.chromas ?? []).map((chroma) =>
       normalizeChroma(chroma, channel),
@@ -587,6 +595,7 @@ function normalizeSkin(
     skinlineIds: positiveIds(raw.skinLines),
     universeIds: raw.universeIds ?? undefined,
     media: normalizeMedia(raw, channel),
+    chromaImageUrl: asset(text(raw.chromaPath), channel),
     historicalArt: normalizeHistoricalArt(raw, channel),
     stages,
     chromas: (raw.chromas ?? []).map((value) =>
@@ -705,6 +714,103 @@ export function parseRuntimeList(
       imageUrl: asset(text(raw.imagePath), options.channel),
       skinlineIds: raw.skinlineIds ?? raw.skinSets ?? [],
     }));
+}
+
+interface RuntimeSkinCollectionEntry {
+  readonly raw: Record<string, unknown>;
+  readonly championId?: number;
+}
+
+function skinCollectionEntries(value: unknown): RuntimeSkinCollectionEntry[] {
+  if (Array.isArray(value))
+    return value.map((raw) => ({
+      raw: isRecord(raw) ? raw : {},
+      championId:
+        isRecord(raw) &&
+        typeof raw.championId === "number" &&
+        Number.isSafeInteger(raw.championId) &&
+        raw.championId > 0
+          ? raw.championId
+          : undefined,
+    }));
+
+  if (!isRecord(value))
+    throw new CommunityDragonRuntimeError(
+      "schema",
+      "Skin collection payload must be an array or object map",
+    );
+
+  const entries: RuntimeSkinCollectionEntry[] = [];
+  for (const entry of Object.values(value)) {
+    if (!isRecord(entry))
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        "Skin collection payload contains a malformed entry",
+      );
+    const group = entry.skins;
+    if (Array.isArray(group)) {
+      const championId =
+        typeof entry.championId === "number" &&
+        Number.isSafeInteger(entry.championId) &&
+        entry.championId > 0
+          ? entry.championId
+          : typeof entry.id === "number" &&
+              Number.isSafeInteger(entry.id) &&
+              entry.id > 0
+            ? entry.id
+            : undefined;
+      for (const raw of group) {
+        if (!isRecord(raw))
+          throw new CommunityDragonRuntimeError(
+            "schema",
+            "Skin collection payload contains a malformed skin entry",
+          );
+        entries.push({ raw, championId });
+      }
+      continue;
+    }
+    entries.push({
+      raw: entry,
+      championId:
+        typeof entry.championId === "number" &&
+        Number.isSafeInteger(entry.championId) &&
+        entry.championId > 0
+          ? entry.championId
+          : undefined,
+    });
+  }
+  return entries;
+}
+
+export function parseRuntimeSkinCollection(
+  value: unknown,
+  input: RuntimeParseOptions,
+): readonly RuntimeSkin[] {
+  const options = normalizeRuntimeOptions(input);
+  return skinCollectionEntries(value).map(({ raw, championId }) => {
+    let parsed: z.infer<typeof skinSchema>;
+    try {
+      parsed = skinSchema.parse(raw);
+    } catch (error) {
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        "Skin collection entry failed validation",
+        { cause: error },
+      );
+    }
+    const resolvedChampionId = championId ?? parsed.championId;
+    if (resolvedChampionId === undefined)
+      throw new CommunityDragonRuntimeError(
+        "schema",
+        `Skin ${parsed.id} does not provide a stable champion ID`,
+      );
+    return normalizeSkin(
+      parsed,
+      options.channel,
+      options.locale,
+      resolvedChampionId,
+    );
+  });
 }
 
 export function parseRuntimeEntity(

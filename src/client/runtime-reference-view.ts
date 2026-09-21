@@ -12,6 +12,7 @@ import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import {
   projectChampionSkinListItems,
   sortSkinReferenceItems,
+  type RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
@@ -374,33 +375,77 @@ function appendHistoricalArtwork(
   });
 }
 
+function appendChromaColorCircle(
+  parent: HTMLElement,
+  colors: readonly string[] | undefined,
+  locale: CommunityDragonLocale,
+  isChroma = true,
+): void {
+  const values = [...new Set(colors ?? [])];
+  const wrapper = document.createElement("span");
+  wrapper.className = "color-wrap";
+  if (isChroma && values.length) wrapper.setAttribute("tabindex", "0");
+  if (!isChroma) {
+    wrapper.setAttribute("role", "img");
+    wrapper.setAttribute(
+      "aria-label",
+      locale === "zh_cn" ? "不是炫彩" : "Not a chroma",
+    );
+  }
+
+  const circle = document.createElement("span");
+  circle.className = `color-circle${values.length ? "" : " empty"}${isChroma ? "" : " non-chroma"}`;
+  if (isChroma) {
+    circle.setAttribute("aria-label", values.join(", "));
+  } else {
+    circle.setAttribute("aria-hidden", "true");
+  }
+  const size = values.length ? 100 / values.length : 100;
+  const stops = values.map(
+    (color, index) => `${color} ${index * size}% ${(index + 1) * size}%`,
+  );
+  const background = !isChroma
+    ? "transparent"
+    : values.length === 1
+      ? values[0]
+      : values.length
+        ? `conic-gradient(from 45deg, ${stops.join(", ")})`
+        : "transparent";
+  circle.setAttribute("style", `background:${background}`);
+  wrapper.appendChild(circle);
+
+  if (isChroma && values.length) {
+    const tooltip = document.createElement("span");
+    tooltip.className = "color-tooltip";
+    tooltip.setAttribute("role", "tooltip");
+    values.forEach((color) => {
+      const row = document.createElement("span");
+      row.className = "color-row";
+      const swatch = document.createElement("i");
+      swatch.setAttribute("style", `background:${color}`);
+      row.appendChild(swatch);
+      row.appendChild(textNode("code", color));
+      tooltip.appendChild(row);
+    });
+    wrapper.appendChild(tooltip);
+  }
+  parent.appendChild(wrapper);
+  if (isChroma && !values.length) appendMissingField(parent, locale, "colors");
+}
+
 function appendChromaColors(
   parent: HTMLElement,
   colors: readonly string[] | undefined,
   locale: CommunityDragonLocale,
 ): void {
-  if (!colors?.length) {
-    appendMissingField(parent, locale, "colors");
-    return;
-  }
-  const palette = document.createElement("span");
-  palette.className = "runtime-chroma-palette";
-  palette.setAttribute(
-    "aria-label",
-    locale === "zh_cn" ? "炫彩颜色" : "Chroma colors",
-  );
-  colors.forEach((color) => {
-    const row = document.createElement("span");
-    row.className = "runtime-chroma-color-row";
-    const swatch = document.createElement("span");
-    swatch.className = "runtime-chroma-color";
-    swatch.setAttribute("style", `background:${color}`);
-    swatch.setAttribute("aria-hidden", "true");
-    row.appendChild(swatch);
-    row.appendChild(textNode("code", color));
-    palette.appendChild(row);
-  });
-  parent.appendChild(palette);
+  appendChromaColorCircle(parent, colors, locale);
+}
+
+function appendNonChromaState(
+  parent: HTMLElement,
+  locale: CommunityDragonLocale,
+): void {
+  appendChromaColorCircle(parent, [], locale, false);
 }
 
 function appendChromaCard(
@@ -427,18 +472,87 @@ function appendChromaCard(
   meta.className = "runtime-chroma-meta";
   meta.appendChild(textNode("h3", options.name, "runtime-chroma-name"));
   if (options.isBase) {
-    meta.appendChild(
-      textNode(
-        "p",
-        options.locale === "zh_cn" ? "不是炫彩" : "Not a chroma",
-        "runtime-chroma-note",
-      ),
-    );
+    appendNonChromaState(meta, options.locale);
   } else {
     appendChromaColors(meta, options.colors, options.locale);
   }
   card.appendChild(meta);
   parent.appendChild(card);
+}
+
+function appendSkinReferenceCard(
+  parent: HTMLElement,
+  item: RuntimeSkinReferenceItem,
+  locale: CommunityDragonLocale,
+  channel: "pbe" | "latest",
+  controller: RuntimeControllerLike,
+  preserveExplicitPbe: boolean,
+): void {
+  const card = document.createElement("article");
+  card.className = "runtime-skin-reference-card";
+  const link = linkWithNavigation(
+    "",
+    hrefFor(
+      locale,
+      "skins",
+      {
+        id: item.skinId,
+        championId: item.championId,
+        stageId: item.stageId,
+        channel,
+      },
+      "detail",
+      preserveExplicitPbe,
+    ),
+    controller,
+    "runtime-skin-reference-link",
+  );
+  const name = item.name ?? runtimeMissingLabel(locale, "name");
+  link.setAttribute("aria-label", name);
+  if (item.thumbnailUrl) appendMedia(link, item.thumbnailUrl, name);
+  else appendMissingField(link, locale, "thumbnail");
+  const meta = document.createElement("span");
+  meta.className = "runtime-skin-reference-meta";
+  meta.appendChild(textNode("span", name));
+  appendRarity(meta, item.rarity);
+  link.appendChild(meta);
+  card.appendChild(link);
+  parent.appendChild(card);
+}
+
+function appendSkinReferenceGrid(
+  parent: HTMLElement,
+  items: readonly RuntimeSkinReferenceItem[],
+  locale: CommunityDragonLocale,
+  channel: "pbe" | "latest",
+  controller: RuntimeControllerLike,
+  preserveExplicitPbe: boolean,
+): void {
+  const grid = document.createElement("div");
+  grid.className = "runtime-skin-reference-grid";
+  if (!items.length) {
+    parent.appendChild(
+      textNode(
+        "p",
+        locale === "zh_cn"
+          ? "当前语言没有可显示的系列皮肤资料。"
+          : "No skin records are available for this skinline in this language.",
+        "runtime-empty-state",
+      ),
+    );
+  } else {
+    parent.appendChild(grid);
+    items.forEach((item) =>
+      appendSkinReferenceCard(
+        grid,
+        item,
+        locale,
+        channel,
+        controller,
+        preserveExplicitPbe,
+      ),
+    );
+  }
 }
 
 function setRuntimeNoindex(enabled: boolean): void {
@@ -497,6 +611,7 @@ export function createDomRuntimeView(
     bindRuntimeLanguageToggle(document, options.history.url);
   };
   let relationSlot: HTMLElement | undefined;
+  let skinlineSkinsSlot: HTMLElement | undefined;
   const view: RuntimeView = {
     loading(preserve, channel) {
       options.root.setAttribute("aria-busy", "true");
@@ -528,6 +643,7 @@ export function createDomRuntimeView(
           : `${items.length} references loaded`;
       const controller = options.getController();
       const isChampionList = options.page === "champions";
+      const isSkinlineList = options.page === "skinlines";
       const toolbar = document.createElement("div");
       toolbar.className = "runtime-toolbar";
       let roleFilter: HTMLSelectElement | undefined;
@@ -655,7 +771,7 @@ export function createDomRuntimeView(
               const mediaParent = isChampionList ? link : card;
               const mediaUrl =
                 item.kind === "champion" ? item.portraitUrl : item.imageUrl;
-              if (mediaUrl) {
+              if (!isSkinlineList && mediaUrl) {
                 appendMedia(
                   mediaParent,
                   mediaUrl,
@@ -747,6 +863,7 @@ export function createDomRuntimeView(
     },
     renderDetail(item, state) {
       relationSlot = undefined;
+      skinlineSkinsSlot = undefined;
       setRuntimeNoindex(true);
       options.root.removeAttribute("aria-busy");
       updateChannel(state.channel);
@@ -973,8 +1090,8 @@ export function createDomRuntimeView(
         const chromaGrid = document.createElement("div");
         chromaGrid.className = "runtime-chroma-grid";
         appendChromaCard(chromaGrid, {
-          name: options.locale === "zh_cn" ? "默认配色" : "Base",
-          imageUrl: item.media.tileUrl,
+          name: item.name ?? runtimeMissingLabel(options.locale, "name"),
+          imageUrl: item.chromaImageUrl ?? item.media.tileUrl,
           isBase: true,
           locale: options.locale,
         });
@@ -1024,9 +1141,6 @@ export function createDomRuntimeView(
         relations.appendChild(relationSlot);
         article.appendChild(relations);
       } else if (item.kind === "skinline") {
-        appendMedia(article, item.imageUrl, item.name);
-        if (item.description)
-          article.appendChild(textNode("p", item.description, "runtime-lede"));
         const section = document.createElement("section");
         section.appendChild(
           textNode("h2", options.locale === "zh_cn" ? "所属宇宙" : "Universes"),
@@ -1040,6 +1154,22 @@ export function createDomRuntimeView(
         );
         section.appendChild(relationSlot);
         article.appendChild(section);
+
+        const skins = document.createElement("section");
+        skins.appendChild(
+          textNode(
+            "h2",
+            options.locale === "zh_cn" ? "系列内皮肤" : "Skins in this skinline",
+          ),
+        );
+        skinlineSkinsSlot = document.createElement("div");
+        skinlineSkinsSlot.className = "runtime-skinline-skins-state";
+        skinlineSkinsSlot.textContent =
+          options.locale === "zh_cn"
+            ? "正在加载系列皮肤…"
+            : "Loading skinline skins…";
+        skins.appendChild(skinlineSkinsSlot);
+        article.appendChild(skins);
       } else {
         appendMedia(article, item.imageUrl, item.name);
         if (item.description)
@@ -1064,7 +1194,19 @@ export function createDomRuntimeView(
           ? ""
           : options.locale === "zh_cn"
             ? "资料加载完成"
-            : "Reference loaded";
+          : "Reference loaded";
+    },
+    renderSkinlineSkins(items, state) {
+      if (!skinlineSkinsSlot) return;
+      skinlineSkinsSlot.replaceChildren();
+      appendSkinReferenceGrid(
+        skinlineSkinsSlot,
+        items,
+        options.locale,
+        state.channel,
+        options.getController(),
+        preservesExplicitPbe(),
+      );
     },
     renderRelations(items, state) {
       if (!relationSlot) return;
@@ -1143,6 +1285,22 @@ export function createDomRuntimeView(
       button.addEventListener("click", retry, { once: true });
       notice.append(" ", button);
       relationSlot.appendChild(notice);
+    },
+    skinlineSkinsFailure(error, retry) {
+      if (!skinlineSkinsSlot) return;
+      const notice = textNode(
+        "p",
+        runtimeFailureMessage(error, options.locale),
+        "runtime-relation-error",
+      );
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "runtime-retry";
+      button.textContent =
+        options.locale === "zh_cn" ? "重试系列皮肤" : "Retry skinline skins";
+      button.addEventListener("click", retry, { once: true });
+      notice.append(" ", button);
+      skinlineSkinsSlot.replaceChildren(notice);
     },
     invalid(message, channel) {
       relationSlot = undefined;
