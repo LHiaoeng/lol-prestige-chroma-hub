@@ -5,7 +5,10 @@ import {
   type RuntimeMedia,
 } from "../domain/communitydragon-runtime";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
-import { projectChampionSkinReferenceItems } from "../domain/skin-reference-projection";
+import {
+  projectChampionSkinReferenceItems,
+  sortSkinReferenceItems,
+} from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import {
@@ -669,21 +672,6 @@ export function createDomRuntimeView(
       );
       article.appendChild(heading);
       if (item.kind === "champion") {
-        const baseSkin = item.skins.find((skin) => skin.isBase);
-        const baseSection = document.createElement("section");
-        baseSection.className = "runtime-champion-base";
-        baseSection.appendChild(
-          textNode(
-            "h2",
-            options.locale === "zh_cn" ? "英雄默认外观" : "Default appearance",
-          ),
-        );
-        const baseArtwork = baseSkin?.media.focusedSplashUrl ??
-          baseSkin?.media.unfocusedSplashUrl;
-        if (baseArtwork) appendMedia(baseSection, baseArtwork, item.name);
-        else appendMissingField(baseSection, options.locale, "artwork");
-        article.appendChild(baseSection);
-
         const section = document.createElement("section");
         section.appendChild(
           textNode(
@@ -691,40 +679,77 @@ export function createDomRuntimeView(
             options.locale === "zh_cn" ? "皮肤资料" : "Skin references",
           ),
         );
+        const controls = document.createElement("div");
+        controls.className = "runtime-toolbar runtime-skin-reference-controls";
+        const sortSelect = document.createElement("select");
+        sortSelect.id = "runtime-champion-skins-sort";
+        sortSelect.setAttribute(
+          "aria-label",
+          options.locale === "zh_cn" ? "皮肤排序" : "Sort skins",
+        );
+        for (const [value, label] of [
+          ["release", options.locale === "zh_cn" ? "发布顺序" : "Release"],
+          ["rarity", options.locale === "zh_cn" ? "稀有度" : "Rarity"],
+        ] as const) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          sortSelect.appendChild(option);
+        }
+        sortSelect.value = "release";
+        const sortLabel = document.createElement("label");
+        sortLabel.className = "runtime-toolbar-field";
+        sortLabel.htmlFor = sortSelect.id;
+        sortLabel.append(
+          textNode("span", options.locale === "zh_cn" ? "排序" : "Sort by"),
+          sortSelect,
+        );
+        controls.append(sortLabel);
+        section.appendChild(controls);
         const grid = document.createElement("div");
         grid.className = "runtime-skin-reference-grid";
         const skinItems = projectChampionSkinReferenceItems(item.id, item.skins);
-        if (!skinItems.length) {
-          appendMissingField(grid, options.locale, "thumbnail");
-        }
-        for (const skin of skinItems) {
-          const card = document.createElement("article");
-          card.className = "runtime-skin-reference-card";
-          const link = linkWithNavigation(
-            "",
-            hrefFor(options.locale, "skins", {
-              id: skin.skinId,
-              championId: item.id,
-              stageId: skin.stageId,
-              channel: state.channel,
-            }, "detail", preservesExplicitPbe()),
-            controller,
-            "runtime-skin-reference-link",
+        const renderSkinItems = () => {
+          grid.replaceChildren();
+          const sortedItems = sortSkinReferenceItems(
+            skinItems,
+            sortSelect.value === "rarity" ? "rarity" : "release",
           );
-          const skinName =
-            skin.name ?? runtimeMissingLabel(options.locale, "name");
-          link.setAttribute("aria-label", skinName);
-          if (skin.thumbnailUrl)
-            appendMedia(link, skin.thumbnailUrl, skinName);
-          else appendMissingField(link, options.locale, "thumbnail");
-          const meta = document.createElement("span");
-          meta.className = "runtime-skin-reference-meta";
-          meta.appendChild(textNode("span", skinName));
-          appendRarity(meta, skin.rarity, options.locale);
-          link.appendChild(meta);
-          card.appendChild(link);
-          grid.appendChild(card);
-        }
+          if (!sortedItems.length) {
+            appendMissingField(grid, options.locale, "thumbnail");
+            return;
+          }
+          for (const skin of sortedItems) {
+            const card = document.createElement("article");
+            card.className = "runtime-skin-reference-card";
+            const link = linkWithNavigation(
+              "",
+              hrefFor(options.locale, "skins", {
+                id: skin.skinId,
+                championId: item.id,
+                stageId: skin.stageId,
+                channel: state.channel,
+              }, "detail", preservesExplicitPbe()),
+              controller,
+              "runtime-skin-reference-link",
+            );
+            const skinName =
+              skin.name ?? runtimeMissingLabel(options.locale, "name");
+            link.setAttribute("aria-label", skinName);
+            if (skin.thumbnailUrl)
+              appendMedia(link, skin.thumbnailUrl, skinName);
+            else appendMissingField(link, options.locale, "thumbnail");
+            const meta = document.createElement("span");
+            meta.className = "runtime-skin-reference-meta";
+            meta.appendChild(textNode("span", skinName));
+            appendRarity(meta, skin.rarity, options.locale);
+            link.appendChild(meta);
+            card.appendChild(link);
+            grid.appendChild(card);
+          }
+        };
+        sortSelect.addEventListener("change", renderSkinItems);
+        renderSkinItems();
         section.appendChild(grid);
         article.appendChild(section);
       } else if (item.kind === "skin") {
@@ -916,9 +941,11 @@ export function createDomRuntimeView(
       }
       content.replaceChildren(article);
       status.textContent =
-        options.locale === "zh_cn"
-          ? "资料加载完成"
-          : "Reference loaded";
+        item.kind === "champion"
+          ? ""
+          : options.locale === "zh_cn"
+            ? "资料加载完成"
+            : "Reference loaded";
     },
     renderRelations(items, state) {
       if (!relationSlot) return;

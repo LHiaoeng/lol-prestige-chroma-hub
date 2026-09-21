@@ -38,6 +38,31 @@ export interface RuntimeSkinReferenceItem {
   readonly thumbnailUrl?: string;
 }
 
+export type RuntimeSkinReferenceSort = "release" | "rarity";
+
+const defaultRarityRank: Readonly<Record<string, number>> = {
+  kEpic: 1,
+  kLegendary: 2,
+  kMythic: 3,
+  kUltimate: 4,
+  kTranscendent: 5,
+  kExalted: 6,
+};
+
+const regionRarityRank: Readonly<Record<number, number>> = {
+  1: 0,
+  2: 0,
+  3: 0,
+  4: 1,
+  5: 2,
+  6: 0,
+  7: 0,
+  8: 3,
+  9: 4,
+  10: 5,
+  11: 6,
+};
+
 function stableKey(target: RuntimeSkinTarget): string {
   return target.stageId === undefined
     ? `${target.championId}:${target.skinId}`
@@ -177,6 +202,28 @@ export function projectChampionSkinReferenceItems(
       }),
     )
     .sort(compareReferenceItems);
+}
+
+function rarityRank(item: RuntimeSkinReferenceItem): number {
+  if (item.rarity?.key) return defaultRarityRank[item.rarity.key] ?? 0;
+  if (item.rarity?.id !== undefined)
+    return regionRarityRank[item.rarity.id] ?? 0;
+  return 0;
+}
+
+/**
+ * Apply the champion detail's reference-project sort choices without changing
+ * the stable release order used by the default view.
+ */
+export function sortSkinReferenceItems(
+  items: readonly RuntimeSkinReferenceItem[],
+  sort: RuntimeSkinReferenceSort,
+): readonly RuntimeSkinReferenceItem[] {
+  if (sort === "release") return items;
+  return [...items].sort(
+    (left, right) =>
+      rarityRank(right) - rarityRank(left) || compareReferenceItems(left, right),
+  );
 }
 
 export function findSkinReferenceItem(

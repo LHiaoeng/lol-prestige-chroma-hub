@@ -9,6 +9,7 @@ import {
 import {
   projectChampionSkinReferenceItems,
   projectSkinReferenceItems,
+  sortSkinReferenceItems,
 } from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
 
@@ -405,6 +406,32 @@ describe("CommunityDragon runtime reference", () => {
         target: { championId: 103, skinId: 103001, stageId: 103002 },
       },
     ]);
+  });
+
+  it("sorts champion skin references by rarity while preserving stable ties", () => {
+    const result = parseRuntimeEntity(
+      "champion",
+      103,
+      champion("default"),
+      { locale: "default", championId: 103 },
+    ) as RuntimeChampion;
+    const items = projectChampionSkinReferenceItems(result.id, result.skins);
+    const sortableItems = items.map((item) =>
+      item.skinId === 103001
+        ? { ...item, rarity: { key: "kLegendary" } }
+        : item,
+    );
+
+    expect(
+      sortSkinReferenceItems(sortableItems, "rarity").map(
+        (item) => item.stableKey,
+      ),
+    ).toEqual([
+      "103:103001",
+      "103:103001:stage:103002",
+      "103:103000",
+    ]);
+    expect(sortSkinReferenceItems(items, "release")).toBe(items);
   });
 
   it("rejects a duplicate stage identity instead of guessing which stage to open", () => {

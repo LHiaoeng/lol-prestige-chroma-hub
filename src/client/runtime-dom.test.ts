@@ -453,7 +453,7 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
-  it("renders champion artwork, skin reference cards, rarity, and stage links", () => {
+  it("renders square-thumbnail skin reference cards, sorting, rarity, and stage links", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
@@ -491,6 +491,7 @@ describe("runtime DOM boundaries", () => {
             skinlineIds: [],
             media: {
               focusedSplashUrl: "https://example.test/ahri-base.jpg",
+              tileUrl: "https://example.test/ahri-base-tile.jpg",
             },
             stages: [],
           },
@@ -527,9 +528,8 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector("h1")?.textContent).toBe("Ahri");
     expect(content.querySelector(".eyebrow")).toBeNull();
     expect(content.querySelector(".runtime-lede")).toBeNull();
-    expect(content.querySelector(".runtime-champion-base")?.querySelector("img")?.src).toBe(
-      "https://example.test/ahri-base.jpg",
-    );
+    expect(content.querySelector(".runtime-champion-base")).toBeNull();
+    expect(status.textContent).toBe("");
     expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(
       3,
     );
@@ -539,9 +539,30 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".runtime-rarity")[1]?.querySelector("span")?.textContent).toBe(
       "Legendary",
     );
-    expect(content.querySelectorAll(".runtime-skin-reference-card")[1]?.querySelector("img")?.src).toBe(
+    expect(
+      [...content.querySelectorAll(".runtime-skin-reference-card")].map(
+        (card) => card.querySelector("img")?.src,
+      ),
+    ).toEqual([
+      "https://example.test/ahri-base-tile.jpg",
       "https://example.test/dynasty-tile.jpg",
-    );
+      "https://example.test/dynasty-stage-tile.jpg",
+    ]);
+    const skinSort = content.querySelector("select");
+    expect(skinSort?.value).toBe("release");
+    if (!skinSort) throw new Error("Expected champion skin sort control");
+    skinSort.value = "rarity";
+    skinSort.listeners.get("change")?.forEach((listener) => listener());
+    expect(
+      [...content.querySelectorAll(".runtime-skin-reference-card")].map(
+        (card) =>
+          card
+            .querySelector(".runtime-skin-reference-meta")
+            ?.querySelector("span")?.textContent,
+      ),
+    ).toEqual(["Dynasty Ahri", "Dynasty Ahri · Stage 2", "Ahri"]);
+    skinSort.value = "release";
+    skinSort.listeners.get("change")?.forEach((listener) => listener());
     expect(content.querySelectorAll(".runtime-skin-reference-card")[2]?.querySelector("a")?.href).toBe(
       "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
     );
