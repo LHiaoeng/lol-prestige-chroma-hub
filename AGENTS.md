@@ -53,7 +53,7 @@
 
 ### Issue tracker
 
-Issue 与规格统一通过 GitHub Issues 跟踪。详见 `docs/agents/issue-tracker.md`。
+Issue 与规格统一保存为仓库 `.scratch/` 下的本地 Markdown。详见 `docs/agents/issue-tracker.md`。
 
 ### Triage labels
 
