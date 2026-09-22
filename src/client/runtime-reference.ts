@@ -17,6 +17,11 @@ import {
 import { asCommunityDragonError } from "./communitydragon-errors";
 export { runtimeFailureMessage } from "./communitydragon-errors";
 import { browserHistory, createDomRuntimeView } from "./runtime-reference-view";
+import {
+  RuntimeChannelLifecycle,
+  type RuntimeChannelLoadContext,
+  type RuntimeChannelHistory,
+} from "./runtime-channel-lifecycle";
 export {
   createDomRuntimeView,
   shouldHandleRuntimeNavigation,
@@ -25,15 +30,11 @@ export {
 export type RuntimePage = RuntimeListKind | "skins" | "pbe-additions";
 export type RuntimePageMode = "list" | "detail" | "pbe";
 
-export interface RuntimeHistory {
-  readonly url: URL;
-  push(url: URL): void;
-  replace(url: URL): void;
-  onPopState(listener: () => void): () => void;
-}
+export interface RuntimeHistory extends RuntimeChannelHistory {}
 
 export interface RuntimeView {
   loading(preserve: boolean, channel?: "pbe" | "latest"): void;
+  committed?(channel: "pbe" | "latest", url: URL): void;
   renderList(
     items: RuntimeList,
     state: Extract<RuntimeLocationState, { mode: "list" }>,
@@ -180,6 +181,11 @@ export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
 
 type RuntimeDetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
 
+type RuntimeCoreResult =
+  | { readonly mode: "pbe"; readonly items: RuntimePbeAdditions }
+  | { readonly mode: "list"; readonly items: RuntimeList }
+  | { readonly mode: "detail"; readonly item: RuntimeEntity };
+
 function relationKinds(
   state: RuntimeDetailState,
 ): readonly Extract<RuntimeListKind, "skinlines" | "universes">[] {
@@ -225,163 +231,159 @@ function relatedItems(
 }
 
 export class RuntimeController {
-  private abortController: AbortController | undefined;
-  private generation = 0;
-  private hasContent = false;
-  private committedUrl: URL | undefined;
-  private unsubscribePopState: (() => void) | undefined;
+  private readonly lifecycle: RuntimeChannelLifecycle<
+    RuntimeLocationState,
+    RuntimeCoreResult,
+    CommunityDragonRuntimeError
+  >;
 
   constructor(
     private readonly runtime: CommunityDragonRuntime,
     private readonly view: RuntimeView,
-    private readonly history: RuntimeHistory,
+    history: RuntimeHistory,
     private readonly options: RuntimeControllerOptions,
-  ) {}
+  ) {
+    this.lifecycle = new RuntimeChannelLifecycle({
+      history,
+      parse: (url) => {
+        const state = parseRuntimeLocation(
+          url,
+          this.options.page,
+          this.options.pageMode,
+        );
+        if (state.mode === "invalid")
+          return {
+            status: "invalid",
+            channel: state.channel,
+            message:
+              this.options.locale === "zh_cn"
+                ? "链接无效，请检查实体 ID 与版本数据源。"
+                : "This link is invalid. Check the entity ID and data channel.",
+          };
+        return {
+          status: "valid",
+          channel: state.mode === "pbe" ? "pbe" : state.channel,
+          target: state,
+        };
+      },
+      load: (state, signal) => this.loadCore(state, signal),
+      normalizeError: (error) =>
+        asCommunityDragonError(error, this.options.locale),
+      isAborted: (error) => error.code === "aborted",
+      view: {
+        loading: (preserveContent, context) =>
+          this.view.loading(
+            preserveContent,
+            context.target.mode === "pbe" ? undefined : context.channel,
+          ),
+        render: (result, context) => this.renderCore(result, context),
+        invalid: (message, channel) => this.view.invalid(message, channel),
+        failure: (error, retry) => this.view.failure(error, retry),
+        committed: (context) =>
+          this.view.committed?.(context.channel, context.url),
+      },
+    });
+  }
 
   start(): Promise<void> {
-    this.unsubscribePopState?.();
-    this.committedUrl = new URL(this.history.url);
-    this.unsubscribePopState = this.history.onPopState(() => {
-      void this.load(this.history.url, false);
-    });
-    return this.load(this.history.url, false);
+    return this.lifecycle.start();
   }
 
   navigate(url: URL): Promise<void> {
-    return this.load(url, true);
+    return this.lifecycle.navigate(url);
   }
 
   dispose(): void {
-    this.unsubscribePopState?.();
-    this.unsubscribePopState = undefined;
-    this.abortController?.abort();
-    this.generation += 1;
+    this.lifecycle.dispose();
   }
 
-  private async load(url: URL, commit: boolean): Promise<void> {
-    const state = parseRuntimeLocation(
-      url,
-      this.options.page,
-      this.options.pageMode,
-    );
-    if (state.mode === "invalid") {
-      this.abortController?.abort();
-      this.generation += 1;
-      this.view.invalid(
-        this.options.locale === "zh_cn"
-          ? "链接无效，请检查实体 ID 与版本数据源。"
-          : "This link is invalid. Check the entity ID and data channel.",
-        state.channel,
-      );
+  private async loadCore(
+    state: RuntimeLocationState,
+    signal: AbortSignal,
+  ): Promise<RuntimeCoreResult> {
+    if (state.mode === "pbe") {
+      const getPbeAdditions = this.runtime.getPbeAdditions;
+      if (!getPbeAdditions)
+        throw new CommunityDragonRuntimeError(
+          "not-found",
+          "PBE additions are unavailable",
+        );
+      return {
+        mode: "pbe",
+        items: await getPbeAdditions({
+          locale: this.options.locale,
+          signal,
+        }),
+      };
+    }
+    if (state.mode === "list")
+      return {
+        mode: "list",
+        items: await this.runtime.list(state.page, {
+          locale: this.options.locale,
+          channel: state.channel,
+          signal,
+        }),
+      };
+    if (state.mode !== "detail")
+      throw new Error("Invalid runtime state reached the core loader");
+    return {
+      mode: "detail",
+      item: await this.runtime.get(state.kind, state.id, {
+        locale: this.options.locale,
+        channel: state.channel,
+        championId: state.championId,
+        stageId: state.stageId,
+        signal,
+      }),
+    };
+  }
+
+  private renderCore(
+    result: RuntimeCoreResult,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
+  ): void {
+    const state = context.target;
+    if (state.mode === "pbe" && result.mode === "pbe") {
+      this.view.renderPbeAdditions?.(result.items);
       return;
     }
-    const generation = ++this.generation;
-    this.abortController?.abort();
-    const controller = new AbortController();
-    this.abortController = controller;
-    this.view.loading(
-      this.hasContent,
-      state.mode === "pbe" ? undefined : state.channel,
-    );
-    try {
-      if (state.mode === "pbe") {
-        const getPbeAdditions = this.runtime.getPbeAdditions;
-        if (!getPbeAdditions)
-          throw new CommunityDragonRuntimeError(
-            "not-found",
-            "PBE additions are unavailable",
-          );
-        const result = await getPbeAdditions({
-          locale: this.options.locale,
-          signal: controller.signal,
-        });
-        if (generation !== this.generation) return;
-        this.commitUrl(url, commit);
-        this.view.renderPbeAdditions?.(result);
-      } else if (state.mode === "list") {
-        const result = await this.runtime.list(state.page, {
-          locale: this.options.locale,
-          channel: state.channel,
-          signal: controller.signal,
-        });
-        if (generation !== this.generation) return;
-        this.commitUrl(url, commit);
-        this.view.renderList(result, state);
-        if (state.page === "universes")
-          void this.loadUniverseListRelations(state, generation, controller);
-      } else {
-        const result = await this.runtime.get(state.kind, state.id, {
-          locale: this.options.locale,
-          channel: state.channel,
-          championId: state.championId,
-          stageId: state.stageId,
-          signal: controller.signal,
-        });
-        if (generation !== this.generation) return;
-        this.commitUrl(url, commit);
-        this.view.renderDetail(result, state);
-        const listKinds = relationKinds(state);
-        if (listKinds.length)
-          void this.loadRelations(
-            result,
-            state,
-            listKinds,
-            generation,
-            controller,
-          );
-        if (state.kind === "skinline")
-          void this.loadSkinlineSkins(state, generation, controller);
-        if (state.kind === "universe" && result.kind === "universe")
-          void this.loadUniverseSkins(result, state, generation, controller);
-      }
-      if (generation !== this.generation) return;
-      this.hasContent = true;
-    } catch (error) {
-      if (generation !== this.generation) return;
-      if (
-        error instanceof CommunityDragonRuntimeError &&
-        error.code === "aborted"
-      )
-        return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (
-        !commit &&
-        this.committedUrl &&
-        this.history.url.href === url.href &&
-        this.committedUrl.href !== url.href
-      )
-        this.history.replace(this.committedUrl);
-      const retryCommit = commit || this.history.url.href !== url.href;
-      this.view.failure(runtimeError, () => {
-        void this.load(url, retryCommit);
-      });
+    if (state.mode === "list" && result.mode === "list") {
+      this.view.renderList(result.items, state);
+      if (state.page === "universes")
+        void this.loadUniverseListRelations(state, context);
+      return;
     }
-  }
-
-  private commitUrl(url: URL, commit: boolean): void {
-    if (commit && this.history.url.href !== url.href) this.history.push(url);
-    this.committedUrl = new URL(url);
+    if (state.mode === "detail" && result.mode === "detail") {
+      this.view.renderDetail(result.item, state);
+      const listKinds = relationKinds(state);
+      if (listKinds.length)
+        void this.loadRelations(result.item, state, listKinds, context);
+      if (state.kind === "skinline")
+        void this.loadSkinlineSkins(state, context);
+      if (state.kind === "universe" && result.item.kind === "universe")
+        void this.loadUniverseSkins(result.item, state, context);
+    }
   }
 
   private async loadSkinlineSkins(
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
-    generation: number,
-    controller: AbortController,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
   ): Promise<void> {
     try {
       const items = await this.runtime.listSkinlineSkins(state.id, {
         locale: this.options.locale,
         channel: state.channel,
-        signal: controller.signal,
+        signal: context.signal,
       });
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       this.view.renderSkinlineSkins?.(items, state);
     } catch (error) {
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       const runtimeError = asCommunityDragonError(error, this.options.locale);
       if (runtimeError.code === "aborted") return;
       this.view.skinlineSkinsFailure?.(runtimeError, () => {
-        void this.loadSkinlineSkins(state, generation, controller);
+        if (context.isCurrent()) void this.loadSkinlineSkins(state, context);
       });
     }
   }
@@ -389,8 +391,7 @@ export class RuntimeController {
   private async loadUniverseSkins(
     entity: Extract<RuntimeEntity, { kind: "universe" }>,
     state: Extract<RuntimeLocationState, { mode: "detail" }>,
-    generation: number,
-    controller: AbortController,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
   ): Promise<void> {
     if (!this.runtime.listUniverseSkins) return;
     try {
@@ -400,40 +401,41 @@ export class RuntimeController {
         {
           locale: this.options.locale,
           channel: state.channel,
-          signal: controller.signal,
+          signal: context.signal,
         },
       );
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       this.view.renderUniverseSkins?.(groups, state);
     } catch (error) {
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       const runtimeError = asCommunityDragonError(error, this.options.locale);
       if (runtimeError.code === "aborted") return;
       this.view.universeSkinsFailure?.(runtimeError, () => {
-        void this.loadUniverseSkins(entity, state, generation, controller);
+        if (context.isCurrent())
+          void this.loadUniverseSkins(entity, state, context);
       });
     }
   }
 
   private async loadUniverseListRelations(
     state: Extract<RuntimeLocationState, { mode: "list" }>,
-    generation: number,
-    controller: AbortController,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
   ): Promise<void> {
     try {
       const items = await this.runtime.list("skinlines", {
         locale: this.options.locale,
         channel: state.channel,
-        signal: controller.signal,
+        signal: context.signal,
       });
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       this.view.renderListRelations?.(items, state);
     } catch (error) {
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       const runtimeError = asCommunityDragonError(error, this.options.locale);
       if (runtimeError.code === "aborted") return;
       this.view.listRelationsFailure?.(runtimeError, () => {
-        void this.loadUniverseListRelations(state, generation, controller);
+        if (context.isCurrent())
+          void this.loadUniverseListRelations(state, context);
       });
     }
   }
@@ -442,8 +444,7 @@ export class RuntimeController {
     entity: RuntimeEntity,
     state: RuntimeDetailState,
     kinds: readonly Extract<RuntimeListKind, "skinlines" | "universes">[],
-    generation: number,
-    controller: AbortController,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
   ): Promise<void> {
     try {
       const results = await Promise.allSettled(
@@ -451,11 +452,11 @@ export class RuntimeController {
           this.runtime.list(kind, {
             locale: this.options.locale,
             channel: state.channel,
-            signal: controller.signal,
+            signal: context.signal,
           }),
         ),
       );
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       const items = results.flatMap((result) =>
         result.status === "fulfilled" ? result.value : [],
       );
@@ -471,15 +472,17 @@ export class RuntimeController {
         );
         if (runtimeError.code === "aborted") return;
         this.view.relationFailure?.(runtimeError, () => {
-          void this.loadRelations(entity, state, kinds, generation, controller);
+          if (context.isCurrent())
+            void this.loadRelations(entity, state, kinds, context);
         });
       }
     } catch (error) {
-      if (generation !== this.generation) return;
+      if (!context.isCurrent()) return;
       const runtimeError = asCommunityDragonError(error, this.options.locale);
       if (runtimeError.code === "aborted") return;
       this.view.relationFailure?.(runtimeError, () => {
-        void this.loadRelations(entity, state, kinds, generation, controller);
+        if (context.isCurrent())
+          void this.loadRelations(entity, state, kinds, context);
       });
     }
   }

@@ -912,6 +912,11 @@ export function createDomRuntimeView(
   >[] = [];
   let renderListCards: (() => void) | undefined;
   const view: RuntimeView = {
+    committed(channel, url) {
+      updateChannel(channel);
+      bindRuntimeChannelLinks(document, url);
+      bindRuntimeLanguageToggle(document, url);
+    },
     loading(preserve, channel) {
       options.root.setAttribute("aria-busy", "true");
       if (!preserve && channel) updateChannel(channel);
@@ -1826,6 +1831,8 @@ export function createDomRuntimeView(
         const next = new URL(options.history.url);
         const selected = button.dataset.runtimeChannel;
         if (selected === "latest") next.searchParams.set("channel", "latest");
+        else if (preservesExplicitPbe())
+          next.searchParams.set("channel", "pbe");
         else next.searchParams.delete("channel");
         void options.getController().navigate(next);
       });

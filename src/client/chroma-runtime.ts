@@ -14,6 +14,10 @@ import {
   runtimeFailureMessage,
 } from "./communitydragon-errors";
 import { localizedPath } from "../i18n/config";
+import {
+  RuntimeChannelLifecycle,
+  type RuntimeChannelHistory,
+} from "./runtime-channel-lifecycle";
 
 export interface ChromaRuntimeSupplement {
   readonly champion: RuntimeChampion;
@@ -31,9 +35,13 @@ export interface ChromaRuntimeSupplementOptions {
 }
 
 export interface ChromaRuntimeSupplementView {
-  loading(): void;
-  render(supplement: ChromaRuntimeSupplement): void;
-  invalid(message: string): void;
+  loading(preserveContent?: boolean, channel?: "pbe" | "latest"): void;
+  render(
+    supplement: ChromaRuntimeSupplement,
+    channel?: "pbe" | "latest",
+    url?: URL,
+  ): void;
+  invalid(message: string, channel?: "pbe" | "latest"): void;
   failure(
     error: CommunityDragonRuntimeError,
     retry: () => void,
@@ -51,15 +59,10 @@ function notFoundError(
   );
 }
 
-export async function loadChromaRuntimeSupplement(
+async function resolveChromaRuntimeSupplement(
   runtime: CommunityDragonRuntime,
-  view: ChromaRuntimeSupplementView,
   options: ChromaRuntimeSupplementOptions,
-  retry: () => void = () => {
-    void loadChromaRuntimeSupplement(runtime, view, options, retry);
-  },
-): Promise<boolean> {
-  view.loading();
+): Promise<ChromaRuntimeSupplement> {
   try {
     const champion = await runtime.get("champion", options.championId, {
       locale: options.locale,
@@ -76,14 +79,18 @@ export async function loadChromaRuntimeSupplement(
       (candidate) => candidate.id === options.chromaId,
     );
     if (!chroma) throw notFoundError("chroma", options.chromaId);
-    view.render({ champion, sourceSkin, chroma });
-    return true;
+    return { champion, sourceSkin, chroma };
   } catch (error) {
     const runtimeError = asCommunityDragonError(error, options.locale);
-    if (runtimeError.code === "aborted") return false;
-    view.failure(runtimeError, retry);
-    return false;
+    throw runtimeError;
   }
+}
+
+export async function loadChromaRuntimeSupplement(
+  runtime: CommunityDragonRuntime,
+  options: ChromaRuntimeSupplementOptions,
+): Promise<ChromaRuntimeSupplement> {
+  return resolveChromaRuntimeSupplement(runtime, options);
 }
 
 export function channelFromLocation(
@@ -97,14 +104,72 @@ export function channelFromLocation(
   return undefined;
 }
 
+export interface ChromaRuntimeLifecycleOptions {
+  readonly runtime: CommunityDragonRuntime;
+  readonly history: RuntimeChannelHistory;
+  readonly view: ChromaRuntimeSupplementView;
+  readonly championId: number;
+  readonly sourceSkinId: number;
+  readonly chromaId: number;
+  readonly locale: CommunityDragonLocale;
+}
+
+export function createChromaRuntimeLifecycle(
+  options: ChromaRuntimeLifecycleOptions,
+): RuntimeChannelLifecycle<
+  "pbe" | "latest",
+  ChromaRuntimeSupplement,
+  CommunityDragonRuntimeError
+> {
+  return new RuntimeChannelLifecycle({
+    history: options.history,
+    parse: (url) => {
+      const value = url.searchParams.get("channel");
+      if (value !== null && value !== "pbe" && value !== "latest")
+        return {
+          status: "invalid",
+          message:
+            options.locale === "zh_cn"
+              ? "链接无效，请选择有效的版本数据源。"
+              : "This link is invalid. Choose a valid reference channel.",
+        };
+      const channel = value === "latest" ? "latest" : "pbe";
+      return { status: "valid", channel, target: channel };
+    },
+    load: (channel, signal) =>
+      loadChromaRuntimeSupplement(options.runtime, {
+        championId: options.championId,
+        sourceSkinId: options.sourceSkinId,
+        chromaId: options.chromaId,
+        locale: options.locale,
+        channel,
+        signal,
+      }),
+    normalizeError: (error) =>
+      asCommunityDragonError(error, options.locale),
+    isAborted: (error) => error.code === "aborted",
+    view: {
+      loading: (preserveContent, context) =>
+        options.view.loading(preserveContent, context.channel),
+      render: (supplement, context) =>
+        options.view.render(supplement, context.channel, context.url),
+      invalid: (message, channel) => options.view.invalid(message, channel),
+      failure: (error, retry, preserveContent) =>
+        options.view.failure(error, retry, preserveContent),
+    },
+  });
+}
+
 function sourceLabel(channel: "pbe" | "latest"): string {
   return channel;
 }
 
-function explicitChannelQuery(): string {
-  const href = document.defaultView?.location.href;
-  if (!href) return "";
-  const value = new URL(href).searchParams.get("channel");
+function explicitChannelQuery(url?: URL): string {
+  const current = url ?? document.defaultView?.location.href;
+  if (!current) return "";
+  const value = (current instanceof URL ? current : new URL(current)).searchParams.get(
+    "channel",
+  );
   return value === "pbe" || value === "latest" ? `&channel=${value}` : "";
 }
 
@@ -128,30 +193,49 @@ export function createDomView(
     status.textContent = message;
     return status;
   };
-  const view: ChromaRuntimeSupplementView = {
-    invalid(message) {
-      root.removeAttribute("aria-busy");
-      content.replaceChildren(renderStatus(message));
-    },
-    loading() {
-      root.setAttribute("aria-busy", "true");
-      content.replaceChildren(
-        renderStatus(
-          locale === "zh_cn"
-            ? "正在加载可选游戏资料…"
-            : "Loading optional game reference…",
+  const syncChannel = (channel: "pbe" | "latest") =>
+    root
+      .querySelectorAll<HTMLButtonElement>("[data-chroma-runtime-channel]")
+      .forEach((button) =>
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.chromaRuntimeChannel === channel),
         ),
       );
-    },
-    render({ champion, sourceSkin }) {
+  const loadingMessage =
+    locale === "zh_cn"
+      ? "正在加载可选游戏资料…"
+      : "Loading optional game reference…";
+  const view: ChromaRuntimeSupplementView = {
+    invalid(message, channel) {
       root.removeAttribute("aria-busy");
-      const status = renderStatus(sourceLabel(getChannel()));
+      if (channel) syncChannel(channel);
+      content.replaceChildren(renderStatus(message));
+    },
+    loading(preserveContent = false, channel) {
+      root.setAttribute("aria-busy", "true");
+      if (channel && !preserveContent) syncChannel(channel);
+      if (preserveContent) {
+        const status = content.querySelector<HTMLElement>(
+          "[data-chroma-runtime-status]",
+        );
+        if (status) status.textContent = loadingMessage;
+        return;
+      }
+      content.replaceChildren(
+        renderStatus(loadingMessage),
+      );
+    },
+    render({ champion, sourceSkin }, channel = getChannel(), url) {
+      root.removeAttribute("aria-busy");
+      syncChannel(channel);
+      const status = renderStatus(sourceLabel(channel));
       const title = document.createElement("strong");
       title.textContent = `${champion.name} · ${sourceSkin.name}`;
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
-      const channelQuery = explicitChannelQuery();
+      const channelQuery = explicitChannelQuery(url);
       const championLink = document.createElement("a");
       championLink.href = localizedPath(
         siteLocale,
@@ -230,113 +314,51 @@ export function initChromaRuntime(document: Document): void {
     )
       return;
     const runtime = createCommunityDragonRuntime();
-    const initialChannel = channelFromLocation(document);
-    let selectedChannel = initialChannel ?? "pbe";
-    let requestedChannel = selectedChannel;
-    let hasLoadedSupplement = false;
-    let generation = 0;
-    let controller: AbortController | undefined;
-    const view = createDomView(root, locale, () => requestedChannel);
-    const buttons = root.querySelectorAll<HTMLButtonElement>(
-      "[data-chroma-runtime-channel]",
+    const view = createDomView(
+      root,
+      locale,
+      () => channelFromLocation(document) ?? "pbe",
     );
-    const syncButtons = () =>
-      buttons.forEach((button) => {
-        button.setAttribute(
-          "aria-pressed",
-          String(button.dataset.chromaRuntimeChannel === selectedChannel),
+    const history: RuntimeChannelHistory = {
+      get url() {
+        return new URL(
+          document.defaultView?.location.href ?? "https://chromaart.lol/",
         );
-        if (button.dataset.chromaRuntimeChannel)
-          button.textContent = button.dataset.chromaRuntimeChannel;
-      });
-    const run = async (
-      channel: "pbe" | "latest",
-      commitHistory = false,
-    ): Promise<void> => {
-      const preserveContent = hasLoadedSupplement;
-      requestedChannel = channel;
-      controller?.abort();
-      controller = new AbortController();
-      const current = ++generation;
-      const guardedView: ChromaRuntimeSupplementView = {
-        loading: () => {
-          if (current === generation && !preserveContent) view.loading();
-        },
-        render: (supplement) => {
-          if (current === generation) view.render(supplement);
-        },
-        invalid: (message) => {
-          if (current === generation) view.invalid(message);
-        },
-        failure: (error) => {
-          if (current === generation)
-            view.failure(error, () => void run(channel), preserveContent);
-        },
-      };
-      const loaded = await loadChromaRuntimeSupplement(runtime, guardedView, {
-        championId,
-        sourceSkinId,
-        chromaId,
-        locale,
-        channel,
-        signal: controller.signal,
-      });
-      if (current !== generation) return;
-      if (loaded) {
-        hasLoadedSupplement = true;
-        selectedChannel = channel;
-        requestedChannel = channel;
-        syncButtons();
-        if (commitHistory) {
-          const url = new URL(
-            document.defaultView?.location.href ?? "https://chromaart.lol/",
-          );
-          if (channel === "latest") url.searchParams.set("channel", "latest");
-          else url.searchParams.delete("channel");
-          document.defaultView?.history.pushState({}, "", url);
-        }
-      } else {
-        requestedChannel = selectedChannel;
-        syncButtons();
-      }
+      },
+      push(url) {
+        document.defaultView?.history.pushState({}, "", url);
+      },
+      replace(url) {
+        document.defaultView?.history.replaceState({}, "", url);
+      },
+      onPopState(listener) {
+        document.defaultView?.addEventListener("popstate", listener);
+        return () =>
+          document.defaultView?.removeEventListener("popstate", listener);
+      },
     };
-    buttons.forEach((button) =>
-      button.addEventListener("click", () => {
-        const next =
-          button.dataset.chromaRuntimeChannel === "latest" ? "latest" : "pbe";
-        void run(next, true);
-      }),
-    );
-    buttons.forEach((button) => {
-      button.setAttribute(
-        "aria-pressed",
-        String(button.dataset.chromaRuntimeChannel === selectedChannel),
-      );
-      if (button.dataset.chromaRuntimeChannel)
-        button.textContent = button.dataset.chromaRuntimeChannel;
+    const lifecycle = createChromaRuntimeLifecycle({
+      runtime,
+      history,
+      view,
+      championId,
+      sourceSkinId,
+      chromaId,
+      locale,
     });
-    document.defaultView?.addEventListener("popstate", () => {
-      const channel = channelFromLocation(document);
-      if (!channel) {
-        controller?.abort();
-        generation += 1;
-        view.invalid(
-          locale === "zh_cn"
-            ? "链接无效，请选择有效的版本数据源。"
-            : "This link is invalid. Choose a valid reference channel.",
-        );
-        return;
-      }
-      void run(channel);
-    });
-    if (initialChannel) {
-      void run(initialChannel);
-    } else {
-      view.invalid(
-        locale === "zh_cn"
-          ? "链接无效，请选择有效的版本数据源。"
-          : "This link is invalid. Choose a valid reference channel.",
-      );
-    }
+    root
+      .querySelectorAll<HTMLButtonElement>("[data-chroma-runtime-channel]")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          const next = new URL(history.url);
+          if (button.dataset.chromaRuntimeChannel === "latest")
+            next.searchParams.set("channel", "latest");
+          else if (history.url.searchParams.get("channel") === "pbe")
+            next.searchParams.set("channel", "pbe");
+          else next.searchParams.delete("channel");
+          void lifecycle.navigate(next);
+        });
+      });
+    void lifecycle.start();
   });
 }

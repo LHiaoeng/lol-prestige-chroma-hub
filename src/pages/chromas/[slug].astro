@@ -25,8 +25,11 @@ interface Props { chroma: typeof catalog[number]; locale?: Locale }
 const { chroma } = Astro.props;
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const runtimeChannel = Astro.url.searchParams.get('channel') === 'latest' ? 'latest' : 'pbe';
-const runtimeChannelQuery = runtimeChannel === 'latest' ? '&channel=latest' : '';
+const requestedRuntimeChannel = Astro.url.searchParams.get('channel');
+const runtimeChannel = requestedRuntimeChannel === 'latest' ? 'latest' : 'pbe';
+const runtimeChannelQuery = requestedRuntimeChannel === 'latest' || requestedRuntimeChannel === 'pbe'
+  ? `&channel=${runtimeChannel}`
+  : '';
 const sourceSkinPath = localizedPath(locale, `/skins/detail/?id=${chroma.sourceSkinId}&champion=${chroma.heroId}${runtimeChannelQuery}`);
 const skinlinePath = (id: number) => localizedPath(locale, `/skinlines/detail/?id=${id}${runtimeChannelQuery}`);
 const universePath = (id: number) => localizedPath(locale, `/universes/detail/?id=${id}${runtimeChannelQuery}`);
@@ -106,6 +109,14 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
       </dl>
       </div>
       </details>
+      <section class="chroma-runtime" data-chroma-runtime data-champion-id={chroma.heroId} data-source-skin-id={chroma.sourceSkinId} data-chroma-id={chroma.skinId} data-runtime-locale={locale === 'zh-cn' ? 'zh_cn' : 'default'} aria-labelledby="chroma-runtime-heading">
+        <h2 id="chroma-runtime-heading">{isZh ? '可选游戏资料' : 'Optional game reference'}</h2>
+        <div class="runtime-source chroma-runtime-source" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+          <button type="button" data-chroma-runtime-channel="pbe" aria-pressed={runtimeChannel === 'pbe'}>{isZh ? 'PBE' : 'PBE'}</button>
+          <button type="button" data-chroma-runtime-channel="latest" aria-pressed={runtimeChannel === 'latest'}>{isZh ? '正式服' : 'Live'}</button>
+        </div>
+        <div data-chroma-runtime-content></div>
+      </section>
       {isSummonGuideChroma && <p class="detail-context-link"><a href={summonGuideUrl}>{isZh ? '阅读璀璨臻彩召唤完全指南' : 'Read the complete Brilliant Prestige Chroma Summoning guide'}</a></p>}
     </div>
   </article>
@@ -134,6 +145,10 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
   bindRuntimeLanguageToggle(document);
   bindRuntimeChannelLinks(document);
 </script>
+<script>
+  import { initChromaRuntime } from '../../client/chroma-runtime';
+  initChromaRuntime(document);
+</script>
 <style>
   :global(main){position:relative;isolation:isolate}
   .detail-background{position:absolute;z-index:-1;inset:calc(-1 * var(--site-header-height)) 0 auto;height:100svh;overflow:hidden;pointer-events:none}
@@ -150,6 +165,10 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
   .detail-copy dl>div{grid-template-columns:100px minmax(0,1fr)!important;column-gap:10px}
   .description-row dd{color:var(--muted);line-height:1.7}
   .detail-context-link{margin:18px 0 0;color:var(--muted);font-size:.86rem;line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+  .chroma-runtime{margin-top:22px;padding:16px;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--panel) 88%,transparent)}
+  .chroma-runtime h2{margin:0 0 10px;color:var(--gold);font-size:1rem}
+  .chroma-runtime .chroma-runtime-source{margin-top:0;margin-bottom:12px}
+  .chroma-runtime[aria-busy="true"]{opacity:.88}
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   .champion-detail-link,.source-skin-detail-link,.runtime-relation-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
   .champion-detail-link:hover,.champion-detail-link:focus-visible,.source-skin-detail-link:hover,.source-skin-detail-link:focus-visible,.runtime-relation-link:hover,.runtime-relation-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
