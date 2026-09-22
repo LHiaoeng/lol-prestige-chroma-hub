@@ -70,7 +70,7 @@ const regionRarityRank: Readonly<Record<number, number>> = {
   11: 6,
 };
 
-function stableKey(target: RuntimeSkinTarget): string {
+export function runtimeSkinReferenceIdentity(target: RuntimeSkinTarget): string {
   return target.stageId === undefined
     ? `${target.championId}:${target.skinId}`
     : `${target.championId}:${target.skinId}:stage:${target.stageId}`;
@@ -89,7 +89,7 @@ function stageRarity(
     : skin.rarity;
 }
 
-function compareReferenceItems(
+export function compareRuntimeSkinReferenceItems(
   left: RuntimeSkinReferenceItem,
   right: RuntimeSkinReferenceItem,
 ): number {
@@ -98,7 +98,8 @@ function compareReferenceItems(
   return (
     stageSortValue(left.stageIndex) - stageSortValue(right.stageIndex) ||
     (left.stageId ?? 0) - (right.stageId ?? 0) ||
-    (left.name ?? "").localeCompare(right.name ?? "")
+    (left.name ?? "").localeCompare(right.name ?? "") ||
+    left.championId - right.championId
   );
 }
 
@@ -110,7 +111,7 @@ function skinItem(skin: RuntimeSkinEntity): RuntimeSkinReferenceItem {
     championId: skin.championId,
     skinId: skin.id,
     target,
-    stableKey: stableKey(target),
+    stableKey: runtimeSkinReferenceIdentity(target),
     name: skin.name,
     championName: skin.championName,
     description: skin.description,
@@ -144,7 +145,7 @@ function stageItem(
     stageId: stage.id,
     stageIndex: stage.stageIndex,
     target,
-    stableKey: stableKey(target),
+    stableKey: runtimeSkinReferenceIdentity(target),
     name: stage.name,
     championName: skin.championName,
     description: stage.description ?? skin.description,
@@ -165,18 +166,13 @@ function deduplicateReferenceItems(
 ): readonly RuntimeSkinReferenceItem[] {
   const unique = new Map<string, RuntimeSkinReferenceItem>();
   for (const item of items) {
-    if (!unique.has(item.stableKey)) unique.set(item.stableKey, item);
+    const identity = runtimeSkinReferenceIdentity(item.target);
+    if (!unique.has(identity)) unique.set(identity, item);
   }
   return [...unique.values()];
 }
 
-function championSkinIdentity(item: RuntimeSkinReferenceItem): string {
-  if (item.kind === "stage")
-    return `stage:${item.skinId}:${item.stageId ?? item.skinId}`;
-  return `skin:${item.skinId}`;
-}
-
-function deduplicateChampionSkinItems(
+function deduplicateSkinReferenceItems(
   items: readonly RuntimeSkinReferenceItem[],
 ): readonly RuntimeSkinReferenceItem[] {
   // Stage IDs replace a colliding top-level ID, while the parent skin ID
@@ -184,14 +180,28 @@ function deduplicateChampionSkinItems(
   const stageIds = new Set(
     items.flatMap((item) =>
       item.kind === "stage" && item.stageId !== undefined
-        ? [item.stageId]
+        ? [
+            runtimeSkinReferenceIdentity({
+              championId: item.championId,
+              skinId: item.stageId,
+            }),
+          ]
         : [],
     ),
   );
   const unique = new Map<string, RuntimeSkinReferenceItem>();
   for (const item of items) {
-    if (item.kind === "skin" && stageIds.has(item.skinId)) continue;
-    const identity = championSkinIdentity(item);
+    if (
+      item.kind === "skin" &&
+      stageIds.has(
+        runtimeSkinReferenceIdentity({
+          championId: item.championId,
+          skinId: item.skinId,
+        }),
+      )
+    )
+      continue;
+    const identity = runtimeSkinReferenceIdentity(item.target);
     if (!unique.has(identity)) unique.set(identity, item);
   }
   return [...unique.values()];
@@ -248,7 +258,23 @@ export function projectSkinReferenceItems(
       return item ? [item] : [];
     }),
   ];
-  return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
+  return [...deduplicateReferenceItems(items)].sort(
+    compareRuntimeSkinReferenceItems,
+  );
+}
+
+/**
+ * Project a complete skin collection through the same identity, stage
+ * precedence, deduplication, and canonical ordering used by champion and PBE
+ * pages.
+ */
+export function projectSkinReferenceCollectionItems(
+  skins: readonly RuntimeSkinEntity[],
+): readonly RuntimeSkinReferenceItem[] {
+  const items = skins.flatMap((skin) => projectSkinReferenceItems(skin));
+  return [...deduplicateSkinReferenceItems(items)].sort(
+    compareRuntimeSkinReferenceItems,
+  );
 }
 
 /**
@@ -260,9 +286,9 @@ export function projectChampionSkinReferenceItems(
   championId: number,
   skins: readonly RuntimeSkinSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
-  const items = skins
-    .flatMap((skin) => projectSkinReferenceItems(championSkinEntity(championId, skin)));
-  return [...deduplicateChampionSkinItems(items)].sort(compareReferenceItems);
+  return projectSkinReferenceCollectionItems(
+    skins.map((skin) => championSkinEntity(championId, skin)),
+  );
 }
 
 /**
@@ -274,10 +300,11 @@ export function projectChampionSkinListItems(
   championId: number,
   skins: readonly RuntimeSkinSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
-  const items = skins
-    .filter((skin) => !skin.isBase)
-    .flatMap((skin) => projectSkinReferenceItems(championSkinEntity(championId, skin)));
-  return [...deduplicateChampionSkinItems(items)].sort(compareReferenceItems);
+  return projectSkinReferenceCollectionItems(
+    skins
+      .filter((skin) => !skin.isBase)
+      .map((skin) => championSkinEntity(championId, skin)),
+  );
 }
 
 function rarityRank(item: RuntimeSkinReferenceItem): number {
@@ -298,7 +325,8 @@ export function sortSkinReferenceItems(
   if (sort === "release") return items;
   return [...items].sort(
     (left, right) =>
-      rarityRank(right) - rarityRank(left) || compareReferenceItems(left, right),
+      rarityRank(right) - rarityRank(left) ||
+      compareRuntimeSkinReferenceItems(left, right),
   );
 }
 
@@ -312,7 +340,7 @@ export function findSkinReferenceItem(
   )
     return undefined;
   return projectSkinReferenceItems(skin).find(
-    (item) => item.stableKey === stableKey(target),
+    (item) => item.stableKey === runtimeSkinReferenceIdentity(target),
   );
 }
 
@@ -330,7 +358,9 @@ export function projectSkinlineReferenceItems(
       (item) => !item.isBase && item.skinlineIds.includes(skinlineId),
     ),
   );
-  return [...deduplicateReferenceItems(items)].sort(compareReferenceItems);
+  return [...deduplicateReferenceItems(items)].sort(
+    compareRuntimeSkinReferenceItems,
+  );
 }
 
 /**
@@ -358,7 +388,9 @@ export function projectUniverseReferenceGroups(
       );
       return {
         skinlineId,
-        items: [...deduplicateReferenceItems(items)].sort(compareReferenceItems),
+        items: [...deduplicateReferenceItems(items)].sort(
+          compareRuntimeSkinReferenceItems,
+        ),
       };
     });
   return groups;
