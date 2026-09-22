@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: completed
 ---
 
 # 统一运行时通道加载生命周期规格
@@ -100,6 +100,14 @@ LoL Chroma Art 的两个浏览器入口都需要按 `pbe` / `latest` 数据通�
 - 不改变静态臻彩正文、博客、首页、SEO、sitemap、广告策略或 Cloudflare 部署流程。
 - 不将运行时资料变成构建时依赖，也不让静态图鉴内容等待 CommunityDragon 请求完成。
 - 不保证 CommunityDragon 源站可用；源站不可用时仍按现有结构化错误和重试行为处理。
+
+## Implementation Status
+
+- 已完成共享的 `RuntimeChannelLifecycle` module，并接入静态臻彩运行时补充资料与运行时资料页面。
+- 已集中处理 generation、请求取消、旧响应保护、成功后提交 URL、失败保留、重试和浏览器历史导航。
+- 已补充共享生命周期行为测试与两个调用方的适配测试。
+- 实现 commit：`dfcbaa2 feat: 统一运行时通道生命周期`。
+- 验证：`pnpm test`（38 个测试文件、315 个测试全部通过）；`pnpm typecheck`（0 errors，存在既有提示/hints）。
 
 ## Further Notes
 
