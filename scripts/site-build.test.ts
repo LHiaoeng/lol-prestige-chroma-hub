@@ -446,9 +446,8 @@ describe("static site build", () => {
       `${sample.nameEn} China-Exclusive Chroma Splash Art`,
     );
     expect(detail).toContain("Click the image to preview");
-    expect(detail).not.toContain("data-chroma-runtime");
-    expect(detail).not.toContain("Additional skin reference");
-    expect(detail).not.toContain("皮肤补充资料");
+    expect(detail).toContain("data-chroma-runtime");
+    expect(detail).toContain("Optional game reference");
     expect(detail).not.toContain("点击图片预览");
     expect(detail).toMatch(/More [^<]+ Prestige Chromas/);
     expect(detail).toContain('"representativeOfPage":true');

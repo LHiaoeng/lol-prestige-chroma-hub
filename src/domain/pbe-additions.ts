@@ -6,7 +6,8 @@ import type {
   RuntimeVersionMetadata,
 } from "./communitydragon-runtime";
 import {
-  projectSkinReferenceItems,
+  compareRuntimeSkinReferenceItems,
+  projectSkinReferenceCollectionItems,
   type RuntimeSkinReferenceItem,
 } from "./skin-reference-projection";
 
@@ -53,20 +54,6 @@ function additionsById<T extends { readonly id: number; readonly name: string }>
     .sort((left, right) => left.id - right.id || left.name.localeCompare(right.name));
 }
 
-function compareSkinItems(
-  left: RuntimeSkinReferenceItem,
-  right: RuntimeSkinReferenceItem,
-): number {
-  return (
-    left.skinId - right.skinId ||
-    (left.kind === "skin" ? -1 : 1) - (right.kind === "skin" ? -1 : 1) ||
-    (left.stageIndex ?? Number.MAX_SAFE_INTEGER) -
-      (right.stageIndex ?? Number.MAX_SAFE_INTEGER) ||
-    (left.stageId ?? 0) - (right.stageId ?? 0) ||
-    (left.name ?? "").localeCompare(right.name ?? "")
-  );
-}
-
 export function projectPbeAdditions(
   input: RuntimePbeComparisonInput,
 ): RuntimePbeAdditions {
@@ -77,14 +64,12 @@ export function projectPbeAdditions(
   const championNames = new Map(
     input.pbe.champions.map((champion) => [champion.id, champion.name]),
   );
-  const skins = newSkins
-    .flatMap((skin) =>
-      projectSkinReferenceItems(skin).map((item) => ({
-        ...item,
-        championName: championNames.get(item.championId),
-      })),
-    )
-    .sort(compareSkinItems);
+  const skins = projectSkinReferenceCollectionItems(newSkins)
+    .map((item) => ({
+      ...item,
+      championName: championNames.get(item.championId),
+    }))
+    .sort(compareRuntimeSkinReferenceItems);
   const counts = {
     champions: champions.length,
     skins: newSkins.length,

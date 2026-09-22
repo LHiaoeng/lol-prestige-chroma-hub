@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
 import { channelFromLocation, createDomView } from "./chroma-runtime";
 import {
-  createDomRuntimeView,
+  createDomRuntimeView as createRuntimeDomView,
   shouldHandleRuntimeNavigation,
   type RuntimeHistory,
 } from "./runtime-reference";
@@ -138,6 +138,17 @@ function history(initial = "https://chromaart.lol/champions/"): RuntimeHistory {
       return () => {};
     },
   };
+}
+
+type DomRenderTestView = Omit<ReturnType<typeof createRuntimeDomView>, "loading"> & {
+  loading: (preserve: boolean, context: any) => void;
+} &
+  Record<string, (...args: any[]) => any>;
+
+function createDomRuntimeView(
+  options: Parameters<typeof createRuntimeDomView>[0],
+): DomRenderTestView {
+  return createRuntimeDomView(options) as DomRenderTestView;
 }
 
 afterEach(() => vi.unstubAllGlobals());

@@ -45,7 +45,7 @@ const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
 
 <script>
   import { initRuntimeReference } from '../client/runtime-reference';
-  import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../client/runtime-url-state';
+  import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../client/runtime-url-state-dom';
   bindRuntimeLanguageToggle(document);
   bindRuntimeChannelLinks(document);
   const root = document.querySelector<HTMLElement>('[data-runtime-page]');

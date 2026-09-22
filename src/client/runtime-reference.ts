@@ -17,6 +17,20 @@ import {
 import { asCommunityDragonError } from "./communitydragon-errors";
 export { runtimeFailureMessage } from "./communitydragon-errors";
 import { browserHistory, createDomRuntimeView } from "./runtime-reference-view";
+import {
+  RuntimeChannelLifecycle,
+  type RuntimeChannelLoadContext,
+  type RuntimeChannelHistory,
+} from "./runtime-channel-lifecycle";
+import {
+  RuntimePageOrchestration,
+  type RuntimePageSlotDefinition,
+  type RuntimePageState as OrchestratedRuntimePageState,
+} from "./runtime-page-orchestration";
+import {
+  formatRuntimeUrl,
+  readRuntimeUrlState,
+} from "../domain/runtime-url-state";
 export {
   createDomRuntimeView,
   shouldHandleRuntimeNavigation,
@@ -25,55 +39,16 @@ export {
 export type RuntimePage = RuntimeListKind | "skins" | "pbe-additions";
 export type RuntimePageMode = "list" | "detail" | "pbe";
 
-export interface RuntimeHistory {
-  readonly url: URL;
-  push(url: URL): void;
-  replace(url: URL): void;
-  onPopState(listener: () => void): () => void;
-}
+export interface RuntimeHistory extends RuntimeChannelHistory {}
 
 export interface RuntimeView {
-  loading(preserve: boolean, channel?: "pbe" | "latest"): void;
-  renderList(
-    items: RuntimeList,
-    state: Extract<RuntimeLocationState, { mode: "list" }>,
+  loading(
+    preserve: boolean,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
   ): void;
-  renderDetail(
-    item: RuntimeEntity,
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderPbeAdditions?(items: RuntimePbeAdditions): void;
-  renderRelations?(
-    items: RuntimeList,
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderSkinlineSkins?(
-    items: readonly RuntimeSkinReferenceItem[],
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderUniverseSkins?(
-    groups: readonly RuntimeSkinReferenceGroup[],
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderListRelations?(
-    items: RuntimeList,
-    state: Extract<RuntimeLocationState, { mode: "list" }>,
-  ): void;
+  render(state: RuntimePageState): void;
+  committed?(channel: "pbe" | "latest", url: URL): void;
   invalid(message: string, channel?: "pbe" | "latest"): void;
-  failure(error: CommunityDragonRuntimeError, retry: () => void): void;
-  relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
-  skinlineSkinsFailure?(
-    error: CommunityDragonRuntimeError,
-    retry: () => void,
-  ): void;
-  universeSkinsFailure?(
-    error: CommunityDragonRuntimeError,
-    retry: () => void,
-  ): void;
-  listRelationsFailure?(
-    error: CommunityDragonRuntimeError,
-    retry: () => void,
-  ): void;
 }
 
 export type RuntimeLocationState =
@@ -107,41 +82,39 @@ export interface RuntimeControllerOptions {
   readonly pageMode: RuntimePageMode;
 }
 
-function positiveSafeInteger(value: string | null): number | undefined {
-  if (!value || !/^[1-9]\d*$/.test(value)) return undefined;
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) ? parsed : undefined;
-}
-
-function channel(value: string | null): "pbe" | "latest" | undefined {
-  if (value === null) return "pbe";
-  return value === "pbe" || value === "latest" ? value : undefined;
-}
-
 export function parseRuntimeLocation(
   url: URL,
   page: RuntimePage,
   pageMode: RuntimePageMode,
 ): RuntimeLocationState {
-  const selectedChannel = channel(url.searchParams.get("channel"));
-  if (!selectedChannel) return { mode: "invalid", page };
+  const urlState = readRuntimeUrlState(url);
+  const selectedChannel = urlState.invalid.includes("channel")
+    ? undefined
+    : urlState.channel;
+  if (selectedChannel === undefined) return { mode: "invalid", page };
   if (page === "pbe-additions") return { mode: "pbe", page };
   if (pageMode === "list") {
     if (page === "skins") return { mode: "invalid", page, channel: selectedChannel };
     return { mode: "list", page, channel: selectedChannel };
   }
   const hasId = url.searchParams.has("id");
-  const rawId = url.searchParams.get("id");
-  if (pageMode === "detail" && !hasId)
+  if (
+    pageMode === "detail" &&
+    (!hasId || urlState.invalid.includes("id") || urlState.id === undefined)
+  )
     return { mode: "invalid", page, channel: selectedChannel };
-  const id = positiveSafeInteger(rawId);
+  const id = urlState.id;
   if (!id) return { mode: "invalid", page, channel: selectedChannel };
   if (page === "skins") {
-    const championId = positiveSafeInteger(url.searchParams.get("champion"));
-    if (!championId) return { mode: "invalid", page, channel: selectedChannel };
+    const championId = urlState.champion;
+    if (
+      !championId ||
+      urlState.invalid.includes("champion")
+    )
+      return { mode: "invalid", page, channel: selectedChannel };
     const hasStage = url.searchParams.has("stage");
-    const stageId = positiveSafeInteger(url.searchParams.get("stage"));
-    if (hasStage && !stageId)
+    const stageId = urlState.stage;
+    if (hasStage && (urlState.invalid.includes("stage") || !stageId))
       return { mode: "invalid", page, channel: selectedChannel };
     return {
       mode: "detail",
@@ -163,325 +136,267 @@ export function parseRuntimeLocation(
 }
 
 export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
-  const next = new URL(url);
-  next.search = "";
-  if (state.mode === "invalid") return next;
-  if (state.mode === "pbe") return next;
-  if (state.mode === "detail") {
-    next.searchParams.set("id", String(state.id));
-    if (state.kind === "skin" && state.championId)
-      next.searchParams.set("champion", String(state.championId));
-    if (state.kind === "skin" && state.stageId)
-      next.searchParams.set("stage", String(state.stageId));
-  }
-  if (state.channel === "latest") next.searchParams.set("channel", "latest");
-  return next;
+  if (state.mode === "invalid") return formatRuntimeUrl(url, {}, []);
+  if (state.mode === "pbe") return formatRuntimeUrl(url, {}, []);
+  const source = readRuntimeUrlState(url);
+  const include =
+    state.mode === "detail" && state.kind === "skin"
+      ? (["id", "champion", "stage", "channel"] as const)
+      : (["id", "channel"] as const);
+  return formatRuntimeUrl(
+    url,
+    {
+      id: state.mode === "detail" ? state.id : undefined,
+      champion: state.mode === "detail" ? state.championId : undefined,
+      stage: state.mode === "detail" ? state.stageId : undefined,
+      channel: state.mode === "detail" || state.mode === "list" ? state.channel : undefined,
+      channelExplicit:
+        state.channel === "pbe" &&
+        source.channel === "pbe" &&
+        source.channelExplicit,
+    },
+    include,
+  );
 }
 
-type RuntimeDetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
+export type RuntimeCoreResult =
+  | { readonly mode: "pbe"; readonly items: RuntimePbeAdditions }
+  | { readonly mode: "list"; readonly items: RuntimeList }
+  | { readonly mode: "detail"; readonly item: RuntimeEntity };
 
-function relationKinds(
-  state: RuntimeDetailState,
-): readonly Extract<RuntimeListKind, "skinlines" | "universes">[] {
-  if (state.kind === "skinline") return ["universes"];
-  if (state.kind === "universe") return ["skinlines"];
-  if (state.kind === "skin") return ["skinlines", "universes"];
-  return [];
+export interface RuntimePageSlotValues {
+  readonly "list-skinlines": RuntimeList;
+  readonly "relation-skinlines": RuntimeList;
+  readonly "relation-universes": RuntimeList;
+  readonly "skinline-skins": readonly RuntimeSkinReferenceItem[];
+  readonly "universe-skins": readonly RuntimeSkinReferenceGroup[];
 }
 
-function relatedItems(
-  entity: RuntimeEntity,
-  state: RuntimeDetailState,
-  items: RuntimeList,
-): RuntimeList {
-  if (state.kind === "skinline" && entity.kind === "skinline") {
-    return items.filter(
-      (item) =>
-        item.kind === "universe" &&
-        (entity.universeIds.includes(item.id) ||
-          item.skinlineIds.includes(state.id)),
-    );
-  }
-  if (state.kind === "universe" && entity.kind === "universe") {
-    return items.filter(
-      (item) =>
-        item.kind === "skinline" &&
-        (entity.skinlineIds.includes(item.id) ||
-          item.universeIds.includes(state.id)),
-    );
-  }
-  if (state.kind === "skin" && entity.kind === "skin") {
-    const skinlineIds = entity.skinlineIds;
-    const universeIds = entity.universeIds ?? [];
-    return items.filter(
-      (item) =>
-        (item.kind === "skinline" && skinlineIds.includes(item.id)) ||
-        (item.kind === "universe" &&
-          (universeIds.includes(item.id) ||
-            item.skinlineIds.some((id) => skinlineIds.includes(id)))),
-    );
-  }
-  return [];
-}
+export type RuntimePageState = OrchestratedRuntimePageState<
+  RuntimeLocationState,
+  RuntimeCoreResult,
+  RuntimePageSlotValues,
+  CommunityDragonRuntimeError
+>;
 
 export class RuntimeController {
-  private abortController: AbortController | undefined;
-  private generation = 0;
-  private hasContent = false;
-  private committedUrl: URL | undefined;
-  private unsubscribePopState: (() => void) | undefined;
+  private readonly lifecycle: RuntimeChannelLifecycle<
+    RuntimeLocationState,
+    RuntimeCoreResult,
+    CommunityDragonRuntimeError
+  >;
+  private readonly orchestration: RuntimePageOrchestration<
+    RuntimeLocationState,
+    RuntimeCoreResult,
+    RuntimePageSlotValues,
+    CommunityDragonRuntimeError
+  >;
 
   constructor(
     private readonly runtime: CommunityDragonRuntime,
     private readonly view: RuntimeView,
-    private readonly history: RuntimeHistory,
+    history: RuntimeHistory,
     private readonly options: RuntimeControllerOptions,
-  ) {}
+  ) {
+    this.orchestration = new RuntimePageOrchestration({
+      plan: (context, core) => this.planSupplements(context, core),
+      normalizeError: (error) =>
+        asCommunityDragonError(error, this.options.locale),
+      isAborted: (error) => error.code === "aborted",
+      onState: (state) => this.view.render(state),
+    });
+    this.lifecycle = new RuntimeChannelLifecycle({
+      history,
+      parse: (url) => {
+        const state = parseRuntimeLocation(
+          url,
+          this.options.page,
+          this.options.pageMode,
+        );
+        if (state.mode === "invalid")
+          return {
+            status: "invalid",
+            channel: state.channel,
+            message:
+              this.options.locale === "zh_cn"
+                ? "链接无效，请检查实体 ID 与版本数据源。"
+                : "This link is invalid. Check the entity ID and data channel.",
+          };
+        return {
+          status: "valid",
+          channel: state.mode === "pbe" ? "pbe" : state.channel,
+          target: state,
+        };
+      },
+      load: (state, signal) => this.loadCore(state, signal),
+      normalizeError: (error) =>
+        asCommunityDragonError(error, this.options.locale),
+      isAborted: (error) => error.code === "aborted",
+      view: {
+        loading: (preserveContent, context) =>
+          (this.orchestration.begin(context),
+          this.view.loading(preserveContent, context)),
+        render: (result, context) =>
+          this.orchestration.ready(result, context),
+        invalid: (message, channel) => {
+          this.orchestration.invalidate();
+          this.view.invalid(message, channel);
+        },
+        failure: (error, retry) => {
+          const context = this.orchestration.state.context;
+          if (context) this.orchestration.failed(error, retry, context);
+        },
+        committed: (context) =>
+          this.view.committed?.(context.channel, context.url),
+      },
+    });
+  }
 
   start(): Promise<void> {
-    this.unsubscribePopState?.();
-    this.committedUrl = new URL(this.history.url);
-    this.unsubscribePopState = this.history.onPopState(() => {
-      void this.load(this.history.url, false);
-    });
-    return this.load(this.history.url, false);
+    return this.lifecycle.start();
   }
 
   navigate(url: URL): Promise<void> {
-    return this.load(url, true);
+    return this.lifecycle.navigate(url);
   }
 
   dispose(): void {
-    this.unsubscribePopState?.();
-    this.unsubscribePopState = undefined;
-    this.abortController?.abort();
-    this.generation += 1;
+    this.lifecycle.dispose();
+    this.orchestration.invalidate();
   }
 
-  private async load(url: URL, commit: boolean): Promise<void> {
-    const state = parseRuntimeLocation(
-      url,
-      this.options.page,
-      this.options.pageMode,
-    );
-    if (state.mode === "invalid") {
-      this.abortController?.abort();
-      this.generation += 1;
-      this.view.invalid(
-        this.options.locale === "zh_cn"
-          ? "链接无效，请检查实体 ID 与版本数据源。"
-          : "This link is invalid. Check the entity ID and data channel.",
-        state.channel,
-      );
-      return;
-    }
-    const generation = ++this.generation;
-    this.abortController?.abort();
-    const controller = new AbortController();
-    this.abortController = controller;
-    this.view.loading(
-      this.hasContent,
-      state.mode === "pbe" ? undefined : state.channel,
-    );
-    try {
-      if (state.mode === "pbe") {
-        const getPbeAdditions = this.runtime.getPbeAdditions;
-        if (!getPbeAdditions)
-          throw new CommunityDragonRuntimeError(
-            "not-found",
-            "PBE additions are unavailable",
-          );
-        const result = await getPbeAdditions({
+  private async loadCore(
+    state: RuntimeLocationState,
+    signal: AbortSignal,
+  ): Promise<RuntimeCoreResult> {
+    if (state.mode === "pbe") {
+      const getPbeAdditions = this.runtime.getPbeAdditions;
+      if (!getPbeAdditions)
+        throw new CommunityDragonRuntimeError(
+          "not-found",
+          "PBE additions are unavailable",
+        );
+      return {
+        mode: "pbe",
+        items: await getPbeAdditions({
           locale: this.options.locale,
-          signal: controller.signal,
-        });
-        if (generation !== this.generation) return;
-        this.commitUrl(url, commit);
-        this.view.renderPbeAdditions?.(result);
-      } else if (state.mode === "list") {
-        const result = await this.runtime.list(state.page, {
+          signal,
+        }),
+      };
+    }
+    if (state.mode === "list")
+      return {
+        mode: "list",
+        items: await this.runtime.list(state.page, {
           locale: this.options.locale,
           channel: state.channel,
-          signal: controller.signal,
-        });
-        if (generation !== this.generation) return;
-        this.commitUrl(url, commit);
-        this.view.renderList(result, state);
-        if (state.page === "universes")
-          void this.loadUniverseListRelations(state, generation, controller);
-      } else {
-        const result = await this.runtime.get(state.kind, state.id, {
-          locale: this.options.locale,
-          channel: state.channel,
-          championId: state.championId,
-          stageId: state.stageId,
-          signal: controller.signal,
-        });
-        if (generation !== this.generation) return;
-        this.commitUrl(url, commit);
-        this.view.renderDetail(result, state);
-        const listKinds = relationKinds(state);
-        if (listKinds.length)
-          void this.loadRelations(
-            result,
-            state,
-            listKinds,
-            generation,
-            controller,
-          );
-        if (state.kind === "skinline")
-          void this.loadSkinlineSkins(state, generation, controller);
-        if (state.kind === "universe" && result.kind === "universe")
-          void this.loadUniverseSkins(result, state, generation, controller);
-      }
-      if (generation !== this.generation) return;
-      this.hasContent = true;
-    } catch (error) {
-      if (generation !== this.generation) return;
-      if (
-        error instanceof CommunityDragonRuntimeError &&
-        error.code === "aborted"
-      )
-        return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (
-        !commit &&
-        this.committedUrl &&
-        this.history.url.href === url.href &&
-        this.committedUrl.href !== url.href
-      )
-        this.history.replace(this.committedUrl);
-      const retryCommit = commit || this.history.url.href !== url.href;
-      this.view.failure(runtimeError, () => {
-        void this.load(url, retryCommit);
-      });
-    }
-  }
-
-  private commitUrl(url: URL, commit: boolean): void {
-    if (commit && this.history.url.href !== url.href) this.history.push(url);
-    this.committedUrl = new URL(url);
-  }
-
-  private async loadSkinlineSkins(
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-    generation: number,
-    controller: AbortController,
-  ): Promise<void> {
-    try {
-      const items = await this.runtime.listSkinlineSkins(state.id, {
+          signal,
+        }),
+      };
+    if (state.mode !== "detail")
+      throw new Error("Invalid runtime state reached the core loader");
+    return {
+      mode: "detail",
+      item: await this.runtime.get(state.kind, state.id, {
         locale: this.options.locale,
         channel: state.channel,
-        signal: controller.signal,
-      });
-      if (generation !== this.generation) return;
-      this.view.renderSkinlineSkins?.(items, state);
-    } catch (error) {
-      if (generation !== this.generation) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.skinlineSkinsFailure?.(runtimeError, () => {
-        void this.loadSkinlineSkins(state, generation, controller);
-      });
-    }
+        championId: state.championId,
+        stageId: state.stageId,
+        signal,
+      }),
+    };
   }
 
-  private async loadUniverseSkins(
-    entity: Extract<RuntimeEntity, { kind: "universe" }>,
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-    generation: number,
-    controller: AbortController,
-  ): Promise<void> {
-    if (!this.runtime.listUniverseSkins) return;
-    try {
-      const groups = await this.runtime.listUniverseSkins(
-        state.id,
-        entity.skinlineIds,
+  private planSupplements(
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
+    core: RuntimeCoreResult,
+  ): readonly RuntimePageSlotDefinition<
+    RuntimeLocationState,
+    RuntimeCoreResult,
+    RuntimePageSlotValues
+  >[] {
+    const state = context.target;
+    if (core.mode === "pbe") return [];
+    if (state.mode === "list") {
+      if (state.page !== "universes") return [];
+      return [
         {
-          locale: this.options.locale,
-          channel: state.channel,
-          signal: controller.signal,
+          key: "list-skinlines" as const,
+          load: (slotContext) =>
+            this.runtime.list("skinlines", {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        },
+      ];
+    }
+    if (state.mode !== "detail" || core.mode !== "detail") return [];
+    if (state.kind === "champion") return [];
+    const slots: RuntimePageSlotDefinition<
+      RuntimeLocationState,
+      RuntimeCoreResult,
+      RuntimePageSlotValues
+    >[] = [];
+    const entity = core.item;
+    if (state.kind === "skinline" && entity.kind === "skinline") {
+      slots.push(
+        {
+          key: "skinline-skins",
+          load: (slotContext) =>
+            this.runtime.listSkinlineSkins(state.id, {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        },
+        {
+          key: "relation-universes",
+          load: (slotContext) =>
+            this.runtime.list("universes", {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
         },
       );
-      if (generation !== this.generation) return;
-      this.view.renderUniverseSkins?.(groups, state);
-    } catch (error) {
-      if (generation !== this.generation) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.universeSkinsFailure?.(runtimeError, () => {
-        void this.loadUniverseSkins(entity, state, generation, controller);
-      });
-    }
-  }
-
-  private async loadUniverseListRelations(
-    state: Extract<RuntimeLocationState, { mode: "list" }>,
-    generation: number,
-    controller: AbortController,
-  ): Promise<void> {
-    try {
-      const items = await this.runtime.list("skinlines", {
-        locale: this.options.locale,
-        channel: state.channel,
-        signal: controller.signal,
-      });
-      if (generation !== this.generation) return;
-      this.view.renderListRelations?.(items, state);
-    } catch (error) {
-      if (generation !== this.generation) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.listRelationsFailure?.(runtimeError, () => {
-        void this.loadUniverseListRelations(state, generation, controller);
-      });
-    }
-  }
-
-  private async loadRelations(
-    entity: RuntimeEntity,
-    state: RuntimeDetailState,
-    kinds: readonly Extract<RuntimeListKind, "skinlines" | "universes">[],
-    generation: number,
-    controller: AbortController,
-  ): Promise<void> {
-    try {
-      const results = await Promise.allSettled(
-        kinds.map((kind) =>
-          this.runtime.list(kind, {
+    } else if (state.kind === "universe" && entity.kind === "universe") {
+      slots.push({
+        key: "relation-skinlines",
+        load: (slotContext) =>
+          this.runtime.list("skinlines", {
             locale: this.options.locale,
             channel: state.channel,
-            signal: controller.signal,
+            signal: slotContext.signal,
           }),
-        ),
-      );
-      if (generation !== this.generation) return;
-      const items = results.flatMap((result) =>
-        result.status === "fulfilled" ? result.value : [],
-      );
-      this.view.renderRelations?.(relatedItems(entity, state, items), state);
-      const rejected = results.find(
-        (result): result is PromiseRejectedResult =>
-          result.status === "rejected",
-      );
-      if (rejected) {
-        const runtimeError = asCommunityDragonError(
-          rejected.reason,
-          this.options.locale,
-        );
-        if (runtimeError.code === "aborted") return;
-        this.view.relationFailure?.(runtimeError, () => {
-          void this.loadRelations(entity, state, kinds, generation, controller);
-        });
-      }
-    } catch (error) {
-      if (generation !== this.generation) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.relationFailure?.(runtimeError, () => {
-        void this.loadRelations(entity, state, kinds, generation, controller);
       });
+      slots.push({
+        key: "universe-skins",
+        load: (slotContext) =>
+          this.runtime.listUniverseSkins
+            ? this.runtime.listUniverseSkins(state.id, entity.skinlineIds, {
+                locale: this.options.locale,
+                channel: state.channel,
+                signal: slotContext.signal,
+              })
+            : Promise.resolve([]),
+      });
+    } else if (state.kind === "skin" && entity.kind === "skin") {
+      for (const kind of ["skinlines", "universes"] as const)
+        slots.push({
+          key:
+            kind === "skinlines"
+              ? "relation-skinlines"
+              : "relation-universes",
+          load: (slotContext) =>
+            this.runtime.list(kind, {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        });
     }
+    return slots;
   }
 }
 

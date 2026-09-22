@@ -10,6 +10,10 @@ import {
   projectPbeAdditions,
   type RuntimePbeComparisonCollection,
 } from "./pbe-additions";
+import {
+  compareRuntimeSkinReferenceItems,
+  runtimeSkinReferenceIdentity,
+} from "./skin-reference-projection";
 
 function champion(id: number, name = `Champion ${id}`): RuntimeChampionSummary {
   return { kind: "champion", id, name };
@@ -66,6 +70,48 @@ function collection(
 }
 
 describe("PBE additions projection", () => {
+  it("exposes the shared skin identity and keeps PBE items in canonical order", () => {
+    expect(
+      runtimeSkinReferenceIdentity({
+        championId: 103,
+        skinId: 103001,
+        stageId: 103002,
+      }),
+    ).toBe("103:103001:stage:103002");
+
+    const result = projectPbeAdditions({
+      pbe: collection({
+        skins: [
+          skin(103002),
+          skin(103001, { stages: [stage(103002, 1)] }),
+        ],
+      }),
+      latest: collection(),
+    });
+
+    expect(result.skins.map((item) => item.stableKey)).toEqual([
+      "103:103001",
+      "103:103001:stage:103002",
+    ]);
+    expect(
+      [...result.skins].sort(compareRuntimeSkinReferenceItems),
+    ).toEqual(result.skins);
+  });
+
+  it("keeps equal skin IDs from different champions distinct", () => {
+    const result = projectPbeAdditions({
+      pbe: collection({
+        skins: [skin(103001), skin(103001, { championId: 104 })],
+      }),
+      latest: collection(),
+    });
+
+    expect(result.skins.map((item) => item.stableKey)).toEqual([
+      "103:103001",
+      "104:103001",
+    ]);
+  });
+
   it("compares top-level IDs, ignores field changes, and expands valid new stages", () => {
     const changedSkin = skin(103002, { name: "PBE name" });
     const newSkin = skin(103100, {
