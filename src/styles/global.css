@@ -381,14 +381,18 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   border-color: var(--gold);
 }
 .runtime-chroma-media {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   min-height: 96px;
   background: var(--panel2);
 }
 .runtime-chroma-media > img {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
 }
 .runtime-chroma-media > .runtime-missing {
   display: grid;
@@ -433,7 +437,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   border-radius: 50%;
   box-shadow: 0 1px 5px #0008;
 }
-.color-circle.empty {
+.color-circle.color-circle-empty {
   opacity: 0.5;
 }
 .color-circle.non-chroma {

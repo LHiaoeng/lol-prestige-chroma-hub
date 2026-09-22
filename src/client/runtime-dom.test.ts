@@ -888,6 +888,12 @@ describe("runtime DOM boundaries", () => {
     );
     expect(base?.querySelector(".runtime-chroma-note")).toBeNull();
     expect(base?.querySelector(".color-circle")?.className).toContain("non-chroma");
+    expect(base?.querySelector(".color-circle")?.className).toContain(
+      "color-circle-empty",
+    );
+    expect(base?.querySelector(".color-circle")?.className).not.toContain(
+      " empty",
+    );
     expect(base?.querySelector(".color-wrap")?.getAttribute("aria-label")).toBe(
       "Not a chroma",
     );

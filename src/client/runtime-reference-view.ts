@@ -399,7 +399,7 @@ function appendChromaColorCircle(
   }
 
   const circle = document.createElement("span");
-  circle.className = `color-circle${values.length ? "" : " empty"}${isChroma ? "" : " non-chroma"}`;
+  circle.className = `color-circle${values.length ? "" : " color-circle-empty"}${isChroma ? "" : " non-chroma"}`;
   if (isChroma) {
     circle.setAttribute("aria-label", values.join(", "));
   } else {
