@@ -25,16 +25,19 @@ interface Props { chroma: typeof catalog[number]; locale?: Locale }
 const { chroma } = Astro.props;
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
+const runtimeChannel = Astro.url.searchParams.get('channel') === 'latest' ? 'latest' : 'pbe';
+const runtimeChannelQuery = runtimeChannel === 'latest' ? '&channel=latest' : '';
+const sourceSkinPath = localizedPath(locale, `/skins/detail/?id=${chroma.sourceSkinId}&champion=${chroma.heroId}${runtimeChannelQuery}`);
+const skinlinePath = (id: number) => localizedPath(locale, `/skinlines/detail/?id=${id}${runtimeChannelQuery}`);
+const universePath = (id: number) => localizedPath(locale, `/universes/detail/?id=${id}${runtimeChannelQuery}`);
 const seo = createChromaSeo(chroma, locale);
 const image = seo.image;
 const mobileImage = imageUrl(chroma.images.medium);
 const relatedGroups = findRelatedGroups(catalog, chroma);
 const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
-const skinSetsZh = chroma.skinSets.map((item) => item.nameZh).join('、');
 const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
-const universesZh = chroma.universes.map((item) => item.nameZh).join('、');
 const prestigeChromaKeyword = chroma.nameEn;
-const baseSkinKeyword = chroma.skinNameEn;
+const sourceSkinKeyword = chroma.skinNameEn;
 const actionLabels = {
   skinSpotlights: { labelEn: 'VIEW ON SKINSPOTLIGHTS', labelZh: '在 SKINSPOTLIGHTS 查看' },
   khada: { labelEn: 'VIEW 3D MODEL ON KHADA', labelZh: '在 KHADA 查看 3D 模型' },
@@ -46,10 +49,10 @@ const prestigeChromaActions = [
   { ...actionLabels.khada, href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
   { ...actionLabels.google, href: googleSearchUrl(prestigeChromaKeyword) },
 ];
-const baseSkinActions = [
-  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(baseSkinKeyword) },
+const sourceSkinActions = [
+  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(sourceSkinKeyword) },
   { ...actionLabels.khada, href: khadaModelUrl(chroma.sourceSkinId) },
-  { ...actionLabels.google, href: googleSearchUrl(baseSkinKeyword) },
+  { ...actionLabels.google, href: googleSearchUrl(sourceSkinKeyword) },
 ];
 const championActions = [
   { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(chroma.heroNameEn) },
@@ -67,8 +70,7 @@ const patchActions = [
 ];
 const isSummonGuideChroma = brilliantSummonSessions.some((session) => session.rewards.some((reward) => reward.chromaNameEn === chroma.nameEn));
 const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/');
-const runtimeChannel = Astro.url.searchParams.get('channel') === 'latest' ? 'latest' : 'pbe';
-const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma.heroId}${runtimeChannel === 'latest' ? '&channel=latest' : ''}`);
+const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma.heroId}${runtimeChannelQuery}`);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
   <div class="detail-background" aria-hidden="true">
@@ -96,10 +98,9 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
         <div><dt>{isZh ? '分类图标' : 'Category icon'}</dt><dd><CategoryIconPreview src={sourceImageUrl('tag', chroma.tagId)} /></dd></div>
         {chroma.colors.length > 0 && <div><dt>{isZh ? '颜色' : 'Colors'}</dt><dd><ChromaColorCircle colors={chroma.colors} /></dd></div>}
         {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <div class="description-row"><dt>{isZh ? '描述' : 'Description'}</dt><dd>{isZh ? chroma.descriptionZh : chroma.descriptionEn}</dd></div>}
-        <div><dt>{isZh ? '原皮' : 'Base skin'}</dt><dd class="detail-value-with-actions"><span>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</span><DetailActionMenu actions={baseSkinActions} {locale} /></dd></div>
-        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span>{isZh ? skinSetsZh : skinSetsEn}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
-        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span>{isZh ? universesZh : universesEn}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
-        <div data-chroma-runtime data-champion-id={chroma.heroId} data-source-skin-id={chroma.sourceSkinId} data-runtime-locale={isZh ? 'zh_cn' : 'default'} aria-busy="false"><dt>{isZh ? '皮肤补充资料' : 'Additional skin reference'}</dt><dd><span data-chroma-static-copy>{isZh ? '正文已完整显示；可选资料将在浏览器中加载。' : 'The archive entry is complete; optional reference data loads in the browser.'}</span><span data-chroma-runtime-content></span><span class="chroma-runtime-channel" aria-label={isZh ? '版本数据源' : 'Version data source'}><button type="button" data-chroma-runtime-channel="pbe" aria-pressed={runtimeChannel === 'pbe'}>pbe</button><button type="button" data-chroma-runtime-channel="latest" aria-pressed={runtimeChannel === 'latest'}>latest</button></span></dd></div>
+        <div><dt>{isZh ? '所属皮肤' : 'Chroma parent skin'}</dt><dd class="detail-value-with-actions"><a class="source-skin-detail-link" data-runtime-channel-link href={sourceSkinPath}>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</a><DetailActionMenu actions={sourceSkinActions} {locale} /></dd></div>
+        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span class="detail-related-links">{chroma.skinSets.map((item, index) => <><a class="runtime-relation-link" data-runtime-channel-link href={skinlinePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.skinSets.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
+        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span class="detail-related-links">{chroma.universes.map((item, index) => <><a class="runtime-relation-link" data-runtime-channel-link href={universePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.universes.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
         <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" data-runtime-channel-link href={championRuntimeUrl}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
         <div><dt>{isZh ? '游戏版本' : 'Patch'}</dt><dd class="detail-value-with-actions"><span>{chroma.gameVer}</span><DetailActionMenu actions={patchActions} {locale} /></dd></div>
       </dl>
@@ -129,11 +130,9 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
   desktop.addEventListener('change', syncDetailDisclosure);
 </script>
 <script>
-  import { initChromaRuntime } from '../../client/chroma-runtime';
   import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../../client/runtime-url-state';
   bindRuntimeLanguageToggle(document);
   bindRuntimeChannelLinks(document);
-  initChromaRuntime(document);
 </script>
 <style>
   :global(main){position:relative;isolation:isolate}
@@ -152,9 +151,9 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
   .description-row dd{color:var(--muted);line-height:1.7}
   .detail-context-link{margin:18px 0 0;color:var(--muted);font-size:.86rem;line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
   .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
-  .champion-detail-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
-  .champion-detail-link:hover,.champion-detail-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
-   .chroma-runtime-channel{display:inline-flex;gap:6px;margin-left:8px;vertical-align:middle}.chroma-runtime-channel button,.chroma-runtime-retry{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);padding:5px 9px;font:inherit;font-size:.74rem;cursor:pointer}.chroma-runtime-channel button:hover,.chroma-runtime-channel button:focus-visible,.chroma-runtime-channel button[aria-pressed="true"],.chroma-runtime-retry:hover,.chroma-runtime-retry:focus-visible{border-color:var(--gold);color:var(--gold)}[data-chroma-runtime-content]{display:flex;flex-wrap:wrap;align-items:center;gap:8px;line-height:1.5}[data-chroma-runtime-content] img{width:min(180px,100%);height:auto;border-radius:6px;object-fit:cover}.chroma-runtime-description{color:var(--muted);font-size:.78rem}.chroma-runtime-links{display:inline-flex;flex-wrap:wrap;gap:10px}.chroma-runtime-links a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.chroma-runtime-error{display:inline-flex;align-items:center;gap:8px;color:var(--danger)}
+  .champion-detail-link,.source-skin-detail-link,.runtime-relation-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+  .champion-detail-link:hover,.champion-detail-link:focus-visible,.source-skin-detail-link:hover,.source-skin-detail-link:focus-visible,.runtime-relation-link:hover,.runtime-relation-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
+  .detail-related-links{line-height:1.7}
   @media(max-width:767px){
     .detail-background::after{background:linear-gradient(0deg,#090b15 0%,#090b1599 45%,#090b154d 100%)}
     .detail-background img{opacity:.42;object-position:center top}

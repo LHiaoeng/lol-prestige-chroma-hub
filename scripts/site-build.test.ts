@@ -446,10 +446,9 @@ describe("static site build", () => {
       `${sample.nameEn} China-Exclusive Chroma Splash Art`,
     );
     expect(detail).toContain("Click the image to preview");
-    expect(detail).toContain(
-      "The archive entry is complete; optional reference data loads in the browser.",
-    );
-    expect(detail).toContain("data-chroma-runtime");
+    expect(detail).not.toContain("data-chroma-runtime");
+    expect(detail).not.toContain("Additional skin reference");
+    expect(detail).not.toContain("皮肤补充资料");
     expect(detail).not.toContain("点击图片预览");
     expect(detail).toMatch(/More [^<]+ Prestige Chromas/);
     expect(detail).toContain('"representativeOfPage":true');
@@ -460,6 +459,37 @@ describe("static site build", () => {
     expect(detail).not.toContain("pagead2.googlesyndication.com");
     expect(detail).toContain(`href="/champions/detail/?id=${sample.heroId}"`);
     expect(detail).not.toMatch(/href="\/champions\/[a-z0-9-]+\/"/);
+  });
+
+  it("emits stable catalog links for chroma relations in both locales", () => {
+    const sample = catalog.find(
+      (item) => item.skinSets.length > 0 && item.universes.length > 0,
+    );
+    expect(sample).toBeDefined();
+    if (!sample) return;
+    const htmlHref = (path: string) => path.replaceAll("&", "&amp;");
+    const expectedLinks = (prefix: string) => [
+      `/${prefix}skins/detail/?id=${sample.sourceSkinId}&champion=${sample.heroId}`,
+      ...sample.skinSets.map(
+        (item) => `/${prefix}skinlines/detail/?id=${item.id}`,
+      ),
+      ...sample.universes.map(
+        (item) => `/${prefix}universes/detail/?id=${item.id}`,
+      ),
+    ];
+    for (const [prefix, route] of [
+      ["", "chromas"],
+      ["zh-cn/", "zh-cn/chromas"],
+    ] as const) {
+      const detail = readFileSync(
+        join(dist, ...route.split("/"), sample.slug, "index.html"),
+        "utf8",
+      );
+      for (const link of expectedLinks(prefix)) {
+        expect(detail).toContain(`href="${htmlHref(link)}"`);
+      }
+      expect(detail).toContain('data-runtime-channel-link');
+    }
   });
 
   it("audits the generated IA links and sitemap uniqueness", () => {

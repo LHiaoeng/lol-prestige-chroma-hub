@@ -29,7 +29,7 @@ describe('responsive layout contract', () => {
     expect(detail).toContain('class="sr-only detail-accessible-title"');
     expect(detail).toContain('.detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}');
     expect(detail).toMatch(/@media\(max-width:767px\)[\s\S]*?\.detail-info-disclosure:not\(\[open]\)>\.detail-info-body\{display:none}/);
-    for (const label of ['Category', 'Category icon', 'Colors', 'Description', 'Base skin', 'Skinlines', 'Universes', 'Champions', 'Patch']) {
+    for (const label of ['Category', 'Category icon', 'Colors', 'Description', 'Chroma parent skin', 'Skinlines', 'Universes', 'Champions', 'Patch']) {
       expect(detail).toContain(label);
     }
   });

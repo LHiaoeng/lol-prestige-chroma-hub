@@ -83,6 +83,7 @@ export interface RuntimeSkinSummary {
   readonly media: RuntimeMedia;
   readonly historicalArt?: readonly RuntimeHistoricalArtwork[];
   readonly stages: readonly RuntimeSkinStage[];
+  readonly chromas?: readonly RuntimeChroma[];
 }
 
 export interface RuntimeChampion extends RuntimeChampionSummary {

@@ -2,6 +2,7 @@ import {
   CommunityDragonRuntimeError,
   type CommunityDragonLocale,
   type RuntimeChampion,
+  type RuntimeChroma,
   type RuntimeSkinSummary,
 } from "../domain/communitydragon-runtime";
 import {
@@ -16,12 +17,14 @@ import { localizedPath } from "../i18n/config";
 
 export interface ChromaRuntimeSupplement {
   readonly champion: RuntimeChampion;
-  readonly baseSkin: RuntimeSkinSummary;
+  readonly sourceSkin: RuntimeSkinSummary;
+  readonly chroma: RuntimeChroma;
 }
 
 export interface ChromaRuntimeSupplementOptions {
   readonly championId: number;
   readonly sourceSkinId: number;
+  readonly chromaId: number;
   readonly locale: CommunityDragonLocale;
   readonly channel: "pbe" | "latest";
   readonly signal?: AbortSignal;
@@ -39,7 +42,7 @@ export interface ChromaRuntimeSupplementView {
 }
 
 function notFoundError(
-  kind: "champion" | "skin",
+  kind: "champion" | "skin" | "chroma",
   id: number,
 ): CommunityDragonRuntimeError {
   return new CommunityDragonRuntimeError(
@@ -65,16 +68,15 @@ export async function loadChromaRuntimeSupplement(
     });
     if (champion.kind !== "champion")
       throw notFoundError("champion", options.championId);
-    const baseSkin = champion.skins.find(
+    const sourceSkin = champion.skins.find(
       (skin) => skin.id === options.sourceSkinId,
     );
-    if (!baseSkin) throw notFoundError("skin", options.sourceSkinId);
-    if (!baseSkin.isBase)
-      throw new CommunityDragonRuntimeError(
-        "schema",
-        `Skin ${options.sourceSkinId} is not marked as a base skin`,
-      );
-    view.render({ champion, baseSkin });
+    if (!sourceSkin) throw notFoundError("skin", options.sourceSkinId);
+    const chroma = sourceSkin.chromas?.find(
+      (candidate) => candidate.id === options.chromaId,
+    );
+    if (!chroma) throw notFoundError("chroma", options.chromaId);
+    view.render({ champion, sourceSkin, chroma });
     return true;
   } catch (error) {
     const runtimeError = asCommunityDragonError(error, options.locale);
@@ -141,11 +143,11 @@ export function createDomView(
         ),
       );
     },
-    render({ champion, baseSkin }) {
+    render({ champion, sourceSkin }) {
       root.removeAttribute("aria-busy");
       const status = renderStatus(sourceLabel(getChannel()));
       const title = document.createElement("strong");
-      title.textContent = `${champion.name} · ${baseSkin.name}`;
+      title.textContent = `${champion.name} · ${sourceSkin.name}`;
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
@@ -160,12 +162,12 @@ export function createDomView(
       const skinLink = document.createElement("a");
       skinLink.href = localizedPath(
         siteLocale,
-        `/skins/detail/?id=${baseSkin.id}&champion=${champion.id}${channelQuery}`,
+        `/skins/detail/?id=${sourceSkin.id}&champion=${champion.id}${channelQuery}`,
       );
       skinLink.textContent =
-        locale === "zh_cn" ? "查看基础皮肤" : "View base skin";
+        locale === "zh_cn" ? "查看所属皮肤" : "View chroma parent skin";
       links.append(championLink, skinLink);
-      const descriptionText = baseSkin.description;
+      const descriptionText = sourceSkin.description;
       const description = descriptionText
         ? document.createElement("span")
         : undefined;
@@ -173,11 +175,11 @@ export function createDomView(
         description.className = "chroma-runtime-description";
         description.textContent = descriptionText;
       }
-      const mediaUrl = baseSkin.media.focusedSplashUrl;
+      const mediaUrl = sourceSkin.media.focusedSplashUrl;
       const image = mediaUrl ? document.createElement("img") : undefined;
       if (image && mediaUrl) {
         image.src = mediaUrl;
-        image.alt = baseSkin.name;
+        image.alt = sourceSkin.name;
         image.loading = "lazy";
         image.width = 320;
         image.height = 180;
@@ -218,11 +220,13 @@ export function initChromaRuntime(document: Document): void {
   roots.forEach((root) => {
     const championId = Number(root.dataset.championId);
     const sourceSkinId = Number(root.dataset.sourceSkinId);
+    const chromaId = Number(root.dataset.chromaId);
     const locale: CommunityDragonLocale =
       root.dataset.runtimeLocale === "zh_cn" ? "zh_cn" : "default";
     if (
       !Number.isSafeInteger(championId) ||
-      !Number.isSafeInteger(sourceSkinId)
+      !Number.isSafeInteger(sourceSkinId) ||
+      !Number.isSafeInteger(chromaId)
     )
       return;
     const runtime = createCommunityDragonRuntime();
@@ -272,6 +276,7 @@ export function initChromaRuntime(document: Document): void {
       const loaded = await loadChromaRuntimeSupplement(runtime, guardedView, {
         championId,
         sourceSkinId,
+        chromaId,
         locale,
         channel,
         signal: controller.signal,

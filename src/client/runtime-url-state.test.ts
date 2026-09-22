@@ -50,13 +50,25 @@ describe('runtime URL state binding', () => {
 
   it('keeps latest on static chroma champion runtime links', () => {
     const championLink = anchor('/champions/detail/?id=103');
+    const sourceSkinLink = anchor('/skins/detail/?id=103001&champion=103');
+    const skinlineLink = anchor('/skinlines/detail/?id=7');
+    const universeLink = anchor('/universes/detail/?id=200');
     bindRuntimeChannelLinks(
-      documentWith(null, [championLink]),
+      documentWith(null, [championLink, sourceSkinLink, skinlineLink, universeLink]),
       new URL('https://chromaart.lol/chromas/example/?channel=latest&tracking=drop'),
     );
 
     expect(championLink.setHref).toHaveBeenCalledWith(
       '/champions/detail/?id=103&channel=latest',
+    );
+    expect(sourceSkinLink.setHref).toHaveBeenCalledWith(
+      '/skins/detail/?id=103001&champion=103&channel=latest',
+    );
+    expect(skinlineLink.setHref).toHaveBeenCalledWith(
+      '/skinlines/detail/?id=7&channel=latest',
+    );
+    expect(universeLink.setHref).toHaveBeenCalledWith(
+      '/universes/detail/?id=200&channel=latest',
     );
   });
 });

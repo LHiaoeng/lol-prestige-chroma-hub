@@ -1180,7 +1180,7 @@ describe("runtime DOM boundaries", () => {
           },
         ],
       },
-      baseSkin: {
+      sourceSkin: {
         id: 103001,
         name: "玉狐",
         isBase: true,
@@ -1188,6 +1188,7 @@ describe("runtime DOM boundaries", () => {
         media: {},
         stages: [],
       },
+      chroma: { id: 103010, name: "玉狐红" },
     });
 
     expect(content.children[0].textContent).toBe("latest");
@@ -1216,7 +1217,7 @@ describe("runtime DOM boundaries", () => {
         name: "Ahri",
         skins: [],
       },
-      baseSkin: {
+      sourceSkin: {
         id: 103001,
         name: "Dynasty Ahri",
         isBase: true,
@@ -1224,6 +1225,7 @@ describe("runtime DOM boundaries", () => {
         media: {},
         stages: [],
       },
+      chroma: { id: 103010, name: "Dynasty Ahri Ruby" },
     });
 
     expect(content.querySelectorAll("a").map((link) => link.href)).toContain(
