@@ -61,7 +61,7 @@ describe('responsive layout contract', () => {
 
   it('keeps runtime and PBE reference pages usable at the mobile breakpoint', () => {
     const runtimeRoot = source('src/components/RuntimeReferenceRoot.astro');
-    const runtimeView = source('src/client/runtime-reference-view.ts');
+    const runtimeView = source('src/client/runtime-reference-pbe-renderer.ts');
     const css = source('src/styles/global.css');
     expect(runtimeRoot).toContain('data-runtime-page={page}');
     expect(runtimeRoot).toContain("const runtimeLocale = isZh ? 'zh_cn' : 'default'");
