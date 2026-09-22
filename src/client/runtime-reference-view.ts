@@ -1,5 +1,7 @@
 import {
+  CommunityDragonRuntimeError,
   type CommunityDragonLocale,
+  type RuntimeEntity,
   type RuntimeHistoricalArtwork,
   type RuntimeList,
   type RuntimeMedia,
@@ -19,6 +21,7 @@ import {
   type RuntimeSkinReferenceGroup,
   type RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
+import { relatedRuntimeItems } from "../domain/runtime-relations";
 import { localizedPath } from "../i18n/config";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import {
@@ -27,9 +30,12 @@ import {
 } from "./runtime-url-state";
 import type {
   RuntimeHistory,
+  RuntimeLocationState,
   RuntimePage,
   RuntimeView,
+  RuntimePageState,
 } from "./runtime-reference";
+import type { RuntimeChannelLoadContext } from "./runtime-channel-lifecycle";
 
 export interface RuntimeControllerLike {
   navigate(url: URL): Promise<void>;
@@ -42,6 +48,21 @@ export interface DomRuntimeViewOptions {
   readonly page: RuntimePage;
   readonly getController: () => RuntimeControllerLike;
   readonly history: RuntimeHistory;
+}
+
+interface DomRenderInternals {
+  renderList(items: RuntimeList, state: Extract<RuntimeLocationState, { mode: "list" }>): void;
+  renderDetail(item: RuntimeEntity, state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
+  renderPbeAdditions(items: RuntimePbeAdditions): void;
+  renderRelations(items: RuntimeList, state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
+  renderSkinlineSkins(items: readonly RuntimeSkinReferenceItem[], state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
+  renderUniverseSkins(groups: readonly RuntimeSkinReferenceGroup[], state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
+  renderListRelations(items: RuntimeList, state: Extract<RuntimeLocationState, { mode: "list" }>): void;
+  relationFailure(error: CommunityDragonRuntimeError, retry: () => void): void;
+  skinlineSkinsFailure(error: CommunityDragonRuntimeError, retry: () => void): void;
+  universeSkinsFailure(error: CommunityDragonRuntimeError, retry: () => void): void;
+  listRelationsFailure(error: CommunityDragonRuntimeError, retry: () => void): void;
+  failure(error: CommunityDragonRuntimeError, retry: () => void): void;
 }
 
 export function browserHistory(): RuntimeHistory {
@@ -911,14 +932,232 @@ export function createDomRuntimeView(
     { kind: "universe" }
   >[] = [];
   let renderListCards: (() => void) | undefined;
-  const view: RuntimeView = {
+  let renderedContext: RuntimeChannelLoadContext<RuntimeLocationState> | undefined;
+  const renderRelationStates = (
+    state: RuntimePageState,
+    entity: RuntimeEntity,
+    target: Extract<RuntimeLocationState, { mode: "detail" }>,
+  ): void => {
+    if (!relationSlot) return;
+    const definitions: readonly {
+      readonly key: "relation-skinlines" | "relation-universes";
+      readonly kind: "skinline" | "universe";
+      readonly label: string;
+    }[] =
+      target.kind === "skin"
+        ? [
+            {
+              key: "relation-skinlines",
+              kind: "skinline",
+              label: options.locale === "zh_cn" ? "皮肤系列" : "Skinlines",
+            },
+            {
+              key: "relation-universes",
+              kind: "universe",
+              label: options.locale === "zh_cn" ? "皮肤宇宙" : "Universes",
+            },
+          ]
+        : target.kind === "skinline"
+          ? [
+              {
+                key: "relation-universes",
+                kind: "universe",
+                label: options.locale === "zh_cn" ? "所属宇宙" : "Universes",
+              },
+            ]
+          : target.kind === "universe"
+            ? [
+                {
+                  key: "relation-skinlines",
+                  kind: "skinline",
+                  label: options.locale === "zh_cn" ? "所属系列" : "Skinlines",
+                },
+              ]
+            : [];
+    if (target.kind === "universe") {
+      const skinlineSlot = state.slots["relation-skinlines"];
+      universeSkinlineNames = new Map(
+        skinlineSlot?.status === "ready" || skinlineSlot?.status === "empty"
+          ? skinlineSlot.value
+              .filter((item) => item.kind === "skinline")
+              .map((item) => [item.id, item.name] as const)
+          : [],
+      );
+    }
+    relationSlot.replaceChildren(
+      ...definitions.map(({ key, kind, label }) => {
+        const group = document.createElement("section");
+        group.className = "runtime-relation-group";
+        if (target.kind === "skin") group.appendChild(textNode("h3", label));
+        const slot = state.slots[key] as
+          | {
+              readonly status: "loading";
+            }
+          | {
+              readonly status: "ready" | "empty";
+              readonly value: RuntimeList;
+            }
+          | {
+              readonly status: "failed";
+              readonly error: CommunityDragonRuntimeError;
+              readonly retry: () => void;
+            }
+          | undefined;
+        if (!slot || slot.status === "loading") {
+          group.appendChild(
+            textNode(
+              "p",
+              options.locale === "zh_cn"
+                ? "正在加载关联资料…"
+                : "Loading related references…",
+              "runtime-relation-state",
+            ),
+          );
+        } else if (slot.status === "failed") {
+          const notice = textNode(
+            "p",
+            runtimeFailureMessage(slot.error, options.locale),
+            "runtime-relation-error",
+          );
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "runtime-retry";
+          button.textContent =
+            options.locale === "zh_cn" ? `重试${label}` : `Retry ${label}`;
+          button.addEventListener("click", slot.retry, { once: true });
+          notice.append(" ", button);
+          group.appendChild(notice);
+        } else {
+          const items = relatedRuntimeItems(entity, target, slot.value).filter(
+            (item) => item.kind === kind,
+          );
+          if (!items.length) {
+            group.appendChild(
+              textNode(
+                "p",
+                options.locale === "zh_cn"
+                  ? "当前语言没有可显示的关联资料。"
+                  : "No related references are available in this language.",
+                "runtime-empty-state",
+              ),
+            );
+          } else {
+            const links = document.createElement("div");
+            links.className = "runtime-links";
+            items.forEach((item) =>
+              links.appendChild(
+                linkWithNavigation(
+                  item.name,
+                  hrefFor(
+                    options.locale,
+                    item.kind === "skinline" ? "skinlines" : "universes",
+                    { id: item.id, channel: target.channel },
+                    "detail",
+                    preservesExplicitPbe(),
+                  ),
+                  options.getController(),
+                ),
+              ),
+            );
+            group.appendChild(links);
+          }
+        }
+        return group;
+      }),
+    );
+  };
+  const view: RuntimeView & DomRenderInternals = {
+    render(state: RuntimePageState) {
+      if (state.core.status === "failed") {
+        options.root.removeAttribute("aria-busy");
+        view.failure(state.core.error, state.core.retry);
+        return;
+      }
+      if (state.core.status !== "ready" || !state.context) return;
+      const { context } = state;
+      if (renderedContext !== context) {
+        renderedContext = context;
+        const target = context.target;
+        if (state.core.value.mode === "pbe")
+          view.renderPbeAdditions(state.core.value.items);
+        else if (target.mode === "list" && state.core.value.mode === "list")
+          view.renderList(state.core.value.items, target);
+        else if (target.mode === "detail" && state.core.value.mode === "detail")
+          view.renderDetail(state.core.value.item, target);
+      }
+
+      const target = context.target;
+      if (target.mode === "list" && target.page === "universes") {
+        const slot = state.slots["list-skinlines"];
+        if (slot?.status === "loading") {
+          universeListRelationStatus = "loading";
+          universeListRelationError = undefined;
+          if (universeListRelationStatusElement)
+            universeListRelationStatusElement.textContent =
+              options.locale === "zh_cn"
+                ? "正在加载所属系列…"
+                : "Loading skinline names…";
+          renderListCards?.();
+        } else if (slot?.status === "ready" || slot?.status === "empty") {
+          view.renderListRelations(slot.value, target);
+          if (slot.status === "empty" && universeListRelationStatusElement)
+            universeListRelationStatusElement.textContent =
+              options.locale === "zh_cn"
+                ? "未找到所属系列名称。"
+                : "No skinline names were found.";
+        } else if (slot?.status === "failed")
+          view.listRelationsFailure(slot.error, slot.retry);
+        return;
+      }
+      if (target.mode !== "detail" || state.core.value.mode !== "detail") return;
+      const entity = state.core.value.item;
+      renderRelationStates(state, entity, target);
+
+      const skinlineSkins = state.slots["skinline-skins"];
+      if (skinlineSkins?.status === "loading" && skinlineSkinsSlot)
+        skinlineSkinsSlot.replaceChildren(
+          textNode(
+            "p",
+            options.locale === "zh_cn"
+              ? "正在加载系列皮肤…"
+              : "Loading skinline skins…",
+            "runtime-relation-state",
+          ),
+        );
+      else if (skinlineSkins?.status === "ready" || skinlineSkins?.status === "empty")
+        view.renderSkinlineSkins(skinlineSkins.value, target);
+      else if (skinlineSkins?.status === "failed")
+        view.skinlineSkinsFailure(skinlineSkins.error, skinlineSkins.retry);
+
+      const universeSkins = state.slots["universe-skins"];
+      if (universeSkins?.status === "loading" && universeSkinsSlot)
+        universeSkinsSlot.replaceChildren(
+          textNode(
+            "p",
+            options.locale === "zh_cn"
+              ? "正在加载宇宙皮肤…"
+              : "Loading universe skins…",
+            "runtime-relation-state",
+          ),
+        );
+      else if (universeSkins?.status === "ready" || universeSkins?.status === "empty")
+        view.renderUniverseSkins(universeSkins.value, target);
+      else if (universeSkins?.status === "failed")
+        view.universeSkinsFailure(universeSkins.error, universeSkins.retry);
+    },
     committed(channel, url) {
       updateChannel(channel);
       bindRuntimeChannelLinks(document, url);
       bindRuntimeLanguageToggle(document, url);
     },
-    loading(preserve, channel) {
+    loading(preserve, context) {
       options.root.setAttribute("aria-busy", "true");
+      const channel =
+        context && typeof context === "object"
+          ? context.target.mode === "pbe"
+            ? undefined
+            : context.channel
+          : context;
       if (!preserve && channel) updateChannel(channel);
       status.textContent =
         options.locale === "zh_cn"

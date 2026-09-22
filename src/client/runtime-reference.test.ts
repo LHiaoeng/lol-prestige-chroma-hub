@@ -4,6 +4,7 @@ import {
   formatRuntimeState,
   runtimeFailureMessage,
   parseRuntimeLocation,
+  type RuntimePageState,
   type RuntimeHistory,
   type RuntimeView,
 } from "./runtime-reference";
@@ -62,46 +63,57 @@ function view(): RuntimeView & {
   retry?: () => void;
   skinRetry?: () => void;
 } {
+  let renderedContext: RuntimePageState["context"];
+  const renderedSlots = new Map<string, unknown>();
   const result = {
     events: [] as string[],
     rendered: undefined as RuntimeList | RuntimeEntity | undefined,
     renderedPbe: undefined as RuntimePbeAdditions | undefined,
     retry: undefined as (() => void) | undefined,
     skinRetry: undefined as (() => void) | undefined,
+    render: vi.fn((state: RuntimePageState) => {
+      if (state.core.status === "failed") {
+        result.retry = state.core.retry;
+        result.events.push("failure");
+        return;
+      }
+      if (state.core.status !== "ready" || !state.context) return;
+      if (renderedContext !== state.context) {
+        renderedContext = state.context;
+        renderedSlots.clear();
+        if (state.core.value.mode === "pbe") {
+          result.renderedPbe = state.core.value.items;
+          result.events.push(`pbe:${state.core.value.items.total}`);
+        } else if (state.core.value.mode === "list") {
+          result.rendered = state.core.value.items;
+          result.events.push("list");
+        } else {
+          result.rendered = state.core.value.item;
+          result.events.push("detail");
+        }
+      }
+      for (const [key, slot] of Object.entries(state.slots)) {
+        if (!slot || slot.status === "loading") continue;
+        if (renderedSlots.get(key) === slot) continue;
+        renderedSlots.set(key, slot);
+        if (key === "skinline-skins") {
+          if (slot.status === "failed") {
+            result.skinRetry = slot.retry;
+            result.events.push("skinline-skins-failure");
+          } else result.events.push(`skinline-skins:${slot.value.length}`);
+        } else if (key === "universe-skins") {
+          if (slot.status === "failed") result.events.push("universe-skins-failure");
+          else result.events.push(`universe-skins:${slot.value.length}`);
+        } else if (key.startsWith("relation-")) {
+          if (slot.status === "failed") result.events.push("relation-failure");
+          else result.events.push(`relations:${slot.value.length}`);
+        }
+      }
+    }),
     loading: vi.fn((preserve: boolean) =>
       result.events.push(`loading:${preserve}`),
     ),
-    renderList: vi.fn((items: RuntimeList) => {
-      result.rendered = items;
-      result.events.push("list");
-    }),
-    renderDetail: vi.fn((item: RuntimeEntity) => {
-      result.rendered = item;
-      result.events.push("detail");
-    }),
-    renderPbeAdditions: vi.fn((items: RuntimePbeAdditions) => {
-      result.renderedPbe = items;
-      result.events.push(`pbe:${items.total}`);
-    }),
-    renderRelations: vi.fn((items: RuntimeList) => {
-      result.events.push(`relations:${items.length}`);
-    }),
-    renderSkinlineSkins: vi.fn((items) => {
-      result.events.push(`skinline-skins:${items.length}`);
-    }),
-    renderUniverseSkins: vi.fn((groups) => {
-      result.events.push(`universe-skins:${groups.length}`);
-    }),
     invalid: vi.fn(() => result.events.push("invalid")),
-    failure: vi.fn((_error, retry: () => void) => {
-      result.retry = retry;
-      result.events.push("failure");
-    }),
-    relationFailure: vi.fn(() => result.events.push("relation-failure")),
-    skinlineSkinsFailure: vi.fn((_error, retry: () => void) => {
-      result.skinRetry = retry;
-      result.events.push("skinline-skins-failure");
-    }),
   };
   return result;
 }

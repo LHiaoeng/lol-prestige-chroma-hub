@@ -22,6 +22,11 @@ import {
   type RuntimeChannelLoadContext,
   type RuntimeChannelHistory,
 } from "./runtime-channel-lifecycle";
+import {
+  RuntimePageOrchestration,
+  type RuntimePageSlotDefinition,
+  type RuntimePageState as OrchestratedRuntimePageState,
+} from "./runtime-page-orchestration";
 export {
   createDomRuntimeView,
   shouldHandleRuntimeNavigation,
@@ -33,48 +38,13 @@ export type RuntimePageMode = "list" | "detail" | "pbe";
 export interface RuntimeHistory extends RuntimeChannelHistory {}
 
 export interface RuntimeView {
-  loading(preserve: boolean, channel?: "pbe" | "latest"): void;
+  loading(
+    preserve: boolean,
+    context: RuntimeChannelLoadContext<RuntimeLocationState>,
+  ): void;
+  render(state: RuntimePageState): void;
   committed?(channel: "pbe" | "latest", url: URL): void;
-  renderList(
-    items: RuntimeList,
-    state: Extract<RuntimeLocationState, { mode: "list" }>,
-  ): void;
-  renderDetail(
-    item: RuntimeEntity,
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderPbeAdditions?(items: RuntimePbeAdditions): void;
-  renderRelations?(
-    items: RuntimeList,
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderSkinlineSkins?(
-    items: readonly RuntimeSkinReferenceItem[],
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderUniverseSkins?(
-    groups: readonly RuntimeSkinReferenceGroup[],
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-  ): void;
-  renderListRelations?(
-    items: RuntimeList,
-    state: Extract<RuntimeLocationState, { mode: "list" }>,
-  ): void;
   invalid(message: string, channel?: "pbe" | "latest"): void;
-  failure(error: CommunityDragonRuntimeError, retry: () => void): void;
-  relationFailure?(error: CommunityDragonRuntimeError, retry: () => void): void;
-  skinlineSkinsFailure?(
-    error: CommunityDragonRuntimeError,
-    retry: () => void,
-  ): void;
-  universeSkinsFailure?(
-    error: CommunityDragonRuntimeError,
-    retry: () => void,
-  ): void;
-  listRelationsFailure?(
-    error: CommunityDragonRuntimeError,
-    retry: () => void,
-  ): void;
 }
 
 export type RuntimeLocationState =
@@ -179,61 +149,36 @@ export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
   return next;
 }
 
-type RuntimeDetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
-
-type RuntimeCoreResult =
+export type RuntimeCoreResult =
   | { readonly mode: "pbe"; readonly items: RuntimePbeAdditions }
   | { readonly mode: "list"; readonly items: RuntimeList }
   | { readonly mode: "detail"; readonly item: RuntimeEntity };
 
-function relationKinds(
-  state: RuntimeDetailState,
-): readonly Extract<RuntimeListKind, "skinlines" | "universes">[] {
-  if (state.kind === "skinline") return ["universes"];
-  if (state.kind === "universe") return ["skinlines"];
-  if (state.kind === "skin") return ["skinlines", "universes"];
-  return [];
+export interface RuntimePageSlotValues {
+  readonly "list-skinlines": RuntimeList;
+  readonly "relation-skinlines": RuntimeList;
+  readonly "relation-universes": RuntimeList;
+  readonly "skinline-skins": readonly RuntimeSkinReferenceItem[];
+  readonly "universe-skins": readonly RuntimeSkinReferenceGroup[];
 }
 
-function relatedItems(
-  entity: RuntimeEntity,
-  state: RuntimeDetailState,
-  items: RuntimeList,
-): RuntimeList {
-  if (state.kind === "skinline" && entity.kind === "skinline") {
-    return items.filter(
-      (item) =>
-        item.kind === "universe" &&
-        (entity.universeIds.includes(item.id) ||
-          item.skinlineIds.includes(state.id)),
-    );
-  }
-  if (state.kind === "universe" && entity.kind === "universe") {
-    return items.filter(
-      (item) =>
-        item.kind === "skinline" &&
-        (entity.skinlineIds.includes(item.id) ||
-          item.universeIds.includes(state.id)),
-    );
-  }
-  if (state.kind === "skin" && entity.kind === "skin") {
-    const skinlineIds = entity.skinlineIds;
-    const universeIds = entity.universeIds ?? [];
-    return items.filter(
-      (item) =>
-        (item.kind === "skinline" && skinlineIds.includes(item.id)) ||
-        (item.kind === "universe" &&
-          (universeIds.includes(item.id) ||
-            item.skinlineIds.some((id) => skinlineIds.includes(id)))),
-    );
-  }
-  return [];
-}
+export type RuntimePageState = OrchestratedRuntimePageState<
+  RuntimeLocationState,
+  RuntimeCoreResult,
+  RuntimePageSlotValues,
+  CommunityDragonRuntimeError
+>;
 
 export class RuntimeController {
   private readonly lifecycle: RuntimeChannelLifecycle<
     RuntimeLocationState,
     RuntimeCoreResult,
+    CommunityDragonRuntimeError
+  >;
+  private readonly orchestration: RuntimePageOrchestration<
+    RuntimeLocationState,
+    RuntimeCoreResult,
+    RuntimePageSlotValues,
     CommunityDragonRuntimeError
   >;
 
@@ -243,6 +188,13 @@ export class RuntimeController {
     history: RuntimeHistory,
     private readonly options: RuntimeControllerOptions,
   ) {
+    this.orchestration = new RuntimePageOrchestration({
+      plan: (context, core) => this.planSupplements(context, core),
+      normalizeError: (error) =>
+        asCommunityDragonError(error, this.options.locale),
+      isAborted: (error) => error.code === "aborted",
+      onState: (state) => this.view.render(state),
+    });
     this.lifecycle = new RuntimeChannelLifecycle({
       history,
       parse: (url) => {
@@ -272,13 +224,18 @@ export class RuntimeController {
       isAborted: (error) => error.code === "aborted",
       view: {
         loading: (preserveContent, context) =>
-          this.view.loading(
-            preserveContent,
-            context.target.mode === "pbe" ? undefined : context.channel,
-          ),
-        render: (result, context) => this.renderCore(result, context),
-        invalid: (message, channel) => this.view.invalid(message, channel),
-        failure: (error, retry) => this.view.failure(error, retry),
+          (this.orchestration.begin(context),
+          this.view.loading(preserveContent, context)),
+        render: (result, context) =>
+          this.orchestration.ready(result, context),
+        invalid: (message, channel) => {
+          this.orchestration.invalidate();
+          this.view.invalid(message, channel);
+        },
+        failure: (error, retry) => {
+          const context = this.orchestration.state.context;
+          if (context) this.orchestration.failed(error, retry, context);
+        },
         committed: (context) =>
           this.view.committed?.(context.channel, context.url),
       },
@@ -295,6 +252,7 @@ export class RuntimeController {
 
   dispose(): void {
     this.lifecycle.dispose();
+    this.orchestration.invalidate();
   }
 
   private async loadCore(
@@ -339,152 +297,96 @@ export class RuntimeController {
     };
   }
 
-  private renderCore(
-    result: RuntimeCoreResult,
+  private planSupplements(
     context: RuntimeChannelLoadContext<RuntimeLocationState>,
-  ): void {
+    core: RuntimeCoreResult,
+  ): readonly RuntimePageSlotDefinition<
+    RuntimeLocationState,
+    RuntimeCoreResult,
+    RuntimePageSlotValues
+  >[] {
     const state = context.target;
-    if (state.mode === "pbe" && result.mode === "pbe") {
-      this.view.renderPbeAdditions?.(result.items);
-      return;
-    }
-    if (state.mode === "list" && result.mode === "list") {
-      this.view.renderList(result.items, state);
-      if (state.page === "universes")
-        void this.loadUniverseListRelations(state, context);
-      return;
-    }
-    if (state.mode === "detail" && result.mode === "detail") {
-      this.view.renderDetail(result.item, state);
-      const listKinds = relationKinds(state);
-      if (listKinds.length)
-        void this.loadRelations(result.item, state, listKinds, context);
-      if (state.kind === "skinline")
-        void this.loadSkinlineSkins(state, context);
-      if (state.kind === "universe" && result.item.kind === "universe")
-        void this.loadUniverseSkins(result.item, state, context);
-    }
-  }
-
-  private async loadSkinlineSkins(
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-    context: RuntimeChannelLoadContext<RuntimeLocationState>,
-  ): Promise<void> {
-    try {
-      const items = await this.runtime.listSkinlineSkins(state.id, {
-        locale: this.options.locale,
-        channel: state.channel,
-        signal: context.signal,
-      });
-      if (!context.isCurrent()) return;
-      this.view.renderSkinlineSkins?.(items, state);
-    } catch (error) {
-      if (!context.isCurrent()) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.skinlineSkinsFailure?.(runtimeError, () => {
-        if (context.isCurrent()) void this.loadSkinlineSkins(state, context);
-      });
-    }
-  }
-
-  private async loadUniverseSkins(
-    entity: Extract<RuntimeEntity, { kind: "universe" }>,
-    state: Extract<RuntimeLocationState, { mode: "detail" }>,
-    context: RuntimeChannelLoadContext<RuntimeLocationState>,
-  ): Promise<void> {
-    if (!this.runtime.listUniverseSkins) return;
-    try {
-      const groups = await this.runtime.listUniverseSkins(
-        state.id,
-        entity.skinlineIds,
+    if (core.mode === "pbe") return [];
+    if (state.mode === "list") {
+      if (state.page !== "universes") return [];
+      return [
         {
-          locale: this.options.locale,
-          channel: state.channel,
-          signal: context.signal,
+          key: "list-skinlines" as const,
+          load: (slotContext) =>
+            this.runtime.list("skinlines", {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        },
+      ];
+    }
+    if (state.mode !== "detail" || core.mode !== "detail") return [];
+    if (state.kind === "champion") return [];
+    const slots: RuntimePageSlotDefinition<
+      RuntimeLocationState,
+      RuntimeCoreResult,
+      RuntimePageSlotValues
+    >[] = [];
+    const entity = core.item;
+    if (state.kind === "skinline" && entity.kind === "skinline") {
+      slots.push(
+        {
+          key: "skinline-skins",
+          load: (slotContext) =>
+            this.runtime.listSkinlineSkins(state.id, {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        },
+        {
+          key: "relation-universes",
+          load: (slotContext) =>
+            this.runtime.list("universes", {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
         },
       );
-      if (!context.isCurrent()) return;
-      this.view.renderUniverseSkins?.(groups, state);
-    } catch (error) {
-      if (!context.isCurrent()) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.universeSkinsFailure?.(runtimeError, () => {
-        if (context.isCurrent())
-          void this.loadUniverseSkins(entity, state, context);
-      });
-    }
-  }
-
-  private async loadUniverseListRelations(
-    state: Extract<RuntimeLocationState, { mode: "list" }>,
-    context: RuntimeChannelLoadContext<RuntimeLocationState>,
-  ): Promise<void> {
-    try {
-      const items = await this.runtime.list("skinlines", {
-        locale: this.options.locale,
-        channel: state.channel,
-        signal: context.signal,
-      });
-      if (!context.isCurrent()) return;
-      this.view.renderListRelations?.(items, state);
-    } catch (error) {
-      if (!context.isCurrent()) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.listRelationsFailure?.(runtimeError, () => {
-        if (context.isCurrent())
-          void this.loadUniverseListRelations(state, context);
-      });
-    }
-  }
-
-  private async loadRelations(
-    entity: RuntimeEntity,
-    state: RuntimeDetailState,
-    kinds: readonly Extract<RuntimeListKind, "skinlines" | "universes">[],
-    context: RuntimeChannelLoadContext<RuntimeLocationState>,
-  ): Promise<void> {
-    try {
-      const results = await Promise.allSettled(
-        kinds.map((kind) =>
-          this.runtime.list(kind, {
+    } else if (state.kind === "universe" && entity.kind === "universe") {
+      slots.push({
+        key: "relation-skinlines",
+        load: (slotContext) =>
+          this.runtime.list("skinlines", {
             locale: this.options.locale,
             channel: state.channel,
-            signal: context.signal,
+            signal: slotContext.signal,
           }),
-        ),
-      );
-      if (!context.isCurrent()) return;
-      const items = results.flatMap((result) =>
-        result.status === "fulfilled" ? result.value : [],
-      );
-      this.view.renderRelations?.(relatedItems(entity, state, items), state);
-      const rejected = results.find(
-        (result): result is PromiseRejectedResult =>
-          result.status === "rejected",
-      );
-      if (rejected) {
-        const runtimeError = asCommunityDragonError(
-          rejected.reason,
-          this.options.locale,
-        );
-        if (runtimeError.code === "aborted") return;
-        this.view.relationFailure?.(runtimeError, () => {
-          if (context.isCurrent())
-            void this.loadRelations(entity, state, kinds, context);
-        });
-      }
-    } catch (error) {
-      if (!context.isCurrent()) return;
-      const runtimeError = asCommunityDragonError(error, this.options.locale);
-      if (runtimeError.code === "aborted") return;
-      this.view.relationFailure?.(runtimeError, () => {
-        if (context.isCurrent())
-          void this.loadRelations(entity, state, kinds, context);
       });
+      slots.push({
+        key: "universe-skins",
+        load: (slotContext) =>
+          this.runtime.listUniverseSkins
+            ? this.runtime.listUniverseSkins(state.id, entity.skinlineIds, {
+                locale: this.options.locale,
+                channel: state.channel,
+                signal: slotContext.signal,
+              })
+            : Promise.resolve([]),
+      });
+    } else if (state.kind === "skin" && entity.kind === "skin") {
+      for (const kind of ["skinlines", "universes"] as const)
+        slots.push({
+          key:
+            kind === "skinlines"
+              ? "relation-skinlines"
+              : "relation-universes",
+          load: (slotContext) =>
+            this.runtime.list(kind, {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        });
     }
+    return slots;
   }
 }
 
