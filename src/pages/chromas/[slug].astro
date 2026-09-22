@@ -13,6 +13,7 @@ import { brilliantSummonSessions } from '../../domain/brilliant-summon';
 import { categoryName } from '../../i18n';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createChromaSeo } from '../../seo/chroma-seo';
+import { formatRuntimeUrl, readRuntimeUrlState } from '../../domain/runtime-url-state';
 
 export async function getStaticPaths() {
   return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
@@ -25,14 +26,24 @@ interface Props { chroma: typeof catalog[number]; locale?: Locale }
 const { chroma } = Astro.props;
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const requestedRuntimeChannel = Astro.url.searchParams.get('channel');
-const runtimeChannel = requestedRuntimeChannel === 'latest' ? 'latest' : 'pbe';
-const runtimeChannelQuery = requestedRuntimeChannel === 'latest' || requestedRuntimeChannel === 'pbe'
-  ? `&channel=${runtimeChannel}`
-  : '';
-const sourceSkinPath = localizedPath(locale, `/skins/detail/?id=${chroma.sourceSkinId}&champion=${chroma.heroId}${runtimeChannelQuery}`);
-const skinlinePath = (id: number) => localizedPath(locale, `/skinlines/detail/?id=${id}${runtimeChannelQuery}`);
-const universePath = (id: number) => localizedPath(locale, `/universes/detail/?id=${id}${runtimeChannelQuery}`);
+const runtimeUrlState = readRuntimeUrlState(Astro.url);
+const runtimeChannel = runtimeUrlState.channel;
+const runtimePath = (
+  path: string,
+  state: { readonly id?: number; readonly champion?: number },
+  include: readonly ('id' | 'champion' | 'channel')[],
+) => {
+  const target = new URL(localizedPath(locale, path), Astro.url);
+  const formatted = formatRuntimeUrl(target, {
+    ...state,
+    channel: runtimeChannel,
+    channelExplicit: runtimeUrlState.channelExplicit,
+  }, include);
+  return `${formatted.pathname}${formatted.search}`;
+};
+const sourceSkinPath = runtimePath('/skins/detail/', { id: Number(chroma.sourceSkinId), champion: Number(chroma.heroId) }, ['id', 'champion', 'channel']);
+const skinlinePath = (id: number) => runtimePath('/skinlines/detail/', { id }, ['id', 'channel']);
+const universePath = (id: number) => runtimePath('/universes/detail/', { id }, ['id', 'channel']);
 const seo = createChromaSeo(chroma, locale);
 const image = seo.image;
 const mobileImage = imageUrl(chroma.images.medium);
@@ -73,7 +84,7 @@ const patchActions = [
 ];
 const isSummonGuideChroma = brilliantSummonSessions.some((session) => session.rewards.some((reward) => reward.chromaNameEn === chroma.nameEn));
 const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/');
-const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma.heroId}${runtimeChannelQuery}`);
+const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma.heroId) }, ['id', 'channel']);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
   <div class="detail-background" aria-hidden="true">
@@ -141,7 +152,7 @@ const championRuntimeUrl = localizedPath(locale, `/champions/detail/?id=${chroma
   desktop.addEventListener('change', syncDetailDisclosure);
 </script>
 <script>
-  import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../../client/runtime-url-state';
+  import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../../client/runtime-url-state-dom';
   bindRuntimeLanguageToggle(document);
   bindRuntimeChannelLinks(document);
 </script>

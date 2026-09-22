@@ -314,6 +314,22 @@ describe("runtime URL state", () => {
       ).search,
     ).toBe("?id=103001&champion=103&stage=103002&channel=latest");
   });
+
+  it("keeps explicit pbe when formatting a state from an explicit pbe URL", () => {
+    expect(
+      formatRuntimeState(
+        new URL("https://chromaart.lol/skins/detail/?channel=pbe&tracking=drop"),
+        {
+          mode: "detail",
+          page: "skins",
+          kind: "skin",
+          id: 103001,
+          championId: 103,
+          channel: "pbe",
+        },
+      ).search,
+    ).toBe("?id=103001&champion=103&channel=pbe");
+  });
 });
 
 describe("RuntimeController", () => {

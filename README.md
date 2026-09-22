@@ -12,7 +12,7 @@
 
 图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤系列和宇宙保留双语静态列表与详情壳，运行时皮肤只保留独立详情壳；这些运行时资料页通过浏览器直接读取当前本地化视图和数据通道的 CommunityDragon 资料，动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和炫彩所属皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
 
-运行时资料入口包括 `/champions/`、`/skinlines/`、`/universes/` 和 `/pbe-additions/` 四个双语目录/比较壳，以及独立的英雄、皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。静态臻彩详情还会渐进加载可失败的英雄、所属皮肤和炫彩补充资料。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效；两类浏览器入口共享取消、迟到响应保护、成功后提交 URL、保留旧内容和失败重试的通道生命周期。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
+运行时资料入口包括 `/champions/`、`/skinlines/`、`/universes/` 和 `/pbe-additions/` 四个双语目录/比较壳，以及独立的英雄、皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。静态臻彩详情还会渐进加载可失败的英雄、所属皮肤和炫彩补充资料。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效；`id`、`champion`、`stage`、`channel` 的读取、校验、筛选和格式化集中在 `src/domain/runtime-url-state.ts`，DOM 链接更新由独立 adapter 负责，转发时保留显式 PBE 意图并删除目标页面不允许的参数。两类浏览器入口共享取消、迟到响应保护、成功后提交 URL、保留旧内容和失败重试的通道生命周期。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 
 系列详情、宇宙详情和 PBE 新增页才会按需读取完整 `skins.json`；英雄目录/详情、运行时皮肤详情、首页、臻彩详情和博客不会加载它。PBE 新增在同一本地化视图内比较 `pbe` 与 `latest`，同时校验 `compat-version-metadata.json` 的版本字段；必要数据失败时不展示部分差集。运行时实体详情初始 HTML 保持 `noindex`，目录壳和 PBE 新增页进入双语 sitemap，站点不生成逐实体 HTML。
 

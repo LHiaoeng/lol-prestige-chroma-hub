@@ -27,7 +27,12 @@ import { runtimeFailureMessage } from "./communitydragon-errors";
 import {
   bindRuntimeChannelLinks,
   bindRuntimeLanguageToggle,
-} from "./runtime-url-state";
+} from "./runtime-url-state-dom";
+import {
+  formatRuntimeUrl,
+  isRuntimeEntityId,
+  readRuntimeUrlState,
+} from "../domain/runtime-url-state";
 import type {
   RuntimeHistory,
   RuntimeLocationState,
@@ -119,13 +124,19 @@ function hrefFor(
   preserveExplicitPbe = false,
 ): URL {
   const url = new URL(runtimePath(locale, page, mode), window.location.origin);
-  if (values.id) url.searchParams.set("id", String(values.id));
-  if (values.championId)
-    url.searchParams.set("champion", String(values.championId));
-  if (values.stageId) url.searchParams.set("stage", String(values.stageId));
-  if (values.channel === "latest" || preserveExplicitPbe)
-    url.searchParams.set("channel", values.channel);
-  return url;
+  return formatRuntimeUrl(
+    url,
+    {
+      id: values.id,
+      champion: values.championId,
+      stage: values.stageId,
+      channel: values.channel,
+      channelExplicit: preserveExplicitPbe,
+    },
+    page === "skins"
+      ? ["id", "champion", "stage", "channel"]
+      : ["id", "channel"],
+  );
 }
 
 export function shouldHandleRuntimeNavigation(
@@ -893,7 +904,8 @@ export function createDomRuntimeView(
     "[data-runtime-channel-label]",
   );
   const preservesExplicitPbe = () =>
-    options.history.url.searchParams.get("channel") === "pbe";
+    readRuntimeUrlState(renderedContext?.url ?? options.history.url)
+      .channelExplicit;
   const updateChannel = (selected: "pbe" | "latest") => {
     source
       .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
@@ -1671,7 +1683,7 @@ export function createDomRuntimeView(
             const stageItem = document.createElement("article");
             stageItem.className = "runtime-stage-item";
             const stageHeading = document.createElement("h3");
-            if (stage.id) {
+            if (isRuntimeEntityId(stage.id)) {
               stageHeading.appendChild(
                 linkWithNavigation(
                   stageName,
@@ -2067,12 +2079,20 @@ export function createDomRuntimeView(
     .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
     .forEach((button) => {
       button.addEventListener("click", () => {
-        const next = new URL(options.history.url);
+        const current = readRuntimeUrlState(options.history.url);
         const selected = button.dataset.runtimeChannel;
-        if (selected === "latest") next.searchParams.set("channel", "latest");
-        else if (preservesExplicitPbe())
-          next.searchParams.set("channel", "pbe");
-        else next.searchParams.delete("channel");
+        if (selected !== "pbe" && selected !== "latest") return;
+        const next = formatRuntimeUrl(
+          options.history.url,
+          {
+            ...current,
+            channel: selected,
+            channelExplicit:
+              selected === "latest" ||
+              (current.channel === "pbe" && current.channelExplicit),
+          },
+          ["id", "champion", "stage", "channel"],
+        );
         void options.getController().navigate(next);
       });
     });

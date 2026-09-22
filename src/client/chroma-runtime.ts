@@ -18,6 +18,10 @@ import {
   RuntimeChannelLifecycle,
   type RuntimeChannelHistory,
 } from "./runtime-channel-lifecycle";
+import {
+  formatRuntimeUrl,
+  readRuntimeUrlState,
+} from "../domain/runtime-url-state";
 
 export interface ChromaRuntimeSupplement {
   readonly champion: RuntimeChampion;
@@ -96,12 +100,10 @@ export async function loadChromaRuntimeSupplement(
 export function channelFromLocation(
   document: Document,
 ): "pbe" | "latest" | undefined {
-  const value = document.defaultView?.location.search
-    ? new URL(document.defaultView.location.href).searchParams.get("channel")
-    : null;
-  if (value === null || value === "pbe") return "pbe";
-  if (value === "latest") return "latest";
-  return undefined;
+  const href = document.defaultView?.location.href;
+  if (!href) return undefined;
+  const state = readRuntimeUrlState(new URL(href));
+  return state.invalid.includes("channel") ? undefined : state.channel;
 }
 
 export interface ChromaRuntimeLifecycleOptions {
@@ -124,8 +126,8 @@ export function createChromaRuntimeLifecycle(
   return new RuntimeChannelLifecycle({
     history: options.history,
     parse: (url) => {
-      const value = url.searchParams.get("channel");
-      if (value !== null && value !== "pbe" && value !== "latest")
+      const state = readRuntimeUrlState(url);
+      if (state.invalid.includes("channel") || !state.channel)
         return {
           status: "invalid",
           message:
@@ -133,8 +135,11 @@ export function createChromaRuntimeLifecycle(
               ? "链接无效，请选择有效的版本数据源。"
               : "This link is invalid. Choose a valid reference channel.",
         };
-      const channel = value === "latest" ? "latest" : "pbe";
-      return { status: "valid", channel, target: channel };
+      return {
+        status: "valid",
+        channel: state.channel,
+        target: state.channel,
+      };
     },
     load: (channel, signal) =>
       loadChromaRuntimeSupplement(options.runtime, {
@@ -162,15 +167,6 @@ export function createChromaRuntimeLifecycle(
 
 function sourceLabel(channel: "pbe" | "latest"): string {
   return channel;
-}
-
-function explicitChannelQuery(url?: URL): string {
-  const current = url ?? document.defaultView?.location.href;
-  if (!current) return "";
-  const value = (current instanceof URL ? current : new URL(current)).searchParams.get(
-    "channel",
-  );
-  return value === "pbe" || value === "latest" ? `&channel=${value}` : "";
 }
 
 export function createDomView(
@@ -235,18 +231,42 @@ export function createDomView(
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
-      const channelQuery = explicitChannelQuery(url);
+      const currentUrl =
+        url ??
+        new URL(
+          document.defaultView?.location.href ?? "https://chromaart.lol/",
+        );
+      const urlState = readRuntimeUrlState(currentUrl);
+      const runtimeHref = (
+        path: string,
+        values: { readonly id?: number; readonly champion?: number },
+        include: readonly ("id" | "champion" | "channel")[],
+      ): string => {
+        const target = new URL(localizedPath(siteLocale, path), currentUrl);
+        const formatted = formatRuntimeUrl(
+          target,
+          {
+            ...values,
+            channel: channel ?? urlState.channel,
+            channelExplicit: urlState.channelExplicit,
+          },
+          include,
+        );
+        return `${formatted.pathname}${formatted.search}`;
+      };
       const championLink = document.createElement("a");
-      championLink.href = localizedPath(
-        siteLocale,
-        `/champions/detail/?id=${champion.id}${channelQuery}`,
+      championLink.href = runtimeHref(
+        "/champions/detail/",
+        { id: champion.id },
+        ["id", "channel"],
       );
       championLink.textContent =
         locale === "zh_cn" ? "查看英雄" : "View champion";
       const skinLink = document.createElement("a");
-      skinLink.href = localizedPath(
-        siteLocale,
-        `/skins/detail/?id=${sourceSkin.id}&champion=${champion.id}${channelQuery}`,
+      skinLink.href = runtimeHref(
+        "/skins/detail/",
+        { id: sourceSkin.id, champion: champion.id },
+        ["id", "champion", "channel"],
       );
       skinLink.textContent =
         locale === "zh_cn" ? "查看所属皮肤" : "View chroma parent skin";
@@ -350,12 +370,20 @@ export function initChromaRuntime(document: Document): void {
       .querySelectorAll<HTMLButtonElement>("[data-chroma-runtime-channel]")
       .forEach((button) => {
         button.addEventListener("click", () => {
-          const next = new URL(history.url);
-          if (button.dataset.chromaRuntimeChannel === "latest")
-            next.searchParams.set("channel", "latest");
-          else if (history.url.searchParams.get("channel") === "pbe")
-            next.searchParams.set("channel", "pbe");
-          else next.searchParams.delete("channel");
+          const selected = button.dataset.chromaRuntimeChannel;
+          if (selected !== "pbe" && selected !== "latest") return;
+          const current = readRuntimeUrlState(history.url);
+          const next = formatRuntimeUrl(
+            history.url,
+            {
+              ...current,
+              channel: selected,
+              channelExplicit:
+                selected === "latest" ||
+                (current.channel === "pbe" && current.channelExplicit),
+            },
+            ["channel"],
+          );
           void lifecycle.navigate(next);
         });
       });

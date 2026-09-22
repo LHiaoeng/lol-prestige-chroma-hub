@@ -27,6 +27,10 @@ import {
   type RuntimePageSlotDefinition,
   type RuntimePageState as OrchestratedRuntimePageState,
 } from "./runtime-page-orchestration";
+import {
+  formatRuntimeUrl,
+  readRuntimeUrlState,
+} from "../domain/runtime-url-state";
 export {
   createDomRuntimeView,
   shouldHandleRuntimeNavigation,
@@ -78,41 +82,39 @@ export interface RuntimeControllerOptions {
   readonly pageMode: RuntimePageMode;
 }
 
-function positiveSafeInteger(value: string | null): number | undefined {
-  if (!value || !/^[1-9]\d*$/.test(value)) return undefined;
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) ? parsed : undefined;
-}
-
-function channel(value: string | null): "pbe" | "latest" | undefined {
-  if (value === null) return "pbe";
-  return value === "pbe" || value === "latest" ? value : undefined;
-}
-
 export function parseRuntimeLocation(
   url: URL,
   page: RuntimePage,
   pageMode: RuntimePageMode,
 ): RuntimeLocationState {
-  const selectedChannel = channel(url.searchParams.get("channel"));
-  if (!selectedChannel) return { mode: "invalid", page };
+  const urlState = readRuntimeUrlState(url);
+  const selectedChannel = urlState.invalid.includes("channel")
+    ? undefined
+    : urlState.channel;
+  if (selectedChannel === undefined) return { mode: "invalid", page };
   if (page === "pbe-additions") return { mode: "pbe", page };
   if (pageMode === "list") {
     if (page === "skins") return { mode: "invalid", page, channel: selectedChannel };
     return { mode: "list", page, channel: selectedChannel };
   }
   const hasId = url.searchParams.has("id");
-  const rawId = url.searchParams.get("id");
-  if (pageMode === "detail" && !hasId)
+  if (
+    pageMode === "detail" &&
+    (!hasId || urlState.invalid.includes("id") || urlState.id === undefined)
+  )
     return { mode: "invalid", page, channel: selectedChannel };
-  const id = positiveSafeInteger(rawId);
+  const id = urlState.id;
   if (!id) return { mode: "invalid", page, channel: selectedChannel };
   if (page === "skins") {
-    const championId = positiveSafeInteger(url.searchParams.get("champion"));
-    if (!championId) return { mode: "invalid", page, channel: selectedChannel };
+    const championId = urlState.champion;
+    if (
+      !championId ||
+      urlState.invalid.includes("champion")
+    )
+      return { mode: "invalid", page, channel: selectedChannel };
     const hasStage = url.searchParams.has("stage");
-    const stageId = positiveSafeInteger(url.searchParams.get("stage"));
-    if (hasStage && !stageId)
+    const stageId = urlState.stage;
+    if (hasStage && (urlState.invalid.includes("stage") || !stageId))
       return { mode: "invalid", page, channel: selectedChannel };
     return {
       mode: "detail",
@@ -134,19 +136,27 @@ export function parseRuntimeLocation(
 }
 
 export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
-  const next = new URL(url);
-  next.search = "";
-  if (state.mode === "invalid") return next;
-  if (state.mode === "pbe") return next;
-  if (state.mode === "detail") {
-    next.searchParams.set("id", String(state.id));
-    if (state.kind === "skin" && state.championId)
-      next.searchParams.set("champion", String(state.championId));
-    if (state.kind === "skin" && state.stageId)
-      next.searchParams.set("stage", String(state.stageId));
-  }
-  if (state.channel === "latest") next.searchParams.set("channel", "latest");
-  return next;
+  if (state.mode === "invalid") return formatRuntimeUrl(url, {}, []);
+  if (state.mode === "pbe") return formatRuntimeUrl(url, {}, []);
+  const source = readRuntimeUrlState(url);
+  const include =
+    state.mode === "detail" && state.kind === "skin"
+      ? (["id", "champion", "stage", "channel"] as const)
+      : (["id", "channel"] as const);
+  return formatRuntimeUrl(
+    url,
+    {
+      id: state.mode === "detail" ? state.id : undefined,
+      champion: state.mode === "detail" ? state.championId : undefined,
+      stage: state.mode === "detail" ? state.stageId : undefined,
+      channel: state.mode === "detail" || state.mode === "list" ? state.channel : undefined,
+      channelExplicit:
+        state.channel === "pbe" &&
+        source.channel === "pbe" &&
+        source.channelExplicit,
+    },
+    include,
+  );
 }
 
 export type RuntimeCoreResult =
