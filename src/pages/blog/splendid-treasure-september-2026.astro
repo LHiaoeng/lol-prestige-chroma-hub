@@ -1,0 +1,289 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import type { Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'splendid-treasure-september-2026');
+if (!article) throw new Error('Splendid treasure september 2026 article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+const eventStart = '2026-09-23';
+const eventEnd = '2026-10-25';
+const eventUrl = 'https://lol.qq.com/act/a202609233754lustertreasure/index.html?e_code=558653';
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=6855958064447535833';
+
+const featuredChroma = catalog.find((c) => c.heroId === '131' && c.skinNameEn === 'Lunar Goddess Diana' && c.nameEn === 'Lunar Goddess Diana (Obsidian)');
+const dianaFamily = catalog.filter((c) => c.heroId === '131' && c.skinNameEn === 'Lunar Goddess Diana');
+
+const dianaSkinPath = localizedPath(locale, '/skins/detail/?id=131002&champion=131');
+const yiSkinPath = localizedPath(locale, '/skins/detail/?id=11010&champion=11');
+const apheliosSkinPath = localizedPath(locale, '/skins/detail/?id=523040&champion=523');
+
+function findPastChroma(heroId: string, skinNameEn: string, nameEn: string): Chroma {
+  const chroma = catalog.find((c) => c.heroId === heroId && c.skinNameEn === skinNameEn && c.nameEn === nameEn);
+  if (!chroma) throw new Error(`Past splendid session chroma missing from catalog: ${nameEn}`);
+  return chroma;
+}
+
+const pastSplendidSessions = [
+  {
+    roundEn: 'August 2026',
+    roundZh: '8月场',
+    windowStart: '2026-08-07',
+    windowEnd: '2026-09-06',
+    chromas: [
+      {
+        nameEn: 'Surprise Party Vex (Pearl)',
+        nameZh: '惊悚派对 薇古丝 吓走你的沮丧！',
+        chroma: findPastChroma('711', 'Surprise Party Vex', 'Surprise Party Vex (Pearl)'),
+      },
+      {
+        nameEn: 'Spirit Blossom Hwei (Catseye)',
+        nameZh: '灵魂莲华 彗 雁来',
+        chroma: findPastChroma('910', 'Spirit Blossom Hwei', 'Spirit Blossom Hwei (Catseye)'),
+      },
+    ],
+    articleUrl: localizedPath(locale, '/blog/splendid-treasure-august-2026/'),
+  },
+];
+
+const faqEntries = isZh ? [
+  { question: '素影霓裳 嫦娥是臻彩还是普通炫彩？', answer: '素影霓裳 嫦娥是臻彩，拥有专属臻彩原画，依附于广寒仙子 嫦娥皮肤。可以看臻彩专题了解臻彩与炫彩、至臻皮肤的区别。' },
+  { question: '每 10 次开启保底的臻彩能自选吗？', answer: '不能。每 10 次开启额外保底的是奖池内随机臻彩。如果想要素影霓裳 嫦娥，碎片兑换商店是最稳的路径，需要 1200 碎片。' },
+  { question: '兑换商店里的斩星魔剑 易和至臻 莲华温泉 厄斐琉斯也是臻彩吗？', answer: '不是。斩星魔剑 易是一款普通皮肤，至臻 莲华温泉 厄斐琉斯是至臻皮肤，两者都不是臻彩。臻彩必须配合原皮肤使用，至臻皮肤本身就是完整皮肤。' },
+  { question: '臻彩需要原皮肤吗？', answer: '需要。素影霓裳 嫦娥必须配合广寒仙子 嫦娥原皮肤才能使用。如果还没有原皮肤，可以在游戏商城或活动的皮肤奖池中获取。' },
+] : [
+  { question: 'Is Lunar Goddess Diana (Obsidian) a prestige chroma or a regular chroma?', answer: 'It is a prestige chroma with its own exclusive splash art, attached to the Lunar Goddess Diana skin. See the prestige chroma guide for how prestige chromas differ from regular chromas and prestige skins.' },
+  { question: 'Can I choose which prestige chroma I get from the 10-open guarantee?', answer: 'No. The 10-open guarantee drops a random prestige chroma from the pool. If you want Lunar Goddess Diana (Obsidian) specifically, the fragment exchange shop is the reliable path at 1,200 fragments.' },
+  { question: 'Are Cosmic Blade Master Yi and Prestige Spirit Blossom Springs Aphelios also prestige chromas?', answer: 'No. Cosmic Blade Master Yi is a regular skin, and Prestige Spirit Blossom Springs Aphelios is a prestige skin — neither is a prestige chroma. Prestige chromas require their base skin, while prestige skins are complete skins on their own.' },
+  { question: 'Do prestige chromas need the base skin?', answer: 'Yes. Lunar Goddess Diana (Obsidian) requires the Lunar Goddess Diana base skin. If you do not own it yet, you can pick it up from the game shop or the event skin pool.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: `${SITE.origin}${article.coverUrl}`, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '华彩秘宝·召唤' : 'Splendid Treasure Summoning'}</span>
+  </nav>
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">The Splendid Treasure Summoning event runs September 23 – October 25, 2026 on the Chinese server. Lunar Goddess Diana (Obsidian) prestige chroma becomes obtainable for the first time in the fragment exchange shop at 1,200 fragments, joined by Cosmic Blade Master Yi and Prestige Spirit Blossom Springs Aphelios at 1,000 fragments each.</p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Lunar Goddess Diana (Obsidian) prestige chroma splash art.</figcaption>
+    </figure>
+
+    <section>
+      <h2>One prestige chroma, one skin, and one prestige skin in the exchange shop</h2>
+      <p>This round of the <a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>Splendid Treasure Summoning</a> event offers one <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a>, one regular skin, and one prestige skin through the fragment exchange shop. Each open guarantees a skin from the pool, and every 10 opens locks in a random prestige chroma. Fragments earned along the way can be traded for these specific items:</p>
+      <BlogChromaGrid>
+        {featuredChroma && <BlogChromaCard chroma={featuredChroma} labelEn="Lunar Goddess Diana (Obsidian) — 1,200 fragments" labelZh="素影霓裳 嫦娥 — 1200 碎片" {locale} />}
+      </BlogChromaGrid>
+      <p>Lunar Goddess Diana (Obsidian) costs 1,200 fragments. The exchange shop also offers <a href={yiSkinPath}>Cosmic Blade Master Yi</a> (1,000 fragments) and <a href={apheliosSkinPath}>Prestige Spirit Blossom Springs Aphelios</a> (1,000 fragments). The first is a prestige chroma with unique splash art; Cosmic Blade Master Yi is a regular skin, and Prestige Spirit Blossom Springs Aphelios is a prestige skin — a separate tier above regular skins, not a prestige chroma.</p>
+    </section>
+
+    <section>
+      <h2>Lunar Goddess Diana (Obsidian)</h2>
+      <p><a href={dianaSkinPath}>Lunar Goddess Diana</a> draws from the Lunar Revel festival, dressing the Scorn of the Moon in flowing celestial robes. The Obsidian chroma shifts the palette to a deep, dark brown (<span style="color:#27211C">#27211C</span>) — a solemn contrast against the skin's luminous base.</p>
+      <p>The <a href={dianaSkinPath}>Lunar Goddess Diana</a> skin family currently has 3 prestige chromas:</p>
+      <BlogChromaGrid>
+        {dianaFamily.map((chroma) => (
+          <BlogChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>The other two are Turquoise (<span style="color:#73BFBE">#73BFBE</span>) and Pearl (<span style="color:#ECF9F8">#ECF9F8</span>). Obsidian is the darkest and most muted of the three.</p>
+      <p>This chroma was added to the client in <a href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}>Patch 26.18</a>; this event marks the first time players can obtain it, as a fragment exchange reward.</p>
+    </section>
+
+    <section>
+      <h2>How the event works</h2>
+      <p>Buying a time-limited ward skin grants Splendid Treasure diamonds. One open costs 290 diamonds; the first open costs only 60 diamonds (about 6 RMB). Each open guarantees one unlocked skin from the pool plus some fragments.</p>
+      <p>Every 10 opens also guarantee a random prestige chroma — separate from the fragment exchange. Each open also has a chance to drop a lucky bag, which unlocks a skin from the bag pool first.</p>
+      <p>Fragments can be exchanged in the shop or obtained by breaking down duplicate skins (10 fragments per skin). Both diamonds and fragments are event-specific: unspent amounts clear when the event ends on October 25, so plan exchanges before then.</p>
+    </section>
+
+    <section>
+      <h2>Prestige chromas need the base skin</h2>
+      <p>Lunar Goddess Diana (Obsidian) requires the <a href={dianaSkinPath}>Lunar Goddess Diana</a> base skin. If you do not own it yet, you can pick it up from the game shop or the event skin pool. <a href={yiSkinPath}>Cosmic Blade Master Yi</a> and <a href={apheliosSkinPath}>Prestige Spirit Blossom Springs Aphelios</a> are complete skins on their own and do not require a separate base skin. For how prestige chromas differ from regular <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma skins</a>, see our chroma guide.</p>
+    </section>
+
+    <section class="splendid-sessions">
+      <h2>Past sessions</h2>
+      <p>The previous Splendid Treasure Summoning round closed on September 6 with two exchange-shop prestige chromas:</p>
+      <div class="splendid-table-wrapper">
+        <table class="splendid-table">
+          <thead><tr><th>Round</th><th>Event window</th><th>Exchange chromas</th><th>Article</th></tr></thead>
+          <tbody>
+            {pastSplendidSessions.map((session) => (
+              <tr>
+                <td class="splendid-col-round">{session.roundEn}</td>
+                <td class="splendid-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td>{session.chromas.map((item, index) => (
+                  <Fragment>{index > 0 && '、'}<a href={localizedPath(locale, `/chromas/${item.chroma.slug}/`)}>{item.nameEn}</a></Fragment>
+                ))}</td>
+                <td class="splendid-col-link"><a href={session.articleUrl}>{isZh ? '查看' : 'Read'}</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Splendid Treasure Summoning event page</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">Official news announcement</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => (
+        <details>
+          <summary>{entry.question}</summary>
+          <p>{entry.answer}</p>
+        </details>
+      ))}
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">9 月 23 日至 10 月 25 日，华彩秘宝·召唤活动上线。素影霓裳 嫦娥臻彩首次开放获取，以 1200 碎片加入兑换商店，斩星魔剑 易与至臻 莲华温泉 厄斐琉斯各 1000 碎片同步上架。</p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>素影霓裳 嫦娥臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>兑换商店中的一款臻彩、一款皮肤与一款至臻皮肤</h2>
+      <p>本期<a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>华彩秘宝·召唤</a>通过碎片兑换商店提供一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>、一款普通皮肤和一款至臻皮肤。每次开启保底 1 款未解锁皮肤，每 10 次开启额外保底 1 款随机臻彩。过程中获得的碎片可以换取以下内容：</p>
+      <BlogChromaGrid>
+        {featuredChroma && <BlogChromaCard chroma={featuredChroma} labelEn="Lunar Goddess Diana (Obsidian) — 1,200 fragments" labelZh="素影霓裳 嫦娥 — 1200 碎片" {locale} />}
+      </BlogChromaGrid>
+      <p>素影霓裳 嫦娥需要 1200 碎片。兑换商店还提供<a href={yiSkinPath}>斩星魔剑 易</a>（1000 碎片）和<a href={apheliosSkinPath}>至臻 莲华温泉 厄斐琉斯</a>（1000 碎片）。第一款是有专属原画的臻彩；斩星魔剑 易是普通皮肤，至臻 莲华温泉 厄斐琉斯是至臻皮肤——和普通皮肤是不同的品质层级，不是臻彩。</p>
+    </section>
+
+    <section>
+      <h2>素影霓裳 嫦娥</h2>
+      <p><a href={dianaSkinPath}>广寒仙子 嫦娥</a>取材自春节庆典的传说，将皎月女神装扮在飘逸的仙境华服中。「素影霓裳」将配色换成了深邃的暗棕色（<span style="color:#27211C">#27211C</span>），在皮肤明亮的底色上显得庄重沉稳。</p>
+      <p><a href={dianaSkinPath}>广寒仙子 嫦娥</a>目前拥有 3 款臻彩：</p>
+      <BlogChromaGrid>
+        {dianaFamily.map((chroma) => (
+          <BlogChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>另外两款是「玄晖霓裳」（<span style="color:#73BFBE">#73BFBE</span>）和「皓彩霓裳」（<span style="color:#ECF9F8">#ECF9F8</span>）。「素影霓裳」是三款中颜色最深、最内敛的一款。</p>
+      <p>这款臻彩在<a href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}>26.18 版本</a>加入客户端，本期活动是玩家首次可以获取它的渠道，以碎片兑换奖励的形式开放。</p>
+    </section>
+
+    <section>
+      <h2>活动规则</h2>
+      <p>购买期限守卫皮肤可获赠华彩秘宝·召唤钻石。每次开启需要 290 颗钻石，首次开启仅需 60 颗（约 6 元）。每次开启保底 1 款未解锁皮肤，同时掉落若干碎片。</p>
+      <p>每 10 次开启还保底 1 款随机臻彩——和碎片兑换是两条独立的路径。每次开启也有几率掉落福袋，福袋会优先解锁福袋奖池中的皮肤。</p>
+      <p>碎片可在兑换商店使用，也可以通过分解已解锁皮肤获得（每款 10 碎片）。钻石和碎片都是活动限定的：活动结束后未使用的部分全部清空，10 月 25 日前记得用完。</p>
+    </section>
+
+    <section>
+      <h2>臻彩需要原皮肤，至臻皮肤不需要</h2>
+      <p>素影霓裳 嫦娥必须配合<a href={dianaSkinPath}>广寒仙子 嫦娥</a>原皮肤才能使用。如果还没有原皮肤，可以在游戏商城或活动的皮肤奖池中获取。<a href={yiSkinPath}>斩星魔剑 易</a>和<a href={apheliosSkinPath}>至臻 莲华温泉 厄斐琉斯</a>本身就是完整的皮肤，不需要额外的原皮肤。臻彩与普通<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩皮肤</a>的区别，详见炫彩入门指南。</p>
+    </section>
+
+    <section class="splendid-sessions">
+      <h2>往期活动</h2>
+      <p>上一期华彩秘宝·召唤于 9 月 6 日结束，碎片兑换商店上架了两款臻彩：</p>
+      <div class="splendid-table-wrapper">
+        <table class="splendid-table">
+          <thead><tr><th>期次</th><th>活动时间</th><th>兑换臻彩</th><th>文章</th></tr></thead>
+          <tbody>
+            {pastSplendidSessions.map((session) => (
+              <tr>
+                <td class="splendid-col-round">{session.roundZh}</td>
+                <td class="splendid-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td>{session.chromas.map((item, index) => (
+                  <Fragment>{index > 0 && '、'}<a href={localizedPath(locale, `/chromas/${item.chroma.slug}/`)}>{item.nameZh}</a></Fragment>
+                ))}</td>
+                <td class="splendid-col-link"><a href={session.articleUrl}>{isZh ? '查看' : 'Read'}</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">华彩秘宝·召唤活动页</a></li>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">官方新闻公告</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => (
+        <details>
+          <summary>{entry.question}</summary>
+          <p>{entry.answer}</p>
+        </details>
+      ))}
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article h3{color:#e4c880;font-size:1.12rem;margin:30px 0 8px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.article-hero{overflow:hidden;border:1px solid var(--line);background:#10121d}.article-hero img{display:block;width:100%;height:auto;background:#15182a}.blog-article .article-hero figcaption{margin:0;padding:10px 13px;border-top:1px solid var(--line)}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;overflow-wrap:anywhere}.blog-article ul{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em;padding-left:1.5em}.blog-article li{margin-bottom:.5em}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}.official-sources{width:100%;margin:20px auto 0;padding:18px 20px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--panel) 88%,transparent);color:var(--muted)}.official-sources strong{display:block;margin-bottom:8px;color:var(--text);font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}.official-sources ul{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none}.official-sources li{font-size:.88rem;line-height:1.6}.official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+    .splendid-sessions{margin-top:32px}.splendid-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}.splendid-table{width:100%;border-collapse:collapse;font-size:.96rem}.splendid-table th{text-align:left;color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.06em;padding:0 16px 12px;border-bottom:1px solid var(--line)}.splendid-table td{padding:14px 16px;color:#c7cad4;border-bottom:1px solid var(--line)}.splendid-table tbody tr:last-child td{border-bottom:none}.splendid-table tbody tr:hover td{background:#15182a}.splendid-table a{text-decoration:none}.splendid-table a:hover{text-decoration:underline}.splendid-col-round{width:112px;color:var(--gold);font-family:Georgia,"Noto Serif SC",serif;font-weight:700;white-space:nowrap}.splendid-col-window{width:160px;color:var(--muted);font-size:.88rem;white-space:nowrap;font-variant-numeric:tabular-nums}.splendid-col-link{width:64px;text-align:right}.splendid-col-link a{font-size:.88rem}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}}
+  </style>
+</BaseLayout>
