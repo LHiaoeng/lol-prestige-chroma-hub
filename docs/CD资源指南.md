@@ -182,6 +182,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 - 皮肤系列和皮肤宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
 - 运行时不提供全量皮肤目录；只有皮肤系列详情、皮肤宇宙详情和 PBE 新增页可以显式读取完整 `skins.json`，按稳定数字 ID 投影关联皮肤集合。英雄目录、英雄详情、普通皮肤详情、首页、臻彩详情和博客不得因此加载该资源。
 - 当前 `skins.json` 不提供 `championId`。参考 Skin Explorer 的数据处理方式，完整皮肤集合使用 CommunityDragon 的皮肤 ID 所属英雄约定：`Math.floor(skin.id / 1000)`；这只用于该官方集合的英雄归属，不把名称、资源路径或数组位置当作身份。
+- 完整皮肤记录的本地化 `name` 可能为空字符串或缺失；有效 ID 与归属仍保留，名称规范化为缺失状态。界面只显示当前视图的本地化缺失标签，不跨视图补名，也不因单条缺名而让整份 PBE 比较失败。
 - 若皮肤 ID 无法按该约定得到正数英雄 ID，资料校验失败；显式 `championId` 或英雄分组 ID 仍优先使用。
 - `previewVideoUrl` 可能是源数据提供的外部 HTTPS 视频地址；它保持原地址，不经过 CommunityDragon 资源路径转换。
 

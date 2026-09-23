@@ -834,6 +834,10 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   color: var(--text);
   font-weight: 600;
 }
+.runtime-pbe-card-meta > .runtime-rarity {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
 .runtime-pbe-card-owner,
 .runtime-pbe-card-relations {
   margin: 0;

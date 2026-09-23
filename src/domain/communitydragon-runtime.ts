@@ -73,7 +73,7 @@ export interface RuntimeChampionSummary {
 
 export interface RuntimeSkinSummary {
   readonly id: number;
-  readonly name: string;
+  readonly name?: string;
   readonly isBase: boolean;
   readonly isLegacy?: boolean;
   readonly description?: string;
@@ -95,7 +95,7 @@ export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly championId: number;
   readonly championAlias?: string;
   readonly championName?: string;
-  readonly name: string;
+  readonly name?: string;
   /** The source-provided image used by the skin's default chroma item. */
   readonly chromaImageUrl?: string;
   readonly stageId?: number;
@@ -254,7 +254,7 @@ const skinSchema = z
   .object({
     id: idSchema,
     championId: idSchema.optional(),
-    name: z.string().trim().min(1),
+    name: z.string().trim().optional(),
     isBase: z.boolean().nullable().optional(),
     isLegacy: z.boolean().nullable().optional(),
     description: z.string().nullable().optional(),
@@ -635,7 +635,7 @@ function normalizeSkin(
     id: raw.id,
     championId,
     championAlias,
-    name: raw.name,
+    name: text(raw.name),
     isBase: raw.isBase === true,
     isLegacy: raw.isLegacy ?? undefined,
     description: text(raw.description),

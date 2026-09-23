@@ -43,7 +43,7 @@ export interface RuntimePbeComparisonInput {
   readonly latest: RuntimePbeComparisonCollection;
 }
 
-function additionsById<T extends { readonly id: number; readonly name: string }>(
+function additionsById<T extends { readonly id: number; readonly name?: string }>(
   pbe: readonly T[],
   latest: readonly T[],
 ): readonly T[] {
@@ -51,7 +51,9 @@ function additionsById<T extends { readonly id: number; readonly name: string }>
   return pbe
     .filter((item) => !latestIds.has(item.id))
     .slice()
-    .sort((left, right) => left.id - right.id || left.name.localeCompare(right.name));
+    .sort((left, right) =>
+      left.id - right.id || (left.name ?? "").localeCompare(right.name ?? ""),
+    );
 }
 
 export function projectPbeAdditions(

@@ -13,6 +13,7 @@ import {
   asCommunityDragonError,
   runtimeFailureMessage,
 } from "./communitydragon-errors";
+import { runtimeMissingLabel } from "./runtime-reference-view-shared";
 import { localizedPath } from "../i18n/config";
 import {
   RuntimeChannelLifecycle,
@@ -227,7 +228,9 @@ export function createDomView(
       syncChannel(channel);
       const status = renderStatus(sourceLabel(channel));
       const title = document.createElement("strong");
-      title.textContent = `${champion.name} · ${sourceSkin.name}`;
+      const skinName =
+        sourceSkin.name ?? runtimeMissingLabel(locale, "name");
+      title.textContent = `${champion.name} · ${skinName}`;
       const links = document.createElement("span");
       links.className = "chroma-runtime-links";
       const siteLocale = locale === "zh_cn" ? "zh-cn" : "en";
@@ -283,7 +286,7 @@ export function createDomView(
       const image = mediaUrl ? document.createElement("img") : undefined;
       if (image && mediaUrl) {
         image.src = mediaUrl;
-        image.alt = sourceSkin.name;
+        image.alt = skinName;
         image.loading = "lazy";
         image.width = 320;
         image.height = 180;

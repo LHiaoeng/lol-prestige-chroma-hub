@@ -71,7 +71,9 @@ export function appendPbeSkinCard(
   else appendMissingField(link, locale, "thumbnail");
   const meta = document.createElement("span");
   meta.className = "runtime-pbe-card-meta";
-  meta.appendChild(textNode("span", name));
+  const nameLabel = textNode("span", name);
+  if (!item.name) nameLabel.classList.add("runtime-missing");
+  meta.appendChild(nameLabel);
   appendRarity(meta, item.rarity);
   link.appendChild(meta);
   card.appendChild(link);
