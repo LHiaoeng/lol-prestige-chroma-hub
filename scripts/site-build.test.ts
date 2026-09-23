@@ -121,6 +121,22 @@ describe("static site build", () => {
     ).toBe(true);
     expect(
       existsSync(
+        join(dist, "blog", "patch-26-19-prestige-chromas", "index.html"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dist,
+          "zh-cn",
+          "blog",
+          "patch-26-19-prestige-chromas",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
         join(dist, "blog", "canyon-peak-2026-split-2-rewards", "index.html"),
       ),
     ).toBe(true);
@@ -147,6 +163,22 @@ describe("static site build", () => {
           "zh-cn",
           "blog",
           "lucky-gate-ocean-song-202609",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(dist, "blog", "splendid-treasure-september-2026", "index.html"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dist,
+          "zh-cn",
+          "blog",
+          "splendid-treasure-september-2026",
           "index.html",
         ),
       ),
@@ -764,11 +796,15 @@ describe("static site build", () => {
     const chineseHome = readFileSync(join(dist, "zh-cn", "index.html"), "utf8");
     expect(home).toContain("Latest News &amp; Guides");
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/patch-26-19-prestige-chromas/"');
+    expect(home).toContain('href="/blog/splendid-treasure-september-2026/"');
     expect(home).toContain('href="/blog/prestige-chroma-summon-2026-21/"');
-    expect(home).toContain(
+    expect(home).not.toContain(
       'href="/blog/brilliant-prestige-chroma-summoning-guide/"',
     );
-    expect(home).toContain('href="/blog/lucky-gate-ocean-song-202609/"');
+    expect(home).not.toContain(
+      'href="/blog/lucky-gate-ocean-song-202609/"',
+    );
     expect(home).not.toContain(
       'href="/blog/canyon-peak-2026-split-2-rewards/"',
     );
@@ -783,12 +819,18 @@ describe("static site build", () => {
     expect(chineseHome).toContain("最新资讯与指南");
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
     expect(chineseHome).toContain(
+      'href="/zh-cn/blog/patch-26-19-prestige-chromas/"',
+    );
+    expect(chineseHome).toContain(
+      'href="/zh-cn/blog/splendid-treasure-september-2026/"',
+    );
+    expect(chineseHome).toContain(
       'href="/zh-cn/blog/prestige-chroma-summon-2026-21/"',
     );
-    expect(chineseHome).toContain(
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"',
     );
-    expect(chineseHome).toContain(
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/lucky-gate-ocean-song-202609/"',
     );
     expect(chineseHome).not.toContain(

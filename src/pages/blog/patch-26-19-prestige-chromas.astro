@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'patch-26-19-prestige-chromas');
+if (!article) throw new Error('Patch 26.19 prestige chroma article metadata is missing');
+const sourceUrl = 'https://lol.qq.com/gicp/news/410/37097271.html';
+const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.19');
+if (patchChromas.length === 0) throw new Error('No prestige chromas found for Patch 26.19');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const faqEntries = isZh ? [
+  { question: '26.19 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：踏雪寻梅系列四款——杰斯 玉立冰洁、亚索 玉立冰洁（均为生肖限定臻彩·蓝宝石）、卡特琳娜 狂飙卷沙（生肖限定臻彩·猫眼石）、莉莉娅 爱日烘晴（生肖限定臻彩·黄水晶）；熊猫娃娃拉克丝两款钻石臻彩——银花丝匠（紫水晶）与麻将才女（珍珠）。六款都是已有炫彩升级后获得专属原画，不是新皮肤。` },
+  { question: '这六款臻彩怎么获得？', answer: `26.19 版本公告没有公布这六款臻彩的具体获取方式与开放时间，请以官方后续活动或商城公告为准。臻彩依附于基础皮肤，使用前需要先拥有对应的基础皮肤，详见<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">什么是臻彩</a>。` },
+  { question: '踏雪寻梅系列之前出过臻彩吗？', answer: `出过。踏雪寻梅亚索、卡特琳娜和莉莉娅的「独步早春」臻彩已于 26.15 版本进入臻彩体系，配色为翡翠绿；杰斯也在更早版本拥有「琼英缀雪」珍珠白臻彩。26.19 这批为这四位英雄各补一款新配色。` },
+] : [
+  { question: 'Which prestige chromas are in LoL Patch 26.19?', answer: `${patchChromas.length} in total: four Petals of Spring entries — Jayce (Sapphire), Yasuo (Sapphire), Katarina (Catseye), and Lillia (Citrine), all at Lunar Revel Prestige Chroma tier — plus two Diamond Panda Pal Lux chromas, Amethyst and Pearl. All six are upgrades of existing chromas with dedicated splash art, not new skins.` },
+  { question: 'How do I get these six prestige chromas?', answer: `The Patch 26.19 announcement does not specify acquisition methods or dates, so wait for official event or shop announcements. Every prestige chroma is attached to an existing skin and requires owning that base skin first &mdash; see our <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chroma guide</a> for details.` },
+  { question: 'Have Petals of Spring chromas been upgraded before?', answer: `Yes. Petals of Spring Yasuo, Katarina, and Lillia received their "Emerald" prestige chromas back in Patch 26.15, while Jayce has the "Pearl" entry from an earlier patch. The 26.19 batch adds one new colourway for each of these four champions.` },
+];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(patchChromas[0].images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '英雄联盟26.19, 臻彩, 臻彩原画, 踏雪寻梅, 杰斯, 亚索, 卡特琳娜, 莉莉娅, 熊猫娃娃, 拉克丝, 生肖限定臻彩, 钻石臻彩' : 'LoL Patch 26.19, prestige chromas, chroma splash art, Petals of Spring, Jayce, Yasuo, Katarina, Lillia, Panda Pal Lux, Lunar Revel, Diamond Prestige Chroma',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: isZh ? '26.19 版本臻彩原画列表' : 'LoL Patch 26.19 Prestige Chroma List',
+    numberOfItems: patchChromas.length,
+    itemListElement: patchChromas.map((chroma, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: {
+        '@type': 'CreativeWork', name: isZh ? chroma.nameZh : chroma.nameEn,
+        url: new URL(localizedPath(locale, `/chromas/${chroma.slug}/`), SITE.origin).toString(),
+        image: imageUrl(chroma.images.large),
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
+    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '26.19 版本臻彩' : 'Patch 26.19 Prestige Chromas'}</span>
+  </nav>
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '26.19 版本 · 臻彩原画' : 'PATCH 26.19 · PRESTIGE CHROMA ART'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? `26.19 这一批一共 ${patchChromas.length} 款，分两个系列：踏雪寻梅补了四款新配色，熊猫娃娃拉克丝一次出了两款钻石臻彩。六款全部来自已经上线的皮肤，给既有炫彩补上专属原画。` : `Patch 26.19 adds ${patchChromas.length} entries across two skinlines: four new Petals of Spring colourways and two Diamond Panda Pal Lux chromas. All six are upgrades of chromas from existing skins, each receiving dedicated splash art.`}</p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={localizedPath(locale, `/chromas/${patchChromas[0].slug}/`)} aria-label={isZh ? `查看 ${patchChromas[0].nameZh} 详情` : `View ${patchChromas[0].nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(patchChromas[0].images.medium)} data-fallback={sourceImageUrl('medium', patchChromas[0].instanceId)} />
+          <img src={imageUrl(patchChromas[0].images.large)} data-fallback={sourceImageUrl('large', patchChromas[0].instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${patchChromas[0].nameZh}臻彩原画` : `${patchChromas[0].nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? patchChromas[0].nameZh : patchChromas[0].nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '踏雪寻梅系列四款新配色' : 'Four new Petals of Spring colourways'}</h2>
+      {isZh ? <><p>国服于 9 月 23 日停机更新 26.19 版本。本次新增的 {patchChromas.length} 款臻彩都不来自新皮肤，而是给早已上线的皮肤炫彩补上专属原画。其中四款来自踏雪寻梅系列，与上一批以老炫彩回填为主的<a href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}>26.18 版本四款臻彩</a>相比，这次更像同一系列的配色扩充。</p><p>本站所说的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>是国服定义的炫彩类型，依附于已有皮肤并拥有独立原画，不是通常所说的至臻皮肤；这里的版本号是臻彩条目的「所属版本」，只表示它们在 26.19 进入臻彩体系，并不代表当前仍可获取。</p></> : <><p>The China Server deployed Patch 26.19 with scheduled maintenance on September 23. None of the {patchChromas.length} new prestige chromas come from new skins &mdash; they upgrade existing chromas with dedicated splash art. Four of them belong to the Petals of Spring skinline &mdash; a colourway expansion rather than the backfill of older content seen in <a href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}>Patch 26.18&rsquo;s four entries</a>.</p><p>On this site, a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> is a China Server chroma type attached to an existing skin with its own splash art, not a traditional Prestige Skin. The patch field records when each entry joined the prestige system; it does not mean the chroma remains obtainable in that patch.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '踏雪寻梅系列四款新配色' : 'Four new Petals of Spring colourways'}</h2>
+      {isZh ? <><p>踏雪寻梅系列本次一次推出四款新配色：<strong>杰斯 玉立冰洁</strong>（蓝宝石）、<strong>亚索 玉立冰洁</strong>（蓝宝石）、<strong>卡特琳娜 狂飙卷沙</strong>（猫眼石）、<strong>莉莉娅 爱日烘晴</strong>（黄水晶）。这四位英雄此前都已拥有踏雪寻梅系列臻彩：亚索、卡特琳娜和莉莉娅在 26.15 获得「独步早春」翡翠绿，杰斯则在更早版本拥有「琼英缀雪」珍珠白；四款均属生肖限定臻彩分类。</p><p>更早一批踏雪寻梅臻彩曾通过<a href={localizedPath(locale, '/blog/lucky-gate-petals-of-spring-chromas-202607/')}>幸运之门·召唤活动</a>预告，本次同系列补色说明臻彩体系会持续为已有皮肤系列扩充配色。</p></> : <><p>The Petals of Spring skinline receives four new colourways in this batch: <strong>Jayce (Sapphire)</strong>, <strong>Yasuo (Sapphire)</strong>, <strong>Katarina (Catseye)</strong>, and <strong>Lillia (Citrine)</strong>. All four champions already own Petals of Spring prestige chromas from earlier patches &mdash; Yasuo, Katarina, and Lillia got their &ldquo;Emerald&rdquo; entries in 26.15, while Jayce has the &ldquo;Pearl&rdquo; entry from an earlier patch. All four are classified as Lunar Revel Prestige Chroma.</p><p>An earlier Petals of Spring batch was previewed through the <a href={localizedPath(locale, '/blog/lucky-gate-petals-of-spring-chromas-202607/')}>Lucky Gate summoning event</a>; this follow-up shows the prestige system continues expanding colourways for existing skinlines.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '熊猫娃娃拉克丝：两款钻石臻彩同台' : 'Panda Pal Lux: two Diamond prestige chromas at once'}</h2>
+      {isZh ? <><p><strong>熊猫娃娃 拉克丝 银花丝匠</strong>与<strong>熊猫娃娃 拉克丝 麻将才女</strong>是本批仅有的两款钻石臻彩，同属一个皮肤。紫水晶与珍珠白两种配色分别对应不同的工艺意象：银花丝匠指向银花丝镶嵌工艺，麻将才女则融入麻将文化元素。</p><p>拉克丝在 26.16 版本已获得青花瓷钻石臻彩，这次熊猫娃娃系列一次性补上两款，让她在<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>臻彩数量排行榜</a>上的数字再增加两款。</p></> : <><p><strong>Panda Pal Lux (Amethyst)</strong> and <strong>Panda Pal Lux (Pearl)</strong> are the batch&rsquo;s only two Diamond tier entries, both attached to the same skin. The amethyst-purple and pearl-white colourways carry distinct craft motifs: the amethyst entry references silver filigree craftsmanship, while the pearl entry draws on mahjong culture.</p><p>Lux already received a Porcelain Diamond prestige chroma back in Patch 26.16; this two-for-one Panda Pal batch pushes her tally up by two more on the <a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>prestige chroma leaderboard</a>.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '26.19 臻彩原画一览' : 'Patch 26.19 prestige chroma gallery'}</h2>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这次扩充为踏雪寻梅系列再添四款配色，也让拉克丝一次入账两款钻石臻彩。' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. This batch adds four more colourways to the Petals of Spring line and gives Lux two Diamond entries at once.'}</p>
+      <BlogChromaGrid>
+        {patchChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '官方来源' : 'Official source'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '《英雄联盟》26.19 版本更新公告（2026 年 9 月 22 日）' : 'League of Legends China Server Patch 26.19 notes (September 22, 2026)'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}.blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}.blog-article{padding:clamp(52px,8vw,90px) 0 110px}.article-header,.blog-article>section,.blog-article>figure,.blog-article>aside{width:100%;margin-inline:auto}.article-header{margin-bottom:42px}.article-header h1{font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(2.7rem,6vw,5rem);line-height:1.05;font-weight:500;margin:.34em 0 .35em;overflow-wrap:anywhere}.article-deck{color:#c7cad4;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.7}.article-meta{display:flex;flex-wrap:wrap;gap:9px;color:var(--muted);font-size:.8rem}.blog-article section{margin-top:48px}.blog-article h2{font-family:Georgia,"Noto Serif SC",serif;color:var(--gold);font-size:clamp(1.65rem,3.3vw,2.25rem);line-height:1.2;margin:0 0 18px}.blog-article section p{color:#c7cad4;font-size:1.06rem;line-height:1.9;margin:0 0 1.2em}.blog-article strong{color:#f1f2f5}.blog-article a{color:var(--gold);text-decoration:none}.blog-article section p a{text-decoration:underline;text-underline-offset:3px}.blog-article figure{margin-top:42px}.blog-article figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:#15182a;box-shadow:0 22px 64px #0007}.article-hero img{height:auto}.blog-article figcaption{color:var(--muted);font-size:.78rem;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.blog-article aside.official-sources{margin-top:48px;border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:.92rem}.blog-article aside.official-sources ul{margin:10px 0 0;padding-left:18px}.faq details{border-top:1px solid var(--line);padding:16px 0}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{color:#e6e8ee;font-weight:700;line-height:1.5;cursor:pointer}.faq details p{margin:12px 0 0}
+
+    @media(max-width:767px){.blog-breadcrumbs{padding-top:18px}.blog-article{padding:42px 0 76px}.article-header{margin-bottom:28px}.article-header h1{font-size:clamp(2.3rem,11vw,3.35rem)}.blog-article section{margin-top:36px}.blog-article section p{font-size:1rem;line-height:1.78}.blog-article figure{margin-top:32px}}
+  </style>
+</BaseLayout>

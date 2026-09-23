@@ -46,6 +46,38 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'patch-26-19-prestige-chromas',
+    href: '/blog/patch-26-19-prestige-chromas/',
+    titleEn: 'LoL Patch 26.19: 6 New Prestige Chromas',
+    titleZh: '《英雄联盟》26.19 版本：6 款新增臻彩原画',
+    summaryEn: 'Patch 26.19 adds six prestige chromas: four Petals of Spring entries (Jayce and Yasuo in Sapphire, Katarina in Catseye, Lillia in Citrine) plus two Diamond Panda Pal Lux chromas in Amethyst and Pearl.',
+    summaryZh: '26.19 版本新增 6 款臻彩：踏雪寻梅系列四款（杰斯、亚索 玉立冰洁，卡特琳娜 狂飙卷沙，莉莉娅 爱日烘晴），以及熊猫娃娃拉克丝的两款钻石臻彩（银花丝匠、麻将才女）。',
+    publishedAt: '2026-09-23',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/c7a94df9-a46b-4ca9-8681-cc8a60944130/site3.jpg',
+    coverAltEn: 'Petals of Spring Jayce (Sapphire) prestige chroma splash art',
+    coverAltZh: '踏雪寻梅 杰斯 玉立冰洁臻彩原画',
+    sourceUrl: 'https://lol.qq.com/gicp/news/410/37097271.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
+    slug: 'splendid-treasure-september-2026',
+    href: '/blog/splendid-treasure-september-2026/',
+    titleEn: 'Splendid Treasure Summoning — September 2026',
+    titleZh: '华彩秘宝·召唤 9 月场上线',
+    summaryEn: 'The Splendid Treasure Summoning event runs September 23 – October 25, 2026 on the Chinese server. Lunar Goddess Diana (Obsidian) prestige chroma becomes obtainable for the first time in the fragment exchange shop at 1,200 fragments, with Cosmic Blade Master Yi and Prestige Spirit Blossom Springs Aphelios also available at 1,000 fragments each.',
+    summaryZh: '2026 年 9 月 23 日至 10 月 25 日，华彩秘宝·召唤活动上线。素影霓裳 嫦娥臻彩首次开放获取，以 1200 碎片加入兑换商店，斩星魔剑 易与至臻 莲华温泉 厄斐琉斯各 1000 碎片同步上架。',
+    publishedAt: '2026-09-23',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/788e0493-4fa1-4f9a-9b7c-e8f1e99fd25b/site3.jpg',
+    coverAltEn: 'Lunar Goddess Diana (Obsidian) prestige chroma splash art — Splendid Treasure Summoning September 2026',
+    coverAltZh: '素影霓裳 嫦娥臻彩原画 — 华彩秘宝·召唤 2026 年 9 月场',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=6855958064447535833',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'prestige-chroma-summon-2026-21',
     href: '/blog/prestige-chroma-summon-2026-21/',
     titleEn: 'Brilliant Prestige Chroma Summoning — Session 202621',
@@ -475,14 +507,28 @@ export const blogArticlesNewestFirst: readonly BlogArticle[] = [...blogArticles]
   return dateOrder || blogArticles.indexOf(left) - blogArticles.indexOf(right);
 });
 
+/** 璀璨臻彩召唤系列（含完全指南）的 slug 特征。 */
+const brilliantSummonSlugPattern = /(^|-)prestige-chroma-summon/;
+
 export function adjacentBlogArticles(currentSlug: string): {
   newer: BlogArticle | undefined;
   older: BlogArticle | undefined;
 } {
   const index = blogArticlesNewestFirst.findIndex((article) => article.slug === currentSlug);
   if (index < 0) return { newer: undefined, older: undefined };
-  return {
-    newer: blogArticlesNewestFirst[index - 1],
-    older: blogArticlesNewestFirst[index + 1],
+  // 华彩秘宝·召唤与璀璨臻彩召唤是相互独立的活动系列，华彩秘宝文章的相邻导航不出现璀璨臻彩召唤内容。
+  const skipsBrilliantSummon = currentSlug.startsWith('splendid-treasure-');
+  const findNeighbor = (step: 1 | -1): BlogArticle | undefined => {
+    for (
+      let cursor = index + step;
+      cursor >= 0 && cursor < blogArticlesNewestFirst.length;
+      cursor += step
+    ) {
+      const candidate = blogArticlesNewestFirst[cursor];
+      if (skipsBrilliantSummon && brilliantSummonSlugPattern.test(candidate.slug)) continue;
+      return candidate;
+    }
+    return undefined;
   };
+  return { newer: findNeighbor(-1), older: findNeighbor(1) };
 }
