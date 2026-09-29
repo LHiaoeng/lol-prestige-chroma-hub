@@ -1,0 +1,27 @@
+---
+/**
+ * 文本输入组件（视觉参考 shadcn/ui Input，保留原生 <input>）。
+ *
+ * 样式类 `cn-input` 统一定义在 `src/styles/global.css`，
+ * 颜色与尺寸变量取自 :root 定义，focus ring、hover 边框与
+ * placeholder 样式与 `cn-select` / `cn-pagination-*` 保持一致。
+ *
+ * 用法：
+ * ```astro
+ * <Input name="q" type="search" placeholder="搜索臻彩" maxlength={64} />
+ * ```
+ */
+interface Props {
+  name: string;
+  type?: 'search' | 'text' | 'url';
+  placeholder?: string;
+  maxlength?: number;
+  value?: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const { name, type = 'text', placeholder, maxlength, value, ariaLabel } = Astro.props;
+---
+
+<input class:list={['cn-input', Astro.props.class]} {name} {type} {placeholder} {maxlength} {value} aria-label={ariaLabel} />

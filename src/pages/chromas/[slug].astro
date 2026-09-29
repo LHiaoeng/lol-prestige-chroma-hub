@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
 import CategoryIconPreview from '../../components/CategoryIconPreview.astro';
 import DetailActionMenu from '../../components/DetailActionMenu.astro';
@@ -93,7 +94,7 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
       <img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </picture>
   </div>
-  <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}><a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><span aria-current="page">{isZh ? chroma.nameZh : chroma.nameEn}</span></nav>
+  <Breadcrumb {locale} items={[{ label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') }, { label: isZh ? chroma.nameZh : chroma.nameEn }]} />
   <article class="detail">
     <h1 class="sr-only detail-accessible-title">{seo.imageAlt}</h1>
     <div class="detail-media">

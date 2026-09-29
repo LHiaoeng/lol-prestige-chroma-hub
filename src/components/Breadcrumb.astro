@@ -1,0 +1,60 @@
+---
+/**
+ * 面包屑导航组件（移植自 shadcn/ui Breadcrumb）。
+ *
+ * 结构遵循 WAI-ARIA Breadcrumb 模式：nav > ol > li，末级以
+ * `aria-current="page"` 标记当前页，分隔符为 chevron 图标（aria-hidden）。
+ * 样式使用 `cn-breadcrumb-*` 前缀，统一定义在 `src/styles/global.css`，
+ * 与页面 JSON-LD 的 BreadcrumbList 语义保持一致。
+ *
+ * 用法：
+ * ```astro
+ * <Breadcrumb items={[{ label: '首页', href: '/' }, { label: '当前页' }]} />
+ * ```
+ */
+import { resolveLocale, type Locale } from '../i18n/config';
+
+export interface BreadcrumbItem {
+  /** 显示文本。 */
+  label: string;
+  /** 链接地址；缺省表示当前页，渲染为带 aria-current="page" 的纯文本。 */
+  href?: string;
+  /** 附加到链接上的额外属性（如 data-runtime-channel-link）。 */
+  linkAttrs?: Record<string, string>;
+}
+
+interface Props {
+  /** 面包屑条目，末级省略 href 即视为当前页。 */
+  items: BreadcrumbItem[];
+  /** nav 元素的 aria-label，缺省按 locale 取「面包屑 / Breadcrumb」。 */
+  ariaLabel?: string;
+  locale?: Locale;
+  /** 文章页变体：仅保留上 padding，用于面包屑后紧跟文章头部的布局。 */
+  article?: boolean;
+}
+
+const { items, article = false } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const ariaLabel = Astro.props.ariaLabel ?? (locale === 'zh-cn' ? '面包屑' : 'Breadcrumb');
+---
+
+<nav class:list={['cn-breadcrumb', { 'cn-breadcrumb--article': article }]} aria-label={ariaLabel}>
+  <ol class="cn-breadcrumb-list">
+    {items.map((item, index) => (
+      <>
+        {index > 0 && (
+          <li class="cn-breadcrumb-separator" role="presentation" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+          </li>
+        )}
+        <li class="cn-breadcrumb-item">
+          {item.href ? (
+            <a class="cn-breadcrumb-link" href={item.href} {...item.linkAttrs}>{item.label}</a>
+          ) : (
+            <span class="cn-breadcrumb-page" aria-current="page">{item.label}</span>
+          )}
+        </li>
+      </>
+    ))}
+  </ol>
+</nav>

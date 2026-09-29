@@ -1,0 +1,33 @@
+---
+/**
+ * 下拉选择组件（视觉参考 shadcn/ui Select，保留原生 <select>）。
+ *
+ * 不引入自绘下拉列表，保证移动端系统选择器与键盘可达性；
+ * 视觉上通过 `appearance:none` + 内联 SVG chevron 背景统一外观。
+ * 样式类 `cn-select` 统一定义在 `src/styles/global.css`。
+ *
+ * 用法：
+ * ```astro
+ * <Select name="hero" options={[{ value: '', label: '全部英雄' }, { value: '1', label: '安妮' }]} />
+ * ```
+ */
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  name: string;
+  options: SelectOption[];
+  /** 当前选中值，缺省由浏览器选中第一项。 */
+  value?: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const { name, options, value, ariaLabel } = Astro.props;
+---
+
+<select class:list={['cn-select', Astro.props.class]} {name} aria-label={ariaLabel}>
+  {options.map((option) => <option value={option.value} selected={value !== undefined && option.value === value}>{option.label}</option>)}
+</select>

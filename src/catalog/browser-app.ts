@@ -3,7 +3,7 @@ import { sourceImageUrl } from '../domain/chroma';
 import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
 import { chromaImageAlt } from '../seo/chroma-seo';
-import { buildPages } from '../components/pagination';
+import { buildPages } from '../components/pagination/pagination';
 import {
   parseCatalogQuery,
   queryCatalog,

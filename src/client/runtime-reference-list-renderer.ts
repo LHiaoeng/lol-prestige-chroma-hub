@@ -21,7 +21,7 @@ import {
   textNode,
 } from "./runtime-reference-view-shared";
 import { runtimeFailureMessage } from "./communitydragon-errors";
-import { buildPages } from "../components/pagination";
+import { buildPages } from "../components/pagination/pagination";
 
 const PAGINATION_CHEVRON_LEFT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
 const PAGINATION_CHEVRON_RIGHT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
@@ -81,6 +81,7 @@ export function createRuntimeListRenderer(
       toolbar.className = "runtime-toolbar";
       let roleFilter: HTMLSelectElement | undefined;
       const search = document.createElement("input");
+      search.className = "cn-input";
       search.type = "search";
       search.id = `runtime-${options.page}-search`;
       search.placeholder =
@@ -96,6 +97,7 @@ export function createRuntimeListRenderer(
       toolbar.append(searchLabel);
       if (isChampionList) {
         const select = document.createElement("select");
+        select.className = "cn-select";
         roleFilter = select;
         select.id = "runtime-champions-role";
         select.setAttribute(
@@ -118,6 +120,7 @@ export function createRuntimeListRenderer(
         toolbar.append(roleLabelElement);
       }
       const sort = document.createElement("select");
+      sort.className = "cn-select";
       sort.id = `runtime-${options.page}-sort`;
       sort.setAttribute(
         "aria-label",

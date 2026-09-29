@@ -2,6 +2,8 @@
 import type { Chroma } from '../domain/chroma';
 import { categoryName } from '../i18n';
 import { resolveLocale, type Locale } from '../i18n/config';
+import Input from './Input.astro';
+import Select from './Select.astro';
 interface Props { catalog: Chroma[]; locale?: Locale }
 const { catalog } = Astro.props;
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
@@ -13,12 +15,12 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
 <details class="filter-disclosure" open>
 <summary><span class="filter-disclosure-label">{isZh ? '筛选与排序' : 'Filter & sort'}</span><span class="filter-disclosure-icon" aria-hidden="true">＋</span></summary>
 <form class="filters" data-filters role="search">
-  <label class="search-field"><span>{isZh ? '搜索名称' : 'Search'}</span><input name="q" type="search" maxlength="64" placeholder={isZh ? '搜索臻彩中英文名称' : 'Search prestige chroma names'} /></label>
-  <label><span>{isZh ? '英雄' : 'Champion'}</span><select name="hero"><option value="">{isZh ? '全部英雄' : 'All champions'}</option>{heroes.map(([id, name]) => <option value={id}>{isZh ? name.zh : name.en}</option>)}</select></label>
-  <label><span>{isZh ? '版本' : 'Patch'}</span><select name="version"><option value="">{isZh ? '全部版本' : 'All patches'}</option>{versions.map((version) => <option value={version}>{version}</option>)}</select></label>
-  <label><span>{isZh ? '分类' : 'Category'}</span><select name="category"><option value="">{isZh ? '全部分类' : 'All categories'}</option>{categories.map(([id]) => <option value={id}>{categoryName(id, isZh ? 'zh' : 'en')}</option>)}</select></label>
-  <label><span>{isZh ? '新增状态' : 'Status'}</span><select name="isNew"><option value="">{isZh ? '全部' : 'All'}</option><option value="true">{isZh ? '本期新增' : 'New'}</option><option value="false">{isZh ? '非新增' : 'Archived'}</option></select></label>
-  <label><span>{isZh ? '排序' : 'Sort'}</span><select name="sort"><option value="rank_desc">{isZh ? '推荐优先' : 'Recommended'}</option><option value="rank_asc">{isZh ? '推荐倒序' : 'Recommended (reverse)'}</option><option value="skin_desc">{isZh ? '皮肤 ID 降序' : 'Skin ID descending'}</option><option value="skin_asc">{isZh ? '皮肤 ID 升序' : 'Skin ID ascending'}</option><option value="version_desc">{isZh ? '版本降序' : 'Patch descending'}</option></select></label>
+  <label class="search-field"><span>{isZh ? '搜索名称' : 'Search'}</span><Input name="q" type="search" maxlength={64} placeholder={isZh ? '搜索臻彩中英文名称' : 'Search prestige chroma names'} /></label>
+  <label><span>{isZh ? '英雄' : 'Champion'}</span><Select name="hero" options={[{ value: '', label: isZh ? '全部英雄' : 'All champions' }, ...heroes.map(([id, name]) => ({ value: String(id), label: isZh ? name.zh : name.en }))]} /></label>
+  <label><span>{isZh ? '版本' : 'Patch'}</span><Select name="version" options={[{ value: '', label: isZh ? '全部版本' : 'All patches' }, ...versions.map((version) => ({ value: version, label: version }))]} /></label>
+  <label><span>{isZh ? '分类' : 'Category'}</span><Select name="category" options={[{ value: '', label: isZh ? '全部分类' : 'All categories' }, ...categories.map(([id]) => ({ value: String(id), label: categoryName(id, isZh ? 'zh' : 'en') }))]} /></label>
+  <label><span>{isZh ? '新增状态' : 'Status'}</span><Select name="isNew" options={[{ value: '', label: isZh ? '全部' : 'All' }, { value: 'true', label: isZh ? '本期新增' : 'New' }, { value: 'false', label: isZh ? '非新增' : 'Archived' }]} /></label>
+  <label><span>{isZh ? '排序' : 'Sort'}</span><Select name="sort" options={[{ value: 'rank_desc', label: isZh ? '推荐优先' : 'Recommended' }, { value: 'rank_asc', label: isZh ? '推荐倒序' : 'Recommended (reverse)' }, { value: 'skin_desc', label: isZh ? '皮肤 ID 降序' : 'Skin ID descending' }, { value: 'skin_asc', label: isZh ? '皮肤 ID 升序' : 'Skin ID ascending' }, { value: 'version_desc', label: isZh ? '版本降序' : 'Patch descending' }]} /></label>
   <button type="submit">{isZh ? '应用筛选' : 'Apply'}</button>
   <button type="reset" class="ghost">{isZh ? '清除' : 'Clear'}</button>
 </form>

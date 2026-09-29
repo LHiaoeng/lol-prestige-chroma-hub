@@ -1,6 +1,7 @@
 ---
 import { localizedPath, type Locale } from '../i18n/config';
 import { communityDragonChannelLabel } from '../domain/communitydragon-url';
+import Breadcrumb from './Breadcrumb.astro';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes' | 'pbe-additions';
@@ -17,12 +18,15 @@ const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const listPath = page === 'skins' || page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
 const pbeLabel = communityDragonChannelLabel('pbe', runtimeLocale);
 const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
+const breadcrumbItems = [
+  { label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+  ...(mode === 'detail' && listPath ? [{ label, href: listPath, linkAttrs: { 'data-runtime-channel-link': '' } }] : []),
+  { label: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label },
+];
 ---
 
 <div class="runtime-page">
-  <nav class="breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
-    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span>{mode === 'detail' ? <>{listPath && <><a href={listPath} data-runtime-channel-link>{label}</a><span>/</span></>}<span aria-current="page">{isZh ? `${label}详情` : `${label} detail`}</span></> : <span aria-current="page">{label}</span>}
-  </nav>
+  <Breadcrumb {locale} items={breadcrumbItems} />
   <header>
     <h1>{heading}</h1>
     <p class="runtime-lede">{lede}</p>

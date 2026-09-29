@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
@@ -44,9 +45,11 @@ const jsonLd = [
 ];
 ---
 <BaseLayout {title} {description} {canonical} image={coverImg} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
-  <nav class="blog-breadcrumbs" aria-label={isZh ? '面包屑' : 'Breadcrumb'}>
-    <a href={localizedPath(locale, '/')}>{isZh ? '首页' : 'Home'}</a><span>/</span><a href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a><span>/</span><span aria-current="page">{isZh ? '青花瓷臻彩' : 'Porcelain Prestige Chromas'}</span>
-  </nav>
+  <Breadcrumb article {locale} items={[
+    { label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { label: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { label: isZh ? '青花瓷臻彩' : 'Porcelain Prestige Chromas' },
+  ]} />
 
   {!isZh && <article class="blog-article">
     <header class="article-header">
@@ -221,8 +224,7 @@ const jsonLd = [
   <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
 
   <style is:global>
-    .blog-breadcrumbs,.blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}
-    .blog-breadcrumbs{display:flex;gap:9px;padding:28px 0 0;color:var(--muted);font-size:.84rem;white-space:nowrap;overflow-x:auto}
+    .blog-article{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto}
     .blog-article{padding:clamp(52px,8vw,90px) 0 110px}
     .article-header,.blog-article>section,.blog-article>figure,.showcase{width:100%;margin-inline:auto}
     .article-header{margin-bottom:42px}
@@ -252,7 +254,6 @@ const jsonLd = [
     .official-sources li{font-size:.88rem;line-height:1.6}
     .official-source-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     @media(max-width:767px){
-      .blog-breadcrumbs{padding-top:18px}
       .blog-article{padding:42px 0 76px}
       .article-header{margin-bottom:28px}
       .article-header h1{font-size:clamp(2.35rem,12vw,3.4rem)}

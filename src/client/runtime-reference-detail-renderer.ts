@@ -249,6 +249,7 @@ export function createRuntimeDetailRenderer(
         const controls = document.createElement("div");
         controls.className = "runtime-toolbar runtime-skin-reference-controls";
         const sortSelect = document.createElement("select");
+        sortSelect.className = "cn-select";
         sortSelect.id = "runtime-champion-skins-sort";
         sortSelect.setAttribute(
           "aria-label",
