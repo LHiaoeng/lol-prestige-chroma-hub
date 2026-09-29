@@ -106,12 +106,12 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     list.replaceChildren(...result.items.map(createCard));
     bindImageFallbacks(document);
     const language = currentLanguage(document);
-    if (count) count.textContent = localized(language, { en: `${result.pagination.total} items`, zh: `${result.pagination.total} 件藏品` });
+    if (count) count.textContent = localized(language, { en: `${result.pagination.total} prestige chromas`, zh: `共 ${result.pagination.total} 款臻彩` });
     status.className = 'status';
     status.hidden = false;
     const announcement = localized(language, {
-      en: `${result.pagination.total} items, page ${result.pagination.page} of ${Math.max(result.pagination.pages, 1)}`,
-      zh: `${result.pagination.total} 件藏品，第 ${result.pagination.page} / ${Math.max(result.pagination.pages, 1)} 页`,
+      en: `${result.pagination.total} prestige chromas, page ${result.pagination.page} of ${Math.max(result.pagination.pages, 1)}`,
+      zh: `共 ${result.pagination.total} 款臻彩，第 ${result.pagination.page} / ${Math.max(result.pagination.pages, 1)} 页`,
     });
     status.textContent = result.items.length > 0 ? announcement : localized(language, {
       en: `No prestige chromas match these filters. Clear the filters and try again. ${announcement}`,
