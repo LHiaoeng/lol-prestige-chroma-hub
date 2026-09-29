@@ -1,0 +1,18 @@
+---
+import BlogIndexView from '../../../components/BlogIndexView.astro';
+import { blogArticlesNewestFirst, BLOG_PAGE_SIZE } from '../../../blog/articles';
+import { resolveLocale, type Locale } from '../../../i18n/config';
+
+export async function getStaticPaths() {
+  const totalPages = Math.ceil(blogArticlesNewestFirst.length / BLOG_PAGE_SIZE);
+  return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, i) => i + 2).map((page) => ({
+    params: { page: String(page) },
+    props: { page },
+  }));
+}
+
+interface Props { page: number; locale?: Locale }
+const { page } = Astro.props;
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+---
+<BlogIndexView {page} pageSize={BLOG_PAGE_SIZE} {locale} />

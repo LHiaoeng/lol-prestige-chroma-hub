@@ -30,6 +30,15 @@ export function articleHref(article: Pick<BlogArticle, 'slug'>, locale: Locale):
   return localizedPath(locale, `/blog/${article.slug}/`);
 }
 
+/** 博客列表页每页文章数。 */
+export const BLOG_PAGE_SIZE = 5;
+
+/** 给定页码生成博客列表页路径（第 1 页固定指向 /blog/）。 */
+export function blogPageHref(page: number, locale: Locale): string {
+  if (page <= 1) return localizedPath(locale, '/blog/');
+  return localizedPath(locale, `/blog/page/${page}/`);
+}
+
 export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
   if (language === 'zh') {
     const [year, month, day] = date.split('-').map(Number);

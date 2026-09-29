@@ -1,0 +1,194 @@
+---
+/**
+ * 分页导航组件（移植自 shadcn/ui Pagination）。
+ *
+ * 使用 `cn-pagination-*` 前缀避免与 `src/pages/index.astro` 中由客户端脚本
+ * 填充的全局 `.pagination` 样式（针对 <button>）冲突。
+ * 颜色与尺寸变量全部取自 `src/styles/global.css` 的 :root 定义。
+ *
+ * 用法：
+ * ```astro
+ * <Pagination current={3} total={12} href={(p) => `/?page=${p}`} />
+ * ```
+ */
+import { buildPages } from './pagination';
+
+interface Props {
+  /** 当前页码（从 1 起）。 */
+  current: number;
+  /** 总页数。 */
+  total: number;
+  /** 根据页码生成 href，例如 `(p) => \`/blog?page=${p}\``。 */
+  href: (page: number) => string;
+  /** 上一页按钮文案，默认 "Previous"。 */
+  prevText?: string;
+  /** 下一页按钮文案，默认 "Next"。 */
+  nextText?: string;
+  /** nav 元素的 aria-label。 */
+  ariaLabel?: string;
+  /** 只渲染 prev/next 箭头按钮，跳过页码列表（对应 shadcn 的 Icons Only 变体，适合数据表场景）。 */
+  iconsOnly?: boolean;
+  /** iconsOnly 模式下，在两个按钮之间显示的指示文案（由调用方计算并传入，例如 "3 / 12"）。 */
+  indicator?: string;
+}
+
+const {
+  current,
+  total,
+  href,
+  prevText = 'Previous',
+  nextText = 'Next',
+  ariaLabel = 'Pagination',
+  iconsOnly = false,
+  indicator,
+} = Astro.props;
+
+const pages = buildPages(current, total);
+const prevHref = current > 1 ? href(current - 1) : undefined;
+const nextHref = current < total ? href(current + 1) : undefined;
+---
+
+<nav class="cn-pagination" aria-label={ariaLabel}>
+  <ul class="cn-pagination-list">
+    <li class="cn-pagination-item">
+      {prevHref ? (
+        <a class="cn-pagination-link cn-pagination-previous" href={prevHref} rel="prev" aria-label={prevText}>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+          <span class="cn-pagination-text">{prevText}</span>
+        </a>
+      ) : (
+        <span class="cn-pagination-link cn-pagination-previous is-disabled" aria-disabled="true">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+          <span class="cn-pagination-text">{prevText}</span>
+        </span>
+      )}
+    </li>
+    {!iconsOnly && pages.map((page) =>
+      page === '...' ? (
+        <li class="cn-pagination-item">
+          <span class="cn-pagination-ellipsis" aria-hidden="true">…</span>
+        </li>
+      ) : (
+        <li class="cn-pagination-item">
+          <a
+            class:list={['cn-pagination-link', { 'is-active': page === current }]}
+            href={href(page)}
+            aria-current={page === current ? 'page' : undefined}
+            aria-label={`Page ${page}`}>{page}</a>
+        </li>
+      ),
+    )}
+    {iconsOnly && indicator && (
+      <li class="cn-pagination-item">
+        <span class="cn-pagination-indicator" aria-current="page">{indicator}</span>
+      </li>
+    )}
+    <li class="cn-pagination-item">
+      {nextHref ? (
+        <a class="cn-pagination-link cn-pagination-next" href={nextHref} rel="next" aria-label={nextText}>
+          <span class="cn-pagination-text">{nextText}</span>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+        </a>
+      ) : (
+        <span class="cn-pagination-link cn-pagination-next is-disabled" aria-disabled="true">
+          <span class="cn-pagination-text">{nextText}</span>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+        </span>
+      )}
+    </li>
+  </ul>
+</nav>
+
+<style>
+  .cn-pagination {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 40px 0 0;
+  }
+  .cn-pagination-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cn-pagination-item {
+    list-style: none;
+  }
+  .cn-pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+  .cn-pagination-link.is-active {
+    border-color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 10%, var(--panel));
+    color: var(--gold);
+    cursor: default;
+  }
+  .cn-pagination-link.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .cn-pagination-link:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .cn-pagination-link:not(.is-disabled):not(.is-active):hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--panel2);
+    }
+  }
+  .cn-pagination-previous,
+  .cn-pagination-next {
+    padding: 8px 14px;
+  }
+  .cn-pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    color: var(--muted);
+    user-select: none;
+  }
+  .cn-pagination-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--touch-target);
+    padding: 8px 14px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+  @media (max-width: 479px) {
+    .cn-pagination-text {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cn-pagination-link {
+      transition: none;
+    }
+  }
+</style>

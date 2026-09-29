@@ -173,11 +173,11 @@ describe('blog feature contract', () => {
   });
 
   it('renders a locale-aware responsive featured blog list', () => {
-    const page = source('src/pages/blog/index.astro');
+    const page = source('src/components/BlogIndexView.astro');
     expect(page).toContain("'@type': 'CollectionPage'");
     expect(page).toContain("const isZh = locale === 'zh-cn'");
     expect(page).toContain('<article class="featured-post">');
-    expect(page).toContain('blogArticlesNewestFirst.map((entry, index)');
+    expect(page).toContain('visibleArticles.map((entry, index)');
     expect(page).toContain('href={articleHref(entry, locale)}');
     expect(page).toContain("formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')");
     expect(page).toContain('data-placeholder="/placeholder.svg"');
@@ -219,7 +219,7 @@ describe('blog feature contract', () => {
   });
 
   it('uses the rank-one chroma artwork as a responsive full-page atmosphere layer', () => {
-    const page = source('src/pages/blog/index.astro');
+    const page = source('src/components/BlogIndexView.astro');
     const backdrop = source('src/components/ResponsiveHeroBackdrop.astro');
     expect(page).toContain("const backgroundChroma = catalog.find((item) => item.rank === 1)");
     expect(page).toContain('<section class="blog-hero" data-backdrop-scope>');

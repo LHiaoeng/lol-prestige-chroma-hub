@@ -1,0 +1,15 @@
+---
+import BlogPage from '../../../blog/page/[page].astro';
+import { blogArticlesNewestFirst, BLOG_PAGE_SIZE } from '../../../../blog/articles';
+
+export async function getStaticPaths() {
+  const totalPages = Math.ceil(blogArticlesNewestFirst.length / BLOG_PAGE_SIZE);
+  return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, i) => i + 2).map((page) => ({
+    params: { page: String(page) },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+---
+<BlogPage {page} locale="zh-cn" />
