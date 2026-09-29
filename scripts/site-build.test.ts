@@ -137,6 +137,22 @@ describe("static site build", () => {
     ).toBe(true);
     expect(
       existsSync(
+        join(dist, "blog", "lucky-gate-summon-october-2026", "index.html"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dist,
+          "zh-cn",
+          "blog",
+          "lucky-gate-summon-october-2026",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
         join(dist, "blog", "canyon-peak-2026-split-2-rewards", "index.html"),
       ),
     ).toBe(true);
@@ -794,11 +810,15 @@ describe("static site build", () => {
   it("surfaces the latest blog articles on the homepage", () => {
     const home = readFileSync(join(dist, "index.html"), "utf8");
     const chineseHome = readFileSync(join(dist, "zh-cn", "index.html"), "utf8");
-    expect(home).toContain("Latest News &amp; Guides");
+    expect(home).toContain(`Blog <span class="heading-count"`);
+    expect(home).toContain(`>(${blogArticles.length} articles)</span>`);
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/lucky-gate-summon-october-2026/"');
     expect(home).toContain('href="/blog/patch-26-19-prestige-chromas/"');
     expect(home).toContain('href="/blog/splendid-treasure-september-2026/"');
-    expect(home).toContain('href="/blog/prestige-chroma-summon-2026-21/"');
+    expect(home).not.toContain(
+      'href="/blog/prestige-chroma-summon-2026-21/"',
+    );
     expect(home).not.toContain(
       'href="/blog/brilliant-prestige-chroma-summoning-guide/"',
     );
@@ -816,15 +836,19 @@ describe("static site build", () => {
     expect(home).not.toContain(
       'href="/blog/full-gift-reward-prestige-chroma-202608/"',
     );
-    expect(chineseHome).toContain("最新资讯与指南");
+    expect(chineseHome).toContain(`博客 <span class="heading-count"`);
+    expect(chineseHome).toContain(`>（共 ${blogArticles.length} 篇）</span>`);
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
+    expect(chineseHome).toContain(
+      'href="/zh-cn/blog/lucky-gate-summon-october-2026/"',
+    );
     expect(chineseHome).toContain(
       'href="/zh-cn/blog/patch-26-19-prestige-chromas/"',
     );
     expect(chineseHome).toContain(
       'href="/zh-cn/blog/splendid-treasure-september-2026/"',
     );
-    expect(chineseHome).toContain(
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/prestige-chroma-summon-2026-21/"',
     );
     expect(chineseHome).not.toContain(

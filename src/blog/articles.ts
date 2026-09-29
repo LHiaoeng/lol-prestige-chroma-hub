@@ -46,6 +46,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'lucky-gate-summon-october-2026',
+    href: '/blog/lucky-gate-summon-october-2026/',
+    titleEn: 'Lucky Gate Summoning — Session 202619',
+    titleZh: '幸运之门·召唤 — 第 202619 期',
+    summaryEn: 'The Lucky Gate summoning event (Session 202619) runs September 29 – November 1, 2026 on the Chinese server, with a 3 RMB first summon. Demoncursed Vayne (Sapphire) headlines the wheel alongside Heavenscale Kai\'Sa and Master Yi (both Lustrous) prestige chromas, plus the mythic Dark Cosmic Erasure Jhin skin.',
+    summaryZh: '2026 年 9 月 29 日至 11 月 1 日，幸运之门·召唤活动（第 202619 期）限时上线，首次召唤 3 元。恶魔诅咒 薇恩 诡诈附体钻石臻彩领衔奖池，天龙之子 卡莎与天龙之子 易两款赫赫龙威臻彩与神话皮肤暗星绝杀 烬同步上架。',
+    publishedAt: '2026-09-29',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/de8131d9-463e-4f5b-9714-9984b4b710fb/site3.jpg',
+    coverAltEn: 'Demoncursed Vayne (Sapphire) prestige chroma splash art — Lucky Gate Summoning Session 202619',
+    coverAltZh: '恶魔诅咒 薇恩 诡诈附体臻彩原画 — 幸运之门·召唤第 202619 期',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=8296282939857442114',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'patch-26-19-prestige-chromas',
     href: '/blog/patch-26-19-prestige-chromas/',
     titleEn: 'LoL Patch 26.19: 6 New Prestige Chromas',
