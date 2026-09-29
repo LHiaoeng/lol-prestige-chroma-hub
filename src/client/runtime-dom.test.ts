@@ -345,9 +345,9 @@ describe("runtime DOM boundaries", () => {
     );
 
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(24);
-    expect(content.querySelector(".runtime-pagination")?.children).toHaveLength(
-      3,
-    );
+    expect(
+      content.querySelector(".cn-pagination-list")?.children,
+    ).toHaveLength(3);
 
     const search = content.querySelector("input")!;
     search.value = "Champion 25";

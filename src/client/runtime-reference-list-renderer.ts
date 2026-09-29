@@ -21,6 +21,10 @@ import {
   textNode,
 } from "./runtime-reference-view-shared";
 import { runtimeFailureMessage } from "./communitydragon-errors";
+import { buildPages } from "../components/pagination";
+
+const PAGINATION_CHEVRON_LEFT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
+const PAGINATION_CHEVRON_RIGHT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
 
 export interface RuntimeListRendererOptions {
   readonly content: HTMLElement;
@@ -141,7 +145,7 @@ export function createRuntimeListRenderer(
         ? "runtime-grid runtime-champion-grid"
         : "runtime-grid";
       const pagination = document.createElement("nav");
-      pagination.className = "pagination runtime-pagination";
+      pagination.className = "cn-pagination runtime-pagination";
       pagination.setAttribute(
         "aria-label",
         options.locale === "zh_cn" ? "资料分页" : "Reference pages",
@@ -280,31 +284,69 @@ export function createRuntimeListRenderer(
         );
         pagination.replaceChildren();
         if (pageCount > 1) {
-          const addPageButton = (pageNumber: number, label: string) => {
+          const isZh = options.locale === "zh_cn";
+          const prevText = isZh ? "上一页" : "Previous";
+          const nextText = isZh ? "下一页" : "Next";
+          const list = document.createElement("ul");
+          list.className = "cn-pagination-list";
+
+          const addItem = (child: HTMLElement): void => {
+            const li = document.createElement("li");
+            li.className = "cn-pagination-item";
+            li.append(child);
+            list.append(li);
+          };
+
+          const addPageButton = (pageNumber: number): void => {
             const button = document.createElement("button");
             button.type = "button";
-            button.textContent = label;
-            button.setAttribute("aria-label", label);
-            if (pageNumber === currentPage)
+            button.className = `cn-pagination-link${pageNumber === currentPage ? " is-active" : ""}`;
+            if (pageNumber === currentPage) {
               button.setAttribute("aria-current", "page");
+            }
+            button.setAttribute("aria-label", `Page ${pageNumber}`);
+            button.textContent = String(pageNumber);
             button.addEventListener("click", () => {
               currentPage = pageNumber;
               render();
             });
-            pagination.appendChild(button);
+            addItem(button);
           };
+
+          const addArrowButton = (pageNumber: number, label: string, className: string, chevron: string, chevronFirst: boolean): void => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = className;
+            button.setAttribute("aria-label", label);
+            button.innerHTML = chevronFirst
+              ? `${chevron}<span class="cn-pagination-text">${label}</span>`
+              : `<span class="cn-pagination-text">${label}</span>${chevron}`;
+            button.addEventListener("click", () => {
+              currentPage = pageNumber;
+              render();
+            });
+            addItem(button);
+          };
+
           if (currentPage > 1)
-            addPageButton(
-              currentPage - 1,
-              options.locale === "zh_cn" ? "上一页" : "Previous",
-            );
-          for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1)
-            addPageButton(pageNumber, String(pageNumber));
+            addArrowButton(currentPage - 1, prevText, "cn-pagination-link cn-pagination-previous", PAGINATION_CHEVRON_LEFT, true);
+
+          for (const entry of buildPages(currentPage, pageCount)) {
+            if (entry === "...") {
+              const ellipsis = document.createElement("span");
+              ellipsis.className = "cn-pagination-ellipsis";
+              ellipsis.setAttribute("aria-hidden", "true");
+              ellipsis.textContent = "…";
+              addItem(ellipsis);
+            } else {
+              addPageButton(entry);
+            }
+          }
+
           if (currentPage < pageCount)
-            addPageButton(
-              currentPage + 1,
-              options.locale === "zh_cn" ? "下一页" : "Next",
-            );
+            addArrowButton(currentPage + 1, nextText, "cn-pagination-link cn-pagination-next", PAGINATION_CHEVRON_RIGHT, false);
+
+          pagination.append(list);
         }
         options.status.textContent = filtered.length
           ? isChampionList

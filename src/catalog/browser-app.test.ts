@@ -220,7 +220,7 @@ describe('catalog browser adapter', () => {
     expect(page.list.children[0].querySelector('.category-icon')?.src).toBe('https://img.example/tag-3.png');
     expect(page.list.children[0].textContent).not.toContain('英雄');
     expect(page.status.hidden).toBe(false);
-    expect(page.status.textContent).toContain('3 items');
+    expect(page.status.textContent).toContain('3 prestige chromas');
     expect(page.status.textContent).toContain('3 of 3');
   });
 
@@ -244,7 +244,9 @@ describe('catalog browser adapter', () => {
     const page = fixture('?pageSize=1');
     const { initializeCatalogBrowser } = await import('./browser-app');
     initializeCatalogBrowser(page.environment);
-    const pageTwo = page.pagination.children.find((button) => button.dataset.page === '2')!;
+    const pageTwo = page.pagination
+      .querySelectorAll('[data-page]')
+      .find((button) => button.dataset.page === '2')!;
 
     pageTwo.dispatch('click', true);
 

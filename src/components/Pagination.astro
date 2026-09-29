@@ -2,8 +2,9 @@
 /**
  * 分页导航组件（移植自 shadcn/ui Pagination）。
  *
- * 使用 `cn-pagination-*` 前缀避免与 `src/pages/index.astro` 中由客户端脚本
- * 填充的全局 `.pagination` 样式（针对 <button>）冲突。
+ * 样式使用 `cn-pagination-*` 前缀，统一定义在 `src/styles/global.css`，
+ * 供本组件（静态 `<a>` 链接）与客户端脚本注入的运行时分页
+ * （首页臻彩目录、资料库列表，元素为 `<button>`）共用，保证视觉一致。
  * 颜色与尺寸变量全部取自 `src/styles/global.css` 的 :root 定义。
  *
  * 用法：
@@ -98,97 +99,3 @@ const nextHref = current < total ? href(current + 1) : undefined;
     </li>
   </ul>
 </nav>
-
-<style>
-  .cn-pagination {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin: 40px 0 0;
-  }
-  .cn-pagination-list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .cn-pagination-item {
-    list-style: none;
-  }
-  .cn-pagination-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-width: var(--touch-target);
-    min-height: var(--touch-target);
-    padding: 8px 12px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--panel);
-    color: var(--text);
-    font-size: 0.9rem;
-    line-height: 1;
-    text-decoration: none;
-    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-  }
-  .cn-pagination-link.is-active {
-    border-color: var(--gold);
-    background: color-mix(in srgb, var(--gold) 10%, var(--panel));
-    color: var(--gold);
-    cursor: default;
-  }
-  .cn-pagination-link.is-disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-  .cn-pagination-link:focus-visible {
-    outline: 2px solid var(--gold);
-    outline-offset: 2px;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .cn-pagination-link:not(.is-disabled):not(.is-active):hover {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: var(--panel2);
-    }
-  }
-  .cn-pagination-previous,
-  .cn-pagination-next {
-    padding: 8px 14px;
-  }
-  .cn-pagination-ellipsis {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: var(--touch-target);
-    min-height: var(--touch-target);
-    color: var(--muted);
-    user-select: none;
-  }
-  .cn-pagination-indicator {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: var(--touch-target);
-    padding: 8px 14px;
-    color: var(--muted);
-    font-size: 0.85rem;
-    font-variant-numeric: tabular-nums;
-    user-select: none;
-  }
-  @media (max-width: 479px) {
-    .cn-pagination-text {
-      display: none;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .cn-pagination-link {
-      transition: none;
-    }
-  }
-</style>

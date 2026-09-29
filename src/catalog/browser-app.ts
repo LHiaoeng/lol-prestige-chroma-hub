@@ -3,12 +3,16 @@ import { sourceImageUrl } from '../domain/chroma';
 import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
 import { chromaImageAlt } from '../seo/chroma-seo';
+import { buildPages } from '../components/pagination';
 import {
   parseCatalogQuery,
   queryCatalog,
   type BrowserCatalogItem,
   type CatalogResult,
 } from './browser-catalog';
+
+const PAGINATION_CHEVRON_LEFT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
+const PAGINATION_CHEVRON_RIGHT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
 
 export interface CatalogBrowserEnvironment {
   document: Document;
@@ -80,19 +84,68 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
   function renderPagination(result: CatalogResult, focusCurrent: boolean): void {
     if (!pagination) return;
     const { page, pages } = result.pagination;
-    const firstPage = Math.max(1, page - 2);
-    const lastPage = Math.min(pages, page + 2);
-    const buttons: HTMLButtonElement[] = [];
-    for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.dataset.page = String(pageNumber);
-      button.textContent = String(pageNumber);
-      if (pageNumber === page) button.setAttribute('aria-current', 'page');
-      buttons.push(button);
+    if (pages <= 1) {
+      pagination.replaceChildren();
+      return;
     }
-    pagination.replaceChildren(...buttons);
-    if (focusCurrent) buttons.find((button) => button.getAttribute('aria-current') === 'page')?.focus();
+    const language = currentLanguage(document);
+    const prevText = language === 'zh' ? '上一页' : 'Previous';
+    const nextText = language === 'zh' ? '下一页' : 'Next';
+    const list = document.createElement('ul');
+    list.className = 'cn-pagination-list';
+    let currentButton: HTMLButtonElement | null = null;
+
+    const addItem = (child: HTMLElement): void => {
+      const li = document.createElement('li');
+      li.className = 'cn-pagination-item';
+      li.append(child);
+      list.append(li);
+    };
+
+    if (page > 1) {
+      const prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'cn-pagination-link cn-pagination-previous';
+      prev.dataset.page = String(page - 1);
+      prev.setAttribute('aria-label', prevText);
+      prev.innerHTML = `${PAGINATION_CHEVRON_LEFT}<span class="cn-pagination-text">${prevText}</span>`;
+      addItem(prev);
+    }
+
+    for (const entry of buildPages(page, pages)) {
+      if (entry === '...') {
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'cn-pagination-ellipsis';
+        ellipsis.setAttribute('aria-hidden', 'true');
+        ellipsis.textContent = '…';
+        addItem(ellipsis);
+        continue;
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.page = String(entry);
+      btn.textContent = String(entry);
+      btn.setAttribute('aria-label', `Page ${entry}`);
+      btn.className = `cn-pagination-link${entry === page ? ' is-active' : ''}`;
+      if (entry === page) {
+        btn.setAttribute('aria-current', 'page');
+        currentButton = btn;
+      }
+      addItem(btn);
+    }
+
+    if (page < pages) {
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'cn-pagination-link cn-pagination-next';
+      next.dataset.page = String(page + 1);
+      next.setAttribute('aria-label', nextText);
+      next.innerHTML = `<span class="cn-pagination-text">${nextText}</span>${PAGINATION_CHEVRON_RIGHT}`;
+      addItem(next);
+    }
+
+    pagination.replaceChildren(list);
+    if (focusCurrent) currentButton?.focus();
   }
 
   function render(

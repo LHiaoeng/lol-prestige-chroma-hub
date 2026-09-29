@@ -932,7 +932,7 @@ describe("static site build", () => {
     );
     expect(chineseBlog).toContain("峡谷内外的故事");
     expect(chineseBlog).toContain(
-      'href="/zh-cn/blog/what-is-league-of-legends/"',
+      'href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"',
     );
     expect(chineseArticle).toContain('<html lang="zh-CN"');
     expect(chineseArticle).toContain("召唤师峡谷与水晶枢纽");
