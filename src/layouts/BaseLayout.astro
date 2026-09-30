@@ -67,12 +67,18 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
     <header class="site-header">
       <a class="brand" href={localizedPath(locale, '/')} aria-label={isZh ? 'LoL Chroma Art 首页' : 'LoL Chroma Art home'}><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
-        <nav class="browse-nav" aria-label={isZh ? '浏览资料' : 'Browse'}>
-          <a href={localizedPath(locale, '/champions/')}>{isZh ? '英雄' : 'Champions'}</a>
-          <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '系列' : 'Skinlines'}</a>
-          <a href={localizedPath(locale, '/universes/')}>{isZh ? '宇宙' : 'Universes'}</a>
-          <a href={localizedPath(locale, '/pbe-additions/')}>{isZh ? 'PBE 新增' : 'PBE additions'}</a>
-        </nav>
+        <div class="browse-menu">
+          <button type="button" class="browse-menu-toggle" aria-label={isZh ? '更多导航' : 'More'} aria-expanded="false">
+            <svg class="browse-menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <span>{isZh ? '更多' : 'More'}</span>
+          </button>
+          <nav class="browse-nav" aria-label={isZh ? '更多导航' : 'More'}>
+            <a href={localizedPath(locale, '/champions/')}>{isZh ? '英雄' : 'Champions'}</a>
+            <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '系列' : 'Skinlines'}</a>
+            <a href={localizedPath(locale, '/universes/')}>{isZh ? '宇宙' : 'Universes'}</a>
+            <a href={localizedPath(locale, '/pbe-additions/')}>{isZh ? 'PBE 新增' : 'PBE additions'}</a>
+          </nav>
+        </div>
         <a class="header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
         {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'}>{isZh ? 'EN' : '简体中文'}</a>}
       </div>
@@ -86,6 +92,23 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       import { bindHeaderGlass } from '../client/header-glass';
       bindImageFallbacks();
       bindHeaderGlass();
+      // 移动端浏览菜单展开/折叠
+      const browseMenu = document.querySelector<HTMLElement>('.browse-menu');
+      const browseToggle = document.querySelector<HTMLButtonElement>('.browse-menu-toggle');
+      if (browseMenu && browseToggle) {
+        browseToggle.addEventListener('click', () => {
+          const open = browseMenu.classList.toggle('is-open');
+          browseToggle.setAttribute('aria-expanded', String(open));
+        });
+        // 点击外部关闭（仅移动端）
+        document.addEventListener('click', (e) => {
+          if (window.innerWidth >= 768) return;
+          if (browseMenu.classList.contains('is-open') && !browseMenu.contains(e.target as Node)) {
+            browseMenu.classList.remove('is-open');
+            browseToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
     </script>
     <style is:global>
       html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }
@@ -93,23 +116,39 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .brand { display: flex; align-items: center; gap: 10px; }
       .brand img { display: block; width: 32px; height: 32px; }
       .brand > .brand-text { color: var(--text); }
-      .site-header .brand-text, .site-header .browse-nav a, .site-header .header-blog-link, .site-header .language-toggle { text-shadow: 0 1px 7px #000000d9; }
-      .header-controls { display: flex; align-items: center; gap: 14px; }
-      .browse-nav { display:flex; align-items:center; gap:12px; overflow-x:auto; scrollbar-width:none; }
+      .site-header .brand-text, .site-header .browse-nav a, .site-header .browse-menu-toggle, .site-header .header-blog-link, .site-header .language-toggle { text-shadow: 0 1px 7px #000000d9; }
+      .header-controls { display: flex; align-items: center; gap: 14px; min-width: 0; }
+      .browse-menu { display: flex; align-items: center; min-width: 0; flex: 1 1 auto; }
+      .browse-menu > .browse-menu-toggle { display: none; background: none; border: none; font-family: inherit; }
+      .browse-menu > .browse-nav { display: flex; }
+      .browse-nav { align-items:center; gap:12px; overflow-x:auto; scrollbar-width:none; min-width: 0; }
       .browse-nav::-webkit-scrollbar { display:none; }
       .browse-nav a { display:inline-flex; align-items:center; min-height:var(--touch-target); padding:0 12px; border-radius:999px; color:var(--muted); font-size:.78rem; font-weight:700; white-space:nowrap; transition:color .2s ease, background-color .2s ease; }
       .browse-nav a:hover, .browse-nav a:focus-visible { color:var(--gold); background: color-mix(in srgb, var(--text) 7%, transparent); }
-      .header-blog-link { display: inline-flex; align-items: center; min-height: var(--touch-target); padding: 0 12px; border-radius: 999px; color: var(--text); font-size: .86rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: color .2s ease, background-color .2s ease; }
+      .header-blog-link { display: inline-flex; align-items: center; min-height: var(--touch-target); padding: 0 12px; border-radius: 999px; color: var(--text); font-size: .86rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: color .2s ease, background-color .2s ease; flex-shrink: 0; }
       .header-blog-link:hover, .header-blog-link:focus-visible { color: var(--gold); background: color-mix(in srgb, var(--text) 7%, transparent); }
-      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }
+      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; min-height: 32px; border: 1px solid var(--gold); border-radius: 999px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--gold); padding: 3px 10px; font-size: .78rem; line-height: 1; cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease; flex-shrink: 0; white-space: nowrap; }
       .language-toggle:hover, .language-toggle:focus-visible { background: color-mix(in srgb, var(--gold) 18%, transparent); }
       .language-toggle::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
       @media (max-width: 767px) {
         .header-controls { gap: 8px; }
-        .browse-nav { max-width:48vw; gap:9px; }
-        .browse-nav a { font-size:.72rem; padding-inline: 8px; }
+        .brand { gap: 8px; }
+        .browse-menu { position: relative; flex: 0 0 auto; }
+        .browse-menu > .browse-menu-toggle { display: inline-flex; align-items: center; gap: 4px; min-height: var(--touch-target); padding: 0 10px; border-radius: 999px; color: var(--muted); font-size: .76rem; font-weight: 700; cursor: pointer; transition: color .2s ease, background-color .2s ease; }
+        .browse-menu > .browse-menu-toggle:hover, .browse-menu > .browse-menu-toggle:focus-visible { color: var(--gold); background: color-mix(in srgb, var(--text) 7%, transparent); }
+        .browse-menu > .browse-menu-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .browse-menu > .browse-nav { display: none; position: absolute; top: calc(100% + 6px); right: 0; flex-direction: column; gap: 2px; min-width: 140px; padding: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.5); z-index: 30; }
+        .browse-menu.is-open > .browse-nav { display: flex; }
+        .browse-menu > .browse-nav a { width: 100%; justify-content: flex-start; font-size: .82rem; padding: 10px 12px; }
         .header-blog-link { font-size: .76rem; letter-spacing: .05em; padding-inline: 9px; }
         .language-toggle { padding-inline: 9px; font-size: .75rem; }
+      }
+      @media (max-width: 479px) {
+        .header-controls { gap: 6px; }
+        .browse-menu > .browse-menu-toggle { font-size: .72rem; padding-inline: 8px; }
+        .browse-menu > .browse-nav { min-width: 130px; }
+        .header-blog-link { font-size: .72rem; padding-inline: 7px; }
+        .language-toggle { padding-inline: 7px; font-size: .72rem; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       .footer-links { display: flex; justify-content: center; align-items: center; gap: 12px; }
