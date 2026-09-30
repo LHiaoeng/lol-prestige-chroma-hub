@@ -4,9 +4,14 @@ import {
   communityDragonVersionMetadataUrl,
 } from "../domain/communitydragon-url";
 import {
-  projectPbeAdditions,
-  type RuntimePbeAdditions,
-  type RuntimePbeComparisonCollection,
+  projectPbeChampionNames,
+  projectPbeChromaDiff,
+  projectPbeEmoteDiff,
+  projectPbeIdDiff,
+  projectPbeSkinDiff,
+  projectPbeUniverseDiff,
+  type RuntimePbeAdditionsStream,
+  type RuntimePbeModuleItems,
 } from "../domain/pbe-additions";
 import {
   projectRuntimeSkinTarget,
@@ -18,21 +23,31 @@ import {
 import {
   CommunityDragonRuntimeError,
   normalizeRuntimeOptions,
+  parseRuntimeEmoteCollection,
   parseRuntimeEntity,
   parseRuntimeList,
+  parseRuntimeNexusFinisherCollection,
+  parseRuntimeSkinBorderCollection,
   parseRuntimeSkinCollection,
+  parseRuntimeSummonerIconCollection,
   parseRuntimeVersionMetadata,
+  parseRuntimeWardSkinCollection,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
   type RuntimeChampionSummary,
+  type RuntimeEmote,
   type RuntimeEntity,
   type RuntimeEntityKind,
   type RuntimeList,
   type RuntimeListKind,
+  type RuntimeNexusFinisher,
   type RuntimeSkin,
+  type RuntimeSkinBorder,
   type RuntimeSkinline,
+  type RuntimeSummonerIcon,
   type RuntimeUniverse,
+  type RuntimeWardSkin,
 } from "../domain/communitydragon-runtime";
 
 export type RuntimeFetcher = (
@@ -67,7 +82,9 @@ export interface CommunityDragonRuntime {
     skinlineIds: readonly number[],
     options: RuntimeRequestOptions,
   ): Promise<readonly RuntimeSkinReferenceGroup[]>;
-  getPbeAdditions?(options: RuntimeRequestOptions): Promise<RuntimePbeAdditions>;
+  getPbeAdditionsStream?(
+    options: RuntimeRequestOptions,
+  ): RuntimePbeAdditionsStream;
 }
 
 interface CacheEntry {
@@ -336,6 +353,81 @@ export function createCommunityDragonRuntime(
     );
   }
 
+  function listSummonerIconCollection(
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSummonerIcon[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl(
+      "summoner-icons.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:summoner-icon-collection`;
+    return request(key, url, options, (value) =>
+      parseRuntimeSummonerIconCollection(value, options),
+    );
+  }
+
+  function listEmoteCollection(
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeEmote[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl(
+      "summoner-emotes.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:emote-collection`;
+    return request(key, url, options, (value) =>
+      parseRuntimeEmoteCollection(value, options),
+    );
+  }
+
+  function listSkinBorderCollection(
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeSkinBorder[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl(
+      "skinborders.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:skin-border-collection`;
+    return request(key, url, options, (value) =>
+      parseRuntimeSkinBorderCollection(value, options),
+    );
+  }
+
+  function listWardSkinCollection(
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeWardSkin[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl(
+      "ward-skins.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:ward-skin-collection`;
+    return request(key, url, options, (value) =>
+      parseRuntimeWardSkinCollection(value, options),
+    );
+  }
+
+  function listNexusFinisherCollection(
+    input: RuntimeRequestOptions,
+  ): Promise<readonly RuntimeNexusFinisher[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl(
+      "nexusfinishers.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:nexus-finisher-collection`;
+    return request(key, url, options, (value) =>
+      parseRuntimeNexusFinisherCollection(value, options),
+    );
+  }
+
   function getVersionMetadata(
     input: RuntimeRequestOptions,
     channel: RuntimeChannel,
@@ -350,42 +442,149 @@ export function createCommunityDragonRuntime(
     );
   }
 
-  async function getPbeAdditions(
+  function getPbeAdditionsStream(
     input: RuntimeRequestOptions,
-  ): Promise<RuntimePbeAdditions> {
+  ): RuntimePbeAdditionsStream {
     const baseOptions = validateOptions(input);
-    const loadChannel = async (
-      channel: RuntimeChannel,
-    ): Promise<RuntimePbeComparisonCollection> => {
-      const options = { ...baseOptions, channel };
-      const [championList, skins, skinlineList, universeList, version] =
-        await Promise.all([
-          list("champions", options),
-          listSkinCollection(options),
-          list("skinlines", options),
-          list("universes", options),
-          getVersionMetadata(options, channel),
-        ]);
-      return {
-        champions: championList.filter(
+    const channelOptions = (channel: RuntimeChannel): RuntimeRequestOptions => ({
+      ...baseOptions,
+      channel,
+    });
+    const championList = (channel: RuntimeChannel) =>
+      list("champions", channelOptions(channel)).then((items) =>
+        items.filter(
           (item): item is RuntimeChampionSummary => item.kind === "champion",
         ),
-        skins,
-        skinlines: skinlineList.filter(
-          (item): item is RuntimeSkinline => item.kind === "skinline",
-        ),
-        universes: universeList.filter(
-          (item): item is RuntimeUniverse => item.kind === "universe",
-        ),
-        version,
-      };
-    };
+      );
+    const skinlineList = (channel: RuntimeChannel) =>
+      list("skinlines", channelOptions(channel)).then((items) =>
+        items.filter((item): item is RuntimeSkinline => item.kind === "skinline"),
+      );
+    const universeList = (channel: RuntimeChannel) =>
+      list("universes", channelOptions(channel)).then((items) =>
+        items.filter((item): item is RuntimeUniverse => item.kind === "universe"),
+      );
 
-    const [pbe, latest] = await Promise.all([
-      loadChannel("pbe"),
-      loadChannel("latest"),
-    ]);
-    return projectPbeAdditions({ pbe, latest });
+    // Each module loads its own channel pair so sections fill as soon as
+    // their data is ready; the request cache keeps shared resources
+    // (champions, skins.json) at a single fetch per channel.
+    const loadVersions = (): Promise<{ pbe?: string; latest?: string }> =>
+      Promise.all([
+        getVersionMetadata(channelOptions("pbe"), "pbe"),
+        getVersionMetadata(channelOptions("latest"), "latest"),
+      ]).then(([pbe, latest]) => ({ pbe: pbe.version, latest: latest.version }));
+
+    const loadChampionNames = () =>
+      championList("pbe").then(projectPbeChampionNames);
+
+    const loadChampions = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([championList("pbe"), championList("latest")]).then(
+        ([pbe, latest]) => ({
+          kind: "champions" as const,
+          items: projectPbeIdDiff(pbe, latest),
+        }),
+      );
+
+    const loadSkins = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listSkinCollection(channelOptions("pbe")),
+        listSkinCollection(channelOptions("latest")),
+        loadChampionNames(),
+      ]).then(([pbe, latest, championNames]) => ({
+        kind: "skins" as const,
+        items: projectPbeSkinDiff(pbe, latest, championNames).items,
+      }));
+
+    const loadSkinlines = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([skinlineList("pbe"), skinlineList("latest")]).then(
+        ([pbe, latest]) => ({
+          kind: "skinlines" as const,
+          items: projectPbeIdDiff(pbe, latest),
+        }),
+      );
+
+    const loadUniverses = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        universeList("pbe"),
+        universeList("latest"),
+        skinlineList("pbe"),
+      ]).then(([pbe, latest, pbeSkinlines]) => ({
+        kind: "universes" as const,
+        items: projectPbeUniverseDiff(pbe, latest, pbeSkinlines),
+      }));
+
+    const loadIcons = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listSummonerIconCollection(channelOptions("pbe")),
+        listSummonerIconCollection(channelOptions("latest")),
+      ]).then(([pbe, latest]) => ({
+        kind: "icons" as const,
+        items: projectPbeIdDiff(pbe, latest),
+      }));
+
+    const loadEmotes = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listEmoteCollection(channelOptions("pbe")),
+        listEmoteCollection(channelOptions("latest")),
+        loadChampionNames(),
+      ]).then(([pbe, latest, championNames]) => ({
+        kind: "emotes" as const,
+        items: projectPbeEmoteDiff(pbe, latest, championNames),
+      }));
+
+    const loadChromas = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listSkinCollection(channelOptions("pbe")),
+        listSkinCollection(channelOptions("latest")),
+        loadChampionNames(),
+      ]).then(([pbe, latest, championNames]) => ({
+        kind: "chromas" as const,
+        items: projectPbeChromaDiff(pbe, latest, championNames),
+      }));
+
+    const loadBorders = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listSkinBorderCollection(channelOptions("pbe")),
+        listSkinBorderCollection(channelOptions("latest")),
+      ]).then(([pbe, latest]) => ({
+        kind: "borders" as const,
+        items: projectPbeIdDiff(pbe, latest),
+      }));
+
+    const loadWards = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listWardSkinCollection(channelOptions("pbe")),
+        listWardSkinCollection(channelOptions("latest")),
+      ]).then(([pbe, latest]) => ({
+        kind: "wards" as const,
+        items: projectPbeIdDiff(pbe, latest),
+      }));
+
+    const loadFinishers = (): Promise<RuntimePbeModuleItems> =>
+      Promise.all([
+        listNexusFinisherCollection(channelOptions("pbe")),
+        listNexusFinisherCollection(channelOptions("latest")),
+      ]).then(([pbe, latest]) => ({
+        kind: "finishers" as const,
+        items: projectPbeIdDiff(pbe, latest),
+      }));
+
+    return {
+      signal: baseOptions.signal ?? new AbortController().signal,
+      versions: loadVersions(),
+      modules: [
+        { kind: "champions", load: loadChampions },
+        { kind: "skins", load: loadSkins },
+        { kind: "skinlines", load: loadSkinlines },
+        { kind: "universes", load: loadUniverses },
+        { kind: "icons", load: loadIcons },
+        { kind: "emotes", load: loadEmotes },
+        { kind: "chromas", load: loadChromas },
+        { kind: "borders", load: loadBorders },
+        { kind: "wards", load: loadWards },
+        { kind: "finishers", load: loadFinishers },
+      ],
+    };
   }
 
   function listSkinlineSkins(
@@ -432,5 +631,11 @@ export function createCommunityDragonRuntime(
     );
   }
 
-  return { list, get, listSkinlineSkins, listUniverseSkins, getPbeAdditions };
+  return {
+    list,
+    get,
+    listSkinlineSkins,
+    listUniverseSkins,
+    getPbeAdditionsStream,
+  };
 }

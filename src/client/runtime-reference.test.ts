@@ -12,7 +12,7 @@ import type {
   RuntimeEntity,
   RuntimeList,
 } from "../domain/communitydragon-runtime";
-import type { RuntimePbeAdditions } from "../domain/pbe-additions";
+import type { RuntimePbeAdditionsStream } from "../domain/pbe-additions";
 import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
 import type { CommunityDragonRuntime } from "./communitydragon-runtime";
 
@@ -59,7 +59,7 @@ function history(initial: string): RuntimeHistory & {
 function view(): RuntimeView & {
   events: string[];
   rendered?: RuntimeList | RuntimeEntity;
-  renderedPbe?: RuntimePbeAdditions;
+  renderedPbe?: RuntimePbeAdditionsStream;
   retry?: () => void;
   skinRetry?: () => void;
 } {
@@ -68,7 +68,7 @@ function view(): RuntimeView & {
   const result = {
     events: [] as string[],
     rendered: undefined as RuntimeList | RuntimeEntity | undefined,
-    renderedPbe: undefined as RuntimePbeAdditions | undefined,
+    renderedPbe: undefined as RuntimePbeAdditionsStream | undefined,
     retry: undefined as (() => void) | undefined,
     skinRetry: undefined as (() => void) | undefined,
     render: vi.fn((state: RuntimePageState) => {
@@ -83,7 +83,7 @@ function view(): RuntimeView & {
         renderedSlots.clear();
         if (state.core.value.mode === "pbe") {
           result.renderedPbe = state.core.value.items;
-          result.events.push(`pbe:${state.core.value.items.total}`);
+          result.events.push("pbe");
         } else if (state.core.value.mode === "list") {
           result.rendered = state.core.value.items;
           result.events.push("list");
@@ -348,21 +348,39 @@ describe("RuntimeController", () => {
     expect(navigation.pushes).toHaveLength(0);
   });
 
-  it("loads PBE additions as an atomic comparison without a channel URL", async () => {
-    const additions: RuntimePbeAdditions = {
-      versions: { pbe: "16.19", latest: "16.18" },
-      total: 1,
-      counts: { champions: 1, skins: 0, skinlines: 0, universes: 0 },
-      champions: [champion],
-      skins: [],
-      skinlines: [],
-      universes: [],
-      pbeSkinlines: [],
+  it("renders the PBE additions stream without a channel URL", async () => {
+    const stream: RuntimePbeAdditionsStream = {
+      signal: new AbortController().signal,
+      versions: Promise.resolve({ pbe: "16.19", latest: "16.18" }),
+      modules: [
+        {
+          kind: "champions",
+          load: async () => ({ kind: "champions", items: [champion] }),
+        },
+        { kind: "skins", load: async () => ({ kind: "skins", items: [] }) },
+        {
+          kind: "skinlines",
+          load: async () => ({ kind: "skinlines", items: [] }),
+        },
+        {
+          kind: "universes",
+          load: async () => ({ kind: "universes", items: [] }),
+        },
+        { kind: "icons", load: async () => ({ kind: "icons", items: [] }) },
+        { kind: "emotes", load: async () => ({ kind: "emotes", items: [] }) },
+        { kind: "chromas", load: async () => ({ kind: "chromas", items: [] }) },
+        { kind: "borders", load: async () => ({ kind: "borders", items: [] }) },
+        { kind: "wards", load: async () => ({ kind: "wards", items: [] }) },
+        {
+          kind: "finishers",
+          load: async () => ({ kind: "finishers", items: [] }),
+        },
+      ],
     };
     const service = runtime({
-      getPbeAdditions: vi.fn(async (options) => {
+      getPbeAdditionsStream: vi.fn((options) => {
         expect(options).toMatchObject({ locale: "zh_cn" });
-        return additions;
+        return stream;
       }),
     });
     const viewState = view();
@@ -375,29 +393,14 @@ describe("RuntimeController", () => {
 
     await controller.start();
 
-    expect(viewState.events).toEqual(["loading:false", "pbe:1"]);
-    expect(viewState.renderedPbe).toBe(additions);
+    expect(viewState.events).toEqual(["loading:false", "pbe"]);
+    expect(viewState.renderedPbe).toBe(stream);
     expect(navigation.url.search).toBe("");
   });
 
-  it("keeps PBE failures retryable and does not render a partial comparison", async () => {
-    let attempts = 0;
-    const additions: RuntimePbeAdditions = {
-      versions: { pbe: "16.19", latest: "16.18" },
-      total: 0,
-      counts: { champions: 0, skins: 0, skinlines: 0, universes: 0 },
-      champions: [],
-      skins: [],
-      skinlines: [],
-      universes: [],
-      pbeSkinlines: [],
-    };
+  it("keeps the PBE page retryable when the runtime cannot stream additions", async () => {
     const service = runtime({
-      getPbeAdditions: vi.fn(async () => {
-        attempts += 1;
-        if (attempts === 1) throw new Error("comparison offline");
-        return additions;
-      }),
+      getPbeAdditionsStream: undefined,
     });
     const viewState = view();
     const navigation = history("https://chromaart.lol/pbe-additions/");
@@ -419,9 +422,9 @@ describe("RuntimeController", () => {
       "loading:false",
       "failure",
       "loading:false",
-      "pbe:0",
+      "failure",
     ]);
-    expect(viewState.renderedPbe).toBe(additions);
+    expect(viewState.renderedPbe).toBeUndefined();
   });
 
   it("does not turn an old champion list URL with an ID into a detail request", async () => {

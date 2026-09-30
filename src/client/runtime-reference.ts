@@ -9,7 +9,7 @@ import type {
   RuntimeSkinReferenceGroup,
   RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
-import type { RuntimePbeAdditions } from "../domain/pbe-additions";
+import type { RuntimePbeAdditionsStream } from "../domain/pbe-additions";
 import {
   createCommunityDragonRuntime,
   type CommunityDragonRuntime,
@@ -160,7 +160,7 @@ export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
 }
 
 export type RuntimeCoreResult =
-  | { readonly mode: "pbe"; readonly items: RuntimePbeAdditions }
+  | { readonly mode: "pbe"; readonly items: RuntimePbeAdditionsStream }
   | { readonly mode: "list"; readonly items: RuntimeList }
   | { readonly mode: "detail"; readonly item: RuntimeEntity };
 
@@ -270,15 +270,15 @@ export class RuntimeController {
     signal: AbortSignal,
   ): Promise<RuntimeCoreResult> {
     if (state.mode === "pbe") {
-      const getPbeAdditions = this.runtime.getPbeAdditions;
-      if (!getPbeAdditions)
+      const getPbeAdditionsStream = this.runtime.getPbeAdditionsStream;
+      if (!getPbeAdditionsStream)
         throw new CommunityDragonRuntimeError(
           "not-found",
           "PBE additions are unavailable",
         );
       return {
         mode: "pbe",
-        items: await getPbeAdditions({
+        items: getPbeAdditionsStream({
           locale: this.options.locale,
           signal,
         }),

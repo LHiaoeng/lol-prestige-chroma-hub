@@ -165,6 +165,47 @@ export interface RuntimeUniverse {
   readonly skinlineIds: readonly number[];
 }
 
+export interface RuntimeSummonerIcon {
+  readonly kind: "icon";
+  readonly id: number;
+  readonly title?: string;
+  readonly iconUrl?: string;
+  readonly yearReleased?: number;
+  readonly isLegacy?: boolean;
+  readonly description?: string;
+}
+
+export interface RuntimeEmote {
+  readonly kind: "emote";
+  readonly id: number;
+  readonly name?: string;
+  readonly iconUrl?: string;
+  readonly taggedChampionIds: readonly number[];
+}
+
+export interface RuntimeSkinBorder {
+  readonly kind: "border";
+  readonly id: number;
+  readonly name?: string;
+  readonly iconUrl?: string;
+}
+
+export interface RuntimeWardSkin {
+  readonly kind: "ward";
+  readonly id: number;
+  readonly name?: string;
+  readonly description?: string;
+  readonly iconUrl?: string;
+  readonly isLegacy?: boolean;
+}
+
+export interface RuntimeNexusFinisher {
+  readonly kind: "finisher";
+  readonly id: number;
+  readonly name?: string;
+  readonly iconUrl?: string;
+}
+
 export type RuntimeList = readonly (
   RuntimeChampionSummary | RuntimeSkinline | RuntimeUniverse
 )[];
@@ -206,6 +247,72 @@ const universeSchema = z
     imagePath: z.string().nullable().optional(),
     skinSets: z.array(idSchema).optional(),
     skinlineIds: z.array(idSchema).optional(),
+  })
+  .passthrough();
+const summonerIconSchema = z
+  .object({
+    id: z.number().int(),
+    title: z.string().nullable().optional(),
+    yearReleased: z.number().nullable().optional(),
+    isLegacy: z.boolean().nullable().optional(),
+    imagePath: z.string().nullable().optional(),
+    descriptions: z
+      .array(
+        z
+          .object({
+            region: z.string().nullable().optional(),
+            description: z.string().nullable().optional(),
+          })
+          .passthrough(),
+      )
+      .nullable()
+      .optional(),
+  })
+  .passthrough();
+const summonerEmoteSchema = z
+  .object({
+    id: z.number().int(),
+    name: z.string().nullable().optional(),
+    inventoryIcon: z.string().nullable().optional(),
+    taggedChampionsIds: z
+      .array(z.union([idSchema, z.object({ id: idSchema }).passthrough()]))
+      .nullable()
+      .optional(),
+  })
+  .passthrough();
+const skinBorderSchema = z
+  .object({
+    itemId: z.number().int(),
+    name: z.string().nullable().optional(),
+    image: z.string().nullable().optional(),
+  })
+  .passthrough();
+const wardSkinSchema = z
+  .object({
+    id: z.number().int(),
+    name: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    wardImagePath: z.string().nullable().optional(),
+    isLegacy: z.boolean().nullable().optional(),
+    regionalDescriptions: z
+      .array(
+        z
+          .object({
+            region: z.string().nullable().optional(),
+            description: z.string().nullable().optional(),
+          })
+          .passthrough(),
+      )
+      .nullable()
+      .optional(),
+  })
+  .passthrough();
+const nexusFinisherSchema = z
+  .object({
+    itemId: z.number().int(),
+    name: z.string().nullable().optional(),
+    translatedName: z.string().nullable().optional(),
+    iconPath: z.string().nullable().optional(),
   })
   .passthrough();
 const chromaSchema = z
@@ -761,6 +868,126 @@ export function parseRuntimeList(
       description: text(raw.description),
       imageUrl: asset(text(raw.imagePath), options.channel),
       skinlineIds: raw.skinlineIds ?? raw.skinSets ?? [],
+    }));
+}
+
+function collectionIdFilter(
+  raw: { id: number },
+  label: string,
+): boolean {
+  // ID 0 is a client-side placeholder entry without player-facing content.
+  if (raw.id === 0) return false;
+  if (!Number.isSafeInteger(raw.id) || raw.id < 0)
+    throw new CommunityDragonRuntimeError(
+      "schema",
+      `${label} collection contains an invalid ID`,
+    );
+  return true;
+}
+
+function collectionItemIdFilter(
+  raw: { itemId: number },
+  label: string,
+): boolean {
+  // ID 0 is a client-side placeholder entry without player-facing content.
+  if (raw.itemId === 0) return false;
+  if (!Number.isSafeInteger(raw.itemId) || raw.itemId < 0)
+    throw new CommunityDragonRuntimeError(
+      "schema",
+      `${label} collection contains an invalid ID`,
+    );
+  return true;
+}
+
+export function parseRuntimeSummonerIconCollection(
+  value: unknown,
+  input: RuntimeParseOptions,
+): readonly RuntimeSummonerIcon[] {
+  const options = normalizeRuntimeOptions(input);
+  return parseCollection(value, summonerIconSchema, "Summoner icon")
+    .filter((raw) => collectionIdFilter(raw, "Summoner icon"))
+    .map((raw) => ({
+      kind: "icon" as const,
+      id: raw.id,
+      title: text(raw.title),
+      iconUrl: asset(text(raw.imagePath), options.channel),
+      yearReleased:
+        typeof raw.yearReleased === "number" && raw.yearReleased > 0
+          ? raw.yearReleased
+          : undefined,
+      isLegacy: raw.isLegacy ?? undefined,
+      description: (raw.descriptions ?? [])
+        .map((entry) => text(entry.description))
+        .find(Boolean),
+    }));
+}
+
+export function parseRuntimeEmoteCollection(
+  value: unknown,
+  input: RuntimeParseOptions,
+): readonly RuntimeEmote[] {
+  const options = normalizeRuntimeOptions(input);
+  return parseCollection(value, summonerEmoteSchema, "Summoner emote")
+    .filter((raw) => collectionIdFilter(raw, "Summoner emote"))
+    .map((raw) => ({
+      kind: "emote" as const,
+      id: raw.id,
+      name: text(raw.name),
+      iconUrl: asset(text(raw.inventoryIcon), options.channel),
+      taggedChampionIds: raw.taggedChampionsIds
+        ? positiveIds(raw.taggedChampionsIds)
+        : [],
+    }));
+}
+
+export function parseRuntimeSkinBorderCollection(
+  value: unknown,
+  input: RuntimeParseOptions,
+): readonly RuntimeSkinBorder[] {
+  const options = normalizeRuntimeOptions(input);
+  return parseCollection(value, skinBorderSchema, "Skin border")
+    .filter((raw) => collectionItemIdFilter(raw, "Skin border"))
+    .map((raw) => ({
+      kind: "border" as const,
+      id: raw.itemId,
+      name: text(raw.name),
+      iconUrl: asset(text(raw.image), options.channel),
+    }));
+}
+
+export function parseRuntimeWardSkinCollection(
+  value: unknown,
+  input: RuntimeParseOptions,
+): readonly RuntimeWardSkin[] {
+  const options = normalizeRuntimeOptions(input);
+  return parseCollection(value, wardSkinSchema, "Ward skin")
+    .filter((raw) => collectionIdFilter(raw, "Ward skin"))
+    .map((raw) => ({
+      kind: "ward" as const,
+      id: raw.id,
+      name: text(raw.name),
+      description:
+        text(raw.description) ??
+        (raw.regionalDescriptions ?? [])
+          .map((entry) => text(entry.description))
+          .find(Boolean),
+      iconUrl: asset(text(raw.wardImagePath), options.channel),
+      isLegacy: raw.isLegacy ?? undefined,
+    }));
+}
+
+export function parseRuntimeNexusFinisherCollection(
+  value: unknown,
+  input: RuntimeParseOptions,
+): readonly RuntimeNexusFinisher[] {
+  const options = normalizeRuntimeOptions(input);
+  return parseCollection(value, nexusFinisherSchema, "Nexus finisher")
+    .filter((raw) => collectionItemIdFilter(raw, "Nexus finisher"))
+    .map((raw) => ({
+      kind: "finisher" as const,
+      id: raw.itemId,
+      name: text(raw.translatedName) ?? text(raw.name),
+      iconUrl: asset(text(raw.iconPath), options.channel),
     }));
 }
 

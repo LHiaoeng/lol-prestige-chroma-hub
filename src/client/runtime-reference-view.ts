@@ -5,7 +5,7 @@ import {
   type RuntimeList,
 } from "../domain/communitydragon-runtime";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
-import type { RuntimePbeAdditions } from "../domain/pbe-additions";
+import type { RuntimePbeAdditionsStream } from "../domain/pbe-additions";
 import type {
   RuntimeSkinReferenceGroup,
   RuntimeSkinReferenceItem,
@@ -51,7 +51,7 @@ export interface DomRuntimeViewOptions {
 interface DomRenderInternals {
   renderList(items: RuntimeList, state: Extract<RuntimeLocationState, { mode: "list" }>): void;
   renderDetail(item: RuntimeEntity, state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
-  renderPbeAdditions(items: RuntimePbeAdditions): void;
+  renderPbeAdditions(items: RuntimePbeAdditionsStream): void;
   renderRelations(items: RuntimeList, state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
   renderSkinlineSkins(items: readonly RuntimeSkinReferenceItem[], state: Extract<RuntimeLocationState, { mode: "detail" }>): void;
   renderUniverseSkins(groups: readonly RuntimeSkinReferenceGroup[], state: Extract<RuntimeLocationState, { mode: "detail" }>): void;

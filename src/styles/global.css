@@ -791,6 +791,49 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 14px;
 }
+.runtime-pbe-grid.has-overflow {
+  --pbe-peek: 84px;
+  position: relative;
+}
+.runtime-pbe-grid.has-overflow[data-expanded='false'] {
+  max-height: calc(var(--pbe-row-height, 280px) * 2 + 14px + var(--pbe-peek));
+  overflow: hidden;
+}
+.runtime-pbe-grid.has-overflow[data-expanded='false']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--pbe-peek) + 56px);
+  background: linear-gradient(to top, var(--bg) 0%, rgba(9, 11, 21, 0.82) 35%, rgba(9, 11, 21, 0.35) 65%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.runtime-pbe-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px auto 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--gold);
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.runtime-pbe-expand:hover {
+  border-color: var(--gold);
+  background: #1a1f38;
+}
+.runtime-pbe-expand svg {
+  transition: transform 0.25s ease;
+}
+.runtime-pbe-expand.is-open svg {
+  transform: rotate(180deg);
+}
 .runtime-pbe-card {
   min-width: 0;
   overflow: hidden;
@@ -818,6 +861,20 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
   aspect-ratio: 1.2;
   object-fit: cover;
   background: var(--panel2);
+}
+.runtime-pbe-card-media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--panel2);
+}
+.runtime-pbe-card-media > .runtime-missing {
+  display: flex;
+  min-height: 148px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
 }
 .runtime-pbe-card-link > .runtime-missing {
   display: flex;
@@ -868,7 +925,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);text-align:center;fon
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
-  .runtime-pbe-card-link > .runtime-missing {
+  .runtime-pbe-card-link > .runtime-missing,
+  .runtime-pbe-card-media > .runtime-missing {
     min-height: 108px;
   }
   .runtime-pbe-card-name,

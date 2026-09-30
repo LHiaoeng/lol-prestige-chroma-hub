@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   CommunityDragonRuntimeError,
+  parseRuntimeEmoteCollection,
   parseRuntimeEntity,
+  parseRuntimeNexusFinisherCollection,
+  parseRuntimeSkinBorderCollection,
   parseRuntimeSkinCollection,
+  parseRuntimeSummonerIconCollection,
+  parseRuntimeWardSkinCollection,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
@@ -957,20 +962,31 @@ describe("CommunityDragon runtime reference", () => {
     });
     const runtime = createCommunityDragonRuntime(fetcher);
 
-    await expect(
-      runtime.getPbeAdditions!({ locale: "zh_cn", channel: "pbe" }),
-    ).resolves.toMatchObject({
-      versions: { pbe: "16.19", latest: "16.18" },
-      counts: { champions: 0, skins: 0, skinlines: 0, universes: 0 },
+    const stream = runtime.getPbeAdditionsStream!({
+      locale: "zh_cn",
+      channel: "pbe",
     });
+    await expect(stream.versions).resolves.toEqual({
+      pbe: "16.19",
+      latest: "16.18",
+    });
+    const results = await Promise.all(stream.modules.map((m) => m.load()));
+    expect(
+      results.every((result) => result.items.length === 0),
+    ).toBe(true);
 
-    expect(fetcher).toHaveBeenCalledTimes(10);
+    expect(fetcher).toHaveBeenCalledTimes(20);
     for (const channel of ["pbe", "latest"]) {
       for (const path of [
         "champion-summary.json",
         "skins.json",
         "skinlines.json",
         "universes.json",
+        "summoner-icons.json",
+        "summoner-emotes.json",
+        "skinborders.json",
+        "ward-skins.json",
+        "nexusfinishers.json",
       ]) {
         expect(fetcher).toHaveBeenCalledWith(
           `https://raw.communitydragon.org/${channel}/plugins/rcp-be-lol-game-data/global/zh_cn/v1/${path}`,
@@ -984,7 +1000,7 @@ describe("CommunityDragon runtime reference", () => {
     }
   });
 
-  it("fails the PBE comparison when a required resource is unavailable", async () => {
+  it("keeps unrelated PBE modules working when one resource is unavailable", async () => {
     const fetcher = vi.fn(async (input: string) =>
       input.includes("compat-version-metadata.json") && input.includes("/latest/")
         ? jsonResponse({ message: "offline" }, 503)
@@ -992,9 +1008,232 @@ describe("CommunityDragon runtime reference", () => {
     );
     const runtime = createCommunityDragonRuntime(fetcher);
 
-    await expect(
-      runtime.getPbeAdditions!({ locale: "default", channel: "pbe" }),
-    ).rejects.toMatchObject({ code: "http", status: 503 });
+    const stream = runtime.getPbeAdditionsStream!({
+      locale: "default",
+      channel: "pbe",
+    });
+    await expect(stream.versions).rejects.toMatchObject({
+      code: "http",
+      status: 503,
+    });
+    const finishers = stream.modules.find((m) => m.kind === "finishers");
+    await expect(finishers!.load()).resolves.toEqual({
+      kind: "finishers",
+      items: [],
+    });
+  });
+
+  it("reloads a failed PBE module on retry", async () => {
+    let wardCalls = 0;
+    const fetcher = vi.fn(async (input: string) => {
+      if (input.includes("compat-version-metadata.json")) {
+        return jsonResponse({ version: "16.19" });
+      }
+      if (input.includes("ward-skins.json") && input.includes("/pbe/")) {
+        wardCalls += 1;
+        if (wardCalls === 1) return jsonResponse({ message: "offline" }, 503);
+      }
+      return jsonResponse([]);
+    });
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    const stream = runtime.getPbeAdditionsStream!({
+      locale: "default",
+      channel: "pbe",
+    });
+    const wards = stream.modules.find((m) => m.kind === "wards");
+    await expect(wards!.load()).rejects.toMatchObject({
+      code: "http",
+      status: 503,
+    });
+    await expect(wards!.load()).resolves.toEqual({
+      kind: "wards",
+      items: [],
+    });
+    expect(wardCalls).toBe(2);
+  });
+
+  it("parses summoner icon collections and drops placeholder IDs", () => {
+    const icons = parseRuntimeSummonerIconCollection(
+      [
+        {
+          id: 0,
+          title: "Placeholder",
+          imagePath: "/lol-game-data/assets/v1/profile-icons/0.jpg",
+        },
+        {
+          id: 9,
+          title: "Daggers Icon",
+          yearReleased: 2009,
+          isLegacy: false,
+          imagePath: "/lol-game-data/assets/v1/profile-icons/9.jpg",
+          descriptions: [
+            { region: "riot", description: "Unlocked by creating an account." },
+          ],
+        },
+      ],
+      { locale: "default", channel: "pbe" },
+    );
+
+    expect(icons).toEqual([
+      {
+        kind: "icon",
+        id: 9,
+        title: "Daggers Icon",
+        iconUrl:
+          "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/9.jpg",
+        yearReleased: 2009,
+        isLegacy: false,
+        description: "Unlocked by creating an account.",
+      },
+    ]);
+    expect(() =>
+      parseRuntimeSummonerIconCollection(
+        [{ id: -3, title: "Broken" }],
+        { locale: "default", channel: "pbe" },
+      ),
+    ).toThrow(CommunityDragonRuntimeError);
+  });
+
+  it("parses emote collections with tagged champion IDs", () => {
+    const emotes = parseRuntimeEmoteCollection(
+      [
+        {
+          id: 401,
+          name: "Happy Ahri",
+          inventoryIcon:
+            "/lol-game-data/assets/ASSETS/Loadouts/SummonerEmotes/401.PNG",
+          taggedChampionsIds: [103, { id: 104 }],
+        },
+        { id: 402, name: "", inventoryIcon: "" },
+      ],
+      { locale: "default", channel: "pbe" },
+    );
+
+    expect(emotes).toEqual([
+      {
+        kind: "emote",
+        id: 401,
+        name: "Happy Ahri",
+        iconUrl:
+          "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/summoneremotes/401.png",
+        taggedChampionIds: [103, 104],
+      },
+      {
+        kind: "emote",
+        id: 402,
+        name: undefined,
+        iconUrl: undefined,
+        taggedChampionIds: [],
+      },
+    ]);
+  });
+
+  it("parses skin border collections keyed by item ID", () => {
+    const borders = parseRuntimeSkinBorderCollection(
+      [
+        {
+          itemId: 0,
+          name: "Placeholder",
+          image: "/lol-game-data/assets/ASSETS/Characters/SkinBorders/0.png",
+        },
+        {
+          itemId: 4225,
+          name: "Nexus Finisher Ahri Border",
+          contentId: "SkinBorder_4225",
+          image: "/lol-game-data/assets/ASSETS/Characters/SkinBorders/4225.png",
+        },
+      ],
+      { locale: "default", channel: "pbe" },
+    );
+
+    expect(borders).toEqual([
+      {
+        kind: "border",
+        id: 4225,
+        name: "Nexus Finisher Ahri Border",
+        iconUrl:
+          "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/characters/skinborders/4225.png",
+      },
+    ]);
+    expect(() =>
+      parseRuntimeSkinBorderCollection(
+        [{ itemId: -3, name: "Broken" }],
+        { locale: "default", channel: "pbe" },
+      ),
+    ).toThrow(CommunityDragonRuntimeError);
+  });
+
+  it("parses ward skin collections with localized descriptions", () => {
+    const wards = parseRuntimeWardSkinCollection(
+      [
+        {
+          id: 0,
+          name: "Default Ward",
+          wardImagePath: "/lol-game-data/assets/ASSETS/Wards/Default.png",
+        },
+        {
+          id: 12,
+          name: "Nami Ward",
+          description: "",
+          wardImagePath: "/lol-game-data/assets/ASSETS/Wards/Nami.png",
+          isLegacy: true,
+          regionalDescriptions: [
+            { region: "riot", description: "Unlocked from a past event." },
+          ],
+        },
+      ],
+      { locale: "default", channel: "pbe" },
+    );
+
+    expect(wards).toEqual([
+      {
+        kind: "ward",
+        id: 12,
+        name: "Nami Ward",
+        description: "Unlocked from a past event.",
+        iconUrl:
+          "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/wards/nami.png",
+        isLegacy: true,
+      },
+    ]);
+  });
+
+  it("parses nexus finisher collections preferring translated names", () => {
+    const finishers = parseRuntimeNexusFinisherCollection(
+      [
+        {
+          itemId: 6001,
+          name: "NexusFinisher_Lightning",
+          translatedName: "Lightning Finisher",
+          iconPath:
+            "/lol-game-data/assets/ASSETS/Characters/NexusFinishers/6001.png",
+        },
+        {
+          itemId: 6002,
+          name: "NexusFinisher_Fire",
+          translatedName: null,
+          iconPath: "",
+        },
+      ],
+      { locale: "default", channel: "pbe" },
+    );
+
+    expect(finishers).toEqual([
+      {
+        kind: "finisher",
+        id: 6001,
+        name: "Lightning Finisher",
+        iconUrl:
+          "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/characters/nexusfinishers/6001.png",
+      },
+      {
+        kind: "finisher",
+        id: 6002,
+        name: "NexusFinisher_Fire",
+        iconUrl: undefined,
+      },
+    ]);
   });
 
   it("resolves the live skins.json owner convention when championId is omitted", () => {
