@@ -21,7 +21,6 @@ import type {
 } from "./runtime-reference";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 import {
-  appendChromaCard,
   appendExternalAction,
   appendHistoricalArtwork,
   appendMedia,
@@ -38,6 +37,7 @@ import {
   textNode,
 } from "./runtime-reference-view-shared";
 import { runtimeFailureMessage } from "./communitydragon-errors";
+import { createChromaCard } from "../components/chroma-card/chroma-card";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
 
@@ -464,20 +464,24 @@ export function createRuntimeDetailRenderer(
         chromas.appendChild(chromaHeading);
         const chromaGrid = document.createElement("div");
         chromaGrid.className = "runtime-chroma-grid";
-        appendChromaCard(chromaGrid, {
-          name: item.name ?? runtimeMissingLabel(options.locale, "name"),
-          imageUrl: item.chromaImageUrl ?? item.media.tileUrl,
-          isBase: true,
-          locale: options.locale,
-        });
-        item.chromas.forEach((chroma) =>
-          appendChromaCard(chromaGrid, {
-            name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
-            imageUrl: chroma.imageUrl,
-            colors: chroma.colors,
-            isBase: false,
+        chromaGrid.appendChild(
+          createChromaCard({
+            name: item.name ?? runtimeMissingLabel(options.locale, "name"),
+            imageUrl: item.chromaImageUrl ?? item.media.tileUrl,
+            isBase: true,
             locale: options.locale,
           }),
+        );
+        item.chromas.forEach((chroma) =>
+          chromaGrid.appendChild(
+            createChromaCard({
+              name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
+              imageUrl: chroma.imageUrl,
+              colors: chroma.colors,
+              isBase: false,
+              locale: options.locale,
+            }),
+          ),
         );
         chromas.appendChild(chromaGrid);
         article.appendChild(chromas);

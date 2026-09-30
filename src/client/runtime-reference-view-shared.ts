@@ -395,53 +395,6 @@ export function appendChromaColorCircle(
   if (isChroma && !values.length) appendMissingField(parent, locale, "colors");
 }
 
-export function appendChromaColors(
-  parent: HTMLElement,
-  colors: readonly string[] | undefined,
-  locale: CommunityDragonLocale,
-): void {
-  appendChromaColorCircle(parent, colors, locale);
-}
-
-export function appendNonChromaState(
-  parent: HTMLElement,
-  locale: CommunityDragonLocale,
-): void {
-  appendChromaColorCircle(parent, [], locale, false);
-}
-
-export function appendChromaCard(
-  parent: HTMLElement,
-  options: {
-    readonly name: string;
-    readonly imageUrl?: string;
-    readonly colors?: readonly string[];
-    readonly isBase: boolean;
-    readonly locale: CommunityDragonLocale;
-  },
-): void {
-  const card = document.createElement("article");
-  card.className = options.isBase
-    ? "runtime-chroma-card runtime-chroma-base"
-    : "runtime-chroma-card";
-  const media = document.createElement("div");
-  media.className = "runtime-chroma-media";
-  if (options.imageUrl) appendMedia(media, options.imageUrl, options.name);
-  else appendMissingField(media, options.locale, "thumbnail");
-  card.appendChild(media);
-
-  const meta = document.createElement("div");
-  meta.className = "runtime-chroma-meta";
-  meta.appendChild(textNode("h3", options.name, "runtime-chroma-name"));
-  if (options.isBase) {
-    appendNonChromaState(meta, options.locale);
-  } else {
-    appendChromaColors(meta, options.colors, options.locale);
-  }
-  card.appendChild(meta);
-  parent.appendChild(card);
-}
-
 export function appendSkinReferenceCard(
   parent: HTMLElement,
   item: RuntimeSkinReferenceItem,

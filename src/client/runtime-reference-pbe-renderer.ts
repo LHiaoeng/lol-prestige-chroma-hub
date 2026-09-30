@@ -22,6 +22,7 @@ import {
   setRuntimeNoindex,
   textNode,
 } from "./runtime-reference-view-shared";
+import { createChromaCard } from "../components/chroma-card/chroma-card";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
 function createPbeVersionItem(
@@ -115,8 +116,6 @@ export function appendPbeChromaCard(
   locale: CommunityDragonLocale,
   controller: RuntimeControllerLike,
 ): void {
-  const card = document.createElement("article");
-  card.className = "runtime-pbe-card runtime-pbe-chroma-card";
   const name = item.name ?? runtimeMissingLabel(locale, "name");
   const link = linkWithNavigation(
     "",
@@ -128,45 +127,33 @@ export function appendPbeChromaCard(
       true,
     ),
     controller,
-    "runtime-pbe-card-link",
+    "runtime-chroma-link",
   );
-  link.setAttribute("aria-label", name);
-  const media = document.createElement("div");
-  media.className = "runtime-pbe-card-media";
-  if (item.imageUrl) appendMedia(media, item.imageUrl, name);
-  else appendMissingField(media, locale, "artwork");
-  link.appendChild(media);
-  const meta = document.createElement("span");
-  meta.className = "runtime-pbe-card-meta";
-  const nameLabel = textNode("span", name);
-  if (!item.name) nameLabel.classList.add("runtime-missing");
-  meta.appendChild(nameLabel);
-  link.appendChild(meta);
-  card.appendChild(link);
-  appendChromaColorCircle(card, item.colors, locale);
-
-  const owner = document.createElement("p");
-  owner.className = "runtime-pbe-card-owner";
-  owner.appendChild(textNode("span", locale === "zh_cn" ? "所属皮肤：" : "Skin: "));
-  owner.appendChild(
-    (() => {
-      const skinLink = linkWithNavigation(
-        item.skinName ?? runtimeMissingLabel(locale, "name"),
-        hrefFor(
-          locale,
-          "skins",
-          { id: item.skinId, championId: item.championId, channel: "pbe" },
-          "detail",
-          true,
-        ),
-        controller,
-        "runtime-relation-link",
-      );
-      if (!item.skinName) skinLink.classList.add("runtime-missing");
-      return skinLink;
-    })(),
+  const skinUrl = hrefFor(
+    locale,
+    "skins",
+    { id: item.skinId, championId: item.championId, channel: "pbe" },
+    "detail",
+    true,
   );
-  card.appendChild(owner);
+  const ownerLink = linkWithNavigation(
+    item.skinName ?? runtimeMissingLabel(locale, "name"),
+    skinUrl,
+    controller,
+    "runtime-relation-link",
+  );
+  if (!item.skinName) ownerLink.classList.add("runtime-missing");
+  const card = createChromaCard({
+    name,
+    nameMissing: !item.name,
+    imageUrl: item.imageUrl,
+    imageAlt: name,
+    colors: item.colors,
+    locale,
+    missingKind: "artwork",
+    link,
+    ownerLink,
+  });
   parent.appendChild(card);
 }
 
@@ -350,7 +337,7 @@ const EXPAND_SVG =
 
 function measurePbeRowHeight(grid: HTMLElement): number {
   const card = grid.querySelector<HTMLElement>(
-    ".runtime-pbe-card, .runtime-pbe-chroma-card",
+    ".runtime-pbe-card, .runtime-chroma-card",
   );
   const height = card ? card.offsetHeight : 0;
   if (height) grid.style.setProperty("--pbe-row-height", `${height}px`);

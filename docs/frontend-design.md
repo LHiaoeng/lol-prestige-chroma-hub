@@ -456,6 +456,7 @@ img.chromaart.lol 规范图片
 | `src/pages/blog/champions-without-prestige-chroma.astro` | 英雄覆盖率静态快照、双语全文绑定与客户端刷新配置 |
 | `src/components/Filters.astro` | 筛选选项生成、表单 DOM 契约和响应式开合 |
 | `src/components/PrestigeChromaCard.astro` | 静态及动态卡片共同遵循的视觉结构 |
+| `src/components/chroma-card/` | 炫彩卡片 DOM 工厂（`createChromaCard`）、模型、测试与组件级 CSS，详情页与 PBE 新增页共用 |
 | `src/components/ImageViewer.astro` | 响应式页面展示图、固定大图预览、查看器控件和样式 |
 | `src/components/DetailActionMenu.astro` | 单外链按钮和多动作菜单 |
 | `src/components/CategoryIconPreview.astro` | 分类图标展示与预览 |
