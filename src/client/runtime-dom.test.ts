@@ -33,6 +33,46 @@ class TestElement {
 
   constructor(readonly tagName: string) {}
 
+  readonly classList = {
+    add: (name: string): void => {
+      const classes = this.className.split(" ").filter(Boolean);
+      if (!classes.includes(name)) this.setAttribute("class", [...classes, name].join(" "));
+    },
+    remove: (name: string): void => {
+      this.setAttribute(
+        "class",
+        this.className.split(" ").filter((c) => c && c !== name).join(" "),
+      );
+    },
+    toggle: (name: string, force?: boolean): boolean => {
+      const has = this.className.split(" ").includes(name);
+      const next = force === undefined ? !has : force;
+      this.classList[next ? "add" : "remove"](name);
+      return next;
+    },
+  };
+
+  closest(selector: string): TestElement | null {
+    let node: TestElement | null = this;
+    while (node) {
+      if (node.matches(selector)) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  click(): void {
+    const event = { type: "click", target: this };
+    let node: TestElement | null = this;
+    while (node) {
+      (node.listeners.get("click") ?? []).forEach((listener) =>
+        (listener as (e: typeof event) => void)(event),
+      );
+      node = node.parentElement;
+    }
+  }
+
+
   addEventListener(type: string, listener: () => void): void {
     this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener]);
   }
@@ -109,6 +149,8 @@ class TestElement {
 class TestDocument {
   readonly head = new TestElement("head");
   defaultView: { location: { href: string; search: string } } | null = null;
+
+  addEventListener(): void {}
 
   querySelector<T extends TestElement>(selector: string): T | null {
     return this.head.querySelector<T>(selector);
@@ -750,6 +792,11 @@ describe("runtime DOM boundaries", () => {
           tileUrl: "https://example.test/tile.jpg",
           loadScreenUrl: "https://example.test/load.jpg",
           animatedSplashUrl: "https://example.test/animated.webm",
+          loadScreenBorders: [
+            { layer: 0, priority: 0, contentId: "border-a", url: "https://example.test/border-base.png" },
+            { layer: 0, priority: 1, contentId: "border-b", url: "https://example.test/border-top.png" },
+            { layer: 1, priority: 0, contentId: "border-s", url: "https://example.test/border-signature.png" },
+          ],
         },
         historicalArt: [
           {
@@ -781,6 +828,44 @@ describe("runtime DOM boundaries", () => {
 
     const mediaSection = content.querySelector(".runtime-skin-media");
     expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(5);
+    expect(mediaSection?.querySelector(".runtime-loadscreen-frame")).toBeNull();
+    expect(
+      [...(mediaSection?.querySelectorAll(".runtime-media-item") ?? [])].some(
+        (item) => item.children[0]?.src === "https://example.test/load.jpg",
+      ),
+    ).toBe(true);
+
+    const borderSection = content.querySelector(".runtime-skin-borders");
+    const borderLayers = borderSection?.querySelectorAll(".runtime-loadscreen-border");
+    expect(borderSection?.querySelector(".runtime-loadscreen-art")?.src).toBe(
+      "https://example.test/load.jpg",
+    );
+    expect(borderLayers?.map((image) => image.src)).toEqual([
+      "https://example.test/border-top.png",
+      "https://example.test/border-signature.png",
+    ]);
+    expect(
+      borderLayers?.every((image) => image.getAttribute("aria-hidden") === "true"),
+    ).toBe(true);
+    const choices = borderSection?.querySelectorAll(".runtime-border-choice");
+    expect(choices).toHaveLength(2);
+    const downloadItems = borderSection?.querySelectorAll("[data-download-kind]");
+    expect(downloadItems).toHaveLength(4);
+    expect(
+      downloadItems
+        ?.filter((item) => item.dataset.downloadKind === "border")
+        .map((button) => button.dataset.url),
+    ).toEqual([
+      "https://example.test/border-base.png",
+      "https://example.test/border-top.png",
+    ]);
+    expect(choices?.[1]?.getAttribute("aria-pressed")).toBe("true");
+    choices?.[0]?.click();
+    expect(
+      [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
+    ).toBe("https://example.test/border-base.png");
+    expect(choices?.[0]?.getAttribute("aria-pressed")).toBe("true");
+    expect(choices?.[1]?.getAttribute("aria-pressed")).toBe("false");
     expect(mediaSection?.querySelector("video")?.src).toBe(
       "https://example.test/animated.webm",
     );

@@ -135,6 +135,15 @@ export interface RuntimeChroma {
   readonly colors?: readonly string[];
 }
 
+export interface RuntimeLoadScreenBorder {
+  /** Stack layer; higher layers overlay lower ones. */
+  readonly layer: number;
+  /** Entries within the same layer are mutually exclusive alternatives. */
+  readonly priority: number;
+  readonly contentId?: string;
+  readonly url: string;
+}
+
 export interface RuntimeMedia {
   readonly focusedSplashUrl?: string;
   readonly unfocusedSplashUrl?: string;
@@ -145,6 +154,8 @@ export interface RuntimeMedia {
   readonly previewVideoUrl?: string;
   readonly collectionSplashVideoUrl?: string;
   readonly collectionCardHoverVideoUrl?: string;
+  /** Border augment images composited over the load screen, when provided. */
+  readonly loadScreenBorders?: readonly RuntimeLoadScreenBorder[];
 }
 
 export interface RuntimeSkinline {
@@ -357,6 +368,22 @@ const skinStageSchema = z
     changes: z.unknown().optional(),
   })
   .passthrough();
+const loadScreenBorderSchema = z
+  .object({
+    contentId: z.string().nullable().optional(),
+    layer: z.number().int().nullable().optional(),
+    priority: z.number().int().nullable().optional(),
+    borderPath: z.string().nullable().optional(),
+  })
+  .passthrough();
+const skinAugmentsSchema = z
+  .object({
+    borders: z
+      .record(z.string(), z.array(loadScreenBorderSchema))
+      .nullable()
+      .optional(),
+  })
+  .passthrough();
 const skinSchema = z
   .object({
     id: idSchema,
@@ -388,12 +415,13 @@ const skinSchema = z
     history: z.unknown().optional(),
     changes: z.unknown().optional(),
     questSkinInfo: z
-      .object({
-        tiers: z.array(skinStageSchema).nullable().optional(),
-      })
-      .nullable()
-      .optional(),
-  })
+    .object({
+      tiers: z.array(skinStageSchema).nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+  skinAugments: skinAugmentsSchema.nullable().optional(),
+})
   .passthrough();
 const championDetailSchema = championSummarySchema.extend({
   skins: z.array(skinSchema),
@@ -537,6 +565,7 @@ function mediaUrl(
 function normalizeMedia(
   raw: Record<string, unknown>,
   channel: RuntimeChannel,
+  borders?: readonly RuntimeLoadScreenBorder[],
 ): RuntimeMedia {
   return {
     focusedSplashUrl: asset(text(raw.splashPath), channel),
@@ -554,7 +583,141 @@ function normalizeMedia(
       text(raw.collectionCardHoverVideoPath),
       channel,
     ),
+    loadScreenBorders: borders?.length ? borders : undefined,
   };
+}
+
+function normalizeLoadScreenBorders(
+  augments: z.infer<typeof skinAugmentsSchema> | null | undefined,
+  channel: RuntimeChannel,
+): RuntimeLoadScreenBorder[] {
+  const layers = augments?.borders;
+  if (!layers) return [];
+  const result: RuntimeLoadScreenBorder[] = [];
+  for (const [layerKey, entries] of Object.entries(layers)) {
+    const keyMatch = /^layer(\d+)$/i.exec(layerKey);
+    const keyLayer = keyMatch ? Number(keyMatch[1]) : undefined;
+    for (const entry of entries) {
+      const path = text(entry.borderPath);
+      if (!path) {
+        throw new CommunityDragonRuntimeError(
+          "schema",
+          "Skin augment border is missing borderPath",
+        );
+      }
+      result.push({
+        layer: typeof entry.layer === "number" ? entry.layer : keyLayer ?? 0,
+        priority: typeof entry.priority === "number" ? entry.priority : 0,
+        contentId: text(entry.contentId),
+        url: asset(path, channel) as string,
+      });
+    }
+  }
+  return result;
+}
+
+/**
+ * Same-layer border entries are mutually exclusive alternatives (rank
+ * borders, Starter vs Premium): keep the highest priority per layer and
+ * return layers bottom-to-top for load-screen compositing.
+ */
+export function selectLoadScreenBorders(
+  borders: readonly RuntimeLoadScreenBorder[] | undefined,
+): readonly RuntimeLoadScreenBorder[] {
+  if (!borders?.length) return [];
+  const active = new Map<number, RuntimeLoadScreenBorder>();
+  for (const border of borders) {
+    const current = active.get(border.layer);
+    if (!current || border.priority > current.priority) {
+      active.set(border.layer, border);
+    }
+  }
+  return [...active.values()].sort((a, b) => a.layer - b.layer);
+}
+
+export interface BorderVariantOption {
+  readonly priority: number;
+  readonly url: string;
+  /** Raw variant token parsed from the file name, e.g. "Challenger". */
+  readonly token: string;
+}
+
+export interface BorderVariantGroup {
+  readonly layer: number;
+  readonly options: readonly BorderVariantOption[];
+}
+
+export type BorderModule =
+  | { readonly kind: "baked"; readonly imageUrl: string }
+  | {
+      readonly kind: "composite";
+      readonly artUrl: string;
+      readonly groups: readonly BorderVariantGroup[];
+    };
+
+const borderLabelTokens: readonly (readonly [string, string, string])[] = [
+  ["grandmaster", "Grandmaster", "傲世宗师"],
+  ["challenger", "Challenger", "最强王者"],
+  ["platinum", "Platinum", "华贵铂金"],
+  ["emerald", "Emerald", "翡翠"],
+  ["diamond", "Diamond", "璀璨钻石"],
+  ["bronze", "Bronze", "英勇黄铜"],
+  ["silver", "Silver", "不屈白银"],
+  ["master", "Master", "超凡大师"],
+  ["gold", "Gold", "荣耀黄金"],
+  ["iron", "Iron", "坚韧黑铁"],
+  ["signature", "Signature", "签名"],
+  ["premium", "Premium", "高级"],
+  ["starter", "Starter", "入门"],
+];
+
+/** Extract a human-readable variant label from a border image file name. */
+export function borderVariantLabel(
+  urlOrName: string,
+  locale: CommunityDragonLocale,
+): string {
+  const name = urlOrName.split("/").pop() ?? urlOrName;
+  const lower = name.toLowerCase();
+  for (const [key, en, zh] of borderLabelTokens) {
+    if (lower.includes(key)) return locale === "zh_cn" ? zh : en;
+  }
+  const stem = name.replace(/\.[a-z0-9]+$/i, "");
+  const parts = stem.split("_").filter((p) => !/^(border|augments|loadscreen)$/i.test(p));
+  return parts.length ? parts.map((p) => p[0]?.toUpperCase() + p.slice(1)).join(" ") : stem;
+}
+
+/** Group mutually exclusive border options by layer, priority ascending. */
+export function listBorderGroups(
+  borders: readonly RuntimeLoadScreenBorder[] | undefined,
+): readonly BorderVariantGroup[] {
+  if (!borders?.length) return [];
+  const byLayer = new Map<number, Map<number, BorderVariantOption>>();
+  for (const border of borders) {
+    const group = byLayer.get(border.layer) ?? new Map<number, BorderVariantOption>();
+    if (!group.has(border.priority)) {
+      const token = borderVariantLabel(border.url, "default");
+      group.set(border.priority, { priority: border.priority, url: border.url, token });
+    }
+    byLayer.set(border.layer, group);
+  }
+  return [...byLayer.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([layer, options]) => ({
+      layer,
+      options: [...options.values()].sort((a, b) => a.priority - b.priority),
+    }));
+}
+
+/** Single decision point for the dedicated skin-detail border section. */
+export function resolveBorderModule(media: RuntimeMedia): BorderModule | undefined {
+  if (media.loadScreenVintageUrl) {
+    return { kind: "baked", imageUrl: media.loadScreenVintageUrl };
+  }
+  const groups = listBorderGroups(media.loadScreenBorders);
+  if (groups.length && media.loadScreenUrl) {
+    return { kind: "composite", artUrl: media.loadScreenUrl, groups };
+  }
+  return undefined;
 }
 
 const defaultRarityInfo: Readonly<Record<string, { label: string; icon?: string }>> = {
@@ -737,6 +900,10 @@ function normalizeSkin(
     if (!uniqueStages.has(stage.id)) uniqueStages.set(stage.id, stage);
   }
   const stages = [...uniqueStages.values()];
+  const loadScreenBorders = normalizeLoadScreenBorders(
+    raw.skinAugments,
+    channel,
+  );
   return {
     kind: "skin",
     id: raw.id,
@@ -749,7 +916,7 @@ function normalizeSkin(
     rarity: normalizeRarity(raw, locale, channel),
     skinlineIds: positiveIds(raw.skinLines),
     universeIds: raw.universeIds ?? undefined,
-    media: normalizeMedia(raw, channel),
+    media: normalizeMedia(raw, channel, loadScreenBorders),
     chromaImageUrl: asset(text(raw.chromaPath), channel),
     historicalArt: normalizeHistoricalArt(raw, channel),
     stages,

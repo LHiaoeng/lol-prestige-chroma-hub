@@ -8,9 +8,14 @@ import {
   parseRuntimeSkinCollection,
   parseRuntimeSummonerIconCollection,
   parseRuntimeWardSkinCollection,
+  borderVariantLabel,
+  listBorderGroups,
+  resolveBorderModule,
+  selectLoadScreenBorders,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
+  type RuntimeLoadScreenBorder,
   type RuntimeSkin,
 } from "./communitydragon-runtime";
 import {
@@ -322,6 +327,120 @@ describe("CommunityDragon runtime reference", () => {
       channel: "latest",
       championId: 103,
     })).not.toHaveProperty("rarity.key");
+  });
+
+  it("parses load screen augment borders and keeps the top alternative per layer", () => {
+    const root =
+      "/lol-game-data/assets/ASSETS/Characters/Leblanc/Skins/Skin55";
+    const raw = {
+      ...champion("default"),
+      id: 127,
+      alias: "Leblanc",
+      name: "LeBlanc",
+      skins: [
+        {
+          id: 127055,
+          name: "Risen Legend LeBlanc",
+          loadScreenPath: `${root}/LeBlancLoadScreen_55.jpg`,
+          skinAugments: {
+            borders: {
+              layer0: [
+                {
+                  contentId: "c2dcc64e-9eb8-41f9-bdaf-f6f294c6c531",
+                  layer: 0,
+                  priority: 0,
+                  borderPath: `${root}/UI/LeblancLoadScreen_Augments_Border_Starter.png`,
+                },
+                {
+                  contentId: "abe22351-1a4b-44fa-959f-37f807cbcd47",
+                  layer: 0,
+                  priority: 1,
+                  borderPath: `${root}/UI/LeblancLoadScreen_Augments_Border_Premium.png`,
+                },
+              ],
+              layer1: [
+                {
+                  contentId: "663256b4-1134-44b2-b285-e9d89e46b83d",
+                  layer: 1,
+                  priority: 0,
+                  borderPath: `${root}/UI/LeblancLoadScreen_Augments_Border_Signature.png`,
+                },
+              ],
+            },
+          },
+        },
+      ],
+    };
+
+    const skin = parseRuntimeEntity("skin", 127055, raw, {
+      locale: "default",
+      channel: "latest",
+      championId: 127,
+    }) as RuntimeSkin;
+
+    expect(skin.media.loadScreenBorders).toHaveLength(3);
+    expect(skin.media.loadScreenBorders?.[0]).toEqual({
+      layer: 0,
+      priority: 0,
+      contentId: "c2dcc64e-9eb8-41f9-bdaf-f6f294c6c531",
+      url:
+        "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/leblanc/skins/skin55/ui/leblancloadscreen_augments_border_starter.png",
+    });
+
+    expect(selectLoadScreenBorders(skin.media.loadScreenBorders)).toEqual([
+      {
+        layer: 0,
+        priority: 1,
+        contentId: "abe22351-1a4b-44fa-959f-37f807cbcd47",
+        url:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/leblanc/skins/skin55/ui/leblancloadscreen_augments_border_premium.png",
+      },
+      {
+        layer: 1,
+        priority: 0,
+        contentId: "663256b4-1134-44b2-b285-e9d89e46b83d",
+        url:
+          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/leblanc/skins/skin55/ui/leblancloadscreen_augments_border_signature.png",
+      },
+    ]);
+
+    expect(selectLoadScreenBorders(undefined)).toEqual([]);
+  });
+
+  it("labels border variants, groups options by layer, and resolves the border module", () => {
+    expect(
+      borderVariantLabel("Season2025EOS_Victorious_Border_Challenger.png", "default"),
+    ).toBe("Challenger");
+    expect(
+      borderVariantLabel("Season2025EOS_Victorious_Border_Challenger.png", "zh_cn"),
+    ).toBe("最强王者");
+    expect(borderVariantLabel("x_loadscreen_border.png", "default")).toBe("X");
+
+    const borders: RuntimeLoadScreenBorder[] = [
+      { layer: 0, priority: 0, url: "https://x.test/border_iron.png" },
+      { layer: 0, priority: 9, url: "https://x.test/border_challenger.png" },
+      { layer: 1, priority: 0, url: "https://x.test/border_signature.png" },
+    ];
+    const groups = listBorderGroups(borders);
+    expect(groups.map((g) => g.layer)).toEqual([0, 1]);
+    expect(groups[0]?.options.map((o) => o.token)).toEqual(["Iron", "Challenger"]);
+
+    expect(
+      resolveBorderModule({
+        loadScreenUrl: "https://x.test/load.jpg",
+        loadScreenBorders: borders,
+      }),
+    ).toMatchObject({ kind: "composite", artUrl: "https://x.test/load.jpg" });
+
+    expect(
+      resolveBorderModule({
+        loadScreenUrl: "https://x.test/load.jpg",
+        loadScreenVintageUrl: "https://x.test/load_le.jpg",
+        loadScreenBorders: borders,
+      }),
+    ).toEqual({ kind: "baked", imageUrl: "https://x.test/load_le.jpg" });
+
+    expect(resolveBorderModule({ focusedSplashUrl: "https://x.test/a.jpg" })).toBeUndefined();
   });
 
   it("projects only the requested skinline's skins and valid stages from the full collection", () => {

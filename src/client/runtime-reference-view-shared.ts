@@ -1,7 +1,9 @@
 import {
+  borderVariantLabel,
   type CommunityDragonLocale,
   type RuntimeHistoricalArtwork,
   type RuntimeMedia,
+  resolveBorderModule,
 } from "../domain/communitydragon-runtime";
 import { type RuntimeSkinAction } from "../domain/detail-actions";
 import type {
@@ -309,6 +311,254 @@ export function appendMediaCollection(
     count += 1;
   });
   return count;
+}
+
+/**
+ * Dedicated border section: a baked vintage load screen when available,
+ * otherwise the plain load screen with switchable per-layer border images.
+ * Returns false when the skin has no border data.
+ */
+export function appendBorderModule(
+  parent: HTMLElement,
+  media: RuntimeMedia,
+  locale: CommunityDragonLocale,
+  altBase: string,
+): boolean {
+  const module = resolveBorderModule(media);
+  if (!module) return false;
+
+  const section = document.createElement("section");
+  section.className = "runtime-skin-borders";
+  section.appendChild(
+    textNode("h2", locale === "zh_cn" ? "边框" : "Borders"),
+  );
+
+  const frame = document.createElement("div");
+  frame.className = "runtime-loadscreen-frame";
+  const zh = locale === "zh_cn";
+
+  if (module.kind === "baked") {
+    const img = document.createElement("img");
+    img.className = "runtime-loadscreen-baked";
+    img.src = module.imageUrl;
+    img.alt = `${altBase} · ${zh ? "带边框载入图" : "bordered loading screen"}`;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.addEventListener("error", () => img.remove(), { once: true });
+    frame.appendChild(img);
+    section.appendChild(frame);
+
+    const bakedDownload = document.createElement("button");
+    bakedDownload.type = "button";
+    bakedDownload.className = "runtime-border-composite-download";
+    bakedDownload.dataset.downloadKind = "border";
+    bakedDownload.dataset.url = module.imageUrl;
+    bakedDownload.textContent = zh ? "下载带边框载入图" : "Download bordered load screen";
+    section.appendChild(bakedDownload);
+  } else {
+    const art = document.createElement("img");
+    art.className = "runtime-loadscreen-art";
+    art.src = module.artUrl;
+    art.alt = `${altBase} · ${zh ? "载入图" : "loading screen"}`;
+    art.loading = "lazy";
+    art.decoding = "async";
+    frame.appendChild(art);
+
+    module.groups.forEach((group) => {
+      const layer = document.createElement("img");
+      layer.className = "runtime-loadscreen-border";
+      layer.dataset.layer = String(group.layer);
+      layer.alt = "";
+      layer.setAttribute("aria-hidden", "true");
+      layer.loading = "lazy";
+      layer.decoding = "async";
+      layer.src = group.options[group.options.length - 1].url;
+      layer.addEventListener("error", () => layer.remove(), { once: true });
+      frame.appendChild(layer);
+    });
+    section.appendChild(frame);
+
+    module.groups.forEach((group) => {
+      if (group.options.length < 2) return;
+      const toolbar = document.createElement("div");
+      toolbar.className = "runtime-border-toolbar";
+      toolbar.setAttribute("role", "group");
+      toolbar.setAttribute(
+        "aria-label",
+        zh ? `第 ${group.layer + 1} 层边框` : `Layer ${group.layer + 1} border`,
+      );
+      const activeLayer = Array.from(
+        frame.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border"),
+      ).find((image) => image.dataset.layer === String(group.layer));
+      group.options.forEach((option) => {
+        const row = document.createElement("div");
+        row.className = "runtime-border-row";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "runtime-border-choice";
+        const label = borderVariantLabel(option.url, locale);
+        button.textContent = label;
+        button.dataset.layer = String(group.layer);
+        button.dataset.url = option.url;
+        const pressed = activeLayer?.src.endsWith(option.url) ?? false;
+        button.setAttribute("aria-pressed", pressed ? "true" : "false");
+        if (pressed) button.classList.add("is-active");
+
+        const menu = document.createElement("details");
+        menu.className = "runtime-border-download-menu";
+        const summary = document.createElement("summary");
+        summary.textContent = "↓";
+        summary.setAttribute(
+          "aria-label",
+          zh ? `下载${label}相关图片` : `Download ${label} assets`,
+        );
+        const pop = document.createElement("div");
+        pop.className = "runtime-border-download-pop";
+        const borderItem = document.createElement("button");
+        borderItem.type = "button";
+        borderItem.textContent = zh ? "边框 PNG" : "Border PNG";
+        borderItem.dataset.downloadKind = "border";
+        borderItem.dataset.url = option.url;
+        const compositeItem = document.createElement("button");
+        compositeItem.type = "button";
+        compositeItem.textContent = zh ? "合成效果图" : "Composite image";
+        compositeItem.dataset.downloadKind = "composite";
+        pop.append(borderItem, compositeItem);
+        menu.append(summary, pop);
+
+        row.append(button, menu);
+        toolbar.appendChild(row);
+      });
+      section.appendChild(toolbar);
+    });
+  }
+
+  const closeOpenMenus = (keep?: HTMLElement): void => {
+    section
+      .querySelectorAll<HTMLDetailsElement>("details.runtime-border-download-menu[open]")
+      .forEach((openMenu) => {
+        if (openMenu !== keep) openMenu.open = false;
+      });
+  };
+  document.addEventListener("click", (event) => {
+    const target = event.target as Node | null;
+    if (target && section.contains(target)) return;
+    closeOpenMenus();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeOpenMenus();
+  });
+  section
+    .querySelectorAll<HTMLDetailsElement>("details.runtime-border-download-menu")
+    .forEach((menu) => {
+      menu.addEventListener("toggle", () => {
+        if (menu.open) closeOpenMenus(menu);
+      });
+    });
+
+  section.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+
+    const downloadChoice = target?.closest<HTMLButtonElement>("[data-download-kind]");
+    if (downloadChoice) {
+      const menu = downloadChoice.closest("details");
+      if (downloadChoice.dataset.downloadKind === "border" && downloadChoice.dataset.url) {
+        void downloadImageFile(downloadChoice.dataset.url);
+      } else if (downloadChoice.dataset.downloadKind === "composite") {
+        void downloadCompositeFrame(frame);
+      }
+      if (menu) menu.open = false;
+      return;
+    }
+
+    const button = target?.closest<HTMLButtonElement>(".runtime-border-choice");
+    if (!button) return;
+    const layerEl = Array.from(
+      frame.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border"),
+    ).find((image) => image.dataset.layer === button.dataset.layer);
+    if (layerEl && button.dataset.url) layerEl.src = button.dataset.url;
+    section
+      .querySelectorAll<HTMLButtonElement>(".runtime-border-choice")
+      .forEach((other) => {
+        if (other.dataset.layer !== button.dataset.layer) return;
+        const active = other === button;
+        other.setAttribute("aria-pressed", active ? "true" : "false");
+        other.classList.toggle("is-active", active);
+      });
+  });
+
+  parent.appendChild(section);
+  return true;
+}
+
+/** Fetch a border image as a blob and trigger a local download. */
+async function downloadImageFile(url: string): Promise<void> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Download failed with ${response.status}`);
+    const objectUrl = URL.createObjectURL(await response.blob());
+    saveBlob(objectUrl, url.split("/").pop() ?? "border");
+  } catch {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+}
+
+function saveBlob(href: string, filename: string): void {
+  const anchor = document.createElement("a");
+  anchor.href = href;
+  anchor.download = filename;
+  anchor.hidden = true;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(href), 1000);
+}
+
+function loadCrossOriginImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Image load failed: ${src}`));
+    image.src = src;
+  });
+}
+
+/**
+ * Composite the plain load screen with all currently selected border
+ * layers on a canvas and download the result as a JPEG.
+ */
+async function downloadCompositeFrame(frame: HTMLElement): Promise<void> {
+  const art = frame.querySelector<HTMLImageElement>(".runtime-loadscreen-art");
+  if (!art?.src) return;
+  const layers = Array.from(
+    frame.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border"),
+  ).sort((a, b) => Number(a.dataset.layer) - Number(b.dataset.layer));
+
+  try {
+    const [artImage, ...borderImages] = await Promise.all([
+      loadCrossOriginImage(art.src),
+      ...layers.map((layer) => loadCrossOriginImage(layer.src)),
+    ]);
+    const canvas = document.createElement("canvas");
+    canvas.width = artImage.naturalWidth;
+    canvas.height = artImage.naturalHeight;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas 2D context unavailable");
+    context.drawImage(artImage, 0, 0, canvas.width, canvas.height);
+    for (const border of borderImages) {
+      context.drawImage(border, 0, 0, canvas.width, canvas.height);
+    }
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.92),
+    );
+    if (!blob) throw new Error("Canvas export failed");
+    const stem = art.src.split("/").pop()?.replace(/\.[a-z0-9]+$/i, "") ?? "loadscreen";
+    saveBlob(URL.createObjectURL(blob), `${stem}_composite.jpg`);
+  } catch {
+    window.open(art.src, "_blank", "noopener,noreferrer");
+  }
 }
 
 export function appendHistoricalArtwork(

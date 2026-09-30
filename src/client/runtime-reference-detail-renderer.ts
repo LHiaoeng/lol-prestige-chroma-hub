@@ -22,6 +22,7 @@ import type {
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 import {
   appendExternalAction,
+  appendBorderModule,
   appendHistoricalArtwork,
   appendMedia,
   appendMediaCollection,
@@ -386,6 +387,13 @@ export function createRuntimeDetailRenderer(
           appendMissingField(mediaGrid, options.locale, "artwork");
         mediaSection.appendChild(mediaGrid);
         article.appendChild(mediaSection);
+
+        appendBorderModule(
+          article,
+          item.media,
+          options.locale,
+          item.name ?? runtimeMissingLabel(options.locale, "name"),
+        );
 
         const historicalArt = item.historicalArt ?? [];
         if (historicalArt.length) {
