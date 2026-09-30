@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -137,7 +137,7 @@ const jsonLd = [
       <h2>The 1000-point reward: {rewardChroma.nameEn}</h2>
       <p>Reaching 1000 points grants <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a diamond-tier prestige chroma of the Battle Queen Fiora skin. Its dominant colour is rose-quartz pink, and it belongs to the Battle Queens skin set. Like all prestige chromas, it requires owning the base Battle Queen Fiora skin to equip.</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
     </section>
 
@@ -223,7 +223,7 @@ const jsonLd = [
       <h2>1000 积分奖励：{rewardChroma.nameZh}</h2>
       <p>满 1000 积分可领取「<a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>」，属于<strong>钻石臻彩</strong>，基于女帝 菲奥娜皮肤，隶属女帝无双皮肤系列，主色调为玫瑰石英粉。与所有臻彩一样，需先拥有女帝 菲奥娜基础皮肤方可装备。</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
     </section>
 

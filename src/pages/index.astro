@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ChromaCard from '../components/ChromaCard.astro';
+import PrestigeChromaCard from '../components/PrestigeChromaCard.astro';
 import Filters from '../components/Filters.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
@@ -66,7 +66,7 @@ const jsonLd = isZh ? [
     <Filters {catalog} {locale} />
     <div class="status" data-status aria-live="polite" hidden></div>
     <div class="chroma-grid" data-chroma-list>
-      {firstPage.map((chroma, index) => <ChromaCard {chroma} eager={index < 4} {locale} />)}
+      {firstPage.map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
     </div>
     <template data-chroma-card-template>
       <article class="chroma-card">

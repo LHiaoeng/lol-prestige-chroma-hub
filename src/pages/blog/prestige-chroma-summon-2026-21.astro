@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -129,8 +129,8 @@ const jsonLd = [
       <h2>Two prestige chromas and a prestige skin in the pools</h2>
       <p>This session's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, and the grand-prize tier adds a limited-time prestige-skin option. For the cross-session rules and a participation checklist, see our <a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>complete Brilliant Prestige Chroma Summoning guide</a>.</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={grandPrize} labelEn="Dumpling Darlings Syndra (Pearl)" labelZh="点心宝贝 辛德拉 芥菜点心" {locale} />
-        <BlogChromaCard chroma={firstPrize} labelEn="Faerie Court Ezreal (Rose Quartz)" labelZh="花仙贵族 伊泽瑞尔 玫瑰水晶眼" {locale} />
+        <BlogPrestigeChromaCard chroma={grandPrize} labelEn="Dumpling Darlings Syndra (Pearl)" labelZh="点心宝贝 辛德拉 芥菜点心" {locale} />
+        <BlogPrestigeChromaCard chroma={firstPrize} labelEn="Faerie Court Ezreal (Rose Quartz)" labelZh="花仙贵族 伊泽瑞尔 玫瑰水晶眼" {locale} />
       </BlogChromaGrid>
       <p>The grand-prize tier pairs a self-select prestige chroma — Dumpling Darlings Syndra (Pearl) — with the Dark Star Diana prestige skin at 0.5% initial odds. The first-prize tier holds a self-select prestige chroma at 1%. Both chromas come with dedicated splash art, not regular recolour chromas; our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> explains the difference.</p>
     </section>
@@ -140,7 +140,7 @@ const jsonLd = [
       <p>The grand prize belongs to the Dumpling Darlings series, which dresses champions in a dim-sum cafe aesthetic. Pearl — "芥菜点心" in Chinese, roughly "mustard-greens dumpling" — sits alongside Sapphire and Obsidian on the Dumpling Darlings Syndra skin:</p>
       <BlogChromaGrid>
         {filterChromas('134', 'Dumpling Darlings Syndra').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>Sapphire goes deep blue and Obsidian near-black; Pearl is a pale, milky white-green — and the only one of the three in this session's prize pool.</p>
@@ -151,7 +151,7 @@ const jsonLd = [
       <p>The first prize comes from the Faerie Court series, which casts champions as fae nobility carrying out nature's will. Rose Quartz — "玫瑰水晶眼" in Chinese — is the only Faerie Court Ezreal prestige chroma in our archive:</p>
       <BlogChromaGrid>
         {filterChromas('81', 'Faerie Court Ezreal').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>
@@ -258,8 +258,8 @@ const jsonLd = [
       <h2>奖池里的两款臻彩与一款至臻皮肤</h2>
       <p>本期自选奖池的两个顶层奖位各有一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>坐镇，特等奖池还限时加入了至臻皮肤选项。想了解跨期规则和完整参与清单，可以阅读<a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>璀璨臻彩召唤完全指南</a>：</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={grandPrize} labelEn="Dumpling Darlings Syndra (Pearl)" labelZh="点心宝贝 辛德拉 芥菜点心" {locale} />
-        <BlogChromaCard chroma={firstPrize} labelEn="Faerie Court Ezreal (Rose Quartz)" labelZh="花仙贵族 伊泽瑞尔 玫瑰水晶眼" {locale} />
+        <BlogPrestigeChromaCard chroma={grandPrize} labelEn="Dumpling Darlings Syndra (Pearl)" labelZh="点心宝贝 辛德拉 芥菜点心" {locale} />
+        <BlogPrestigeChromaCard chroma={firstPrize} labelEn="Faerie Court Ezreal (Rose Quartz)" labelZh="花仙贵族 伊泽瑞尔 玫瑰水晶眼" {locale} />
       </BlogChromaGrid>
       <p>特等奖池为自选臻彩或至臻皮肤，初始概率 0.5%，主推点心宝贝 辛德拉 芥菜点心，也可改选至臻皮肤 暗星女王 黛安娜；一等奖池为自选臻彩，初始概率 1%，主推花仙贵族 伊泽瑞尔 玫瑰水晶眼。两款臻彩都拥有专属原画，不是普通换色炫彩，不了解的话可以先看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
     </section>
@@ -269,7 +269,7 @@ const jsonLd = [
       <p>特等奖来自点心宝贝系列，主题是点心铺与茶馆。芥菜点心与葡萄点心、黑芝麻点心同属点心宝贝 辛德拉皮肤家族：</p>
       <BlogChromaGrid>
         {filterChromas('134', 'Dumpling Darlings Syndra').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>葡萄点心走深蓝路线，黑芝麻点心接近墨色，芥菜点心以珍珠白绿呈现——三款里只有芥菜点心进入了本期奖池。</p>
@@ -280,7 +280,7 @@ const jsonLd = [
       <p>一等奖来自花仙贵族系列，把英雄塑造成执行自然意志的仙灵王庭贵族。玫瑰水晶眼目前是图鉴中花仙贵族 伊泽瑞尔唯一的臻彩：</p>
       <BlogChromaGrid>
         {filterChromas('81', 'Faerie Court Ezreal').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>

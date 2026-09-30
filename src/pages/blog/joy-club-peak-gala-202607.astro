@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -137,7 +137,7 @@ const jsonLd = [
       <h2>Rewards, settlement, and claiming</h2>
       <p>Qualifying players receive <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a <strong>diamond-tier prestige chroma</strong> of the Spirit Blossom Kayle skin. It stays exclusive to Peak Gala for {exclusiveWindowMonths} months, then opens to other channels.</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
       <p>Settlement starts <strong>{settlementWorkdays} working days after the window closes</strong>. <strong>Session 202607</strong> needs an extra {sessionExtraWorkdays} working days on top of that (Classic mode stats are tricky to aggregate) &mdash; expect rewards around mid-September 2026. Future sessions go back to the standard {settlementWorkdays}-day window.</p>
       <p>The reward is not auto-delivered. Qualifying summoners must <strong>visit the event page and select their server region</strong> to claim the chroma.</p>
@@ -252,7 +252,7 @@ const jsonLd = [
       <h2>奖励、结算与领取</h2>
       <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，属于<strong>钻石臻彩</strong>。该臻彩在巅峰盛典享有 {exclusiveWindowMonths} 个月独享期，结束后开放其他渠道获取。</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
       <p>巅峰盛典奖励发放将在统计结束后 <strong>{settlementWorkdays} 个工作日内</strong>进行。<strong>本期（第 202607 期）</strong>因经典模式数据统计较复杂，额外需要 {sessionExtraWorkdays} 个工作日，预计 9 月中旬发放。后续巅峰盛典维持 {settlementWorkdays} 个工作日内结算。</p>
       <p>奖励不自动到账，达到门槛的召唤师需<strong>前往活动页面选择大区</strong>领取「灵魂莲华 凯尔 星回」。</p>

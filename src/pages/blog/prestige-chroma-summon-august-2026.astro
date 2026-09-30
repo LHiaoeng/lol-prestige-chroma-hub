@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -82,7 +82,7 @@ const jsonLd = [
       <BlogChromaGrid>
         {featuredChromas.map((fc) => {
           const chroma = findChroma(fc.heroId, fc.skinNameEn);
-          return <BlogChromaCard chroma={chroma} labelEn={fc.nameEn} labelZh={fc.nameZh} {locale} />;
+          return <BlogPrestigeChromaCard chroma={chroma} labelEn={fc.nameEn} labelZh={fc.nameZh} {locale} />;
         })}
       </BlogChromaGrid>
       <p>Battle Academia Xayah (Sapphire) sits in the Grand Prize tier alongside a prestige skin; Lunar Empress Ashe (Rose Quartz) leads the First Prize tier. Both are prestige chromas with unique splash art, not regular recolour chromas. If you're new to the concept, our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> breaks down what makes them different.</p>
@@ -94,7 +94,7 @@ const jsonLd = [
       <p>The Battle Academia Xayah skin family currently has 2 prestige chromas:</p>
       <BlogChromaGrid>
         {filterChromas('498', 'Battle Academia Xayah').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>The other one, Catseye, uses a warm yellow tone. Sapphire stands in clear contrast — ideal if you prefer cooler colours on this skin.</p>
@@ -106,7 +106,7 @@ const jsonLd = [
       <p>The Lunar Empress Ashe skin family also has 2 prestige chromas:</p>
       <BlogChromaGrid>
         {filterChromas('22', 'Lunar Empress Ashe').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>The other one, Ruby, goes for a bold red (<span style="color:#D33528">#D33528</span>) — named "玉露金风". Rose Quartz is the softer, more ethereal pick.</p>
@@ -179,7 +179,7 @@ const jsonLd = [
       <BlogChromaGrid>
         {featuredChromas.map((fc) => {
           const chroma = findChroma(fc.heroId, fc.skinNameEn);
-          return <BlogChromaCard chroma={chroma} labelEn={fc.nameEn} labelZh={fc.nameZh} {locale} />;
+          return <BlogPrestigeChromaCard chroma={chroma} labelEn={fc.nameEn} labelZh={fc.nameZh} {locale} />;
         })}
       </BlogChromaGrid>
       <p>战斗学院 霞 天马位于特等奖池（与一款至臻皮肤同层），春晖神女 艾希 轻云蔽月位于一等奖池。两款都是拥有专属原画的臻彩。对臻彩不太了解的话，可以看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
@@ -191,7 +191,7 @@ const jsonLd = [
       <p>战斗学院 霞目前拥有 2 款臻彩：</p>
       <BlogChromaGrid>
         {filterChromas('498', 'Battle Academia Xayah').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>另一款雄狮（Catseye）是暖黄色调，天马则是鲜明的冷色对比——如果你更喜欢冷色系，天马是更好的选择。</p>
@@ -203,7 +203,7 @@ const jsonLd = [
       <p>春晖神女 艾希目前也拥有 2 款臻彩：</p>
       <BlogChromaGrid>
         {filterChromas('22', 'Lunar Empress Ashe').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>另一款玉露金风（Ruby）走大胆红色路线（<span style="color:#D33528">#D33528</span>）。轻云蔽月则更柔和、更仙气。</p>

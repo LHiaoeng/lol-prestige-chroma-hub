@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -80,7 +80,7 @@ const jsonLd = [
       <p>This event offers two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> and one <a href="https://leagueoflegends.fandom.com/wiki/Champion_skin#Prestige_Editions" target="_blank" rel="noreferrer">prestige skin</a> through the fragment exchange shop. Each open guarantees a skin from the pool, and every 10 opens locks in a random prestige chroma. Fragments earned along the way can be traded for these specific items:</p>
       <BlogChromaGrid>
         {featuredChromas.filter((fc) => findChroma(fc.heroId, fc.skinNameEn)).map((fc) => {
-          return <BlogChromaCard chroma={findChroma(fc.heroId, fc.skinNameEn)} labelEn={`${fc.nameEn} — ${fc.fragments} fragments`} labelZh={`${fc.nameZh} — ${fc.fragments} 碎片`} {locale} />;
+          return <BlogPrestigeChromaCard chroma={findChroma(fc.heroId, fc.skinNameEn)} labelEn={`${fc.nameEn} — ${fc.fragments} fragments`} labelZh={`${fc.nameZh} — ${fc.fragments} 碎片`} {locale} />;
         })}
       </BlogChromaGrid>
       <p>Surprise Party Vex (Pearl) costs 300 fragments, Spirit Blossom Hwei (Catseye) costs 600, and Prestige Spirit Blossom Zed sits at 1,000. The first two are prestige chromas with unique splash art; Prestige Spirit Blossom Zed is a prestige skin, a separate tier above regular skins — not a prestige chroma.</p>
@@ -93,7 +93,7 @@ const jsonLd = [
       <p>The Surprise Party Vex skin family currently has 1 prestige chroma:</p>
       <BlogChromaGrid>
         {catalog.filter((c) => c.heroId === '711' && c.skinNameEn === 'Surprise Party Vex').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>
@@ -104,7 +104,7 @@ const jsonLd = [
       <p>The Spirit Blossom Hwei skin family currently has 2 prestige chromas:</p>
       <BlogChromaGrid>
         {catalog.filter((c) => c.heroId === '910' && c.skinNameEn === 'Spirit Blossom Hwei').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>The other one, Pearl, goes for a soft white (<span style="color:#ECF9F8">#ECF9F8</span>). Catseye is the bolder, warmer pick.</p>
@@ -168,7 +168,7 @@ const jsonLd = [
       <p>本期活动通过碎片兑换商店提供两款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>和一款<a href="https://leagueoflegends.fandom.com/zh/wiki/%E8%8B%B1%E9%9B%84%E7%9A%AE%E8%82%A4#%E8%87%B3%E7%9A%87" target="_blank" rel="noreferrer">至臻皮肤</a>。每次开启保底 1 款未解锁皮肤，每 10 次开启额外保底 1 款随机臻彩。过程中获得的碎片可以换取以下内容：</p>
       <BlogChromaGrid>
         {featuredChromas.filter((fc) => findChroma(fc.heroId, fc.skinNameEn)).map((fc) => {
-          return <BlogChromaCard chroma={findChroma(fc.heroId, fc.skinNameEn)} labelEn={`${fc.nameEn} — ${fc.fragments} fragments`} labelZh={`${fc.nameZh} — ${fc.fragments} 碎片`} {locale} />;
+          return <BlogPrestigeChromaCard chroma={findChroma(fc.heroId, fc.skinNameEn)} labelEn={`${fc.nameEn} — ${fc.fragments} fragments`} labelZh={`${fc.nameZh} — ${fc.fragments} 碎片`} {locale} />;
         })}
       </BlogChromaGrid>
       <p>惊悚派对 薇古丝 吓走你的沮丧！ 300 碎片、灵魂莲华 彗 雁来 600 碎片、至臻 灵魂莲华 劫 1000 碎片。前两款是有专属原画的臻彩；至臻 灵魂莲华 劫是至臻皮肤，和普通皮肤是不同的品质层级，不是臻彩。</p>
@@ -181,7 +181,7 @@ const jsonLd = [
       <p>惊悚派对 薇古丝目前拥有 1 款臻彩：</p>
       <BlogChromaGrid>
         {catalog.filter((c) => c.heroId === '711' && c.skinNameEn === 'Surprise Party Vex').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>
@@ -192,7 +192,7 @@ const jsonLd = [
       <p>灵魂莲华 彗目前拥有 2 款臻彩：</p>
       <BlogChromaGrid>
         {catalog.filter((c) => c.heroId === '910' && c.skinNameEn === 'Spirit Blossom Hwei').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>另一款「朝花」走柔和白色路线（<span style="color:#ECF9F8">#ECF9F8</span>）。「雁来」更鲜明、更抢眼。</p>

@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -128,7 +128,7 @@ const jsonLd = [
       <h2>{isZh ? '奖励臻彩：铁血女忍 阿卡丽 斩魂粉樱' : 'The reward chroma: Headhunter Akali (Pearl)'}</h2>
       {isZh ? <><p><strong>「{rewardChroma.nameZh}」</strong>依附于基础皮肤「{rewardChroma.skinNameZh}」，隶属铁血猎手宇宙，以粉白色配色区别于原版铁血女忍。这款臻彩并非本次赛段才进入臻彩体系——目录备注的所属版本为 {rewardChroma.gameVer}，本次只是通过峡谷之巅赛段奖励的渠道再次发放。官方公告也明确提到，「铁血女忍 阿卡丽 斩魂粉樱」后续也将通过其他运营活动获得。</p><p>这款臻彩与本站图鉴中已收录的条目完全对应，点击下方卡片即可进入<a href={rewardChromaUrl}>详情页</a>查看原画与配色。</p></> : <><p><strong>{rewardChroma.nameEn}</strong> attaches to the base skin {rewardChroma.skinNameEn} within the Headhunter universe, distinguishable from the original Headhunter Akali by its pearl-pink colourway. This chroma is not a new entry to the prestige system — the archive records its joining version as {rewardChroma.gameVer}, and the Canyon Peak split reward is a new distribution channel rather than a debut. The announcement also notes that Headhunter Akali (Pearl) will be obtainable through future operating activities.</p><p>The chroma matches an existing entry in this archive. Select the card below to open the <a href={rewardChromaUrl}>detail page</a> for the splash art and colour palette.</p></>}
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
     </section>
 

@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -96,7 +96,7 @@ const jsonLd = [
       <h2>Three prestige chromas and one mythic skin</h2>
       <p>The official announcement names four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our archive; the fourth is a complete skin rather than a <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma</a>. This is Session 202619 of the Lucky Gate series; the September <a href={localizedPath(locale, '/blog/lucky-gate-ocean-song-202609/')}>Ocean Song wheel</a> (Session 202618) ran its own prize pool.</p>
       <BlogChromaGrid columns={3}>
-        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {catalogChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
       <p><strong>Demoncursed Vayne (Sapphire)</strong> is a Diamond prestige chroma from the <a href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}>Patch 26.18 batch</a>, set in the Pandemonium skinline under the Ages of Runeterra universe. Its deep sapphire colourway marks it as the grand-prize tier of this session. <strong>Heavenscale Kai&rsquo;Sa (Lustrous)</strong> and <strong>Heavenscale Master Yi (Lustrous)</strong> share a matching pink-and-cream palette and belong to the Heavenscale skinline under the Lunar New Year universe; both are regular-tier prestige chromas first released as loot exclusives during the 2024 Heavenscale event and dated to Patch 26.16.</p>
       <p>The remaining headline reward is not a chroma:</p>
@@ -177,7 +177,7 @@ const jsonLd = [
       <h2>三款臻彩，外加一款神话皮肤</h2>
       <p>官方公告列出了四项重点奖励。其中三款是已收录在本站目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；第四项是一款完整皮肤，不是<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩</a>。本期是幸运之门系列的第 202619 期活动，奖池与 9 月的<a href={localizedPath(locale, '/blog/lucky-gate-ocean-song-202609/')}>海之歌召唤</a>（第 202618 期）独立。</p>
       <BlogChromaGrid columns={3}>
-        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {catalogChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
       <p><strong>恶魔诅咒 薇恩 诡诈附体</strong>是 26.18 版本新增的钻石臻彩，属于万魔殿系列，隶属符文之地时代宇宙，深蓝色配色为本期特等奖。<strong>天龙之子 卡莎 赫赫龙威</strong>和<strong>天龙之子 易 赫赫龙威</strong>使用同一组粉奶色配色，属于天龙之子系列，隶属春节宇宙；这两款都是常规臻彩，所属版本为 26.16，最初在 2024 年天龙之子活动中作为战利品专属发布。</p>
       <p>剩余一项重点奖励不是臻彩：</p>

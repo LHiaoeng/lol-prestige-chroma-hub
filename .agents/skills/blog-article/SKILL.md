@@ -63,10 +63,10 @@ import { SITE } from '../../seo/site';
 
 ## 内容组件与样式边界
 
-- 目录臻彩原画的大图说明可沿用文章自己的 `showcase`/`figure`，但目录卡片网格必须使用 `BlogChromaGrid` + `BlogChromaCard`，接口和示例见 `references/chroma-grid.md`。
+- 目录臻彩原画的大图说明可沿用文章自己的 `showcase`/`figure`，但目录卡片网格必须使用 `BlogChromaGrid` + `BlogPrestigeChromaCard`，接口和示例见 `references/chroma-grid.md`。
 - 不在文章页面复制臻彩卡片 HTML、颜色圆点、图片回退、详情链接或 `.chroma-grid`/`.chroma-card-*` CSS。共享组件统一处理 3/6 列、移动端两列、`padding: 0`、颜色圆点、catalog 图片回退、双语 alt、详情链接与未收录奖励的占位卡。
 - 文章页面只维护文章壳层、表格、FAQ、官方来源和该文章独有的布局。通用列表规则不得重新给 `.chroma-grid` 添加左内边距；共享网格使用更高优先级的 `padding: 0`。
-- `BlogChromaCard` 的 `chroma` 缺省时必须同时提供 `labelEn` 与 `labelZh`，用于公告提到但尚未进入目录的奖励；不要伪造详情链接。
+- `BlogPrestigeChromaCard` 的 `chroma` 缺省时必须同时提供 `labelEn` 与 `labelZh`，用于公告提到但尚未进入目录的奖励；不要伪造详情链接。
 
 ## 测试与验证
 

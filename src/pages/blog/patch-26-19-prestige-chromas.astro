@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -117,7 +117,7 @@ const jsonLd = [
       <h2>{isZh ? '26.19 臻彩原画一览' : 'Patch 26.19 prestige chroma gallery'}</h2>
       <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这次扩充为踏雪寻梅系列再添四款配色，也让拉克丝一次入账两款钻石臻彩。' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. This batch adds four more colourways to the Petals of Spring line and gives Lux two Diamond entries at once.'}</p>
       <BlogChromaGrid>
-        {patchChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {patchChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
     </section>
 

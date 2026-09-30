@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -172,7 +172,7 @@ const jsonLd = [
       <h2>Rewards, settlement, and claiming</h2>
       <p>Qualifying players receive <a href={rewardChromaUrl}>{rewardChroma.nameEn}</a> &mdash; a prestige chroma of the Primordian Aatrox skin. It stays exclusive to Peak Gala for {exclusiveWindowMonths} months, then opens to other channels.</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
       <p>Settlement starts <strong>{settlementWorkdays} working days after the window closes</strong>. Rewards are expected around mid-October 2026.</p>
       <p>The reward is not auto-delivered. Qualifying summoners must <strong>visit the event page and select their server region</strong> to claim the chroma.</p>
@@ -285,7 +285,7 @@ const jsonLd = [
       <h2>奖励、结算与领取</h2>
       <p>本期奖励臻彩为 <a href={rewardChromaUrl}>{rewardChroma.nameZh}</a>，基于海魔至尊 亚托克斯皮肤。该臻彩在巅峰盛典享有 {exclusiveWindowMonths} 个月独享期，结束后开放其他渠道获取。</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
       <p>巅峰盛典奖励发放将在统计结束后 <strong>{settlementWorkdays} 个工作日内</strong>进行，预计 10 月中旬发放。</p>
       <p>奖励不自动到账，达到门槛的召唤师需<strong>前往活动页面选择大区</strong>领取「{rewardChroma.nameZh}」。</p>

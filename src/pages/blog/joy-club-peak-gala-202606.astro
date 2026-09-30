@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -107,7 +107,7 @@ const jsonLd = [
     <section>
       <h2>Settlement and claim steps</h2>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
       <p>The official page says that the gala announcement and reward distribution will take place within seven working days after the counting period ends. Qualified summoners must then open the related event page, choose a server region, and claim the chroma themselves.</p>
     </section>
@@ -164,7 +164,7 @@ const jsonLd = [
     <section>
       <h2>什么时候结算，怎么领奖？</h2>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={rewardChroma} {locale} />
+        <BlogPrestigeChromaCard chroma={rewardChroma} {locale} />
       </BlogChromaGrid>
       <p>由于活动需要时间统计数据，官方活动页写明，统计结束后，巅峰盛典公布及奖励发放将在<strong>七个工作日内</strong>进行。进入巅峰盛典的召唤师需要前往相关活动页面，选择大区后领取臻彩。</p>
     </section>

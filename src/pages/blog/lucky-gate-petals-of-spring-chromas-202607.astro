@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -79,7 +79,7 @@ const jsonLd = [
       <p>The official announcement names three rewards under “Lucky Gate: Summoning”: <strong>Petals of Spring Lillia (Emerald)</strong>, <strong>Petals of Spring Katarina (Emerald)</strong>, and <strong>Petals of Spring Yasuo (Emerald)</strong>. The Chinese subtitle “独步早春” is shared by all three.</p>
       <p>That makes this a focused three-chroma release rather than a mixed list of unrelated cosmetics. The earlier <a href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}>Patch 26.15 roundup</a> places these entries alongside the other chromas from the same update.</p>
       <BlogChromaGrid columns={3}>
-        {featuredChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {featuredChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
     </section>
 
@@ -126,7 +126,7 @@ const jsonLd = [
       <p>官方公告在“幸运之门·召唤”部分点名了三款奖励：<strong>踏雪寻梅 莉莉娅 独步早春</strong>、<strong>踏雪寻梅 卡特琳娜 独步早春</strong>和<strong>踏雪寻梅 亚索 独步早春</strong>。站内目录将它们的英文配色记录为 Emerald。</p>
       <p>这次不是把多个系列随意拼在一起，而是一次补齐踏雪寻梅三位英雄的同主题臻彩。想看同一批版本内容，可以接着读<a href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}>26.15 版本臻彩整理</a>。</p>
       <BlogChromaGrid columns={3}>
-        {featuredChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {featuredChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
     </section>
 

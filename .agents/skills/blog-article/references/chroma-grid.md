@@ -1,17 +1,17 @@
 # 博客臻彩卡片网格
 
-文章需要展示目录臻彩卡片时，使用 `src/components/BlogChromaGrid.astro` 包裹 `src/components/BlogChromaCard.astro`。页面只提供数据和文章专属标签，不维护卡片 HTML 或 CSS。
+文章需要展示目录臻彩卡片时，使用 `src/components/BlogChromaGrid.astro` 包裹 `src/components/BlogPrestigeChromaCard.astro`。页面只提供数据和文章专属标签，不维护卡片 HTML 或 CSS。
 
 ## 标准目录卡片
 
 ```astro
 ---
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 ---
 
 <BlogChromaGrid>
-  {chromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+  {chromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
 </BlogChromaGrid>
 ```
 
@@ -22,7 +22,7 @@ import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 卡片名称来自目录时无需额外标签。活动公告需要显示碎片数量、奖池层级等文章专属信息时，同时传入双语标签：
 
 ```astro
-<BlogChromaCard
+<BlogPrestigeChromaCard
   chroma={findChroma(item.heroId, item.skinNameEn)}
   labelEn={`${item.nameEn} — ${item.fragments} fragments`}
   labelZh={`${item.nameZh} — ${item.fragments} 碎片`}

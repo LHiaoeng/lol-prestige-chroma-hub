@@ -211,7 +211,7 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 ### 7.4 卡片
 
-`ChromaCard.astro` 展示：
+`PrestigeChromaCard.astro` 展示：
 
 - 1:1 裁切的中尺寸原画，焦点位于顶部中央；
 - 居中靠下的分类图标；
@@ -317,7 +317,7 @@ Header 桌面高度为 72px，手机高度为 60px。布局边缘同时考虑 `e
 
 ### 8.6 相关推荐
 
-详情底部由 `src/domain/related.ts` 的 `findRelatedGroups` 计算并按语义分组展示相关臻彩，由 `src/components/ExpandableChromaGroup.astro` 渲染，复用 `ChromaCard`，不维护独立的页面级推荐数据。分组顺序固定为：同英雄（`More {Hero} Prestige Chromas`）→ 同皮肤系列（`More {SkinSet} Prestige Chromas`）→ 同宇宙（`More {Universe} Prestige Chromas`）→ 同版本（`More Patch {gameVer} Prestige Chromas`）。分组之间按此优先级去重，已在前面分组出现的臻彩不再重复出现在后续分组。每组按 rank 接近度排序，默认返回全部匹配项（不截断），当前臻彩自身始终排除，无匹配项的分组不渲染。
+详情底部由 `src/domain/related.ts` 的 `findRelatedGroups` 计算并按语义分组展示相关臻彩，由 `src/components/ExpandableChromaGroup.astro` 渲染，复用 `PrestigeChromaCard`，不维护独立的页面级推荐数据。分组顺序固定为：同英雄（`More {Hero} Prestige Chromas`）→ 同皮肤系列（`More {SkinSet} Prestige Chromas`）→ 同宇宙（`More {Universe} Prestige Chromas`）→ 同版本（`More Patch {gameVer} Prestige Chromas`）。分组之间按此优先级去重，已在前面分组出现的臻彩不再重复出现在后续分组。每组按 rank 接近度排序，默认返回全部匹配项（不截断），当前臻彩自身始终排除，无匹配项的分组不渲染。
 
 `ExpandableChromaGroup` 采用桌面 6 列、平板 3 列、移动 2 列的响应式网格。当分组内臻彩超过一行（6 个）时，默认只展示第一行，其余通过 `max-height` 裁剪隐藏，并在第一行底部叠加从页面背景色到透明的渐变遮罩，暗示下方仍有内容。分组底部中央放置圆形展开/收起按钮（chevron 图标，展开时旋转 180°），点击切换 `data-expanded` 状态。折叠态行高由 JS 测量首张卡片高度后写入 `--row-height` CSS 变量，并通过 `ResizeObserver` 在断点切换时重新测量，避免硬编码高度。
 
@@ -455,7 +455,7 @@ img.chromaart.lol 规范图片
 | `src/pages/blog/what-is-league-of-legends.astro` | 双语图文文章、文章 SEO 与响应式阅读样式 |
 | `src/pages/blog/champions-without-prestige-chroma.astro` | 英雄覆盖率静态快照、双语全文绑定与客户端刷新配置 |
 | `src/components/Filters.astro` | 筛选选项生成、表单 DOM 契约和响应式开合 |
-| `src/components/ChromaCard.astro` | 静态及动态卡片共同遵循的视觉结构 |
+| `src/components/PrestigeChromaCard.astro` | 静态及动态卡片共同遵循的视觉结构 |
 | `src/components/ImageViewer.astro` | 响应式页面展示图、固定大图预览、查看器控件和样式 |
 | `src/components/DetailActionMenu.astro` | 单外链按钮和多动作菜单 |
 | `src/components/CategoryIconPreview.astro` | 分类图标展示与预览 |
@@ -562,7 +562,7 @@ pnpm release:build
 
 ### 18.2 静态卡片与动态卡片双实现
 
-首批卡片由 `ChromaCard.astro` 生成，筛选后的卡片由 `browser-app.ts` 使用 `<template>` 生成。修改卡片结构、标签、Alt、ARIA 或图片字段时，必须同步更新两条路径及其测试。
+首批卡片由 `PrestigeChromaCard.astro` 生成，筛选后的卡片由 `browser-app.ts` 使用 `<template>` 生成。修改卡片结构、标签、Alt、ARIA 或图片字段时，必须同步更新两条路径及其测试。
 
 ### 18.3 客户端目录体积
 

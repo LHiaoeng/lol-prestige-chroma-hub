@@ -56,7 +56,7 @@ description: 调整 LoL Chroma Art 页面视觉、提升设计感、做响应式
 
 ## 4. 实现与精修
 
-- 动手前先确认 `src/components/` 与 `src/layouts/` 的现成能力（`BaseLayout`、`ResponsiveHeroBackdrop`、`ChromaCard`、`ImageViewer`、`Filters`、`BackToTop` 等），优先复用，不重复实现已有组件已经做过的事；确认没有对应能力时才新增组件，并在交付里说明为什么不复用。目录卡片是有效内容单元，避免无意义的容器嵌套。
+- 动手前先确认 `src/components/` 与 `src/layouts/` 的现成能力（`BaseLayout`、`ResponsiveHeroBackdrop`、`PrestigeChromaCard`、`ImageViewer`、`Filters`、`BackToTop` 等），优先复用，不重复实现已有组件已经做过的事；确认没有对应能力时才新增组件，并在交付里说明为什么不复用。目录卡片是有效内容单元，避免无意义的容器嵌套。
 - 图标、按钮、标签、卡片、筛选、返回顶部、图片查看器、展开与折叠等已有实现直接沿用；页面内不另写一套同类控件。需要变体时先给现有组件加参数或修饰类，不新建平行组件。
 - 使用现有语义变量；局部构图可使用组件内样式。新增全局变量需有复用理由，并更新视觉规范。
 - 同类控件复用同一组件或公共样式；公共视觉规则在共享层维护，避免页面各自覆盖成不同外观。修改共享规则前定位其消费者。
@@ -89,7 +89,7 @@ description: 调整 LoL Chroma Art 页面视觉、提升设计感、做响应式
 
 改动完成后，回复里按领域给出可对齐的总结，让后续修改能直接定位、复用或回滚。
 
-- **领域与位置**：用项目既有领域名称和文件路径，不写“页面样式”这类泛称。例如 `首页 Hero`（`src/pages/index.astro`）、`ChromaCard`（`src/components/ChromaCard.astro`）、`共享视觉变量`（`src/styles/global.css`）。落在共享层或公共组件时点明影响到的页面类型。
+- **领域与位置**：用项目既有领域名称和文件路径，不写“页面样式”这类泛称。例如 `首页 Hero`（`src/pages/index.astro`）、`PrestigeChromaCard`（`src/components/PrestigeChromaCard.astro`）、`共享视觉变量`（`src/styles/global.css`）。落在共享层或公共组件时点明影响到的页面类型。
 - **改了什么**：按领域逐条说明结果，视觉变化写清具体维度（主次层级、排版与字号比例、间距节奏、图片裁切与尺度、内容密度），不用“优化了一下”这类空话。
 - **怎么改的**：给出关键实现手段——复用了哪个组件或语义变量、新增规则落在哪一层（组件内样式还是共享层）、是否新增全局变量、静态与浏览器双实现是否同步。
 - 一并说明已自查范围、需要人工确认的页面与视口，以及没能覆盖的部分；改动可能触及页面契约、数据或 SEO 时，提醒需要补跑的验证。

@@ -130,7 +130,7 @@ const jsonLd = [
 
 ```astro
 <BlogChromaGrid>
-  {chromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+  {chromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
 </BlogChromaGrid>
 ```
 

@@ -15,7 +15,7 @@ const { chroma, labelEn, labelZh } = Astro.props;
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const nameEn = labelEn ?? chroma?.nameEn;
 const nameZh = labelZh ?? chroma?.nameZh;
-if (!nameEn || !nameZh) throw new Error('BlogChromaCard requires chroma or both labelEn and labelZh');
+if (!nameEn || !nameZh) throw new Error('BlogPrestigeChromaCard requires chroma or both labelEn and labelZh');
 const isZh = locale === 'zh-cn';
 const name = isZh ? nameZh : nameEn;
 const image = chroma ? imageUrl(chroma.images.medium) : '/placeholder.svg';

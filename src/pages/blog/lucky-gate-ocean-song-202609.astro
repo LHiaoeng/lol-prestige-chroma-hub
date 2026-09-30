@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -96,7 +96,7 @@ const jsonLd = [
       <h2>Three Ocean Song prestige chromas and one mythic skin</h2>
       <p>The official announcement names four headline rewards. Three are <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> already in our archive; the fourth is a complete skin rather than a <a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>chroma</a>. This is Session 202618 of the Lucky Gate series; the August <a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>Porcelain Charm wheel</a> (Session 202616) ran its own prize pool.</p>
       <BlogChromaGrid columns={3}>
-        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {catalogChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
       <p><strong>Ocean Song Soraka (Pearl)</strong> and <strong>Ocean Song Jinx (Pearl)</strong> share one pearl-white colourway and are both Diamond prestige chromas. They are part of the <a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>Patch 26.17 batch</a> that expanded the Ocean Song festival lineup, which is set under the Sunkissed Summer universe. <strong>Ocean Song Yone (Tanzanite)</strong> is a regular-tier prestige chroma from an earlier batch (Patch 26.8), with a deep violet colourway fitting the festival&rsquo;s night-stage mood.</p>
       <p>The remaining headline reward is not a chroma:</p>
@@ -152,7 +152,7 @@ const jsonLd = [
       <h2>三款海之歌臻彩，外加一款神话皮肤</h2>
       <p>官方公告列出了四项重点奖励。其中三款是已收录在本站目录中的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>；第四项是一款完整皮肤，不是<a href={localizedPath(locale, '/blog/what-are-chroma-skins/')}>炫彩</a>。本期是幸运之门系列的第 202618 期活动，奖池与 8 月的<a href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}>青瓷彩韵召唤</a>（第 202616 期）独立。</p>
       <BlogChromaGrid columns={3}>
-        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {catalogChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
       <p><strong>海之歌 索拉卡 拾音</strong>和<strong>海之歌 金克丝 燥音</strong>使用同一组珍珠白配色，分类都是钻石臻彩，属于<a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>26.17 版本</a>扩充海之歌音乐节阵容时新增的条目，该系列隶属清凉盛夏宇宙。<strong>海之歌 永恩 幻彩夜空</strong>则是更早的 26.8 版本条目，分类为臻彩，深紫色配色对应音乐节的夜晚舞台氛围。</p>
       <p>剩余一项重点奖励不是臻彩：</p>

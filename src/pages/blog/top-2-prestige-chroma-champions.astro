@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -125,7 +125,7 @@ const jsonLd = [
       <p>{group.skinNameEn} has {group.count} prestige chroma{group.count !== 1 ? 's' : ''}:</p>
       <BlogChromaGrid>
         {filterChromas(runner.heroId, group.skinNameEn).map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>
@@ -180,7 +180,7 @@ const jsonLd = [
       <p>{group.skinNameZh}拥有 {group.count} 款臻彩：</p>
       <BlogChromaGrid>
         {filterChromas(runner.heroId, group.skinNameEn).map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>

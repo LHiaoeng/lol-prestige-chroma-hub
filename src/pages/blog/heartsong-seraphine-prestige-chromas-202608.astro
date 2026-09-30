@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -99,7 +99,7 @@ const jsonLd = [
       <h2>Three Diamond prestige chromas for Seraphine</h2>
       <p>The Heartsong skinline leans on the idea that one song can connect everyone, and Seraphine gets three Diamond <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a> on launch day. The three go in different directions: <strong>Heartsong Seraphine (Pearl)</strong> in pearl white, <strong>Heartsong Seraphine (Ruby)</strong> in red, and <strong>Heartsong Seraphine (Sapphire)</strong> in deep blue. They also show up in the <a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>Patch 26.17</a> catalog additions, but this event is the first time all three are obtainable together.</p>
       <BlogChromaGrid>
-        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {catalogChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
       <p>The catalog marks <strong>Heartsong Seraphine (Ruby)</strong> as a 2026 bundle exclusive. Pearl sets her on a sunlit beach with foam at her feet; Sapphire moves the stage into a cosmic concert hall; Ruby projects a giant, semi-transparent close-up of her own face behind her, singing toward the listener.</p>
     </section>
@@ -162,7 +162,7 @@ const jsonLd = [
       <h2>三款钻石臻彩，一次到位</h2>
       <p>心之歌系列的主题是「有一首歌连接了我们所有人」，上线当天同时给萨勒芬妮放出三款钻石臻彩。三款原画色调各走一路：<strong>心之歌 萨勒芬妮 晴彩泡沫</strong>用珍珠白，<strong>心之歌 萨勒芬妮 我会走向你</strong>用正红，<strong>心之歌 萨勒芬妮 光年之约</strong>用深蓝。它们也收录在<a href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}>26.17 版本</a>的目录新增里，但本次活动是三款首次共同开放获取的途径。</p>
       <BlogChromaGrid>
-        {catalogChromas.map((chroma) => <BlogChromaCard chroma={chroma} {locale} />)}
+        {catalogChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
       </BlogChromaGrid>
       <p>目录备注写明「我会走向你」在 2026 年期间是礼包专属。晴彩泡沫把萨勒芬妮放在海边，脚下是泡沫、头顶是阳光；光年之约把舞台搬进宇宙太空；我会走向你在她身后投出一块半透明的巨型面部特写，把这首歌「唱给你听」。</p>
     </section>

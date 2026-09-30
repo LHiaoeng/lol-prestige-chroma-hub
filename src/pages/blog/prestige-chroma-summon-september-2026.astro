@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -128,8 +128,8 @@ const jsonLd = [
       <h2>Two prestige chromas in the prize pool</h2>
       <p>This session's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, one per top tier. For the cross-session rules and a participation checklist, see our <a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>complete Brilliant Prestige Chroma Summoning guide</a>.</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={grandPrize} labelEn="Spirit Blossom Akali (Pearl)" labelZh="灵魂莲华 阿卡丽 朝花" {locale} />
-        <BlogChromaCard chroma={firstPrize} labelEn="Soul Fighter Gwen (Sapphire)" labelZh="斗魂觉醒 格温 狡之魂焰" {locale} />
+        <BlogPrestigeChromaCard chroma={grandPrize} labelEn="Spirit Blossom Akali (Pearl)" labelZh="灵魂莲华 阿卡丽 朝花" {locale} />
+        <BlogPrestigeChromaCard chroma={firstPrize} labelEn="Soul Fighter Gwen (Sapphire)" labelZh="斗魂觉醒 格温 狡之魂焰" {locale} />
       </BlogChromaGrid>
       <p>The grand-prize tier pairs a self-select prestige chroma — Spirit Blossom Akali (Pearl) — with the prestige-skin option at 0.5% initial odds. The first-prize tier holds a self-select prestige chroma at 1%. Both are prestige chromas with dedicated splash art, not regular recolour chromas; our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> explains the difference.</p>
     </section>
@@ -139,7 +139,7 @@ const jsonLd = [
       <p>The grand prize belongs to the Spirit Blossom series, which reimagines champions in a spirit-realm aesthetic. Pearl — "朝花" in Chinese, roughly "morning bloom" — is the third prestige chroma attached to the Spirit Blossom Akali skin:</p>
       <BlogChromaGrid>
         {filterChromas('84', 'Spirit Blossom Akali').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>Citrine ("鸣蜩") takes a warm golden direction and Rose Quartz ("春晓") goes soft pink; Pearl is the newest addition to the family.</p>
@@ -150,7 +150,7 @@ const jsonLd = [
       <p>The first prize comes from the Soul Fighter series, a fighting-tournament universe. Sapphire — "狡之魂焰" in Chinese — sits alongside Rose Quartz ("幻之魂焰") in the Soul Fighter Gwen skin family:</p>
       <BlogChromaGrid>
         {filterChromas('887', 'Soul Fighter Gwen').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>
@@ -257,8 +257,8 @@ const jsonLd = [
       <h2>奖池里的两款臻彩</h2>
       <p>本期自选奖池的两个顶层奖位各有一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>坐镇。想了解跨期规则和完整参与清单，可以阅读<a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>璀璨臻彩召唤完全指南</a>：</p>
       <BlogChromaGrid>
-        <BlogChromaCard chroma={grandPrize} labelEn="Spirit Blossom Akali (Pearl)" labelZh="灵魂莲华 阿卡丽 朝花" {locale} />
-        <BlogChromaCard chroma={firstPrize} labelEn="Soul Fighter Gwen (Sapphire)" labelZh="斗魂觉醒 格温 狡之魂焰" {locale} />
+        <BlogPrestigeChromaCard chroma={grandPrize} labelEn="Spirit Blossom Akali (Pearl)" labelZh="灵魂莲华 阿卡丽 朝花" {locale} />
+        <BlogPrestigeChromaCard chroma={firstPrize} labelEn="Soul Fighter Gwen (Sapphire)" labelZh="斗魂觉醒 格温 狡之魂焰" {locale} />
       </BlogChromaGrid>
       <p>特等奖池为自选臻彩或至臻皮肤，初始概率 0.5%，主推灵魂莲华 阿卡丽 朝花；一等奖池为自选臻彩，初始概率 1%，主推斗魂觉醒 格温 狡之魂焰。两款都是拥有专属原画的臻彩，不是普通换色炫彩，不了解的话可以先看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
     </section>
@@ -268,7 +268,7 @@ const jsonLd = [
       <p>特等奖来自灵魂莲华系列。朝花是灵魂莲华 阿卡丽皮肤的第三款臻彩：</p>
       <BlogChromaGrid>
         {filterChromas('84', 'Spirit Blossom Akali').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>鸣蜩走暖金路线，春晓是柔和的粉色，朝花是这个皮肤家族里的新成员。</p>
@@ -279,7 +279,7 @@ const jsonLd = [
       <p>一等奖来自斗魂觉醒系列。狡之魂焰与幻之魂焰同属斗魂觉醒 格温皮肤家族：</p>
       <BlogChromaGrid>
         {filterChromas('887', 'Soul Fighter Gwen').map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
     </section>

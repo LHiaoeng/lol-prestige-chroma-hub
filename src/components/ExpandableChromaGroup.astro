@@ -1,5 +1,5 @@
 ---
-import ChromaCard from './ChromaCard.astro';
+import PrestigeChromaCard from './PrestigeChromaCard.astro';
 import type { Chroma } from '../domain/chroma';
 import type { Locale } from '../i18n/config';
 
@@ -17,7 +17,7 @@ const hasOverflow = chromas.length > 6;
 <div class="related-group">
   <div class="section-heading"><h2>{isZh ? titleZh : titleEn}</h2></div>
   <div class:list={['expandable-chroma-grid', hasOverflow && 'has-overflow']} data-expanded="false">
-    {chromas.map((item) => <ChromaCard chroma={item} {locale} />)}
+    {chromas.map((item) => <PrestigeChromaCard chroma={item} {locale} />)}
   </div>
   {hasOverflow && (
     <button

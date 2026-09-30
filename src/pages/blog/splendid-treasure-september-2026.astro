@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
-import BlogChromaCard from '../../components/BlogChromaCard.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
 import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
 import { blogArticles, formatBlogDate } from '../../blog/articles';
 import { catalog } from '../../data/catalog';
@@ -122,7 +122,7 @@ const jsonLd = [
       <h2>One prestige chroma, one skin, and one prestige skin in the exchange shop</h2>
       <p>This round of the <a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>Splendid Treasure Summoning</a> event offers one <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a>, one regular skin, and one prestige skin through the fragment exchange shop. Each open guarantees a skin from the pool, and every 10 opens locks in a random prestige chroma. Fragments earned along the way can be traded for these specific items:</p>
       <BlogChromaGrid>
-        {featuredChroma && <BlogChromaCard chroma={featuredChroma} labelEn="Lunar Goddess Diana (Obsidian) — 1,200 fragments" labelZh="素影霓裳 嫦娥 — 1200 碎片" {locale} />}
+        {featuredChroma && <BlogPrestigeChromaCard chroma={featuredChroma} labelEn="Lunar Goddess Diana (Obsidian) — 1,200 fragments" labelZh="素影霓裳 嫦娥 — 1200 碎片" {locale} />}
       </BlogChromaGrid>
       <p>Lunar Goddess Diana (Obsidian) costs 1,200 fragments. The exchange shop also offers <a href={yiSkinPath}>Cosmic Blade Master Yi</a> (1,000 fragments) and <a href={apheliosSkinPath}>Prestige Spirit Blossom Springs Aphelios</a> (1,000 fragments). The first is a prestige chroma with unique splash art; Cosmic Blade Master Yi is a regular skin, and Prestige Spirit Blossom Springs Aphelios is a prestige skin — a separate tier above regular skins, not a prestige chroma.</p>
     </section>
@@ -133,7 +133,7 @@ const jsonLd = [
       <p>The <a href={dianaSkinPath}>Lunar Goddess Diana</a> skin family currently has 3 prestige chromas:</p>
       <BlogChromaGrid>
         {dianaFamily.map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>The other two are Turquoise (<span style="color:#73BFBE">#73BFBE</span>) and Pearl (<span style="color:#ECF9F8">#ECF9F8</span>). Obsidian is the darkest and most muted of the three.</p>
@@ -209,7 +209,7 @@ const jsonLd = [
       <h2>兑换商店中的一款臻彩、一款皮肤与一款至臻皮肤</h2>
       <p>本期<a href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}>华彩秘宝·召唤</a>通过碎片兑换商店提供一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>、一款普通皮肤和一款至臻皮肤。每次开启保底 1 款未解锁皮肤，每 10 次开启额外保底 1 款随机臻彩。过程中获得的碎片可以换取以下内容：</p>
       <BlogChromaGrid>
-        {featuredChroma && <BlogChromaCard chroma={featuredChroma} labelEn="Lunar Goddess Diana (Obsidian) — 1,200 fragments" labelZh="素影霓裳 嫦娥 — 1200 碎片" {locale} />}
+        {featuredChroma && <BlogPrestigeChromaCard chroma={featuredChroma} labelEn="Lunar Goddess Diana (Obsidian) — 1,200 fragments" labelZh="素影霓裳 嫦娥 — 1200 碎片" {locale} />}
       </BlogChromaGrid>
       <p>素影霓裳 嫦娥需要 1200 碎片。兑换商店还提供<a href={yiSkinPath}>斩星魔剑 易</a>（1000 碎片）和<a href={apheliosSkinPath}>至臻 莲华温泉 厄斐琉斯</a>（1000 碎片）。第一款是有专属原画的臻彩；斩星魔剑 易是普通皮肤，至臻 莲华温泉 厄斐琉斯是至臻皮肤——和普通皮肤是不同的品质层级，不是臻彩。</p>
     </section>
@@ -220,7 +220,7 @@ const jsonLd = [
       <p><a href={dianaSkinPath}>广寒仙子 嫦娥</a>目前拥有 3 款臻彩：</p>
       <BlogChromaGrid>
         {dianaFamily.map((chroma) => (
-          <BlogChromaCard chroma={chroma} {locale} />
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
         ))}
       </BlogChromaGrid>
       <p>另外两款是「玄晖霓裳」（<span style="color:#73BFBE">#73BFBE</span>）和「皓彩霓裳」（<span style="color:#ECF9F8">#ECF9F8</span>）。「素影霓裳」是三款中颜色最深、最内敛的一款。</p>

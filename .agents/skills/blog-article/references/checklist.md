@@ -21,7 +21,7 @@
 
 ## 臻彩展示组件
 
-- [ ] 目录卡片网格使用 `BlogChromaGrid` + `BlogChromaCard`，没有手写重复卡片 HTML
+- [ ] 目录卡片网格使用 `BlogChromaGrid` + `BlogPrestigeChromaCard`，没有手写重复卡片 HTML
 - [ ] 活动专属名称/碎片数通过 `labelEn` 与 `labelZh` 传入，而不是在卡片中复制图片、颜色圆点或链接代码
 - [ ] 目录不存在的奖励没有详情链接，并同时提供双语标签，由共享组件渲染占位卡
 - [ ] 页面没有 `.chroma-grid`、`.chroma-card-*` 的重复 CSS；网格由组件统一处理 `padding: 0` 和移动端列数
