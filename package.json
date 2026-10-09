@@ -21,7 +21,7 @@
     "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
-    "astro": "7.2.10",
+    "astro": "7.3.8",
     "zod": "4.4.3"
   },
   "devDependencies": {
