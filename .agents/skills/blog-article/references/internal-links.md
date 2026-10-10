@@ -54,6 +54,7 @@
 | lucky-gate-petals-of-spring-chromas-202607 | 2 | ✅ 新页面 |
 | patch-26-17-prestige-chromas | 0 | ❌ 新孤岛（应用户要求不修改旧文回链） |
 | prestige-chroma-summon-september-2026 | 2 | ✅ 新页面 |
+| lucky-gate-summon-202620 | 2 | ✅ 新页面 |
 
 ## 待补充内链
 
@@ -157,3 +158,4 @@
 - 2026-09-23: 新增 `splendid-treasure-september-2026`（华彩秘宝·召唤 9 月场资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、splendid-treasure-august-2026（正文，同系列上一期与往期活动板块表格）、patch-26-18-prestige-chromas（正文，素影霓裳 嫦娥首次出处）与 what-are-chroma-skins（正文，炫彩入门）；华彩秘宝与璀璨臻彩召唤是相互独立的活动系列，正文不链向璀璨臻彩召唤系列，且 `adjacentBlogArticles` 对华彩秘宝文章排除璀璨臻彩召唤系列的相邻推荐；从 what-are-prestige-chromas（召唤活动段落与官方来源列表）与 splendid-treasure-august-2026（下一期预告段落）回链本页
 - 2026-09-23: 新增 `patch-26-19-prestige-chromas`（26.19 版本臻彩资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、patch-26-18-prestige-chromas（正文，上一版本）、champion-most-prestige-chromas（正文，排行榜影响）与 lucky-gate-petals-of-spring-chromas-202607（正文，踏雪寻梅往期）；从 patch-26-18-prestige-chromas（画廊段落）与 what-are-prestige-chromas（设计理念段落，中英各一条）回链本页
 - 2026-09-29: 新增 `lucky-gate-summon-october-2026`（幸运之门·召唤第 202619 期资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、lucky-gate-ocean-song-202609（正文，同系列上一期+往期活动列表）、patch-26-18-prestige-chromas（正文，薇恩臻彩出处）、splendid-treasure-september-2026（正文，并行的华彩秘宝活动+其他未过期活动列表）、prestige-chroma-summon-2026-21（正文，并行的璀璨臻彩召唤活动+其他未过期活动列表）、prestige-chroma-summon-september-2026（其他未过期活动列表）、joy-club-peak-gala-202608（其他未过期活动列表）与 full-gift-reward-prestige-chroma-202608（其他未过期活动列表），FAQ 另链 what-are-chroma-skins；从 lucky-gate-ocean-song-202609（活动时间段落）回链本页
+- 2026-10-09: 新增 `lucky-gate-summon-202620`（幸运之门·召唤第 202620 期资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、what-are-chroma-skins（正文+FAQ）、lucky-gate-summon-october-2026（正文+往期活动表格）、lucky-gate-ocean-song-202609（往期活动表格）、patch-26-15-prestige-chromas（正文，拉克丝臻彩出处）、patch-26-18-prestige-chromas（正文，厄运小姐臻彩出处）、splendid-treasure-september-2026、prestige-chroma-summon-2026-21 与 full-gift-reward-prestige-chroma-202608（并行活动段落+其他未过期活动列表）；从 lucky-gate-summon-october-2026（活动时间段落，中英各一条下一期预告）与 what-are-prestige-chromas（召唤活动段落+官方获取来源列表，中英各一条）回链本页

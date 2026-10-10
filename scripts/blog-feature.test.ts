@@ -27,6 +27,8 @@ describe('blog feature contract', () => {
       'src/pages/blog/lucky-gate-petals-of-spring-chromas-202607.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
       'src/pages/blog/lucky-gate-ocean-song-202609.astro',
+      'src/pages/blog/lucky-gate-summon-october-2026.astro',
+      'src/pages/blog/lucky-gate-summon-202620.astro',
       'src/pages/blog/patch-26-15-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
@@ -50,6 +52,7 @@ describe('blog feature contract', () => {
   it('links every verified official prestige chroma source in both languages', () => {
     const page = source('src/pages/blog/what-are-prestige-chromas.astro');
     const officialUrls = [
+      'https://lol.qq.com/act/a202610094865prizewheel/index.html?e_code=500132',
       'https://lol.qq.com/act/a202609233754lustertreasure/index.html',
       'https://lol.qq.com/act/a202609170214tendraws36/index.html',
       'https://lol.qq.com/act/a202608077548tendraws34/index.html',
@@ -63,11 +66,12 @@ describe('blog feature contract', () => {
       'https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898',
     ];
     for (const url of officialUrls) expect(page.split(url)).toHaveLength(3);
-    expect(page.match(/class="official-source-link"/g)).toHaveLength(22);
-    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(22);
+    expect(page.match(/class="official-source-link"/g)).toHaveLength(24);
+    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(24);
     for (const label of [
       'Official acquisition sources',
       'Official cultural sources',
+      'Lucky Gate — October 9, 2026',
       'Splendid Treasure Summoning — September 2026',
       'Brilliant Prestige Summoning — Session 202621',
       'Brilliant Prestige Summoning — August 2026',
@@ -81,6 +85,7 @@ describe('blog feature contract', () => {
       'Panda Lux Prestige Chroma charity project',
       '官方获取来源',
       '官方文化来源',
+      '幸运之门 — 2026 年 10 月 9 日',
       '华彩秘宝·召唤 — 2026 年 9 月场',
       '璀璨臻彩召唤 — 第 202621 期',
       '璀璨臻彩召唤 — 2026 年 8 月',
@@ -143,6 +148,8 @@ describe('blog feature contract', () => {
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
       'src/pages/blog/lucky-gate-ocean-song-202609.astro',
+      'src/pages/blog/lucky-gate-summon-october-2026.astro',
+      'src/pages/blog/lucky-gate-summon-202620.astro',
       'src/pages/blog/heartsong-seraphine-prestige-chromas-202608.astro',
     ]) {
       const page = source(pagePath);
@@ -622,12 +629,10 @@ describe('blog feature contract', () => {
     expect(page.match(/<details>/g)).toHaveLength(1);
     expect(page).toContain('faqEntries.map');
     for (const heading of [
-      'Four Petals of Spring entries: three recolours and one new champion',
-      'Jayce joins the line-up; three champions get a second colourway',
+      'Four new Petals of Spring colourways',
       'Panda Pal Lux: two Diamond prestige chromas at once',
       'Patch 26.19 prestige chroma gallery',
-      '踏雪寻梅系列四款：三款新配色加一位新英雄',
-      '杰斯首次入列，亚索等三款补第二配色',
+      '踏雪寻梅系列四款新配色',
       '熊猫娃娃拉克丝：两款钻石臻彩同台',
       '26.19 臻彩原画一览',
     ]) expect(page).toContain(heading);
@@ -816,6 +821,67 @@ describe('blog feature contract', () => {
       '三款海之歌臻彩，外加一款神话皮肤',
       '幸运之门玩法：自选奖池与门票轮次',
       '持续至 10 月 11 日，与 9 月璀璨召唤并行',
+    ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete localized Lucky Gate Session 202620 article', () => {
+    const page = source('src/pages/blog/lucky-gate-summon-202620.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/lucky-gate-summon-october-2026/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/lucky-gate-ocean-song-202609/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/splendid-treasure-september-2026/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-2026-21/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/full-gift-reward-prestige-chroma-202608/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=10333356014946692462');
+    expect(page).toContain('https://lol.qq.com/act/a202610094865prizewheel/index.html?e_code=500132');
+    expect(page).toContain('mythic-tier skin');
+    expect(page).toContain('神话品质');
+    expect(page).toContain('<style is:global>');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
+    expect(page).toContain('<BlogChromaGrid columns={3}>');
+    expect(page).not.toContain('imageUrl(chroma.images.medium)');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page).not.toContain('labelEn=');
+    expect(page).not.toContain('labelZh=');
+    expect(page).toContain("heroId === '39'");
+    expect(page).toContain("heroId === '99'");
+    expect(page).toContain("heroId === '21'");
+    expect(page).toContain("'Breadsticks Irelia'");
+    expect(page).toContain("'Porcelain Lux'");
+    expect(page).toContain("'Ruined Miss Fortune'");
+    expect(page).toContain('?id=245056&champion=245');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/<figure>/g)).toHaveLength(2);
+    expect(page).toContain('article.coverUrl');
+    for (const heading of [
+      'Three prestige chromas and one mythic skin',
+      'How the Lucky Gate wheel works',
+      'Open October 9 through November 5, alongside two other summon events',
+      'Previous Lucky Gate sessions still open',
+      'Other active prestige chroma events',
+      '三款臻彩，外加一款神话皮肤',
+      '幸运之门玩法：自选奖池与门票轮次',
+      '10 月 9 日至 11 月 5 日，与两场并行召唤活动同期',
+      '仍在开放中的往期幸运之门活动',
+      '其他未过期臻彩获取活动',
     ]) expect(page).toContain(heading);
   });
 

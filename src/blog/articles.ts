@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'lucky-gate-summon-202620',
+    href: '/blog/lucky-gate-summon-202620/',
+    titleEn: 'Lucky Gate Summoning — Session 202620',
+    titleZh: '幸运之门·召唤 — 第 202620 期',
+    summaryEn: 'The Lucky Gate summoning event (Session 202620) runs October 9 – November 5, 2026 on the Chinese server, with a 3 RMB first summon. The brand-new Breadsticks Irelia (Emerald) prestige chroma debuts alongside Porcelain Lux (Rose Quartz) and Ruined Miss Fortune (Ruby), plus the mythic Breakout True Damage Ekko skin.',
+    summaryZh: '2026 年 10 月 9 日至 11 月 5 日，幸运之门·召唤活动（第 202620 期）限时上线，首次召唤 3 元。全新利刃充饥面包师傅 艾瑞莉娅 飞舞吧，香橙面包臻彩首次登场，青花瓷 拉克丝 含苞与破败军团 厄运小姐 帝国征伐使同步开放，另含神话皮肤真实伤害 突破界限 艾克。',
+    publishedAt: '2026-10-09',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/3d420409-62e4-494d-bee0-7a48abe98a34/site3.jpg',
+    coverAltEn: 'Porcelain Lux (Rose Quartz) prestige chroma splash art — Lucky Gate Summoning Session 202620',
+    coverAltZh: '青花瓷 拉克丝 含苞臻彩原画 — 幸运之门·召唤第 202620 期',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=10333356014946692462',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'lucky-gate-summon-october-2026',
     href: '/blog/lucky-gate-summon-october-2026/',
     titleEn: 'Lucky Gate Summoning — Session 202619',

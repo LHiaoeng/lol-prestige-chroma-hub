@@ -137,6 +137,22 @@ describe("static site build", () => {
     ).toBe(true);
     expect(
       existsSync(
+        join(dist, "blog", "lucky-gate-summon-202620", "index.html"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dist,
+          "zh-cn",
+          "blog",
+          "lucky-gate-summon-202620",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
         join(dist, "blog", "lucky-gate-summon-october-2026", "index.html"),
       ),
     ).toBe(true);
@@ -813,9 +829,12 @@ describe("static site build", () => {
     expect(home).toContain(`Blog <span class="heading-count"`);
     expect(home).toContain(`>(${blogArticles.length} articles)</span>`);
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain('href="/blog/lucky-gate-summon-202620/"');
     expect(home).toContain('href="/blog/lucky-gate-summon-october-2026/"');
     expect(home).toContain('href="/blog/patch-26-19-prestige-chromas/"');
-    expect(home).toContain('href="/blog/splendid-treasure-september-2026/"');
+    expect(home).not.toContain(
+      'href="/blog/splendid-treasure-september-2026/"',
+    );
     expect(home).not.toContain(
       'href="/blog/prestige-chroma-summon-2026-21/"',
     );
@@ -840,12 +859,15 @@ describe("static site build", () => {
     expect(chineseHome).toContain(`>（共 ${blogArticles.length} 篇）</span>`);
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
     expect(chineseHome).toContain(
+      'href="/zh-cn/blog/lucky-gate-summon-202620/"',
+    );
+    expect(chineseHome).toContain(
       'href="/zh-cn/blog/lucky-gate-summon-october-2026/"',
     );
     expect(chineseHome).toContain(
       'href="/zh-cn/blog/patch-26-19-prestige-chromas/"',
     );
-    expect(chineseHome).toContain(
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/splendid-treasure-september-2026/"',
     );
     expect(chineseHome).not.toContain(
@@ -931,7 +953,14 @@ describe("static site build", () => {
       '<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/">',
     );
     expect(chineseBlog).toContain("峡谷内外的故事");
-    expect(chineseBlog).toContain(
+    expect(chineseBlog).not.toContain(
+      'href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"',
+    );
+    const chineseBlogPageTwo = readFileSync(
+      join(dist, "zh-cn", "blog", "page", "2", "index.html"),
+      "utf8",
+    );
+    expect(chineseBlogPageTwo).toContain(
       'href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"',
     );
     expect(chineseArticle).toContain('<html lang="zh-CN"');
