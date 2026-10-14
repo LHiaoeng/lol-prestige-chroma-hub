@@ -6,6 +6,7 @@ import HomeChromaCatalog from '../components/HomeChromaCatalog.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
+import { selectFeaturedChroma } from '../domain/featured-chroma';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import { HOME_SEO, SITE } from '../seo/site';
 
@@ -17,8 +18,7 @@ const description = isZh
   ? '浏览英雄联盟国服臻彩原画，查找 PBE 新增、英雄、皮肤系列和皮肤宇宙资料。中国服专属指原画，不代表炫彩仅限国服。'
   : HOME_SEO.description;
 const canonical = new URL(localizedPath(locale, '/'), SITE.origin).toString();
-const backgroundChroma = catalog.find((item) => item.rank === 1);
-if (!backgroundChroma) throw new Error('The homepage background requires a rank-one chroma');
+const backgroundChroma = selectFeaturedChroma(catalog);
 const jsonLd = isZh ? [
   { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: canonical, inLanguage: 'zh-CN' },
   { '@context': 'https://schema.org', '@type': 'CollectionPage', name: '英雄联盟臻彩原画与游戏资料', description, url: canonical, inLanguage: 'zh-CN' },
@@ -28,14 +28,12 @@ const jsonLd = isZh ? [
 <BaseLayout {title} {description} {canonical} {jsonLd} {locale} adPlacement="catalog-index">
   <div class="home-page" data-backdrop-scope>
     <div class="home-backdrop">
-      <ResponsiveHeroBackdrop
+      {backgroundChroma && <ResponsiveHeroBackdrop
         largeSrc={imageUrl(backgroundChroma.images.large)}
         mediumSrc={imageUrl(backgroundChroma.images.medium)}
         largeFallback={sourceImageUrl('large', backgroundChroma.instanceId)}
         mediumFallback={sourceImageUrl('medium', backgroundChroma.instanceId)}
-        opacity={.7}
-        mobileOpacity={.85}
-      />
+      />}
     </div>
     <div class="home-content">
       <h1 class="sr-only">{isZh ? '英雄联盟臻彩原画与游戏资料' : 'League of Legends prestige chroma splash arts and game references'}</h1>
