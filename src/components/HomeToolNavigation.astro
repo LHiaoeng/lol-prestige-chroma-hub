@@ -1,0 +1,45 @@
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
+
+interface Props {
+  locale?: Locale;
+}
+
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const links = [
+  { href: '/', label: isZh ? '臻彩原画' : 'Prestige chromas', current: true },
+  { href: '/pbe-additions/', label: isZh ? 'PBE 新增' : 'PBE additions' },
+  { href: '/champions/', label: isZh ? '英雄' : 'Champions' },
+  { href: '/skinlines/', label: isZh ? '皮肤系列' : 'Skinlines' },
+  { href: '/universes/', label: isZh ? '皮肤宇宙' : 'Universes' },
+];
+---
+
+<nav class="home-tool-navigation" aria-label={isZh ? '游戏资料导航' : 'Game reference navigation'}>
+  <ul>
+    {links.map((link) => (
+      <li>
+        <a href={localizedPath(locale, link.href)} aria-current={link.current ? 'page' : undefined}>{link.label}</a>
+        {link.current && (
+          <a class="help-link" href={localizedPath(locale, '/blog/what-are-prestige-chromas/')} aria-label={isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}>?</a>
+        )}
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; }
+  .home-tool-navigation ul { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .home-tool-navigation li { display: flex; min-width: 0; align-items: center; gap: 2px; }
+  .home-tool-navigation a { display: inline-flex; min-height: var(--touch-target); align-items: center; justify-content: center; padding: 0 var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: color var(--motion-fast) ease, border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+  .home-tool-navigation a:hover { border-color: var(--gold); color: var(--gold-hover); }
+  .home-tool-navigation a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .home-tool-navigation a[aria-current="page"] { border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
+  .home-tool-navigation .help-link { width: var(--touch-target); flex: none; padding: 0; border-color: transparent; color: var(--gold); font-size: var(--font-size-title); font-weight: 600; }
+  @media (max-width: 767px) {
+    .home-tool-navigation ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+    .home-tool-navigation li > a:first-child { min-width: 0; flex: 1; padding-inline: var(--space-1); }
+  }
+  @media (prefers-reduced-motion: reduce) { .home-tool-navigation a { transition: none; } }
+</style>
