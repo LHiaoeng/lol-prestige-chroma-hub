@@ -4,7 +4,7 @@ import Filters from './Filters.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
 import { safeJsonLd } from '../domain/chroma';
-import { resolveLocale, type Locale } from '../i18n/config';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
