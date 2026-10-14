@@ -111,9 +111,11 @@ describe('responsive layout contract', () => {
   it('uses a compact homepage catalog instead of a full-screen hero', () => {
     const home = source('src/pages/index.astro');
     const catalog = source('src/components/HomeChromaCatalog.astro');
+    const latest = source('src/components/HomeLatestBlog.astro');
     expect(home).not.toContain('ResponsiveHeroBackdrop');
     expect(home).toContain('<HomeChromaCatalog {locale} />');
     expect(catalog).toContain('repeat(auto-fill, minmax(180px, 1fr))');
     expect(catalog).toContain('grid-template-columns: 96px minmax(0, 1fr)');
+    expect(latest).not.toContain('-webkit-line-clamp');
   });
 });
