@@ -1,0 +1,239 @@
+---
+export interface CardTab {
+  key: string;
+  label?: string;
+  tab?: string;
+  href?: string;
+}
+
+interface Props {
+  id?: string;
+  className?: string;
+  title?: string;
+  extra?: string;
+  size?: 'small' | 'medium' | 'middle' | 'default';
+  variant?: 'outlined' | 'borderless';
+  bordered?: boolean;
+  type?: 'inner';
+  loading?: boolean;
+  hoverable?: boolean;
+  tabList?: CardTab[];
+  activeTabKey?: string;
+  defaultActiveTabKey?: string;
+  tabsLabel?: string;
+  tabBarExtraContent?: string;
+  actions?: string[];
+  loadingLabel?: string;
+}
+
+let cardSequence = 0;
+const {
+  id,
+  className = '',
+  title,
+  extra,
+  size = 'medium',
+  variant,
+  bordered,
+  type,
+  loading = false,
+  hoverable = false,
+  tabList = [],
+  activeTabKey,
+  defaultActiveTabKey,
+  tabsLabel = 'Card tabs',
+  tabBarExtraContent,
+  actions = [],
+  loadingLabel = 'Loading',
+} = Astro.props;
+const cardVariant = variant ?? (bordered === false ? 'borderless' : 'outlined');
+const cardSize = size === 'small' ? 'small' : 'medium';
+const cardId = `card-${cardSequence++}${id ? `-${encodeURIComponent(id)}` : ''}`;
+const navigationTabs = tabList.length > 0 && tabList.every((tab) => Boolean(tab.href));
+const requestedTabKey = activeTabKey ?? defaultActiveTabKey;
+const initialTabKey = tabList.some((tab) => tab.key === requestedTabKey)
+  ? requestedTabKey
+  : tabList[0]?.key;
+const hasHeader = Boolean(title || extra || tabList.length || Astro.slots.has('title') || Astro.slots.has('extra'));
+const hasActions = actions.length > 0 || Astro.slots.has('actions');
+const tabId = (key: string) => encodeURIComponent(key);
+---
+
+<section
+  id={id}
+  class:list={[
+    'card',
+    `card--${cardSize}`,
+    `card--${cardVariant}`,
+    { 'card--hoverable': hoverable, 'card--inner': type === 'inner', 'card--loading': loading },
+    className,
+  ]}
+  aria-busy={loading ? 'true' : undefined}
+  data-card-tabs={!navigationTabs && tabList.length ? cardId : undefined}
+>
+  {hasHeader && (
+    <header class="card__header">
+      {(title || extra || Astro.slots.has('title') || Astro.slots.has('extra')) && (
+        <div class="card__heading">
+          <div class="card__title">
+            {Astro.slots.has('title') ? <slot name="title" /> : title}
+          </div>
+          {(extra || Astro.slots.has('extra')) && (
+            <div class="card__extra">
+              {Astro.slots.has('extra') ? <slot name="extra" /> : extra}
+            </div>
+          )}
+        </div>
+      )}
+      {tabList.length > 0 && (navigationTabs || !loading) && (
+        navigationTabs ? (
+          <div class="card__tabbar">
+            <nav class="card__tabs" aria-label={tabsLabel}>
+              {tabList.map((tab) => (
+                <a class="card__tab" href={tab.href} aria-current={tab.key === initialTabKey ? 'page' : undefined}>
+                  {tab.label ?? tab.tab ?? tab.key}
+                </a>
+              ))}
+            </nav>
+            {(tabBarExtraContent || Astro.slots.has('tabBarExtraContent')) && (
+              <span class="card__tab-extra">
+                {Astro.slots.has('tabBarExtraContent') ? <slot name="tabBarExtraContent" /> : tabBarExtraContent}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div class="card__tabbar">
+            <div class="card__tabs" role="tablist" aria-label={tabsLabel}>
+              {tabList.map((tab) => {
+                const selected = tab.key === initialTabKey;
+                const safeKey = tabId(tab.key);
+                return (
+                  <button
+                    class="card__tab"
+                    id={`${cardId}-tab-${safeKey}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected ? 'true' : 'false'}
+                    aria-controls={`${cardId}-panel-${safeKey}`}
+                    tabindex={selected ? 0 : -1}
+                    data-card-tab={tab.key}
+                  >
+                    {tab.label ?? tab.tab ?? tab.key}
+                  </button>
+                );
+              })}
+            </div>
+            {(tabBarExtraContent || Astro.slots.has('tabBarExtraContent')) && (
+              <span class="card__tab-extra">
+                {Astro.slots.has('tabBarExtraContent') ? <slot name="tabBarExtraContent" /> : tabBarExtraContent}
+              </span>
+            )}
+          </div>
+        )
+      )}
+    </header>
+  )}
+  {Astro.slots.has('cover') && <div class="card__cover"><slot name="cover" /></div>}
+  {loading ? (
+    <div class="card__body card__skeleton" role="status" aria-label={loadingLabel}>
+      <span></span><span></span><span></span>
+    </div>
+  ) : navigationTabs || !tabList.length ? (
+    Astro.slots.has('default') && <div class="card__body"><slot /></div>
+  ) : (
+    <div class="card__panels">
+      {tabList.map((tab) => {
+        const safeKey = tabId(tab.key);
+        return (
+        <div
+          id={`${cardId}-panel-${safeKey}`}
+          class="card__body card__panel"
+          role="tabpanel"
+          tabindex="0"
+          aria-labelledby={`${cardId}-tab-${safeKey}`}
+          hidden={tab.key !== initialTabKey}
+        >
+          <slot name={`tab-${tab.key}`} />
+        </div>
+        );
+      })}
+    </div>
+  )}
+  {hasActions && (
+    <footer class="card__actions">
+      {Astro.slots.has('actions') ? <slot name="actions" /> : actions.map((action) => <span>{action}</span>)}
+    </footer>
+  )}
+</section>
+
+<script>
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const tab = event.target.closest<HTMLButtonElement>('[data-card-tab]');
+    const root = tab?.closest<HTMLElement>('[data-card-tabs]');
+    if (!tab || !root) return;
+    root.dispatchEvent(new CustomEvent('card-tab-change', { bubbles: true, detail: { key: tab.dataset.cardTab } }));
+
+    root.querySelectorAll<HTMLButtonElement>('[data-card-tab]').forEach((button) => {
+      const selected = button === tab;
+      button.setAttribute('aria-selected', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    root.querySelectorAll<HTMLElement>('[role="tabpanel"]').forEach((panel) => {
+      panel.hidden = panel.id !== tab.getAttribute('aria-controls');
+    });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!(event.target instanceof HTMLButtonElement) || !event.target.matches('[data-card-tab]')) return;
+    const root = event.target.closest<HTMLElement>('[data-card-tabs]');
+    if (!root) return;
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-card-tab]'));
+    const currentIndex = tabs.indexOf(event.target);
+    const nextIndex = event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
+      : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
+        : event.key === 'Home' ? 0
+          : event.key === 'End' ? tabs.length - 1
+            : -1;
+    if (nextIndex < 0) return;
+    event.preventDefault();
+    tabs[nextIndex]?.focus();
+    tabs[nextIndex]?.click();
+  });
+</script>
+
+<style>
+  .card { overflow: hidden; border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); color: var(--text); }
+  .card--borderless { border-color: transparent; }
+  .card--inner { background: var(--fill); }
+  .card--hoverable { transition: transform var(--motion-mid) ease, box-shadow var(--motion-mid) ease; }
+  .card--hoverable:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .card__header { border-bottom: 1px solid var(--line-subtle); }
+  .card__heading { display: flex; min-height: 56px; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-4); }
+  .card__title { min-width: 0; color: var(--text); font-size: var(--font-size-title); font-weight: 600; line-height: var(--line-height-title); }
+  .card__extra { flex: none; color: var(--muted); }
+  .card__tabbar { display: flex; min-width: 0; align-items: stretch; padding-inline: var(--space-4); }
+  .card__tabs { display: flex; min-width: 0; flex: 1; align-items: stretch; gap: var(--space-4); overflow-x: auto; scrollbar-width: thin; }
+  .card__tab { position: relative; display: inline-flex; min-height: var(--touch-target); flex: none; align-items: center; justify-content: center; padding: 0 2px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: var(--font-size-title); line-height: var(--line-height-title); text-decoration: none; white-space: nowrap; cursor: pointer; transition: color var(--motion-fast) ease; }
+  .card__tab::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: transparent; content: ''; }
+  .card__tab:hover, .card__tab[aria-current="page"], .card__tab[aria-selected="true"] { color: var(--gold); }
+  .card__tab[aria-current="page"]::after, .card__tab[aria-selected="true"]::after { background: var(--gold); }
+  .card__tab:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .card__tab-extra { display: inline-flex; min-height: var(--touch-target); flex: none; align-items: center; margin-inline-start: auto; color: var(--muted); }
+  .card__cover :global(img) { display: block; width: 100%; }
+  .card__body { padding: var(--space-4); }
+  .card--small .card__heading { min-height: 48px; padding-inline: var(--space-3); }
+  .card--small .card__body { padding: var(--space-3); }
+  .card--small .card__tabbar { padding-inline: var(--space-3); }
+  .card--small .card__tab { font-size: var(--font-size-body); line-height: var(--line-height-body); }
+  .card__actions { display: flex; align-items: center; justify-content: center; border-top: 1px solid var(--line-subtle); }
+  .card__actions > :global(*) { flex: 1; padding: var(--space-2); text-align: center; }
+  .card__skeleton { display: grid; gap: var(--space-3); }
+  .card__skeleton span { height: 14px; border-radius: var(--radius-control); background: var(--fill); animation: card-loading 1.4s ease-in-out infinite; }
+  .card__skeleton span:nth-child(2) { width: 82%; }
+  .card__skeleton span:nth-child(3) { width: 64%; }
+  .card--loading { pointer-events: none; }
+  @keyframes card-loading { 50% { opacity: .45; } }
+  @media (max-width: 767px) { .card__heading, .card__body { padding-inline: var(--space-3); } }
+  @media (prefers-reduced-motion: reduce) { .card--hoverable, .card__tab { transition: none; } .card__skeleton span { animation: none; } }
+</style>

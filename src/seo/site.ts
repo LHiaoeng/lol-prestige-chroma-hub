@@ -10,9 +10,11 @@ export const CHINA_EXCLUSIVE_DEFINITION = {
   zh: '“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。',
 } as const;
 
+const homeDescription = 'Browse China-server prestige chroma splash arts and League of Legends PBE additions, champions, skinlines, and universes. Artwork exclusivity does not imply chroma exclusivity.';
+
 export const HOME_SEO = {
-  title: `LoL China-Exclusive Chroma Splash Arts & Game References | ${SITE.name}`,
-  description: 'Browse China-server prestige chroma splash arts, PBE additions, champions, skinlines, and universes. Artwork exclusivity does not imply chroma exclusivity.',
+  title: `LoL Prestige Chromas & PBE Additions | ${SITE.name}`,
+  description: homeDescription,
   canonical: `${SITE.origin}/`,
   jsonLd: [
     {
@@ -27,8 +29,8 @@ export const HOME_SEO = {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       '@id': `${SITE.origin}/#collection`,
-      name: 'League of Legends China-Exclusive Chroma Splash Arts and Game References',
-      description: 'Browse China-server prestige chroma splash arts, PBE additions, champions, skinlines, and universes. Artwork exclusivity does not imply chroma exclusivity.',
+      name: 'League of Legends Prestige Chroma Art and PBE Additions',
+      description: homeDescription,
       url: `${SITE.origin}/`,
       isPartOf: { '@id': `${SITE.origin}/#website` },
     },

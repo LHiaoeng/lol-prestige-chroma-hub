@@ -20,13 +20,16 @@
   --line-subtle: #303030;
   --success: #49aa19;
   --success-bg: #162312;
+  --success-border: #274916;
   --warning: #d89614;
   --warning-bg: #2b2111;
+  --warning-border: #594214;
   --danger: #dc4446;
   --danger-bg: #2c1618;
   --danger-border: #5b2526;
   --info: #1668dc;
   --info-bg: #111a2c;
+  --info-border: #15325b;
   --spotlight: #424242;
   --on-spotlight: #ffffff;
   --mask: rgba(0, 0, 0, .45);

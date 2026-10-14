@@ -5,10 +5,10 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('responsive layout contract', () => {
-  it('keeps homepage filters expanded on desktop and mobile', () => {
+  it('keeps homepage filters visible on desktop and collapsible on mobile', () => {
     const filters = source('src/components/Filters.astro');
     expect(filters).toContain('<details class="filter-disclosure" open>');
-    expect(filters).not.toContain("toggleAttribute('open', desktop.matches)");
+    expect(filters).toContain("toggleAttribute('open', desktop.matches)");
     expect(filters).not.toContain('filter-shortcuts');
     for (const name of ['q', 'hero', 'version', 'category', 'isNew', 'sort']) {
       expect(filters).toContain(`name="${name}"`);
@@ -108,11 +108,13 @@ describe('responsive layout contract', () => {
     expect(detail).not.toContain('.detail-background{height:540px}');
   });
 
-  it('uses a compact homepage catalog instead of a full-screen hero', () => {
+  it('keeps the homepage catalog directly rendered over the fixed backdrop', () => {
     const home = source('src/pages/index.astro');
     const catalog = source('src/components/HomeChromaCatalog.astro');
     const latest = source('src/components/HomeLatestBlog.astro');
-    expect(home).not.toContain('ResponsiveHeroBackdrop');
+    expect(home).toContain('<div class="home-backdrop">');
+    expect(home).toContain('<ResponsiveHeroBackdrop');
+    expect(home).not.toContain('class="hero-section"');
     expect(home).toContain('<HomeChromaCatalog {locale} />');
     expect(catalog).toContain('repeat(auto-fill, minmax(180px, 1fr))');
     expect(catalog).toContain('grid-template-columns: 96px minmax(0, 1fr)');

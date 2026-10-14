@@ -477,7 +477,9 @@ describe("static site build", () => {
       ['zh-cn', ['臻彩原画', 'PBE 新增', '英雄', '皮肤系列', '皮肤宇宙']],
     ] as const) {
       const home = readFileSync(join(dist, prefix, 'index.html'), 'utf8');
-      const nav = home.slice(home.indexOf('<nav class="home-tool-navigation"'), home.indexOf('</nav>', home.indexOf('<nav class="home-tool-navigation"')));
+      const navStart = home.indexOf('<nav class="card__tabs"');
+      expect(navStart).toBeGreaterThanOrEqual(0);
+      const nav = home.slice(navStart, home.indexOf('</nav>', navStart));
       const route = (path: string) => `/${prefix ? `${prefix}/` : ''}${path}`;
       const hrefs = ['/', '/pbe-additions/', '/champions/', '/skinlines/', '/universes/']
         .map((path) => route(path.slice(1)));
@@ -489,11 +491,24 @@ describe("static site build", () => {
         previous = position;
       }
       expect(nav).toContain('aria-current="page"');
+      expect(home).toMatch(
+        new RegExp(`<h2 id="home-tools-title"[^>]*>${prefix ? '英雄联盟' : 'League of Legends'}</h2>`),
+      );
+      expect(home).not.toContain('class="card__title"');
       expect(nav).not.toContain('help-link');
-      const titleStart = home.indexOf('id="catalog-title"');
-      const catalogTitle = home.slice(titleStart, home.indexOf('</div></div>', titleStart));
-      expect(catalogTitle).toContain(`aria-label="${prefix ? '什么是臻彩？' : 'What are Prestige Chromas?'}"`);
-      expect(catalogTitle).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
+      expect(home).toContain('id="catalog-title"');
+      expect(home).toContain(
+        prefix
+          ? '什么是臻彩？'
+          : 'What are Prestige Chromas?',
+      );
+      expect(home).toContain(
+        prefix
+          ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。'
+          : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.',
+      );
+      expect(home).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
+      expect(home).toContain(`aria-label="${prefix ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'}"`);
       const list = home.slice(home.indexOf('data-chroma-list'), home.indexOf('<template data-chroma-card-template'));
       expect(list.match(/class="chroma-card"/g)).toHaveLength(Math.min(catalog.length, 24));
       expect(home).toContain('<details class="filter-disclosure" open>');

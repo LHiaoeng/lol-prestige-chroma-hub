@@ -13,19 +13,20 @@ import { HOME_SEO, SITE } from '../seo/site';
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const title = isZh ? '英雄联盟臻彩原画与游戏资料 | LoL Chroma Art' : HOME_SEO.title;
+const title = isZh ? '英雄联盟臻彩原画与 PBE 新增 | LoL Chroma Art' : HOME_SEO.title;
 const description = isZh
-  ? '浏览英雄联盟国服臻彩原画，查找 PBE 新增、英雄、皮肤系列和皮肤宇宙资料。中国服专属指原画，不代表炫彩仅限国服。'
+  ? '浏览英雄联盟中国大陆服臻彩原画及 PBE 新增、英雄、皮肤系列与皮肤宇宙资料。中国大陆服特有的是臻彩原画，不代表臻彩仅限国服。'
   : HOME_SEO.description;
 const canonical = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const backgroundChroma = selectFeaturedChroma(catalog);
+const socialImage = backgroundChroma ? imageUrl(backgroundChroma.images.large) : SITE.defaultImage;
 const jsonLd = isZh ? [
   { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: canonical, inLanguage: 'zh-CN' },
-  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: '英雄联盟臻彩原画与游戏资料', description, url: canonical, inLanguage: 'zh-CN' },
+  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: '英雄联盟臻彩原画与 PBE 新增', description, url: canonical, inLanguage: 'zh-CN' },
 ] : HOME_SEO.jsonLd;
 ---
 
-<BaseLayout {title} {description} {canonical} {jsonLd} {locale} adPlacement="catalog-index">
+<BaseLayout {title} {description} {canonical} image={socialImage} {jsonLd} {locale} adPlacement="catalog-index">
   <div class="home-page" data-backdrop-scope>
     <div class="home-backdrop">
       {backgroundChroma && <ResponsiveHeroBackdrop
@@ -36,10 +37,11 @@ const jsonLd = isZh ? [
       />}
     </div>
     <div class="home-content">
-      <h1 class="sr-only">{isZh ? '英雄联盟臻彩原画与游戏资料' : 'League of Legends prestige chroma splash arts and game references'}</h1>
+      <h1 class="sr-only">{isZh ? '英雄联盟臻彩原画与 PBE 新增' : 'League of Legends prestige chroma art and PBE additions'}</h1>
       <HomeLatestBlog {locale} />
-      <HomeToolNavigation {locale} />
-      <HomeChromaCatalog {locale} />
+      <HomeToolNavigation {locale}>
+        <HomeChromaCatalog {locale} />
+      </HomeToolNavigation>
     </div>
   </div>
 </BaseLayout>

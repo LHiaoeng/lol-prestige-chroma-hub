@@ -21,13 +21,15 @@
 
 | 页面模式 | 当前入口 | 重点状态 |
 | --- | --- | --- |
-| 首页博客、导航与图鉴 | [首页](../src/pages/index.astro)、[HomeLatestBlog](../src/components/HomeLatestBlog.astro)、[HomeToolNavigation](../src/components/HomeToolNavigation.astro)、[HomeChromaCatalog](../src/components/HomeChromaCatalog.astro) | 双语链接、手机两行导航、直接展开的筛选、空结果、错误、焦点；静态首批与动态重绘一致 |
+| 首页博客、导航与图鉴 | [首页](../src/pages/index.astro)、[HomeLatestBlog](../src/components/HomeLatestBlog.astro)、[HomeToolNavigation](../src/components/HomeToolNavigation.astro)、[Card](../src/components/Card.astro)、[Menu](../src/components/Menu.astro)、[Alert](../src/components/Alert.astro)、[HomeChromaCatalog](../src/components/HomeChromaCatalog.astro) | “博客”和“英雄联盟”分层标题；无卡片标题的双语页签链接包住目录；目录 Alert 简述臻彩并以带无障碍名称的外链图标链接双语指南；手机博客标题与更多并排、文章卡片横向滚动、手机筛选默认收起、桌面筛选展开、两行直显导航、空结果、错误；静态首批与动态重绘一致 |
 | 臻彩详情与预览 | [详情页](../src/pages/chromas/[slug].astro)、[ImageViewer](../src/components/ImageViewer.astro)、[DetailActionMenu](../src/components/DetailActionMenu.astro) | 缺失字段、图片回退、菜单开合、键盘和触控 |
 | 运行时资料 | [RuntimeReferenceRoot](../src/components/RuntimeReferenceRoot.astro)、[chroma-card](../src/components/chroma-card/) | 加载、缺失、失败、重试、数据通道 |
 | 博客列表与长文 | [BlogIndexView](../src/components/BlogIndexView.astro)、[article.css](../src/styles/article.css) | 分页、双语长标题、窄屏图文、来源信息 |
 | 说明与错误页 | [About](../src/pages/about.astro)、[404](../src/pages/404.astro) | 可读性、返回入口、无脚本内容 |
 
-新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
+新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。Card 的 `size` 使用 `small` 与 `medium` 两档控制密度和页签字号，`default`/`middle` 兼容映射到 `medium`；页签命中区仍至少 44px。Card 页签支持页面链接与面板切换两种模式；本地面板初始页签由 `activeTabKey` 或 `defaultActiveTabKey` 指定，随后用方向键、Home/End 键切换，并触发 `card-tab-change` 事件；页面链接保留原生导航语义。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
+
+需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。
 
 ## 3. 代码层强制约束
 

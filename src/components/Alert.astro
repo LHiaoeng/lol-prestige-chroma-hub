@@ -1,0 +1,89 @@
+---
+interface Props {
+  id?: string;
+  type?: 'success' | 'info' | 'warning' | 'error';
+  title?: string;
+  message?: string;
+  description?: string;
+  showIcon?: boolean;
+  closable?: boolean;
+  closeLabel?: string;
+  banner?: boolean;
+  role?: 'alert' | 'note';
+}
+
+const {
+  id,
+  banner = false,
+  type = banner ? 'warning' : 'info',
+  title,
+  message,
+  description,
+  showIcon = banner,
+  closable = false,
+  closeLabel = 'Close alert',
+  role = 'alert',
+} = Astro.props;
+const alertTitle = title ?? message;
+---
+
+<div id={id} class:list={['alert', `alert--${type}`, { 'alert--banner': banner }]} role={role} data-alert>
+  {showIcon && (
+    <span class="alert__icon" aria-hidden="true">
+      <slot name="icon">
+        {type === 'success' ? (
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" /><path d="m4.7 8.1 2.1 2.1 4.5-4.6" /></svg>
+        ) : type === 'warning' ? (
+          <svg viewBox="0 0 16 16" fill="none"><path d="M7.1 2.1a1 1 0 0 1 1.8 0l6 10.4a1 1 0 0 1-.9 1.5H2a1 1 0 0 1-.9-1.5l6-10.4Z" /><path d="M8 5.4v3.8m0 2.2v.1" /></svg>
+        ) : type === 'error' ? (
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" /><path d="m5.7 5.7 4.6 4.6m0-4.6-4.6 4.6" /></svg>
+        ) : (
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" /><path d="M8 7.1v3.6m0-5.5v.1" /></svg>
+        )}
+      </slot>
+    </span>
+  )}
+  <div class="alert__content">
+    {(alertTitle || Astro.slots.has('title')) && <div class="alert__title"><slot name="title">{alertTitle}</slot></div>}
+    {(description || Astro.slots.has('description')) && (
+      <div class="alert__description">
+        {Astro.slots.has('description') ? <slot name="description" /> : description}
+      </div>
+    )}
+  </div>
+  {Astro.slots.has('action') && <div class="alert__action"><slot name="action" /></div>}
+  {closable && (
+    <button class="alert__close" type="button" aria-label={closeLabel} data-alert-close>
+      <slot name="closeIcon"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none"><path d="m4 4 8 8m0-8-8 8" /></svg></slot>
+    </button>
+  )}
+</div>
+
+<script>
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const button = event.target.closest<HTMLButtonElement>('[data-alert-close]');
+    const alert = button?.closest<HTMLElement>('[data-alert]');
+    if (!button || !alert) return;
+    alert.dispatchEvent(new CustomEvent('alert-close', { bubbles: true }));
+    alert.remove();
+  });
+</script>
+
+<style>
+  .alert { --alert-color: var(--info); --alert-bg: var(--info-bg); --alert-border: var(--info-border); display: flex; align-items: flex-start; gap: var(--space-2); padding: 12px; border: 1px solid var(--alert-border); border-radius: var(--radius-card); background: var(--alert-bg); color: var(--text); }
+  .alert--success { --alert-color: var(--success); --alert-bg: var(--success-bg); --alert-border: var(--success-border); }
+  .alert--warning { --alert-color: var(--warning); --alert-bg: var(--warning-bg); --alert-border: var(--warning-border); }
+  .alert--error { --alert-color: var(--danger); --alert-bg: var(--danger-bg); --alert-border: var(--danger-border); }
+  .alert--banner { border-inline: 0; border-radius: 0; }
+  .alert__icon { display: inline-flex; flex: none; color: var(--alert-color); line-height: 0; }
+  .alert__icon :global(svg) { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .alert__content { min-width: 0; flex: 1; }
+  .alert__title { font-size: var(--font-size-title); font-weight: 600; line-height: var(--line-height-title); }
+  .alert__description { margin-top: var(--space-1); color: var(--muted); }
+  .alert__action { flex: none; }
+  .alert__close { display: inline-flex; min-width: var(--touch-target); min-height: var(--touch-target); flex: none; align-items: center; justify-content: center; margin: -8px; padding: 0; border: 0; background: transparent; color: var(--muted); }
+  .alert__close:hover { color: var(--text); }
+  .alert__close svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+  @media (max-width: 767px) { .alert { gap: var(--space-2); } .alert__action { align-self: center; } }
+</style>

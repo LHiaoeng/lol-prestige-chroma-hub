@@ -36,5 +36,11 @@ const blogCountLabel = isZh ? `（共 ${blogArticlesNewestFirst.length} 篇）` 
   .guide-card p, .guide-card h3 { margin: 0; }
   .guide-card h3 { font-family:var(--font-ui); font-size:var(--font-size-title); line-height: 1.35; overflow-wrap: anywhere; }
   .guide-card time { color: var(--muted); font-size:var(--font-size-small); margin-top: auto; }
-  @media (max-width: 767px) { .guide-list { grid-template-columns: 1fr; } .latest-section { padding-top: 24px; padding-bottom: 32px; } }
+  @media (max-width: 767px) {
+    .latest-section { padding-top: 24px; padding-bottom: 32px; }
+    .latest-section :global(.section-heading) { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .latest-section :global(.section-heading > div) { min-width: 0; }
+    .guide-list { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 12px; margin-inline: -2px; scroll-snap-type: x proximity; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+    .guide-card { flex: 0 0 min(84%, 360px); scroll-snap-align: start; }
+  }
 </style>

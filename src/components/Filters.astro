@@ -25,3 +25,13 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
   <button type="reset" class="ghost">{isZh ? '清除' : 'Clear'}</button>
 </form>
 </details>
+
+<script>
+  const disclosure = document.querySelector<HTMLDetailsElement>('.filter-disclosure');
+  if (disclosure) {
+    const desktop = window.matchMedia('(min-width: 768px)');
+    const syncDisclosure = () => disclosure.toggleAttribute('open', desktop.matches);
+    desktop.addEventListener('change', syncDisclosure);
+    syncDisclosure();
+  }
+</script>

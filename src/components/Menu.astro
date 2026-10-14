@@ -1,0 +1,43 @@
+---
+interface MenuItem {
+  key: string;
+  href: string;
+  label: string;
+}
+
+interface Props {
+  ariaLabel: string;
+  items: MenuItem[];
+  selectedKeys?: string[];
+}
+
+const { ariaLabel, items, selectedKeys = [] } = Astro.props;
+---
+
+<nav class="navigation-menu" aria-label={ariaLabel}>
+  <ul>
+    {items.map((item) => (
+      <li>
+        <a href={item.href} aria-current={selectedKeys.includes(item.key) ? 'page' : undefined}>{item.label}</a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .navigation-menu { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto var(--space-4); }
+  .navigation-menu ul { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: 0; padding: 0; border-bottom: 1px solid var(--line-subtle); list-style: none; }
+  .navigation-menu li { display: flex; min-width: 0; align-items: center; }
+  .navigation-menu a { position: relative; display: inline-flex; min-height: var(--touch-target); align-items: center; justify-content: center; padding: 0 var(--space-3); border-radius: var(--radius-control) var(--radius-control) 0 0; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+  .navigation-menu a::after { position: absolute; inset-inline: var(--space-3); bottom: -1px; height: 2px; background: transparent; content: ''; transition: background-color var(--motion-fast) ease; }
+  .navigation-menu a:hover { color: var(--gold-hover); }
+  .navigation-menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .navigation-menu a[aria-current="page"] { color: var(--gold); }
+  .navigation-menu a[aria-current="page"]::after { background: var(--gold); }
+  @media (max-width: 767px) {
+    .navigation-menu ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); }
+    .navigation-menu li:first-child { grid-column: span 2; }
+    .navigation-menu li > a:first-child { min-width: 0; flex: 1; padding-inline: var(--space-1); }
+  }
+  @media (prefers-reduced-motion: reduce) { .navigation-menu a, .navigation-menu a::after { transition: none; } }
+</style>
