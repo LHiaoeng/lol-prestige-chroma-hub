@@ -60,18 +60,18 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
 ---
 
 <BaseLayout {title} {description} {canonical} image={article.coverUrl} {jsonLd} {locale} {adPlacement}>
-  <div class="blog-page" data-backdrop-scope>
-    <div class="blog-backdrop">
-      <ResponsiveHeroBackdrop
-        largeSrc={imageUrl(backgroundChroma.images.large)}
-        mediumSrc={imageUrl(backgroundChroma.images.medium)}
-        largeFallback={sourceImageUrl('large', backgroundChroma.instanceId)}
-        mediumFallback={sourceImageUrl('medium', backgroundChroma.instanceId)}
-        opacity={.7}
-        mobileOpacity={.85}
-      />
-    </div>
-    <section class="blog-hero">
+  <div class="blog-page">
+    <section class="blog-hero" data-backdrop-scope>
+      <div class="blog-backdrop">
+        <ResponsiveHeroBackdrop
+          largeSrc={imageUrl(backgroundChroma.images.large)}
+          mediumSrc={imageUrl(backgroundChroma.images.medium)}
+          largeFallback={sourceImageUrl('large', backgroundChroma.instanceId)}
+          mediumFallback={sourceImageUrl('medium', backgroundChroma.instanceId)}
+          opacity={.7}
+          mobileOpacity={.85}
+        />
+      </div>
       <header class="blog-heading">
         {isZh ? <div>
           <p class="kicker">LoL CHROMA ART 博客</p>
@@ -116,9 +116,9 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
   </div>
 
   <style>
-    .blog-page { position:relative; isolation:isolate; background:var(--bg); }
-    .blog-hero { position:relative; z-index:1; isolation:isolate; margin-top:calc(-1 * var(--site-header-height)); min-height:100svh; padding:calc(clamp(58px,7vw,88px) + var(--site-header-height)) 0 110px; overflow:hidden; }
-    .blog-backdrop { position:fixed; z-index:0; inset:0; height:100svh; }
+    .blog-page { background:var(--bg); }
+    .blog-hero { position:relative; isolation:isolate; margin-top:calc(-1 * var(--site-header-height)); min-height:100svh; padding:calc(clamp(58px,7vw,88px) + var(--site-header-height)) 0 110px; overflow:hidden; }
+    .blog-backdrop { position:absolute; z-index:-1; inset:0 0 auto; height:100svh; min-height:calc(480px + var(--site-header-height)); }
     .blog-heading { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }
     .blog-heading>div { max-width:780px; }
     .blog-index { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding-top:clamp(32px,4vw,48px); }
