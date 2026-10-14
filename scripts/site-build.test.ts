@@ -282,6 +282,9 @@ describe("static site build", () => {
       existsSync(join(dist, "blog", "joy-club-peak-gala-202608", "index.html")),
     ).toBe(true);
     expect(
+      existsSync(join(dist, "blog", "joy-club-peak-gala-202609", "index.html")),
+    ).toBe(true);
+    expect(
       existsSync(
         join(
           dist,
@@ -336,6 +339,11 @@ describe("static site build", () => {
     expect(
       existsSync(
         join(dist, "zh-cn", "blog", "joy-club-peak-gala-202608", "index.html"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(dist, "zh-cn", "blog", "joy-club-peak-gala-202609", "index.html"),
       ),
     ).toBe(true);
     expect(
@@ -830,8 +838,11 @@ describe("static site build", () => {
     expect(home).toContain(`>(${blogArticles.length} articles)</span>`);
     expect(home).toContain('href="/blog/"');
     expect(home).toContain('href="/blog/lucky-gate-summon-202620/"');
+    expect(home).toContain('href="/blog/joy-club-peak-gala-202609/"');
     expect(home).toContain('href="/blog/lucky-gate-summon-october-2026/"');
-    expect(home).toContain('href="/blog/patch-26-19-prestige-chromas/"');
+    expect(home).not.toContain(
+      'href="/blog/patch-26-19-prestige-chromas/"',
+    );
     expect(home).not.toContain(
       'href="/blog/splendid-treasure-september-2026/"',
     );
@@ -862,9 +873,12 @@ describe("static site build", () => {
       'href="/zh-cn/blog/lucky-gate-summon-202620/"',
     );
     expect(chineseHome).toContain(
-      'href="/zh-cn/blog/lucky-gate-summon-october-2026/"',
+      'href="/zh-cn/blog/joy-club-peak-gala-202609/"',
     );
     expect(chineseHome).toContain(
+      'href="/zh-cn/blog/lucky-gate-summon-october-2026/"',
+    );
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/patch-26-19-prestige-chromas/"',
     );
     expect(chineseHome).not.toContain(

@@ -23,6 +23,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/joy-club-peak-gala-202606.astro',
       'src/pages/blog/joy-club-peak-gala-202608.astro',
+      'src/pages/blog/joy-club-peak-gala-202609.astro',
       'src/pages/blog/kaisa-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-petals-of-spring-chromas-202607.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
@@ -140,6 +141,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/joy-club-peak-gala-202607.astro',
       'src/pages/blog/joy-club-peak-gala-202606.astro',
       'src/pages/blog/joy-club-peak-gala-202608.astro',
+      'src/pages/blog/joy-club-peak-gala-202609.astro',
       'src/pages/blog/blue-porcelain-prestige-chromas.astro',
       'src/pages/blog/patch-26-16-prestige-chromas.astro',
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
@@ -662,6 +664,67 @@ describe('blog feature contract', () => {
     expect(page).toContain('Apple 并非本活动赞助方');
     expect(page).toContain('Apple is not a sponsor');
     expect(page.match(/<details>/g)).toHaveLength(6);
+
+    const chineseArticle = page.slice(page.indexOf('{isZh &&'));
+    expect(chineseArticle).not.toContain('rewardChroma.nameEn');
+    expect(chineseArticle).not.toContain('Global Server');
+  });
+
+  it('renders the October 2026 Joy Club Peak Gala article in both languages', () => {
+    const page = source('src/pages/blog/joy-club-peak-gala-202609.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain('data-placeholder="/placeholder.svg"');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
+    expect(page).toContain("import { joyClubPeakGalaSessions } from '../../domain/joy-club-gala'");
+    expect(page).toContain("const currentSessionId = '202609'");
+    expect(page).toContain("heroId === '157'");
+    expect(page).toContain("'Petals of Spring Yasuo'");
+    expect(page).toContain("'Petals of Spring Yasuo (Sapphire)'");
+    expect(page).toContain('imageUrl(rewardChroma.images');
+    expect(page).toContain('sourceImageUrl');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('https://act.xinyue.qq.com/act/joyclubgala202610/index.html');
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-19-prestige-chromas/')}");
+    expect(page).toContain('class="chroma-art-link"');
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('2026-10-01');
+    expect(page).toContain('2026-10-31');
+    expect(page).toContain('202609');
+    expect(page).toContain('November 10');
+    expect(page).toContain('11 月 10 日');
+    expect(page).toContain('赠送方');
+    expect(page).toContain('云顶召唤商店');
+    expect(page).toContain('苹果公司并非本活动赞助者');
+    expect(page).toContain('Apple is not a sponsor');
+    expect(page.match(/<details>/g)).toHaveLength(2);
+    expect(page.match(/question: '/g)).toHaveLength(12);
+    for (const heading of [
+      'What is the Joy Club Peak Gala?',
+      'How peak value is earned',
+      'What does <em>not</em> count toward peak value',
+      'Rewards, settlement, and claiming',
+      'Past Peak Gala sessions',
+      'Eligibility at a glance',
+      '什么是心悦巅峰盛典？',
+      '巅峰值如何累积',
+      '哪些消费不计入巅峰值',
+      '奖励、结算与领取',
+      '往期巅峰盛典',
+      '参与资格一览',
+    ]) expect(page).toContain(heading);
 
     const chineseArticle = page.slice(page.indexOf('{isZh &&'));
     expect(chineseArticle).not.toContain('rewardChroma.nameEn');

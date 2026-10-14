@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'joy-club-peak-gala-202609',
+    href: '/blog/joy-club-peak-gala-202609/',
+    titleEn: 'Joy Club Peak Gala — Session 202609',
+    titleZh: '心悦巅峰盛典 — 第 202609 期',
+    summaryEn: 'The Joy Club Peak Gala session 202609 runs through October 2026 on the Chinese LoL server. Spend 500,000 peak value to qualify and claim Petals of Spring Yasuo (Sapphire) — a Lunar Revel prestige chroma of the Petals of Spring Yasuo skin, exclusive to Peak Gala for 3 months.',
+    summaryZh: '心悦巅峰盛典第 202609 期于 2026 年 10 月开放统计。巅峰值满 50 万即可入席，结算后前往活动页选择大区领取本期专属臻彩「踏雪寻梅 亚索 玉立冰洁」，享 3 个月独享期。',
+    publishedAt: '2026-10-01',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/29927501-d5a2-4ff5-8836-85ecb5f5b0b8/site3.jpg',
+    coverAltEn: 'Petals of Spring Yasuo (Sapphire) prestige chroma splash art — Joy Club Peak Gala session 202609 reward',
+    coverAltZh: '踏雪寻梅 亚索 玉立冰洁臻彩原画 — 心悦巅峰盛典第 202609 期奖励',
+    sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202610/index.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'lucky-gate-summon-202620',
     href: '/blog/lucky-gate-summon-202620/',
     titleEn: 'Lucky Gate Summoning — Session 202620',
