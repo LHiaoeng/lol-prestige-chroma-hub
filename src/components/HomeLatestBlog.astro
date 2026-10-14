@@ -1,0 +1,40 @@
+---
+import { articleHref, blogArticlesNewestFirst, blogCategoryLabels, formatBlogDate } from '../blog/articles';
+import { localizedPath, type Locale } from '../i18n/config';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isZh = locale === 'zh-cn';
+const latestArticles = blogArticlesNewestFirst.slice(0, 3);
+const blogHeading = isZh ? '博客' : 'Blog';
+const blogCountLabel = isZh ? `（共 ${blogArticlesNewestFirst.length} 篇）` : `(${blogArticlesNewestFirst.length} articles)`;
+---
+<section class="latest-section" aria-labelledby="latest-title">
+  <div class="section-heading">
+    <div><h2 id="latest-title">{blogHeading} <span class="heading-count">{blogCountLabel}</span></h2></div>
+    <a class="see-all" href={localizedPath(locale, '/blog/')}>{isZh ? '查看全部 →' : 'View all →'}</a>
+  </div>
+  <div class="guide-list">
+    {latestArticles.map((entry) => (
+      <a class="guide-card" href={articleHref(entry, locale)}>
+        <p class="guide-category">{isZh ? blogCategoryLabels[entry.category].zh : blogCategoryLabels[entry.category].en}</p>
+        <h3>{isZh ? entry.titleZh : entry.titleEn}</h3>
+        <time datetime={entry.publishedAt}>{formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')}</time>
+      </a>
+    ))}
+  </div>
+</section>
+<style>
+  .latest-section { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin-inline: auto; padding-top: 64px; padding-bottom: 72px; }
+  .heading-count { font-size:var(--font-size-small); font-weight:600; color: var(--muted); }
+  .see-all { flex: none; color: var(--gold); font-weight:600; }
+  .guide-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .guide-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); transition: border-color var(--motion-fast) ease; }
+  .guide-card:hover { border-color: var(--gold); }
+  .guide-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .guide-category { color: var(--gold); font-size:var(--font-size-small); font-weight:600; letter-spacing: .18em; text-transform: uppercase; }
+  .guide-card h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-family:var(--font-ui); font-size:var(--font-size-title); line-height: 1.35; overflow-wrap: anywhere; }
+  .guide-card time { color: var(--muted); font-size:var(--font-size-small); margin-top: auto; }
+  @media (max-width: 900px) { .guide-list { grid-template-columns: 1fr; } }
+  @media (max-width: 767px) { .latest-section { padding-top: 48px; padding-bottom: 56px; } }
+</style>
