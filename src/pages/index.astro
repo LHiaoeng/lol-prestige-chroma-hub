@@ -41,10 +41,11 @@ const jsonLd = isZh ? [
     <div class="hero-content">
       <h1>{isZh ? <>英雄联盟国服<br /><em>臻彩原画</em></> : <>League of Legends<br /><em>China-Exclusive Chroma Splash Arts</em></>}</h1>
       <p>{isZh ? heroDescriptionZh : heroDescriptionEn}</p>
+      <a class="button hero-cta" href="#catalog-title">{isZh ? '浏览臻彩图鉴' : 'Explore the archive'}</a>
     </div>
-    <div class="scroll-hint" aria-hidden="true">
+    <a class="scroll-hint" href="#catalog-title" aria-label={isZh ? '跳转到臻彩图鉴' : 'Jump to the archive'}>
       <span class="scroll-mouse"><span class="scroll-wheel"></span></span>
-    </div>
+    </a>
   </section>
   <section class="latest-section" aria-labelledby="latest-title">
     <div class="section-heading">
@@ -89,38 +90,35 @@ const jsonLd = isZh ? [
   <script is:inline id="catalog-data" type="application/json" set:html={browserCatalogJson}></script>
   <script>
     import '../catalog/browser-app';
-
-    document.querySelector('.scroll-hint')?.addEventListener('click', () => {
-      const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
-      document.querySelector('.catalog-section')?.scrollIntoView({ behavior });
-    });
   </script>
 </BaseLayout>
 <style>
   .hero-section { position: relative; isolation:isolate; width:100%; max-width:none; margin-top:calc(-1 * var(--site-header-height)); height:100svh; min-height:calc(480px + var(--site-header-height)); display:grid; align-items:center; overflow:hidden; padding:calc(80px + var(--site-header-height)) 0 80px; }
-  .hero-content { position: relative; z-index: 1; width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
-  .hero-content > p:last-child { max-width: 650px; color: #d4d6df; font-size: 1.05rem; text-shadow: 0 2px 18px #000; }
+  .hero-content { position: relative; z-index: 1; width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin-inline: auto; }
+  .hero-content > p { max-width: 650px; color: var(--text); font-size:var(--font-size-title); text-shadow: 0 2px 18px #000; }
+  .hero-cta { margin-top: 16px; }
   .hero-content h1 { text-shadow: 0 5px 30px #000b; }
-  .scroll-hint { position: absolute; bottom: 8vh; left: 50%; transform: translateX(-50%); z-index: 2; cursor: pointer; animation: scroll-bounce 2s ease-in-out infinite; }
+  .scroll-hint { position: absolute; bottom: 8vh; left: 50%; transform: translateX(-50%); z-index: 2; display:grid;place-items:center;width:44px;height:44px;cursor: pointer; animation: scroll-bounce 2s ease-in-out infinite; }
+  .scroll-hint:focus-visible { outline:2px solid var(--gold);outline-offset:2px; }
   .scroll-mouse { display: block; width: 26px; height: 40px; border: 2px solid rgba(215,181,109,.6); border-radius: 13px; position: relative; }
   .scroll-wheel { display: block; width: 4px; height: 8px; background: var(--gold); border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scroll-wheel 2s ease-in-out infinite; }
   @keyframes scroll-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
   @keyframes scroll-wheel { 0% { opacity: 1; top: 8px; } 100% { opacity: 0; top: 22px; } }
-  .latest-section { width: min(1240px, calc(100% - 48px)); margin-inline: auto; padding-top: 64px; padding-bottom: 72px; }
-  .heading-count { font-size: .55em; font-weight: 500; color: var(--muted); }
-  .see-all { flex: none; color: var(--gold); font-weight: 700; }
+  .latest-section { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin-inline: auto; padding-top: 64px; padding-bottom: 72px; }
+  .heading-count { font-size:var(--font-size-small); font-weight:600; color: var(--muted); }
+  .see-all { flex: none; color: var(--gold); font-weight:600; }
   .guide-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .guide-card { display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; transition: border-color .2s ease; }
+  .guide-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); transition: border-color var(--motion-fast) ease; }
   .guide-card:hover { border-color: var(--gold); }
   .guide-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  .guide-category { color: var(--gold); font-size: .72rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
-  .guide-card h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-family: Georgia, "Noto Serif SC", serif; font-size: 1.05rem; line-height: 1.35; overflow-wrap: anywhere; }
-  .guide-card time { color: var(--muted); font-size: .78rem; margin-top: auto; }
+  .guide-category { color: var(--gold); font-size:var(--font-size-small); font-weight:600; letter-spacing: .18em; text-transform: uppercase; }
+  .guide-card h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-family:var(--font-ui); font-size:var(--font-size-title); line-height: 1.35; overflow-wrap: anywhere; }
+  .guide-card time { color: var(--muted); font-size:var(--font-size-small); margin-top: auto; }
   @media (max-width: 900px) { .guide-list { grid-template-columns: 1fr; } }
-  @media (max-width: 680px) {
+  @media (max-width: 767px) {
     .hero-section { padding:calc(64px + var(--site-header-height)) 0 64px; }
-    .hero-content { width: min(100% - 28px, 1240px); }
-    .latest-section { width: min(100% - 28px, 1240px); padding-top: 48px; padding-bottom: 56px; }
+    .hero-cta { min-height: var(--touch-target); }
+    .latest-section { padding-top: 48px; padding-bottom: 56px; }
   }
   @media (prefers-reduced-motion: reduce) { .scroll-hint { animation:none; } }
 </style>

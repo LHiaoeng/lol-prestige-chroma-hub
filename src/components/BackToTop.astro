@@ -27,26 +27,28 @@ const isZh = resolveLocale(Astro.currentLocale) === 'zh-cn';
     right: max(20px, env(safe-area-inset-right));
     bottom: max(20px, env(safe-area-inset-bottom));
     display: grid;
-    width: 46px;
-    height: 46px;
+    width: var(--control-height);
+    height: var(--control-height);
     padding: 0;
     place-items: center;
     border: 1px solid var(--gold);
     border-radius: 50%;
     background: var(--gold);
-    box-shadow: 0 8px 24px #0009;
-    color: #121019;
+    box-shadow: var(--shadow-popup);
+    color: var(--on-gold);
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
     transform: translateY(12px);
-    transition: opacity .2s ease, transform .2s ease, box-shadow .2s ease;
+    transition: opacity var(--motion-mid) ease, transform var(--motion-mid) ease, background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
   }
   .back-to-top[data-visible] { opacity: 1; pointer-events: auto; transform: none; }
-  .back-to-top:hover, .back-to-top:focus-visible { box-shadow: 0 8px 28px #000b, 0 0 0 3px #d7b56d38; }
+  .back-to-top:hover { background: var(--gold-hover); border-color: var(--gold-hover); }
+  .back-to-top:active { background: var(--gold-active); border-color: var(--gold-active); }
+  .back-to-top:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .back-to-top svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   @media (max-width: 767px) {
-    .back-to-top { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: 44px; height: 44px; }
+    .back-to-top { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: var(--touch-target); height: var(--touch-target); }
   }
   @media (prefers-reduced-motion: reduce) { .back-to-top { transition: none; } }
 </style>

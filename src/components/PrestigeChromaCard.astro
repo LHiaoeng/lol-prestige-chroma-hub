@@ -31,9 +31,11 @@ const name = isZh ? chroma.nameZh : chroma.nameEn;
   </a>
 </article>
 <style is:global>
+  .chroma-card > a:focus-visible { outline:2px solid var(--gold); outline-offset:-3px; }
+  .chroma-card:active { border-color:var(--gold-active); }
   .card-image { aspect-ratio: 1; }
   .card-image img { object-position: center top; }
   .card-image .category-icon { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%) scale(.6); transform-origin: center bottom; width: auto; height: auto; max-width: none; max-height: none; object-fit: initial; }
   .card-tags { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-  .version-tag { display: inline-flex; color: var(--gold); border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .version-tag { display: inline-flex; color: var(--text); background:var(--tag-bg); border: 1px solid var(--line-subtle); border-radius: var(--radius-tag); padding: 0 7px; min-height:24px; align-items:center; font-size: var(--font-size-small); line-height:var(--line-height-small); }
 </style>

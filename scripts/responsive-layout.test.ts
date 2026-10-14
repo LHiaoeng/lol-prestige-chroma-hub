@@ -36,7 +36,8 @@ describe('responsive layout contract', () => {
 
   it('uses the approved one, two, and three-column gallery progression', () => {
     const css = source('src/styles/global.css');
-    expect(css).toContain('--touch-target:44px');
+    expect(css).toContain('@import "./tokens.css"');
+    expect(source('src/styles/tokens.css')).toMatch(/--touch-target:\s*44px/);
     expect(css).not.toContain('min-width:320px');
     expect(css).not.toContain('.filter-shortcuts');
     expect(css).toMatch(/\.chroma-grid\{[^}]*grid-template-columns:repeat\(3/);
@@ -55,7 +56,9 @@ describe('responsive layout contract', () => {
     expect(viewer).toContain('safe-area-inset-top');
     expect(viewer).toContain('class="viewer-controls"');
     expect(viewer).toContain('position:fixed');
-    expect(about).toContain('var(--page-gutter)');
+    expect(about).toContain('<BaseLayout');
+    expect(source('src/layouts/BaseLayout.astro')).toContain("import '../styles/article.css'");
+    expect(source('src/styles/article.css')).toMatch(/\.about-page[^\{]*\{[^}]*var\(--page-gutter\)/);
     expect(actions).toContain('calc(100vw - 28px)');
   });
 

@@ -6,6 +6,20 @@ import { blogArticles } from '../src/blog/articles';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('blog feature contract', () => {
+  it('loads shared responsive article styles through the base layout for every article', () => {
+    expect(source('src/layouts/BaseLayout.astro')).toContain("import '../styles/article.css'");
+    const css = source('src/styles/article.css');
+    expect(css).toContain('width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2)))');
+    expect(css).toContain('@media (max-width: 767px)');
+    expect(css).toContain('.blog-article figure img { display: block; width: 100%; height: auto;');
+    for (const article of blogArticles) {
+      const page = source(`src/pages/blog/${article.slug}.astro`);
+      expect(page).toContain('<BaseLayout');
+      expect(page).toContain('class="blog-article"');
+      expect(page).not.toMatch(/\.blog-article\s*\{[^}]*width:/);
+    }
+  });
+
   it('centralizes catalog-backed blog chroma cards and grid layout', () => {
     const grid = source('src/components/BlogChromaGrid.astro');
     const card = source('src/components/BlogPrestigeChromaCard.astro');
@@ -185,7 +199,7 @@ describe('blog feature contract', () => {
     const page = source('src/components/BlogIndexView.astro');
     expect(page).toContain("'@type': 'CollectionPage'");
     expect(page).toContain("const isZh = locale === 'zh-cn'");
-    expect(page).toContain('<article class="featured-post">');
+    expect(page).toMatch(/<article class="[^"]*\bfeatured-post\b[^"]*">/);
     expect(page).toContain('visibleArticles.map((entry, index)');
     expect(page).toContain('href={articleHref(entry, locale)}');
     expect(page).toContain("formatBlogDate(entry.publishedAt, isZh ? 'zh' : 'en')");
@@ -216,7 +230,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('${mediaRoot}individual-purchase-en.png');
     expect(page).toContain('${mediaRoot}blue-essence-en.png');
     expect(page.match(/<details>/g)).toHaveLength(16);
-    expect(page).toContain('.article-header,.blog-article>section,.blog-article>figure,.comparison,.showcase');
     expect(page).toContain("const mediaRoot = '/img/blog/chroma-history-'");
     expect(page).toContain('loading="lazy"');
     expect(page).not.toContain('Baidu Baike');
@@ -224,7 +237,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('炫彩皮肤于 6.17 版本上线');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
   });
 
   it('uses the rank-one chroma artwork as a responsive full-page atmosphere layer', () => {
@@ -255,7 +267,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).not.toContain('width:min(760px');
     expect(page).not.toContain('max-width:720px');
     for (const heading of [
@@ -286,7 +297,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     for (const heading of [
       'What are prestige chromas?',
       'The chroma art showcase',
@@ -341,7 +351,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("const kaisaHeroId = '145'");
     expect(page).toContain('kaisaChromas');
     expect(page).toContain('kaisaSkinGroups');
@@ -358,9 +367,7 @@ describe('blog feature contract', () => {
       '如何获取卡莎的臻彩',
     ]) expect(page).toContain(heading);
     expect(page.match(/<details>/g)).toHaveLength(10);
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
-    expect(page).toContain('.article-hero img{display:block;width:100%;height:auto');
     expect(page).not.toContain('.chroma-card-');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).not.toContain('most played and most banned');
@@ -387,7 +394,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<BlogPrestigeChromaCard chroma={chroma} {locale} />');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
     expect(page.match(/<details>/g)).toHaveLength(6);
     expect(page).not.toContain('？---');
@@ -423,7 +429,6 @@ describe('blog feature contract', () => {
     }
     expect(page).not.toContain('/img/champions/${c.alias}.png');
     expect(page).not.toContain('prestige-chromas.json');
-    expect(page).toContain('<style is:global>');
   });
 
   it('renders a complete localized Joy Club Peak Gala article', () => {
@@ -438,7 +443,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('imageUrl(rewardChroma.images');
@@ -474,7 +478,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('data-placeholder="/placeholder.svg"');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
     expect(page).toContain('class="official-source-link"');
@@ -490,7 +493,6 @@ describe('blog feature contract', () => {
       '8 月 19 日：伊泽瑞尔与拉克丝再临',
       '不只是皮肤，也是非遗传承',
     ]) expect(page).toContain(heading);
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(2);
   });
 
@@ -504,7 +506,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
     expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
@@ -512,7 +513,6 @@ describe('blog feature contract', () => {
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('sourceImageUrl');
     expect(page).not.toContain('ChromaColorCircle');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(1);
     expect(page.match(/<details>/g)).toHaveLength(1);
     expect(page).toContain('faqEntries.map');
@@ -539,7 +539,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
     expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
@@ -547,7 +546,6 @@ describe('blog feature contract', () => {
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('sourceImageUrl');
     expect(page).not.toContain('ChromaColorCircle');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(1);
     expect(page.match(/<details>/g)).toHaveLength(1);
     expect(page).toContain('faqEntries.map');
@@ -576,7 +574,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
     expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
@@ -587,7 +584,6 @@ describe('blog feature contract', () => {
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('sourceImageUrl');
     expect(page).not.toContain('ChromaColorCircle');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(1);
     expect(page.match(/<details>/g)).toHaveLength(1);
     expect(page).toContain('faqEntries.map');
@@ -614,7 +610,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
     expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-18-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
@@ -626,7 +621,6 @@ describe('blog feature contract', () => {
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('sourceImageUrl');
     expect(page).not.toContain('ChromaColorCircle');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(1);
     expect(page.match(/<details>/g)).toHaveLength(1);
     expect(page).toContain('faqEntries.map');
@@ -748,7 +742,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('class="official-source-link"');
     expect(page).toContain('data-alt-en=');
     expect(page).toContain('data-alt-zh=');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/<details>/g)).toHaveLength(6);
     for (const heading of [
       'Three chromas share one spring theme',
@@ -772,13 +765,11 @@ describe('blog feature contract', () => {
     expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/splendid-treasure-august-2026/')}");
     expect(page).toContain('class="official-source-link"');
     expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=1223329969537437457');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/<details>/g)).toHaveLength(2);
     expect(page.match(/<figure>/g)).toHaveLength(2);
     expect(page).toContain('/img/blog/challenger-mayhem-jax-prestige-chroma-cover.jpg');
@@ -806,7 +797,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/blue-porcelain-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-16-prestige-chromas/')}");
@@ -817,7 +807,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('https://lol.qq.com/act/a202608199962prizewheel/index.html');
     expect(page).toContain('mythical fantasy quality skin');
     expect(page).toContain('神话幻想品质皮肤');
-    expect(page).toContain('<style is:global>');
     expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).not.toContain('imageUrl(chroma.images.medium)');
@@ -849,7 +838,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}");
@@ -860,7 +848,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('https://lol.qq.com/act/a202609139891prizewheel/index.html');
     expect(page).toContain('mythic-tier skin');
     expect(page).toContain('神话品质');
-    expect(page).toContain('<style is:global>');
     expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('<BlogChromaGrid columns={3}>');
@@ -899,7 +886,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-chroma-skins/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-15-prestige-chromas/')}");
@@ -914,7 +900,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('https://lol.qq.com/act/a202610094865prizewheel/index.html?e_code=500132');
     expect(page).toContain('mythic-tier skin');
     expect(page).toContain('神话品质');
-    expect(page).toContain('<style is:global>');
     expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('<BlogChromaGrid columns={3}>');
@@ -960,7 +945,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-17-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/lucky-gate-porcelain-charm-202608/')}");
@@ -972,7 +956,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=13410569553974498576');
     expect(page).toContain('https://lol.qq.com/act/a20260828heartsong/index.html?e_code=558109');
     expect(page).toContain('https://lol.qq.com/act/a202608277402prizewheel/index.html');
-    expect(page).toContain('<style is:global>');
     expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).not.toContain('ChromaColorCircle');
@@ -1006,7 +989,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<h1>{article.titleZh}</h1>');
     expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
     expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-august-2026/')}");
     expect(page).toContain('class="official-source-link"');
@@ -1020,7 +1002,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('<td><strong>十次合计</strong></td>');
     expect(page).toContain('Heartseeker Vayne');
     expect(page).toContain('觅心猎手 薇恩');
-    expect(page).toContain('<style is:global>');
     expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).not.toContain('ChromaColorCircle');
@@ -1054,7 +1035,6 @@ describe('blog feature contract', () => {
     expect(page).toContain('ogType="article"');
     expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
     expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
-    expect(page).toContain('width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)))');
     expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/challenger-mayhem-jax-prestige-chroma/')}");
     expect(page).toContain("href={localizedPath(locale, '/blog/joy-club-peak-gala-202608/')}");
@@ -1066,7 +1046,6 @@ describe('blog feature contract', () => {
     expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
     expect(page).toContain('sourceImageUrl');
     expect(page).not.toContain('ChromaColorCircle');
-    expect(page).toContain('<style is:global>');
     expect(page.match(/class="article-hero"/g)).toHaveLength(1);
     expect(page.match(/<details>/g)).toHaveLength(1);
     expect(page).toContain('faqEntries.map');

@@ -70,7 +70,7 @@ const hasOverflow = chromas.length > 6;
 
 <style>
   .expandable-chroma-grid {
-    --grid-gap: 18px;
+    --grid-gap: var(--space-3);
     --peek-height: 84px;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -88,7 +88,7 @@ const hasOverflow = chromas.length > 6;
     right: 0;
     bottom: 0;
     height: calc(var(--peek-height) + 56px);
-    background: linear-gradient(to top, var(--bg) 0%, rgba(9, 11, 21, 0.82) 35%, rgba(9, 11, 21, 0.35) 65%, transparent 100%);
+    background: linear-gradient(to top, var(--bg) 0%, rgba(0, 0, 0, 0.82) 35%, rgba(0, 0, 0, 0.35) 65%, transparent 100%);
     pointer-events: none;
     z-index: 1;
   }
@@ -97,22 +97,19 @@ const hasOverflow = chromas.length > 6;
     align-items: center;
     justify-content: center;
     margin: 16px auto 0;
-    width: 44px;
-    height: 44px;
+    width: var(--control-height);
+    height: var(--control-height);
     border: 1px solid var(--line);
-    border-radius: 50%;
+    border-radius: var(--radius-control);
     background: var(--panel);
     color: var(--gold);
     cursor: pointer;
-    transition: transform 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+    transition: transform var(--motion-mid) ease, border-color var(--motion-fast) ease, background var(--motion-fast) ease;
   }
-  .expand-toggle:hover {
-    border-color: var(--gold);
-    background: #1a1f38;
-  }
-  .expand-toggle svg {
-    transition: transform 0.25s ease;
-  }
+  .expand-toggle:hover { border-color: var(--gold-hover); background: var(--hover-bg); }
+  .expand-toggle:active { border-color: var(--gold-active); background: var(--fill); }
+  .expand-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .expand-toggle svg { transition: transform var(--motion-mid) ease; }
   .expand-toggle.is-open svg {
     transform: rotate(180deg);
   }
@@ -124,11 +121,13 @@ const hasOverflow = chromas.length > 6;
   @media (max-width: 767px) {
     .expandable-chroma-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      --grid-gap: 14px;
+      --grid-gap: var(--space-3);
       --peek-height: 64px;
     }
     .expand-toggle {
       margin: 8px auto 0;
+      width: var(--touch-target);
+      height: var(--touch-target);
     }
   }
 </style>

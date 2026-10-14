@@ -22,7 +22,7 @@ const image = chroma ? imageUrl(chroma.images.medium) : '/placeholder.svg';
 const fallback = chroma ? sourceImageUrl('medium', chroma.instanceId) : undefined;
 ---
 
-<li class:list={['blog-chroma-card', { 'blog-chroma-card--placeholder': !chroma }]}>
+<li class:list={['blog-chroma-card', chroma && 'chroma-card', { 'blog-chroma-card--placeholder': !chroma }]}>
   {chroma ? (
     <a class="blog-chroma-card-link" href={localizedPath(locale, `/chromas/${chroma.slug}/`)}>
       <div class="blog-chroma-card-img-wrap">
@@ -42,12 +42,14 @@ const fallback = chroma ? sourceImageUrl('medium', chroma.instanceId) : undefine
 </li>
 
 <style is:global>
-  .blog-chroma-grid .blog-chroma-card{min-width:0;background:#11131e;border:1px solid var(--line);overflow:hidden;transition:border-color .18s ease,transform .18s ease}
-  .blog-chroma-grid .blog-chroma-card:hover{border-color:#b99b57;transform:translateY(-2px)}
+  .blog-chroma-grid .blog-chroma-card.chroma-card{transition:transform var(--motion-fast) ease,background-color var(--motion-fast) ease}
+  .blog-chroma-grid .blog-chroma-card--placeholder{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-card);overflow:hidden}
+  .blog-chroma-grid .blog-chroma-card.chroma-card:hover{background:var(--panel2);transform:translateY(-2px)}
+  .blog-chroma-grid .blog-chroma-card.chroma-card:active{border-color:var(--gold-active);transform:translateY(0)}
   .blog-chroma-grid .blog-chroma-card-link,.blog-chroma-grid .blog-chroma-card-placeholder{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}
   .blog-chroma-grid .blog-chroma-card-link:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
-  .blog-chroma-grid .blog-chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:#0d0f1a}
+  .blog-chroma-grid .blog-chroma-card-img-wrap{position:relative;width:100%;overflow:hidden;background:var(--fill)}
   .blog-chroma-grid .blog-chroma-card-img-wrap img{display:block;width:100%;height:auto}
-  .blog-chroma-grid .blog-chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:50%;background:#090b12cc}
-  .blog-chroma-grid .blog-chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:9px 8px;font-size:.78rem;font-weight:600;line-height:1.35;color:#e6e8ee;overflow-wrap:anywhere}
+  .blog-chroma-grid .blog-chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid var(--line);border-radius:50%;background:var(--panel)}
+  .blog-chroma-grid .blog-chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:var(--space-2);font-size:var(--font-size-small);font-weight:600;line-height:var(--line-height-small);color:var(--text);overflow-wrap:anywhere}
 </style>

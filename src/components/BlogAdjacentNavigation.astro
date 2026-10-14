@@ -17,8 +17,8 @@ const navigationClass = `blog-adjacent${newer && !older ? ' only-newer' : ''}${o
   {(newer || older) && (
     <nav class={navigationClass} aria-label={isZh ? '更多博客文章' : 'More blog articles'}>
       <div class="adjacent-grid">
-        {older && <a class="adjacent-card older" href={articleHref(older, locale)} aria-label={isZh ? `上一篇：${older.titleZh}` : `Previous article: ${older.titleEn}`}><span class="direction">{isZh ? '← 上一篇' : '← Previous article'}</span><strong>{isZh ? older.titleZh : older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
-        {newer && <a class="adjacent-card newer" href={articleHref(newer, locale)} aria-label={isZh ? `下一篇：${newer.titleZh}` : `Next article: ${newer.titleEn}`}><span class="direction">{isZh ? '下一篇 →' : 'Next article →'}</span><strong>{isZh ? newer.titleZh : newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
+        {older && <a class="adjacent-card older chroma-card" href={articleHref(older, locale)} aria-label={isZh ? `上一篇：${older.titleZh}` : `Previous article: ${older.titleEn}`}><span class="direction">{isZh ? '← 上一篇' : '← Previous article'}</span><strong>{isZh ? older.titleZh : older.titleEn}</strong><time datetime={older.publishedAt}>{formatBlogDate(older.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
+        {newer && <a class="adjacent-card newer chroma-card" href={articleHref(newer, locale)} aria-label={isZh ? `下一篇：${newer.titleZh}` : `Next article: ${newer.titleEn}`}><span class="direction">{isZh ? '下一篇 →' : 'Next article →'}</span><strong>{isZh ? newer.titleZh : newer.titleEn}</strong><time datetime={newer.publishedAt}>{formatBlogDate(newer.publishedAt, isZh ? 'zh' : 'en')}</time></a>}
       </div>
     </nav>
   )}
@@ -31,19 +31,22 @@ const navigationClass = `blog-adjacent${newer && !older ? ' only-newer' : ''}${o
 <style>
   .blog-adjacent-shell { width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin:0 auto clamp(76px,9vw,120px); }
   .blog-adjacent { width:auto; margin:0; }
-  .adjacent-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+  .adjacent-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-4); }
   .only-newer .newer { grid-column:2; }
-  .adjacent-card { display:flex; min-width:0; min-height:170px; flex-direction:column; justify-content:center; gap:12px; padding:clamp(24px,3vw,36px); border:1px solid var(--line); border-radius:14px; background:var(--panel); transition:border-color .2s ease,transform .2s ease,background-color .2s ease; }
+  .adjacent-card { display:flex; min-height:170px; flex-direction:column; justify-content:center; gap:var(--space-2); padding:var(--space-4); transition:transform var(--motion-mid) ease,background-color var(--motion-mid) ease; }
   .adjacent-card.newer { text-align:right; }
-  .direction { color:var(--gold); font-size:.76rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-  .adjacent-card strong { color:var(--text); font-family:Georgia,"Noto Serif SC",serif; font-size:clamp(1.25rem,2.2vw,1.75rem); line-height:1.25; overflow-wrap:anywhere; }
-  .adjacent-card time { color:var(--muted); font-size:.78rem; }
+  .direction { color:var(--gold); font-size:var(--font-size-small); line-height:var(--line-height-small); font-weight:600; }
+  .adjacent-card strong { color:var(--text); font-size:var(--font-size-title); font-weight:600; line-height:var(--line-height-title); overflow-wrap:anywhere; }
+  .adjacent-card time { color:var(--muted); font-size:var(--font-size-small); line-height:var(--line-height-small); }
   .adjacent-card:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
-  .editorial-trust { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 24px; margin-top:24px; padding:18px 22px; border:1px solid var(--line); border-radius:10px; background:color-mix(in srgb, var(--panel) 72%, transparent); }
-  .editorial-trust p { color:var(--muted); font-size:.9rem; line-height:1.5; margin:0; }
-  .editorial-trust a { display:inline-flex; align-items:center; min-height:var(--touch-target); padding:0 8px; color:var(--gold); font-size:.9rem; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+  .editorial-trust { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--space-2) var(--space-4); margin-top:24px; padding:var(--space-3) var(--space-4); border:1px solid var(--line); border-radius:var(--radius-card); background:var(--panel); }
+  .editorial-trust p { color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); margin:0; }
+  .editorial-trust a { display:inline-flex; align-items:center; min-height:var(--touch-target); padding:0 8px; color:var(--gold); font-size:var(--font-size-body); line-height:var(--line-height-body); font-weight:600; text-decoration:underline; text-underline-offset:3px; transition:color var(--motion-fast) ease; }
+  .editorial-trust a:hover { color:var(--gold-hover); }
+  .editorial-trust a:active { color:var(--gold-active); }
   .editorial-trust a:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
-  @media (hover:hover) and (pointer:fine) { .adjacent-card:hover { border-color:var(--gold); background:var(--panel2); transform:translateY(-3px); } }
-  @media (max-width:767px) { .adjacent-grid { grid-template-columns:1fr; gap:14px; } .only-newer .newer { grid-column:auto; } .adjacent-card { min-height:0; } .editorial-trust { display:block; padding:16px 18px; } .editorial-trust a { display:inline-flex; margin-top:8px; } }
+  .adjacent-card:active { border-color:var(--gold-active); background:var(--fill); transform:translateY(0); }
+  @media (hover:hover) and (pointer:fine) { .adjacent-card:hover { background:var(--panel2); transform:translateY(-3px); } }
+  @media (max-width:767px) { .adjacent-grid { grid-template-columns:1fr; gap:var(--space-2); } .only-newer .newer { grid-column:auto; } .adjacent-card { min-height:0; } .editorial-trust { display:block; padding:var(--space-3); } .editorial-trust a { display:inline-flex; margin-top:var(--space-2); } }
   @media (prefers-reduced-motion:reduce) { .adjacent-card { transition:none; } }
 </style>

@@ -52,21 +52,23 @@ const correctionEmail = 'mailto:lolchromaart@outlook.com?subject=LoL%20Chroma%20
 </aside>
 
 <style>
-  .article-maintenance { width: 100%; margin: 56px auto 0; padding: 26px 28px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--panel) 86%, transparent); }
-  .article-maintenance h2 { margin: 0 0 20px; color: var(--gold); font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.45rem, 3vw, 1.9rem); line-height: 1.25; }
-  .article-maintenance h3 { margin: 0 0 10px; color: var(--text); font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; }
-  .maintenance-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+  .article-maintenance { width: 100%; margin: 48px auto 0; padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); }
+  .article-maintenance h2 { margin: 0 0 16px; color: var(--gold); font-size: var(--font-size-title); font-weight: 600; line-height: var(--line-height-title); }
+  .article-maintenance h3 { margin: 0 0 8px; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); font-weight: 600; }
+  .maintenance-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 0; }
   .maintenance-meta div { min-width: 0; }
-  .maintenance-meta dt { margin-bottom: 4px; color: var(--muted); font-size: .76rem; letter-spacing: .05em; text-transform: uppercase; }
-  .maintenance-meta dd { margin: 0; color: var(--text); font-size: .94rem; line-height: 1.55; }
+  .maintenance-meta dt { margin-bottom: 4px; color: var(--muted); font-size: var(--font-size-small); line-height:var(--line-height-small); text-transform: uppercase; }
+  .maintenance-meta dd { margin: 0; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); }
   .maintenance-group { margin-top: 24px; }
   .maintenance-group ul { display: grid; gap: 8px; margin: 0; padding-left: 1.2rem; }
-  .maintenance-group li { color: var(--muted); font-size: .92rem; line-height: 1.55; }
-  .article-maintenance a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .maintenance-group li { color: var(--muted); font-size: var(--font-size-body); line-height: var(--line-height-body); }
+  .article-maintenance a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; transition: color var(--motion-fast) ease; }
+  .article-maintenance a:hover { color: var(--gold-hover); }
+  .article-maintenance a:active { color: var(--gold-active); }
   .article-maintenance a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-  .correction-note { margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .92rem; line-height: 1.65; }
+  .correction-note { margin: 24px 0 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: var(--font-size-body); line-height: var(--line-height-body); }
   @media(max-width: 767px) {
-    .article-maintenance { margin-top: 42px; padding: 22px 20px; }
+    .article-maintenance { margin-top: 32px; padding: var(--space-3); }
     .maintenance-meta { grid-template-columns: 1fr; }
   }
 </style>

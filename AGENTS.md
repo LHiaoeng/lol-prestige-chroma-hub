@@ -49,7 +49,7 @@
 
 ### Frontend design
 
-页面设计、视觉升级、响应式调整与界面评审使用 `.agents/skills/frontend-design/SKILL.md`；纯数据、文案和非视觉逻辑修改不触发。
+前端视觉改动必须读取根目录 `DESIGN.md`，并按实际页面、组件及相关功能契约执行；纯数据或文案任务按需读取。本站保留 Astro 静态架构和暗色金色原画品牌，借鉴 Antdv Next 的组件尺寸、状态与设计体系；旧 `frontend-design` skill 已移除。
 
 ### Issue tracker
 

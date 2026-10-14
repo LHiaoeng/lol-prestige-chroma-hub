@@ -1,0 +1,136 @@
+/* Shared long-form typography and spacing for editorial and policy pages. */
+.blog-article section > p,
+.blog-article .article-deck { max-width: 75ch; }
+.blog-article,
+.about-page,
+.privacy-page {
+  width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2)));
+  margin-inline: auto;
+  padding: var(--space-5) 0;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-title);
+  font-weight: 400;
+  line-height: 1.9;
+}
+
+.blog-article .article-header { margin-bottom: var(--space-4); }
+.blog-article .article-header h1,
+.about-page h1,
+.privacy-page h1 {
+  margin: 0 0 var(--space-3);
+  color: var(--text);
+  font-size: var(--font-size-headline-lg);
+  font-weight: 600;
+  line-height: var(--line-height-headline-lg);
+  overflow-wrap: anywhere;
+}
+
+.blog-article .article-deck { margin: 0 0 var(--space-3); color: var(--muted); font-size: var(--font-size-title); line-height: 1.75; }
+.blog-article .article-meta,
+.about-page .editorial-meta,
+.privacy-page .effective-date { color: var(--muted); font-size: var(--font-size-small); line-height: var(--line-height-small); }
+.blog-article .article-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+.blog-article .kicker,
+.about-page .kicker,
+.privacy-page .kicker { color: var(--gold); }
+
+.blog-article section,
+.about-page section,
+.privacy-page section { margin-top: var(--space-4); }
+.blog-article h2,
+.about-page h2,
+.privacy-page h2 { margin: 0 0 var(--space-3); color: var(--gold); font-size: var(--font-size-headline-md); font-weight: 600; line-height: var(--line-height-headline-md); }
+.blog-article h3,
+.about-page h3,
+.privacy-page h3 { margin: var(--space-4) 0 var(--space-2); color: var(--text); font-size: var(--font-size-headline-sm); font-weight: 600; line-height: var(--line-height-headline-sm); }
+
+.blog-article section p,
+.blog-article ul,
+.blog-article ol,
+.about-page p:not(.kicker):not(.editorial-meta),
+.about-page li,
+.privacy-page p {
+  color: var(--text);
+  font-size: var(--font-size-title);
+  font-weight: 400;
+  line-height: 1.9;
+}
+.blog-article section p,
+.about-page p:not(.kicker):not(.editorial-meta),
+.privacy-page p { margin: 0 0 var(--space-3); }
+.blog-article ul,
+.blog-article ol,
+.about-page ul,
+.about-page ol { margin: 0 0 var(--space-3); padding-left: 1.5em; }
+.blog-article li,
+.about-page li { margin-bottom: var(--space-2); }
+.blog-article strong,
+.about-page strong,
+.privacy-page strong { color: var(--text); font-weight: 600; }
+
+.blog-article a,
+.about-page a,
+.privacy-page a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+.blog-article a:hover,
+.about-page a:hover,
+.privacy-page a:hover { color: var(--gold-hover); }
+.blog-article a:focus-visible,
+.about-page a:focus-visible,
+.privacy-page a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+.blog-article figure { margin: var(--space-4) 0 0; }
+.blog-article figure.article-hero { margin-top: 0; }
+.blog-article .article-hero { overflow: hidden; border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); }
+.blog-article figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line-subtle); background: var(--panel); }
+.blog-article figcaption { margin-top: var(--space-2); color: var(--muted); font-size: var(--font-size-small); line-height: var(--line-height-small); overflow-wrap: anywhere; }
+.blog-article .article-hero figcaption { margin: 0; padding: var(--space-2) var(--space-3); border-top: 1px solid var(--line-subtle); }
+
+.blog-article .faq details { padding: var(--space-3) 0; border-top: 1px solid var(--line-subtle); }
+.blog-article .faq details:last-child { border-bottom: 1px solid var(--line-subtle); }
+.blog-article .faq summary { color: var(--text); font-weight: 600; line-height: 1.5; cursor: pointer; }
+.blog-article .faq details p { margin: var(--space-2) 0 0; }
+
+.blog-article .official-sources { margin-top: var(--space-4); padding: var(--space-3); border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); color: var(--muted); font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.blog-article .official-sources strong { display: block; margin-bottom: var(--space-2); color: var(--text); font-size: var(--font-size-body); font-weight: 600; }
+.blog-article .official-sources ul { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); margin: 0; padding: 0; list-style: none; font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.blog-article .official-sources li { margin: 0; }
+.blog-article .official-source-link { color: var(--gold); font-size: var(--font-size-body); }
+
+.blog-article table { width: 100%; margin: 0 0 var(--space-3); border-collapse: collapse; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.blog-article th,
+.blog-article td { padding: var(--space-3); border-bottom: 1px solid var(--line-subtle); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.blog-article th { color: var(--text); background: var(--fill); font-size: var(--font-size-body); font-weight: 600; }
+.blog-article td { color: var(--text); background: var(--panel); }
+.blog-article tbody tr:last-child td { border-bottom: 0; }
+.blog-article tbody tr:hover td { background: var(--hover-bg); }
+
+@media (max-width: 767px) {
+  .blog-article th,
+  .blog-article td { padding: 12px; }
+}
+
+.about-page { padding-top: var(--space-5); }
+.about-page section { border-top: 1px solid var(--line-subtle); padding-top: var(--space-4); }
+.privacy-page { padding-top: var(--space-5); }
+.privacy-page .effective-date { margin-bottom: var(--space-3); }
+
+@media (max-width: 767px) {
+  .blog-article,
+  .about-page,
+  .privacy-page { padding-top: var(--space-4); padding-bottom: var(--space-5); }
+  .blog-article .article-header { margin-bottom: var(--space-3); }
+  .blog-article section,
+  .about-page section,
+  .privacy-page section { margin-top: var(--space-4); }
+  .blog-article h2,
+  .about-page h2,
+  .privacy-page h2 { font-size: var(--font-size-headline-sm); line-height: var(--line-height-headline-sm); }
+  .blog-article .article-deck,
+  .blog-article section p,
+  .blog-article ul,
+  .blog-article ol,
+  .about-page p:not(.kicker):not(.editorial-meta),
+  .about-page li,
+  .privacy-page p { line-height: 1.85; }
+}
