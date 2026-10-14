@@ -21,7 +21,7 @@
 
 | 页面模式 | 当前入口 | 重点状态 |
 | --- | --- | --- |
-| 图鉴筛选、卡片与分页 | [首页](../src/pages/index.astro)、[Filters](../src/components/Filters.astro)、[PrestigeChromaCard](../src/components/PrestigeChromaCard.astro)、[pagination](../src/components/pagination/) | 已筛选、空结果、错误、焦点；静态首批与动态重绘一致 |
+| 首页博客、导航与图鉴 | [首页](../src/pages/index.astro)、[HomeLatestBlog](../src/components/HomeLatestBlog.astro)、[HomeToolNavigation](../src/components/HomeToolNavigation.astro)、[HomeChromaCatalog](../src/components/HomeChromaCatalog.astro) | 双语链接、手机两行导航、直接展开的筛选、空结果、错误、焦点；静态首批与动态重绘一致 |
 | 臻彩详情与预览 | [详情页](../src/pages/chromas/[slug].astro)、[ImageViewer](../src/components/ImageViewer.astro)、[DetailActionMenu](../src/components/DetailActionMenu.astro) | 缺失字段、图片回退、菜单开合、键盘和触控 |
 | 运行时资料 | [RuntimeReferenceRoot](../src/components/RuntimeReferenceRoot.astro)、[chroma-card](../src/components/chroma-card/) | 加载、缺失、失败、重试、数据通道 |
 | 博客列表与长文 | [BlogIndexView](../src/components/BlogIndexView.astro)、[article.css](../src/styles/article.css) | 分页、双语长标题、窄屏图文、来源信息 |

@@ -12,9 +12,9 @@ describe('site SEO', () => {
       origin: 'https://chromaart.lol',
       tagline: 'China-Exclusive Chroma Splash Art Archive',
     });
-    expect(HOME_SEO.title).toBe('LoL China-Exclusive Chroma Splash Arts | LoL Chroma Art');
-    expect(HOME_SEO.description).toContain('“China Exclusive” refers to the artwork');
-    expect(HOME_SEO.description).toContain('not necessarily the chromas’ regional availability');
+    expect(HOME_SEO.title).toBe('LoL China-Exclusive Chroma Splash Arts & Game References | LoL Chroma Art');
+    expect(HOME_SEO.description).toContain('PBE additions, champions, skinlines, and universes');
+    expect(HOME_SEO.description).toContain('Artwork exclusivity does not imply chroma exclusivity');
     expect(HOME_SEO.jsonLd).toEqual(expect.arrayContaining([
       expect.objectContaining({
         '@type': 'WebSite',

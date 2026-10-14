@@ -1,3 +1,4 @@
+---
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 
 interface Props {
@@ -29,7 +30,7 @@ const links = [
 </nav>
 
 <style>
-  .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; }
+  .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto var(--space-4); }
   .home-tool-navigation ul { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
   .home-tool-navigation li { display: flex; min-width: 0; align-items: center; gap: 2px; }
   .home-tool-navigation a { display: inline-flex; min-height: var(--touch-target); align-items: center; justify-content: center; padding: 0 var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: color var(--motion-fast) ease, border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
@@ -39,6 +40,7 @@ const links = [
   .home-tool-navigation .help-link { width: var(--touch-target); flex: none; padding: 0; border-color: transparent; color: var(--gold); font-size: var(--font-size-title); font-weight: 600; }
   @media (max-width: 767px) {
     .home-tool-navigation ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+    .home-tool-navigation li:first-child { grid-column: span 2; }
     .home-tool-navigation li > a:first-child { min-width: 0; flex: 1; padding-inline: var(--space-1); }
   }
   @media (prefers-reduced-motion: reduce) { .home-tool-navigation a { transition: none; } }

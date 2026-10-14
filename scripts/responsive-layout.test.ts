@@ -5,11 +5,10 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('responsive layout contract', () => {
-  it('keeps complete filters visible on desktop and collapsible on mobile', () => {
+  it('keeps homepage filters expanded on desktop and mobile', () => {
     const filters = source('src/components/Filters.astro');
     expect(filters).toContain('<details class="filter-disclosure" open>');
-    expect(filters).toContain("matchMedia('(min-width: 768px)')");
-    expect(filters).toContain("toggleAttribute('open', desktop.matches)");
+    expect(filters).not.toContain("toggleAttribute('open', desktop.matches)");
     expect(filters).not.toContain('filter-shortcuts');
     for (const name of ['q', 'hero', 'version', 'category', 'isNew', 'sort']) {
       expect(filters).toContain(`name="${name}"`);
@@ -109,13 +108,12 @@ describe('responsive layout contract', () => {
     expect(detail).not.toContain('.detail-background{height:540px}');
   });
 
-  it('uses medium home hero artwork on mobile while keeping the large desktop image', () => {
+  it('uses a compact homepage catalog instead of a full-screen hero', () => {
     const home = source('src/pages/index.astro');
-    const backdrop = source('src/components/ResponsiveHeroBackdrop.astro');
-    expect(home).toContain('largeSrc={imageUrl(featuredChroma.images.large)}');
-    expect(home).toContain('mediumSrc={imageUrl(featuredChroma.images.medium)}');
-    expect(home).toContain("mediumFallback={sourceImageUrl('medium', featuredChroma.instanceId)}");
-    expect(backdrop).toContain('<source media="(max-width: 767px)" srcset={mediumSrc}');
-    expect(backdrop).toMatch(/<img\s+data-backdrop-image\s+src=\{largeSrc\}/);
+    const catalog = source('src/components/HomeChromaCatalog.astro');
+    expect(home).not.toContain('ResponsiveHeroBackdrop');
+    expect(home).toContain('<HomeChromaCatalog {locale} />');
+    expect(catalog).toContain('repeat(auto-fill, minmax(180px, 1fr))');
+    expect(catalog).toContain('grid-template-columns: 96px minmax(0, 1fr)');
   });
 });

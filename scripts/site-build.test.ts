@@ -54,13 +54,13 @@ describe("static site build", () => {
     expect(home).not.toContain("/api/chromas");
     expect(home).not.toContain("prestige-chromas.json");
     expect(home).toContain(
-      "<title>LoL China-Exclusive Chroma Splash Arts | LoL Chroma Art</title>",
+      "<title>LoL China-Exclusive Chroma Splash Arts &amp; Game References | LoL Chroma Art</title>",
     );
     expect(home).toContain(
       '<meta property="og:site_name" content="LoL Chroma Art">',
     );
     expect(home).toContain(
-      '<meta name="twitter:title" content="LoL China-Exclusive Chroma Splash Arts | LoL Chroma Art">',
+      '<meta name="twitter:title" content="LoL China-Exclusive Chroma Splash Arts &amp; Game References | LoL Chroma Art">',
     );
     expect(home).toContain("League of Legends");
     expect(home).toContain("China-Exclusive Chroma Splash Arts");
@@ -471,6 +471,33 @@ describe("static site build", () => {
     );
   });
 
+  it("renders bilingual homepage navigation and the first catalog page", () => {
+    for (const [prefix, labels] of [
+      ['', ['Prestige chromas', 'PBE additions', 'Champions', 'Skinlines', 'Universes']],
+      ['zh-cn', ['臻彩原画', 'PBE 新增', '英雄', '皮肤系列', '皮肤宇宙']],
+    ] as const) {
+      const home = readFileSync(join(dist, prefix, 'index.html'), 'utf8');
+      const nav = home.slice(home.indexOf('<nav class="home-tool-navigation"'), home.indexOf('</nav>', home.indexOf('<nav class="home-tool-navigation"')));
+      const route = (path: string) => `/${prefix ? `${prefix}/` : ''}${path}`;
+      const hrefs = ['/', '/pbe-additions/', '/champions/', '/skinlines/', '/universes/']
+        .map((path) => route(path.slice(1)));
+      let previous = -1;
+      for (const [index, label] of labels.entries()) {
+        const position = nav.indexOf(`href="${hrefs[index]}"`);
+        expect(position).toBeGreaterThan(previous);
+        expect(nav).toContain(label);
+        previous = position;
+      }
+      expect(nav).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
+      expect(nav).toContain(prefix ? 'aria-label="什么是臻彩？"' : 'aria-label="What are Prestige Chromas?"');
+      expect(nav).toContain('aria-current="page"');
+      const list = home.slice(home.indexOf('data-chroma-list'), home.indexOf('<template data-chroma-card-template'));
+      expect(list.match(/class="chroma-card"/g)).toHaveLength(Math.min(catalog.length, 24));
+      expect(home).toContain('<details class="filter-disclosure" open>');
+      expect(home).not.toContain('class="hero-section"');
+    }
+  });
+
   it("keeps runtime directories as static shells without entity HTML", () => {
     for (const prefix of ["", "zh-cn/"]) {
       for (const page of ["champions", "skinlines", "universes"]) {
@@ -791,15 +818,11 @@ describe("static site build", () => {
       join(dist, "zh-cn", "about", "index.html"),
       "utf8",
     );
-    expect(home).toContain(
-      "“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.",
-    );
+    expect(home).toContain("Artwork exclusivity does not imply chroma exclusivity.");
     expect(home).not.toContain(
       "“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。",
     );
-    expect(chineseHome).toContain(
-      "“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。",
-    );
+    expect(chineseHome).toContain("中国服专属指原画，不代表炫彩仅限国服。");
     expect(about).toContain(
       "<title>About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art</title>",
     );

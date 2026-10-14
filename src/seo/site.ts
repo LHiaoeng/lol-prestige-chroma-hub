@@ -11,8 +11,8 @@ export const CHINA_EXCLUSIVE_DEFINITION = {
 } as const;
 
 export const HOME_SEO = {
-  title: `LoL China-Exclusive Chroma Splash Arts | ${SITE.name}`,
-  description: 'Explore standalone chroma splash arts shown on the League of Legends China Server. “China Exclusive” refers to the artwork, not necessarily the chromas’ regional availability.',
+  title: `LoL China-Exclusive Chroma Splash Arts & Game References | ${SITE.name}`,
+  description: 'Browse China-server prestige chroma splash arts, PBE additions, champions, skinlines, and universes. Artwork exclusivity does not imply chroma exclusivity.',
   canonical: `${SITE.origin}/`,
   jsonLd: [
     {
@@ -27,8 +27,8 @@ export const HOME_SEO = {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       '@id': `${SITE.origin}/#collection`,
-      name: 'League of Legends China-Exclusive Chroma Splash Arts',
-      description: CHINA_EXCLUSIVE_DEFINITION.en,
+      name: 'League of Legends China-Exclusive Chroma Splash Arts and Game References',
+      description: 'Browse China-server prestige chroma splash arts, PBE additions, champions, skinlines, and universes. Artwork exclusivity does not imply chroma exclusivity.',
       url: `${SITE.origin}/`,
       isPartOf: { '@id': `${SITE.origin}/#website` },
     },
