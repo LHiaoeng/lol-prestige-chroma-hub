@@ -13,7 +13,7 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 ---
 
 <section class="catalog-section home-catalog" aria-labelledby="catalog-title">
-  <div class="section-heading"><h2 id="catalog-title">{isZh ? '臻彩原画' : 'Prestige chroma splash arts'}</h2></div>
+  <div class="section-heading"><div class="catalog-title-group"><h2 id="catalog-title">{isZh ? '臻彩原画' : 'Prestige chroma splash arts'}</h2><a class="catalog-help-link" href={localizedPath(locale, '/blog/what-are-prestige-chromas/')} aria-label={isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9a2.5 2.5 0 1 1 4.3 1.7c-1 .9-1.9 1.3-1.9 2.8"></path><path d="M12 17h.01"></path></svg></a></div></div>
   <Filters {catalog} {locale} />
   <div class="status" data-status aria-live="polite" hidden></div>
   <div class="chroma-grid" data-chroma-list>
@@ -43,6 +43,12 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 </script>
 
 <style is:global>
+  .home-catalog .catalog-title-group { display: flex; min-width: 0; align-items: center; gap: var(--space-2); }
+  .home-catalog .catalog-help-link { display: inline-flex; width: var(--touch-target); height: var(--touch-target); flex: none; align-items: center; justify-content: center; border-radius: 50%; color: var(--gold); transition: color var(--motion-fast) ease; }
+  .home-catalog .catalog-help-link svg { width: 18px; height: 18px; }
+  .home-catalog .catalog-help-link:hover { color: var(--gold-hover); }
+  .home-catalog .catalog-help-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .home-catalog .catalog-help-link { transition: none; } }
   .home-catalog .status:not([hidden]):not(.error) { padding: 8px 12px; margin: 12px 0; border: 0; }
   .home-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .home-catalog .card-body { padding: 12px; }

@@ -21,9 +21,6 @@ const links = [
     {links.map((link) => (
       <li>
         <a href={localizedPath(locale, link.href)} aria-current={link.current ? 'page' : undefined}>{link.label}</a>
-        {link.current && (
-          <a class="help-link" href={localizedPath(locale, '/blog/what-are-prestige-chromas/')} aria-label={isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}>?</a>
-        )}
       </li>
     ))}
   </ul>
@@ -37,7 +34,6 @@ const links = [
   .home-tool-navigation a:hover { border-color: var(--gold); color: var(--gold-hover); }
   .home-tool-navigation a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .home-tool-navigation a[aria-current="page"] { border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
-  .home-tool-navigation .help-link { width: var(--touch-target); flex: none; padding: 0; border-color: transparent; color: var(--gold); font-size: var(--font-size-title); font-weight: 600; }
   @media (max-width: 767px) {
     .home-tool-navigation ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
     .home-tool-navigation li:first-child { grid-column: span 2; }

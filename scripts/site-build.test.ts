@@ -488,9 +488,12 @@ describe("static site build", () => {
         expect(nav).toContain(label);
         previous = position;
       }
-      expect(nav).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
-      expect(nav).toContain(prefix ? 'aria-label="什么是臻彩？"' : 'aria-label="What are Prestige Chromas?"');
       expect(nav).toContain('aria-current="page"');
+      expect(nav).not.toContain('help-link');
+      const titleStart = home.indexOf('id="catalog-title"');
+      const catalogTitle = home.slice(titleStart, home.indexOf('</div></div>', titleStart));
+      expect(catalogTitle).toContain(`aria-label="${prefix ? '什么是臻彩？' : 'What are Prestige Chromas?'}"`);
+      expect(catalogTitle).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
       const list = home.slice(home.indexOf('data-chroma-list'), home.indexOf('<template data-chroma-card-template'));
       expect(list.match(/class="chroma-card"/g)).toHaveLength(Math.min(catalog.length, 24));
       expect(home).toContain('<details class="filter-disclosure" open>');
