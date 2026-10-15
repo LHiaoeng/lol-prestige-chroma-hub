@@ -314,6 +314,20 @@ function rarityRank(item: RuntimeSkinReferenceItem): number {
   return 0;
 }
 
+export function selectRuntimeBackdropItem(
+  items: readonly RuntimeSkinReferenceItem[],
+): RuntimeSkinReferenceItem | undefined {
+  // shortcut: CommunityDragon skin records have no release date, use descending skin ID until release metadata exists.
+  return items
+    .filter((item) => item.media.unfocusedSplashUrl || item.media.focusedSplashUrl)
+    .sort(
+      (left, right) =>
+        rarityRank(right) - rarityRank(left) ||
+        right.skinId - left.skinId ||
+        (right.stageIndex ?? 0) - (left.stageIndex ?? 0),
+    )[0];
+}
+
 /**
  * Apply the champion detail's reference-project sort choices without changing
  * the stable release order used by the default view.

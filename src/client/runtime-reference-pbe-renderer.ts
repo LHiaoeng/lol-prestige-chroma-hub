@@ -15,7 +15,7 @@ import {
   appendChromaColorCircle,
   appendMedia,
   appendMissingField,
-  appendRarity,
+  appendSkinReferenceTitle,
   hrefFor,
   linkWithNavigation,
   runtimeMissingLabel,
@@ -76,10 +76,8 @@ export function appendPbeSkinCard(
   else appendMissingField(link, locale, "thumbnail");
   const meta = document.createElement("span");
   meta.className = "runtime-pbe-card-meta";
-  const nameLabel = textNode("span", name);
-  if (!item.name) nameLabel.classList.add("runtime-missing");
-  meta.appendChild(nameLabel);
-  appendRarity(meta, item.rarity);
+  const title = appendSkinReferenceTitle(meta, name, item.rarity);
+  if (!item.name) title.classList.add("runtime-missing");
   link.appendChild(meta);
   card.appendChild(link);
 

@@ -89,9 +89,21 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
   const content =
     options.root.querySelector<HTMLElement>("[data-runtime-content]") ??
     document.createElement("div");
-  const spin = options.root.querySelector<HTMLElement>("[data-runtime-spin]");
+  const pageShell = options.root.closest<HTMLElement>("[data-runtime-page-shell]");
+  const entityDetailSummary = options.root.ownerDocument.querySelector<HTMLElement>(
+    "[data-runtime-entity-detail-summary]",
+  );
+  const entityHeaderSkeleton = options.root.ownerDocument.querySelector<HTMLElement>(
+    "[data-runtime-entity-header-skeleton]",
+  );
+  const entityChannelSource = options.root.ownerDocument.querySelector<HTMLElement>(
+    "[data-runtime-entity-detail-source], [data-runtime-universe-detail-source]",
+  );
+  const entityDivider = options.root.ownerDocument.querySelector<HTMLElement>(
+    ".runtime-entity-detail-divider, .runtime-universe-detail-divider",
+  );
   const clearRuntimeAlert = () =>
-    spin?.querySelector("[data-runtime-error-alert]")?.remove();
+    options.root.querySelector("[data-runtime-error-alert]")?.remove();
   if (!status.parentElement) options.root.append(status);
   if (!content.parentElement) options.root.append(content);
   status.setAttribute("role", "status");
@@ -196,11 +208,9 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       if (state.core.status !== "ready" || !state.context) return;
       const { context } = state;
       options.root.removeAttribute("aria-busy");
+      pageShell?.removeAttribute("data-runtime-loading");
+      entityHeaderSkeleton?.setAttribute("hidden", "");
       status.textContent = "";
-      if (spin) {
-        spin.dataset.spinning = "false";
-        spin.setAttribute("aria-busy", "false");
-      }
       clearRuntimeAlert();
       if (renderedContext !== context) {
         renderedContext = context;
@@ -256,11 +266,22 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     },
     loading(preserve, context) {
       options.root.setAttribute("aria-busy", "true");
+      pageShell?.setAttribute("data-runtime-loading", "");
       clearRuntimeAlert();
-      if (spin) {
-        spin.dataset.spinning = String(preserve);
-        spin.setAttribute("aria-busy", String(preserve));
-      }
+      const isEntityDetail =
+        context &&
+        typeof context === "object" &&
+        context.target.mode === "detail" &&
+        ["champion", "skin", "skinline", "universe"].includes(context.target.kind);
+      if (isEntityDetail) {
+        entityHeaderSkeleton?.removeAttribute("hidden");
+        if (entityDetailSummary && entityChannelSource && entityDivider)
+          entityDetailSummary.append(entityChannelSource, entityDivider);
+      } else entityHeaderSkeleton?.setAttribute("hidden", "");
+      if (
+        isEntityDetail && context?.target.mode === "detail" && context.target.kind === "universe"
+      )
+        detailRenderer.showUniverseSummaryLoading();
       const channel =
         context && typeof context === "object"
           ? context.target.mode === "pbe"
@@ -272,43 +293,30 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         options.locale === "zh_cn"
           ? "正在加载游戏资料…"
           : "Loading game reference…";
-      if (!preserve && !content.querySelector(".runtime-skeleton")) {
-        const template = options.root.querySelector<HTMLTemplateElement>(
-          "[data-runtime-skeleton-template]",
-        );
-        content.replaceChildren(
-          ...(template
-            ? [template.content.cloneNode(true)]
-            : [
-                (() => {
-                  const skeleton = textNode("div", "", "runtime-skeleton-grid");
-                  skeleton.setAttribute("aria-hidden", "true");
-                  for (let index = 0; index < 6; index += 1)
-                    skeleton.append(textNode("div", "", "runtime-skeleton-card"));
-                  return skeleton;
-                })(),
-              ]),
-        );
-      }
+      const targetMode = context && typeof context === "object"
+        ? context.target.mode
+        : "list";
+      const template = options.root.querySelector<HTMLTemplateElement>(
+        `[data-runtime-skeleton-template="${targetMode}"]`,
+      );
+      if (template) content.replaceChildren(template.content.cloneNode(true));
     },
     invalid(message, channel) {
       setRuntimeNoindex(true);
+      detailRenderer.showUniverseSummaryFailure();
+      entityHeaderSkeleton?.setAttribute("hidden", "");
       if (channel) updateChannel(channel);
       options.root.removeAttribute("aria-busy");
-      if (spin) {
-        spin.dataset.spinning = "false";
-        spin.setAttribute("aria-busy", "false");
-      }
+      pageShell?.removeAttribute("data-runtime-loading");
       clearRuntimeAlert();
       status.textContent = message;
       content.replaceChildren();
     },
     failure(error, retry) {
+      detailRenderer.showUniverseSummaryFailure();
+      entityHeaderSkeleton?.setAttribute("hidden", "");
       options.root.removeAttribute("aria-busy");
-      if (spin) {
-        spin.dataset.spinning = "false";
-        spin.setAttribute("aria-busy", "false");
-      }
+      pageShell?.removeAttribute("data-runtime-loading");
       clearRuntimeAlert();
       const template = options.root.querySelector<HTMLTemplateElement>(
         "[data-runtime-alert-template]",
@@ -337,7 +345,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       message.textContent = runtimeFailureMessage(error, options.locale);
       button.addEventListener("click", retry, { once: true });
       status.textContent = "";
-      if (content.querySelector(".runtime-skeleton-grid"))
+      if (content.querySelector(".runtime-skeleton"))
         content.replaceChildren();
       content.before(alert);
     },

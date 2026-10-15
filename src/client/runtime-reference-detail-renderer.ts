@@ -10,6 +10,8 @@ import type {
 } from "../domain/skin-reference-projection";
 import {
   projectChampionSkinListItems,
+  projectSkinReferenceItems,
+  selectRuntimeBackdropItem,
   sortSkinReferenceItems,
 } from "../domain/skin-reference-projection";
 import { relatedRuntimeItems } from "../domain/runtime-relations";
@@ -28,6 +30,7 @@ import {
   appendMediaCollection,
   appendMissingField,
   appendRarity,
+  appendSkinReferenceTitle,
   appendSkinReferenceGrid,
   appendUniverseSkinGroups,
   hasRenderableRarity,
@@ -39,6 +42,8 @@ import {
 } from "./runtime-reference-view-shared";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import { createChromaCard } from "../components/chroma-card/chroma-card";
+import { createDomainIcon } from "../components/domain-icons";
+import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
 
@@ -73,7 +78,28 @@ export interface RuntimeDetailRenderer {
     error: CommunityDragonRuntimeError,
     retry: () => void,
   ): void;
+  showUniverseSummaryLoading(): void;
+  showUniverseSummaryFailure(): void;
   showSupplementLoading(kind: "skinline" | "universe"): void;
+}
+
+function setUniverseCountSkeleton(element: HTMLElement): void {
+  element.classList.remove("runtime-list-count");
+  element.classList.add(
+    "runtime-skeleton-line",
+    "runtime-skeleton-line--count",
+    "runtime-universe-count-skeleton",
+  );
+  if (element.hasAttribute("data-runtime-universe-skin-count"))
+    element.classList.add("runtime-universe-count-skeleton--skins");
+  element.setAttribute("aria-hidden", "true");
+  element.textContent = "";
+}
+
+function setUniverseCount(element: HTMLElement, value: string): void {
+  element.className = "runtime-list-count";
+  element.removeAttribute("aria-hidden");
+  element.textContent = value;
 }
 
 export function createRuntimeDetailRenderer(
@@ -86,6 +112,40 @@ export function createRuntimeDetailRenderer(
   let universeSkinCollectionState: "loading" | "ready" | "failed" = "loading";
   let universeSkinlineNames = new Map<number, string>();
   let renderUniverseGroups: (() => void) | undefined;
+  let entityDetailSource: HTMLElement | undefined;
+  let entityDetailDivider: HTMLElement | undefined;
+  let universeDetailSource: HTMLElement | undefined;
+  let universeDetailDivider: HTMLElement | undefined;
+  const referenceBackdrop = document.querySelector<HTMLElement>(
+    "[data-runtime-reference-backdrop]",
+  );
+  const referenceBackdropImage = referenceBackdrop?.querySelector<HTMLImageElement>(
+    "[data-runtime-reference-backdrop-image]",
+  );
+
+  const updateReferenceBackdrop = (
+    items?: readonly RuntimeSkinReferenceItem[],
+  ): void => {
+    if (!referenceBackdrop || !referenceBackdropImage) return;
+    const item = items ? selectRuntimeBackdropItem(items) : undefined;
+    const src = item?.media.unfocusedSplashUrl ?? item?.media.focusedSplashUrl;
+    if (!item || !src) {
+      referenceBackdrop.hidden = true;
+      referenceBackdropImage.removeAttribute("src");
+      referenceBackdropImage.removeAttribute("data-fallback");
+      delete referenceBackdropImage.dataset.fallbackStage;
+      return;
+    }
+    const fallback = item.media.unfocusedSplashUrl
+      ? item.media.focusedSplashUrl ?? item.media.tileUrl
+      : item.media.tileUrl;
+    if (fallback) referenceBackdropImage.dataset.fallback = fallback;
+    else referenceBackdropImage.removeAttribute("data-fallback");
+    delete referenceBackdropImage.dataset.fallbackStage;
+    referenceBackdrop.hidden = false;
+    referenceBackdropImage.src = src;
+    bindImageFallbacks(referenceBackdrop);
+  };
 
   const renderRelationStates = (
     state: RuntimePageState,
@@ -93,6 +153,7 @@ export function createRuntimeDetailRenderer(
     target: DetailState,
   ): void => {
     if (!relationSlot) return;
+    if (target.kind === "universe") relationSlot.hidden = true;
     const definitions: readonly {
       readonly key: "relation-skinlines" | "relation-universes";
       readonly kind: "skinline" | "universe";
@@ -137,6 +198,7 @@ export function createRuntimeDetailRenderer(
               .map((item) => [item.id, item.name] as const)
           : [],
       );
+      if (universeSkinCollectionState === "ready") renderUniverseGroups?.();
     }
     relationSlot.replaceChildren(
       ...definitions.map(({ key, kind, label }) => {
@@ -156,16 +218,19 @@ export function createRuntimeDetailRenderer(
             }
           | undefined;
         if (!slot || slot.status === "loading") {
-          group.appendChild(
-            textNode(
-              "p",
-              options.locale === "zh_cn"
-                ? "正在加载关联资料…"
-                : "Loading related references…",
-              "runtime-relation-state",
-            ),
-          );
+          const placeholders = document.createElement("div");
+          placeholders.className = "runtime-links runtime-skeleton-relations";
+          placeholders.setAttribute("aria-hidden", "true");
+          for (const width of ["72px", "96px", "84px"]) {
+            const chip = document.createElement("span");
+            chip.className = "runtime-skeleton-line runtime-skeleton-line--chip";
+            chip.style.width = width;
+            placeholders.appendChild(chip);
+          }
+          group.appendChild(placeholders);
         } else if (slot.status === "failed") {
+          if (target.kind === "universe" && relationSlot)
+            relationSlot.hidden = false;
           const notice = textNode(
             "p",
             runtimeFailureMessage(slot.error, options.locale),
@@ -228,6 +293,13 @@ export function createRuntimeDetailRenderer(
       universeSkinCollectionState = "loading";
       renderUniverseGroups = undefined;
       universeSkinlineNames = new Map();
+      updateReferenceBackdrop(
+        item.kind === "champion"
+          ? projectChampionSkinListItems(item.id, item.skins)
+          : item.kind === "skin"
+            ? projectSkinReferenceItems(item)
+            : undefined,
+      );
       setRuntimeNoindex(true);
       options.updateChannel(state.channel);
       const breadcrumbEntity = document.querySelector<HTMLElement>(
@@ -238,12 +310,62 @@ export function createRuntimeDetailRenderer(
       const controller = options.getController();
       const article = document.createElement("article");
       article.className = "runtime-detail";
-      article.appendChild(
-        textNode(
-          "h1",
-          item.name ?? runtimeMissingLabel(options.locale, "name"),
-        ),
+      const title = textNode(
+        "h1",
+        item.name ?? runtimeMissingLabel(options.locale, "name"),
       );
+      if (
+        item.kind === "champion" ||
+        item.kind === "skin" ||
+        item.kind === "skinline"
+      ) {
+        article.classList.add("runtime-detail--entity");
+        title.prepend(createDomainIcon(
+          item.kind === "champion" ? "champions" : item.kind === "skin" ? "skins" : "skinlines",
+        ));
+      }
+      if (item.kind === "universe") {
+        article.classList.add("runtime-detail--universe");
+        title.prepend(createDomainIcon("universes"));
+        universeDetailSource ??= document.querySelector<HTMLElement>(
+          "[data-runtime-universe-detail-source]",
+        ) ?? undefined;
+        universeDetailDivider ??= document.querySelector<HTMLElement>(
+          ".runtime-universe-detail-divider",
+        ) ?? undefined;
+        const skinlineCount = universeDetailSource?.querySelector<HTMLElement>(
+          "[data-runtime-universe-skinline-count]",
+        );
+        if (skinlineCount)
+          setUniverseCount(skinlineCount, options.locale === "zh_cn"
+            ? `${item.skinlineIds.length} 个皮肤系列`
+            : `${item.skinlineIds.length} skinlines`);
+        const skinCount = universeDetailSource?.querySelector<HTMLElement>(
+          "[data-runtime-universe-skin-count]",
+        );
+        if (skinCount) setUniverseCountSkeleton(skinCount);
+      }
+      article.appendChild(title);
+      if (item.kind === "champion" && item.shortBio)
+        article.appendChild(textNode("p", item.shortBio, "runtime-lede"));
+      if (item.kind === "skin" && item.description)
+        article.appendChild(textNode("p", item.description, "runtime-lede"));
+      if (item.kind === "skinline" && item.description)
+        article.appendChild(textNode("p", item.description, "runtime-lede"));
+      if (
+        item.kind === "champion" ||
+        item.kind === "skin" ||
+        item.kind === "skinline"
+      ) {
+        entityDetailSource ??= document.querySelector<HTMLElement>(
+          "[data-runtime-entity-detail-source]",
+        ) ?? undefined;
+        entityDetailDivider ??= document.querySelector<HTMLElement>(
+          ".runtime-entity-detail-divider",
+        ) ?? undefined;
+        if (entityDetailSource) article.appendChild(entityDetailSource);
+        if (entityDetailDivider) article.appendChild(entityDetailDivider);
+      }
       if (item.kind === "champion") {
         const section = document.createElement("section");
         section.appendChild(
@@ -321,8 +443,7 @@ export function createRuntimeDetailRenderer(
             else appendMissingField(link, options.locale, "thumbnail");
             const meta = document.createElement("span");
             meta.className = "runtime-skin-reference-meta";
-            meta.appendChild(textNode("span", skinName));
-            appendRarity(meta, skin.rarity);
+            appendSkinReferenceTitle(meta, skinName, skin.rarity);
             link.appendChild(meta);
             card.appendChild(link);
             grid.appendChild(card);
@@ -361,18 +482,7 @@ export function createRuntimeDetailRenderer(
           appendRarity(rarityValue, item.rarity);
           summary.append(rarityTerm, rarityValue);
         }
-        const descriptionTerm = textNode(
-          "dt",
-          options.locale === "zh_cn" ? "描述" : "Description",
-        );
-        const descriptionValue = document.createElement("dd");
-        if (item.description)
-          descriptionValue.appendChild(
-            textNode("p", item.description, "runtime-lede"),
-          );
-        else appendMissingField(descriptionValue, options.locale, "description");
-        summary.append(descriptionTerm, descriptionValue);
-        article.appendChild(summary);
+        if (summary.childElementCount) article.appendChild(summary);
 
         const mediaSection = document.createElement("section");
         mediaSection.className = "runtime-skin-media";
@@ -557,27 +667,16 @@ export function createRuntimeDetailRenderer(
       } else {
         if (item.description)
           article.appendChild(textNode("p", item.description, "runtime-lede"));
-        const section = document.createElement("section");
-        section.appendChild(
-          textNode("h2", options.locale === "zh_cn" ? "所属系列" : "Skinlines"),
-        );
         relationSlot = textNode(
-          "p",
-          options.locale === "zh_cn"
-            ? "正在加载关联资料…"
-            : "Loading related references…",
-          "runtime-relation-state",
+          "div",
+          "",
+          "runtime-relation-state runtime-universe-relation-state",
         );
-        section.appendChild(relationSlot);
-        article.appendChild(section);
-
-        const skins = document.createElement("section");
-        skins.appendChild(
-          textNode(
-            "h2",
-            options.locale === "zh_cn" ? "宇宙内皮肤" : "Universe skins",
-          ),
-        );
+        relationSlot.hidden = true;
+        if (universeDetailSource) article.appendChild(universeDetailSource);
+        if (universeDetailDivider) article.appendChild(universeDetailDivider);
+        article.appendChild(relationSlot);
+        const skins = document.createElement("div");
         universeSkinsSlot = document.createElement("div");
         universeSkinsSlot.className = "runtime-universe-skins-state";
         skins.appendChild(universeSkinsSlot);
@@ -599,7 +698,7 @@ export function createRuntimeDetailRenderer(
       }
       options.content.replaceChildren(article);
       options.status.textContent =
-        item.kind === "champion"
+        item.kind === "champion" || item.kind === "universe"
           ? ""
           : options.locale === "zh_cn"
             ? "资料加载完成"
@@ -609,18 +708,6 @@ export function createRuntimeDetailRenderer(
       renderRelationStates(state, entity, target);
     },
     renderRelationsItems(items, state) {
-      if (!relationSlot) return;
-      if (!items.length) {
-        if (state.kind === "universe") {
-          universeSkinlineNames = new Map();
-          if (universeSkinCollectionState === "ready") renderUniverseGroups?.();
-        }
-        relationSlot.textContent =
-          options.locale === "zh_cn"
-            ? "当前语言没有可显示的关联资料。"
-            : "No related references are available in this language.";
-        return;
-      }
       if (state.kind === "universe") {
         universeSkinlineNames = new Map(
           items
@@ -628,6 +715,14 @@ export function createRuntimeDetailRenderer(
             .map((item) => [item.id, item.name] as const),
         );
         if (universeSkinCollectionState === "ready") renderUniverseGroups?.();
+      }
+      if (!relationSlot) return;
+      if (!items.length) {
+        relationSlot.textContent =
+          options.locale === "zh_cn"
+            ? "当前语言没有可显示的关联资料。"
+            : "No related references are available in this language.";
+        return;
       }
       const grouped = new Map<"skinline" | "universe", RuntimeList>();
       items.forEach((item) => {
@@ -679,6 +774,7 @@ export function createRuntimeDetailRenderer(
       );
     },
     renderSkinlineSkins(items, state) {
+      updateReferenceBackdrop(items);
       if (!skinlineSkinsSlot) return;
       skinlineSkinsSlot.replaceChildren();
       appendSkinReferenceGrid(
@@ -693,10 +789,49 @@ export function createRuntimeDetailRenderer(
     renderUniverseSkins(groups) {
       universeSkinGroups = groups;
       universeSkinCollectionState = "ready";
+      updateReferenceBackdrop(groups.flatMap((group) => group.items));
+      const skinlineCount = universeDetailSource?.querySelector<HTMLElement>(
+        "[data-runtime-universe-skinline-count]",
+      );
+      if (skinlineCount)
+        setUniverseCount(skinlineCount, options.locale === "zh_cn"
+          ? `${groups.length} 个皮肤系列`
+          : `${groups.length} skinlines`);
+      const skinCount = universeDetailSource?.querySelector<HTMLElement>(
+        "[data-runtime-universe-skin-count]",
+      );
+      if (skinCount) {
+        const count = groups.reduce((total, group) => total + group.items.length, 0);
+        setUniverseCount(skinCount, options.locale === "zh_cn"
+          ? `${count} 款皮肤`
+          : `${count} skins`);
+      }
       renderUniverseGroups?.();
+    },
+    showUniverseSummaryLoading() {
+      const source = universeDetailSource ?? document.querySelector<HTMLElement>(
+        "[data-runtime-universe-detail-source]",
+      );
+      source?.querySelectorAll<HTMLElement>(
+        "[data-runtime-universe-skinline-count], [data-runtime-universe-skin-count]",
+      ).forEach(setUniverseCountSkeleton);
+    },
+    showUniverseSummaryFailure() {
+      const source = universeDetailSource ?? document.querySelector<HTMLElement>(
+        "[data-runtime-universe-detail-source]",
+      );
+      const skinlineCount = source?.querySelector<HTMLElement>(
+        "[data-runtime-universe-skinline-count]",
+      );
+      if (skinlineCount) setUniverseCount(skinlineCount, "—");
+      const skinCount = source?.querySelector<HTMLElement>(
+        "[data-runtime-universe-skin-count]",
+      );
+      if (skinCount) setUniverseCount(skinCount, "—");
     },
     showRelationFailure(error, retry) {
       if (!relationSlot) return;
+      relationSlot.hidden = false;
       const notice = textNode(
         "p",
         runtimeFailureMessage(error, options.locale),
@@ -732,6 +867,14 @@ export function createRuntimeDetailRenderer(
     showUniverseSkinsFailure(error, retry) {
       if (!universeSkinsSlot) return;
       universeSkinCollectionState = "failed";
+      const skinCount = universeDetailSource?.querySelector<HTMLElement>(
+        "[data-runtime-universe-skin-count]",
+      );
+      if (skinCount)
+        setUniverseCount(
+          skinCount,
+          options.locale === "zh_cn" ? "— 款皮肤" : "— skins",
+        );
       const notice = textNode(
         "p",
         runtimeFailureMessage(error, options.locale),
@@ -748,20 +891,13 @@ export function createRuntimeDetailRenderer(
     },
     showSupplementLoading(kind) {
       const slot = kind === "skinline" ? skinlineSkinsSlot : universeSkinsSlot;
-      if (!slot) return;
-      slot.replaceChildren(
-        textNode(
-          "p",
-          kind === "skinline"
-            ? options.locale === "zh_cn"
-              ? "正在加载系列皮肤…"
-              : "Loading skinline skins…"
-            : options.locale === "zh_cn"
-              ? "正在加载宇宙皮肤…"
-              : "Loading universe skins…",
-          "runtime-relation-state",
-        ),
-      );
+      if (!slot || slot.querySelector(".runtime-skeleton")) return;
+      const template = options.content
+        .closest<HTMLElement>(".runtime-reference-root")
+        ?.querySelector<HTMLTemplateElement>(
+          `[data-runtime-supplement-skeleton-template="${kind}"]`,
+        );
+      if (template) slot.replaceChildren(template.content.cloneNode(true));
     },
   };
 }

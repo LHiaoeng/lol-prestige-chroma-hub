@@ -10,8 +10,11 @@ import type {
   RuntimeSkinReferenceGroup,
   RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
+import { sortSkinReferenceItems } from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
 import { formatRuntimeUrl } from "../domain/runtime-url-state";
+import { createDomainIcon } from "../components/domain-icons";
+import { createTooltip } from "../components/tooltip";
 import type { RuntimePage } from "./runtime-reference";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
@@ -223,6 +226,25 @@ export function appendRarity(
   }
   if (label) badge.appendChild(textNode("span", label));
   parent.appendChild(badge);
+}
+
+export function appendSkinReferenceTitle(
+  parent: HTMLElement,
+  name: string,
+  rarity: RuntimeRarityView | undefined,
+): HTMLElement {
+  const title = textNode("span", name, "runtime-skin-reference-title");
+  if (rarity?.iconUrl) {
+    const icon = document.createElement("img");
+    icon.src = rarity.iconUrl;
+    icon.alt = "";
+    icon.loading = "lazy";
+    icon.decoding = "async";
+    if (rarity.label) title.prepend(createTooltip(icon, rarity.label));
+    else title.prepend(icon);
+  }
+  parent.appendChild(title);
+  return title;
 }
 
 type DetailMediaKey =
@@ -652,6 +674,7 @@ export function appendSkinReferenceCard(
   channel: "pbe" | "latest",
   controller: RuntimeControllerLike,
   preserveExplicitPbe: boolean,
+  showChampionName = false,
 ): void {
   const card = document.createElement("article");
   card.className = "runtime-skin-reference-card";
@@ -673,13 +696,21 @@ export function appendSkinReferenceCard(
     "runtime-skin-reference-link",
   );
   const name = item.name ?? runtimeMissingLabel(locale, "name");
-  link.setAttribute("aria-label", name);
+  link.setAttribute(
+    "aria-label",
+    showChampionName && item.championName
+      ? `${item.championName}: ${name}`
+      : name,
+  );
   if (item.thumbnailUrl) appendMedia(link, item.thumbnailUrl, name);
   else appendMissingField(link, locale, "thumbnail");
   const meta = document.createElement("span");
   meta.className = "runtime-skin-reference-meta";
-  meta.appendChild(textNode("span", name));
-  appendRarity(meta, item.rarity);
+  if (showChampionName && item.championName)
+    meta.appendChild(
+      textNode("span", item.championName, "runtime-skin-reference-champion"),
+    );
+  appendSkinReferenceTitle(meta, name, item.rarity);
   link.appendChild(meta);
   card.appendChild(link);
   parent.appendChild(card);
@@ -693,6 +724,7 @@ export function appendSkinReferenceGrid(
   controller: RuntimeControllerLike,
   preserveExplicitPbe: boolean,
   emptyMessage?: string,
+  showChampionName = false,
 ): void {
   const grid = document.createElement("div");
   grid.className = "runtime-skin-reference-grid";
@@ -717,6 +749,7 @@ export function appendSkinReferenceGrid(
         channel,
         controller,
         preserveExplicitPbe,
+        showChampionName,
       ),
     );
   }
@@ -743,29 +776,122 @@ export function appendUniverseSkinGroups(
     );
     return;
   }
+  const controls = document.createElement("div");
+  controls.className = "runtime-toolbar runtime-universe-filters";
+  const skinlineSelect = document.createElement("select");
+  skinlineSelect.className = "cn-select";
+  skinlineSelect.id = "runtime-universe-skinline-filter";
+  skinlineSelect.setAttribute("aria-label", locale === "zh_cn" ? "系列筛选" : "Filter by skinline");
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = locale === "zh_cn" ? "全部系列" : "All skinlines";
+  skinlineSelect.appendChild(allOption);
   groups.forEach((group) => {
-    const section = document.createElement("section");
-    section.className = "runtime-universe-skin-group";
-    section.appendChild(
-      textNode(
-        "h3",
-        skinlineNames.get(group.skinlineId) ??
-          runtimeMissingLabel(locale, "name"),
-      ),
-    );
-    appendSkinReferenceGrid(
-      section,
-      group.items,
-      locale,
-      channel,
-      controller,
-      preserveExplicitPbe,
-      locale === "zh_cn"
-        ? "当前语言没有可显示的宇宙皮肤资料。"
-        : "No skin records are available for this universe in this language.",
-    );
-    parent.appendChild(section);
+    const option = document.createElement("option");
+    option.value = String(group.skinlineId);
+    option.textContent =
+      skinlineNames.get(group.skinlineId) ?? runtimeMissingLabel(locale, "name");
+    skinlineSelect.appendChild(option);
   });
+  const skinlineLabel = document.createElement("label");
+  skinlineLabel.className = "runtime-toolbar-field";
+  skinlineLabel.htmlFor = skinlineSelect.id;
+  skinlineLabel.append(
+    textNode("span", locale === "zh_cn" ? "系列" : "Skinline"),
+    skinlineSelect,
+  );
+
+  const sortSelect = document.createElement("select");
+  sortSelect.className = "cn-select";
+  sortSelect.id = "runtime-universe-skins-sort";
+  sortSelect.setAttribute("aria-label", locale === "zh_cn" ? "皮肤排序" : "Sort skins");
+  for (const [value, label] of [
+    ["champion", locale === "zh_cn" ? "英雄" : "Champion"],
+    ["rarity", locale === "zh_cn" ? "稀有度" : "Rarity"],
+  ] as const) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    sortSelect.appendChild(option);
+  }
+  const sortLabel = document.createElement("label");
+  sortLabel.className = "runtime-toolbar-field";
+  sortLabel.htmlFor = sortSelect.id;
+  sortLabel.append(
+    textNode("span", locale === "zh_cn" ? "排序" : "Sort by"),
+    sortSelect,
+  );
+  controls.append(skinlineLabel, sortLabel);
+  parent.appendChild(controls);
+
+  const skinGroups = document.createElement("div");
+  skinGroups.className = "runtime-universe-skin-groups";
+  const renderGroups = () => {
+    skinGroups.replaceChildren();
+    groups
+      .filter((group) => !skinlineSelect.value || String(group.skinlineId) === skinlineSelect.value)
+      .forEach((group, index) => {
+        if (index > 0) {
+          const divider = document.createElement("div");
+          divider.className = "ant-divider ant-divider-horizontal ant-divider-dashed runtime-universe-skin-divider";
+          divider.setAttribute("role", "separator");
+          skinGroups.appendChild(divider);
+        }
+        const section = document.createElement("section");
+        section.className = "runtime-universe-skin-group";
+        const heading = textNode(
+          "h2",
+          "",
+        );
+        const skinlineLink = linkWithNavigation(
+          skinlineNames.get(group.skinlineId) ??
+            runtimeMissingLabel(locale, "name"),
+          hrefFor(
+            locale,
+            "skinlines",
+            { id: group.skinlineId, channel },
+            "detail",
+            preserveExplicitPbe,
+          ),
+          controller,
+          "runtime-universe-skinline-link",
+        );
+        skinlineLink.prepend(createDomainIcon("skinlines"));
+        heading.appendChild(skinlineLink);
+        section.appendChild(heading);
+        const cards = document.createElement("div");
+        cards.className = "runtime-universe-skin-cards";
+        const items = sortSelect.value === "rarity"
+          ? sortSkinReferenceItems(group.items, "rarity")
+          : [...group.items].sort((left, right) =>
+              (left.championName ?? "").localeCompare(
+                right.championName ?? "",
+                locale === "zh_cn" ? "zh-CN" : "en",
+              ) || (left.name ?? "").localeCompare(
+                right.name ?? "",
+                locale === "zh_cn" ? "zh-CN" : "en",
+              ),
+            );
+        appendSkinReferenceGrid(
+          cards,
+          items,
+          locale,
+          channel,
+          controller,
+          preserveExplicitPbe,
+          locale === "zh_cn"
+            ? "当前语言没有可显示的宇宙皮肤资料。"
+            : "No skin records are available for this universe in this language.",
+          true,
+        );
+        section.appendChild(cards);
+        skinGroups.appendChild(section);
+      });
+  };
+  skinlineSelect.addEventListener("change", renderGroups);
+  sortSelect.addEventListener("change", renderGroups);
+  renderGroups();
+  parent.appendChild(skinGroups);
 }
 
 
