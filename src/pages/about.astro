@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -30,6 +31,10 @@ const jsonLd = {
 };
 ---
 <BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
+  <Breadcrumb {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '关于' : 'About' },
+  ]} />
   {!isZh && <article class="about-page">
     <p class="kicker">ABOUT THE ARCHIVE</p>
     <h1>About LoL Chroma Art</h1>
