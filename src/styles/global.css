@@ -167,8 +167,8 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 }
 
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
-.runtime-page{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto;padding:0 0 96px}.runtime-page h1,.runtime-page h2{font-family:var(--font-ui);font-weight:600}.runtime-page--detail .runtime-section{padding-top:0}.runtime-lede{color:var(--muted);line-height:1.7}.ant-masonry{columns:210px;column-gap:16px}.ant-masonry>*{break-inside:avoid-column;margin:0 0 16px;width:100%}.ant-masonry .ant-empty{column-span:all}.runtime-card{padding:16px;min-width:0}.runtime-card h2,.runtime-card h3{margin:.2em 0 .45em;font-size:var(--font-size-title);overflow-wrap:anywhere}.runtime-card p{color:var(--muted);font-size:var(--font-size-body);line-height:1.55;margin:.4em 0}.runtime-section{padding-top:40px}.runtime-section h2{font-size:var(--font-size-headline-md)}.runtime-links{display:flex;flex-wrap:wrap;gap:8px}.runtime-chip{display:inline-flex;align-items:center;min-height:var(--control-height);padding:4px 12px;border:1px solid var(--line);border-radius:var(--radius-control);color:var(--muted);font-size:var(--font-size-body)}.runtime-chip:hover,.runtime-chip:focus-visible{border-color:var(--gold);color:var(--gold)}
-@media(max-width:767px){.runtime-page{padding:0 0 72px}.runtime-page--universe-list .runtime-channel-row{min-height:var(--touch-target)}.ant-masonry{columns:2;column-gap:11px}.ant-masonry>*{margin-bottom:11px}.runtime-card{padding:12px}.runtime-card h2,.runtime-card h3{font-size:var(--font-size-title)}.runtime-chip{min-height:var(--touch-target)}}
+.runtime-page{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));margin-inline:auto;padding:0 0 96px}.runtime-page h1,.runtime-page h2{font-family:var(--font-ui);font-weight:600}.runtime-page--detail .runtime-section{padding-top:0}.runtime-lede{color:var(--muted);line-height:1.7}.ant-masonry{columns:210px;column-gap:16px}.ant-masonry>*{break-inside:avoid-column;margin:0 0 16px;width:100%}.ant-masonry .ant-empty{column-span:all}.runtime-page--universe-list .runtime-grid{columns:250px}.runtime-card{padding:16px;min-width:0}.runtime-card h2,.runtime-card h3{margin:.2em 0 .45em;font-size:var(--font-size-title);overflow-wrap:anywhere}.runtime-card p{color:var(--muted);font-size:var(--font-size-body);line-height:1.55;margin:.4em 0}.runtime-section{padding-top:40px}.runtime-section h2{font-size:var(--font-size-headline-md)}.runtime-links{display:flex;flex-wrap:wrap;gap:8px}.runtime-chip{display:inline-flex;align-items:center;min-height:var(--control-height);padding:4px 12px;border:1px solid var(--line);border-radius:var(--radius-control);color:var(--muted);font-size:var(--font-size-body)}.runtime-chip:hover,.runtime-chip:focus-visible{border-color:var(--gold);color:var(--gold)}
+@media(max-width:767px){.runtime-page{padding:0 0 72px}.runtime-page--universe-list .runtime-channel-row{min-height:var(--touch-target)}.ant-masonry{columns:2;column-gap:11px}.runtime-page--universe-list .runtime-grid{columns:2}.ant-masonry>*{margin-bottom:11px}.runtime-card{padding:12px}.runtime-card h2,.runtime-card h3{font-size:var(--font-size-title)}.runtime-chip{min-height:var(--touch-target)}}
 .runtime-page header {
   padding-bottom: 24px;
 }
@@ -614,6 +614,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .ant-tree-treenode { display: flex; min-width: 0; align-items: flex-start; gap: 4px; }
 .ant-tree-switcher {
   display: grid;
+  align-self: center;
   width: 24px;
   min-width: 24px;
   min-height: 28px;
@@ -630,7 +631,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .ant-tree-icon { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 6px; fill: none; stroke: currentColor; stroke-width: 1.3; }
 .ant-tree-title { display: block; min-width: 0; padding: 4px; color: var(--muted); line-height: 1.4; overflow-wrap: anywhere; }
 .ant-tree-title:hover, .ant-tree-title:focus-visible { color: var(--gold); }
-.ant-tree-child-tree { margin: 0 0 0 12px; padding: 0 0 0 12px; border-inline-start: 1px solid var(--line); list-style: none; }
+.ant-tree-child-tree { margin: 0 0 0 12px; padding: 0 0 0 12px; list-style: none; }
 .ant-tree-child-tree[hidden] { display: none; }
 .ant-tree-child-tree > .ant-tree-node + .ant-tree-node { margin-top: 2px; }
 .runtime-champion-meta {

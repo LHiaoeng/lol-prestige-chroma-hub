@@ -268,6 +268,7 @@ export function createRuntimeListRenderer(
                 treeNodes,
                 {
                   label: options.locale === "zh_cn" ? "宇宙层级关系" : "Universe relationships",
+                  expandable: false,
                   renderIcon: (node) => {
                     if (node.kind === "status") return undefined;
                     return createDomainIcon(
@@ -352,7 +353,7 @@ export function createRuntimeListRenderer(
         render();
       });
       options.content.replaceChildren(
-        toolbar,
+        ...(items.length ? [toolbar] : []),
         ...(relationStatus ? [relationStatus] : []),
         grid,
       );

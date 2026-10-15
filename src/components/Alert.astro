@@ -25,10 +25,11 @@ const {
   role = 'alert',
 } = Astro.props;
 const alertTitle = title ?? message;
+const hasTitle = Boolean(alertTitle || Astro.slots.has('title'));
 const hasDescription = Boolean(description || Astro.slots.has('description'));
 ---
 
-<div id={id} class:list={['alert', `alert--${type}`, { 'alert--banner': banner, 'alert--with-description': hasDescription }]} role={role} data-alert>
+<div id={id} class:list={['alert', `alert--${type}`, { 'alert--banner': banner, 'alert--with-description': hasDescription, 'alert--description-only': hasDescription && !hasTitle }]} role={role} data-alert>
   {showIcon && (
     <span class="alert__icon" aria-hidden="true">
       <slot name="icon">
@@ -82,6 +83,9 @@ const hasDescription = Boolean(description || Astro.slots.has('description'));
   .alert--with-description { align-items: flex-start; }
   .alert--with-description .alert__icon { margin-inline-end: var(--space-1); }
   .alert--with-description .alert__icon :global(svg) { width: 24px; height: 24px; }
+  .alert--description-only { align-items: center; }
+  .alert--description-only .alert__description { margin-top: 0; }
+  .alert--description-only .alert__icon :global(svg) { width: 16px; height: 16px; }
   .alert__content { min-width: 0; flex: 1; }
   .alert__title { font-size: var(--font-size-title); font-weight: 600; line-height: var(--line-height-title); }
   .alert__description { margin-top: var(--space-1); color: var(--muted); }
