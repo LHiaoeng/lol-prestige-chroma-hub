@@ -1,0 +1,12 @@
+---
+import { DOMAIN_ICONS, type DomainIconName } from './domain-icons';
+
+interface Props {
+  readonly name: DomainIconName;
+  readonly class?: string;
+}
+
+const { name, class: className } = Astro.props;
+---
+
+<svg class:list={['domain-icon', `domain-icon--${name}`, className]} viewBox="0 0 24 24" fill="none" aria-hidden="true" set:html={DOMAIN_ICONS[name]} />

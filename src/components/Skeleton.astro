@@ -1,0 +1,29 @@
+---
+interface Props {
+  readonly filterCount?: number;
+  readonly itemCount?: number;
+  readonly layout?: "champions" | "universes" | "skinlines" | "generic";
+}
+
+const { filterCount = 0, itemCount = 6, layout = "generic" } = Astro.props;
+---
+
+<div class="runtime-skeleton" aria-hidden="true">
+  {filterCount > 0 && <div class="runtime-skeleton-toolbar">
+    {Array.from({ length: filterCount }, () => <div class="runtime-skeleton-field">
+      <span class="runtime-skeleton-label"></span>
+      <div class="runtime-skeleton-control"></div>
+    </div>)}
+  </div>}
+  <div class:list={["ant-skeleton-grid", "ant-masonry", "runtime-skeleton-grid", { "runtime-skeleton-grid--champions": layout === "champions" }]}>
+    {Array.from({ length: itemCount }, (_, index) => <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--champion": layout === "champions", "runtime-skeleton-card--universe": layout === "universes" }]}>
+      {layout === "champions" && <div class="runtime-skeleton-media"></div>}
+      <div class="runtime-skeleton-meta">
+        <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
+        {layout === "universes"
+          ? Array.from({ length: (index % 3) + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--tree"></span>)
+          : layout !== "skinlines" && <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>}
+      </div>
+    </div>)}
+  </div>
+</div>

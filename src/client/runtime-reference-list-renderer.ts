@@ -21,10 +21,8 @@ import {
   textNode,
 } from "./runtime-reference-view-shared";
 import { runtimeFailureMessage } from "./communitydragon-errors";
-import { buildPages } from "../components/pagination/pagination";
-
-const PAGINATION_CHEVRON_LEFT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
-const PAGINATION_CHEVRON_RIGHT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+import { createTree, type TreeNode } from "../components/Tree";
+import { createDomainIcon } from "../components/domain-icons";
 
 export interface RuntimeListRendererOptions {
   readonly content: HTMLElement;
@@ -49,7 +47,13 @@ export interface RuntimeListRenderer {
 export function createRuntimeListRenderer(
   options: RuntimeListRendererOptions,
 ): RuntimeListRenderer {
-  let universeListSkinlineNames = new Map<number, readonly string[]>();
+  const emptyTemplate = options.content
+    .closest<HTMLElement>(".runtime-reference-root")
+    ?.querySelector<HTMLTemplateElement>("[data-runtime-empty-template]");
+  let universeListSkinlineNames = new Map<
+    number,
+    readonly { readonly id: number; readonly name: string }[]
+  >();
   let universeListRelationStatus: "loading" | "ready" | "failed" = "ready";
   let universeListRelationStatusElement: HTMLElement | undefined;
   let renderedUniverseListItems: readonly Extract<
@@ -145,16 +149,8 @@ export function createRuntimeListRenderer(
       toolbar.append(sortLabel);
       const grid = document.createElement("div");
       grid.className = isChampionList
-        ? "runtime-grid runtime-champion-grid"
-        : "runtime-grid";
-      const pagination = document.createElement("nav");
-      pagination.className = "cn-pagination runtime-pagination";
-      pagination.setAttribute(
-        "aria-label",
-        options.locale === "zh_cn" ? "资料分页" : "Reference pages",
-      );
-      let currentPage = 1;
-      const pageSize = 24;
+        ? "ant-masonry runtime-grid runtime-champion-grid"
+        : "ant-masonry runtime-grid";
       const relationStatus =
         options.page === "universes"
           ? textNode(
@@ -165,6 +161,7 @@ export function createRuntimeListRenderer(
               "runtime-relation-state",
             )
           : undefined;
+      if (relationStatus) relationStatus.hidden = true;
       universeListRelationStatusElement = relationStatus;
       const render = () => {
         const query = search.value.trim().toLocaleLowerCase();
@@ -184,11 +181,8 @@ export function createRuntimeListRenderer(
               return left.id - right.id || left.name.localeCompare(right.name);
             return left.name.localeCompare(right.name) || left.id - right.id;
           });
-        const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-        currentPage = Math.min(currentPage, pageCount);
-        const pageStart = (currentPage - 1) * pageSize;
         grid.replaceChildren(
-          ...filtered.slice(pageStart, pageStart + pageSize).map((item) => {
+          ...filtered.map((item) => {
             const page: RuntimePage =
               item.kind === "champion"
                 ? "champions"
@@ -252,145 +246,128 @@ export function createRuntimeListRenderer(
               meta.appendChild(roles);
               link.appendChild(meta);
             } else if (item.kind === "universe") {
-              const meta = document.createElement("span");
-              meta.className = "runtime-universe-meta";
-              meta.appendChild(textNode("span", item.name));
-              const series = document.createElement("span");
-              series.className = "runtime-universe-skinlines";
-              if (universeListRelationStatus === "failed") {
-                series.className += " runtime-missing";
-                series.textContent = runtimeMissingLabel(options.locale, "name");
-              } else if (universeListRelationStatus === "ready") {
-                const names = universeListSkinlineNames.get(item.id) ?? [];
-                series.textContent = names.length
-                  ? names.join(options.locale === "zh_cn" ? "、" : ", ")
-                  : options.locale === "zh_cn"
-                    ? "所属系列缺失"
-                    : "No skinlines linked";
-                if (!names.length) series.className += " runtime-missing";
-              } else {
-                series.textContent =
-                  options.locale === "zh_cn"
-                    ? "正在加载所属系列…"
-                    : "Loading skinlines…";
-              }
-              series.setAttribute(
-                "aria-label",
-                options.locale === "zh_cn" ? "所属皮肤系列" : "Skinlines",
+              const skinlines = universeListSkinlineNames.get(item.id) ?? [];
+              type UniverseTreeNode = TreeNode & {
+                readonly id?: number;
+                readonly kind: "universe" | "skinline" | "status";
+              };
+              const childNodes: UniverseTreeNode[] =
+                universeListRelationStatus === "ready" && skinlines.length
+                  ? skinlines.map(({ id, name }) => ({ id, title: name, kind: "skinline" }))
+                  : [{
+                      title:
+                        universeListRelationStatus === "loading"
+                          ? options.locale === "zh_cn" ? "正在加载所属系列…" : "Loading skinlines…"
+                          : options.locale === "zh_cn" ? "所属系列缺失" : "No skinlines linked",
+                      kind: "status",
+                    }];
+              const treeNodes: UniverseTreeNode[] = [
+                { title: item.name, kind: "universe", children: childNodes },
+              ];
+              const tree = createTree(
+                treeNodes,
+                {
+                  label: options.locale === "zh_cn" ? "宇宙层级关系" : "Universe relationships",
+                  renderIcon: (node) => {
+                    if (node.kind === "status") return undefined;
+                    return createDomainIcon(
+                      node.kind === "universe" ? "universes" : "skinlines",
+                    );
+                  },
+                  renderTitle: (node) => {
+                    if (node.kind === "universe") {
+                      link.textContent = node.title;
+                      link.className = "ant-tree-title runtime-universe-title";
+                      return link;
+                    }
+                    if (node.kind === "status")
+                      return textNode("span", node.title, "ant-tree-title runtime-missing");
+                    return linkWithNavigation(
+                      node.title,
+                      hrefFor(
+                        options.locale,
+                        "skinlines",
+                        { id: node.id, channel: state.channel },
+                        "detail",
+                        options.preservesExplicitPbe(),
+                      ),
+                      controller,
+                      "ant-tree-title",
+                    );
+                  },
+                  expandLabel: (title, expanded) =>
+                    options.locale === "zh_cn"
+                      ? `${expanded ? "收起" : "展开"}${title}`
+                      : `${expanded ? "Collapse" : "Expand"} ${title}`,
+                },
               );
-              meta.appendChild(series);
-              link.appendChild(meta);
+              card.classList.add("runtime-universe-card");
+              const meta = document.createElement("div");
+              meta.className = "runtime-universe-meta";
+              meta.append(tree);
+              card.append(meta);
+              return card;
             }
             card.appendChild(link);
             return card;
           }),
         );
-        pagination.replaceChildren();
-        if (pageCount > 1) {
-          const isZh = options.locale === "zh_cn";
-          const prevText = isZh ? "上一页" : "Previous";
-          const nextText = isZh ? "下一页" : "Next";
-          const list = document.createElement("ul");
-          list.className = "cn-pagination-list";
-
-          const addItem = (child: HTMLElement): void => {
-            const li = document.createElement("li");
-            li.className = "cn-pagination-item";
-            li.append(child);
-            list.append(li);
-          };
-
-          const addPageButton = (pageNumber: number): void => {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = `cn-pagination-link${pageNumber === currentPage ? " is-active" : ""}`;
-            if (pageNumber === currentPage) {
-              button.setAttribute("aria-current", "page");
-            }
-            button.setAttribute("aria-label", `Page ${pageNumber}`);
-            button.textContent = String(pageNumber);
-            button.addEventListener("click", () => {
-              currentPage = pageNumber;
-              render();
-            });
-            addItem(button);
-          };
-
-          const addArrowButton = (pageNumber: number, label: string, className: string, chevron: string, chevronFirst: boolean): void => {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = className;
-            button.setAttribute("aria-label", label);
-            button.innerHTML = chevronFirst
-              ? `${chevron}<span class="cn-pagination-text">${label}</span>`
-              : `<span class="cn-pagination-text">${label}</span>${chevron}`;
-            button.addEventListener("click", () => {
-              currentPage = pageNumber;
-              render();
-            });
-            addItem(button);
-          };
-
-          if (currentPage > 1)
-            addArrowButton(currentPage - 1, prevText, "cn-pagination-link cn-pagination-previous", PAGINATION_CHEVRON_LEFT, true);
-
-          for (const entry of buildPages(currentPage, pageCount)) {
-            if (entry === "...") {
-              const ellipsis = document.createElement("span");
-              ellipsis.className = "cn-pagination-ellipsis";
-              ellipsis.setAttribute("aria-hidden", "true");
-              ellipsis.textContent = "…";
-              addItem(ellipsis);
-            } else {
-              addPageButton(entry);
-            }
+        if (!filtered.length && emptyTemplate)
+          grid.append(emptyTemplate.content.cloneNode(true));
+        if (options.page === "universes") {
+          const count = options.status
+            .closest<HTMLElement>(".runtime-page")
+            ?.querySelector<HTMLElement>("[data-runtime-universe-count]");
+          if (count) {
+            count.textContent =
+              options.locale === "zh_cn"
+                ? `${filtered.length} 个宇宙`
+                : `${filtered.length} universes`;
+            count.hidden = false;
           }
-
-          if (currentPage < pageCount)
-            addArrowButton(currentPage + 1, nextText, "cn-pagination-link cn-pagination-next", PAGINATION_CHEVRON_RIGHT, false);
-
-          pagination.append(list);
         }
         options.status.textContent = filtered.length
-          ? isChampionList
-            ? options.locale === "zh_cn"
-              ? `显示 ${filtered.length} 名英雄`
-              : `${filtered.length} champions`
+          ? options.page === "universes"
+            ? ""
+            : isChampionList
+              ? options.locale === "zh_cn"
+                ? `显示 ${filtered.length} 名英雄`
+                : `${filtered.length} champions`
+              : options.locale === "zh_cn"
+                ? `显示 ${filtered.length} 条资料`
+                : `${filtered.length} references`
+          : emptyTemplate
+            ? ""
             : options.locale === "zh_cn"
-              ? `显示第 ${currentPage}/${pageCount} 页，共 ${filtered.length} 条资料`
-              : `Page ${currentPage}/${pageCount} · ${filtered.length} references`
-          : options.locale === "zh_cn"
-            ? "没有匹配结果"
-            : "No matching references";
+              ? "没有匹配结果"
+              : "No matching references";
       };
       search.addEventListener("input", () => {
-        currentPage = 1;
         render();
       });
       sort.addEventListener("change", () => {
-        currentPage = 1;
         render();
       });
       roleFilter?.addEventListener("change", () => {
-        currentPage = 1;
         render();
       });
       options.content.replaceChildren(
         toolbar,
         ...(relationStatus ? [relationStatus] : []),
         grid,
-        pagination,
       );
       renderListCards = render;
       render();
     },
     listRelationsLoading() {
       universeListRelationStatus = "loading";
-      if (universeListRelationStatusElement)
+      if (universeListRelationStatusElement) {
+        universeListRelationStatusElement.hidden = true;
         universeListRelationStatusElement.textContent =
           options.locale === "zh_cn"
             ? "正在加载所属系列…"
             : "Loading skinline names…";
+      }
       renderListCards?.();
     },
     renderRelations(items) {
@@ -403,21 +380,23 @@ export function createRuntimeListRenderer(
         renderedUniverseListItems.map((item) => [
           item.id,
           item.skinlineIds
-            .map((id) => skinlines.get(id))
-            .filter((name): name is string => Boolean(name)),
+            .flatMap((id) => {
+              const name = skinlines.get(id);
+              return name ? [{ id, name }] : [];
+            }),
         ]),
       );
       universeListRelationStatus = "ready";
-      if (universeListRelationStatusElement)
-        universeListRelationStatusElement.textContent =
-          options.locale === "zh_cn"
-            ? "所属系列已加载"
-            : "Skinline names loaded";
+      if (universeListRelationStatusElement) {
+        universeListRelationStatusElement.textContent = "";
+        universeListRelationStatusElement.hidden = true;
+      }
       renderListCards?.();
     },
     listRelationsFailure(error, retry) {
       universeListRelationStatus = "failed";
       if (universeListRelationStatusElement) {
+        universeListRelationStatusElement.hidden = false;
         universeListRelationStatusElement.replaceChildren(
           textNode(
             "span",

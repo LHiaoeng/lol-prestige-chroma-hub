@@ -1,0 +1,22 @@
+---
+interface Props {
+  readonly tip: string;
+}
+
+const { tip } = Astro.props;
+---
+
+<div class="ant-spin ant-spin-nested-loading" data-runtime-spin data-spinning="false" aria-live="polite" aria-busy="false">
+  <div class="ant-spin-section">
+    <span class="ant-spin-dot-holder">
+      <span class="ant-spin-dot ant-spin-dot-spin">
+        <i class="ant-spin-dot-item"></i>
+        <i class="ant-spin-dot-item"></i>
+        <i class="ant-spin-dot-item"></i>
+        <i class="ant-spin-dot-item"></i>
+      </span>
+    </span>
+    <div class="ant-spin-description">{tip}</div>
+  </div>
+  <div class="ant-spin-container"><slot /></div>
+</div>

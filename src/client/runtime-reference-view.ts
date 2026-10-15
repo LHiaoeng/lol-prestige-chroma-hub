@@ -89,6 +89,9 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
   const content =
     options.root.querySelector<HTMLElement>("[data-runtime-content]") ??
     document.createElement("div");
+  const spin = options.root.querySelector<HTMLElement>("[data-runtime-spin]");
+  const clearRuntimeAlert = () =>
+    spin?.querySelector("[data-runtime-error-alert]")?.remove();
   if (!status.parentElement) options.root.append(status);
   if (!content.parentElement) options.root.append(content);
   status.setAttribute("role", "status");
@@ -106,7 +109,9 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
       .forEach((button) => {
         const active = button.dataset.runtimeChannel === selected;
-        button.setAttribute("aria-pressed", String(active));
+        button.setAttribute("aria-checked", String(active));
+        if (button.getAttribute("role") !== "menuitemradio")
+          button.setAttribute("aria-pressed", String(active));
         if (button.dataset.runtimeChannel)
           button.textContent = communityDragonChannelLabel(
             button.dataset.runtimeChannel as "pbe" | "latest",
@@ -191,6 +196,12 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       if (state.core.status !== "ready" || !state.context) return;
       const { context } = state;
       options.root.removeAttribute("aria-busy");
+      status.textContent = "";
+      if (spin) {
+        spin.dataset.spinning = "false";
+        spin.setAttribute("aria-busy", "false");
+      }
+      clearRuntimeAlert();
       if (renderedContext !== context) {
         renderedContext = context;
         const target = context.target;
@@ -239,6 +250,11 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     },
     loading(preserve, context) {
       options.root.setAttribute("aria-busy", "true");
+      clearRuntimeAlert();
+      if (spin) {
+        spin.dataset.spinning = String(preserve);
+        spin.setAttribute("aria-busy", String(preserve));
+      }
       const channel =
         context && typeof context === "object"
           ? context.target.mode === "pbe"
@@ -250,34 +266,74 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         options.locale === "zh_cn"
           ? "正在加载游戏资料…"
           : "Loading game reference…";
-      if (!preserve) {
-        const skeleton = document.createElement("div");
-        skeleton.className = "runtime-skeleton-grid";
-        skeleton.setAttribute("aria-hidden", "true");
-        for (let index = 0; index < 6; index += 1) {
-          const card = document.createElement("div");
-          card.className = "runtime-skeleton-card";
-          skeleton.appendChild(card);
-        }
-        content.replaceChildren(skeleton);
+      if (!preserve && !content.querySelector(".runtime-skeleton")) {
+        const template = options.root.querySelector<HTMLTemplateElement>(
+          "[data-runtime-skeleton-template]",
+        );
+        content.replaceChildren(
+          ...(template
+            ? [template.content.cloneNode(true)]
+            : [
+                (() => {
+                  const skeleton = textNode("div", "", "runtime-skeleton-grid");
+                  skeleton.setAttribute("aria-hidden", "true");
+                  for (let index = 0; index < 6; index += 1)
+                    skeleton.append(textNode("div", "", "runtime-skeleton-card"));
+                  return skeleton;
+                })(),
+              ]),
+        );
       }
     },
     invalid(message, channel) {
       setRuntimeNoindex(true);
       if (channel) updateChannel(channel);
       options.root.removeAttribute("aria-busy");
+      if (spin) {
+        spin.dataset.spinning = "false";
+        spin.setAttribute("aria-busy", "false");
+      }
+      clearRuntimeAlert();
       status.textContent = message;
       content.replaceChildren();
     },
     failure(error, retry) {
       options.root.removeAttribute("aria-busy");
-      status.textContent = runtimeFailureMessage(error, options.locale);
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "runtime-retry";
-      button.textContent = options.locale === "zh_cn" ? "重试" : "Retry";
+      if (spin) {
+        spin.dataset.spinning = "false";
+        spin.setAttribute("aria-busy", "false");
+      }
+      clearRuntimeAlert();
+      const template = options.root.querySelector<HTMLTemplateElement>(
+        "[data-runtime-alert-template]",
+      );
+      const fragment = template?.content.cloneNode(true) as DocumentFragment | undefined;
+      const alert = fragment?.querySelector<HTMLElement>("[data-alert]");
+      const message = fragment?.querySelector<HTMLElement>(
+        "[data-runtime-alert-message]",
+      );
+      const button = fragment?.querySelector<HTMLButtonElement>(
+        "[data-runtime-alert-retry]",
+      );
+      if (!alert || !message || !button) {
+        status.textContent = runtimeFailureMessage(error, options.locale);
+        const fallbackRetry = textNode(
+          "button",
+          options.locale === "zh_cn" ? "重试" : "Retry",
+          "runtime-retry",
+        ) as HTMLButtonElement;
+        fallbackRetry.type = "button";
+        fallbackRetry.addEventListener("click", retry, { once: true });
+        status.append(" ", fallbackRetry);
+        return;
+      }
+      alert.dataset.runtimeErrorAlert = "";
+      message.textContent = runtimeFailureMessage(error, options.locale);
       button.addEventListener("click", retry, { once: true });
-      status.append(" ", button);
+      status.textContent = "";
+      if (content.querySelector(".runtime-skeleton-grid"))
+        content.replaceChildren();
+      content.before(alert);
     },
   };
 

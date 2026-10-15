@@ -230,6 +230,11 @@ export function createRuntimeDetailRenderer(
       universeSkinlineNames = new Map();
       setRuntimeNoindex(true);
       options.updateChannel(state.channel);
+      const breadcrumbEntity = document.querySelector<HTMLElement>(
+        "[data-runtime-current-entity] .cn-breadcrumb-page",
+      );
+      if (breadcrumbEntity)
+        breadcrumbEntity.textContent = item.name ?? runtimeMissingLabel(options.locale, "name");
       const controller = options.getController();
       const article = document.createElement("article");
       article.className = "runtime-detail";

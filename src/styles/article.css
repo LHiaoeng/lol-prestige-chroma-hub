@@ -4,7 +4,7 @@
 .privacy-page {
   width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2)));
   margin-inline: auto;
-  padding: var(--space-5) 0;
+  padding: 0 0 var(--space-5);
   color: var(--text);
   font-family: var(--font-ui);
   font-size: var(--font-size-title);
@@ -108,15 +108,13 @@
   .blog-article td { padding: 12px; }
 }
 
-.about-page { padding-top: var(--space-5); }
 .about-page section { border-top: 1px solid var(--line-subtle); padding-top: var(--space-4); }
-.privacy-page { padding-top: var(--space-5); }
 .privacy-page .effective-date { margin-bottom: var(--space-3); }
 
 @media (max-width: 767px) {
   .blog-article,
   .about-page,
-  .privacy-page { padding-top: var(--space-4); padding-bottom: var(--space-5); }
+  .privacy-page { padding-bottom: var(--space-5); }
   .blog-article .article-header { margin-bottom: var(--space-3); }
   .blog-article section,
   .about-page section,

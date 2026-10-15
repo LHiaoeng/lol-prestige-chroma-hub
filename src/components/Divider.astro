@@ -1,0 +1,31 @@
+---
+interface Props {
+  readonly type?: 'horizontal' | 'vertical';
+  readonly orientation?: 'left' | 'center' | 'right';
+  readonly dashed?: boolean;
+  readonly plain?: boolean;
+  readonly class?: string;
+}
+
+const {
+  type = 'horizontal',
+  orientation = 'center',
+  dashed = false,
+  plain = false,
+  class: className,
+} = Astro.props;
+const hasText = Astro.slots.has('default');
+---
+
+<div
+  class:list={[
+    'ant-divider',
+    `ant-divider-${type}`,
+    { 'ant-divider-dashed': dashed, 'ant-divider-with-text': hasText, 'ant-divider-with-text-left': hasText && orientation === 'left', 'ant-divider-with-text-right': hasText && orientation === 'right', 'ant-divider-plain': plain },
+    className,
+  ]}
+  role="separator"
+  aria-orientation={type === 'vertical' ? 'vertical' : undefined}
+>
+  {hasText && <span class="ant-divider-inner-text"><slot /></span>}
+</div>

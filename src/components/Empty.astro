@@ -1,0 +1,18 @@
+---
+interface Props {
+  readonly description: string;
+}
+
+const { description } = Astro.props;
+---
+
+<div class="ant-empty" role="status">
+  <svg class="ant-empty-image" viewBox="0 0 64 41" aria-hidden="true">
+    <g fill="none" fill-rule="evenodd">
+      <ellipse cx="32" cy="33" fill="currentColor" opacity=".18" rx="30" ry="7" />
+      <path d="M12 4h32l8 9v17H12z" stroke="currentColor" stroke-width="2" />
+      <path d="M44 4v10h8M20 20h24M20 25h16" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+    </g>
+  </svg>
+  <div class="ant-empty-description">{description}</div>
+</div>

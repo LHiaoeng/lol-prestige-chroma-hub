@@ -2,6 +2,13 @@
 import { localizedPath, type Locale } from '../i18n/config';
 import { communityDragonChannelLabel } from '../domain/communitydragon-url';
 import Breadcrumb from './Breadcrumb.astro';
+import Dropdown from './Dropdown.astro';
+import Divider from './Divider.astro';
+import Alert from './Alert.astro';
+import Empty from './Empty.astro';
+import Skeleton from './Skeleton.astro';
+import Spin from './Spin.astro';
+import DomainIcon from './DomainIcon.astro';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes' | 'pbe-additions';
@@ -18,31 +25,65 @@ const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const listPath = page === 'skins' || page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
 const pbeLabel = communityDragonChannelLabel('pbe', runtimeLocale);
 const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
+const showUniverseListHeader = page === 'universes' && mode === 'list';
+const skeletonLayout = mode !== 'list' ? 'generic' : page === 'champions' ? 'champions' : page === 'universes' ? 'universes' : 'skinlines';
+const skeletonFilterCount = mode !== 'list' ? 0 : page === 'champions' ? 3 : 2;
+const skeletonItemCount = mode === 'list' ? 24 : 6;
 const breadcrumbItems = [
   { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
   { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
   ...(mode === 'detail' && listPath ? [{ title: label, href: listPath, 'data-runtime-channel-link': '' }] : []),
-  { title: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label },
+  { title: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label, ...(mode === 'detail' ? { 'data-runtime-current-entity': '' } : {}) },
 ];
 ---
 
 <Breadcrumb {locale} items={breadcrumbItems} />
-<div class="runtime-page">
-  <header>
-    <h1>{heading}</h1>
-    <p class="runtime-lede">{lede}</p>
-    <div class="runtime-source" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-      {mode === 'pbe' ? <span>{isZh ? `${pbeLabel} 与${latestLabel}比较` : `${pbeLabel} vs ${latestLabel}`}</span> : <>
-        <span aria-live="polite"><span data-runtime-channel-label>{pbeLabel}</span></span>
-        <button type="button" data-runtime-channel="pbe" aria-pressed="true">{pbeLabel}</button>
-        <button type="button" data-runtime-channel="latest" aria-pressed="false">{latestLabel}</button>
-      </>}
-    </div>
-  </header>
+{!showUniverseListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+  {mode === 'pbe' ? <span class="runtime-channel-static">{isZh ? `${pbeLabel} 与${latestLabel}比较` : `${pbeLabel} vs ${latestLabel}`}</span> : <Dropdown id="runtime-channel-menu">
+    <span slot="trigger">
+      <span>{isZh ? '资料版本' : 'Reference data'}</span>
+      <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+    </span>
+    <li role="none"><button type="button" role="menuitemradio" aria-checked="true" data-ant-dropdown-item data-runtime-channel="pbe"><span>{pbeLabel}</span><span aria-hidden="true">✓</span></button></li>
+    <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
+  </Dropdown>}
+</div>}
+<div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--universe-list': showUniverseListHeader }]}>
+  {mode !== 'detail' && <header>
+    <h1>
+      {showUniverseListHeader && <DomainIcon name="universes" class="runtime-universe-icon" />}
+      {showUniverseListHeader ? label : heading}
+    </h1>
+    {showUniverseListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+      <Dropdown id="runtime-channel-menu">
+        <span slot="trigger">
+          <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+        </span>
+        <li role="none"><button type="button" role="menuitemradio" aria-checked="true" data-ant-dropdown-item data-runtime-channel="pbe"><span>{pbeLabel}</span><span aria-hidden="true">✓</span></button></li>
+        <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
+      </Dropdown>
+      <Divider type="vertical" />
+      <span class="runtime-list-count" data-runtime-universe-count hidden />
+    </div>}
+    {!showUniverseListHeader && <p class="runtime-lede">{lede}</p>}
+    <Divider class={showUniverseListHeader ? undefined : 'runtime-header-divider'} />
+  </header>}
   <section class="runtime-section">
-    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode}>
-      <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载…' : 'Loading…'}</p>
-      <div data-runtime-content></div>
+    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} aria-busy="true">
+      <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载游戏资料…' : 'Loading game reference…'}</p>
+      <Spin tip={isZh ? '正在加载游戏资料…' : 'Loading game reference…'}>
+        <div data-runtime-content><Skeleton filterCount={skeletonFilterCount} itemCount={skeletonItemCount} layout={skeletonLayout} /></div>
+      </Spin>
+      <template data-runtime-skeleton-template><Skeleton filterCount={skeletonFilterCount} itemCount={skeletonItemCount} layout={skeletonLayout} /></template>
+      <template data-runtime-empty-template><Empty description={isZh ? '没有匹配结果' : 'No matching references'} /></template>
+      <template data-runtime-alert-template>
+        <Alert type="error" showIcon>
+          <span slot="description" data-runtime-alert-message></span>
+          <button slot="action" class="runtime-retry" type="button" data-runtime-alert-retry>{isZh ? '重试' : 'Retry'}</button>
+        </Alert>
+      </template>
     </div>
     <noscript><p class="runtime-noscript">{isZh ? '请启用 JavaScript 以浏览动态游戏资料。' : 'Enable JavaScript to browse dynamic game references.'}</p></noscript>
   </section>

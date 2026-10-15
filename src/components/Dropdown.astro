@@ -1,0 +1,106 @@
+---
+interface Props {
+  id: string;
+  placement?: 'bottomLeft' | 'bottomRight';
+}
+
+const { id, placement = 'bottomLeft' } = Astro.props;
+---
+
+<div class:list={['ant-dropdown', `ant-dropdown-placement-${placement}`]} data-ant-dropdown>
+  <button class="ant-dropdown-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls={id} data-ant-dropdown-trigger>
+    <slot name="trigger" />
+  </button>
+  <div class="ant-dropdown-popup" data-ant-dropdown-popup hidden>
+    <ul class="ant-dropdown-menu" id={id} role="menu">
+      <slot />
+    </ul>
+  </div>
+</div>
+
+<script>
+  const selector = '[data-ant-dropdown]';
+  const triggerSelector = '[data-ant-dropdown-trigger]';
+  const popupSelector = '[data-ant-dropdown-popup]';
+  const itemSelector = '[data-ant-dropdown-item]';
+
+  const close = (dropdown: HTMLElement, restoreFocus = false) => {
+    const trigger = dropdown.querySelector<HTMLButtonElement>(triggerSelector);
+    const popup = dropdown.querySelector<HTMLElement>(popupSelector);
+    if (!trigger || !popup || popup.hidden) return;
+    popup.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    dropdown.classList.remove('ant-dropdown-open');
+    if (restoreFocus) trigger.focus();
+  };
+
+  const open = (dropdown: HTMLElement) => {
+    const trigger = dropdown.querySelector<HTMLButtonElement>(triggerSelector);
+    const popup = dropdown.querySelector<HTMLElement>(popupSelector);
+    if (!trigger || !popup) return;
+    popup.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    dropdown.classList.add('ant-dropdown-open');
+  };
+
+  const closeOutside = (target: EventTarget | null) => {
+    document.querySelectorAll<HTMLElement>(`${selector}.ant-dropdown-open`).forEach((dropdown) => {
+      if (!(target instanceof Node) || !dropdown.contains(target)) close(dropdown);
+    });
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const trigger = target.closest<HTMLButtonElement>(triggerSelector);
+    if (trigger) {
+      const dropdown = trigger.closest<HTMLElement>(selector);
+      if (!dropdown) return;
+      if (dropdown.classList.contains('ant-dropdown-open')) close(dropdown);
+      else open(dropdown);
+      return;
+    }
+    const item = target.closest<HTMLButtonElement>(itemSelector);
+    if (item) {
+      const dropdown = item.closest<HTMLElement>(selector);
+      if (dropdown) close(dropdown, true);
+      return;
+    }
+    closeOutside(target);
+  });
+
+  document.addEventListener('pointerdown', (event) => closeOutside(event.target));
+  document.addEventListener('focusin', (event) => closeOutside(event.target));
+  document.addEventListener('keydown', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const trigger = target.closest<HTMLButtonElement>(triggerSelector);
+    const triggerDropdown = trigger?.closest<HTMLElement>(selector);
+    if (trigger && triggerDropdown && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault();
+      const last = event.key === 'ArrowUp';
+      if (!triggerDropdown.classList.contains('ant-dropdown-open')) open(triggerDropdown);
+      const items = [...triggerDropdown.querySelectorAll<HTMLButtonElement>(itemSelector)];
+      (last ? items.at(-1) : items[0])?.focus();
+      return;
+    }
+    const dropdown = target.closest<HTMLElement>(`${selector}.ant-dropdown-open`);
+    if (!dropdown) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close(dropdown, true);
+      return;
+    }
+    const items = [...dropdown.querySelectorAll<HTMLButtonElement>(itemSelector)];
+    const activeItem = target.closest<HTMLButtonElement>(itemSelector);
+    const activeIndex = activeItem ? items.indexOf(activeItem) : -1;
+    if (activeIndex < 0 || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const nextIndex = event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? items.length - 1
+        : (activeIndex + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+    items[nextIndex]?.focus();
+  });
+</script>
