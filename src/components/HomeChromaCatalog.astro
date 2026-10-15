@@ -13,7 +13,7 @@ const isZh = locale === 'zh-cn';
 const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 ---
 
-<section class="catalog-section home-catalog" aria-labelledby="catalog-heading">
+<section id="prestige-chroma-gallery" class="catalog-section home-catalog" aria-labelledby="catalog-heading">
   <Alert id="catalog-title" type="info" showIcon role="note">
     <h2 id="catalog-heading" slot="title">{isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}</h2>
     <span slot="description">{isZh ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。' : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.'}</span>
@@ -51,6 +51,7 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 
 <style is:global>
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
+  .home-catalog { scroll-margin-top: calc(var(--site-header-height) + var(--touch-target) + var(--space-4)); }
   .home-catalog > .alert { margin-bottom: var(--space-3); }
   .home-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
   .home-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--touch-target); height: var(--touch-target); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }

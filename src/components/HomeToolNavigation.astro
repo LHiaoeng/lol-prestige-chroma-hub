@@ -37,6 +37,9 @@ const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.h
 
 <style>
   .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding-bottom: 40px; }
+  .home-tool-navigation :global(.card) { overflow: clip; }
+  .home-tool-navigation :global(.card__header) { position: sticky; top: var(--site-header-height); z-index: 9; background: var(--panel); }
+  .home-tool-navigation h2 { scroll-margin-top: calc(var(--site-header-height) + var(--space-4)); }
   .home-tool-navigation :global(.card__tabs) { flex-wrap: wrap; overflow: visible; }
   .home-tool-navigation :global(.card__tab) { font-weight: 600; }
   @media (max-width: 767px) {
