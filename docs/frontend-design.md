@@ -11,7 +11,7 @@
 | 共享实现 | [global.css](../src/styles/global.css)、[article.css](../src/styles/article.css) | 控件、布局、响应式覆盖和长文排版 |
 | 局部实现 | 对应 Astro 组件或页面 | 仅定义媒体比例、专属网格、图表及功能几何 |
 
-修改视觉规则时，先核对 `DESIGN.md` 与 Token，再更新共享组件和所有消费者。本文件不复制 Token 数值。移动端触控目标、原画展示等例外须符合 `DESIGN.md`，不能靠页面私有颜色或字号建立另一套主题。
+修改视觉规则时，先核对 `DESIGN.md` 与 Token，再更新共享组件和所有消费者。本文件不复制 Token 数值。独立控件触控目标、原画展示等例外须符合 `DESIGN.md`，不能靠页面私有颜色或字号建立另一套主题。
 
 目录数据、语言路由和 SEO 各有自己的事实来源，分别查 [领域模型](../src/domain/)、[国际化配置](../src/i18n/config.ts) 和 [SEO 模块](../src/seo/)；视觉治理不覆盖这些规则。
 
@@ -21,15 +21,15 @@
 
 | 页面模式 | 当前入口 | 重点状态 |
 | --- | --- | --- |
-| 首页博客、导航与图鉴 | [首页](../src/pages/index.astro)、[HomeLatestBlog](../src/components/HomeLatestBlog.astro)、[HomeToolNavigation](../src/components/HomeToolNavigation.astro)、[Card](../src/components/Card.astro)、[Menu](../src/components/Menu.astro)、[Alert](../src/components/Alert.astro)、[HomeChromaCatalog](../src/components/HomeChromaCatalog.astro) | “博客”和“英雄联盟”分层标题；无卡片标题的双语页签链接包住目录；目录 Alert 简述臻彩并以带无障碍名称的外链图标链接双语指南；手机博客标题与更多并排、文章卡片横向滚动、手机筛选默认收起、桌面筛选展开、两行直显导航、空结果、错误；静态首批与动态重绘一致 |
+| 首页博客、导航与图鉴 | [首页](../src/pages/index.astro)、[HomeLatestBlog](../src/components/HomeLatestBlog.astro)、[HomeToolNavigation](../src/components/HomeToolNavigation.astro)、[Card](../src/components/Card.astro)、[Menu](../src/components/Menu.astro)、[Alert](../src/components/Alert.astro)、[HomeChromaCatalog](../src/components/HomeChromaCatalog.astro) | “博客”和“英雄联盟”分层标题；无卡片标题的双语页签链接包住目录；目录 Alert 简述臻彩并以带无障碍名称的外链图标链接双语指南；空结果、错误；静态首批与动态重绘一致 |
 | 臻彩详情与预览 | [详情页](../src/pages/chromas/[slug].astro)、[ImageViewer](../src/components/ImageViewer.astro)、[DetailActionMenu](../src/components/DetailActionMenu.astro) | 缺失字段、图片回退、菜单开合、键盘和触控 |
 | 运行时资料 | [RuntimeReferenceRoot](../src/components/RuntimeReferenceRoot.astro)、[chroma-card](../src/components/chroma-card/) | 加载、缺失、失败、重试、数据通道 |
-| 博客列表与长文 | [BlogIndexView](../src/components/BlogIndexView.astro)、[article.css](../src/styles/article.css) | 分页、双语长标题、窄屏图文、来源信息 |
+| 博客列表与长文 | [BlogIndexView](../src/components/BlogIndexView.astro)、[article.css](../src/styles/article.css) | 分页、双语长标题、来源信息 |
 | 说明与错误页 | [About](../src/pages/about.astro)、[404](../src/pages/404.astro) | 可读性、返回入口、无脚本内容 |
 
-新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。Card 的 `size` 使用 `small` 与 `medium` 两档控制密度和页签字号，`default`/`middle` 兼容映射到 `medium`；页签命中区仍至少 44px。Card 页签支持页面链接与面板切换两种模式；本地面板初始页签由 `activeTabKey` 或 `defaultActiveTabKey` 指定，随后用方向键、Home/End 键切换，并触发 `card-tab-change` 事件；页面链接保留原生导航语义。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
+新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。Card 的 `size` 使用 `small` 与 `medium` 两档控制密度和页签字号，`default`/`middle` 兼容映射到 `medium`；页签命中区遵守 `DESIGN.md`。Card 页签支持页面链接与面板切换两种模式；本地面板初始页签由 `activeTabKey` 或 `defaultActiveTabKey` 指定，随后用方向键、Home/End 键切换，并触发 `card-tab-change` 事件；页面链接保留原生导航语义。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
 
-面包屑使用 Astro 组件 [Breadcrumb.astro](../src/components/Breadcrumb.astro)：`items` 的路由项以 `title` 表示名称，可用 `href` 或累计的 `path` 生成链接；`params` 替换路径和标题中的 `:name`，`separator` 设置统一分隔符，分隔符项允许单独覆盖。`menu.items` 用原生 `<details>` 呈现可键盘操作的下拉链接。页面仍传 `locale` 与文章页 `article` 变体；每项支持 `data-*`、`aria-*` 和 `class`。当前页以 `aria-current="page"` 标记。
+新增或重做页面时，按 [页面模板契约](page-templates.md) 选类型并核对骨架；页面布局或响应式改动按其中的 [响应式适配](page-templates.md#响应式适配) 验收。复用 `BaseLayout` 和现有页面组件。
 
 需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。
 
@@ -41,7 +41,7 @@
 
 - 共享控件的品牌色、字号、圆角、间距和动效时长使用语义 Token；原画内容色、媒体比例和专属布局允许局部值。先审计现有合法值，再用 Stylelint 或小型仓库检查限制新增硬编码，避免对所有 `px` 一刀切。
 - 新图标优先复用现有资产或 SVG，界面图标的颜色尽量继承 `currentColor`；尺寸与线宽按所在组件统一。当前没有独立图标库，不为此新增依赖。
-- 动效时长使用共享 Token，新增重复缓动规则时再收敛。响应式以现有的 480/768/1024px 边界为基准；内容确需额外断点时说明原因。涉及折叠行为时，以 768px 边界同时核对首页和详情。
+- 动效时长使用共享 Token，新增重复缓动规则时再收敛。
 - 本站只有暗色主题，没有亮暗切换需求。未来若增加主题，先调整语义 Token 和组件状态，不在页面中分叉一套样式。
 
 视觉检查工具真正接入 `package.json` 和发布命令后，才列为必过门禁。工具必须报告具体文件与位置，并允许可审查的内容专属例外；截图或静态扫描不能替代真实页面的视觉判断。
@@ -50,7 +50,7 @@
 
 1. **修改前**：检查工作区已有改动；按任务查 `DESIGN.md`、相关组件、调用方、静态与动态渲染路径以及中英文页面。确认改动会触及哪些测试、文档与 SEO 输出。
 2. **实现时**：先改共享层，再改页面特有布局；同步处理默认、焦点、禁用、空、错误和图片失败等适用状态。需要新组件或新 Token 时说明复用场景，不为单页差异扩充系统。
-3. **验证时**：先运行相关测试。文档修改运行 `git diff --check`；数据变更运行 `pnpm data:validate`；发布相关改动运行 `pnpm release:build`。视觉改动还要查看真实页面，至少覆盖受影响模式的中文和英文、320px 手机、平板与桌面、可用的不同浏览器，以及键盘操作、空/错误状态和减少动效。
+3. **验证时**：先运行相关测试。文档修改运行 `git diff --check`；数据变更运行 `pnpm data:validate`；发布相关改动运行 `pnpm release:build`。视觉改动还要查看真实页面；布局和响应式改动按 [响应式适配](page-templates.md#响应式适配) 验收，其他改动核对受影响的语言、浏览器、交互与状态。
 4. **交付前**：检查 diff 与状态，只报告本次文件。同步更新失效规范；关键架构或视觉边界决策写入 [ADR](adr/)。未经用户要求不提交、推送或部署。
 
 若使用 Figma 设计稿，应使用共享组件和 Variables，并与 `DESIGN.md` 对齐；当前仓库没有连接的 Figma 组件库。若采用 PR 流程，评审描述应回答：是否复用了 Token 和组件、是否新增硬编码或例外、检查了哪些语言/视口/浏览器/状态、运行了哪些门禁。当前仓库没有已接入的 PR 模板，模板建立前由提交者在描述中逐项说明。

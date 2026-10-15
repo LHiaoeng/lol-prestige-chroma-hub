@@ -47,8 +47,11 @@ const isZh = resolveLocale(Astro.currentLocale) === 'zh-cn';
   .back-to-top:active { background: var(--gold-active); border-color: var(--gold-active); }
   .back-to-top:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .back-to-top svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  @media (max-width: 767px), (any-pointer: coarse) {
+    .back-to-top { width: var(--touch-target); height: var(--touch-target); }
+  }
   @media (max-width: 767px) {
-    .back-to-top { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: var(--touch-target); height: var(--touch-target); }
+    .back-to-top { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
   }
   @media (prefers-reduced-motion: reduce) { .back-to-top { transition: none; } }
 </style>

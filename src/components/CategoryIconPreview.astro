@@ -10,5 +10,5 @@ const isZh = resolveLocale(Astro.currentLocale) === 'zh-cn';
 </span>
 <style>
   .category-icon-wrap{display:inline-flex;position:relative;align-items:center;justify-content:center;flex:none;min-width:36px;min-height:36px;outline:none}.category-icon-thumb{display:block;width:36px;height:36px;object-fit:contain;cursor:zoom-in}.category-icon-tooltip{display:none;position:absolute;z-index:30;bottom:calc(100% + 8px);left:50%;padding:var(--space-2);border:1px solid var(--line);border-radius:var(--radius-card);background:var(--panel2);transform:translateX(-50%);box-shadow:var(--shadow-popup);pointer-events:none}.category-icon-tooltip img{display:block;width:auto;height:auto;max-width:none;max-height:none;object-fit:initial}.category-icon-wrap:hover .category-icon-tooltip,.category-icon-wrap:focus .category-icon-tooltip{display:block}.category-icon-wrap:focus-visible{outline:2px solid var(--gold);outline-offset:1px;border-radius:var(--radius-control)}
-  @media(max-width:767px){.category-icon-wrap{min-width:var(--touch-target);min-height:var(--touch-target)}}
+  @media(max-width:767px),(any-pointer:coarse){.category-icon-wrap{min-width:var(--touch-target);min-height:var(--touch-target)}}
 </style>
