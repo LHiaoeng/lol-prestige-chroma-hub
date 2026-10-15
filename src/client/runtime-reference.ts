@@ -166,6 +166,7 @@ export type RuntimeCoreResult =
 
 export interface RuntimePageSlotValues {
   readonly "list-skinlines": RuntimeList;
+  readonly "list-universes": RuntimeList;
   readonly "relation-skinlines": RuntimeList;
   readonly "relation-universes": RuntimeList;
   readonly "skinline-skins": readonly RuntimeSkinReferenceItem[];
@@ -318,6 +319,19 @@ export class RuntimeController {
     const state = context.target;
     if (core.mode === "pbe") return [];
     if (state.mode === "list") {
+      if (state.page === "skinlines") {
+        return [
+          {
+            key: "list-universes" as const,
+            load: (slotContext) =>
+              this.runtime.list("universes", {
+                locale: this.options.locale,
+                channel: state.channel,
+                signal: slotContext.signal,
+              }),
+          },
+        ];
+      }
       if (state.page !== "universes") return [];
       return [
         {

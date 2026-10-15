@@ -223,6 +223,12 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
           listRenderer.listRelationsFailure(slot.error, slot.retry);
         return;
       }
+      if (target.mode === "list" && target.page === "skinlines") {
+        const slot = state.slots["list-universes"];
+        if (slot?.status === "ready" || slot?.status === "empty")
+          listRenderer.renderRelations(slot.value);
+        return;
+      }
       if (target.mode !== "detail" || state.core.value.mode !== "detail") return;
       const entity = state.core.value.item;
       detailRenderer.renderRelations(state, entity, target);

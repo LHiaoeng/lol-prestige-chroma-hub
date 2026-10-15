@@ -25,7 +25,8 @@ const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const listPath = page === 'skins' || page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
 const pbeLabel = communityDragonChannelLabel('pbe', runtimeLocale);
 const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
-const showUniverseListHeader = page === 'universes' && mode === 'list';
+const showCompactListHeader = mode === 'list';
+const listIcon = page === 'champions' ? 'champions' : page === 'skinlines' ? 'skinlines' : page === 'universes' ? 'universes' : 'prestige-chromas';
 const skeletonLayout = mode !== 'list' ? 'generic' : page === 'champions' ? 'champions' : page === 'universes' ? 'universes' : 'skinlines';
 const skeletonFilterCount = mode !== 'list' ? 0 : page === 'champions' ? 3 : 2;
 const skeletonItemCount = mode === 'list' ? 24 : 6;
@@ -38,7 +39,7 @@ const breadcrumbItems = [
 ---
 
 <Breadcrumb {locale} items={breadcrumbItems} />
-{!showUniverseListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+{!showCompactListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
   {mode === 'pbe' ? <span class="runtime-channel-static">{isZh ? `${pbeLabel} 与${latestLabel}比较` : `${pbeLabel} vs ${latestLabel}`}</span> : <Dropdown id="runtime-channel-menu">
     <span slot="trigger">
       <span>{isZh ? '资料版本' : 'Reference data'}</span>
@@ -49,13 +50,13 @@ const breadcrumbItems = [
     <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
   </Dropdown>}
 </div>}
-<div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--universe-list': showUniverseListHeader }]}>
+<div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--compact-list-header': showCompactListHeader, 'runtime-page--universe-list': page === 'universes' && showCompactListHeader }]}>
   {mode !== 'detail' && <header>
     <h1>
-      {showUniverseListHeader && <DomainIcon name="universes" class="runtime-universe-icon" />}
-      {showUniverseListHeader ? label : heading}
+      {showCompactListHeader && <DomainIcon name={listIcon} class="runtime-list-icon" />}
+      {showCompactListHeader ? label : heading}
     </h1>
-    {showUniverseListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+    {showCompactListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
       <Dropdown id="runtime-channel-menu">
         <span slot="trigger">
           <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
@@ -65,10 +66,10 @@ const breadcrumbItems = [
         <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
       </Dropdown>
       <Divider type="vertical" />
-      <span class="runtime-list-count" data-runtime-universe-count hidden />
+      <span class="runtime-list-count" data-runtime-list-count hidden />
     </div>}
-    {!showUniverseListHeader && <p class="runtime-lede">{lede}</p>}
-    <Divider class={showUniverseListHeader ? undefined : 'runtime-header-divider'} />
+    {!showCompactListHeader && <p class="runtime-lede">{lede}</p>}
+    <Divider class={showCompactListHeader ? undefined : 'runtime-header-divider'} />
   </header>}
   <section class="runtime-section">
     <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} aria-busy="true">

@@ -54,6 +54,7 @@ export function createRuntimeListRenderer(
     number,
     readonly { readonly id: number; readonly name: string }[]
   >();
+  let skinlineUniverseNames = new Map<number, string>();
   let universeListRelationStatus: "loading" | "ready" | "failed" = "ready";
   let universeListRelationStatusElement: HTMLElement | undefined;
   let renderedUniverseListItems: readonly Extract<
@@ -65,6 +66,7 @@ export function createRuntimeListRenderer(
   return {
     render(items, state) {
       universeListSkinlineNames = new Map();
+      skinlineUniverseNames = new Map();
       universeListRelationStatus =
         options.page === "universes" ? "loading" : "ready";
       universeListRelationStatusElement = undefined;
@@ -192,7 +194,9 @@ export function createRuntimeListRenderer(
             const card = document.createElement("article");
             card.className = isChampionList
               ? "runtime-card runtime-champion-card"
-              : "runtime-card";
+              : item.kind === "skinline"
+                ? "runtime-card runtime-skinline-card"
+                : "runtime-card";
             const link = linkWithNavigation(
               isChampionList || item.kind === "universe" ? "" : item.name,
               hrefFor(
@@ -308,6 +312,33 @@ export function createRuntimeListRenderer(
               meta.append(tree);
               card.append(meta);
               return card;
+            } else if (item.kind === "skinline") {
+              card.appendChild(link);
+              const universeLinks = item.universeIds.flatMap((id) => {
+                const name = skinlineUniverseNames.get(id);
+                if (!name) return [];
+                return [
+                  linkWithNavigation(
+                    name,
+                    hrefFor(
+                      options.locale,
+                      "universes",
+                      { id, channel: state.channel },
+                      "detail",
+                      options.preservesExplicitPbe(),
+                    ),
+                    controller,
+                    "runtime-chip runtime-skinline-universe",
+                  ),
+                ];
+              });
+              if (universeLinks.length) {
+                const meta = document.createElement("div");
+                meta.className = "runtime-skinline-universes";
+                meta.append(...universeLinks);
+                card.append(meta);
+              }
+              return card;
             }
             card.appendChild(link);
             return card;
@@ -315,28 +346,25 @@ export function createRuntimeListRenderer(
         );
         if (!filtered.length && emptyTemplate)
           grid.append(emptyTemplate.content.cloneNode(true));
-        if (options.page === "universes") {
-          const count = options.status
-            .closest<HTMLElement>(".runtime-page")
-            ?.querySelector<HTMLElement>("[data-runtime-universe-count]");
-          if (count) {
-            count.textContent =
-              options.locale === "zh_cn"
-                ? `${filtered.length} 个宇宙`
+        const count = options.status
+          .closest<HTMLElement>(".runtime-page")
+          ?.querySelector<HTMLElement>("[data-runtime-list-count]");
+        if (count) {
+          count.textContent = options.locale === "zh_cn"
+            ? options.page === "champions"
+              ? `${filtered.length} 名英雄`
+              : options.page === "skinlines"
+                ? `${filtered.length} 个系列`
+                : `${filtered.length} 个宇宙`
+            : options.page === "champions"
+              ? `${filtered.length} champions`
+              : options.page === "skinlines"
+                ? `${filtered.length} skinlines`
                 : `${filtered.length} universes`;
-            count.hidden = false;
-          }
+          count.hidden = false;
         }
         options.status.textContent = filtered.length
-          ? options.page === "universes"
-            ? ""
-            : isChampionList
-              ? options.locale === "zh_cn"
-                ? `显示 ${filtered.length} 名英雄`
-                : `${filtered.length} champions`
-              : options.locale === "zh_cn"
-                ? `显示 ${filtered.length} 条资料`
-                : `${filtered.length} references`
+          ? ""
           : emptyTemplate
             ? ""
             : options.locale === "zh_cn"
@@ -372,6 +400,18 @@ export function createRuntimeListRenderer(
       renderListCards?.();
     },
     renderRelations(items) {
+      if (options.page === "skinlines") {
+        skinlineUniverseNames = new Map(
+          items
+            .filter(
+              (item): item is Extract<RuntimeList[number], { kind: "universe" }> =>
+                item.kind === "universe",
+            )
+            .map(({ id, name }) => [id, name] as const),
+        );
+        renderListCards?.();
+        return;
+      }
       const skinlines = new Map(
         items
           .filter((item) => item.kind === "skinline")
