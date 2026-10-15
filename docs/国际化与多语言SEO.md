@@ -20,6 +20,8 @@
 - `src/seo/chroma-seo.ts`：详情页本地化 SEO；
 - `src/seo/sitemap.ts`：双语固定资料页和博客文章 URL、图片与 XHTML alternate；不输出图鉴详情页。
 
+可索引的 CommunityDragon 资料列表与臻彩详情标题、描述应自然包含本地化游戏名（“英雄联盟”/“League of Legends”）。运行时详情仍为 `noindex`，除非为具体实体提供稳定 URL、独立元数据和可索引的静态正文。`BreadcrumbList` 必须与页面可见的面包屑层级一致。
+
 页面模板在构建时根据 locale 选择文案。每个公开 URL 只显示对应语言正文；新增页面必须同时提供英文和简体中文路由、标题、描述、可访问名称、JSON-LD 与站内链接，页面实际包含图片时还必须提供对应语言的图片 Alt。
 
 ## Canonical 与 hreflang

@@ -54,16 +54,16 @@ describe("static site build", () => {
     expect(home).not.toContain("/api/chromas");
     expect(home).not.toContain("prestige-chromas.json");
     expect(home).toContain(
-      "<title>LoL China-Exclusive Chroma Splash Arts &amp; Game References | LoL Chroma Art</title>",
+      "<title>LoL Prestige Chromas &amp; PBE Additions | LoL Chroma Art</title>",
     );
     expect(home).toContain(
       '<meta property="og:site_name" content="LoL Chroma Art">',
     );
     expect(home).toContain(
-      '<meta name="twitter:title" content="LoL China-Exclusive Chroma Splash Arts &amp; Game References | LoL Chroma Art">',
+      '<meta name="twitter:title" content="LoL Prestige Chromas &amp; PBE Additions | LoL Chroma Art">',
     );
     expect(home).toContain("League of Legends");
-    expect(home).toContain("China-Exclusive Chroma Splash Arts");
+    expect(home).toContain("China-server prestige chroma splash arts");
     expect(home).toContain('"@type":"WebSite"');
     expect(home).toContain('"@type":"CollectionPage"');
     expect(home).toContain('data-ad-boundary="catalog-index"');
@@ -556,11 +556,11 @@ describe("static site build", () => {
       "utf8",
     );
     expect(detail).toContain(
-      `${sample.nameEn} China-Exclusive Chroma Splash Art | LoL Chroma Art`,
+      `League of Legends ${sample.nameEn} Chroma Splash Art | LoL Chroma Art`,
     );
     expect(detail).toContain("the Chinese version of League of Legends");
     expect(detail).toContain(
-      `${sample.nameEn} China-Exclusive Chroma Splash Art`,
+      `League of Legends ${sample.nameEn} China-Server Chroma Splash Art`,
     );
     expect(detail).toContain("Click the image to preview");
     expect(detail).toContain("data-chroma-runtime");
@@ -787,10 +787,10 @@ describe("static site build", () => {
     );
 
     expect(english).toContain(
-      "<title>PBE additions | LoL Chroma Art</title>",
+      "<title>League of Legends PBE additions | LoL Chroma Art</title>",
     );
     expect(english).toContain(
-      '<meta name="description" content="Compare new champions, skins, skinlines, and universes between PBE and Live.">',
+      '<meta name="description" content="Compare new League of Legends champions, skins, skinlines, and universes between PBE and Live.">',
     );
     expect(english).toContain(
       '<link rel="canonical" href="https://chromaart.lol/pbe-additions/">',
@@ -809,9 +809,9 @@ describe("static site build", () => {
     expect(english).toContain("PBE vs Live");
 
     expect(chinese).toContain('<html lang="zh-CN"');
-    expect(chinese).toContain("<title>PBE 新增 | LoL Chroma Art</title>");
+    expect(chinese).toContain("<title>英雄联盟 PBE 新增 | LoL Chroma Art</title>");
     expect(chinese).toContain(
-      '<meta name="description" content="比较 PBE 与正式服的英雄、皮肤、皮肤系列和皮肤宇宙新增资料。">',
+      '<meta name="description" content="比较英雄联盟 PBE 与正式服的英雄、皮肤、皮肤系列和皮肤宇宙新增资料。">',
     );
     expect(chinese).toContain(
       '<link rel="canonical" href="https://chromaart.lol/zh-cn/pbe-additions/">',
@@ -840,7 +840,7 @@ describe("static site build", () => {
     expect(home).not.toContain(
       "“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。",
     );
-    expect(chineseHome).toContain("中国服专属指原画，不代表炫彩仅限国服。");
+    expect(chineseHome).toContain("中国大陆服特有的是臻彩原画，不代表臻彩仅限国服。");
     expect(about).toContain(
       "<title>About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art</title>",
     );
@@ -988,14 +988,14 @@ describe("static site build", () => {
     expect(chineseHome).toContain(
       '<link rel="canonical" href="https://chromaart.lol/zh-cn/">',
     );
-    expect(chineseHome).toContain("英雄联盟国服");
+    expect(chineseHome).toContain("英雄联盟中国大陆服");
     expect(chineseHome).toContain('data-ad-boundary="catalog-index"');
     expect(chineseHome).not.toContain('data-language-content="en"');
     expect(chineseDetail).toContain(
       `<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${sample.slug}/">`,
     );
     expect(chineseDetail).toContain(
-      `${sample.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`,
+      `英雄联盟 ${sample.nameZh} 臻彩原画 | LoL Chroma Art`,
     );
     expect(chineseDetail).not.toContain(
       '<meta name="robots" content="noindex, nofollow">',
@@ -1262,7 +1262,7 @@ describe("static site build", () => {
       `<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${chroma!.slug}/">`,
     );
     expect(numericDetail).toContain(
-      `${chroma!.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`,
+      `英雄联盟 ${chroma!.nameZh} 臻彩原画 | LoL Chroma Art`,
     );
   });
 

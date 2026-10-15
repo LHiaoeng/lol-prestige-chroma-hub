@@ -5,8 +5,8 @@ import { SITE } from './site';
 
 export function chromaImageAlt(name: string, locale: Locale = 'en'): string {
   return locale === 'zh-cn'
-    ? `${name} 中国服专属炫彩原画`
-    : `${name} China-Exclusive Chroma Splash Art`;
+    ? `英雄联盟 ${name} 中国服臻彩原画`
+    : `League of Legends ${name} China-Server Chroma Splash Art`;
 }
 
 export function createChromaSeo(chroma: Chroma, requestedLocale: Locale = 'en') {
@@ -18,17 +18,21 @@ export function createChromaSeo(chroma: Chroma, requestedLocale: Locale = 'en') 
   const description = isZh
     ? `${chroma.nameZh}：《英雄联盟》中国服务器中提供的独立炫彩原画（版本 ${chroma.gameVer}）；炫彩本身的地区可用性可能不同。`
     : `${chroma.nameEn}: standalone splash art shown in the Chinese version of League of Legends (patch ${chroma.gameVer}); chroma availability may differ by region.`;
+  const imageAlt = chromaImageAlt(name, locale);
+  const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
   return {
-    title: `${chromaImageAlt(name, locale)} | ${SITE.name}`,
+    title: isZh
+      ? `英雄联盟 ${name} 臻彩原画 | ${SITE.name}`
+      : `League of Legends ${name} Chroma Splash Art | ${SITE.name}`,
     description,
     canonical,
     image,
-    imageAlt: chromaImageAlt(name, locale),
+    imageAlt,
     jsonLd: [
       {
         '@context': 'https://schema.org',
         '@type': 'ImageObject',
-        name,
+        name: imageAlt,
         url: canonical,
         contentUrl: image,
         representativeOfPage: true,
@@ -39,8 +43,10 @@ export function createChromaSeo(chroma: Chroma, requestedLocale: Locale = 'en') 
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: new URL(localizedPath(locale, '/'), SITE.origin).toString() },
-          { '@type': 'ListItem', position: 2, name, item: canonical },
+          { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+          { '@type': 'ListItem', position: 2, name: isZh ? '英雄联盟' : 'League of Legends', item: new URL(localizedPath(locale, '/#home-tools-title'), SITE.origin).toString() },
+          { '@type': 'ListItem', position: 3, name: isZh ? '臻彩原画' : 'Prestige chromas', item: new URL(localizedPath(locale, '/#prestige-chroma-gallery'), SITE.origin).toString() },
+          { '@type': 'ListItem', position: 4, name, item: canonical },
         ],
       },
     ],

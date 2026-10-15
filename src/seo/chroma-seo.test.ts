@@ -39,8 +39,8 @@ describe('chroma SEO', () => {
     const chroma = catalog[0];
     const seo = createChromaSeo(chroma);
     expect(seo.canonical).toBe(`https://chromaart.lol/chromas/${chroma.slug}/`);
+    expect(seo.title).toBe(`League of Legends ${chroma.nameEn} Chroma Splash Art | LoL Chroma Art`);
     expect(seo.title).toContain(chroma.nameEn);
-    expect(seo.title).toContain('China-Exclusive Chroma Splash Art');
     expect(seo.title).toContain('LoL Chroma Art');
     expect(seo.description).toContain('League of Legends');
     expect(seo.description).toContain(`patch ${chroma.gameVer}`);
@@ -48,18 +48,35 @@ describe('chroma SEO', () => {
     expect(seo.description).toContain('chroma availability may differ by region');
     expect(seo.description).not.toContain('China-exclusive chroma');
     expect(seo.description).not.toBe(chroma.descriptionEn);
-    expect(seo.imageAlt).toBe(`${chroma.nameEn} China-Exclusive Chroma Splash Art`);
+    expect(seo.imageAlt).toBe(`League of Legends ${chroma.nameEn} China-Server Chroma Splash Art`);
+    expect(seo.jsonLd[1]).toMatchObject({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { position: 1, name: 'Home' },
+        { position: 2, name: 'League of Legends', item: 'https://chromaart.lol/#home-tools-title' },
+        { position: 3, name: 'Prestige chromas', item: 'https://chromaart.lol/#prestige-chroma-gallery' },
+        { position: 4, name: chroma.nameEn, item: seo.canonical },
+      ],
+    });
   });
 
   it('derives Simplified Chinese metadata on the localized canonical route', () => {
     const chroma = catalog[0];
     const seo = createChromaSeo(chroma, 'zh-cn');
     expect(seo.canonical).toBe(`https://chromaart.lol/zh-cn/chromas/${chroma.slug}/`);
-    expect(seo.title).toBe(`${chroma.nameZh} 中国服专属炫彩原画 | LoL Chroma Art`);
+    expect(seo.title).toBe(`英雄联盟 ${chroma.nameZh} 臻彩原画 | LoL Chroma Art`);
     expect(seo.description).toContain(chroma.nameZh);
     expect(seo.description).toContain(`版本 ${chroma.gameVer}`);
-    expect(seo.imageAlt).toBe(`${chroma.nameZh} 中国服专属炫彩原画`);
+    expect(seo.imageAlt).toBe(`英雄联盟 ${chroma.nameZh} 中国服臻彩原画`);
     expect(seo.jsonLd[0]).toMatchObject({ inLanguage: 'zh-CN', url: seo.canonical });
+    expect(seo.jsonLd[1]).toMatchObject({
+      itemListElement: [
+        { position: 1, name: '首页' },
+        { position: 2, name: '英雄联盟', item: 'https://chromaart.lol/zh-cn/#home-tools-title' },
+        { position: 3, name: '臻彩原画', item: 'https://chromaart.lol/zh-cn/#prestige-chroma-gallery' },
+        { position: 4, name: chroma.nameZh, item: seo.canonical },
+      ],
+    });
   });
 
   it('keeps the growing catalog unique and concise', () => {
@@ -73,6 +90,6 @@ describe('chroma SEO', () => {
 
   it('formats reusable image text', () => {
     expect(chromaImageAlt('Arcane Commander Caitlyn (Stellar)'))
-      .toBe('Arcane Commander Caitlyn (Stellar) China-Exclusive Chroma Splash Art');
+      .toBe('League of Legends Arcane Commander Caitlyn (Stellar) China-Server Chroma Splash Art');
   });
 });
