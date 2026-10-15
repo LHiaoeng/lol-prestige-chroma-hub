@@ -1,6 +1,4 @@
 /* Shared long-form typography and spacing for editorial and policy pages. */
-.blog-article section > p,
-.blog-article .article-deck { max-width: 75ch; }
 .blog-article,
 .about-page,
 .privacy-page {
