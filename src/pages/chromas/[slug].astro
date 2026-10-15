@@ -94,7 +94,7 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
       <img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </picture>
   </div>
-  <Breadcrumb {locale} items={[{ label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') }, { label: isZh ? chroma.nameZh : chroma.nameEn }]} />
+  <Breadcrumb {locale} items={[{ title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') }, { title: isZh ? chroma.nameZh : chroma.nameEn }]} />
   <article class="detail">
     <h1 class="sr-only detail-accessible-title">{seo.imageAlt}</h1>
     <div class="detail-media">

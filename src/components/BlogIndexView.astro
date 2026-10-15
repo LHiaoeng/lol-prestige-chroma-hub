@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ResponsiveHeroBackdrop from './ResponsiveHeroBackdrop.astro';
 import Pagination from './pagination/Pagination.astro';
+import Breadcrumb from './Breadcrumb.astro';
 import { articleHref, blogArticlesNewestFirst, blogCategoryLabels, blogPageHref, formatBlogDate } from '../blog/articles';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
@@ -73,6 +74,10 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
         />
       </div>
       <header class="blog-heading">
+        <Breadcrumb article {locale} items={[
+          { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+          { title: isZh ? '博客' : 'Blog' },
+        ]} />
         {isZh ? <div>
           <p class="kicker">LoL CHROMA ART 博客</p>
           <h1>臻彩资讯与活动追踪</h1>
@@ -120,6 +125,7 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
     .blog-hero { position:relative; isolation:isolate; margin-top:calc(-1 * var(--site-header-height)); min-height:100svh; padding:calc(clamp(58px,7vw,88px) + var(--site-header-height)) 0 110px; overflow:hidden; }
     .blog-backdrop { position:absolute; z-index:-1; inset:0 0 auto; height:100svh; min-height:calc(480px + var(--site-header-height)); }
     .blog-heading { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }
+    .blog-heading > :global(.cn-breadcrumb) { width:100%; margin:calc(-1 * clamp(58px,7vw,88px)) 0 var(--space-5); }
     .blog-heading>div { max-width:780px; }
     .blog-index { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding-top:clamp(32px,4vw,48px); }
     .blog-heading h1 { font-size:var(--font-size-headline-lg); line-height:var(--line-height-headline-lg); margin:.28em 0 .32em; font-weight:600; overflow-wrap:anywhere; text-shadow:0 5px 30px #000b; }
@@ -144,6 +150,7 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
     @media (max-width: 1023px) { .featured-post-link { grid-template-columns:minmax(0,1fr) minmax(280px,1fr); min-height:340px; } }
     @media (max-width: 767px) {
       .blog-hero { padding:calc(44px + var(--site-header-height)) 0 76px; }
+      .blog-heading > :global(.cn-breadcrumb) { margin-top:-44px; }
       .blog-index { padding-top:32px; }
       .blog-heading h1 { font-size:var(--font-size-headline-lg); }
       .featured-post-link { grid-template-columns:1fr; height:auto; min-height:0; }

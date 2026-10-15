@@ -81,11 +81,22 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .cn-breadcrumb-list::-webkit-scrollbar{display:none}
 .cn-breadcrumb-item,.cn-breadcrumb-separator{flex:none;list-style:none}
 .cn-breadcrumb-link{transition:color .2s ease}
+.cn-breadcrumb-home-icon{display:inline-block;width:14px;height:14px;margin-inline-end:4px;vertical-align:-2px}
 .cn-breadcrumb-link:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 @media(hover:hover) and (pointer:fine){.cn-breadcrumb-link:hover{color:var(--gold)}}
 .cn-breadcrumb-page{color:var(--text)}
 .cn-breadcrumb-separator{display:inline-flex;align-items:center}
-.cn-breadcrumb-separator svg{width:14px;height:14px}
+.cn-breadcrumb-menu{position:relative}
+.cn-breadcrumb-menu summary{display:inline-flex;align-items:center;gap:4px;list-style:none;cursor:pointer}
+.cn-breadcrumb-menu summary::-webkit-details-marker{display:none}
+.cn-breadcrumb-menu summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.cn-breadcrumb-menu-icon{width:14px;height:14px;transition:transform var(--motion-mid) ease}
+.cn-breadcrumb-menu[open] .cn-breadcrumb-menu-icon{transform:rotate(180deg)}
+.cn-breadcrumb-menu-list{position:absolute;z-index:5;top:100%;left:0;min-width:160px;margin:4px 0 0;padding:4px;list-style:none;border:1px solid var(--line);border-radius:var(--radius-control);background:var(--panel2);box-shadow:var(--shadow-popup)}
+.cn-breadcrumb-menu-list a{display:block;min-height:var(--touch-target);padding:10px 12px;border-radius:var(--radius-tag)}
+.cn-breadcrumb-menu-list a:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+@media(hover:hover) and (pointer:fine){.cn-breadcrumb-menu-list a:hover{background:var(--hover-bg);color:var(--gold)}}
+@media(prefers-reduced-motion:reduce){.cn-breadcrumb-menu-icon{transition:none}}
 @media(max-width:767px){.cn-breadcrumb.cn-breadcrumb--article{padding:16px 0 0}}
 .cn-input,.cn-select{width:100%;min-width:0;height:var(--control-height);padding:4px 11px;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-control);font:inherit;font-size:var(--font-size-body);line-height:var(--line-height-body);appearance:none;-webkit-appearance:none;transition:border-color var(--motion-fast) ease}
 .cn-input::placeholder{color:var(--disabled);opacity:1}

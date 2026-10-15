@@ -91,9 +91,9 @@ const jsonLd = [
 ---
 <BaseLayout {title} {description} {canonical} image={imageUrl(rewardChroma.images.large)} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <Breadcrumb article {locale} items={[
-    { label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
-    { label: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
-    { label: isZh ? '峡谷之巅 2026 第二赛段' : 'Canyon Peak 2026 Split 2' },
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '峡谷之巅 2026 第二赛段' : 'Canyon Peak 2026 Split 2' },
   ]} />
 
   <article class="blog-article">

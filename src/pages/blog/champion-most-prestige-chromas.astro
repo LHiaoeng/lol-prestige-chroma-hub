@@ -101,9 +101,9 @@ const jsonLd = [
 ---
 <BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={maintenance.updatedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <Breadcrumb article {locale} items={[
-    { label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
-    { label: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
-    { label: isZh ? '臻彩数量榜' : 'Prestige Chroma Leaderboard' },
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '臻彩数量榜' : 'Prestige Chroma Leaderboard' },
   ]} />
 
   {!isZh && <article class="blog-article">

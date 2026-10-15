@@ -29,6 +29,8 @@
 
 新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。Card 的 `size` 使用 `small` 与 `medium` 两档控制密度和页签字号，`default`/`middle` 兼容映射到 `medium`；页签命中区仍至少 44px。Card 页签支持页面链接与面板切换两种模式；本地面板初始页签由 `activeTabKey` 或 `defaultActiveTabKey` 指定，随后用方向键、Home/End 键切换，并触发 `card-tab-change` 事件；页面链接保留原生导航语义。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
 
+面包屑使用 Astro 组件 [Breadcrumb.astro](../src/components/Breadcrumb.astro)：`items` 的路由项以 `title` 表示名称，可用 `href` 或累计的 `path` 生成链接；`params` 替换路径和标题中的 `:name`，`separator` 设置统一分隔符，分隔符项允许单独覆盖。`menu.items` 用原生 `<details>` 呈现可键盘操作的下拉链接。页面仍传 `locale` 与文章页 `article` 变体；每项支持 `data-*`、`aria-*` 和 `class`。当前页以 `aria-current="page"` 标记。
+
 需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。
 
 ## 3. 代码层强制约束

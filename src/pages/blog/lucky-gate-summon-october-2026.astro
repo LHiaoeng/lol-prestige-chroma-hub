@@ -69,9 +69,9 @@ const jsonLd = [
 ---
 <BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
   <Breadcrumb article {locale} items={[
-    { label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
-    { label: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
-    { label: isZh ? '幸运之门·召唤' : 'Lucky Gate Summoning' },
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '幸运之门·召唤' : 'Lucky Gate Summoning' },
   ]} />
 
   {!isZh && <article class="blog-article">

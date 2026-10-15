@@ -19,9 +19,9 @@ const listPath = page === 'skins' || page === 'pbe-additions' ? undefined : loca
 const pbeLabel = communityDragonChannelLabel('pbe', runtimeLocale);
 const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
 const breadcrumbItems = [
-  { label: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
-  ...(mode === 'detail' && listPath ? [{ label, href: listPath, linkAttrs: { 'data-runtime-channel-link': '' } }] : []),
-  { label: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label },
+  { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+  ...(mode === 'detail' && listPath ? [{ title: label, href: listPath, 'data-runtime-channel-link': '' }] : []),
+  { title: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label },
 ];
 ---
 
