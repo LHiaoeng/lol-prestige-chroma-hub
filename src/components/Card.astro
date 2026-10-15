@@ -4,6 +4,7 @@ export interface CardTab {
   label?: string;
   tab?: string;
   href?: string;
+  icon?: boolean;
 }
 
 interface Props {
@@ -91,6 +92,7 @@ const tabId = (key: string) => encodeURIComponent(key);
             <nav class="card__tabs" aria-label={tabsLabel}>
               {tabList.map((tab) => (
                 <a class="card__tab" href={tab.href} aria-current={tab.key === initialTabKey ? 'page' : undefined}>
+                  {tab.icon && <span class="card__tab-icon" aria-hidden="true"><slot name={`tabIcon-${tab.key}`} /></span>}
                   {tab.label ?? tab.tab ?? tab.key}
                 </a>
               ))}
@@ -118,6 +120,7 @@ const tabId = (key: string) => encodeURIComponent(key);
                     tabindex={selected ? 0 : -1}
                     data-card-tab={tab.key}
                   >
+                    {tab.icon && <span class="card__tab-icon" aria-hidden="true"><slot name={`tabIcon-${tab.key}`} /></span>}
                     {tab.label ?? tab.tab ?? tab.key}
                   </button>
                 );
@@ -215,6 +218,8 @@ const tabId = (key: string) => encodeURIComponent(key);
   .card__tabbar { display: flex; min-width: 0; align-items: stretch; padding-inline: var(--space-4); }
   .card__tabs { display: flex; min-width: 0; flex: 1; align-items: stretch; gap: var(--space-4); overflow-x: auto; scrollbar-width: thin; }
   .card__tab { position: relative; display: inline-flex; min-height: var(--touch-target); flex: none; align-items: center; justify-content: center; padding: 0 2px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: var(--font-size-title); line-height: var(--line-height-title); text-decoration: none; white-space: nowrap; cursor: pointer; transition: color var(--motion-fast) ease; }
+  .card__tab-icon { display: inline-flex; width: 16px; height: 16px; flex: none; align-items: center; justify-content: center; margin-inline-end: var(--space-1); line-height: 0; }
+  .card__tab-icon :global(svg) { display: block; width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .card__tab::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: transparent; content: ''; }
   .card__tab:hover, .card__tab[aria-current="page"], .card__tab[aria-selected="true"] { color: var(--gold); }
   .card__tab[aria-current="page"]::after, .card__tab[aria-selected="true"]::after { background: var(--gold); }

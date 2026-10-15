@@ -53,11 +53,13 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
   .home-catalog > .alert { margin-bottom: var(--space-3); }
   .home-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
-  .home-catalog .catalog-intro-link { display: inline-flex; width: var(--touch-target); min-height: var(--touch-target); align-items: center; justify-content: center; border: 1px solid var(--line-subtle); border-radius: var(--radius-control); color: var(--gold); transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease, color var(--motion-fast) ease; }
-  .home-catalog .catalog-intro-link svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-  .home-catalog .catalog-intro-link:hover { border-color: var(--gold); background: var(--hover-bg); color: var(--gold-hover); }
+  .home-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--touch-target); height: var(--touch-target); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
+  .home-catalog .catalog-intro-link::before { position: absolute; inset: 10px; border: 1px solid var(--line-subtle); border-radius: var(--radius-control); background: transparent; content: ''; pointer-events: none; transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+  .home-catalog .catalog-intro-link svg { position: relative; width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .home-catalog .catalog-intro-link:hover { color: var(--gold-hover); }
+  .home-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
   .home-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  @media (prefers-reduced-motion: reduce) { .home-catalog .catalog-intro-link { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .home-catalog .catalog-intro-link::before { transition: none; } }
   .home-catalog .status:not([hidden]):not(.error) { padding: 8px 12px; margin: 12px 0; border: 0; }
   .home-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .home-catalog .card-body { padding: 12px; }
