@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 视觉语义与组件范式 | [DESIGN.md](../DESIGN.md) | 规定颜色层级、字体、尺寸、状态和允许的例外 |
 | 浏览器主题基础值 | [tokens.css](../src/styles/tokens.css) | 集中定义实际消费的 CSS 变量 |
-| 共享实现 | [global.css](../src/styles/global.css)、[article.css](../src/styles/article.css) | 控件、布局、响应式覆盖和长文排版 |
+| 共享实现 | [global.css](../src/styles/global.css)、[backgrounds.css](../src/styles/backgrounds.css)、[article.css](../src/styles/article.css) | 控件、固定背景媒体、布局、响应式覆盖和长文排版 |
 | 局部实现 | 对应 Astro 组件或页面 | 仅定义媒体比例、专属网格、图表及功能几何 |
 
 修改视觉规则时，先核对 `DESIGN.md` 与 Token，再更新共享组件和所有消费者。本文件不复制 Token 数值。独立控件触控目标、原画展示等例外须符合 `DESIGN.md`，不能靠页面私有颜色或字号建立另一套主题。

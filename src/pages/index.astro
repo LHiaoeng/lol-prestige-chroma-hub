@@ -28,7 +28,7 @@ const jsonLd = isZh ? [
 
 <BaseLayout {title} {description} {canonical} image={socialImage} {jsonLd} {locale} adPlacement="catalog-index">
   <div class="home-page" data-backdrop-scope>
-    <div class="home-backdrop">
+    <div class="page-backdrop page-backdrop--home home-backdrop">
       {backgroundChroma && <ResponsiveHeroBackdrop
         largeSrc={imageUrl(backgroundChroma.images.large)}
         mediumSrc={imageUrl(backgroundChroma.images.medium)}
@@ -47,7 +47,5 @@ const jsonLd = isZh ? [
 </BaseLayout>
 <style>
   .home-page { position:relative; isolation:isolate; background:var(--bg); }
-  .home-backdrop { position:fixed; z-index:0; inset:0; height:100svh; }
   .home-content { position:relative; z-index:1; }
-  :global(footer) { position:relative; z-index:1; }
 </style>

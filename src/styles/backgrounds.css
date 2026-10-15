@@ -1,0 +1,74 @@
+.page-backdrop {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg);
+  pointer-events: none;
+}
+
+.page-backdrop--home { z-index: 0; }
+.page-backdrop--behind { z-index: -1; }
+
+.page-backdrop picture { display: block; width: 100%; height: 100%; }
+.page-backdrop img,
+.page-backdrop video { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.page-backdrop--detail::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,#000000f2 0%,#000000a8 45%,#00000066 75%),linear-gradient(0deg,#000000 0%,transparent 52%,#00000070 100%);
+  content: '';
+}
+
+.page-backdrop--detail img { object-position: center top; opacity: .52; filter: saturate(.85); }
+
+.responsive-hero-backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.responsive-hero-backdrop img {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  object-position: var(--backdrop-position);
+  opacity: var(--backdrop-opacity);
+  transform: translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.025);
+  animation: backdrop-drift 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.responsive-hero-backdrop .backdrop-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.7) 36%,rgba(0,0,0,.26) 66%,rgba(0,0,0,.07) 100%),linear-gradient(180deg,transparent 0%,transparent 54%,rgba(0,0,0,.42) 78%,var(--bg) 100%);
+}
+
+@keyframes backdrop-drift {
+  from { transform: translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.025); }
+  to { transform: translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.065); }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .responsive-hero-backdrop img { animation: none; transform: none; }
+  .responsive-hero-backdrop .backdrop-overlay { background: linear-gradient(90deg,rgba(0,0,0,.84) 0%,rgba(0,0,0,.48) 55%,rgba(0,0,0,.18) 100%),linear-gradient(180deg,transparent 30%,rgba(0,0,0,.4) 68%,var(--bg) 100%); }
+  .page-backdrop--detail::after { background: linear-gradient(90deg,#000000e6 0%,#00000070 55%,#00000050 100%),linear-gradient(0deg,#000000 0%,transparent 56%,#00000066 100%); }
+  .page-backdrop--detail img { opacity: .46; }
+}
+
+@media (max-width: 767px) {
+  .responsive-hero-backdrop img { object-position: var(--backdrop-mobile-position); opacity: var(--backdrop-mobile-opacity); animation: none; transform: none; }
+  .responsive-hero-backdrop .backdrop-overlay { background: linear-gradient(90deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.15) 62%,rgba(0,0,0,.04) 100%),linear-gradient(180deg,transparent 0%,transparent 46%,rgba(0,0,0,.52) 72%,var(--bg) 100%); }
+  .page-backdrop--detail::after { background: linear-gradient(0deg,#000000 0%,#00000099 45%,#0000004d 100%); }
+  .page-backdrop--detail img { opacity: .42; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .responsive-hero-backdrop img { animation: none; transform: none; }
+}

@@ -15,6 +15,29 @@
 - 长文沿用 [article.css](../src/styles/article.css) 的外层版心；正文、导语、图片和表格默认使用完整版心宽度。关于页和隐私页正文同样沿用各自版心。
 - 背景与原画可铺满视口，标题、正文、导航和操作仍与版心对齐。间距用现有 `--space-*`；手机边距由共享样式覆盖。
 
+## 固定背景媒体
+
+- 页面级背景由 [BaseLayout](../src/layouts/BaseLayout.astro) 全局加载 [backgrounds.css](../src/styles/backgrounds.css)。页面直接使用模块类，不重复导入样式，也不自行实现 `position: fixed`、视口尺寸、媒体裁切和层级。
+- Header 与 Footer 由 `BaseLayout` 保留在背景之上；页面模板只放背景和页面内容，不隐藏、替换或用全屏层覆盖 Footer。
+- 按页面层级选择模块类：首页使用 `page-backdrop page-backdrop--home`，并让页面建立 `isolation: isolate` 的层叠上下文、前景内容设为 `z-index: 1`；其他页面使用 `page-backdrop page-backdrop--behind`，并确保其所在页面层叠上下文隔离。详情页可额外使用 `page-backdrop--detail` 获得详情专用遮罩。背景包裹层使用 `aria-hidden="true"`，不得承载交互或唯一信息。
+- 页面结构按此模式组装，背景与正文同属页面模板，但背景固定于视口：
+
+  ```astro
+  <BaseLayout title={title} description={description}>
+    <div class="page-backdrop page-backdrop--behind" aria-hidden="true">
+      <!-- ResponsiveHeroBackdrop 或 picture/img -->
+    </div>
+    <!-- 面包屑、标题和正文 -->
+  </BaseLayout>
+  ```
+
+- 需要响应式取图、叠加层和已有图片回退逻辑时，在 `.page-backdrop` 内使用 [ResponsiveHeroBackdrop](../src/components/ResponsiveHeroBackdrop.astro)；详情等静态背景使用 `<picture>` / `<img>`，并给装饰图设置 `alt=""`。背景失效或不可用时，主体内容与阅读顺序保持不变。
+- 固定背景不得置于带 `transform`、`filter`、`perspective` 或裁切的祖先下，以免固定定位变成局部定位或被截断；背景层不遮挡交互，Header 和前景内容保持在背景之上。
+- 背景按本站断点适配：桌面（≥1024px）使用大图与宽屏遮罩；平板（768–1023px）保留大图清晰度并调整遮罩和动效；手机（≤767px）使用中图、单独调整构图和遮罩。平板与手机均关闭漂移动画，保持正文对比度并减少小屏开销。
+- 背景图片以 `object-fit: cover` 填满视口；叠加渐变或遮罩，保证前景文字对比度。图片加载失败时依次尝试已配置的备用图片和占位图；都不可用时保留 `var(--bg)` 等主题纯色底，不显示破图图标。
+- 背景视频同样只作装饰，静音、内联播放、循环播放并提供静态 `poster`；视频未能加载、播放或自动播放时显示 `poster`/备用图片，静态资源也失败时回退到主题纯色底。共享模块目前只提供视频的固定定位和铺满视口样式，使用视频的页面还须实现上述媒体回退；视频不承载唯一信息，不提供会抢占焦点的控件。
+- 尊重 `prefers-reduced-motion`：减少动态效果时停止背景视频与视差/漂移动画，显示静态图片；自动播放受限、节省流量或媒体格式不支持时也采用静态兜底。
+
 ## 类型差异
 
 | 类型 | 在通用骨架上补充 |

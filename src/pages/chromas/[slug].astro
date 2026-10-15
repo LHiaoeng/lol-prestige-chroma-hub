@@ -47,7 +47,7 @@ const skinlinePath = (id: number) => runtimePath('/skinlines/detail/', { id }, [
 const universePath = (id: number) => runtimePath('/universes/detail/', { id }, ['id', 'channel']);
 const seo = createChromaSeo(chroma, locale);
 const image = seo.image;
-const mobileImage = imageUrl(chroma.images.medium);
+const mediumImage = imageUrl(chroma.images.medium);
 const relatedGroups = findRelatedGroups(catalog, chroma);
 const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
 const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
@@ -88,9 +88,9 @@ const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-su
 const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma.heroId) }, ['id', 'channel']);
 ---
 <BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} image={seo.image} jsonLd={seo.jsonLd} {locale}>
-  <div class="detail-background" aria-hidden="true">
+  <div class="page-backdrop page-backdrop--behind page-backdrop--detail detail-background" aria-hidden="true">
     <picture>
-      <source media="(max-width: 767px)" srcset={mobileImage} data-fallback={sourceImageUrl('medium', chroma.instanceId)} />
+      <source media="(max-width: 767px)" srcset={mediumImage} data-fallback={sourceImageUrl('medium', chroma.instanceId)} />
       <img src={image} data-fallback={sourceImageUrl('large', chroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </picture>
   </div>
@@ -168,10 +168,6 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
 </script>
 <style>
   :global(main){position:relative;isolation:isolate}
-  .detail-background{position:absolute;z-index:-1;inset:calc(-1 * var(--site-header-height)) 0 auto;height:100svh;overflow:hidden;pointer-events:none}
-  .detail-background::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#000000f2 0%,#000000a8 45%,#00000066 75%),linear-gradient(0deg,#000000 0%,transparent 52%,#00000070 100%)}
-  .detail-background picture{display:block;width:100%;height:100%}
-  .detail-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:.52;filter:saturate(.85)}
   .detail-media{min-width:0}
   .detail-preview-hint{margin:10px 0 0;color:var(--muted);font-size:var(--font-size-small);text-align:center}
   .detail-info-disclosure>summary{display:none}
@@ -191,8 +187,6 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   .champion-detail-link:hover,.champion-detail-link:focus-visible,.source-skin-detail-link:hover,.source-skin-detail-link:focus-visible,.runtime-relation-link:hover,.runtime-relation-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
   .detail-related-links{line-height:1.7}
   @media(max-width:767px){
-    .detail-background::after{background:linear-gradient(0deg,#000000 0%,#00000099 45%,#0000004d 100%)}
-    .detail-background img{opacity:.42;object-position:center top}
     .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:auto}
     .detail-image :global(.viewer-image){height:auto;object-fit:contain}
     .detail-preview-hint{width:calc(100% - (var(--page-gutter) * 2));margin:10px auto 0}
