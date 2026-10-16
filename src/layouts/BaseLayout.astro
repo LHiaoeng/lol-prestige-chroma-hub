@@ -82,7 +82,7 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
           </nav>
         </div>
         <a class="header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
-        {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'}>{isZh ? 'EN' : '简体中文'}</a>}
+        {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title="English / 中文"><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
       </div>
     </header>
     <main><slot /></main>
@@ -133,9 +133,13 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .header-blog-link:hover { color: var(--gold-hover); background: var(--hover-bg); }
       .header-blog-link:active { color: var(--gold-active); }
       .header-blog-link:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; min-width: var(--control-height); min-height: var(--control-height); border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--panel); color: var(--text); padding: 0 11px; font-size: var(--font-size-body); line-height: var(--line-height-body); cursor: pointer; transition: background-color var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease; flex-shrink: 0; white-space: nowrap; }
-      .language-toggle:hover { border-color:var(--gold-hover); background:var(--hover-bg); color:var(--gold-hover); }
-      .language-toggle:active { border-color:var(--gold-active); color:var(--gold-active); }
+      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; width: var(--control-height); min-width: var(--control-height); height: var(--control-height); border-radius: var(--radius-control); color: var(--text); cursor: pointer; flex-shrink: 0; transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease; }
+      .language-toggle-mark { position: relative; width: 32px; height: 32px; }
+      .language-toggle-current, .language-toggle-next { position: absolute; line-height: 1; }
+      .language-toggle-current { z-index: 1; top: 6px; left: 6px; color: var(--gold); font-size: 14px; font-weight: 600; }
+      .language-toggle-next { right: 4px; bottom: 6px; color: var(--muted); font-size: 12px; }
+      .language-toggle:hover { background:var(--hover-bg); color:var(--gold-hover); }
+      .language-toggle:active { color:var(--gold-active); }
       .language-toggle:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
       @media (max-width: 767px) {
         .header-controls { gap: 8px; }
@@ -151,14 +155,13 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
         .browse-menu.is-open > .browse-nav { display: flex; }
         .browse-menu > .browse-nav a { width: 100%; min-height:var(--touch-target); justify-content: flex-start; font-size: var(--font-size-body); line-height:var(--line-height-body); padding: 0 12px; }
         .header-blog-link { min-height:var(--touch-target); padding-inline: 9px; }
-        .language-toggle { min-height:var(--touch-target); padding-inline: 9px; }
+        .language-toggle { width:var(--touch-target); min-width:var(--touch-target); height:var(--touch-target); min-height:var(--touch-target); }
       }
       @media (max-width: 479px) {
         .header-controls { gap: 6px; }
         .browse-menu > .browse-menu-toggle { padding-inline: 8px; }
         .browse-menu > .browse-nav { min-width: 130px; }
         .header-blog-link { padding-inline: 7px; }
-        .language-toggle { padding-inline: 7px; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       footer a:hover { color:var(--gold-hover); }
