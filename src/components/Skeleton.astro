@@ -21,11 +21,11 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
   {layout === "skin-detail" && <div class="runtime-skin-detail-skeleton">
     <section class="runtime-skin-media-skeleton">
       <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
-      <div class="runtime-media-grid">
-        {Array.from({ length: 4 }, () => <div class="runtime-media-item runtime-skeleton-media-item">
-          <div class="runtime-skeleton-media"></div>
-          <div class="runtime-media-caption"><span class="runtime-skeleton-line"></span></div>
-        </div>)}
+      <div class="runtime-media-carousel-skeleton">
+        <div class="runtime-skeleton-media"></div>
+      </div>
+      <div class="runtime-media-carousel-controls-skeleton">
+        {Array.from({ length: 6 }, () => <span class="runtime-skeleton-line"></span>)}
       </div>
     </section>
   </div>}

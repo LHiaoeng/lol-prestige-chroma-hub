@@ -849,16 +849,30 @@ describe("runtime DOM boundaries", () => {
     ).toBe(true);
     const choices = borderSection?.querySelectorAll(".runtime-border-choice");
     expect(choices).toHaveLength(2);
-    const downloadItems = borderSection?.querySelectorAll("[data-download-kind]");
-    expect(downloadItems).toHaveLength(4);
+    expect(borderSection?.querySelector("[data-download-kind]")).toBeNull();
+    expect(borderSection?.querySelector(".runtime-border-composite-download")).toBeNull();
+    const carouselControls = mediaSection?.querySelector(".runtime-media-carousel-controls");
     expect(
-      downloadItems
-        ?.filter((item) => item.dataset.downloadKind === "border")
-        .map((button) => button.dataset.url),
-    ).toEqual([
-      "https://example.test/border-base.png",
-      "https://example.test/border-top.png",
-    ]);
+      carouselControls?.querySelector(".runtime-media-carousel-download")?.getAttribute("aria-label"),
+    ).toBe("下载当前显示内容");
+    expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-icon-only")).not.toBeNull();
+    expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-sm")).toBeNull();
+    expect(carouselControls?.querySelector(".ant-radio-group-middle")).not.toBeNull();
+    expect(
+      carouselControls?.querySelector(".runtime-media-carousel-divider")?.getAttribute("aria-orientation"),
+    ).toBe("vertical");
+    const borderFrame = borderSection?.querySelector<HTMLElement>(".runtime-loadscreen-frame");
+    const borderMode = borderSection?.querySelector<HTMLInputElement>('input[value="border"]');
+    expect(borderFrame?.dataset.borderMode).toBe("loadscreen");
+    expect(
+      borderSection?.querySelector<HTMLInputElement>('input[value="loadscreen"]')?.checked,
+    ).toBe(true);
+    expect(borderMode?.checked).toBe(false);
+    borderMode?.click();
+    expect(borderFrame?.dataset.borderMode).toBe("border");
+    expect(borderFrame?.querySelector<HTMLImageElement>(".runtime-loadscreen-art")?.hidden).toBe(true);
+    borderSection?.querySelector<HTMLInputElement>('input[value="loadscreen"]')?.click();
+    expect(borderFrame?.dataset.borderMode).toBe("loadscreen");
     expect(choices?.[1]?.getAttribute("aria-pressed")).toBe("true");
     choices?.[0]?.click();
     expect(

@@ -267,7 +267,7 @@ Chroma Gold 是最终可见主色 `primary: #d7b56d`。普通暗色算法会把�
 
 ## Layout
 
-采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。按钮、表单字段和图标操作等独立控件默认 32px 高；窄屏或存在触控输入时，实际可点击区域至少 44×44 CSS px，图标可保持原尺寸，相邻目标不得重叠。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
+采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。按钮、表单字段和图标操作等独立控件默认 32px 高。皮肤详情媒体轮播控制条按 Antdv Next 组件尺寸：Radio.Button 与下载图标按钮均使用默认 32px，并通过组件 `size` 属性控制；尺寸不随视口或触控类型放大。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
 
 本站版心与横向边距继续通过 `--content-width` 和 `--page-gutter` 共享。首页直接呈现工具导航、筛选与原画目录；目录便于比较；详情突出完整作品和资料；博客维持连续阅读。原画展示面积、完整媒体比例和触控可用性是密度规则的明确例外，其余同类控件不逐页另定尺寸。
 

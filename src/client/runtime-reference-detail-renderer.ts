@@ -24,9 +24,9 @@ import type {
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 import {
   appendExternalAction,
-  appendBorderModule,
   appendHistoricalArtwork,
   appendMedia,
+  appendMediaCarousel,
   appendMediaCollection,
   appendMissingField,
   appendSkinReferenceTitle,
@@ -42,6 +42,7 @@ import { runtimeFailureMessage } from "./communitydragon-errors";
 import { createChromaCard } from "../components/chroma-card/chroma-card";
 import { createDomainIcon } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
+import { createTitle } from "../components/Typography";
 import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
@@ -127,6 +128,8 @@ export function createRuntimeDetailRenderer(
   );
   const skinChampionSummary = document.querySelector<HTMLElement>("[data-runtime-skin-champion-summary]");
   const skinChampionSlot = document.querySelector<HTMLElement>("[data-runtime-skin-champion]");
+  const skinChromaSummary = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-summary]");
+  const skinChromaCount = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-count]");
   const skinRelationSummaries = [
     { key: "relation-skinlines", kind: "skinline", page: "skinlines", label: options.locale === "zh_cn" ? "系列" : "skinlines", summary: document.querySelector<HTMLElement>("[data-runtime-skin-skinline-summary]"), slot: document.querySelector<HTMLElement>("[data-runtime-skin-skinlines]") },
     { key: "relation-universes", kind: "universe", page: "universes", label: options.locale === "zh_cn" ? "宇宙" : "universes", summary: document.querySelector<HTMLElement>("[data-runtime-skin-universe-summary]"), slot: document.querySelector<HTMLElement>("[data-runtime-skin-universes]") },
@@ -367,6 +370,12 @@ export function createRuntimeDetailRenderer(
       universeSkinlineNames = new Map();
       updateSkinlineChampionNames = undefined;
       if (item.kind === "skin") {
+        if (skinChromaSummary && skinChromaCount) {
+          skinChromaSummary.hidden = false;
+          setUniverseCount(skinChromaCount, options.locale === "zh_cn"
+            ? `${item.chromas.length} 个炫彩`
+            : `${item.chromas.length} ${item.chromas.length === 1 ? "chroma" : "chromas"}`);
+        }
         for (const { kind, summary, slot } of skinRelationSummaries) {
           if (summary) summary.hidden = kind === "skinline"
             ? item.skinlineIds.length === 0
@@ -392,12 +401,13 @@ export function createRuntimeDetailRenderer(
       const article = document.createElement("article");
       article.className = "runtime-detail";
       const entityName = item.name ?? runtimeMissingLabel(options.locale, "name");
-      const title = textNode(
-        "h1",
-        item.kind === "champion" && item.title
+      const title = createTitle({
+        level: 1,
+        className: "runtime-detail-title",
+        text: item.kind === "champion" && item.title
           ? `${item.title} ${entityName}`
           : entityName,
-      );
+      });
       if (
         item.kind === "champion" ||
         item.kind === "skin" ||
@@ -565,26 +575,17 @@ export function createRuntimeDetailRenderer(
         mediaSection.appendChild(
           textNode("h2", options.locale === "zh_cn" ? "媒体" : "Media"),
         );
-        const mediaGrid = document.createElement("div");
-        mediaGrid.className = "runtime-media-grid";
+        const mediaCarousel = document.createElement("div");
         if (
-          appendMediaCollection(
-            mediaGrid,
+          appendMediaCarousel(
+            mediaCarousel,
             item.media,
             options.locale,
             item.name ?? runtimeMissingLabel(options.locale, "name"),
           ) === 0
-        )
-          appendMissingField(mediaGrid, options.locale, "artwork");
-        mediaSection.appendChild(mediaGrid);
+        ) appendMissingField(mediaCarousel, options.locale, "artwork");
+        mediaSection.appendChild(mediaCarousel);
         article.appendChild(mediaSection);
-
-        appendBorderModule(
-          article,
-          item.media,
-          options.locale,
-          item.name ?? runtimeMissingLabel(options.locale, "name"),
-        );
 
         const historicalArt = item.historicalArt ?? [];
         if (historicalArt.length) {
@@ -903,6 +904,10 @@ export function createRuntimeDetailRenderer(
         "[data-runtime-universe-skinline-count], [data-runtime-universe-skin-count]",
       ).forEach(setUniverseCountSkeleton);
       if (entitySkinCount) setUniverseCountSkeleton(entitySkinCount);
+      if (skinChromaSummary && skinChromaCount) {
+        skinChromaSummary.hidden = false;
+        setUniverseCountSkeleton(skinChromaCount);
+      }
       if (skinChampionSummary && skinChampionSlot) {
         skinChampionSummary.hidden = false;
         setUniverseCountSkeleton(skinChampionSlot);
@@ -930,6 +935,7 @@ export function createRuntimeDetailRenderer(
       );
       if (skinCount) setUniverseCount(skinCount, "—");
       if (entitySkinCount) setUniverseCount(entitySkinCount, "—");
+      if (skinChromaSummary) skinChromaSummary.hidden = true;
       if (skinChampionSummary) skinChampionSummary.hidden = true;
       for (const { summary } of skinRelationSummaries)
         if (summary) summary.hidden = true;

@@ -17,13 +17,13 @@
 
 ## 2. 组件库和模式库
 
-“组件库”指仓库内 [src/components/](../src/components/) 的复用组件、相邻逻辑、样式和测试，不是独立软件包。先复用已有的 Input、Select、Dropdown、Divider、Masonry、Tree、[领域图标映射](../src/components/domain-icons.ts)、分页、臻彩卡片、图片查看器和操作菜单；Button、表格等共享外观目前由全局或文章样式承担。Checkbox、Toast、Tooltip 等尚无实际需求的组件不因范式清单而预建。
+“组件库”指仓库内 [src/components/](../src/components/) 的复用组件、相邻逻辑、样式和测试，不是独立软件包。先复用已有的 Input、Select、Dropdown、Button、Divider、Masonry、Tree、[领域图标映射](../src/components/domain-icons.ts)、分页、臻彩卡片、图片查看器和操作菜单；表格等共享外观目前由全局或文章样式承担。Checkbox 和 Toast 等尚无实际需求的组件不因范式清单而预建。需要 Antdv Next 组件行为时，在本站技术栈内新增本地组件适配，避免引入 Vue 运行时。
 
 | 页面模式 | 当前入口 | 重点状态 |
 | --- | --- | --- |
 | 首页博客、导航与图鉴 | [首页](../src/pages/index.astro)、[HomeLatestBlog](../src/components/HomeLatestBlog.astro)、[HomeToolNavigation](../src/components/HomeToolNavigation.astro)、[Card](../src/components/Card.astro)、[Menu](../src/components/Menu.astro)、[Alert](../src/components/Alert.astro)、[HomeChromaCatalog](../src/components/HomeChromaCatalog.astro) | “博客”和“英雄联盟”分层标题；无卡片标题的双语页签链接包住目录；目录 Alert 简述臻彩并以带无障碍名称的外链图标链接双语指南；空结果、错误；静态首批与动态重绘一致 |
 | 臻彩详情与预览 | [详情页](../src/pages/chromas/[slug].astro)、[ImageViewer](../src/components/ImageViewer.astro)、[DetailActionMenu](../src/components/DetailActionMenu.astro) | 缺失字段、图片回退、菜单开合、键盘和触控 |
-| 运行时资料 | [RuntimeReferenceRoot](../src/components/RuntimeReferenceRoot.astro)、[RuntimeDetailSummary](../src/components/RuntimeDetailSummary.astro)、[Masonry/Tree 样式](../src/styles/global.css)、[Tree](../src/components/Tree.ts)、[Dropdown](../src/components/Dropdown.astro)、[Divider](../src/components/Divider.astro)、[Skeleton](../src/components/Skeleton.astro)、[Spin](../src/components/Spin.astro)、[Empty](../src/components/Empty.astro)、[Alert](../src/components/Alert.astro)、[chroma-card](../src/components/chroma-card/) | 无分页瀑布流、宇宙与皮肤系列层级、首次加载占位、保留结果刷新、空结果、错误与重试、数据通道 |
+| 运行时资料 | [RuntimeReferenceRoot](../src/components/RuntimeReferenceRoot.astro)、[RuntimeDetailSummary](../src/components/RuntimeDetailSummary.astro)、[Breadcrumb](../src/components/Breadcrumb.astro)、[Typography.Title](../src/components/Typography.ts)、[Carousel](../src/components/Carousel.ts)、[Radio.Button](../src/components/RadioButtonGroup.ts)、[Button](../src/components/Button.ts)、[Tooltip](../src/components/tooltip.ts)、[Divider](../src/components/Divider.ts)、[Masonry/Tree 样式](../src/styles/global.css)、[Tree](../src/components/Tree.ts)、[Dropdown](../src/components/Dropdown.astro)、[Skeleton](../src/components/Skeleton.astro)、[Spin](../src/components/Spin.astro)、[Empty](../src/components/Empty.astro)、[Alert](../src/components/Alert.astro)、[chroma-card](../src/components/chroma-card/) | 无分页瀑布流、宇宙与皮肤系列层级、首次加载占位、保留结果刷新、空结果、错误与重试、数据通道 |
 | 博客列表与长文 | [BlogIndexView](../src/components/BlogIndexView.astro)、[article.css](../src/styles/article.css) | 分页、双语长标题、来源信息 |
 | 说明与错误页 | [About](../src/pages/about.astro)、[404](../src/pages/404.astro) | 可读性、返回入口、无脚本内容 |
 
