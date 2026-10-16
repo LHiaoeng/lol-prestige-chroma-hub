@@ -4,6 +4,7 @@ import '../styles/article.css';
 import '../styles/backgrounds.css';
 import BackToTop from '../components/BackToTop.astro';
 import AdSlot from '../components/AdSlot.astro';
+import DomainIcon from '../components/DomainIcon.astro';
 import { safeJsonLd } from '../domain/chroma';
 import type { AdPlacement } from '../domain/ad-policy';
 import { alternateUrls, localeConfig, localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -70,19 +71,20 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       <a class="brand" href={localizedPath(locale, '/')} aria-label={isZh ? 'LoL Chroma Art 首页' : 'LoL Chroma Art home'}><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
         <div class="browse-menu">
-          <button type="button" class="browse-menu-toggle" aria-label={isZh ? '更多导航' : 'More'} aria-expanded="false">
-            <svg class="browse-menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            <span>{isZh ? '更多' : 'More'}</span>
+          <button type="button" class="header-action browse-menu-toggle" aria-label={isZh ? '英雄联盟' : 'League of Legends'} aria-expanded="false" aria-controls="browse-nav">
+            <img class="browse-league-icon" src="/img/icons/league-of-legends.svg" alt="" width="18" height="18" />
+            {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
+            <svg class="browse-menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
           </button>
-          <nav class="browse-nav" aria-label={isZh ? '更多导航' : 'More'}>
-            <a href={localizedPath(locale, '/champions/')}>{isZh ? '英雄' : 'Champions'}</a>
-            <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '系列' : 'Skinlines'}</a>
-            <a href={localizedPath(locale, '/universes/')}>{isZh ? '宇宙' : 'Universes'}</a>
-            <a href={localizedPath(locale, '/pbe-additions/')}>{isZh ? 'PBE 新增' : 'PBE additions'}</a>
+          <nav id="browse-nav" class="browse-nav" aria-label={isZh ? '英雄联盟' : 'League of Legends'}>
+            <a href={localizedPath(locale, '/pbe-additions/')}><DomainIcon name="pbe-additions" class="browse-nav-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a>
+            <a href={localizedPath(locale, '/champions/')}><DomainIcon name="champions" class="browse-nav-icon" />{isZh ? '英雄' : 'Champions'}</a>
+            <a href={localizedPath(locale, '/skinlines/')}><DomainIcon name="skinlines" class="browse-nav-icon" />{isZh ? '系列' : 'Skinlines'}</a>
+            <a href={localizedPath(locale, '/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a>
           </nav>
         </div>
-        <a class="header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
-        {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
+        <a class="header-action header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
+        {canonical && <a class="header-action language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
       </div>
     </header>
     <main><slot /></main>
@@ -94,7 +96,6 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       import { bindHeaderGlass } from '../client/header-glass';
       bindImageFallbacks();
       bindHeaderGlass();
-      // 移动端浏览菜单展开/折叠
       const browseMenu = document.querySelector<HTMLElement>('.browse-menu');
       const browseToggle = document.querySelector<HTMLButtonElement>('.browse-menu-toggle');
       if (browseMenu && browseToggle) {
@@ -102,13 +103,21 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
           const open = browseMenu.classList.toggle('is-open');
           browseToggle.setAttribute('aria-expanded', String(open));
         });
-        // 点击外部关闭（仅移动端）
         document.addEventListener('click', (e) => {
-          if (window.innerWidth >= 768) return;
           if (browseMenu.classList.contains('is-open') && !browseMenu.contains(e.target as Node)) {
             browseMenu.classList.remove('is-open');
             browseToggle.setAttribute('aria-expanded', 'false');
           }
+        });
+        browseMenu.querySelectorAll('.browse-nav a').forEach((link) => link.addEventListener('click', () => {
+          browseMenu.classList.remove('is-open');
+          browseToggle.setAttribute('aria-expanded', 'false');
+        }));
+        browseMenu.addEventListener('keydown', (e) => {
+          if (e.key !== 'Escape' || !browseMenu.classList.contains('is-open')) return;
+          browseMenu.classList.remove('is-open');
+          browseToggle.setAttribute('aria-expanded', 'false');
+          browseToggle.focus();
         });
       }
     </script>
@@ -118,50 +127,41 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .brand { display: flex; align-items: center; gap: var(--space-2); }
       .brand img { display: block; width: 32px; height: 32px; flex: none; }
       .brand > .brand-text { color: var(--text); }
-      .site-header .brand-text, .site-header .browse-nav a, .site-header .browse-menu-toggle, .site-header .header-blog-link, .site-header .language-toggle { text-shadow: 0 1px 7px #000000d9; }
-      .header-controls { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
-      .browse-menu { display: flex; align-items: center; min-width: 0; flex: 1 1 auto; }
-      .browse-menu > .browse-menu-toggle { display: none; background: none; border: none; }
-      .browse-menu > .browse-nav { display: flex; }
-      .browse-nav { align-items:center; gap:var(--space-2); overflow-x:auto; scrollbar-width:none; min-width: 0; }
-      .browse-nav::-webkit-scrollbar { display:none; }
-      .browse-nav a { display:inline-flex; align-items:center; min-height:var(--control-height); padding:0 12px; border-radius:var(--radius-control); color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+      .site-header .brand-text, .site-header .browse-nav a, .site-header .header-action { text-shadow: 0 1px 7px #000000d9; }
+      .header-controls { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
+      .browse-menu { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
+      .header-action { display:inline-flex; align-items:center; justify-content:center; min-height:var(--control-height); padding:0 var(--space-2); border:1px solid transparent; border-radius:var(--radius-control); background:transparent; color:var(--text); font-size:var(--font-size-body); line-height:var(--line-height-body); font-weight:400; white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+      .header-action:hover, .browse-menu.is-open > .browse-menu-toggle { color:var(--gold-hover); background:var(--hover-bg); }
+      .header-action:active { color:var(--gold-active); background:var(--hover-bg); }
+      .header-action:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+      .browse-menu > .browse-menu-toggle { gap:var(--space-1); cursor:pointer; }
+      .browse-league-icon { display:block; width:18px; height:18px; flex:none; }
+      .browse-menu-label-short { display:none; }
+      .browse-menu-chevron { flex:none; transition:transform var(--motion-fast) ease; }
+      .browse-menu.is-open .browse-menu-chevron { transform:rotate(180deg); }
+      .browse-menu > .browse-nav { display:none; position:absolute; top:calc(100% + 6px); left:0; flex-direction:column; min-width:160px; padding:5px 0; background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius-card); box-shadow:var(--shadow-popup); z-index:30; }
+      .browse-menu.is-open > .browse-nav { display:flex; }
+      .browse-nav a { display:inline-flex; align-items:center; width:calc(100% - 8px); min-height:max(40px, var(--control-height)); margin:4px; justify-content:flex-start; gap:10px; padding:0 16px; border-radius:var(--radius-control); color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+      .browse-nav a .browse-nav-icon { width:14px; height:14px; flex:none; color:inherit; }
       .browse-nav a:hover { color:var(--gold-hover); background:var(--hover-bg); }
       .browse-nav a:active { color:var(--gold-active); }
       .browse-nav a:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-      .header-blog-link { display: inline-flex; align-items: center; min-width: var(--control-height); min-height: var(--control-height); padding: 0 12px; border-radius: var(--radius-control); color: var(--text); font-size: var(--font-size-body); line-height:var(--line-height-body); font-weight: 600; flex-shrink: 0; transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
-      .header-blog-link:hover { color: var(--gold-hover); background: var(--hover-bg); }
-      .header-blog-link:active { color: var(--gold-active); }
-      .header-blog-link:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; width: var(--control-height); min-width: var(--control-height); height: var(--control-height); border: 1px solid transparent; border-radius: var(--radius-control); color: var(--text); cursor: pointer; flex-shrink: 0; transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease; }
+      .header-blog-link { flex-shrink:0; }
+      .language-toggle { position:relative; width:var(--control-height); min-width:var(--control-height); height:var(--control-height); padding:0; flex-shrink:0; }
       .language-toggle-mark { position: relative; width: 32px; height: 32px; }
       .language-toggle-current, .language-toggle-next { position: absolute; border: 1px solid var(--line); font-size: 16.8px; line-height: 16.8px; white-space: nowrap; }
       .language-toggle-current { z-index: 1; top: 7px; left: 7px; border-color: var(--gold); background: var(--gold); color: var(--on-gold); font-weight: 400; transform: scale(.7); transform-origin: top left; }
       .language-toggle-next { top: 15px; left: 16px; background: transparent; color: var(--muted); transform: scale(.5); transform-origin: top left; }
-      .language-toggle:hover { background:var(--hover-bg); color:var(--gold-hover); }
-      .language-toggle:active { color:var(--gold-active); }
-      .language-toggle:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
       @media (max-width: 767px) {
-        .header-controls { gap: 8px; }
+        .header-controls { gap: var(--space-1); }
+        .browse-menu-label-wide { display:none; }
+        .browse-menu-label-short { display:inline; }
         .brand { gap: var(--space-2); min-width: 0; margin-right: var(--space-2); }
         .brand-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
         .header-controls { flex: 0 0 auto; }
-        .browse-menu { position: relative; flex: 0 0 auto; }
-        .browse-menu > .browse-menu-toggle { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--touch-target); padding: 0 10px; border-radius: var(--radius-control); color: var(--muted); font-size: var(--font-size-body); line-height:var(--line-height-body); cursor: pointer; transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
-        .browse-menu > .browse-menu-toggle:hover { color: var(--gold-hover); background: var(--hover-bg); }
-        .browse-menu > .browse-menu-toggle:active { color: var(--gold-active); }
-        .browse-menu > .browse-menu-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-        .browse-menu > .browse-nav { display: none; position: absolute; top: calc(100% + 6px); right: 0; flex-direction: column; gap: 2px; min-width: 140px; padding: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-popup); z-index: 30; }
-        .browse-menu.is-open > .browse-nav { display: flex; }
-        .browse-menu > .browse-nav a { width: 100%; min-height:var(--touch-target); justify-content: flex-start; font-size: var(--font-size-body); line-height:var(--line-height-body); padding: 0 12px; }
-        .header-blog-link { min-height:var(--touch-target); padding-inline: 9px; }
-        .language-toggle { width:var(--touch-target); min-width:var(--touch-target); height:var(--touch-target); min-height:var(--touch-target); }
       }
       @media (max-width: 479px) {
-        .header-controls { gap: 6px; }
-        .browse-menu > .browse-menu-toggle { padding-inline: 8px; }
-        .browse-menu > .browse-nav { min-width: 130px; }
-        .header-blog-link { padding-inline: 7px; }
+        .browse-menu > .browse-nav { left:auto; right:0; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       footer a:hover { color:var(--gold-hover); }
