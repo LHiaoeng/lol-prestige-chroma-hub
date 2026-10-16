@@ -2,13 +2,15 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import ChromaColorCircle from '../../components/ChromaColorCircle.astro';
-import CategoryIconPreview from '../../components/CategoryIconPreview.astro';
-import DetailActionMenu from '../../components/DetailActionMenu.astro';
+import Divider from '../../components/Divider.astro';
+import DomainIcon from '../../components/DomainIcon.astro';
+import RuntimeDetailSummary from '../../components/RuntimeDetailSummary.astro';
+import Dropdown from '../../components/Dropdown.astro';
 import ExpandableChromaGroup from '../../components/ExpandableChromaGroup.astro';
 import ImageViewer from '../../components/ImageViewer.astro';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
-import { googleSearchUrl, khadaChampionUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
+import { googleSearchUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
 import { findRelatedGroups } from '../../domain/related';
 import { brilliantSummonSessions } from '../../domain/brilliant-summon';
 import { categoryName } from '../../i18n';
@@ -47,41 +49,20 @@ const skinlinePath = (id: number) => runtimePath('/skinlines/detail/', { id }, [
 const universePath = (id: number) => runtimePath('/universes/detail/', { id }, ['id', 'channel']);
 const seo = createChromaSeo(chroma, locale);
 const image = seo.image;
+const categoryLabel = categoryName(chroma.categoryId, isZh ? 'zh' : 'en');
 const mediumImage = imageUrl(chroma.images.medium);
 const relatedGroups = findRelatedGroups(catalog, chroma);
-const skinSetsEn = chroma.skinSets.map((item) => item.nameEn).join(', ');
-const universesEn = chroma.universes.map((item) => item.nameEn).join(', ');
+const relatedGroupIcons = { hero: 'champions', skinSet: 'skinlines', universe: 'universes', version: 'game-version' } as const;
 const prestigeChromaKeyword = chroma.nameEn;
-const sourceSkinKeyword = chroma.skinNameEn;
 const actionLabels = {
   skinSpotlights: { labelEn: 'VIEW ON SKINSPOTLIGHTS', labelZh: '在 SKINSPOTLIGHTS 查看' },
   khada: { labelEn: 'VIEW 3D MODEL ON KHADA', labelZh: '在 KHADA 查看 3D 模型' },
   google: { labelEn: 'GOOGLE SEARCH', labelZh: '谷歌搜索' },
-  patch: { labelEn: 'VIEW PATCH NOTES', labelZh: '查看版本公告' },
 };
 const prestigeChromaActions = [
   { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(prestigeChromaKeyword) },
   { ...actionLabels.khada, href: khadaModelUrl(chroma.sourceSkinId, chroma.skinId) },
   { ...actionLabels.google, href: googleSearchUrl(prestigeChromaKeyword) },
-];
-const sourceSkinActions = [
-  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(sourceSkinKeyword) },
-  { ...actionLabels.khada, href: khadaModelUrl(chroma.sourceSkinId) },
-  { ...actionLabels.google, href: googleSearchUrl(sourceSkinKeyword) },
-];
-const championActions = [
-  { ...actionLabels.skinSpotlights, href: skinSpotlightsSearchUrl(chroma.heroNameEn) },
-  { ...actionLabels.khada, href: khadaChampionUrl(chroma.heroId) },
-  { ...actionLabels.google, href: googleSearchUrl(chroma.heroNameEn) },
-];
-const skinlineActions = [
-  { ...actionLabels.google, href: googleSearchUrl(`${skinSetsEn} Skinlines`) },
-];
-const universeActions = [
-  { ...actionLabels.google, href: googleSearchUrl(`${universesEn} Universes`) },
-];
-const patchActions = [
-  { ...actionLabels.patch, href: patchNotesUrl(chroma.gameVer) },
 ];
 const isSummonGuideChroma = brilliantSummonSessions.some((session) => session.rewards.some((reward) => reward.chromaNameEn === chroma.nameEn));
 const summonGuideUrl = localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/');
@@ -100,107 +81,105 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
     { title: isZh ? '臻彩原画' : 'Prestige chromas', href: localizedPath(locale, '/#prestige-chroma-gallery') },
     { title: isZh ? chroma.nameZh : chroma.nameEn },
   ]} />
-  <article class="detail">
-    <h1 class="sr-only detail-accessible-title">{seo.imageAlt}</h1>
-    <div class="detail-media">
-      <div class="detail-image">
-        <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} altEn={seo.imageAlt} altZh={seo.imageAlt} {locale} />
-      </div>
-      <p class="detail-preview-hint">{isZh ? '点击图片预览' : 'Click the image to preview'}</p>
+  <article class="detail runtime-detail runtime-detail--entity chroma-detail">
+    <div class="detail-title-row"><h1 class="detail-display-title"><ChromaColorCircle colors={chroma.colors} />{isZh ? chroma.nameZh : chroma.nameEn}</h1></div>
+    {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <p class="detail-lede">{isZh ? chroma.descriptionZh : chroma.descriptionEn}</p>}
+    <div class="detail-summary">
+      <RuntimeDetailSummary locale={locale} kind="chroma"><dl>
+        <div><dt class="sr-only">{isZh ? '分类' : 'Category'}</dt><dd><span class="detail-summary-item"><DomainIcon name="prestige-chromas" /><span class="detail-category-name" data-category-icon={sourceImageUrl('tag', chroma.tagId)}>{categoryLabel}</span></span></dd></div>
+        <div><dt class="sr-only">{isZh ? '英雄' : 'Champion'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="champions" /><a class="runtime-entity-relation-link" data-runtime-channel-link href={championRuntimeUrl}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a></span></dd></div>
+        {chroma.skinSets.length > 0 && <div><dt class="sr-only">{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="skinlines" /><span class="detail-related-links">{chroma.skinSets.map((item, index) => <><a class="runtime-entity-relation-link" data-runtime-channel-link href={skinlinePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.skinSets.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span></span></dd></div>}
+        {chroma.universes.length > 0 && <div><dt class="sr-only">{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="universes" /><span class="detail-related-links">{chroma.universes.map((item, index) => <><a class="runtime-entity-relation-link" data-runtime-channel-link href={universePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.universes.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span></span></dd></div>}
+        <div><dt class="sr-only">{isZh ? '所属皮肤' : 'Chroma parent skin'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="skins" /><a class="runtime-entity-relation-link" data-runtime-channel-link href={sourceSkinPath}>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</a></span></dd></div>
+        <div><dt class="sr-only">{isZh ? '游戏版本' : 'Patch'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="game-version" /><a class="runtime-entity-relation-link" href={patchNotesUrl(chroma.gameVer)} target="_blank" rel="noopener noreferrer" aria-label={isZh ? `查看 ${chroma.gameVer} 版本公告` : `View patch ${chroma.gameVer} notes`}>{chroma.gameVer}</a></span></dd></div>
+        <div><dt class="sr-only">{isZh ? '更多' : 'More'}</dt><dd><Divider type="vertical" /><div class="runtime-skin-actions-summary">
+          <Dropdown id="chroma-actions-menu" placement="bottomRight">
+            <span slot="trigger"><svg class="runtime-channel-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM8 8V5h8v3M3 12h18M10 12v2h4v-2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" /></svg><span>{isZh ? '更多' : 'More'}</span><svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg></span>
+            {prestigeChromaActions.map((action) => <li role="none"><a role="menuitem" data-ant-dropdown-item href={action.href} target="_blank" rel="noopener noreferrer" aria-label={isZh ? action.labelZh : action.labelEn}>{isZh ? action.labelZh : action.labelEn}</a></li>)}
+          </Dropdown>
+        </div></dd></div>
+      </dl></RuntimeDetailSummary>
     </div>
-    <div class="detail-copy">
-      <div class="detail-title-row"><p class="detail-display-title" aria-hidden="true">{isZh ? chroma.nameZh : chroma.nameEn}</p><DetailActionMenu actions={prestigeChromaActions} {locale} /></div>
-      <details class="detail-info-disclosure" open>
-      <summary><span>{isZh ? '详细资料' : 'Details'}</span><span class="detail-info-icon" aria-hidden="true">＋</span></summary>
-      <div class="detail-info-body">
-      <dl>
-        <div><dt>{isZh ? '分类' : 'Category'}</dt><dd>{categoryName(chroma.categoryId, isZh ? 'zh' : 'en')}</dd></div>
-        <div><dt>{isZh ? '分类图标' : 'Category icon'}</dt><dd><CategoryIconPreview src={sourceImageUrl('tag', chroma.tagId)} /></dd></div>
-        {chroma.colors.length > 0 && <div><dt>{isZh ? '颜色' : 'Colors'}</dt><dd><ChromaColorCircle colors={chroma.colors} /></dd></div>}
-        {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <div class="description-row"><dt>{isZh ? '描述' : 'Description'}</dt><dd>{isZh ? chroma.descriptionZh : chroma.descriptionEn}</dd></div>}
-        <div><dt>{isZh ? '所属皮肤' : 'Chroma parent skin'}</dt><dd class="detail-value-with-actions"><a class="source-skin-detail-link" data-runtime-channel-link href={sourceSkinPath}>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</a><DetailActionMenu actions={sourceSkinActions} {locale} /></dd></div>
-        {chroma.skinSets.length > 0 && <div><dt>{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd class="detail-value-with-actions"><span class="detail-related-links">{chroma.skinSets.map((item, index) => <><a class="runtime-relation-link" data-runtime-channel-link href={skinlinePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.skinSets.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span><DetailActionMenu actions={skinlineActions} {locale} /></dd></div>}
-        {chroma.universes.length > 0 && <div><dt>{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd class="detail-value-with-actions"><span class="detail-related-links">{chroma.universes.map((item, index) => <><a class="runtime-relation-link" data-runtime-channel-link href={universePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.universes.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span><DetailActionMenu actions={universeActions} {locale} /></dd></div>}
-        <div><dt>{isZh ? '英雄' : 'Champions'}</dt><dd class="detail-value-with-actions"><a class="champion-detail-link" data-runtime-channel-link href={championRuntimeUrl}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a><DetailActionMenu actions={championActions} {locale} /></dd></div>
-        <div><dt>{isZh ? '游戏版本' : 'Patch'}</dt><dd class="detail-value-with-actions"><span>{chroma.gameVer}</span><DetailActionMenu actions={patchActions} {locale} /></dd></div>
-      </dl>
-      </div>
-      </details>
-      <section class="chroma-runtime" data-chroma-runtime data-champion-id={chroma.heroId} data-source-skin-id={chroma.sourceSkinId} data-chroma-id={chroma.skinId} data-runtime-locale={locale === 'zh-cn' ? 'zh_cn' : 'default'} aria-labelledby="chroma-runtime-heading">
-        <h2 id="chroma-runtime-heading">{isZh ? '可选游戏资料' : 'Optional game reference'}</h2>
-        <div class="runtime-source chroma-runtime-source" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-          <button type="button" data-chroma-runtime-channel="pbe" aria-pressed={runtimeChannel === 'pbe'}>{isZh ? 'PBE' : 'PBE'}</button>
-          <button type="button" data-chroma-runtime-channel="latest" aria-pressed={runtimeChannel === 'latest'}>{isZh ? '正式服' : 'Live'}</button>
+    <Divider class="runtime-entity-detail-divider" />
+    <section class="detail-artwork-section">
+      <h2><DomainIcon name="prestige-chromas" />{isZh ? '臻彩原画' : 'Chroma artwork'}</h2>
+      <div class="detail-media">
+        <div class="detail-image">
+          <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} altEn={seo.imageAlt} altZh={seo.imageAlt} {locale} />
         </div>
-        <div data-chroma-runtime-content></div>
-      </section>
-      {isSummonGuideChroma && <p class="detail-context-link"><a href={summonGuideUrl}>{isZh ? '阅读璀璨臻彩召唤完全指南' : 'Read the complete Brilliant Prestige Chroma Summoning guide'}</a></p>}
-    </div>
+        <p class="detail-preview-hint">{isZh ? '点击图片预览' : 'Click the image to preview'}</p>
+      </div>
+    </section>
+    {isSummonGuideChroma && <p class="detail-context-link"><a href={summonGuideUrl}>{isZh ? '阅读璀璨臻彩召唤完全指南' : 'Read the complete Brilliant Prestige Chroma Summoning guide'}</a></p>}
   </article>
   {relatedGroups.length > 0 && (
-    <section class="related">
+    <section class="related detail-related">
       {relatedGroups.map((group) => (
-        <ExpandableChromaGroup
-          titleEn={group.titleEn}
-          titleZh={group.titleZh}
-          chromas={group.chromas}
-          {locale}
-        />
+        <>
+          <Divider class="detail-module-divider" />
+          <ExpandableChromaGroup
+            titleEn={group.titleEn}
+            titleZh={group.titleZh}
+            icon={relatedGroupIcons[group.kind]}
+            chromas={group.chromas}
+            {locale}
+          />
+        </>
       ))}
     </section>
   )}
 </BaseLayout>
 <script>
-  const detailDisclosure = document.querySelector<HTMLDetailsElement>('.detail-info-disclosure');
-  const desktop = matchMedia('(min-width: 768px)');
-  const syncDetailDisclosure = () => detailDisclosure?.toggleAttribute('open', desktop.matches);
-  syncDetailDisclosure();
-  desktop.addEventListener('change', syncDetailDisclosure);
-</script>
-<script>
+  import { createTooltip } from '../../components/tooltip';
   import { bindRuntimeChannelLinks, bindRuntimeLanguageToggle } from '../../client/runtime-url-state-dom';
+  document.querySelectorAll<HTMLElement>('.detail-category-name[data-category-icon]').forEach((trigger) => {
+    const parent = trigger.parentElement!;
+    const next = trigger.nextSibling;
+    const icon = document.createElement('img');
+    icon.src = trigger.dataset.categoryIcon!;
+    icon.alt = '';
+    icon.className = 'category-icon-tooltip-image';
+    const tooltipTrigger = createTooltip(trigger, icon);
+    parent.insertBefore(tooltipTrigger, next);
+  });
   bindRuntimeLanguageToggle(document);
   bindRuntimeChannelLinks(document);
 </script>
-<script>
-  import { initChromaRuntime } from '../../client/chroma-runtime';
-  initChromaRuntime(document);
-</script>
 <style>
   :global(main){position:relative;isolation:isolate}
+  .detail{grid-template-columns:minmax(0,1fr);align-items:stretch;gap:var(--space-3);padding-bottom:0}
   .detail-media{min-width:0}
-  .detail-preview-hint{margin:10px 0 0;color:var(--muted);font-size:var(--font-size-small);text-align:center}
-  .detail-info-disclosure>summary{display:none}
-  .detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}
-  .detail-title-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:nowrap;margin-bottom:20px}
-  .detail-display-title{margin:0;color:var(--gold);font-family:var(--font-ui);font-size:var(--font-size-headline-md);font-weight:600;white-space:nowrap}
-  .detail-copy dl{margin-top:0}
-  .detail-copy dl>div{grid-template-columns:100px minmax(0,1fr);column-gap:8px}
-  .description-row dd{color:var(--muted);line-height:1.7}
+  .detail-preview-hint{display:block;width:100%;margin:var(--space-3) 0 var(--space-4);color:var(--muted);font-size:var(--font-size-small);text-align:center}
+  .detail-title-row{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
+  .detail-display-title{display:flex;flex:1;align-items:center;gap:8px;min-width:0;margin:0;color:var(--gold);font-family:var(--font-ui);font-size:var(--font-size-display);line-height:var(--line-height-display);font-weight:600;overflow-wrap:anywhere}
+  .detail-display-title :global(.color-wrap),.detail-display-title :global(.color-circle){width:1em;height:1em;flex:0 0 1em}
+  .detail-category-name{cursor:help}
+  :global(.category-icon-tooltip-image){display:block;width:auto;height:auto;max-width:min(240px,calc(100vw - (var(--page-gutter) * 2)));max-height:min(240px,65vh);object-fit:contain}
+  .detail-lede{grid-column:1/-1;margin:0;color:var(--muted);line-height:1.7}
+  .detail-summary{grid-column:1/-1}
+  .detail-summary :global(dl){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;border:0;color:var(--gold);font-size:var(--font-size-title);line-height:var(--line-height-title)}
+  .detail-summary :global(dl>div){display:flex;align-items:center;gap:0;padding:0;border:0}
+  .detail-summary :global(dt){color:var(--muted);font-size:var(--font-size-small)}
+  .detail-summary :global(dd){display:inline-flex;align-items:center;gap:8px;margin:0;color:var(--gold)}
+  .detail-summary :global(.ant-divider-vertical){margin-inline:0;font-size:inherit}
+  .detail-summary :global(.domain-icon){width:1em;height:1em;flex:0 0 auto}
+  .detail-summary :global(.detail-summary-item){display:inline-flex;min-width:0;min-height:var(--control-height);align-items:center;gap:8px;overflow-wrap:anywhere}
+  .detail-summary :global(.runtime-skin-actions-summary){display:inline-flex;align-items:center;gap:8px}
+  .detail-artwork-section{display:grid;grid-column:1/-1;min-width:0;gap:var(--space-3)}
+  .detail-artwork-section h2,.detail-related :global(.section-heading h2){display:flex;align-items:center;gap:var(--space-2);margin:0;color:var(--gold);font-size:var(--font-size-headline-sm);line-height:var(--line-height-headline-sm);font-weight:600}
+  .detail-artwork-section h2 :global(.domain-icon),.detail-related :global(.section-heading h2 .domain-icon){width:1em;height:1em;flex:0 0 auto}
+  .detail-image{height:auto;aspect-ratio:auto;padding:0;border-radius:var(--radius-card);background:var(--panel2);box-shadow:none}
+  .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:auto}
+  .detail-image :global(.viewer-image){height:auto;aspect-ratio:16/9;object-fit:contain}
+  .detail-related{padding:0 0 96px}
+  .detail-related :global(.detail-module-divider){margin:var(--space-4) 0}
+  .detail-related :global(.related-group){margin:0}
+  .detail-related :global(.section-heading){align-items:center;margin-bottom:var(--space-3)}
   .detail-context-link{margin:16px 0 0;color:var(--muted);font-size:var(--font-size-body);line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
-  .chroma-runtime{margin-top:24px;padding:16px;border:1px solid var(--line);border-radius:var(--radius-card);background:color-mix(in srgb,var(--panel) 88%,transparent)}
-  .chroma-runtime h2{margin:0 0 10px;color:var(--gold);font-size:var(--font-size-title)}
-  .chroma-runtime .chroma-runtime-source{margin-top:0;margin-bottom:12px}
-  .chroma-runtime[aria-busy="true"]{opacity:.88}
-  .detail-value-with-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
-  .champion-detail-link,.source-skin-detail-link,.runtime-relation-link{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
-  .champion-detail-link:hover,.champion-detail-link:focus-visible,.source-skin-detail-link:hover,.source-skin-detail-link:focus-visible,.runtime-relation-link:hover,.runtime-relation-link:focus-visible{color:var(--text);text-decoration-thickness:2px}
-  .detail-related-links{line-height:1.7}
+  :global(.detail-related-links){line-height:1.7}
   @media(max-width:767px){
-    .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:auto}
-    .detail-image :global(.viewer-image){height:auto;object-fit:contain}
-    .detail-preview-hint{width:calc(100% - (var(--page-gutter) * 2));margin:10px auto 0}
-    .detail-copy{width:calc(100% - (var(--page-gutter) * 2));margin:0 auto;padding:14px 0 24px}
-    .detail-info-disclosure{border:1px solid var(--line);border-radius:var(--radius-card);background:var(--panel)}
-    .detail-info-disclosure>summary{display:flex;min-height:var(--touch-target);align-items:center;justify-content:space-between;padding:0 14px;color:var(--gold);font-size:var(--font-size-small);font-weight:600;list-style:none;cursor:pointer}
-    .detail-info-disclosure>summary::-webkit-details-marker{display:none}
-    .detail-info-icon{font-size:var(--font-size-headline-sm);transition:transform var(--motion-mid) ease}
-    .detail-info-disclosure[open] .detail-info-icon{transform:rotate(45deg)}
-    .detail-info-disclosure:not([open])>.detail-info-body{display:none}
-    .detail-info-body{padding:0 14px 12px}
-    .detail-title-row{justify-content:space-between;margin:8px 0}
-    .detail-display-title{font-size:var(--font-size-headline-sm);white-space:normal}
-    .detail-copy dl>div{grid-template-columns:88px minmax(0,1fr);padding:13px 0}
-    .detail-value-with-actions{gap:8px}
+    .detail{width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2)));padding-bottom:0}
+    .detail-title-row{align-items:flex-start}
+    .detail-related{padding:24px 0 72px}
   }
 </style>

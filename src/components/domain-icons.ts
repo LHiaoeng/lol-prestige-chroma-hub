@@ -1,5 +1,6 @@
 export const DOMAIN_ICONS = {
   "prestige-chromas": '<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7 1.8 1.8 0 0 1 1-3.3H17a4 4 0 0 0 4-4c0-4-4-7-9-7Z"/><circle cx="7.5" cy="10" r=".7"/><circle cx="11" cy="7" r=".7"/><circle cx="16" cy="8" r=".7"/>',
+  "game-version": '<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h4M8 2v4M16 2v4M8 18v4M16 18v4"/>',
   "pbe-additions": '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
   champions: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   skins: '<path d="m8 4 4 2 4-2 5 3-2 5-3-2v10H8V10l-3 2-2-5 5-3Z"/>',

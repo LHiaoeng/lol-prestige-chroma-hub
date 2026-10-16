@@ -24,3 +24,16 @@ const background = !isChroma
     {colors.map((color) => <span class="color-row"><i style={`background:${color}`} /><code>{color}</code></span>)}
   </span>}
 </span>
+
+<script>
+  import { createTooltip } from './tooltip';
+
+  document.querySelectorAll<HTMLElement>('.color-wrap').forEach((wrap) => {
+    const trigger = wrap.querySelector<HTMLElement>('.color-circle');
+    const content = wrap.querySelector<HTMLElement>('.color-tooltip');
+    if (!trigger || !content) return;
+    const tooltipTrigger = createTooltip(trigger, content);
+    tooltipTrigger.classList.add('color-wrap');
+    wrap.replaceWith(tooltipTrigger);
+  });
+</script>

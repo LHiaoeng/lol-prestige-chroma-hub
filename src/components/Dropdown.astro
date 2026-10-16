@@ -60,7 +60,7 @@ const { id, placement = 'bottomLeft' } = Astro.props;
       else open(dropdown);
       return;
     }
-    const item = target.closest<HTMLButtonElement>(itemSelector);
+    const item = target.closest<HTMLElement>(itemSelector);
     if (item) {
       const dropdown = item.closest<HTMLElement>(selector);
       if (dropdown) close(dropdown, true);
@@ -80,7 +80,7 @@ const { id, placement = 'bottomLeft' } = Astro.props;
       event.preventDefault();
       const last = event.key === 'ArrowUp';
       if (!triggerDropdown.classList.contains('ant-dropdown-open')) open(triggerDropdown);
-      const items = [...triggerDropdown.querySelectorAll<HTMLButtonElement>(itemSelector)];
+      const items = [...triggerDropdown.querySelectorAll<HTMLElement>(itemSelector)];
       (last ? items.at(-1) : items[0])?.focus();
       return;
     }
@@ -91,8 +91,8 @@ const { id, placement = 'bottomLeft' } = Astro.props;
       close(dropdown, true);
       return;
     }
-    const items = [...dropdown.querySelectorAll<HTMLButtonElement>(itemSelector)];
-    const activeItem = target.closest<HTMLButtonElement>(itemSelector);
+    const items = [...dropdown.querySelectorAll<HTMLElement>(itemSelector)];
+    const activeItem = target.closest<HTMLElement>(itemSelector);
     const activeIndex = activeItem ? items.indexOf(activeItem) : -1;
     if (activeIndex < 0 || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();

@@ -123,7 +123,7 @@ export function appendMedia(
 
 export function appendExternalAction(
   parent: HTMLElement,
-  action: RuntimeSkinAction,
+  action: Pick<RuntimeSkinAction, "label" | "href">,
 ): void {
   const link = document.createElement("a");
   link.className = "runtime-chip runtime-external-link";
@@ -663,8 +663,6 @@ export function appendChromaColorCircle(
         ? `conic-gradient(from 45deg, ${stops.join(", ")})`
         : "transparent";
   circle.setAttribute("style", `background:${background}`);
-  wrapper.appendChild(circle);
-
   if (isChroma && values.length) {
     const tooltip = document.createElement("span");
     tooltip.className = "color-tooltip";
@@ -678,9 +676,13 @@ export function appendChromaColorCircle(
       row.appendChild(textNode("code", color));
       tooltip.appendChild(row);
     });
-    wrapper.appendChild(tooltip);
+    const tooltipTrigger = createTooltip(circle, tooltip);
+    tooltipTrigger.classList.add("color-wrap");
+    parent.appendChild(tooltipTrigger);
+  } else {
+    wrapper.appendChild(circle);
+    parent.appendChild(wrapper);
   }
-  parent.appendChild(wrapper);
   if (isChroma && !values.length) appendMissingField(parent, locale, "colors");
 }
 

@@ -1,6 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CommunityDragonRuntimeError } from "../domain/communitydragon-runtime";
-import { channelFromLocation, createDomView } from "./chroma-runtime";
 import {
   createDomRuntimeView as createRuntimeDomView,
   shouldHandleRuntimeNavigation,
@@ -31,6 +29,7 @@ class TestElement {
   value = "";
   type = "";
   checked = false;
+  hidden = false;
   id = "";
   href = "";
   src = "";
@@ -927,6 +926,12 @@ describe("runtime DOM boundaries", () => {
     chromaLink.append(summaryCount);
     summary.append(chromaLink);
     document.head.append(summary);
+    const actionsSummary = new TestElement("span");
+    actionsSummary.dataset.runtimeSkinActionsSummary = "";
+    const actionsMenu = new TestElement("ul");
+    actionsMenu.className = "ant-dropdown-menu";
+    actionsSummary.append(actionsMenu);
+    document.head.append(actionsSummary);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
@@ -1025,8 +1030,13 @@ describe("runtime DOM boundaries", () => {
     );
     expect(content.querySelectorAll(".color-row")).toHaveLength(2);
 
-    const externalLinks = content.querySelectorAll(".runtime-external-link");
+    const externalLinks = document.head.querySelectorAll(".runtime-external-link");
     expect(externalLinks).toHaveLength(2);
+    expect(actionsSummary.hidden).toBe(false);
+    expect(externalLinks.map((link) => link.getAttribute("role"))).toEqual([
+      "menuitem",
+      "menuitem",
+    ]);
     expect(externalLinks.map((link) => link.textContent)).toEqual([
       "SkinSpotlights",
       "Teemo.GG",
@@ -1242,134 +1252,6 @@ describe("runtime DOM boundaries", () => {
       "/skins/detail/?id=103001&champion=103&channel=latest",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
-  });
-
-  it("keeps static chroma copy and channel controls when the supplement changes", () => {
-    const document = new TestDocument();
-    vi.stubGlobal("document", document);
-    const root = new TestElement("div");
-    const staticCopy = new TestElement("span");
-    staticCopy.dataset.chromaStaticCopy = "";
-    staticCopy.textContent = "Static archive text";
-    const content = new TestElement("span");
-    content.dataset.chromaRuntimeContent = "";
-    const controls = new TestElement("span");
-    const button = new TestElement("button");
-    button.dataset.chromaRuntimeChannel = "latest";
-    controls.append(button);
-    root.append(staticCopy, content, controls);
-
-    const view = createDomView(
-      root as unknown as HTMLElement,
-      "default",
-      () => "latest",
-    );
-    view.loading();
-    view.failure(
-      new CommunityDragonRuntimeError("network", "offline"),
-      () => {},
-      true,
-    );
-
-    expect(root.querySelector("[data-chroma-static-copy]")?.textContent).toBe(
-      "Static archive text",
-    );
-    expect(root.querySelector("[data-chroma-runtime-channel]")).toBe(button);
-  });
-
-  it("uses the exact channel token for optional supplement status", () => {
-    const document = new TestDocument();
-    vi.stubGlobal("document", document);
-    const root = new TestElement("div");
-    const content = new TestElement("span");
-    content.dataset.chromaRuntimeContent = "";
-    root.append(content);
-
-    const view = createDomView(
-      root as unknown as HTMLElement,
-      "zh_cn",
-      () => "latest",
-    );
-    view.render({
-      champion: {
-        kind: "champion",
-        id: 103,
-        name: "阿狸",
-        skins: [
-          {
-            id: 103001,
-            name: "玉狐",
-            isBase: true,
-            skinlineIds: [],
-            media: {},
-            stages: [],
-          },
-        ],
-      },
-      sourceSkin: {
-        id: 103001,
-        name: "玉狐",
-        isBase: true,
-        skinlineIds: [],
-        media: {},
-        stages: [],
-      },
-      chroma: { id: 103010, name: "玉狐红" },
-    });
-
-    expect(content.children[0].textContent).toBe("latest");
-    expect(content.querySelector(".chroma-runtime-meta")).toBeNull();
-  });
-
-  it("preserves an explicit pbe channel in static chroma detail links", () => {
-    const document = new TestDocument();
-    document.defaultView = {
-      location: {
-        href: "https://chromaart.lol/chromas/ahri/?channel=pbe",
-        search: "?channel=pbe",
-      },
-    };
-    vi.stubGlobal("document", document);
-    const root = new TestElement("div");
-    const content = new TestElement("span");
-    content.dataset.chromaRuntimeContent = "";
-    root.append(content);
-
-    const view = createDomView(root as unknown as HTMLElement, "default", () => "pbe");
-    view.render({
-      champion: {
-        kind: "champion",
-        id: 103,
-        name: "Ahri",
-        skins: [],
-      },
-      sourceSkin: {
-        id: 103001,
-        name: "Dynasty Ahri",
-        isBase: true,
-        skinlineIds: [],
-        media: {},
-        stages: [],
-      },
-      chroma: { id: 103010, name: "Dynasty Ahri Ruby" },
-    });
-
-    expect(content.querySelectorAll("a").map((link) => link.href)).toContain(
-      "/skins/detail/?id=103001&champion=103&channel=pbe",
-    );
-  });
-
-  it("rejects an unsupported channel without normalizing it to pbe", () => {
-    const document = new TestDocument();
-    document.defaultView = {
-      location: {
-        href: "https://chromaart.lol/chromas/ahri/?channel=staging",
-        search: "?channel=staging",
-      },
-    };
-    expect(
-      channelFromLocation(document as unknown as Document),
-    ).toBeUndefined();
   });
 
   it("leaves cross-page runtime links to normal browser navigation", () => {

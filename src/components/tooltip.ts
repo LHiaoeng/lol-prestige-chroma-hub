@@ -1,6 +1,6 @@
 let tooltipId = 0;
 
-export function createTooltip(trigger: HTMLElement, content: string): HTMLElement {
+export function createTooltip(trigger: HTMLElement, content: string | HTMLElement): HTMLElement {
   const wrapper = document.createElement("span");
   const tooltip = document.createElement("span");
   wrapper.className = "ant-tooltip-trigger";
@@ -8,7 +8,8 @@ export function createTooltip(trigger: HTMLElement, content: string): HTMLElemen
   tooltip.id = `ant-tooltip-${++tooltipId}`;
   tooltip.className = "ant-tooltip";
   tooltip.setAttribute("role", "tooltip");
-  tooltip.textContent = content;
+  if (typeof content === "string") tooltip.textContent = content;
+  else tooltip.appendChild(content);
   wrapper.setAttribute("aria-describedby", tooltip.id);
   wrapper.append(trigger, tooltip);
   let closeTimer: number | undefined;

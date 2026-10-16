@@ -16,7 +16,12 @@ import {
   sortSkinlineReferenceItems,
 } from "../domain/skin-reference-projection";
 import { relatedRuntimeItems } from "../domain/runtime-relations";
-import { runtimeSkinActions } from "../domain/detail-actions";
+import {
+  googleSearchUrl,
+  khadaChampionUrl,
+  runtimeSkinActions,
+  skinSpotlightsSearchUrl,
+} from "../domain/detail-actions";
 import type {
   RuntimeLocationState,
   RuntimePageState,
@@ -129,6 +134,28 @@ export function createRuntimeDetailRenderer(
   const skinChampionSlot = document.querySelector<HTMLElement>("[data-runtime-skin-champion]");
   const skinChromaSummary = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-summary]");
   const skinChromaCount = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-count]");
+  const skinActionsSummary = document.querySelector<HTMLElement>("[data-runtime-skin-actions-summary]");
+  const skinActionsMenu = skinActionsSummary?.querySelector<HTMLElement>(".ant-dropdown-menu");
+  const entityActionsSummary = document.querySelector<HTMLElement>("[data-runtime-entity-actions-summary]");
+  const entityActionsMenu = entityActionsSummary?.querySelector<HTMLElement>(".ant-dropdown-menu");
+  const renderSummaryActions = (
+    summary: HTMLElement | null | undefined,
+    menu: HTMLElement | null | undefined,
+    actions: readonly { readonly label: string; readonly href: string }[],
+  ): void => {
+    if (!summary || !menu) return;
+    summary.hidden = actions.length === 0;
+    menu.replaceChildren();
+    actions.forEach((action) => {
+      const entry = document.createElement("li");
+      entry.setAttribute("role", "none");
+      appendExternalAction(entry, action);
+      const link = entry.querySelector<HTMLElement>("a");
+      link?.setAttribute("role", "menuitem");
+      link?.setAttribute("data-ant-dropdown-item", "");
+      menu.appendChild(entry);
+    });
+  };
   const skinRelationSummaries = [
     { key: "relation-skinlines", kind: "skinline", page: "skinlines", label: options.locale === "zh_cn" ? "系列" : "skinlines", summary: document.querySelector<HTMLElement>("[data-runtime-skin-skinline-summary]"), slot: document.querySelector<HTMLElement>("[data-runtime-skin-skinlines]") },
     { key: "relation-universes", kind: "universe", page: "universes", label: options.locale === "zh_cn" ? "宇宙" : "universes", summary: document.querySelector<HTMLElement>("[data-runtime-skin-universe-summary]"), slot: document.querySelector<HTMLElement>("[data-runtime-skin-universes]") },
@@ -400,6 +427,17 @@ export function createRuntimeDetailRenderer(
       const article = document.createElement("article");
       article.className = "runtime-detail";
       const entityName = item.name ?? runtimeMissingLabel(options.locale, "name");
+      const isZh = options.locale === "zh_cn";
+      const entityActions = item.kind === "champion"
+        ? [
+            { label: isZh ? "在 SKINSPOTLIGHTS 查看" : "VIEW ON SKINSPOTLIGHTS", href: skinSpotlightsSearchUrl(entityName) },
+            { label: isZh ? "在 KHADA 查看 3D 模型" : "VIEW 3D MODEL ON KHADA", href: khadaChampionUrl(String(item.id)) },
+            { label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(entityName) },
+          ]
+        : item.kind === "skinline" || item.kind === "universe"
+          ? [{ label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(`${entityName} ${item.kind === "skinline" ? "Skinlines" : "Universes"}`) }]
+          : [];
+      renderSummaryActions(entityActionsSummary, entityActionsMenu, entityActions);
       const title = createTitle({
         level: 1,
         className: "runtime-detail-title",
@@ -638,21 +676,7 @@ export function createRuntimeDetailRenderer(
         article.appendChild(chromas);
 
         const actions = runtimeSkinActions(options.locale, item);
-        if (actions.length) {
-          const actionSection = document.createElement("section");
-          actionSection.className = "runtime-skin-actions";
-          actionSection.appendChild(
-            textNode(
-              "h2",
-              options.locale === "zh_cn" ? "第三方入口" : "External references",
-            ),
-          );
-          const actionLinks = document.createElement("div");
-          actionLinks.className = "runtime-links";
-          actions.forEach((action) => appendExternalAction(actionLinks, action));
-          actionSection.appendChild(actionLinks);
-          article.appendChild(actionSection);
-        }
+        renderSummaryActions(skinActionsSummary, skinActionsMenu, actions);
 
       } else if (item.kind === "skinline") {
         const skins = document.createElement("section");
