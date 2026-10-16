@@ -3,8 +3,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  padding: 8px;
   min-height: 96px;
-  background: var(--panel2);
+  background: var(--panel2) url('/img/backgrounds/chroma-card-background.jpg') center / cover no-repeat;
 }
 .runtime-chroma-media > img {
   display: block;

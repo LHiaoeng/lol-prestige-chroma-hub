@@ -55,7 +55,7 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 :is(.chroma-card,.runtime-card:not(.runtime-champion-card),.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card):focus-within{border-color:var(--gold);outline:2px solid var(--gold);outline-offset:2px}
 :is(.chroma-card,.runtime-card:not(.runtime-champion-card),.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card):active{border-color:var(--gold-active)}
 @media(hover:hover) and (pointer:fine){:is(.chroma-card,.runtime-card:not(.runtime-champion-card),.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card):hover{border-color:var(--gold-hover);box-shadow:var(--shadow-card)}}
-.card-image,.detail-image{aspect-ratio:16/9;background:var(--panel2);overflow:hidden;position:relative}
+.card-image,.detail-image{aspect-ratio:16/9;padding:8px;background:var(--panel2) url('/img/backgrounds/chroma-card-background.jpg') center/cover no-repeat;overflow:hidden;position:relative}
 .card-image img,.detail-image img{display:block;width:100%;height:100%;object-fit:cover}
 .new-badge{position:absolute;top:12px;right:12px;padding:0 7px;border:1px solid var(--gold);border-radius:var(--radius-tag);background:var(--gold);color:var(--on-gold);font-size:var(--font-size-small);font-weight:400;line-height:var(--line-height-small)}
 .card-body{padding:16px}
