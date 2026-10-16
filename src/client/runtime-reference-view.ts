@@ -102,6 +102,12 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
   const entityDivider = options.root.ownerDocument.querySelector<HTMLElement>(
     ".runtime-entity-detail-divider, .runtime-universe-detail-divider",
   );
+  entityHeaderSkeleton?.addEventListener("animationend", (event) => {
+    if (
+      event.animationName === "runtime-skeleton-exit" &&
+      !pageShell?.hasAttribute("data-runtime-loading")
+    ) entityHeaderSkeleton.setAttribute("hidden", "");
+  });
   const clearRuntimeAlert = () =>
     options.root.querySelector("[data-runtime-error-alert]")?.remove();
   if (!status.parentElement) options.root.append(status);
@@ -209,7 +215,11 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       const { context } = state;
       options.root.removeAttribute("aria-busy");
       pageShell?.removeAttribute("data-runtime-loading");
-      entityHeaderSkeleton?.setAttribute("hidden", "");
+      if (entityHeaderSkeleton) {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+          entityHeaderSkeleton.setAttribute("hidden", "");
+        else entityHeaderSkeleton.setAttribute("data-runtime-exiting", "");
+      }
       status.textContent = "";
       clearRuntimeAlert();
       if (renderedContext !== context) {
@@ -241,8 +251,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       }
       if (target.mode !== "detail" || state.core.value.mode !== "detail") return;
       const entity = state.core.value.item;
-      detailRenderer.renderRelations(state, entity, target);
-
       const skinlineSkins = state.slots["skinline-skins"];
       if (skinlineSkins?.status === "loading")
         detailRenderer.showSupplementLoading("skinline");
@@ -258,6 +266,18 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         detailRenderer.renderUniverseSkins(universeSkins.value);
       else if (universeSkins?.status === "failed")
         detailRenderer.showUniverseSkinsFailure(universeSkins.error, universeSkins.retry);
+      detailRenderer.renderRelations(state, entity, target);
+      const summarySlots = target.kind === "skin"
+        ? ["relation-skinlines", "relation-universes"] as const
+        : target.kind === "skinline"
+          ? ["relation-universes", "skinline-skins"] as const
+          : target.kind === "universe"
+            ? ["universe-skins"] as const
+            : [];
+      entityChannelSource?.toggleAttribute(
+        "data-runtime-summary-loading",
+        summarySlots.some((key) => !state.slots[key] || state.slots[key].status === "loading"),
+      );
     },
     committed(channel, url) {
       updateChannel(channel);
@@ -274,14 +294,13 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         context.target.mode === "detail" &&
         ["champion", "skin", "skinline", "universe"].includes(context.target.kind);
       if (isEntityDetail) {
+        entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
         entityHeaderSkeleton?.removeAttribute("hidden");
         if (entityDetailSummary && entityChannelSource && entityDivider)
           entityDetailSummary.append(entityChannelSource, entityDivider);
+        entityChannelSource?.setAttribute("data-runtime-summary-loading", "");
       } else entityHeaderSkeleton?.setAttribute("hidden", "");
-      if (
-        isEntityDetail && context?.target.mode === "detail" && context.target.kind === "universe"
-      )
-        detailRenderer.showUniverseSummaryLoading();
+      if (isEntityDetail) detailRenderer.showDetailSummaryLoading();
       const channel =
         context && typeof context === "object"
           ? context.target.mode === "pbe"
@@ -303,8 +322,10 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     },
     invalid(message, channel) {
       setRuntimeNoindex(true);
-      detailRenderer.showUniverseSummaryFailure();
+      detailRenderer.showDetailSummaryFailure();
+      entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
       entityHeaderSkeleton?.setAttribute("hidden", "");
+      entityChannelSource?.removeAttribute("data-runtime-summary-loading");
       if (channel) updateChannel(channel);
       options.root.removeAttribute("aria-busy");
       pageShell?.removeAttribute("data-runtime-loading");
@@ -313,8 +334,10 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       content.replaceChildren();
     },
     failure(error, retry) {
-      detailRenderer.showUniverseSummaryFailure();
+      detailRenderer.showDetailSummaryFailure();
+      entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
       entityHeaderSkeleton?.setAttribute("hidden", "");
+      entityChannelSource?.removeAttribute("data-runtime-summary-loading");
       options.root.removeAttribute("aria-busy");
       pageShell?.removeAttribute("data-runtime-loading");
       clearRuntimeAlert();

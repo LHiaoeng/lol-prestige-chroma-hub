@@ -1,41 +1,27 @@
 ---
 import { communityDragonChannelLabel } from '../domain/communitydragon-url';
 import type { Locale } from '../i18n/config';
-import Divider from './Divider.astro';
 import DomainIcon from './DomainIcon.astro';
 import Dropdown from './Dropdown.astro';
 
 interface Props {
   readonly locale: Locale;
-  readonly count?: 'list' | 'detail' | 'universe';
 }
 
-const { locale, count } = Astro.props;
+const { locale } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const pbeLabel = communityDragonChannelLabel('pbe', runtimeLocale);
 const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
 ---
 
-<div class="runtime-source runtime-channel-row" data-runtime-source data-runtime-entity-detail-source={count === 'detail' ? 'true' : undefined} data-runtime-universe-detail-source={count === 'universe' ? 'true' : undefined} aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-  <Dropdown id="runtime-channel-menu">
-    <span slot="trigger">
-      <DomainIcon name="reference" class="runtime-channel-icon" />
-      <span class="sr-only">{isZh ? '资料版本' : 'Reference data'}</span>
-      <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
-      <svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
-    </span>
-    <li role="none"><button type="button" role="menuitemradio" aria-checked="true" data-ant-dropdown-item data-runtime-channel="pbe"><span>{pbeLabel}</span><span aria-hidden="true">✓</span></button></li>
-    <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
-  </Dropdown>
-  {count === 'list' && <>
-    <Divider type="vertical" />
-    <span class="runtime-list-count" data-runtime-list-count hidden />
-  </>}
-  {count === 'universe' && <>
-    <Divider type="vertical" />
-    <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-universe-skinline-count="true"></span></span>
-    <Divider type="vertical" />
-    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-universe-skin-count="true"></span></span>
-  </>}
-</div>
+<Dropdown id="runtime-channel-menu">
+  <span slot="trigger">
+    <DomainIcon name="reference" class="runtime-channel-icon" />
+    <span class="sr-only">{isZh ? '资料版本' : 'Reference data'}</span>
+    <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
+    <svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+  </span>
+  <li role="none"><button type="button" role="menuitemradio" aria-checked="true" data-ant-dropdown-item data-runtime-channel="pbe"><span>{pbeLabel}</span><span aria-hidden="true">✓</span></button></li>
+  <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
+</Dropdown>

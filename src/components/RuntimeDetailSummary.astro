@@ -1,0 +1,70 @@
+---
+import type { Locale } from '../i18n/config';
+import Divider from './Divider.astro';
+import DomainIcon from './DomainIcon.astro';
+import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+
+interface Props {
+  readonly locale: Locale;
+  readonly kind: 'champion' | 'skin' | 'skinline' | 'universe';
+}
+
+const { locale, kind } = Astro.props;
+const isZh = locale === 'zh-cn';
+---
+
+<div class="runtime-source runtime-channel-row runtime-detail-summary" data-runtime-source data-runtime-entity-detail-source={kind !== 'universe' ? 'true' : undefined} data-runtime-universe-detail-source={kind === 'universe' ? 'true' : undefined} data-runtime-summary-loading aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+  <RuntimeChannelSwitcher {locale} />
+  {kind === 'skin' && <>
+    <span class="runtime-entity-relation-summary" data-runtime-skin-champion-summary>
+      <Divider type="vertical" />
+      <span class="runtime-universe-stat"><DomainIcon name="champions" class="runtime-universe-stat-icon" /><span data-runtime-skin-champion></span></span>
+    </span>
+    <span class="runtime-entity-relation-summary" data-runtime-skin-skinline-summary>
+      <Divider type="vertical" />
+      <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-skinlines></span></span>
+    </span>
+    <span class="runtime-entity-relation-summary" data-runtime-skin-universe-summary>
+      <Divider type="vertical" />
+      <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-universes></span></span>
+    </span>
+  </>}
+  {kind === 'skinline' && <span class="runtime-entity-universe-summary" data-runtime-skinline-universe-summary>
+    <Divider type="vertical" />
+    <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skinline-universes></span></span>
+  </span>}
+  {(kind === 'champion' || kind === 'skinline') && <>
+    <Divider type="vertical" />
+    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-entity-skin-count></span></span>
+  </>}
+  {kind === 'universe' && <>
+    <Divider type="vertical" />
+    <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-universe-skinline-count="true"></span></span>
+    <Divider type="vertical" />
+    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-universe-skin-count="true"></span></span>
+  </>}
+  <span class="runtime-skeleton-line runtime-summary-row-skeleton" data-runtime-summary-skeleton aria-hidden="true"></span>
+</div>
+
+<style>
+  .runtime-detail-summary { position: relative; width: 100%; gap: var(--space-2); color: var(--gold); font-size: var(--font-size-title); line-height: var(--line-height-title); }
+  .runtime-detail-summary :global(.ant-divider-vertical) { margin-inline: 0; font-size: inherit; }
+  .runtime-detail-summary :global(.ant-dropdown-trigger) { padding-inline: 0; font-size: inherit; line-height: inherit; }
+  .runtime-detail-summary :global(.runtime-list-count) { font-size: inherit; }
+  .runtime-detail-summary > :not(.runtime-summary-row-skeleton) { opacity: 1; transition: opacity var(--motion-mid) ease-out; }
+  .runtime-detail-summary[data-runtime-summary-loading] > :not(.runtime-summary-row-skeleton) { visibility: hidden; opacity: 0; }
+  .runtime-summary-row-skeleton { position: absolute; top: calc((var(--control-height) - var(--font-size-title)) / 2); left: 0; width: min(240px, 65%); height: var(--font-size-title); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity var(--motion-mid) ease-out, visibility 0s linear var(--motion-mid); }
+  .runtime-detail-summary[data-runtime-summary-loading] > .runtime-summary-row-skeleton { opacity: 1; visibility: visible; transition-delay: 0s; }
+  .runtime-universe-stat { min-height: var(--control-height); white-space: nowrap; }
+  .runtime-universe-stat,
+  .runtime-entity-universe-summary:not([hidden]),
+  .runtime-entity-relation-summary:not([hidden]) { display: inline-flex; flex-shrink: 0; align-items: center; gap: var(--space-2); }
+  .runtime-detail-summary :global(.runtime-universe-stat-icon) { width: 1em; height: 1em; flex: 0 0 auto; }
+  @media (max-width: 767px) {
+    .runtime-summary-row-skeleton { top: calc((var(--touch-target) - var(--font-size-title)) / 2); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .runtime-detail-summary > :not(.runtime-summary-row-skeleton),
+    .runtime-summary-row-skeleton { transition: none; }
+  }
+</style>

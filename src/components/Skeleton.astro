@@ -2,7 +2,7 @@
 interface Props {
   readonly filterCount?: number;
   readonly itemCount?: number;
-  readonly layout?: "champions" | "universes" | "skinlines" | "generic" | "detail" | "skin-detail" | "skinline-detail" | "skin-grid" | "universe-detail";
+  readonly layout?: "champions" | "universes" | "skinlines" | "generic" | "detail" | "skin-detail" | "skinline-detail" | "skin-grid" | "universe-detail" | "pbe";
   readonly showDetailHeader?: boolean;
 }
 
@@ -19,26 +19,25 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
     <span class="runtime-skeleton-line runtime-skeleton-line--lede-short"></span>
   </div>}
   {layout === "skin-detail" && <div class="runtime-skin-detail-skeleton">
-    <div class="runtime-links runtime-skeleton-relations">
-      <span class="runtime-skeleton-line runtime-skeleton-line--chip"></span>
+    <div class="runtime-skin-summary-skeleton">
+      <span class="runtime-skeleton-line"></span>
+      <span class="runtime-skeleton-line"></span>
     </div>
-    <span class="runtime-skeleton-line runtime-skeleton-line--summary"></span>
-    <div class="runtime-skin-detail-skeleton-media runtime-skeleton-media"></div>
-    <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
-    <div class="runtime-skeleton-grid runtime-skeleton-grid--skins">
-      {Array.from({ length: 4 }, () => <div class="runtime-skeleton-card runtime-skeleton-card--skin">
-        <div class="runtime-skeleton-media"></div>
-        <div class="runtime-skeleton-meta">
-          <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
-        </div>
-      </div>)}
-    </div>
+    <section class="runtime-skin-media-skeleton">
+      <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
+      <div class="runtime-media-grid">
+        {Array.from({ length: 4 }, () => <div class="runtime-media-item runtime-skeleton-media-item">
+          <div class="runtime-skeleton-media"></div>
+          <div class="runtime-media-caption"><span class="runtime-skeleton-line"></span></div>
+        </div>)}
+      </div>
+    </section>
   </div>}
   {layout === "skinline-detail" && <div class="runtime-skinline-detail-skeleton">
-    <div class="runtime-links runtime-skeleton-relations">
-      {Array.from({ length: 3 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--chip"></span>)}
-    </div>
     <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
+    <div class="runtime-skeleton-toolbar">
+      {Array.from({ length: 2 }, () => <div class="runtime-skeleton-field"><span class="runtime-skeleton-label"></span><div class="runtime-skeleton-control"></div></div>)}
+    </div>
     <div class="runtime-skeleton-grid runtime-skeleton-grid--skins">
       {Array.from({ length: itemCount }, () => <div class="runtime-skeleton-card runtime-skeleton-card--skin">
         <div class="runtime-skeleton-media"></div>
@@ -48,6 +47,21 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
         </div>
       </div>)}
     </div>
+  </div>}
+  {layout === "detail" && <>
+    <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
+    <div class="runtime-skeleton-toolbar">
+      {Array.from({ length: 2 }, () => <div class="runtime-skeleton-field"><span class="runtime-skeleton-label"></span><div class="runtime-skeleton-control"></div></div>)}
+    </div>
+  </>}
+  {layout === "pbe" && <div class="runtime-pbe-skeleton">
+    <div class="runtime-pbe-versions">
+      {Array.from({ length: 2 }, () => <div class="runtime-pbe-version"><span class="runtime-skeleton-line"></span><span class="runtime-skeleton-line"></span></div>)}
+    </div>
+    <div class="runtime-pbe-summary"><span class="runtime-skeleton-line runtime-skeleton-line--summary"></span></div>
+    <section class="runtime-pbe-section"><span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span><div class="runtime-pbe-grid">
+      {Array.from({ length: itemCount }, () => <div class="runtime-skeleton-card runtime-skeleton-card--skin runtime-skeleton-card--pbe-media"><div class="runtime-skeleton-media"></div><div class="runtime-skeleton-meta"><span class="runtime-skeleton-line runtime-skeleton-line--title"></span></div><div class="runtime-skeleton-pbe-owner"><span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span></div></div>)}
+    </div></section>
   </div>}
   {(filterCount > 0 || layout === "universe-detail") && <div class:list={["runtime-skeleton-toolbar", { "runtime-skeleton-toolbar--universe-detail": layout === "universe-detail" }]}>
     {Array.from({ length: filterCount }, () => <div class="runtime-skeleton-field">
@@ -72,8 +86,8 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
         </div>)}
       </div>
     </section>)}
-  </div> : layout === "skin-detail" || layout === "skinline-detail" ? null : <div class:list={["ant-skeleton-grid", "ant-masonry", "runtime-skeleton-grid", { "runtime-skeleton-grid--champions": layout === "champions", "runtime-skeleton-grid--skins": layout === "skin-grid" || layout === "detail" }]}>
-    {Array.from({ length: itemCount }, (_, index) => <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--champion": layout === "champions", "runtime-skeleton-card--universe": layout === "universes", "runtime-skeleton-card--skin": layout === "skin-grid" || layout === "detail" }]}>
+  </div> : layout === "skin-detail" || layout === "skinline-detail" || layout === "pbe" ? null : <div class:list={["ant-skeleton-grid", "ant-masonry", "runtime-skeleton-grid", { "runtime-skeleton-grid--champions": layout === "champions", "runtime-skeleton-grid--skins": layout === "skin-grid" || layout === "detail" }]}>
+    {Array.from({ length: itemCount }, (_, index) => <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--champion": layout === "champions", "runtime-skeleton-card--skinline": layout === "skinlines", "runtime-skeleton-card--universe": layout === "universes", "runtime-skeleton-card--skin": layout === "skin-grid" || layout === "detail" }]}>
       {(layout === "champions" || layout === "skin-grid" || layout === "detail") && <div class="runtime-skeleton-media"></div>}
       <div class="runtime-skeleton-meta">
         <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>

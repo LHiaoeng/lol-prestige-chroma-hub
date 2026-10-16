@@ -7,6 +7,7 @@ import Empty from './Empty.astro';
 import Skeleton from './Skeleton.astro';
 import DomainIcon from './DomainIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+import RuntimeDetailSummary from './RuntimeDetailSummary.astro';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes' | 'pbe-additions';
@@ -27,13 +28,15 @@ const showEntityDetailSummary = mode === 'detail' && ['champions', 'skins', 'ski
 const listIcon = page === 'champions' ? 'champions' : page === 'skinlines' ? 'skinlines' : page === 'universes' ? 'universes' : 'prestige-chromas';
 const listSkeletonLayout = page === 'champions' ? 'champions' : page === 'universes' ? 'universes' : 'skinlines';
 const detailSkeletonLayout = page === 'skins' ? 'skin-detail' : page === 'skinlines' ? 'skinline-detail' : page === 'universes' ? 'universe-detail' : 'detail';
-const skeletonLayout = mode === 'detail' ? detailSkeletonLayout : mode === 'list' ? listSkeletonLayout : 'generic';
+const skeletonLayout = mode === 'detail' ? detailSkeletonLayout : mode === 'list' ? listSkeletonLayout : 'pbe';
+const detailDescriptionLines = page === 'champions' ? 3 : 2;
 const skeletonFilterCount = mode !== 'list' ? 0 : page === 'champions' ? 3 : 2;
 const skeletonItemCount = mode === 'list' ? 24 : 6;
 const breadcrumbItems = [
   { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
   { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
   ...(mode === 'detail' && listPath ? [{ title: label, href: listPath, 'data-runtime-channel-link': '' }] : []),
+  ...(mode === 'detail' && page === 'skins' ? [{ title: label }] : []),
   { title: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label, ...(mode === 'detail' ? { 'data-runtime-current-entity': '' } : {}) },
 ];
 ---
@@ -52,14 +55,15 @@ const breadcrumbItems = [
       <span class="runtime-skeleton-line runtime-skeleton-line--heading"></span>
     </div>
     <div class="runtime-entity-description-skeleton">
-      <span class="runtime-skeleton-line runtime-skeleton-line--lede"></span>
-      <span class="runtime-skeleton-line runtime-skeleton-line--lede-short"></span>
+      {Array.from({ length: detailDescriptionLines }, (_, index) => <span class="runtime-entity-description-skeleton-line">
+        <span class:list={['runtime-skeleton-line', index === detailDescriptionLines - 1 ? 'runtime-skeleton-line--lede-short' : 'runtime-skeleton-line--lede']}></span>
+      </span>)}
     </div>
   </div>
-  <RuntimeChannelSwitcher {locale} count={showUniverseDetailSummary ? 'universe' : 'detail'} />
+  <RuntimeDetailSummary {locale} kind={page === 'universes' ? 'universe' : page === 'skinlines' ? 'skinline' : page === 'skins' ? 'skin' : 'champion'} />
   <Divider class={showUniverseDetailSummary ? 'runtime-universe-detail-divider' : 'runtime-entity-detail-divider'} />
 </div>}
-{mode === 'detail' && !showEntityDetailSummary && <RuntimeChannelSwitcher {locale} />}
+{mode === 'detail' && !showEntityDetailSummary && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}><RuntimeChannelSwitcher {locale} /></div>}
 <div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--entity-detail': showEntityDetailSummary, 'runtime-page--universe-detail': showUniverseDetailSummary, 'runtime-page--compact-list-header': showCompactListHeader, 'runtime-page--universe-list': page === 'universes' && showCompactListHeader }]} data-runtime-page-shell data-runtime-loading>
   {mode !== 'detail' && <header>
     <div class="runtime-page-header-skeleton" aria-hidden="true">
@@ -74,7 +78,11 @@ const breadcrumbItems = [
       {showCompactListHeader && <DomainIcon name={listIcon} class="runtime-list-icon" />}
       {showCompactListHeader ? label : heading}
     </h1>
-    {showCompactListHeader && <RuntimeChannelSwitcher {locale} count="list" />}
+    {showCompactListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+      <RuntimeChannelSwitcher {locale} />
+      <Divider type="vertical" />
+      <span class="runtime-list-count" data-runtime-list-count hidden />
+    </div>}
     {!showCompactListHeader && <p class="runtime-lede">{lede}</p>}
     <Divider class={showCompactListHeader ? undefined : 'runtime-header-divider'} />
   </header>}
@@ -84,7 +92,7 @@ const breadcrumbItems = [
       <div data-runtime-content><Skeleton filterCount={skeletonFilterCount} itemCount={skeletonItemCount} layout={skeletonLayout} showDetailHeader={!showEntityDetailSummary} /></div>
       <template data-runtime-skeleton-template="list"><Skeleton filterCount={page === 'champions' ? 3 : 2} itemCount={24} layout={listSkeletonLayout} /></template>
       <template data-runtime-skeleton-template="detail"><Skeleton itemCount={6} layout={detailSkeletonLayout} showDetailHeader={!showEntityDetailSummary} /></template>
-      <template data-runtime-skeleton-template="pbe"><Skeleton itemCount={6} layout="generic" /></template>
+      <template data-runtime-skeleton-template="pbe"><Skeleton itemCount={6} layout="pbe" /></template>
       <template data-runtime-supplement-skeleton-template="skinline"><Skeleton itemCount={6} layout="skin-grid" /></template>
       <template data-runtime-supplement-skeleton-template="universe"><Skeleton filterCount={2} itemCount={6} layout="universe-detail" /></template>
       <template data-runtime-empty-template><Empty description={isZh ? '没有匹配结果' : 'No matching references'} /></template>

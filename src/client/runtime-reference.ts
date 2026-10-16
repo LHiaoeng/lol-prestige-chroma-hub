@@ -169,6 +169,7 @@ export interface RuntimePageSlotValues {
   readonly "list-universes": RuntimeList;
   readonly "relation-skinlines": RuntimeList;
   readonly "relation-universes": RuntimeList;
+  readonly "relation-champions": RuntimeList;
   readonly "skinline-skins": readonly RuntimeSkinReferenceItem[];
   readonly "universe-skins": readonly RuntimeSkinReferenceGroup[];
 }
@@ -346,7 +347,15 @@ export class RuntimeController {
       ];
     }
     if (state.mode !== "detail" || core.mode !== "detail") return [];
-    if (state.kind === "champion") return [];
+    if (state.kind === "champion")
+      return [{
+        key: "relation-skinlines",
+        load: (slotContext) => this.runtime.list("skinlines", {
+          locale: this.options.locale,
+          channel: state.channel,
+          signal: slotContext.signal,
+        }),
+      }];
     const slots: RuntimePageSlotDefinition<
       RuntimeLocationState,
       RuntimeCoreResult,
@@ -368,6 +377,15 @@ export class RuntimeController {
           key: "relation-universes",
           load: (slotContext) =>
             this.runtime.list("universes", {
+              locale: this.options.locale,
+              channel: state.channel,
+              signal: slotContext.signal,
+            }),
+        },
+        {
+          key: "relation-champions",
+          load: (slotContext) =>
+            this.runtime.list("champions", {
               locale: this.options.locale,
               channel: state.channel,
               signal: slotContext.signal,

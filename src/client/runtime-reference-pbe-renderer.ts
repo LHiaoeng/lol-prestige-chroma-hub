@@ -318,16 +318,40 @@ function renderModuleItems(
   }
 }
 
-function createSkeletonCard(): HTMLDivElement {
+function createSkeletonCard(kind: RuntimePbeModuleKind): HTMLDivElement {
   const card = document.createElement("div");
-  card.className = "runtime-skeleton-card";
+  const textOnly = kind === "skinlines" || kind === "universes";
+  card.className = textOnly
+    ? "runtime-skeleton-card runtime-skeleton-card--pbe-text"
+    : "runtime-skeleton-card runtime-skeleton-card--skin runtime-skeleton-card--pbe-media";
   card.setAttribute("aria-hidden", "true");
+  if (!textOnly) {
+    const media = document.createElement("div");
+    media.className = "runtime-skeleton-media";
+    card.appendChild(media);
+  }
+  const meta = document.createElement("div");
+  meta.className = textOnly ? "runtime-skeleton-line runtime-skeleton-line--title" : "runtime-skeleton-meta";
+  if (!textOnly) {
+    const title = document.createElement("span");
+    title.className = "runtime-skeleton-line runtime-skeleton-line--title";
+    meta.appendChild(title);
+  }
+  card.appendChild(meta);
+  if (!textOnly) {
+    const owner = document.createElement("div");
+    owner.className = "runtime-skeleton-pbe-owner";
+    const line = document.createElement("span");
+    line.className = "runtime-skeleton-line runtime-skeleton-line--secondary";
+    owner.appendChild(line);
+    card.appendChild(owner);
+  }
   return card;
 }
 
-function fillWithSkeleton(grid: HTMLElement): void {
+function fillWithSkeleton(grid: HTMLElement, kind: RuntimePbeModuleKind): void {
   grid.replaceChildren();
-  for (let index = 0; index < 6; index += 1) grid.appendChild(createSkeletonCard());
+  for (let index = 0; index < 6; index += 1) grid.appendChild(createSkeletonCard(kind));
 }
 
 const EXPAND_SVG =
@@ -541,7 +565,7 @@ export function createRuntimePbeRenderer(
             "click",
             () => {
               if (disposed) return;
-              fillWithSkeleton(grid);
+              fillWithSkeleton(grid, module.kind);
               attempt();
             },
             { once: true },
@@ -582,7 +606,7 @@ export function createRuntimePbeRenderer(
             },
           );
         };
-        fillWithSkeleton(grid);
+        fillWithSkeleton(grid, module.kind);
         attempt();
       });
 
