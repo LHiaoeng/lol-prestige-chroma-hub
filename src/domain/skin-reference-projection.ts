@@ -57,17 +57,17 @@ const defaultRarityRank: Readonly<Record<string, number>> = {
 };
 
 const regionRarityRank: Readonly<Record<number, number>> = {
-  1: 0,
-  2: 0,
-  3: 0,
-  4: 1,
-  5: 2,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
   6: 0,
-  7: 0,
-  8: 3,
-  9: 4,
-  10: 5,
-  11: 6,
+  7: 6,
+  8: 7,
+  9: 8,
+  10: 9,
+  11: 10,
 };
 
 export function runtimeSkinReferenceIdentity(target: RuntimeSkinTarget): string {
@@ -308,6 +308,7 @@ export function projectChampionSkinListItems(
 }
 
 function rarityRank(item: RuntimeSkinReferenceItem): number {
+  if (item.isBase) return 0;
   if (item.rarity?.key) return defaultRarityRank[item.rarity.key] ?? 0;
   if (item.rarity?.id !== undefined)
     return regionRarityRank[item.rarity.id] ?? 0;
