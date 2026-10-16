@@ -57,6 +57,9 @@ const isZh = (Astro.props.locale ?? (Astro.currentLocale === 'zh-cn' ? 'zh-cn' :
       <button type="button" data-media-viewer-reset aria-label={isZh ? '重置视图' : 'Reset view'} title={isZh ? '重置视图' : 'Reset view'}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 1-7.75 10h2.1A6 6 0 1 0 8 7.53L11 10H3V2l3.43 3.43A7.96 7.96 0 0 1 12 4Z" /></svg>
       </button>
+      <button type="button" data-media-viewer-download aria-label={isZh ? '下载当前媒体' : 'Download current media'} title={isZh ? '下载当前媒体' : 'Download current media'}>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 1.5v8m0 0 3-3m-3 3-3-3M3 10v3.5h10V10" /></svg>
+      </button>
     </div>
   </div>
 </dialog>

@@ -1,3 +1,5 @@
+import { downloadMediaFile } from "./media-download";
+
 const MIN_SCALE = 1;
 const MAX_SCALE = 50;
 const SCALE_STEP = 0.5;
@@ -33,6 +35,7 @@ export function bindMediaViewers(root: ParentNode = document): void {
   const flipY = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-flip-y]");
   const count = dialog.querySelector<HTMLElement>("[data-media-viewer-count]");
   const resetButton = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-reset]");
+  const download = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-download]");
   const player = dialog.querySelector<HTMLElement>("[data-media-viewer-player]");
   const play = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-play]");
   const seek = dialog.querySelector<HTMLInputElement>("[data-media-viewer-seek]");
@@ -42,7 +45,7 @@ export function bindMediaViewers(root: ParentNode = document): void {
   const status = dialog.querySelector<HTMLElement>("[data-media-viewer-status]");
   const message = dialog.querySelector<HTMLElement>("[data-media-viewer-message]");
   const retry = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-retry]");
-  if (!content || !close || !previous || !next || !zoomIn || !zoomOut || !rotateLeft || !rotateRight || !flipX || !flipY || !count || !resetButton || !player || !play || !seek || !time || !mute || !volume || !status || !message || !retry) return;
+  if (!content || !close || !previous || !next || !zoomIn || !zoomOut || !rotateLeft || !rotateRight || !flipX || !flipY || !count || !resetButton || !download || !player || !play || !seek || !time || !mute || !volume || !status || !message || !retry) return;
 
   dialog.dataset.viewerBound = "1";
   let items: PreviewTrigger[] = [];
@@ -286,6 +289,21 @@ export function bindMediaViewers(root: ParentNode = document): void {
   flipX.addEventListener("click", () => { flipXValue = !flipXValue; updateTransform(); });
   flipY.addEventListener("click", () => { flipYValue = !flipYValue; updateTransform(); });
   resetButton.addEventListener("click", reset);
+  download.addEventListener("click", async () => {
+    const active = media();
+    if (!active?.src || download.disabled) return;
+    download.disabled = true;
+    download.setAttribute("aria-busy", "true");
+    try {
+      const filename = displayedTrigger?.dataset.previewFilename
+        || (active.tagName === "IMG" ? (active as HTMLImageElement).alt : active.getAttribute("aria-label"))
+        || undefined;
+      await downloadMediaFile(active.currentSrc || active.src, filename);
+    } finally {
+      download.disabled = false;
+      download.removeAttribute("aria-busy");
+    }
+  });
   retry.addEventListener("click", render);
   play.addEventListener("click", togglePlayback);
   seek.addEventListener("input", () => {

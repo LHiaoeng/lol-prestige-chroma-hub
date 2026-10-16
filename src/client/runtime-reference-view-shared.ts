@@ -18,6 +18,7 @@ import { createDomainHeading } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
 import { createCarousel } from "../components/Carousel";
 import { createRadioButtonGroup } from "../components/RadioButtonGroup";
+import { downloadMediaFile, saveBlob } from "./media-download";
 import type { RuntimePage } from "./runtime-reference";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
@@ -275,6 +276,7 @@ function appendMediaResource(
   trigger.dataset.mediaPreviewTrigger = "";
   trigger.dataset.previewKind = descriptor.kind;
   trigger.dataset.previewSrc = url;
+  trigger.dataset.previewFilename = alt;
   trigger.setAttribute("aria-label", `${alt} · ${label}`);
   const cover = document.createElement("span");
   cover.className = "runtime-media-preview-cover";
@@ -348,7 +350,7 @@ export function appendMediaCarousel(
       key: String(index),
       label,
       content: slide,
-      download: () => downloadImageFile(url),
+      download: () => downloadMediaFile(url, `${altBase} · ${label}`),
     };
   });
   const borderSlide = document.createElement("div");
@@ -519,32 +521,9 @@ export function appendBorderModule(
   parent.appendChild(section);
   return () => {
     if (frame.dataset.borderMode === "border") return downloadBorderLayers(frame);
-    if (module.kind === "baked") return downloadImageFile(module.imageUrl);
+    if (module.kind === "baked") return downloadMediaFile(module.imageUrl);
     return downloadCompositeFrame(frame);
   };
-}
-
-/** Fetch a border image as a blob and trigger a local download. */
-async function downloadImageFile(url: string): Promise<void> {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Download failed with ${response.status}`);
-    const objectUrl = URL.createObjectURL(await response.blob());
-    saveBlob(objectUrl, url.split(/[?#]/, 1)[0]?.split("/").pop() || "media");
-  } catch {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-}
-
-function saveBlob(href: string, filename: string): void {
-  const anchor = document.createElement("a");
-  anchor.href = href;
-  anchor.download = filename;
-  anchor.hidden = true;
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-  setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
 
 function loadCrossOriginImage(src: string): Promise<HTMLImageElement> {

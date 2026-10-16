@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bindMediaViewers } from "./image-viewer";
+import { downloadMediaFile } from "./media-download";
+
+vi.mock("./media-download", () => ({ downloadMediaFile: vi.fn() }));
 
 type Handler = (event: Record<string, unknown>) => void;
 
@@ -43,6 +46,7 @@ class TestElement {
   querySelectorAll<T extends TestElement>(): T[] { return []; }
   getAttribute(name: string): string | null { return this.attributes.get(name) ?? null; }
   setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
+  removeAttribute(name: string): void { this.attributes.delete(name); }
   focus(): void { this.focused = true; }
   setPointerCapture(id: number): void { this.captures.add(id); }
   hasPointerCapture(id: number): boolean { return this.captures.has(id); }
@@ -139,7 +143,7 @@ function setup(): { root: TestRoot; dialog: TestDialog; trigger: TestTrigger; co
     ["[data-media-viewer-flip-x]", new TestElement()],
     ["[data-media-viewer-flip-y]", new TestElement()],
     ["[data-media-viewer-count]", new TestElement()],
-    ...["reset", "player", "play", "seek", "time", "mute", "volume", "status", "message", "retry"].map((name) => [`[data-media-viewer-${name}]`, new TestElement()] as const),
+    ...["reset", "download", "player", "play", "seek", "time", "mute", "volume", "status", "message", "retry"].map((name) => [`[data-media-viewer-${name}]`, new TestElement()] as const),
   ]);
   Object.assign(controls.get("[data-media-viewer-status]")!.dataset, { loading: "Loading media…", error: "Unable to load media" });
   Object.assign(controls.get("[data-media-viewer-play]")!.dataset, { play: "Play", pause: "Pause" });
@@ -153,6 +157,7 @@ function setup(): { root: TestRoot; dialog: TestDialog; trigger: TestTrigger; co
 let pageRoot: TestElement;
 let viewport: TestElement;
 beforeEach(() => {
+  vi.mocked(downloadMediaFile).mockReset().mockResolvedValue(undefined);
   pageRoot = new TestElement();
   pageRoot.clientWidth = 980;
   viewport = new TestElement();
@@ -163,6 +168,78 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("media viewer", () => {
+  it.each(["image", "video"])("downloads the current %s without closing the preview", async (kind) => {
+    const { root, dialog, trigger, content, controls } = setup();
+    trigger.dataset.previewKind = kind;
+    trigger.dataset.previewFilename = "阿狸 - 自定义媒体";
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    const active = content.children[0]!;
+    active.currentSrc = `https://example.test/current.${kind === "video" ? "webm" : "webp"}`;
+    const download = controls.get("[data-media-viewer-download]")!;
+    download.dispatch("click");
+    expect(downloadMediaFile).toHaveBeenCalledExactlyOnceWith(active.currentSrc, "阿狸 - 自定义媒体");
+    expect(download.disabled).toBe(true);
+    expect(download.getAttribute("aria-busy")).toBe("true");
+    await Promise.resolve();
+    expect(download.disabled).toBe(false);
+    expect(download.getAttribute("aria-busy")).toBeNull();
+    expect(dialog.closed).toBe(0);
+    expect(content.children[0]).toBe(active);
+  });
+
+  it("prevents duplicate downloads while busy and downloads the selected item after switching", async () => {
+    const { root, trigger, controls } = setup();
+    const second = new TestTrigger(new TestMedia("VIDEO"));
+    second.dataset.previewKind = "video";
+    second.dataset.previewSrc = "clip.webm";
+    second.dataset.previewFilename = "自定义视频.webm";
+    const group = new TestGroup([trigger, second]);
+    trigger.group = second.group = group;
+    let finish!: () => void;
+    vi.mocked(downloadMediaFile).mockReturnValueOnce(new Promise<void>((resolve) => { finish = resolve; }));
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    const download = controls.get("[data-media-viewer-download]")!;
+    download.dispatch("click");
+    download.dispatch("click");
+    controls.get("[data-media-viewer-next]")?.dispatch("click");
+    expect(downloadMediaFile).toHaveBeenCalledExactlyOnceWith("first.jpg", undefined);
+    expect(download.disabled).toBe(true);
+    finish();
+    await Promise.resolve();
+    download.dispatch("click");
+    expect(downloadMediaFile).toHaveBeenLastCalledWith("clip.webm", "自定义视频.webm");
+    await Promise.resolve();
+    expect(download.disabled).toBe(false);
+  });
+
+  it("downloads the displayed fallback and ignores a missing media resource", async () => {
+    const { root, trigger, content, controls } = setup();
+    trigger.dataset.previewFallback = "fallback.jpg";
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    const active = content.children[0]!;
+    active.dispatch("error");
+    const download = controls.get("[data-media-viewer-download]")!;
+    download.dispatch("click");
+    expect(downloadMediaFile).toHaveBeenCalledExactlyOnceWith("fallback.jpg", undefined);
+    await Promise.resolve();
+    active.dispatch("error");
+    download.dispatch("click");
+    expect(downloadMediaFile).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the image name when no custom filename is supplied", async () => {
+    const { root, trigger, controls } = setup();
+    trigger.original.alt = "K/DA 阿狸";
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    controls.get("[data-media-viewer-download]")?.dispatch("click");
+    expect(downloadMediaFile).toHaveBeenCalledExactlyOnceWith("first.jpg", "K/DA 阿狸");
+    await Promise.resolve();
+  });
+
   it("opens the full image, zooms, and closes", () => {
     const { root, dialog, trigger, content, controls } = setup();
     bindMediaViewers(root as unknown as ParentNode);

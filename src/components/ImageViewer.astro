@@ -7,15 +7,16 @@ interface Props {
   placeholder?: string;
   altEn: string;
   altZh: string;
+  downloadFilename?: string;
   locale?: import('../i18n/config').Locale;
 }
-const { src, fallback, mobileSrc, mobileFallback, placeholder = '/placeholder.svg', altEn, altZh } = Astro.props;
+const { src, fallback, mobileSrc, mobileFallback, placeholder = '/placeholder.svg', altEn, altZh, downloadFilename } = Astro.props;
 import { resolveLocale } from '../i18n/config';
 const isZh = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) === 'zh-cn';
 const alt = isZh ? altZh : altEn;
 ---
 <div class="image-viewer">
-  <button class="viewer-trigger" type="button" data-media-preview-trigger data-preview-kind="image" data-preview-src={src} data-preview-fallback={fallback} aria-label={isZh ? '查看大图' : 'Open full-size image'}>
+  <button class="viewer-trigger" type="button" data-media-preview-trigger data-preview-kind="image" data-preview-src={src} data-preview-fallback={fallback} data-preview-filename={downloadFilename ?? alt} aria-label={isZh ? '查看大图' : 'Open full-size image'}>
     <picture>
       {mobileSrc && <source media="(max-width: 767px)" srcset={mobileSrc} data-fallback={mobileFallback} />}
       <img class="viewer-image" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={alt} width="1920" height="1080" />

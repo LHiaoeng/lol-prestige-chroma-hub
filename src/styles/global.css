@@ -1104,6 +1104,7 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
 .ant-image-preview-player [data-playing="true"] .ant-image-preview-pause-icon, .ant-image-preview-player [data-muted="true"] .ant-image-preview-muted-icon { display: block; }
 @media (max-width: 480px) {
   .ant-image-preview-actions { gap: 0; padding-inline: var(--space-2); }
+  .ant-image-preview-actions button { font-size: var(--font-size-headline-sm); }
   .ant-image-preview-player { grid-template-columns: 40px minmax(0, 1fr) 40px 80px; gap: var(--space-1); }
   .ant-image-preview-seek { grid-row: 1; grid-column: 1 / -1; }
 }
