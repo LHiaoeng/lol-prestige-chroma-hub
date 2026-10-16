@@ -8,6 +8,10 @@ const isZh = (Astro.props.locale ?? (Astro.currentLocale === 'zh-cn' ? 'zh-cn' :
 
 <dialog class="ant-image-preview-root" data-media-viewer aria-label={isZh ? '媒体预览' : 'Media preview'}>
   <div class="ant-image-preview-content" data-media-viewer-content></div>
+  <div class="ant-image-preview-status" data-media-viewer-status role="status" hidden data-loading={isZh ? '正在加载媒体…' : 'Loading media…'} data-error={isZh ? '媒体加载失败' : 'Unable to load media'}>
+    <span data-media-viewer-message></span>
+    <button type="button" data-media-viewer-retry hidden>{isZh ? '重试' : 'Retry'}</button>
+  </div>
   <button class="ant-image-preview-close" data-media-viewer-close type="button" aria-label={isZh ? '关闭预览' : 'Close preview'}>
     <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z" /></svg>
   </button>
@@ -18,6 +22,18 @@ const isZh = (Astro.props.locale ?? (Astro.currentLocale === 'zh-cn' ? 'zh-cn' :
     <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M765.7 486.8L314.9 134.7A7.97 7.97 0 0 0 302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 0 0 0-50.4z" /></svg>
   </button>
   <div class="ant-image-preview-footer">
+    <div class="ant-image-preview-player" data-media-viewer-player role="group" aria-label={isZh ? '视频播放控制' : 'Video playback controls'} hidden>
+      <button type="button" data-media-viewer-play data-play={isZh ? '播放' : 'Play'} data-pause={isZh ? '暂停' : 'Pause'} aria-label={isZh ? '播放' : 'Play'}>
+        <svg class="ant-image-preview-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" /></svg>
+        <svg class="ant-image-preview-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" /></svg>
+      </button>
+      <input class="ant-image-preview-seek" data-media-viewer-seek type="range" min="0" max="0" step="0.1" value="0" aria-label={isZh ? '播放进度' : 'Playback position'} disabled />
+      <span class="ant-image-preview-time" data-media-viewer-time>0:00 / 0:00</span>
+      <button type="button" data-media-viewer-mute data-mute={isZh ? '静音' : 'Mute'} data-unmute={isZh ? '取消静音' : 'Unmute'} aria-label={isZh ? '静音' : 'Mute'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9Zm13-2v10a6 6 0 0 0 0-10Z" /><path class="ant-image-preview-muted-icon" d="m3 2-1 1 19 19 1-1Z" /></svg>
+      </button>
+      <input class="ant-image-preview-volume" data-media-viewer-volume type="range" min="0" max="1" step="0.05" value="1" aria-label={isZh ? '音量' : 'Volume'} />
+    </div>
     <span class="ant-image-preview-count" data-media-viewer-count aria-live="polite" hidden></span>
     <div class="ant-image-preview-actions" role="toolbar" aria-label={isZh ? '预览工具栏' : 'Preview toolbar'}>
       <button type="button" data-media-viewer-zoom-out aria-label={isZh ? '缩小' : 'Zoom out'} title={isZh ? '缩小' : 'Zoom out'}>
@@ -37,6 +53,9 @@ const isZh = (Astro.props.locale ?? (Astro.currentLocale === 'zh-cn' ? 'zh-cn' :
       </button>
       <button type="button" data-media-viewer-flip-y aria-label={isZh ? '垂直翻转' : 'Flip vertically'} title={isZh ? '垂直翻转' : 'Flip vertically'}>
         <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path transform="rotate(90 512 512)" d="M847.9 592H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h605.2L612.9 851c-4.1 5.2-.4 13 6.3 13h72.5c4.9 0 9.5-2.2 12.6-6.1l168.8-214.1c16.5-21 1.6-51.8-25.2-51.8zM872 356H266.8l144.3-183c4.1-5.2.4-13-6.3-13h-72.5c-4.9 0-9.5 2.2-12.6 6.1L150.9 380.2c-16.5 21-1.6 51.8 25.1 51.8h696c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8z" /></svg>
+      </button>
+      <button type="button" data-media-viewer-reset aria-label={isZh ? '重置视图' : 'Reset view'} title={isZh ? '重置视图' : 'Reset view'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 1-7.75 10h2.1A6 6 0 1 0 8 7.53L11 10H3V2l3.43 3.43A7.96 7.96 0 0 1 12 4Z" /></svg>
       </button>
     </div>
   </div>

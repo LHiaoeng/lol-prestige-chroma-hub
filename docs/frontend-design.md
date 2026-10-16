@@ -31,7 +31,7 @@
 
 新增或重做页面时，按 [页面模板契约](page-templates.md) 选类型并核对骨架；页面布局或响应式改动按其中的 [响应式适配](page-templates.md#响应式适配) 验收。复用 `BaseLayout` 和现有页面组件。
 
-需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。媒体预览以 [Image 组件](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/index.tsx)、[PreviewGroup](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/PreviewGroup.tsx) 和 [预览样式](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/style/index.ts) 为行为与结构依据；本站使用原生 dialog 和 DOM 脚本适配 Astro，图片组沿用上下游的缩放、拖动、旋转、翻转和切换模式，视频预览保留原生播放控件。
+需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。媒体预览以 [Image 组件](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/index.tsx)、[PreviewGroup](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/PreviewGroup.tsx) 和 [预览样式](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/style/index.ts) 为行为与结构依据；本站使用原生 dialog 和 DOM 脚本适配 Astro，图片与视频共用视口内等比最大展示、缩放、拖动、旋转、双轴翻转、重置及分组切换；工具栏位置保持一致，视频播放、进度和音量控件独立于画面变换层并固定在工具栏上方。打开预览继承视频的进度、音量和播放状态，切换时暂停并记录视频，关闭时同步进度并恢复页面视频进入预览前的播放状态。画面区域承担滚轮/双指缩放和放大后的拖动；播放控件的键盘与指针操作不触发画面变换或媒体切换。媒体加载、失败、重试、焦点返回及滚动锁定由共享预览器统一处理。
 
 ## 3. 代码层强制约束
 
