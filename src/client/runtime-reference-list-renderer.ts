@@ -233,7 +233,7 @@ export function createRuntimeListRenderer(
             if (isChampionList && item.kind === "champion") {
               const meta = document.createElement("span");
               meta.className = "runtime-champion-meta";
-              meta.appendChild(textNode("span", item.name));
+              meta.appendChild(textNode("span", item.name, "runtime-champion-name"));
               const roles = document.createElement("span");
               roles.className = "runtime-champion-roles";
               roles.setAttribute(

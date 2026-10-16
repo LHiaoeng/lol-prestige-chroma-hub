@@ -713,6 +713,10 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
   gap: 4px;
   min-width: 0;
 }
+.runtime-champion-name {
+  color: var(--text);
+  font-weight: 600;
+}
 .runtime-champion-roles {
   color: var(--muted);
   font-size:var(--font-size-small);
