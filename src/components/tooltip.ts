@@ -11,6 +11,7 @@ export function createTooltip(trigger: HTMLElement, content: string): HTMLElemen
   tooltip.textContent = content;
   wrapper.setAttribute("aria-describedby", tooltip.id);
   wrapper.append(trigger, tooltip);
+  let closeTimer: number | undefined;
 
   const positionTooltip = () => {
     const triggerRect = wrapper.getBoundingClientRect();
@@ -35,12 +36,16 @@ export function createTooltip(trigger: HTMLElement, content: string): HTMLElemen
     );
   };
   const close = () => {
+    window.clearTimeout(closeTimer);
+    closeTimer = undefined;
     tooltip.classList.remove("is-open");
     tooltip.remove();
     window.removeEventListener("resize", positionTooltip);
     window.removeEventListener("scroll", positionTooltip, true);
   };
   const open = () => {
+    window.clearTimeout(closeTimer);
+    closeTimer = undefined;
     if (!wrapper.isConnected || tooltip.classList.contains("is-open")) return;
     document.body.appendChild(tooltip);
     tooltip.classList.add("is-open");
@@ -48,16 +53,26 @@ export function createTooltip(trigger: HTMLElement, content: string): HTMLElemen
     window.addEventListener("resize", positionTooltip);
     window.addEventListener("scroll", positionTooltip, true);
   };
+  const closeSoon = () => {
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(() => {
+      if (document.activeElement !== wrapper) close();
+    }, 100);
+  };
 
   wrapper.addEventListener("pointerenter", open);
-  wrapper.addEventListener("pointerleave", () => {
-    if (document.activeElement !== wrapper) close();
+  wrapper.addEventListener("pointerleave", closeSoon);
+  tooltip.addEventListener("pointerenter", () => {
+    window.clearTimeout(closeTimer);
+    closeTimer = undefined;
   });
+  tooltip.addEventListener("pointerleave", closeSoon);
   wrapper.addEventListener("focusin", open);
   wrapper.addEventListener("focusout", (event) => {
     if (
       !(event.relatedTarget instanceof Node && wrapper.contains(event.relatedTarget)) &&
-      !wrapper.matches(":hover")
+      !wrapper.matches(":hover") &&
+      !tooltip.matches(":hover")
     )
       close();
   });

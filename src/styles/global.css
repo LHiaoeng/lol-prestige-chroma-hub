@@ -817,7 +817,9 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
   line-height: 1.4;
   overflow-wrap: anywhere;
   box-shadow: var(--shadow-popup);
-  pointer-events: none;
+  pointer-events: auto;
+  user-select: text;
+  cursor: text;
 }
 .ant-tooltip::after {
   position: absolute;
