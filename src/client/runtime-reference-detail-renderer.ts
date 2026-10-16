@@ -138,8 +138,8 @@ export function createRuntimeDetailRenderer(
   const chromaLinksData = document.querySelector<HTMLElement>(
     "[data-runtime-prestige-chroma-links]",
   )?.dataset.runtimePrestigeChromaLinks;
-  const chromaLinks: Record<string, { href: string; colors: string[] }> = chromaLinksData
-    ? JSON.parse(chromaLinksData) as Record<string, { href: string; colors: string[] }>
+  const chromaLinks: Record<string, { href: string; imageUrl: string; fallbackUrl: string; previewUrl: string; previewFallbackUrl: string; colors: string[] }> = chromaLinksData
+    ? JSON.parse(chromaLinksData) as Record<string, { href: string; imageUrl: string; fallbackUrl: string; previewUrl: string; previewFallbackUrl: string; colors: string[] }>
     : {};
   let relationSlot: HTMLElement | undefined;
   let skinlineSkinsSlot: HTMLElement | undefined;
@@ -708,26 +708,25 @@ export function createRuntimeDetailRenderer(
           createChromaCard({
             name: item.name ?? runtimeMissingLabel(options.locale, "name"),
             imageUrl: item.chromaImageUrl ?? item.media.tileUrl,
+            preview: true,
             isBase: true,
             locale: options.locale,
           }),
         );
         item.chromas.forEach((chroma) => {
           const prestigeChroma = chromaLinks[String(chroma.id)];
-          const link = document.createElement("a");
-          const detailUrl = hrefFor(options.locale, "skins", {
-            id: chroma.id,
-            championId: item.championId,
-            channel: state.channel,
-          }, "detail", options.preservesExplicitPbe());
-          link.href =
-            prestigeChroma?.href ?? `${detailUrl.pathname}${detailUrl.search}`;
+          const link = prestigeChroma
+            ? document.createElement("a")
+            : undefined;
+          if (link && prestigeChroma) link.href = prestigeChroma.href;
           chromaGrid.appendChild(
             createChromaCard({
               name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
-              imageUrl: chroma.imageUrl,
-              originalImageUrl:
-                item.media.unfocusedSplashUrl ?? item.media.focusedSplashUrl,
+              imageUrl: prestigeChroma?.imageUrl ?? chroma.imageUrl,
+              imageFallbackUrl: prestigeChroma?.fallbackUrl,
+              previewImageUrl: prestigeChroma?.previewUrl,
+              previewFallbackUrl: prestigeChroma?.previewFallbackUrl,
+              originalImageUrl: prestigeChroma ? chroma.imageUrl : undefined,
               preview: true,
               colors: chroma.colors,
               isBase: false,

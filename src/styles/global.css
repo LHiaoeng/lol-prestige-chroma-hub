@@ -1011,7 +1011,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-media-carousel-slide { flex: 0 0 100%; min-width: 0; }
 .runtime-media-carousel-slide .runtime-media-item { display: flex; width: 100%; height: 100%; flex-direction: column; border: 0; border-radius: 0; }
 .runtime-media-carousel-slide .runtime-media-item img,
-.runtime-media-carousel-slide .runtime-media-item video { width: 100%; height: 100%; max-height: none; flex: 1 1 auto; object-fit: contain; }
+.runtime-media-carousel-slide .runtime-media-item video { width: 100%; height: 100%; max-height: none; flex: 1 1 auto; object-fit: cover; }
 .runtime-media-carousel-slide .runtime-skin-borders--carousel { display: grid; height: 100%; grid-template-rows: minmax(0, 1fr) auto; justify-items: center; gap: 8px; margin: 0; padding: 0; border: 0; }
 .runtime-media-carousel-slide .runtime-skin-borders--carousel .runtime-loadscreen-frame { width: auto; height: 100%; max-width: 100%; aspect-ratio: 9 / 16; }
 .runtime-media-carousel-slide .runtime-skin-borders--carousel .runtime-loadscreen-frame img { width: 100%; height: 100%; object-fit: fill; }
@@ -1042,8 +1042,13 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .ant-radio-button-wrapper:last-child { border-start-end-radius: var(--radius-control); border-end-end-radius: var(--radius-control); }
 .ant-radio-button-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 .ant-radio-button-label { display: inline-flex; min-height: var(--control-height); align-items: center; justify-content: center; padding: 0 15px; white-space: nowrap; cursor: pointer; }
+.ant-radio-button-toggle-icon { display: inline-flex; width: 14px; height: 14px; flex: 0 0 auto; margin-inline-start: 6px; }
+.ant-radio-button-toggle-icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.ant-radio-button-tooltip { display: inline-flex; align-items: stretch; }
 .ant-radio-button-wrapper-checked { z-index: 1; border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
 .ant-radio-button-input:focus-visible + .ant-radio-button-label { outline: 2px solid var(--gold); outline-offset: 2px; }
+.ant-radio-group-button > .ant-radio-button-tooltip:first-child .ant-radio-button-wrapper { margin-inline-start: 0; border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
+.ant-radio-group-button > .ant-radio-button-tooltip:last-child .ant-radio-button-wrapper { border-start-end-radius: var(--radius-control); border-end-end-radius: var(--radius-control); }
 @media (hover:hover) and (pointer:fine) { .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):hover { z-index: 1; border-color: var(--gold); color: var(--gold); } }
 .runtime-media-item {
   min-width: 0;
@@ -1278,6 +1283,7 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
   .runtime-media-carousel-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: stretch; }
   .runtime-media-carousel-controls .ant-radio-group-button { display: grid; width: 100%; max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
   .runtime-media-carousel-controls .ant-radio-button-wrapper { width: 100%; margin-inline-start: 0; border-radius: var(--radius-control); }
+  .runtime-media-carousel-controls .ant-radio-button-tooltip { width: 100%; }
   .runtime-media-carousel-controls .ant-radio-button-label { width: 100%; min-height: 32px; padding: 4px 8px; white-space: normal; text-align: center; line-height: 1.25; }
   .runtime-media-carousel-controls .ant-radio-button-wrapper:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .runtime-media-carousel-controls .runtime-media-carousel-divider { display: none; }

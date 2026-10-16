@@ -16,7 +16,7 @@ import { localizedPath } from "../i18n/config";
 import { formatRuntimeUrl } from "../domain/runtime-url-state";
 import { createDomainHeading } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
-import { createCarousel } from "../components/Carousel";
+import { createCarousel, type CarouselSlide } from "../components/Carousel";
 import { createRadioButtonGroup } from "../components/RadioButtonGroup";
 import { downloadMediaFile, saveBlob } from "./media-download";
 import type { RuntimePage } from "./runtime-reference";
@@ -242,10 +242,10 @@ interface DetailMediaDescriptor {
 }
 
 const detailMediaDescriptors: readonly DetailMediaDescriptor[] = [
-  { key: "collectionSplashVideoUrl", kind: "video", en: "Unfocused animated artwork", zh: "非聚焦动态原画" },
   { key: "animatedSplashUrl", kind: "video", en: "Focused animated artwork", zh: "聚焦动态原画" },
-  { key: "unfocusedSplashUrl", kind: "image", en: "Unfocused artwork", zh: "非聚焦原画" },
   { key: "focusedSplashUrl", kind: "image", en: "Focused artwork", zh: "聚焦原画" },
+  { key: "collectionSplashVideoUrl", kind: "video", en: "Unfocused animated artwork", zh: "非聚焦动态原画" },
+  { key: "unfocusedSplashUrl", kind: "image", en: "Unfocused artwork", zh: "非聚焦原画" },
   { key: "tileUrl", kind: "image", en: "Thumbnail", zh: "缩略图" },
   { key: "loadScreenUrl", kind: "image", en: "Loading screen", zh: "载入图" },
 ];
@@ -338,21 +338,101 @@ export function appendMediaCarousel(
   locale: CommunityDragonLocale,
   altBase: string,
 ): number {
-  const entries = detailMediaDescriptors.flatMap((descriptor) => {
+  const artworkKeys = new Set<DetailMediaKey>([
+    "animatedSplashUrl",
+    "focusedSplashUrl",
+    "collectionSplashVideoUrl",
+    "unfocusedSplashUrl",
+  ]);
+  const artworkEntries = detailMediaDescriptors.flatMap((descriptor) => {
     const url = media[descriptor.key];
-    return url ? [{ descriptor, url }] : [];
+    return artworkKeys.has(descriptor.key) && url ? [{ descriptor, url }] : [];
   });
-  const slides = entries.map(({ descriptor, url }, index) => {
+  const artworkKinds = [...new Set(artworkEntries.map(({ descriptor }) => descriptor.kind))].sort(
+    (left, right) => {
+      const preferredIndex = (kind: DetailMediaDescriptor["kind"]): number => {
+        const focusedKey = kind === "video" ? "animatedSplashUrl" : "focusedSplashUrl";
+        const focusedIndex = artworkEntries.findIndex(({ descriptor }) => descriptor.key === focusedKey);
+        return focusedIndex >= 0
+          ? focusedIndex
+          : artworkEntries.findIndex(({ descriptor }) => descriptor.kind === kind);
+      };
+      return preferredIndex(left) - preferredIndex(right);
+    },
+  );
+  const slides: CarouselSlide[] = artworkKinds.map((kind) => {
+    const variants = artworkEntries.filter(({ descriptor }) => descriptor.kind === kind);
+    const focusedKey = kind === "video" ? "animatedSplashUrl" : "focusedSplashUrl";
+    let selected = variants.find(({ descriptor }) => descriptor.key === focusedKey) ?? variants[0]!;
     const slide = document.createElement("div");
-    const label = locale === "zh_cn" ? descriptor.zh : descriptor.en;
-    appendMediaResource(slide, url, `${altBase} · ${label}`, descriptor, label, false);
+    const kindLabel = locale === "zh_cn"
+      ? kind === "video" ? "动态原画" : "静态原画"
+      : kind === "video" ? "Animated artwork" : "Static artwork";
+    const focusLabel = (descriptor: DetailMediaDescriptor) =>
+      descriptor.key === focusedKey
+        ? locale === "zh_cn" ? "聚焦" : "Focused"
+        : locale === "zh_cn" ? "非聚焦" : "Unfocused";
+    const label = () => `${kindLabel} · ${focusLabel(selected.descriptor)}`;
+    const render = () => {
+      slide.replaceChildren();
+      const mediaLabel = locale === "zh_cn" ? selected.descriptor.zh : selected.descriptor.en;
+      appendMediaResource(
+        slide,
+        selected.url,
+        `${altBase} · ${mediaLabel}`,
+        selected.descriptor,
+        mediaLabel,
+        false,
+      );
+      slide.querySelector("video")?.setAttribute("preload", "none");
+    };
+    render();
     return {
-      key: String(index),
-      label,
+      key: `artwork-${kind}`,
+      label: label(),
       content: slide,
-      download: () => downloadMediaFile(url, `${altBase} · ${label}`),
+      tooltip: variants.length > 1 ? () => {
+        const nextIndex = (variants.indexOf(selected) + 1) % variants.length;
+        const next = variants[nextIndex]!;
+        const currentFocus = focusLabel(selected.descriptor);
+        const nextFocus = focusLabel(next.descriptor);
+        return locale === "zh_cn"
+          ? `当前显示${currentFocus}${kindLabel}，点击此按钮切换为${nextFocus}${kindLabel}`
+          : `Showing ${currentFocus.toLowerCase()} ${kindLabel.toLowerCase()}; click this button to switch to ${nextFocus.toLowerCase()} ${kindLabel.toLowerCase()}`;
+      } : undefined,
+      download: () => {
+        const mediaLabel = locale === "zh_cn" ? selected.descriptor.zh : selected.descriptor.en;
+        return downloadMediaFile(selected.url, `${altBase} · ${mediaLabel}`);
+      },
+      onSelect: () => {
+        selected = variants.find(({ descriptor }) => descriptor.key === focusedKey) ?? variants[0]!;
+        render();
+        return label();
+      },
+      onReselect: variants.length > 1 ? () => {
+        const currentIndex = variants.indexOf(selected);
+        selected = variants[(currentIndex + 1) % variants.length]!;
+        render();
+        return label();
+      } : undefined,
     };
   });
+  const otherMediaSlides = detailMediaDescriptors
+    .filter((descriptor) => !artworkKeys.has(descriptor.key))
+    .flatMap((descriptor, index) => {
+      const url = media[descriptor.key];
+      if (!url) return [];
+      const slide = document.createElement("div");
+      const label = locale === "zh_cn" ? descriptor.zh : descriptor.en;
+      appendMediaResource(slide, url, `${altBase} · ${label}`, descriptor, label, false);
+      return [{
+        key: `other-media-${index}`,
+        label,
+        content: slide,
+        download: () => downloadMediaFile(url, `${altBase} · ${label}`),
+      }];
+    });
+  slides.push(...otherMediaSlides);
   const borderSlide = document.createElement("div");
   const downloadBorder = appendBorderModule(borderSlide, media, locale);
   if (downloadBorder) {

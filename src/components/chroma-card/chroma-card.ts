@@ -18,6 +18,12 @@ export interface ChromaCardOptions {
   readonly imageUrl?: string;
   /** 图片 alt 文本，默认使用 name */
   readonly imageAlt?: string;
+  /** Image URL to try if the primary image fails. */
+  readonly imageFallbackUrl?: string;
+  /** Full-size image used when previewing the current card artwork. */
+  readonly previewImageUrl?: string;
+  /** Fallback full-size image used when the preview image fails. */
+  readonly previewFallbackUrl?: string;
   /** Parent skin artwork used by the image toggle. */
   readonly originalImageUrl?: string;
   /** Render a linked image as a preview button, leaving the card title as its link. */
@@ -62,22 +68,29 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
   const media = document.createElement("div");
   media.className = "runtime-chroma-media";
   const missingKind = options.missingKind ?? "thumbnail";
+  let fallbackTried = false;
   const showMissing = () =>
     appendMissingField(media, options.locale, missingKind);
 
   if (options.imageUrl) {
     const image = document.createElement("img");
     image.src = options.imageUrl;
+    if (options.imageFallbackUrl) image.dataset.fallback = options.imageFallbackUrl;
     image.alt = options.imageAlt ?? options.name;
     image.loading = "lazy";
     image.decoding = "async";
     image.addEventListener(
       "error",
       () => {
+        const fallbackUrl = image.dataset.fallback;
+        if (!fallbackTried && fallbackUrl) {
+          fallbackTried = true;
+          image.src = fallbackUrl;
+          return;
+        }
         image.remove();
         showMissing();
       },
-      { once: true },
     );
     if (options.preview) {
       const preview = document.createElement("button");
@@ -85,7 +98,9 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       preview.type = "button";
       preview.dataset.mediaPreviewTrigger = "";
       preview.dataset.previewKind = "image";
-      preview.dataset.previewSrc = options.imageUrl;
+      preview.dataset.previewSrc = options.previewImageUrl ?? options.imageUrl;
+      if (options.previewFallbackUrl)
+        preview.dataset.previewFallback = options.previewFallbackUrl;
       preview.setAttribute(
         "aria-label",
         options.locale === "zh_cn"
@@ -142,24 +157,35 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
     const setArtwork = (showOriginal: boolean): void => {
       if (!image) return;
       image.src = showOriginal ? originalImageUrl : chromaImageUrl;
-      if (preview) preview.dataset.previewSrc = image.src;
+      fallbackTried = false;
+      if (showOriginal || !options.imageFallbackUrl) image.removeAttribute("data-fallback");
+      else image.dataset.fallback = options.imageFallbackUrl;
+      if (preview) {
+        preview.dataset.previewSrc = showOriginal
+          ? originalImageUrl
+          : options.previewImageUrl ?? chromaImageUrl;
+        if (showOriginal || !options.previewFallbackUrl)
+          delete preview.dataset.previewFallback;
+        else
+          preview.dataset.previewFallback = options.previewFallbackUrl;
+      }
       toggle.setAttribute(
         "aria-label",
         options.locale === "zh_cn"
           ? showOriginal
-            ? "切换到臻彩图"
-            : "切换到原图"
+            ? "切换到臻彩图片"
+            : "切换到炫彩原图"
           : showOriginal
             ? "Show chroma artwork"
-            : "Show original artwork",
+            : "Show original chroma artwork",
       );
       toggle.title = toggle.getAttribute("aria-label") ?? "";
       toggle.dataset.showingOriginal = String(showOriginal);
     };
-    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-2.5-2.5L17 3l5 5-5 5-1.5-1.5L18 9H7V7Zm10 10H6l2.5 2.5L7 21l-5-5 5-5 1.5 1.5L6 15h11v2Z"/></svg>';
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h13l-3-3 1.4-1.4L21 8l-5.6 5.4L14 12l3-3H4V7Zm16 10H7l3 3-1.4 1.4L3 16l5.6-5.4L10 12l-3 3h13v2Z"/></svg>';
     toggle.addEventListener("click", () => setArtwork(toggle.dataset.showingOriginal !== "true"));
     setArtwork(false);
-    card.appendChild(toggle);
+    (options.preview ? media : card).appendChild(toggle);
   }
 
   if (options.ownerLink) {

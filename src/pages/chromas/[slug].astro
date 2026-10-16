@@ -18,14 +18,14 @@ import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
 import { createChromaSeo } from '../../seo/chroma-seo';
 import { formatRuntimeUrl, readRuntimeUrlState } from '../../domain/runtime-url-state';
 
-export async function getStaticPaths() {
+interface Props { chroma: typeof catalog[number]; locale?: Locale }
+export async function getStaticPaths(): Promise<{ params: { slug: string }; props: Props }[]> {
   return catalog.flatMap((chroma) => [chroma.slug, String(chroma.skinId)]
     .map((slug) => ({
       params: { slug },
       props: { chroma },
     })));
 }
-interface Props { chroma: typeof catalog[number]; locale?: Locale }
 const { chroma } = Astro.props;
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
@@ -87,10 +87,10 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
     <div class="detail-summary">
       <RuntimeDetailSummary locale={locale} kind="chroma"><dl>
         <div><dt class="sr-only">{isZh ? '分类' : 'Category'}</dt><dd><span class="detail-summary-item"><DomainIcon name="prestige-chromas" tooltipDetail={categoryLabel} {locale} /><span class="detail-category-name" data-category-icon={sourceImageUrl('tag', chroma.tagId)}>{categoryLabel}</span></span></dd></div>
+        <div><dt class="sr-only">{isZh ? '所属皮肤' : 'Chroma parent skin'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="skins" tooltipDetail={isZh ? chroma.skinNameZh : chroma.skinNameEn} {locale} /><a class="runtime-entity-relation-link" data-runtime-channel-link href={sourceSkinPath}>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</a></span></dd></div>
         <div><dt class="sr-only">{isZh ? '英雄' : 'Champion'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="champions" tooltipDetail={isZh ? chroma.heroNameZh : chroma.heroNameEn} {locale} /><a class="runtime-entity-relation-link" data-runtime-channel-link href={championRuntimeUrl}>{isZh ? chroma.heroNameZh : chroma.heroNameEn}</a></span></dd></div>
         {chroma.skinSets.length > 0 && <div><dt class="sr-only">{isZh ? '皮肤系列' : 'Skinlines'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="skinlines" tooltipDetail={chroma.skinSets.map((item) => isZh ? item.nameZh : item.nameEn).join(isZh ? '、' : ', ')} {locale} /><span class="detail-related-links">{chroma.skinSets.map((item, index) => <><a class="runtime-entity-relation-link" data-runtime-channel-link href={skinlinePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.skinSets.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span></span></dd></div>}
         {chroma.universes.length > 0 && <div><dt class="sr-only">{isZh ? '皮肤宇宙' : 'Universes'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="universes" tooltipDetail={chroma.universes.map((item) => isZh ? item.nameZh : item.nameEn).join(isZh ? '、' : ', ')} {locale} /><span class="detail-related-links">{chroma.universes.map((item, index) => <><a class="runtime-entity-relation-link" data-runtime-channel-link href={universePath(item.id)}>{isZh ? item.nameZh : item.nameEn}</a>{index < chroma.universes.length - 1 ? (isZh ? '、' : ', ') : ''}</>)}</span></span></dd></div>}
-        <div><dt class="sr-only">{isZh ? '所属皮肤' : 'Chroma parent skin'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="skins" tooltipDetail={isZh ? chroma.skinNameZh : chroma.skinNameEn} {locale} /><a class="runtime-entity-relation-link" data-runtime-channel-link href={sourceSkinPath}>{isZh ? chroma.skinNameZh : chroma.skinNameEn}</a></span></dd></div>
         <div><dt class="sr-only">{isZh ? '游戏版本' : 'Patch'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="game-version" tooltipDetail={chroma.gameVer} {locale} /><a class="runtime-entity-relation-link" href={patchNotesUrl(chroma.gameVer)} target="_blank" rel="noopener noreferrer" aria-label={isZh ? `查看 ${chroma.gameVer} 版本公告` : `View patch ${chroma.gameVer} notes`}>{chroma.gameVer}</a></span></dd></div>
         <div><dt class="sr-only">{isZh ? '更多' : 'More'}</dt><dd><Divider type="vertical" /><div class="runtime-skin-actions-summary">
           <Dropdown id="chroma-actions-menu" placement="bottomRight">
@@ -166,9 +166,9 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   .detail-artwork-section{display:grid;grid-column:1/-1;min-width:0;gap:var(--space-3)}
   .detail-artwork-section h2,.detail-related :global(.section-heading h2){display:flex;align-items:center;gap:var(--space-2);margin:0;color:var(--gold);font-size:var(--font-size-headline-sm);line-height:var(--line-height-headline-sm);font-weight:600}
   .detail-artwork-section h2 :global(.domain-icon),.detail-related :global(.section-heading h2 .domain-icon){width:1em;height:1em;flex:0 0 auto}
-  .detail-image{height:auto;aspect-ratio:auto;padding:0;border-radius:var(--radius-card);background:var(--panel2);box-shadow:none}
-  .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:auto}
-  .detail-image :global(.viewer-image){height:auto;aspect-ratio:16/9;object-fit:contain}
+  .detail-image{width:100%;height:auto;aspect-ratio:16/9;padding:0;border-radius:var(--radius-card);background:var(--panel2);box-shadow:none}
+  .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:100%}
+  .detail-image :global(.viewer-image){height:100%;object-fit:cover}
   .detail-related{padding:0 0 96px}
   .detail-related :global(.detail-module-divider){margin:var(--space-4) 0}
   .detail-related :global(.related-group){margin:0}

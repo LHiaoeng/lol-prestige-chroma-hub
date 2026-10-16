@@ -9,6 +9,7 @@ import DomainIcon from './DomainIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import RuntimeDetailSummary from './RuntimeDetailSummary.astro';
 import { catalog } from '../data/catalog';
+import { imageUrl, sourceImageUrl } from '../domain/chroma';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes' | 'pbe-additions';
@@ -48,6 +49,10 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       chroma.skinId,
       {
         href: localizedPath(locale, `/chromas/${chroma.slug}/`),
+        imageUrl: imageUrl(chroma.images.medium),
+        fallbackUrl: sourceImageUrl('medium', chroma.instanceId),
+        previewUrl: imageUrl(chroma.images.large),
+        previewFallbackUrl: sourceImageUrl('large', chroma.instanceId),
         colors: chroma.colors,
       },
     ])))

@@ -4,9 +4,12 @@ import { createRadioButtonGroup } from "./RadioButtonGroup";
 
 export interface CarouselSlide {
   readonly key: string;
-  readonly label: string;
+  label: string;
   readonly content: HTMLElement;
   readonly download: () => Promise<void>;
+  readonly tooltip?: () => string;
+  readonly onSelect?: () => string | undefined;
+  readonly onReselect?: () => string | undefined;
 }
 
 export interface CarouselOptions {
@@ -91,10 +94,23 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   const renderControls = (): void => {
     const group = createRadioButtonGroup({
       size: "middle",
-      options: slides.map(({ key, label, content }) => ({
-        label,
-        value: key,
-        controls: content.id,
+      options: slides.map((slide) => ({
+        label: slide.label,
+        value: slide.key,
+        controls: slide.content.id,
+        tooltip: slide.tooltip,
+        onSelect: slide.onSelect ? () => {
+          const nextLabel = slide.onSelect?.();
+          if (nextLabel !== undefined) slide.label = nextLabel;
+          return slide.label;
+        } : undefined,
+        onReselect: slide.onReselect ? () => {
+          if (selectedKey !== slide.key) return undefined;
+          const nextLabel = slide.onReselect?.();
+          if (nextLabel !== undefined) slide.label = nextLabel;
+          update();
+          return slide.label;
+        } : undefined,
       })),
       name: `ant-carousel-radio-${id}`,
       idPrefix: `ant-carousel-radio-${id}`,
@@ -108,7 +124,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     controls.replaceChildren(group, divider, downloadButton);
   };
 
-  slides.forEach(({ key, label, content }, index) => {
+  slides.forEach(({ key, content }, index) => {
     content.classList.add("ant-carousel-slide", "runtime-media-carousel-slide");
     content.id = `ant-carousel-${id}-slide-${index}`;
     content.setAttribute("role", "group");
@@ -122,7 +138,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     content.querySelector("video")?.setAttribute("preload", "none");
     track.appendChild(content);
 
-    content.querySelector("img, video")?.addEventListener("error", () => {
+    content.addEventListener("error", () => {
       const failedIndex = slides.findIndex((slide) => slide.key === key);
       if (failedIndex < 0) return;
       const wasSelected = selectedKey === key;
@@ -147,7 +163,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
       });
       renderControls();
       update();
-    }, { once: true });
+    }, { once: true, capture: true });
   });
 
   carousel.append(viewport, controls);
