@@ -14,7 +14,7 @@ import type {
 import { sortSkinReferenceItems } from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
 import { formatRuntimeUrl } from "../domain/runtime-url-state";
-import { createDomainIcon } from "../components/domain-icons";
+import { createDomainHeading } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
 import { createCarousel } from "../components/Carousel";
 import { createRadioButtonGroup } from "../components/RadioButtonGroup";
@@ -269,6 +269,13 @@ function appendMediaResource(
 ): void {
   const figure = document.createElement("figure");
   figure.className = "runtime-media-item";
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "runtime-media-preview-trigger";
+  trigger.dataset.mediaPreviewTrigger = "";
+  trigger.dataset.previewKind = descriptor.kind;
+  trigger.dataset.previewSrc = url;
+  trigger.setAttribute("aria-label", `${alt} · ${label}`);
   const resource =
     descriptor.kind === "video"
       ? document.createElement("video")
@@ -288,7 +295,8 @@ function appendMediaResource(
     image.decoding = "async";
   }
   resource.addEventListener("error", () => resource.remove(), { once: true });
-  figure.appendChild(resource);
+  trigger.appendChild(resource);
+  figure.appendChild(trigger);
   if (showCaption) figure.appendChild(textNode("figcaption", label, "runtime-media-caption"));
   parent.appendChild(figure);
 }
@@ -301,6 +309,7 @@ export function appendMediaCollection(
   descriptors: readonly DetailMediaDescriptor[] = detailMediaDescriptors,
 ): number {
   let count = 0;
+  parent.dataset.mediaPreviewGroup = "";
   descriptors.forEach((descriptor) => {
     const url = media[descriptor.key];
     if (!url) return;
@@ -354,7 +363,10 @@ export function appendMediaCarousel(
     label: locale === "zh_cn" ? "皮肤媒体" : "Skin media",
     onEmpty: () => appendMissingField(parent, locale, "artwork"),
   });
-  if (carousel) parent.appendChild(carousel);
+  if (carousel) {
+    carousel.dataset.mediaPreviewGroup = "";
+    parent.appendChild(carousel);
+  }
   return slides.length;
 }
 
@@ -857,10 +869,6 @@ export function appendUniverseSkinGroups(
         }
         const section = document.createElement("section");
         section.className = "runtime-universe-skin-group";
-        const heading = textNode(
-          "h2",
-          "",
-        );
         const skinlineLink = linkWithNavigation(
           skinlineNames.get(group.skinlineId) ??
             runtimeMissingLabel(locale, "name"),
@@ -874,8 +882,7 @@ export function appendUniverseSkinGroups(
           controller,
           "runtime-universe-skinline-link",
         );
-        skinlineLink.prepend(createDomainIcon("skinlines"));
-        heading.appendChild(skinlineLink);
+        const heading = createDomainHeading("skinlines", skinlineLink);
         section.appendChild(heading);
         const cards = document.createElement("div");
         cards.className = "runtime-universe-skin-cards";

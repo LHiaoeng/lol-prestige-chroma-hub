@@ -1,6 +1,6 @@
 let tooltipId = 0;
 
-export function createTooltip(trigger: HTMLElement, content: string | HTMLElement): HTMLElement {
+export function createTooltip(trigger: HTMLElement | SVGElement, content: string | HTMLElement): HTMLElement {
   const wrapper = document.createElement("span");
   const tooltip = document.createElement("span");
   wrapper.className = "ant-tooltip-trigger";

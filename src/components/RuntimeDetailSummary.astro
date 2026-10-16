@@ -19,49 +19,64 @@ const isZh = locale === 'zh-cn';
   {kind === 'skin' && <>
     <span class="runtime-entity-relation-summary" data-runtime-skin-champion-summary>
       <Divider type="vertical" />
-      <span class="runtime-universe-stat"><DomainIcon name="champions" class="runtime-universe-stat-icon" /><span data-runtime-skin-champion></span></span>
+      <span class="runtime-universe-stat"><DomainIcon name="champions" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span data-runtime-skin-champion></span></span>
     </span>
     <span class="runtime-entity-relation-summary" data-runtime-skin-skinline-summary>
       <Divider type="vertical" />
-      <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-skinlines></span></span>
+      <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-skinlines></span></span>
     </span>
     <span class="runtime-entity-relation-summary" data-runtime-skin-universe-summary>
       <Divider type="vertical" />
-      <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-universes></span></span>
+      <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-universes></span></span>
     </span>
     <span class="runtime-entity-relation-summary" hidden data-runtime-skin-chroma-summary>
       <Divider type="vertical" />
-      <a class="runtime-entity-relation-link" href="#runtime-skin-chromas"><span class="runtime-universe-stat"><DomainIcon name="prestige-chromas" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-chroma-count></span></span></a>
+      <a class="runtime-entity-relation-link" href="#runtime-skin-chromas"><span class="runtime-universe-stat"><DomainIcon name="prestige-chromas" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-chroma-count></span></span></a>
     </span>
   </>}
   {kind === 'skinline' && <span class="runtime-entity-universe-summary" data-runtime-skinline-universe-summary>
     <Divider type="vertical" />
-    <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skinline-universes></span></span>
+    <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skinline-universes></span></span>
   </span>}
   {(kind === 'champion' || kind === 'skinline') && <>
     <Divider type="vertical" />
-    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-entity-skin-count></span></span>
+    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-entity-skin-count></span></span>
   </>}
   {kind === 'universe' && <>
     <Divider type="vertical" />
-    <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-universe-skinline-count="true"></span></span>
+    <span class="runtime-universe-stat"><DomainIcon name="skinlines" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-universe-skinline-count="true"></span></span>
     <Divider type="vertical" />
-    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-universe-skin-count="true"></span></span>
+    <span class="runtime-universe-stat"><DomainIcon name="skins" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton runtime-universe-count-skeleton--skins" aria-hidden="true" data-runtime-universe-skin-count="true"></span></span>
   </>}
   {kind === 'skin' && <div class="runtime-skin-actions-summary" data-runtime-skin-actions-summary hidden>
     <Divider type="vertical" />
     <Dropdown id="runtime-skin-actions-menu" placement="bottomRight">
-      <span slot="trigger"><svg class="runtime-channel-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM8 8V5h8v3M3 12h18M10 12v2h4v-2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" /></svg><span>{isZh ? '更多' : 'More'}</span><svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg></span>
+      <span slot="trigger"><svg class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} aria-hidden="true" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM8 8V5h8v3M3 12h18M10 12v2h4v-2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" /></svg><span>{isZh ? '更多' : 'More'}</span><svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg></span>
     </Dropdown>
   </div>}
   {(kind === 'champion' || kind === 'skinline' || kind === 'universe') && <div class="runtime-skin-actions-summary" data-runtime-entity-actions-summary hidden>
     <Divider type="vertical" />
     <Dropdown id="runtime-entity-actions-menu" placement="bottomRight">
-      <span slot="trigger"><svg class="runtime-channel-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM8 8V5h8v3M3 12h18M10 12v2h4v-2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" /></svg><span>{isZh ? '更多' : 'More'}</span><svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg></span>
+      <span slot="trigger"><svg class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} aria-hidden="true" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM8 8V5h8v3M3 12h18M10 12v2h4v-2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" /></svg><span>{isZh ? '更多' : 'More'}</span><svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg></span>
     </Dropdown>
   </div>}
   <span class="runtime-skeleton-line runtime-summary-row-skeleton" data-runtime-summary-skeleton aria-hidden="true"></span>
 </div>}
+
+<script>
+  import { createTooltip } from './tooltip';
+
+  document.querySelectorAll<SVGSVGElement>('[data-summary-icon-tooltip]').forEach((icon) => {
+    const label = icon.dataset.summaryIconTooltip;
+    const parent = icon.parentElement;
+    const nextSibling = icon.nextSibling;
+    if (label && parent) {
+      const trigger = createTooltip(icon, label);
+      trigger.setAttribute('aria-label', label);
+      parent.insertBefore(trigger, nextSibling);
+    }
+  });
+</script>
 
 <style>
   .runtime-detail-summary { position: relative; width: 100%; gap: var(--space-2); color: var(--gold); font-size: var(--font-size-title); line-height: var(--line-height-title); }

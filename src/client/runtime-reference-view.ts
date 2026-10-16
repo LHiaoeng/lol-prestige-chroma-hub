@@ -29,6 +29,7 @@ import type { RuntimeChannelLoadContext } from "./runtime-channel-lifecycle";
 import { createRuntimeDetailRenderer } from "./runtime-reference-detail-renderer";
 import { createRuntimeListRenderer } from "./runtime-reference-list-renderer";
 import { createRuntimePbeRenderer } from "./runtime-reference-pbe-renderer";
+import { setDomainIconTooltip } from "../components/domain-icons";
 import {
   setRuntimeNoindex,
   textNode,
@@ -118,6 +119,9 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
   const channelLabel = source.querySelector<HTMLElement>(
     "[data-runtime-channel-label]",
   );
+  const channelIcon = source.querySelector<SVGSVGElement>(
+    ".domain-icon--reference",
+  );
   let renderedContext: RuntimeChannelLoadContext<RuntimeLocationState> | undefined;
   const preservesExplicitPbe = () =>
     readRuntimeUrlState(renderedContext?.url ?? options.history.url)
@@ -136,11 +140,10 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
             options.locale,
           );
       });
-    if (channelLabel)
-      channelLabel.textContent = communityDragonChannelLabel(
-        selected,
-        options.locale,
-      );
+    const selectedLabel = communityDragonChannelLabel(selected, options.locale);
+    if (channelLabel) channelLabel.textContent = selectedLabel;
+    if (channelIcon)
+      setDomainIconTooltip(channelIcon, "reference", selectedLabel, options.locale);
     bindRuntimeChannelLinks(document, options.history.url);
     bindRuntimeLanguageToggle(document, options.history.url);
   };

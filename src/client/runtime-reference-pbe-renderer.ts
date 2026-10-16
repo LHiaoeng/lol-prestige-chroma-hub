@@ -23,6 +23,7 @@ import {
   textNode,
 } from "./runtime-reference-view-shared";
 import { createChromaCard } from "../components/chroma-card/chroma-card";
+import { createDomainHeading, type DomainIconName } from "../components/domain-icons";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
 function createPbeVersionItem(
@@ -203,6 +204,19 @@ type PbeModuleText = Record<
   RuntimePbeModuleKind,
   { readonly title: string; readonly empty: string; readonly label: string }
 >;
+
+const pbeModuleIcons: Record<RuntimePbeModuleKind, DomainIconName> = {
+  champions: "champions",
+  skins: "skins",
+  skinlines: "skinlines",
+  universes: "universes",
+  icons: "pbe-additions",
+  emotes: "pbe-additions",
+  chromas: "prestige-chromas",
+  borders: "skins",
+  wards: "skins",
+  finishers: "pbe-additions",
+};
 
 function renderModuleItems(
   grid: HTMLElement,
@@ -529,7 +543,8 @@ export function createRuntimePbeRenderer(
         const countElement = countElements.get(module.kind)!;
         const section = document.createElement("section");
         section.className = "runtime-pbe-section";
-        const heading = textNode("h2", text.title);
+        const headingLabel = textNode("span", text.title);
+        const heading = createDomainHeading(pbeModuleIcons[module.kind], headingLabel);
         const grid = document.createElement("div");
         grid.className = "runtime-pbe-grid";
         section.append(heading, grid);
@@ -542,7 +557,7 @@ export function createRuntimePbeRenderer(
           refreshStatus();
         };
         const showFailure = () => {
-          heading.textContent =
+          headingLabel.textContent =
             locale === "zh_cn"
               ? `${text.title}（加载失败）`
               : `${text.title} (failed)`;

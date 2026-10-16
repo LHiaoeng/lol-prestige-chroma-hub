@@ -1,12 +1,31 @@
 ---
 import { DOMAIN_ICONS, type DomainIconName } from './domain-icons';
+import type { Locale } from '../i18n/config';
 
 interface Props {
   readonly name: DomainIconName;
   readonly class?: string;
+  readonly tooltipDetail?: string;
+  readonly locale?: Locale;
 }
 
-const { name, class: className } = Astro.props;
+const { name, class: className, tooltipDetail, locale } = Astro.props;
 ---
 
-<svg class:list={['domain-icon', `domain-icon--${name}`, className]} viewBox="0 0 24 24" fill="none" aria-hidden="true" set:html={DOMAIN_ICONS[name]} />
+<svg class:list={['domain-icon', `domain-icon--${name}`, className]} viewBox="0 0 24 24" fill="none" aria-hidden="true" data-domain-icon-name={name} data-domain-icon-tooltip-detail={tooltipDetail} data-domain-icon-tooltip-locale={locale} set:html={DOMAIN_ICONS[name]} />
+
+<script>
+  import { setDomainIconTooltip } from './domain-icons';
+
+  document.querySelectorAll<SVGSVGElement>('[data-domain-icon-tooltip-detail]').forEach((icon) => {
+    const name = icon.dataset.domainIconName;
+    if (!name) return;
+    setDomainIconTooltip(
+      icon,
+      name as Parameters<typeof setDomainIconTooltip>[1],
+      icon.dataset.domainIconTooltipDetail ?? '',
+      icon.dataset.domainIconTooltipLocale ?? 'en',
+    );
+    icon.removeAttribute('data-domain-icon-tooltip-detail');
+  });
+</script>

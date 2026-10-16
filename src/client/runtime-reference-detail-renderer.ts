@@ -44,7 +44,13 @@ import {
 } from "./runtime-reference-view-shared";
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import { createChromaCard } from "../components/chroma-card/chroma-card";
-import { createDomainIcon } from "../components/domain-icons";
+import {
+  createDomainHeading,
+  createDomainIcon,
+  domainIconTooltipLabel,
+  setDomainIconTooltip,
+  type DomainIconName,
+} from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
 import { createTitle } from "../components/Typography";
 import { bindImageFallbacks } from "./image-fallback";
@@ -88,6 +94,16 @@ export interface RuntimeDetailRenderer {
 }
 
 function setUniverseCountSkeleton(element: HTMLElement): void {
+  const stat = element.closest<HTMLElement>(".runtime-universe-stat");
+  const icon = stat?.querySelector<SVGSVGElement>(".domain-icon");
+  const iconName = icon?.dataset.domainIconName as DomainIconName | undefined;
+  if (icon && iconName)
+    setDomainIconTooltip(
+      icon,
+      iconName,
+      "",
+      icon.dataset.domainIconTooltipLocale ?? "en",
+    );
   element.classList.remove("runtime-list-count");
   element.classList.add(
     "runtime-skeleton-line",
@@ -101,6 +117,16 @@ function setUniverseCountSkeleton(element: HTMLElement): void {
 }
 
 function setUniverseCount(element: HTMLElement, value: string): void {
+  const stat = element.closest<HTMLElement>(".runtime-universe-stat");
+  const icon = stat?.querySelector<SVGSVGElement>(".domain-icon");
+  const iconName = icon?.dataset.domainIconName as DomainIconName | undefined;
+  if (icon && iconName)
+    setDomainIconTooltip(
+      icon,
+      iconName,
+      value,
+      icon.dataset.domainIconTooltipLocale ?? "en",
+    );
   element.className = "runtime-list-count";
   element.removeAttribute("aria-hidden");
   element.textContent = value;
@@ -205,9 +231,7 @@ export function createRuntimeDetailRenderer(
     if (!relations.length) return;
     const links = document.createElement("span");
     links.className = "runtime-entity-relation-links";
-    const relationLabel = kind === "skinline"
-      ? options.locale === "zh_cn" ? "系列" : "Skinline"
-      : options.locale === "zh_cn" ? "宇宙" : "Universe";
+    const iconName = kind === "skinline" ? "skinlines" : "universes";
     relations.forEach((item) => {
       const link = linkWithNavigation(
         item.name,
@@ -215,9 +239,21 @@ export function createRuntimeDetailRenderer(
         options.getController(),
         "runtime-entity-relation-link",
       );
-      link.setAttribute("aria-label", `${relationLabel}: ${item.name}`);
+      link.setAttribute(
+        "aria-label",
+        domainIconTooltipLabel(iconName, item.name, options.locale),
+      );
       links.appendChild(link);
     });
+    const icon = slot.closest<HTMLElement>(".runtime-universe-stat")
+      ?.querySelector<SVGSVGElement>(".domain-icon");
+    if (icon)
+      setDomainIconTooltip(
+        icon,
+        iconName,
+        relations.map((item) => item.name).join(", "),
+        options.locale,
+      );
     slot.className = "";
     slot.removeAttribute("aria-hidden");
     slot.replaceChildren(links);
@@ -597,20 +633,29 @@ export function createRuntimeDetailRenderer(
           skinChampionSlot.className = "";
           skinChampionSlot.removeAttribute("aria-hidden");
         }
+        const championName = item.championName ?? (options.locale === "zh_cn" ? `英雄 #${item.championId}` : `Champion #${item.championId}`);
+        const championIcon = skinChampionSlot
+          ?.closest<HTMLElement>(".runtime-universe-stat")
+          ?.querySelector<SVGSVGElement>(".domain-icon");
+        if (championIcon) setDomainIconTooltip(championIcon, "champions", championName, options.locale);
         const championLink = linkWithNavigation(
-          item.championName ?? (options.locale === "zh_cn" ? `英雄 #${item.championId}` : `Champion #${item.championId}`),
+          championName,
           hrefFor(options.locale, "champions", { id: item.championId, channel: state.channel }, "detail", options.preservesExplicitPbe()),
           controller,
           "runtime-entity-relation-link",
         );
-        championLink.setAttribute("aria-label", `${options.locale === "zh_cn" ? "英雄" : "Champion"}：${championLink.textContent}`);
+        championLink.setAttribute(
+          "aria-label",
+          domainIconTooltipLabel("champions", championName, options.locale),
+        );
         skinChampionSlot?.replaceChildren(championLink);
 
         const mediaSection = document.createElement("section");
         mediaSection.className = "runtime-skin-media";
-        mediaSection.appendChild(
-          textNode("h2", options.locale === "zh_cn" ? "媒体" : "Media"),
-        );
+        mediaSection.appendChild(createDomainHeading(
+          "media",
+          options.locale === "zh_cn" ? "媒体" : "Media",
+        ));
         const mediaCarousel = document.createElement("div");
         if (
           appendMediaCarousel(
@@ -627,12 +672,10 @@ export function createRuntimeDetailRenderer(
         if (historicalArt.length) {
           const historySection = document.createElement("section");
           historySection.className = "runtime-skin-history";
-          historySection.appendChild(
-            textNode(
-              "h2",
-              options.locale === "zh_cn" ? "历史版本原画" : "Historical artwork",
-            ),
-          );
+          historySection.appendChild(createDomainHeading(
+            "skins",
+            options.locale === "zh_cn" ? "历史版本原画" : "Historical artwork",
+          ));
           appendHistoricalArtwork(
             historySection,
             historicalArt,
@@ -645,9 +688,11 @@ export function createRuntimeDetailRenderer(
         const chromas = document.createElement("section");
         chromas.className = "runtime-skin-chromas";
         chromas.id = "runtime-skin-chromas";
-        const chromaHeading = document.createElement("h2");
+        const chromaHeading = createDomainHeading(
+          "prestige-chromas",
+          options.locale === "zh_cn" ? "炫彩" : "Chromas",
+        );
         chromaHeading.append(
-          textNode("span", options.locale === "zh_cn" ? "炫彩" : "Chromas"),
           textNode("span", String(item.chromas.length), "runtime-chroma-count"),
         );
         chromas.appendChild(chromaHeading);
@@ -680,12 +725,10 @@ export function createRuntimeDetailRenderer(
 
       } else if (item.kind === "skinline") {
         const skins = document.createElement("section");
-        skins.appendChild(
-          textNode(
-            "h2",
-            options.locale === "zh_cn" ? "系列内皮肤" : "Skins in this skinline",
-          ),
-        );
+        skins.appendChild(createDomainHeading(
+          "skins",
+          options.locale === "zh_cn" ? "系列内皮肤" : "Skins in this skinline",
+        ));
         skinlineSkinsSlot = document.createElement("div");
         skinlineSkinsSlot.className = "runtime-skinline-skins-state";
         skins.appendChild(skinlineSkinsSlot);

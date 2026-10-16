@@ -44,6 +44,11 @@ class TestElement {
   get ownerDocument(): TestDocument {
     return document as unknown as TestDocument;
   }
+  get nextSibling(): TestElement | null {
+    if (!this.parentElement) return null;
+    const siblings = this.parentElement.children;
+    return siblings[siblings.indexOf(this) + 1] ?? null;
+  }
 
   readonly classList = {
     add: (name: string): void => {
@@ -110,6 +115,14 @@ class TestElement {
     return child;
   }
 
+  insertBefore(child: TestElement, reference: TestElement | null): TestElement {
+    if (!reference) return this.appendChild(child);
+    const index = this.children.indexOf(reference);
+    child.parentElement = this;
+    this.children.splice(index, 0, child);
+    return child;
+  }
+
   replaceChildren(...children: TestElement[]): void {
     this.children.forEach((child) => {
       child.parentElement = null;
@@ -122,6 +135,15 @@ class TestElement {
     if (!this.parentElement) return;
     const index = this.parentElement.children.indexOf(this);
     if (index >= 0) this.parentElement.children.splice(index, 1);
+    this.parentElement = null;
+  }
+
+  replaceWith(replacement: TestElement): void {
+    if (!this.parentElement) return;
+    const siblings = this.parentElement.children;
+    const index = siblings.indexOf(this);
+    replacement.parentElement = this.parentElement;
+    siblings[index] = replacement;
     this.parentElement = null;
   }
 
@@ -241,11 +263,17 @@ describe("runtime DOM boundaries", () => {
     const source = new TestElement("div");
     const channelLabel = new TestElement("span");
     channelLabel.dataset.runtimeChannelLabel = "";
+    const channelIcon = new TestElement("svg");
+    channelIcon.className = "domain-icon domain-icon--reference";
+    channelIcon.setAttribute("data-domain-icon-name", "reference");
+    channelIcon.setAttribute("data-domain-icon-tooltip-locale", "zh_cn");
+    const channelTrigger = new TestElement("span");
+    channelTrigger.append(channelIcon);
     const pbe = new TestElement("button");
     pbe.dataset.runtimeChannel = "pbe";
     const latest = new TestElement("button");
     latest.dataset.runtimeChannel = "latest";
-    source.append(channelLabel, pbe, latest);
+    source.append(channelLabel, channelTrigger, pbe, latest);
 
     const view = createDomRuntimeView({
       root: root as unknown as HTMLElement,
@@ -256,6 +284,8 @@ describe("runtime DOM boundaries", () => {
       history: history(),
     });
     view.loading(false, "latest");
+    expect(channelTrigger.querySelector(".ant-tooltip-trigger")?.querySelector(".ant-tooltip")?.textContent)
+      .toBe("资料版本：正式服");
     view.renderList([], { mode: "list", page: "champions", channel: "latest" });
 
     expect(channelLabel.textContent).toBe("正式服");
@@ -590,6 +620,17 @@ describe("runtime DOM boundaries", () => {
     const content = new TestElement("div");
     content.dataset.runtimeContent = "";
     root.append(status, content);
+    const skinCount = new TestElement("span");
+    skinCount.dataset.runtimeEntitySkinCount = "";
+    const skinStat = new TestElement("span");
+    skinStat.className = "runtime-universe-stat";
+    const skinIcon = new TestElement("svg");
+    skinIcon.className = "domain-icon domain-icon--skins";
+    skinIcon.setAttribute("data-domain-icon-name", "skins");
+    skinIcon.setAttribute("data-domain-icon-tooltip-locale", "default");
+    skinStat.append(skinIcon);
+    skinStat.append(skinCount);
+    document.head.append(skinStat);
     const source = new TestElement("div");
     const view = createDomRuntimeView({
       root: root as unknown as HTMLElement,
@@ -653,6 +694,8 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-champion-base")).toBeNull();
     expect(status.textContent).toBe("");
     expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(3);
+    expect(skinStat.querySelector(".ant-tooltip-trigger")?.querySelector(".ant-tooltip")?.textContent)
+      .toBe("Skin: 2 skins");
     expect(
       [...content.querySelectorAll(".runtime-skin-reference-card")].map(
         (card) => card.querySelector("img")?.src,
@@ -693,7 +736,15 @@ describe("runtime DOM boundaries", () => {
     vi.stubGlobal("document", document);
     const championSlot = new TestElement("span");
     championSlot.dataset.runtimeSkinChampion = "";
-    document.head.append(championSlot);
+    const championStat = new TestElement("span");
+    championStat.className = "runtime-universe-stat";
+    const championIcon = new TestElement("svg");
+    championIcon.className = "domain-icon domain-icon--champions";
+    championIcon.setAttribute("data-domain-icon-name", "champions");
+    championIcon.setAttribute("data-domain-icon-tooltip-locale", "default");
+    championStat.append(championIcon);
+    championStat.append(championSlot);
+    document.head.append(championStat);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
@@ -723,6 +774,7 @@ describe("runtime DOM boundaries", () => {
         kind: "skin",
         id: 103001,
         championId: 103,
+        championName: "Ahri",
         name: "Dynasty Ahri",
         description: "A dynasty-inspired skin.",
         isBase: false,
@@ -760,6 +812,8 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-lede")?.textContent).toBe(
       "A dynasty-inspired skin.",
     );
+    expect(championStat.querySelector(".ant-tooltip-trigger")?.querySelector(".ant-tooltip")?.textContent)
+      .toBe("Champion: Ahri");
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });
 
@@ -851,7 +905,7 @@ describe("runtime DOM boundaries", () => {
     expect(mediaSection?.querySelector(".runtime-loadscreen-frame")).not.toBeNull();
     expect(
       [...(mediaSection?.querySelectorAll(".runtime-media-item") ?? [])].some(
-        (item) => item.children[0]?.src === "https://example.test/load.jpg",
+        (item) => item.querySelector(".runtime-media-preview-trigger")?.querySelector("img")?.src === "https://example.test/load.jpg",
       ),
     ).toBe(true);
 

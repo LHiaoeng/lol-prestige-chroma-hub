@@ -17,7 +17,7 @@ const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
 
 <Dropdown id="runtime-channel-menu">
   <span slot="trigger">
-    <DomainIcon name="reference" class="runtime-channel-icon" />
+    <DomainIcon name="reference" class="runtime-channel-icon" tooltipDetail={pbeLabel} {locale} />
     <span class="sr-only">{isZh ? '资料版本' : 'Reference data'}</span>
     <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
     <svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
