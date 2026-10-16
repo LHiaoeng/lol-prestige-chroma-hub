@@ -347,15 +347,6 @@ export class RuntimeController {
       ];
     }
     if (state.mode !== "detail" || core.mode !== "detail") return [];
-    if (state.kind === "champion")
-      return [{
-        key: "relation-skinlines",
-        load: (slotContext) => this.runtime.list("skinlines", {
-          locale: this.options.locale,
-          channel: state.channel,
-          signal: slotContext.signal,
-        }),
-      }];
     const slots: RuntimePageSlotDefinition<
       RuntimeLocationState,
       RuntimeCoreResult,

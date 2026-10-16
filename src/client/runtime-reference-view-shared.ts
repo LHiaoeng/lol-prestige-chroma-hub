@@ -201,39 +201,16 @@ type RuntimeRarityView = {
   readonly iconUrl?: string;
 };
 
-export function hasRenderableRarity(
-  rarity: RuntimeRarityView | undefined,
-): boolean {
-  return Boolean(rarity?.label || rarity?.iconUrl);
-}
-
-export function appendRarity(
-  parent: HTMLElement,
-  rarity: RuntimeRarityView | undefined,
-): void {
-  const badge = document.createElement("span");
-  badge.className = "runtime-rarity";
-  const label = rarity?.label;
-  const iconUrl = rarity?.iconUrl;
-  if (!hasRenderableRarity(rarity)) return;
-  if (iconUrl) {
-    const icon = document.createElement("img");
-    icon.src = iconUrl;
-    icon.alt = label ?? "";
-    icon.loading = "lazy";
-    icon.decoding = "async";
-    badge.appendChild(icon);
-  }
-  if (label) badge.appendChild(textNode("span", label));
-  parent.appendChild(badge);
-}
-
 export function appendSkinReferenceTitle(
   parent: HTMLElement,
   name: string,
   rarity: RuntimeRarityView | undefined,
 ): HTMLElement {
-  const title = textNode("span", name, "runtime-skin-reference-title");
+  const title = textNode("span", "", "runtime-skin-reference-title");
+  const nameText = textNode("span", name, "runtime-skin-reference-name");
+  const nameTooltip = createTooltip(nameText, name);
+  nameTooltip.classList.add("runtime-skin-reference-name-tooltip");
+  title.appendChild(nameTooltip);
   if (rarity?.iconUrl) {
     const icon = document.createElement("img");
     icon.src = rarity.iconUrl;

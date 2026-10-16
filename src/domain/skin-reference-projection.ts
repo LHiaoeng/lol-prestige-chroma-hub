@@ -301,9 +301,7 @@ export function projectChampionSkinListItems(
   skins: readonly RuntimeSkinSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
   return projectSkinReferenceCollectionItems(
-    skins
-      .filter((skin) => !skin.isBase)
-      .map((skin) => championSkinEntity(championId, skin)),
+    skins.map((skin) => championSkinEntity(championId, skin)),
   );
 }
 

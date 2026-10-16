@@ -29,11 +29,9 @@ import {
   appendMedia,
   appendMediaCollection,
   appendMissingField,
-  appendRarity,
   appendSkinReferenceTitle,
   appendSkinReferenceGrid,
   appendUniverseSkinGroups,
-  hasRenderableRarity,
   hrefFor,
   linkWithNavigation,
   runtimeMissingLabel,
@@ -43,6 +41,7 @@ import {
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import { createChromaCard } from "../components/chroma-card/chroma-card";
 import { createDomainIcon } from "../components/domain-icons";
+import { createTooltip } from "../components/tooltip";
 import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
@@ -112,7 +111,6 @@ export function createRuntimeDetailRenderer(
   let universeSkinCollectionState: "loading" | "ready" | "failed" = "loading";
   let universeSkinlineNames = new Map<number, string>();
   let renderUniverseGroups: (() => void) | undefined;
-  let updateChampionSkinlines: ((items: RuntimeList) => void) | undefined;
   let updateSkinlineChampionNames: ((items: RuntimeList) => void) | undefined;
   let entityDetailSource: HTMLElement | undefined;
   let entityDetailDivider: HTMLElement | undefined;
@@ -204,12 +202,7 @@ export function createRuntimeDetailRenderer(
     entity: RuntimeEntity,
     target: DetailState,
   ): void => {
-    if (target.kind === "champion") {
-      const slot = state.slots["relation-skinlines"];
-      if (slot?.status === "ready" || slot?.status === "empty")
-        updateChampionSkinlines?.(slot.value);
-      return;
-    }
+    if (target.kind === "champion") return;
     if (target.kind === "skinline") {
       const champions = state.slots["relation-champions"];
       if (champions?.status === "ready" || champions?.status === "empty")
@@ -372,7 +365,6 @@ export function createRuntimeDetailRenderer(
       universeSkinCollectionState = "loading";
       renderUniverseGroups = undefined;
       universeSkinlineNames = new Map();
-      updateChampionSkinlines = undefined;
       updateSkinlineChampionNames = undefined;
       if (item.kind === "skin") {
         for (const { kind, summary, slot } of skinRelationSummaries) {
@@ -399,9 +391,12 @@ export function createRuntimeDetailRenderer(
       const controller = options.getController();
       const article = document.createElement("article");
       article.className = "runtime-detail";
+      const entityName = item.name ?? runtimeMissingLabel(options.locale, "name");
       const title = textNode(
         "h1",
-        item.name ?? runtimeMissingLabel(options.locale, "name"),
+        item.kind === "champion" && item.title
+          ? `${item.title} ${entityName}`
+          : entityName,
       );
       if (
         item.kind === "champion" ||
@@ -409,9 +404,17 @@ export function createRuntimeDetailRenderer(
         item.kind === "skinline"
       ) {
         article.classList.add("runtime-detail--entity");
-        title.prepend(createDomainIcon(
-          item.kind === "champion" ? "champions" : item.kind === "skin" ? "skins" : "skinlines",
-        ));
+        if (item.kind === "skin" && item.rarity?.iconUrl) {
+          const icon = document.createElement("img");
+          icon.className = "runtime-rarity-title-icon";
+          icon.src = item.rarity.iconUrl;
+          icon.alt = "";
+          title.prepend(item.rarity.label ? createTooltip(icon, item.rarity.label) : icon);
+        } else {
+          title.prepend(createDomainIcon(
+            item.kind === "champion" ? "champions" : item.kind === "skin" ? "skins" : "skinlines",
+          ));
+        }
       }
       if (item.kind === "universe") {
         article.classList.add("runtime-detail--universe");
@@ -437,8 +440,10 @@ export function createRuntimeDetailRenderer(
       article.appendChild(title);
       if (item.kind === "champion" && item.shortBio)
         article.appendChild(textNode("p", item.shortBio, "runtime-lede"));
-      if (item.kind === "skin" && item.description)
-        article.appendChild(textNode("p", item.description, "runtime-lede"));
+      if (item.kind === "skin") {
+        const description = item.description ?? (item.isBase ? item.championShortBio : undefined);
+        if (description) article.appendChild(textNode("p", description, "runtime-lede"));
+      }
       if (item.kind === "skinline" && item.description)
         article.appendChild(textNode("p", item.description, "runtime-lede"));
       if (
@@ -457,26 +462,9 @@ export function createRuntimeDetailRenderer(
       }
       if (item.kind === "champion") {
         const section = document.createElement("section");
-        section.appendChild(
-          textNode(
-            "h2",
-            options.locale === "zh_cn" ? "皮肤资料" : "Skin references",
-          ),
-        );
+        section.setAttribute("aria-label", options.locale === "zh_cn" ? "英雄皮肤" : "Champion skins");
         const controls = document.createElement("div");
         controls.className = "runtime-toolbar runtime-skin-reference-controls";
-        const skinlineSelect = document.createElement("select");
-        skinlineSelect.className = "cn-select";
-        skinlineSelect.id = "runtime-champion-skinline-filter";
-        skinlineSelect.setAttribute("aria-label", options.locale === "zh_cn" ? "系列筛选" : "Filter by skinline");
-        const allSkinlines = document.createElement("option");
-        allSkinlines.value = "";
-        allSkinlines.textContent = options.locale === "zh_cn" ? "全部系列" : "All skinlines";
-        skinlineSelect.appendChild(allSkinlines);
-        const skinlineLabel = document.createElement("label");
-        skinlineLabel.className = "runtime-toolbar-field";
-        skinlineLabel.htmlFor = skinlineSelect.id;
-        skinlineLabel.append(textNode("span", options.locale === "zh_cn" ? "系列" : "Skinline"), skinlineSelect);
         const sortSelect = document.createElement("select");
         sortSelect.className = "cn-select";
         sortSelect.id = "runtime-champion-skins-sort";
@@ -501,33 +489,18 @@ export function createRuntimeDetailRenderer(
           textNode("span", options.locale === "zh_cn" ? "排序" : "Sort by"),
           sortSelect,
         );
-        controls.append(skinlineLabel, sortLabel);
+        controls.append(sortLabel);
         section.appendChild(controls);
         const grid = document.createElement("div");
         grid.className = "runtime-skin-reference-grid";
         const skinItems = projectChampionSkinListItems(item.id, item.skins);
-        const skinlineIds = [...new Set(skinItems.flatMap((skin) => skin.skinlineIds))].sort((a, b) => a - b);
-        for (const id of skinlineIds) {
-          const option = document.createElement("option");
-          option.value = String(id);
-          option.textContent = options.locale === "zh_cn" ? `系列 #${id}` : `Skinline #${id}`;
-          skinlineSelect.appendChild(option);
-        }
-        if (!skinlineIds.length) skinlineLabel.hidden = true;
-        updateChampionSkinlines = (items) => {
-          const names = new Map(items.filter((entry) => entry.kind === "skinline").map((entry) => [entry.id, entry.name] as const));
-          for (const option of [...skinlineSelect.options].slice(1))
-            option.textContent = names.get(Number(option.value)) ?? option.textContent;
-          const selected = skinlineSelect.value;
-          skinlineSelect.append(...[...skinlineSelect.options].slice(1).sort((a, b) => a.text.localeCompare(b.text, options.locale === "zh_cn" ? "zh-CN" : "en")));
-          skinlineSelect.value = selected;
-        };
-        if (entitySkinCount) setUniverseCount(entitySkinCount, options.locale === "zh_cn" ? `${skinItems.length} 款皮肤` : `${skinItems.length} skins`);
+        const skinCount = skinItems.filter((skin) => !skin.isBase).length;
+        if (entitySkinCount) setUniverseCount(entitySkinCount, options.locale === "zh_cn" ? `${skinCount} 款皮肤` : `${skinCount} skins`);
         if (!skinItems.length) controls.remove();
         const renderSkinItems = () => {
           grid.replaceChildren();
           const sortedItems = sortSkinReferenceItems(
-            skinItems.filter((skin) => !skinlineSelect.value || skin.skinlineIds.includes(Number(skinlineSelect.value))),
+            skinItems,
             sortSelect.value === "rarity" ? "rarity" : "release",
           );
           if (!sortedItems.length) {
@@ -569,7 +542,6 @@ export function createRuntimeDetailRenderer(
           }
         };
         sortSelect.addEventListener("change", renderSkinItems);
-        skinlineSelect.addEventListener("change", renderSkinItems);
         renderSkinItems();
         section.appendChild(grid);
         article.appendChild(section);
@@ -587,19 +559,6 @@ export function createRuntimeDetailRenderer(
         );
         championLink.setAttribute("aria-label", `${options.locale === "zh_cn" ? "英雄" : "Champion"}：${championLink.textContent}`);
         skinChampionSlot?.replaceChildren(championLink);
-
-        const summary = document.createElement("dl");
-        summary.className = "runtime-skin-summary";
-        if (hasRenderableRarity(item.rarity)) {
-          const rarityTerm = textNode(
-            "dt",
-            options.locale === "zh_cn" ? "稀有度" : "Rarity",
-          );
-          const rarityValue = document.createElement("dd");
-          appendRarity(rarityValue, item.rarity);
-          summary.append(rarityTerm, rarityValue);
-        }
-        if (summary.childElementCount) article.appendChild(summary);
 
         const mediaSection = document.createElement("section");
         mediaSection.className = "runtime-skin-media";
@@ -872,31 +831,10 @@ export function createRuntimeDetailRenderer(
       updateReferenceBackdrop(items);
       if (entitySkinCount) setUniverseCount(entitySkinCount, options.locale === "zh_cn" ? `${items.length} 款皮肤` : `${items.length} skins`);
       if (!skinlineSkinsSlot) return;
-      const previousChampion = skinlineSkinsSlot.querySelector<HTMLSelectElement>("#runtime-skinline-champion-filter")?.value;
       const previousSort = skinlineSkinsSlot.querySelector<HTMLSelectElement>("#runtime-skinline-skins-sort")?.value;
       const controls = document.createElement("div");
       controls.className = "runtime-toolbar runtime-skin-reference-controls";
-      const championSelect = document.createElement("select");
-      championSelect.className = "cn-select";
-      championSelect.id = "runtime-skinline-champion-filter";
-      championSelect.setAttribute("aria-label", options.locale === "zh_cn" ? "英雄筛选" : "Filter by champion");
-      const allChampions = document.createElement("option");
-      allChampions.value = "";
-      allChampions.textContent = options.locale === "zh_cn" ? "全部英雄" : "All champions";
-      championSelect.appendChild(allChampions);
-      const champions = new Map(items.map((skin) => [skin.championId, skin.championName ?? (options.locale === "zh_cn" ? `英雄 #${skin.championId}` : `Champion #${skin.championId}`)]));
-      [...champions].sort((a, b) => a[1].localeCompare(b[1], options.locale === "zh_cn" ? "zh-CN" : "en")).forEach(([id, name]) => {
-        const option = document.createElement("option");
-        option.value = String(id);
-        option.textContent = name;
-        championSelect.appendChild(option);
-      });
-      if (previousChampion && champions.has(Number(previousChampion))) championSelect.value = previousChampion;
       let championNames = new Map<number, string>();
-      const championLabel = document.createElement("label");
-      championLabel.className = "runtime-toolbar-field";
-      championLabel.htmlFor = championSelect.id;
-      championLabel.append(textNode("span", options.locale === "zh_cn" ? "英雄" : "Champion"), championSelect);
       const sortSelect = document.createElement("select");
       sortSelect.className = "cn-select";
       sortSelect.id = "runtime-skinline-skins-sort";
@@ -915,14 +853,13 @@ export function createRuntimeDetailRenderer(
       sortLabel.className = "runtime-toolbar-field";
       sortLabel.htmlFor = sortSelect.id;
       sortLabel.append(textNode("span", options.locale === "zh_cn" ? "排序" : "Sort by"), sortSelect);
-      controls.append(championLabel, sortLabel);
+      controls.append(sortLabel);
       const results = document.createElement("div");
       const renderSkins = () => {
         results.replaceChildren();
-        const filtered = items.filter((skin) => !championSelect.value || skin.championId === Number(championSelect.value));
         const sorted = sortSelect.value === "rarity"
-          ? sortSkinReferenceItems(filtered, "rarity")
-          : [...filtered].sort((a, b) =>
+          ? sortSkinReferenceItems(items, "rarity")
+          : [...items].sort((a, b) =>
               (championNames.get(a.championId) ?? a.championName ?? "").localeCompare(championNames.get(b.championId) ?? b.championName ?? "", options.locale === "zh_cn" ? "zh-CN" : "en") ||
               (a.name ?? "").localeCompare(b.name ?? "", options.locale === "zh_cn" ? "zh-CN" : "en"),
             );
@@ -930,14 +867,8 @@ export function createRuntimeDetailRenderer(
       };
       updateSkinlineChampionNames = (references) => {
         championNames = new Map(references.filter((entry) => entry.kind === "champion").map((entry) => [entry.id, entry.name] as const));
-        for (const option of [...championSelect.options].slice(1))
-          option.textContent = championNames.get(Number(option.value)) ?? option.textContent;
-        const selected = championSelect.value;
-        championSelect.append(...[...championSelect.options].slice(1).sort((a, b) => a.text.localeCompare(b.text, options.locale === "zh_cn" ? "zh-CN" : "en")));
-        championSelect.value = selected;
         renderSkins();
       };
-      championSelect.addEventListener("change", renderSkins);
       sortSelect.addEventListener("change", renderSkins);
       skinlineSkinsSlot.replaceChildren(...(items.length ? [controls] : []), results);
       renderSkins();

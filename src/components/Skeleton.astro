@@ -19,10 +19,6 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
     <span class="runtime-skeleton-line runtime-skeleton-line--lede-short"></span>
   </div>}
   {layout === "skin-detail" && <div class="runtime-skin-detail-skeleton">
-    <div class="runtime-skin-summary-skeleton">
-      <span class="runtime-skeleton-line"></span>
-      <span class="runtime-skeleton-line"></span>
-    </div>
     <section class="runtime-skin-media-skeleton">
       <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
       <div class="runtime-media-grid">
@@ -36,7 +32,7 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
   {layout === "skinline-detail" && <div class="runtime-skinline-detail-skeleton">
     <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
     <div class="runtime-skeleton-toolbar">
-      {Array.from({ length: 2 }, () => <div class="runtime-skeleton-field"><span class="runtime-skeleton-label"></span><div class="runtime-skeleton-control"></div></div>)}
+      <div class="runtime-skeleton-field"><span class="runtime-skeleton-label"></span><div class="runtime-skeleton-control"></div></div>
     </div>
     <div class="runtime-skeleton-grid runtime-skeleton-grid--skins">
       {Array.from({ length: itemCount }, () => <div class="runtime-skeleton-card runtime-skeleton-card--skin">
@@ -88,15 +84,22 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
     </section>)}
   </div> : layout === "skin-detail" || layout === "skinline-detail" || layout === "pbe" ? null : <div class:list={["ant-skeleton-grid", "ant-masonry", "runtime-skeleton-grid", { "runtime-skeleton-grid--champions": layout === "champions", "runtime-skeleton-grid--skins": layout === "skin-grid" || layout === "detail" }]}>
     {Array.from({ length: itemCount }, (_, index) => <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--champion": layout === "champions", "runtime-skeleton-card--skinline": layout === "skinlines", "runtime-skeleton-card--universe": layout === "universes", "runtime-skeleton-card--skin": layout === "skin-grid" || layout === "detail" }]}>
-      {(layout === "champions" || layout === "skin-grid" || layout === "detail") && <div class="runtime-skeleton-media"></div>}
-      <div class="runtime-skeleton-meta">
-        <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
-        {(layout === "skin-grid" || layout === "detail")
-          ? <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>
-          : layout === "universes"
-            ? Array.from({ length: (index % 3) + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--tree"></span>)
-            : layout !== "skinlines" && <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>}
-      </div>
+      {layout === "skinlines" ? <>
+        <div class="runtime-skeleton-skinline-title"><span class="runtime-skeleton-line runtime-skeleton-line--title"></span></div>
+        <div class="runtime-skeleton-skinline-universes">
+          {Array.from({ length: index % 2 + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--chip"></span>)}
+        </div>
+      </> : <>
+        {(layout === "champions" || layout === "skin-grid" || layout === "detail") && <div class="runtime-skeleton-media"></div>}
+        <div class="runtime-skeleton-meta">
+          <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
+          {(layout === "skin-grid" || layout === "detail")
+            ? <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>
+            : layout === "universes"
+              ? Array.from({ length: (index % 3) + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--tree"></span>)
+              : <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>}
+        </div>
+      </>}
     </div>)}
   </div>}
 </div>

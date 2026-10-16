@@ -95,6 +95,7 @@ export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly championId: number;
   readonly championAlias?: string;
   readonly championName?: string;
+  readonly championShortBio?: string;
   readonly name?: string;
   /** The source-provided image used by the skin's default chroma item. */
   readonly chromaImageUrl?: string;
@@ -1343,12 +1344,20 @@ export function parseRuntimeEntity(
       `Skin ${id} was not found for champion ${championId}`,
     );
   if (options.stageId === undefined)
-    return { ...skin, championName: labels.name };
+    return {
+      ...skin,
+      championName: labels.name,
+      championShortBio: text(raw.shortBio),
+    };
   const stage = projectRuntimeSkinTarget(skin, options.stageId);
   if (!stage)
     throw new CommunityDragonRuntimeError(
       "not-found",
       `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
     );
-  return { ...stage, championName: labels.name };
+  return {
+    ...stage,
+    championName: labels.name,
+    championShortBio: text(raw.shortBio),
+  };
 }

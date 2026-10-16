@@ -188,6 +188,7 @@ describe("CommunityDragon runtime reference", () => {
       championId: 103,
       championAlias: "Ahri",
       name: "Dynasty Ahri",
+      championShortBio: "A vastayan fox.",
     });
     expect(result).toMatchObject({
       stages: [
@@ -783,7 +784,7 @@ describe("CommunityDragon runtime reference", () => {
     ]);
   });
 
-  it("expands champion skin cards with stages and gives tier IDs priority", () => {
+  it("includes base skins, expands skin cards with stages, and gives tier IDs priority", () => {
     const result = parseRuntimeEntity(
       "champion",
       103,
@@ -803,6 +804,7 @@ describe("CommunityDragon runtime reference", () => {
         result.skins[1],
       ]),
     ).toMatchObject([
+      { stableKey: "103:103000", kind: "skin", isBase: true },
       { stableKey: "103:103001", kind: "skin" },
       {
         stableKey: "103:103001:stage:103002",
@@ -816,6 +818,7 @@ describe("CommunityDragon runtime reference", () => {
         result.skins[1],
       ]),
     ).toMatchObject([
+      { stableKey: "103:103000", kind: "skin", isBase: true },
       { stableKey: "103:103001", kind: "skin" },
       { stableKey: "103:103001:stage:103002", kind: "stage" },
     ]);
