@@ -1,5 +1,6 @@
 import type { CommunityDragonLocale } from "../../domain/communitydragon-runtime";
 import "./chroma-card.css";
+import { createBorderBeams, type BorderBeamOptions } from "../border-beam/BorderBeam";
 import {
   appendChromaColorCircle,
   appendMissingField,
@@ -27,6 +28,8 @@ export interface ChromaCardOptions {
   readonly colors?: readonly string[];
   /** true = 原皮（非炫彩态），false = 炫彩态（默认） */
   readonly isBase?: boolean;
+  /** Highlight a catalog-matched prestige chroma with a decorative border beam. */
+  readonly borderBeam?: boolean | BorderBeamOptions;
   readonly locale: CommunityDragonLocale;
   /** 图片缺失时的标签类型，默认 thumbnail */
   readonly missingKind?: "thumbnail" | "artwork";
@@ -164,6 +167,11 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
     owner.className = "runtime-chroma-owner";
     owner.appendChild(options.ownerLink);
     card.appendChild(owner);
+  }
+
+  if (options.borderBeam) {
+    const beamOptions = typeof options.borderBeam === "object" ? options.borderBeam : undefined;
+    createBorderBeams(beamOptions).forEach((beam) => card.appendChild(beam));
   }
 
   return card;

@@ -1,0 +1,16 @@
+---
+import './border-beam.css';
+
+interface Props {
+  gradients?: readonly string[];
+}
+
+const { gradients = [undefined] } = Astro.props;
+---
+
+{gradients.map((gradient, index) => (
+  <div class="border-beam" aria-hidden="true" style={{
+    '--border-beam-gradient': gradient,
+    '--border-beam-phase': index / gradients.length,
+  }}></div>
+))}

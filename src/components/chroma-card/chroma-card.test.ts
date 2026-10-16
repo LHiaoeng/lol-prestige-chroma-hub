@@ -12,6 +12,9 @@ class MockElement {
   alt = "";
   loading = "";
   decoding = "";
+  readonly style = {
+    setProperty(): void {},
+  };
 
   constructor(tagName: string) {
     this.tagName = tagName;
@@ -30,6 +33,10 @@ class MockElement {
     child.parentElement = this;
     this.children.push(child);
     return child;
+  }
+
+  append(...children: MockElement[]): void {
+    children.forEach((child) => this.appendChild(child));
   }
 
   remove(): void {}
@@ -91,6 +98,7 @@ describe("createChromaCard", () => {
     expect(card.className).toContain("runtime-chroma-card");
     expect(card.className).not.toContain("runtime-chroma-card--linked");
     expect(card.className).not.toContain("runtime-chroma-card--with-owner");
+    expect(card.querySelector(".border-beam")).toBeNull();
 
     const media = card.querySelector(".runtime-chroma-media");
     expect(media).not.toBeNull();
@@ -231,6 +239,22 @@ describe("createChromaCard", () => {
     expect(media?.querySelector(".runtime-missing")?.textContent).toBe(
       "Artwork unavailable",
     );
+  });
+
+  it("adds an accessibility-hidden border beam without replacing card content", () => {
+    const card = createChromaCard({
+      name: "Prestige Chroma",
+      imageUrl: "https://img.test/prestige.png",
+      borderBeam: { colors: ["gold", "purple", "blue"] },
+      locale: "default",
+    });
+
+    const beam = card.querySelector(".border-beam");
+    expect(card.querySelectorAll(".border-beam")).toHaveLength(3);
+    expect(beam?.getAttribute("aria-hidden")).toBe("true");
+    expect(beam?.parentElement).toBe(card);
+    expect(card.querySelector("img")?.src).toBe("https://img.test/prestige.png");
+    expect(card.querySelector(".runtime-chroma-name")?.textContent).toBe("Prestige Chroma");
   });
 
   it("does not render owner when ownerLink is absent", () => {

@@ -46,7 +46,10 @@ const breadcrumbItems = [
 const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   ? JSON.stringify(Object.fromEntries(catalog.map((chroma) => [
       chroma.skinId,
-      localizedPath(locale, `/chromas/${chroma.slug}/`),
+      {
+        href: localizedPath(locale, `/chromas/${chroma.slug}/`),
+        colors: chroma.colors,
+      },
     ])))
   : undefined;
 ---

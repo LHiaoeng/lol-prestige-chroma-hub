@@ -1,0 +1,50 @@
+/* Adapted from Antdv Next 839bec6 border-beam/style/index.ts. See UPSTREAM-LICENSE. */
+.border-beam {
+  display: none;
+  position: absolute;
+  inset: var(--border-beam-inset, 0);
+  border-radius: inherit;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  padding: var(--border-beam-line-width, 1px);
+}
+
+@supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+  .border-beam {
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
+  @supports (offset-path: rect(0 auto auto 0 round 1px)) {
+    .border-beam { display: block; }
+    .border-beam::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--border-beam-size, 100px);
+      aspect-ratio: 1 / 1;
+      opacity: .95;
+      background-image: var(--border-beam-gradient, linear-gradient(to left, var(--gold) 0%, var(--gold-hover) 70%, transparent));
+      offset-anchor: 90% 50%;
+      offset-distance: 0%;
+      offset-path: rect(0 auto auto 0 round var(--border-beam-size, 100px));
+      offset-rotate: auto;
+      animation: border-beam-move var(--border-beam-duration, 6s) linear infinite;
+      animation-delay: calc(var(--border-beam-delay, 0s) - var(--border-beam-duration, 6s) * var(--border-beam-phase, 0));
+      will-change: offset-distance;
+    }
+  }
+}
+
+@keyframes border-beam-move {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .border-beam::before { display: none; animation: none; }
+}

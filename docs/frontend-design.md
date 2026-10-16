@@ -35,6 +35,10 @@
 
 媒体下载支持 `downloadMediaFile(url, filename?)`；静态 `ImageViewer` 通过 `downloadFilename` 属性、动态触发器通过 `data-preview-filename` 传入文件名。未传时使用当前媒体名称，无名称时沿用资源文件名；皮肤轮播与预览使用相同的实体名称和媒体类别。可传基础文件名或含媒体扩展名的完整文件名，优先保留源地址中的扩展名，缺失时保留传入文件名的扩展名。共享下载方法按 [Windows 文件命名规则](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file) 处理非法字符、控制字符、保留设备名及首尾点和空白；保留中文并进行 Unicode 规范化，名称按 Unicode 码点截到最多 240 个 UTF-8 字节且保留扩展名。保存目录、完整路径限制及重名处理由浏览器和操作系统负责。
 
+BorderBeam 使用本地 [border-beam](../src/components/border-beam/) 组件，按 [Antdv Next 839bec6 的样式源码](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/border-beam/style/index.ts) 复刻遮罩和圆角运动路径。皮肤详情炫彩板块中，只有目录匹配到的臻彩卡片启用“系统主题金色 + 该目录记录的全部 `colors`”独立流光；流光数量随臻彩颜色数量变化，没有臻彩颜色时只显示系统主题流光。颜色来自本地臻彩目录，不从图片取色，也不使用固定紫、蓝配色。基础皮肤与普通炫彩不启用。组件 `createBorderBeams({ colors, duration })` 以颜色数组长度决定流光数量，将各条相位均匀分布在一圈内；`duration` 为正数秒，未配置时仍默认单条流光、6 秒一圈、1px 线宽、100px 光束；可通过 `--border-beam-duration`、`--border-beam-line-width`、`--border-beam-size`、`--border-beam-gradient`、`--border-beam-delay` 和 `--border-beam-inset` 调整。宿主提供定位上下文与圆角；流光宿主保留 `overflow: visible`，1px 边框使用 `inset: -1px` 将装饰层对齐外沿；装饰层不捕获指针，不替代卡片焦点与状态边框。减少动态效果或浏览器不支持遮罩/运动路径时隐藏流光，保留原有边框。上游 MIT 许可保存在组件目录。
+
+首页 Card Tabs 通过 `tabBorderBeam` 渐变数组启用三条独立流光（金→品红、紫→青、青→主题金）；静态 `BorderBeam.astro` 为每条渐变渲染装饰层并均匀错开相位，复用上述动画与无障碍降级规则。配色来自主题金色和上游 purple/cyan/magenta Token；臻彩卡片仍使用目录自身颜色。
+
 ## 3. 代码层强制约束
 
 现有自动门禁是相关 Vitest 测试、`pnpm typecheck`、`pnpm data:validate` 和 `pnpm release:build`。它们验证行为、类型、数据和产物，**目前没有独立的 Stylelint、Token 一致性检查或自动视觉回归**，不能把人工约定说成已由工具强制。

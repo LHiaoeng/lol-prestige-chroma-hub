@@ -23,6 +23,11 @@ const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.h
   <div class="section-heading"><h2 id="home-tools-title">{isZh ? '英雄联盟' : 'League of Legends'}</h2></div>
   <Card
     tabList={items}
+    tabBorderBeam={[
+      'linear-gradient(to left, var(--gold) 0%, var(--magenta) 70%, transparent)',
+      'linear-gradient(to left, var(--purple) 0%, var(--cyan) 70%, transparent)',
+      'linear-gradient(to left, var(--cyan) 0%, var(--gold) 70%, transparent)',
+    ]}
     activeTabKey="prestige-chromas"
     tabsLabel={isZh ? '游戏资料导航' : 'Game reference navigation'}
     size="medium"
@@ -38,7 +43,6 @@ const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.h
 
 <style>
   .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding-bottom: 40px; }
-  .home-tool-navigation :global(.card) { overflow: clip; }
   .home-tool-navigation :global(.card__header) { position: sticky; top: var(--site-header-height); z-index: 9; background: var(--panel); }
   .home-tool-navigation h2 { scroll-margin-top: calc(var(--site-header-height) + var(--space-4)); }
   .home-tool-navigation :global(.card__tabs) { flex-wrap: wrap; overflow: visible; }

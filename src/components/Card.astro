@@ -1,4 +1,6 @@
 ---
+import BorderBeam from './border-beam/BorderBeam.astro';
+
 export interface CardTab {
   key: string;
   label?: string;
@@ -19,6 +21,7 @@ interface Props {
   loading?: boolean;
   hoverable?: boolean;
   tabList?: CardTab[];
+  tabBorderBeam?: readonly string[];
   activeTabKey?: string;
   defaultActiveTabKey?: string;
   tabsLabel?: string;
@@ -40,6 +43,7 @@ const {
   loading = false,
   hoverable = false,
   tabList = [],
+  tabBorderBeam,
   activeTabKey,
   defaultActiveTabKey,
   tabsLabel = 'Card tabs',
@@ -51,6 +55,7 @@ const cardVariant = variant ?? (bordered === false ? 'borderless' : 'outlined');
 const cardSize = size === 'small' ? 'small' : 'medium';
 const cardId = `card-${cardSequence++}${id ? `-${encodeURIComponent(id)}` : ''}`;
 const navigationTabs = tabList.length > 0 && tabList.every((tab) => Boolean(tab.href));
+const hasTabBorderBeam = Boolean(tabBorderBeam?.length && tabList.length > 0 && (navigationTabs || !loading));
 const requestedTabKey = activeTabKey ?? defaultActiveTabKey;
 const initialTabKey = tabList.some((tab) => tab.key === requestedTabKey)
   ? requestedTabKey
@@ -66,14 +71,14 @@ const tabId = (key: string) => encodeURIComponent(key);
     'card',
     `card--${cardSize}`,
     `card--${cardVariant}`,
-    { 'card--hoverable': hoverable, 'card--inner': type === 'inner', 'card--loading': loading },
+    { 'card--hoverable': hoverable, 'card--inner': type === 'inner', 'card--loading': loading, 'card--tab-beam': hasTabBorderBeam },
     className,
   ]}
   aria-busy={loading ? 'true' : undefined}
   data-card-tabs={!navigationTabs && tabList.length ? cardId : undefined}
 >
   {hasHeader && (
-    <header class="card__header">
+    <header class:list={['card__header', { 'card__header--beam': hasTabBorderBeam }]}>
       {(title || extra || Astro.slots.has('title') || Astro.slots.has('extra')) && (
         <div class="card__heading">
           <div class="card__title">
@@ -134,6 +139,7 @@ const tabId = (key: string) => encodeURIComponent(key);
           </div>
         )
       )}
+      {hasTabBorderBeam && <BorderBeam gradients={tabBorderBeam} />}
     </header>
   )}
   {Astro.slots.has('cover') && <div class="card__cover"><slot name="cover" /></div>}
@@ -208,10 +214,12 @@ const tabId = (key: string) => encodeURIComponent(key);
 <style>
   .card { overflow: hidden; border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); color: var(--text); }
   .card--borderless { border-color: transparent; }
+  .card--tab-beam { overflow: visible; }
   .card--inner { background: var(--fill); }
   .card--hoverable { transition: transform var(--motion-mid) ease, box-shadow var(--motion-mid) ease; }
   .card--hoverable:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
   .card__header { border-bottom: 1px solid var(--line-subtle); }
+  .card__header--beam { --border-beam-inset: -1px; --border-beam-size: 64px; position: relative; border-radius: var(--radius-card) var(--radius-card) 0 0; }
   .card__heading { display: flex; min-height: 56px; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-4); }
   .card__title { min-width: 0; color: var(--text); font-size: var(--font-size-title); font-weight: 600; line-height: var(--line-height-title); }
   .card__extra { flex: none; color: var(--muted); }

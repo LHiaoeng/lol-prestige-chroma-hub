@@ -138,8 +138,8 @@ export function createRuntimeDetailRenderer(
   const chromaLinksData = document.querySelector<HTMLElement>(
     "[data-runtime-prestige-chroma-links]",
   )?.dataset.runtimePrestigeChromaLinks;
-  const chromaLinks: Record<string, string> = chromaLinksData
-    ? JSON.parse(chromaLinksData) as Record<string, string>
+  const chromaLinks: Record<string, { href: string; colors: string[] }> = chromaLinksData
+    ? JSON.parse(chromaLinksData) as Record<string, { href: string; colors: string[] }>
     : {};
   let relationSlot: HTMLElement | undefined;
   let skinlineSkinsSlot: HTMLElement | undefined;
@@ -713,6 +713,7 @@ export function createRuntimeDetailRenderer(
           }),
         );
         item.chromas.forEach((chroma) => {
+          const prestigeChroma = chromaLinks[String(chroma.id)];
           const link = document.createElement("a");
           const detailUrl = hrefFor(options.locale, "skins", {
             id: chroma.id,
@@ -720,7 +721,7 @@ export function createRuntimeDetailRenderer(
             channel: state.channel,
           }, "detail", options.preservesExplicitPbe());
           link.href =
-            chromaLinks[String(chroma.id)] ?? `${detailUrl.pathname}${detailUrl.search}`;
+            prestigeChroma?.href ?? `${detailUrl.pathname}${detailUrl.search}`;
           chromaGrid.appendChild(
             createChromaCard({
               name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
@@ -730,6 +731,9 @@ export function createRuntimeDetailRenderer(
               preview: true,
               colors: chroma.colors,
               isBase: false,
+              borderBeam: prestigeChroma
+                ? { colors: ["var(--gold)", ...prestigeChroma.colors] }
+                : false,
               locale: options.locale,
               link,
             }),
