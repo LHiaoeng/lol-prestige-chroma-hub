@@ -221,8 +221,8 @@ export class RuntimeController {
             channel: state.channel,
             message:
               this.options.locale === "zh_cn"
-                ? "链接无效，请检查实体 ID 与版本数据源。"
-                : "This link is invalid. Check the entity ID and data channel.",
+                ? "链接参数无效，请检查实体 ID、英雄 ID、阶段 ID 或版本参数。"
+                : "Invalid link parameters. Check the entity ID, champion ID, stage ID, or data channel.",
           };
         return {
           status: "valid",

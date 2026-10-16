@@ -294,6 +294,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         context.target.mode === "detail" &&
         ["champion", "skin", "skinline", "universe"].includes(context.target.kind);
       if (isEntityDetail) {
+        entityDetailSummary?.removeAttribute("hidden");
         entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
         entityHeaderSkeleton?.removeAttribute("hidden");
         if (entityDetailSummary && entityChannelSource && entityDivider)
@@ -329,9 +330,25 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       if (channel) updateChannel(channel);
       options.root.removeAttribute("aria-busy");
       pageShell?.removeAttribute("data-runtime-loading");
+      entityDetailSummary?.setAttribute("hidden", "");
       clearRuntimeAlert();
-      status.textContent = message;
-      content.replaceChildren();
+      const template = options.root.querySelector<HTMLTemplateElement>(
+        "[data-runtime-invalid-template]",
+      );
+      const fragment = template?.content.cloneNode(true) as DocumentFragment | undefined;
+      const header = fragment?.querySelector<HTMLElement>("[data-runtime-invalid-header]");
+      const alert = fragment?.querySelector<HTMLElement>("[data-alert]");
+      const alertMessage = fragment?.querySelector<HTMLElement>("[data-runtime-invalid-message]");
+      if (!fragment || !alert || !alertMessage) {
+        status.textContent = message;
+        content.replaceChildren();
+        return;
+      }
+      if (options.root.dataset.runtimeMode !== "detail") header?.remove();
+      alertMessage.textContent = message;
+      alert.dataset.runtimeErrorAlert = "";
+      status.textContent = "";
+      content.replaceChildren(fragment);
     },
     failure(error, retry) {
       detailRenderer.showDetailSummaryFailure();

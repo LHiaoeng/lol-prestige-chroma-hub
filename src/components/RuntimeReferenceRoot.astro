@@ -22,6 +22,9 @@ const { page, locale, label, heading, lede, mode } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const listPath = page === 'skins' || page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
+const invalidReturnPage = page === 'skins' ? 'champions' : page;
+const invalidReturnPath = localizedPath(locale, `/${invalidReturnPage}/`);
+const invalidReturnLabel = invalidReturnPage === 'champions' ? (isZh ? '英雄目录' : 'champion list') : label;
 const showCompactListHeader = mode === 'list';
 const showUniverseDetailSummary = page === 'universes' && mode === 'detail';
 const showEntityDetailSummary = mode === 'detail' && ['champions', 'skins', 'skinlines', 'universes'].includes(page);
@@ -100,6 +103,16 @@ const breadcrumbItems = [
         <Alert type="error" showIcon>
           <span slot="description" data-runtime-alert-message></span>
           <button slot="action" class="runtime-retry" type="button" data-runtime-alert-retry>{isZh ? '重试' : 'Retry'}</button>
+        </Alert>
+      </template>
+      <template data-runtime-invalid-template>
+        <header class="runtime-detail runtime-detail--entity" data-runtime-invalid-header>
+          <h1>{heading}</h1>
+          <p class="runtime-lede">{isZh ? '链接参数无效，请检查链接后返回目录重新选择资料。' : 'The link parameters are invalid. Check the link or return to the directory and choose an entry again.'}</p>
+        </header>
+        <Alert type="error" title={isZh ? '资料链接无效' : 'Invalid reference link'} showIcon>
+          <span slot="description" data-runtime-invalid-message></span>
+          <a slot="action" href={invalidReturnPath}>{isZh ? `返回${invalidReturnLabel}` : `Back to ${invalidReturnLabel}`}</a>
         </Alert>
       </template>
     </div>

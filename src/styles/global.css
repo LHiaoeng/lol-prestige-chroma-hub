@@ -177,6 +177,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-page-header-skeleton > .runtime-skeleton-line--heading { height: var(--line-height-display); }
 .runtime-page-header-skeleton-meta { display: flex; min-height: var(--control-height); align-items: center; gap: 8px; }
 .runtime-entity-detail-summary { display: grid; width: min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); gap: var(--space-3); margin: 0 auto; }
+.runtime-entity-detail-summary[hidden] { display: none; }
 .runtime-entity-detail-header-skeleton:not([hidden]) { display: grid; gap: var(--space-3); }
 .runtime-page--entity-detail[data-runtime-loading] > .runtime-section,.runtime-page--universe-detail[data-runtime-loading] > .runtime-section { padding-top: var(--space-3); }
 .runtime-entity-title-skeleton { display: flex; height: var(--line-height-display); align-items: center; gap: 8px; }
