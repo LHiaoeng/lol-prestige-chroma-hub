@@ -7,7 +7,6 @@ import {
 const allRuntimeParameters: readonly RuntimeUrlParameter[] = [
   "id",
   "champion",
-  "stage",
   "channel",
 ];
 const channelOnly: readonly RuntimeUrlParameter[] = ["channel"];

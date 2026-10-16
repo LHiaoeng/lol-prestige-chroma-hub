@@ -274,31 +274,23 @@ describe("runtime URL state", () => {
     ).toMatchObject({ mode: "invalid" });
     expect(
       parseRuntimeLocation(
+        new URL("https://chromaart.lol/skins/detail/?id=103002&champion=103"),
+        "skins",
+        "detail",
+      ),
+    ).toMatchObject({ mode: "detail", id: 103002, championId: 103 });
+    expect(
+      parseRuntimeLocation(
         new URL(
           "https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002",
         ),
         "skins",
         "detail",
       ),
-    ).toMatchObject({
-      mode: "detail",
-      id: 103001,
-      championId: 103,
-      stageId: 103002,
-    });
-  });
-
-  it("rejects an invalid stage query without requesting a guessed skin target", () => {
-    expect(
-      parseRuntimeLocation(
-        new URL("https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=0"),
-        "skins",
-        "detail",
-      ),
     ).toMatchObject({ mode: "invalid" });
   });
 
-  it("formats a stage target with its parent skin identity and channel", () => {
+  it("formats a stage target using its own ID and channel", () => {
     expect(
       formatRuntimeState(
         new URL("https://chromaart.lol/skins/detail/"),
@@ -306,13 +298,12 @@ describe("runtime URL state", () => {
           mode: "detail",
           page: "skins",
           kind: "skin",
-          id: 103001,
+          id: 103002,
           championId: 103,
-          stageId: 103002,
           channel: "latest",
         },
       ).search,
-    ).toBe("?id=103001&champion=103&stage=103002&channel=latest");
+    ).toBe("?id=103002&champion=103&channel=latest");
   });
 
   it("keeps explicit pbe when formatting a state from an explicit pbe URL", () => {
@@ -333,6 +324,16 @@ describe("runtime URL state", () => {
 });
 
 describe("RuntimeController", () => {
+  it("loads a direct stage ID", async () => {
+    const service = runtime();
+    const direct = history("https://chromaart.lol/skins/detail/?id=103002&champion=103");
+    await new RuntimeController(service, view(), direct, {
+      page: "skins", pageMode: "detail", locale: "default",
+    }).start();
+    expect(service.get).toHaveBeenCalledWith("skin", 103002, expect.objectContaining({ championId: 103 }));
+    expect(direct.replaces).toHaveLength(0);
+  });
+
   it("loads a list and does not rewrite the initial URL", async () => {
     const viewState = view();
     const navigation = history("https://chromaart.lol/champions/");
@@ -694,6 +695,7 @@ describe("RuntimeController", () => {
       "detail",
       "skinline-skins:0",
       "relations:1",
+      "relations:0",
     ]);
     expect(viewState.rendered).toMatchObject({ name: "Star Guardian" });
     expect(service.list).toHaveBeenCalledWith(

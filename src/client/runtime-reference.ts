@@ -63,7 +63,6 @@ export type RuntimeLocationState =
       readonly kind: "champion" | "skin" | "skinline" | "universe";
       readonly id: number;
       readonly championId?: number;
-      readonly stageId?: number;
       readonly channel: "pbe" | "latest";
     }
   | {
@@ -112,9 +111,7 @@ export function parseRuntimeLocation(
       urlState.invalid.includes("champion")
     )
       return { mode: "invalid", page, channel: selectedChannel };
-    const hasStage = url.searchParams.has("stage");
-    const stageId = urlState.stage;
-    if (hasStage && (urlState.invalid.includes("stage") || !stageId))
+    if (url.searchParams.has("stage"))
       return { mode: "invalid", page, channel: selectedChannel };
     return {
       mode: "detail",
@@ -122,7 +119,6 @@ export function parseRuntimeLocation(
       kind: "skin",
       id,
       championId,
-      stageId,
       channel: selectedChannel,
     };
   }
@@ -141,14 +137,13 @@ export function formatRuntimeState(url: URL, state: RuntimeLocationState): URL {
   const source = readRuntimeUrlState(url);
   const include =
     state.mode === "detail" && state.kind === "skin"
-      ? (["id", "champion", "stage", "channel"] as const)
+      ? (["id", "champion", "channel"] as const)
       : (["id", "channel"] as const);
   return formatRuntimeUrl(
     url,
     {
       id: state.mode === "detail" ? state.id : undefined,
       champion: state.mode === "detail" ? state.championId : undefined,
-      stage: state.mode === "detail" ? state.stageId : undefined,
       channel: state.mode === "detail" || state.mode === "list" ? state.channel : undefined,
       channelExplicit:
         state.channel === "pbe" &&
@@ -221,8 +216,8 @@ export class RuntimeController {
             channel: state.channel,
             message:
               this.options.locale === "zh_cn"
-                ? "链接参数无效，请检查实体 ID、英雄 ID、阶段 ID 或版本参数。"
-                : "Invalid link parameters. Check the entity ID, champion ID, stage ID, or data channel.",
+                ? "链接参数无效，请检查实体 ID、英雄 ID 或版本参数。"
+                : "Invalid link parameters. Check the entity ID, champion ID, or data channel.",
           };
         return {
           status: "valid",
@@ -303,7 +298,6 @@ export class RuntimeController {
         locale: this.options.locale,
         channel: state.channel,
         championId: state.championId,
-        stageId: state.stageId,
         signal,
       }),
     };

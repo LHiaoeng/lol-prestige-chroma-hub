@@ -13,9 +13,9 @@ import {
   projectSkinReferenceItems,
   selectRuntimeBackdropItem,
   sortSkinReferenceItems,
+  sortSkinlineReferenceItems,
 } from "../domain/skin-reference-projection";
 import { relatedRuntimeItems } from "../domain/runtime-relations";
-import { isRuntimeEntityId } from "../domain/runtime-url-state";
 import { runtimeSkinActions } from "../domain/detail-actions";
 import type {
   RuntimeLocationState,
@@ -27,7 +27,6 @@ import {
   appendHistoricalArtwork,
   appendMedia,
   appendMediaCarousel,
-  appendMediaCollection,
   appendMissingField,
   appendSkinReferenceTitle,
   appendSkinReferenceGrid,
@@ -526,9 +525,8 @@ export function createRuntimeDetailRenderer(
                 options.locale,
                 "skins",
                 {
-                  id: skin.skinId,
+                  id: skin.id,
                   championId: item.id,
-                  stageId: skin.stageId,
                   channel: state.channel,
                 },
                 "detail",
@@ -606,56 +604,9 @@ export function createRuntimeDetailRenderer(
           article.appendChild(historySection);
         }
 
-        if (item.stages.length) {
-          const stages = document.createElement("section");
-          stages.className = "runtime-skin-stages";
-          stages.appendChild(
-            textNode("h2", options.locale === "zh_cn" ? "阶段" : "Stages"),
-          );
-          for (const stage of item.stages) {
-            const stageName =
-              stage.name ?? runtimeMissingLabel(options.locale, "name");
-            const stageItem = document.createElement("article");
-            stageItem.className = "runtime-stage-item";
-            const stageHeading = document.createElement("h3");
-            if (isRuntimeEntityId(stage.id)) {
-              stageHeading.appendChild(
-                linkWithNavigation(
-                  stageName,
-                  hrefFor(
-                    options.locale,
-                    "skins",
-                    {
-                      id: item.id,
-                      championId: item.championId,
-                      stageId: stage.id,
-                      channel: state.channel,
-                    },
-                    "detail",
-                    options.preservesExplicitPbe(),
-                  ),
-                  controller,
-                ),
-              );
-            } else {
-              stageHeading.appendChild(textNode("span", stageName));
-            }
-            stageItem.appendChild(stageHeading);
-            const stageMedia = document.createElement("div");
-            stageMedia.className = "runtime-media-grid runtime-stage-media";
-            if (
-              appendMediaCollection(stageMedia, stage.media, options.locale, stageName) ===
-              0
-            )
-              appendMissingField(stageMedia, options.locale, "artwork");
-            stageItem.appendChild(stageMedia);
-            stages.appendChild(stageItem);
-          }
-          article.appendChild(stages);
-        }
-
         const chromas = document.createElement("section");
         chromas.className = "runtime-skin-chromas";
+        chromas.id = "runtime-skin-chromas";
         const chromaHeading = document.createElement("h2");
         chromaHeading.append(
           textNode("span", options.locale === "zh_cn" ? "炫彩" : "Chromas"),
@@ -858,12 +809,12 @@ export function createRuntimeDetailRenderer(
       const results = document.createElement("div");
       const renderSkins = () => {
         results.replaceChildren();
-        const sorted = sortSelect.value === "rarity"
-          ? sortSkinReferenceItems(items, "rarity")
-          : [...items].sort((a, b) =>
-              (championNames.get(a.championId) ?? a.championName ?? "").localeCompare(championNames.get(b.championId) ?? b.championName ?? "", options.locale === "zh_cn" ? "zh-CN" : "en") ||
-              (a.name ?? "").localeCompare(b.name ?? "", options.locale === "zh_cn" ? "zh-CN" : "en"),
-            );
+        const sorted = sortSkinlineReferenceItems(
+          items,
+          sortSelect.value === "rarity" ? "rarity" : "champion",
+          championNames,
+          options.locale,
+        );
         appendSkinReferenceGrid(results, sorted, options.locale, state.channel, options.getController(), options.preservesExplicitPbe(), undefined, true);
       };
       updateSkinlineChampionNames = (references) => {

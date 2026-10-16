@@ -14,7 +14,7 @@ import {
   type RuntimePbeModuleItems,
 } from "../domain/pbe-additions";
 import {
-  projectRuntimeSkinTarget,
+  resolveRuntimeSkinTarget,
   projectUniverseReferenceGroups,
   projectSkinlineReferenceItems,
   type RuntimeSkinReferenceGroup,
@@ -60,7 +60,6 @@ export interface RuntimeRequestOptions {
   readonly channel?: RuntimeChannel;
   readonly signal?: AbortSignal;
   readonly championId?: number;
-  readonly stageId?: number;
 }
 
 export interface CommunityDragonRuntime {
@@ -112,19 +111,17 @@ export function createCommunityDragonRuntime(
   function validateOptions(
     options: RuntimeRequestOptions,
   ): Required<Pick<RuntimeRequestOptions, "locale" | "channel">> &
-    Pick<RuntimeRequestOptions, "signal" | "championId" | "stageId"> {
+    Pick<RuntimeRequestOptions, "signal" | "championId"> {
     const normalized = normalizeRuntimeOptions({
       locale: options.locale,
       channel: options.channel ?? DEFAULT_CHANNEL,
       championId: options.championId,
-      stageId: options.stageId,
     });
     return {
       locale: normalized.locale,
       channel: normalized.channel,
       signal: options.signal,
       championId: normalized.championId,
-      stageId: normalized.stageId,
     };
   }
 
@@ -277,17 +274,6 @@ export function createCommunityDragonRuntime(
           "Skin details require a positive champion hint",
         ),
       );
-    if (
-      kind === "skin" &&
-      options.stageId !== undefined &&
-      (!Number.isSafeInteger(options.stageId) || options.stageId <= 0)
-    )
-      return Promise.reject(
-        new CommunityDragonRuntimeError(
-          "invalid-request",
-          "Stage ID must be a positive safe integer",
-        ),
-      );
     if (kind === "skinline" || kind === "universe") {
       const listKind = kind === "skinline" ? "skinlines" : "universes";
       const url = communityDragonDataUrl(
@@ -312,25 +298,18 @@ export function createCommunityDragonRuntime(
       return request<RuntimeChampion>(key, url, options, (value) =>
         parseRuntimeEntity("champion", championId, value, {
           ...options,
-          stageId: undefined,
         }) as RuntimeChampion,
       ).then((champion) => {
-        const skin = champion.skins.find(
-          (candidate) => candidate.id === id,
-        ) as RuntimeSkin | undefined;
+        const skin = resolveRuntimeSkinTarget(
+          champion.skins as readonly RuntimeSkin[], id,
+        );
         if (!skin)
           throw new CommunityDragonRuntimeError(
             "not-found",
             `Skin ${id} was not found for champion ${championId}`,
           );
-        const stage = projectRuntimeSkinTarget(skin, options.stageId);
-        if (!stage)
-          throw new CommunityDragonRuntimeError(
-            "not-found",
-            `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
-          );
         return {
-          ...stage,
+          ...skin,
           championName: champion.name,
           championShortBio: champion.shortBio,
         };

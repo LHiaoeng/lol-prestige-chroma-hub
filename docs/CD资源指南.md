@@ -183,7 +183,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 - 英雄列表使用 `champion-summary.json`。
 - 英雄详情使用真实的 `championId`，并从该英雄记录的 `skins` 集合及其中有效的 `questSkinInfo.tiers` 阶段生成统一皮肤入口；顶层项按皮肤 ID 去重，阶段项按所属皮肤 ID 与阶段 ID 去重，tier ID 与顶层记录冲突时 tier 优先。
 - 皮肤详情必须携带英雄定位提示，读取对应 `champions/{championId}.json` 后按皮肤 ID 复核身份。
-- 皮肤系列和皮肤宇宙通过各自列表中的数字 ID 关联；关联失败不得清除已经显示的核心实体资料。
+- 皮肤系列和皮肤宇宙通过各自列表中的数字 ID 关联；系列与宇宙的皮肤列表也按阶段独立投影，同一英雄的阶段 ID 与顶层皮肤 ID 重合时只保留阶段卡片。关联失败不得清除已经显示的核心实体资料。
 - 运行时不提供全量皮肤目录；只有皮肤系列详情、皮肤宇宙详情和 PBE 新增页可以显式读取完整 `skins.json`，按稳定数字 ID 投影关联皮肤集合。英雄目录、英雄详情、普通皮肤详情、首页、臻彩详情和博客不得因此加载该资源。
 - 当前 `skins.json` 不提供 `championId`。参考 Skin Explorer 的数据处理方式，完整皮肤集合使用 CommunityDragon 的皮肤 ID 所属英雄约定：`Math.floor(skin.id / 1000)`；这只用于该官方集合的英雄归属，不把名称、资源路径或数组位置当作身份。
 - 完整皮肤记录的本地化 `name` 可能为空字符串或缺失；有效 ID 与归属仍保留，名称规范化为缺失状态。界面只显示当前视图的本地化缺失标签，不跨视图补名，也不因单条缺名而让整份 PBE 比较失败。
@@ -196,12 +196,12 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 /champions/
 /champions/detail/?id={championId}
 /skins/detail/?id={skinId}&champion={championId}
-/skins/detail/?id={skinId}&champion={championId}&stage={stageId}
+/skins/detail/?id={stageId}&champion={championId}
 /skinlines/detail/?id={skinlineId}
 /universes/detail/?id={universeId}
 ```
 
-阶段链接必须同时携带英雄 ID、所属皮肤 ID 和来源提供的有效阶段 ID；只有缺少有效正整数 ID 的阶段不会形成独立资料项。阶段名称缺失时保留资料项并显示缺失状态，不生成来源不存在的阶段名称。
+阶段作为独立皮肤，详情链接以阶段 ID 作为 `id`，并携带英雄 ID。旧版 `stage` 参数不再接受。只有缺少有效正整数 ID 的阶段不会形成独立资料项。阶段名称缺失时保留资料项并显示缺失状态，不生成来源不存在的阶段名称。
 
 英文与 `/zh-cn/` 页面均保持相同的列表/详情职责：`/champions/`、`/skinlines/` 与 `/universes/` 只负责列表发现，列表卡片使用对应的 `/detail/` 普通链接；皮肤不提供目录页，只从英雄详情、系列详情或宇宙详情进入 `/skins/detail/`。列表页不会因存在 `id` 查询参数而渲染详情，详情壳统一使用 `noindex`。系列和宇宙详情按需读取完整 `skins.json`，只通过稳定数字 ID 形成关联集合；其他页面不加载该资源。
 

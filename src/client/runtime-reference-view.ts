@@ -407,7 +407,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
               selected === "latest" ||
               (current.channel === "pbe" && current.channelExplicit),
           },
-          ["id", "champion", "stage", "channel"],
+          ["id", "champion", "channel"],
         );
         void options.getController().navigate(next);
       });

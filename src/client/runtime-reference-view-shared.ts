@@ -50,7 +50,6 @@ export function hrefFor(
   values: {
     id?: number;
     championId?: number;
-    stageId?: number;
     channel: "pbe" | "latest";
   },
   mode: "list" | "detail" = "list",
@@ -62,12 +61,11 @@ export function hrefFor(
     {
       id: values.id,
       champion: values.championId,
-      stage: values.stageId,
       channel: values.channel,
       channelExplicit: preserveExplicitPbe,
     },
     page === "skins"
-      ? ["id", "champion", "stage", "channel"]
+      ? ["id", "champion", "channel"]
       : ["id", "channel"],
   );
 }
@@ -385,7 +383,7 @@ export function appendBorderModule(
   const bakedImage = module.kind === "baked" ? document.createElement("img") : undefined;
   const art = module.kind === "composite" ? document.createElement("img") : undefined;
 
-  if (bakedImage) {
+  if (bakedImage && module.kind === "baked") {
     bakedImage.className = "runtime-loadscreen-baked";
     bakedImage.src = module.imageUrl;
     bakedImage.alt = "";
@@ -394,7 +392,7 @@ export function appendBorderModule(
     bakedImage.addEventListener("error", () => bakedImage.remove(), { once: true });
     frame.appendChild(bakedImage);
   }
-  if (art) {
+  if (art && module.kind === "composite") {
     art.className = "runtime-loadscreen-art";
     art.src = module.artUrl;
     art.alt = "";
@@ -703,9 +701,8 @@ export function appendSkinReferenceCard(
       locale,
       "skins",
       {
-        id: item.skinId,
+        id: item.id,
         championId: item.championId,
-        stageId: item.stageId,
         channel,
       },
       "detail",

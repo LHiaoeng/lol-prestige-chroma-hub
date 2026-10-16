@@ -25,6 +25,7 @@ import {
   projectSkinlineReferenceItems,
   projectUniverseReferenceGroups,
   sortSkinReferenceItems,
+  sortSkinlineReferenceItems,
 } from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
 
@@ -474,6 +475,13 @@ describe("CommunityDragon runtime reference", () => {
         },
         {
           championId: 103,
+          id: 103002,
+          name: "Duplicate top-level stage",
+          isBase: false,
+          skinLines: [{ id: 7 }],
+        },
+        {
+          championId: 103,
           id: 103000,
           name: "Ahri",
           isBase: true,
@@ -500,6 +508,42 @@ describe("CommunityDragon runtime reference", () => {
     ]);
   });
 
+  it("shows a self-ID stage once in a skinline", () => {
+    const skins = parseRuntimeSkinCollection([{
+      championId: 147,
+      id: 147001,
+      name: "Owner",
+      isBase: false,
+      skinLines: [{ id: 91 }],
+      questSkinInfo: { tiers: [{ id: 147001, stage: 1, name: "First stage" }] },
+    }], { locale: "default" });
+
+    expect(projectSkinlineReferenceItems(skins, 91)).toMatchObject([
+      { kind: "stage", id: 147001, name: "First stage" },
+    ]);
+  });
+
+  it("keeps stages in source order within a skinline champion group", () => {
+    const skins = parseRuntimeSkinCollection([{
+      championId: 147,
+      id: 147001,
+      name: "Owner",
+      isBase: false,
+      skinLines: [{ id: 91 }],
+      questSkinInfo: { tiers: [
+        { id: 147001, stage: 1, name: "B" },
+        { id: 147002, stage: 2, name: "C" },
+        { id: 147003, stage: 3, name: "A" },
+      ] },
+    }], { locale: "default" });
+    const items = projectSkinlineReferenceItems(skins, 91);
+
+    expect(
+      sortSkinlineReferenceItems(items, "champion", new Map([[147, "Seraphine"]]), "default")
+        .map((item) => item.id),
+    ).toEqual([147001, 147002, 147003]);
+  });
+
   it("groups universe skins by related skinline and keeps valid stages", () => {
     const skins = parseRuntimeSkinCollection(
       [
@@ -521,6 +565,14 @@ describe("CommunityDragon runtime reference", () => {
           isBase: false,
           skinLines: [{ id: 8 }],
           universeIds: [201],
+        },
+        {
+          championId: 103,
+          id: 103002,
+          name: "Duplicate top-level stage",
+          isBase: false,
+          skinLines: [{ id: 7 }],
+          universeIds: [200],
         },
       ],
       { locale: "default", channel: "latest" },
@@ -737,7 +789,7 @@ describe("CommunityDragon runtime reference", () => {
       },
       {
         kind: "stage",
-        id: 103001,
+        id: 103002,
         stageId: 103002,
         target: { championId: 103, skinId: 103001, stageId: 103002 },
         name: "First form",
@@ -748,7 +800,7 @@ describe("CommunityDragon runtime reference", () => {
       },
       {
         kind: "stage",
-        id: 103001,
+        id: 103003,
         stageId: 103003,
         target: { championId: 103, skinId: 103001, stageId: 103003 },
         name: "Second form",
@@ -809,6 +861,7 @@ describe("CommunityDragon runtime reference", () => {
       {
         stableKey: "103:103001:stage:103002",
         kind: "stage",
+        id: 103002,
         name: "Dynasty Ahri · Stage 2",
       },
     ]);
@@ -906,32 +959,50 @@ describe("CommunityDragon runtime reference", () => {
     expect(result.stages).toHaveLength(1);
   });
 
-  it("resolves a stage target from its parent skin response without another request", async () => {
+  it("resolves a stage ID from its champion response without another request", async () => {
     const fetcher = vi.fn(async () => jsonResponse(champion("default")));
     const runtime = createCommunityDragonRuntime(fetcher);
 
-    await expect(
-      runtime.get("skin", 103001, {
-        locale: "default",
-        championId: 103,
-        stageId: 103002,
-      }),
-    ).resolves.toMatchObject({
+    const stage = await runtime.get("skin", 103002, {
+      locale: "default",
+      championId: 103,
+    }) as RuntimeSkin;
+    expect(stage).toMatchObject({
       id: 103001,
       stageId: 103002,
       name: "Dynasty Ahri · Stage 2",
       media: { focusedSplashUrl: expect.stringContaining("stage2.jpg") },
+      stages: [],
     });
+    const references = projectSkinReferenceItems(stage);
+    expect(references).toMatchObject([{
+      kind: "stage",
+      stableKey: "103:103001:stage:103002",
+      target: { championId: 103, skinId: 103001, stageId: 103002 },
+      media: { focusedSplashUrl: expect.stringContaining("stage2.jpg") },
+    }]);
+    expect(references).toHaveLength(1);
     expect(fetcher).toHaveBeenCalledOnce();
 
     await expect(
-      runtime.get("skin", 103001, {
+      runtime.get("skin", 999999, {
         locale: "default",
         championId: 103,
-        stageId: 999999,
       }),
     ).rejects.toMatchObject({ code: "not-found" });
     expect(fetcher).toHaveBeenCalledOnce();
+  });
+
+  it("resolves the stage before a colliding top-level skin ID", () => {
+    const raw = champion("default");
+    const stage = parseRuntimeEntity("skin", 103002, {
+      ...raw,
+      skins: [
+        ...raw.skins,
+        { ...raw.skins[1], id: 103002, name: "Top-level collision" },
+      ],
+    }, { locale: "default", championId: 103 }) as RuntimeSkin;
+    expect(stage).toMatchObject({ id: 103001, stageId: 103002, name: "Dynasty Ahri · Stage 2" });
   });
 
   it("opens a valid unnamed stage without fabricating a player-facing name", async () => {
@@ -949,10 +1020,9 @@ describe("CommunityDragon runtime reference", () => {
     const runtime = createCommunityDragonRuntime(fetcher);
 
     await expect(
-      runtime.get("skin", 103001, {
+      runtime.get("skin", 103011, {
         locale: "default",
         championId: 103,
-        stageId: 103011,
       }),
     ).resolves.toMatchObject({
       stageId: 103011,

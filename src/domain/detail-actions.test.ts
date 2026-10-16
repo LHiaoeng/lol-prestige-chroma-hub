@@ -83,13 +83,20 @@ describe('detail action URLs', () => {
     ]);
   });
 
-  it('uses the parent skin ID when actions are generated for a stage', () => {
+  it('uses the selected stage ID for model actions', () => {
     expect(runtimeSkinActions('default', {
       id: 103001,
       stageId: 103002,
       championId: 103,
       championAlias: 'Ahri',
       name: 'Dynasty Ahri · Ascended',
-    })[1]?.href).toContain('skinid=ahri-1');
+    })[1]?.href).toContain('skinid=ahri-2');
+    expect(runtimeSkinActions('zh_cn', {
+      id: 103001,
+      stageId: 103002,
+      championId: 103,
+    }).find((action) => action.id === 'buguoguo-model')?.href).toBe(
+      'https://3d.buguoguo.cn/model-viewer?id=103002',
+    );
   });
 });

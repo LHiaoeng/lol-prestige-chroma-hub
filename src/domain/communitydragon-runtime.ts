@@ -3,7 +3,7 @@ import {
   communityDragonAssetUrl,
   type CommunityDragonChannel,
 } from "./communitydragon-url";
-import { projectRuntimeSkinTarget } from "./skin-reference-projection";
+import { resolveRuntimeSkinTarget } from "./skin-reference-projection";
 
 export type RuntimeChannel = CommunityDragonChannel;
 export type CommunityDragonLocale = "default" | "zh_cn";
@@ -41,7 +41,6 @@ export interface RuntimeParseOptions {
   readonly locale: CommunityDragonLocale;
   readonly channel?: RuntimeChannel;
   readonly championId?: number;
-  readonly stageId?: number;
 }
 
 export interface RuntimeVersionMetadata {
@@ -930,7 +929,7 @@ function normalizeSkin(
 export function normalizeRuntimeOptions(
   options: RuntimeParseOptions,
 ): Required<Pick<RuntimeParseOptions, "locale" | "channel">> &
-  Pick<RuntimeParseOptions, "championId" | "stageId"> {
+  Pick<RuntimeParseOptions, "championId"> {
   const channel = options.channel ?? "pbe";
   if (options.locale !== "default" && options.locale !== "zh_cn")
     throw new CommunityDragonRuntimeError(
@@ -942,19 +941,10 @@ export function normalizeRuntimeOptions(
       "invalid-request",
       "Unsupported CommunityDragon channel",
     );
-  if (
-    options.stageId !== undefined &&
-    (!Number.isSafeInteger(options.stageId) || options.stageId <= 0)
-  )
-    throw new CommunityDragonRuntimeError(
-      "invalid-request",
-      "Stage ID must be a positive safe integer",
-    );
   return {
     locale: options.locale,
     channel,
     championId: options.championId,
-    stageId: options.stageId,
   };
 }
 
@@ -1337,26 +1327,14 @@ export function parseRuntimeEntity(
       skins,
     };
   }
-  const skin = skins.find((candidate) => candidate.id === id);
+  const skin = resolveRuntimeSkinTarget(skins, id);
   if (!skin)
     throw new CommunityDragonRuntimeError(
       "not-found",
       `Skin ${id} was not found for champion ${championId}`,
     );
-  if (options.stageId === undefined)
-    return {
-      ...skin,
-      championName: labels.name,
-      championShortBio: text(raw.shortBio),
-    };
-  const stage = projectRuntimeSkinTarget(skin, options.stageId);
-  if (!stage)
-    throw new CommunityDragonRuntimeError(
-      "not-found",
-      `Stage ${options.stageId} was not found for skin ${id} of champion ${championId}`,
-    );
   return {
-    ...stage,
+    ...skin,
     championName: labels.name,
     championShortBio: text(raw.shortBio),
   };

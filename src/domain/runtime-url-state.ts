@@ -1,11 +1,10 @@
 import type { RuntimeChannel } from "./communitydragon-runtime";
 
-export type RuntimeUrlParameter = "id" | "champion" | "stage" | "channel";
+export type RuntimeUrlParameter = "id" | "champion" | "channel";
 
 export interface RuntimeUrlState {
   readonly id?: number;
   readonly champion?: number;
-  readonly stage?: number;
   readonly channel?: RuntimeChannel;
   readonly channelExplicit: boolean;
   readonly invalid: readonly RuntimeUrlParameter[];
@@ -14,7 +13,6 @@ export interface RuntimeUrlState {
 export interface RuntimeUrlStateInput {
   readonly id?: number;
   readonly champion?: number;
-  readonly stage?: number;
   readonly channel?: RuntimeChannel;
   readonly channelExplicit?: boolean;
 }
@@ -23,7 +21,6 @@ const positiveInteger = /^[1-9]\d*$/;
 const parameterOrder: readonly RuntimeUrlParameter[] = [
   "id",
   "champion",
-  "stage",
   "channel",
 ];
 
@@ -43,7 +40,6 @@ function readPositiveInteger(
 export function readRuntimeUrlState(url: URL): RuntimeUrlState {
   const id = readPositiveInteger(url, "id");
   const champion = readPositiveInteger(url, "champion");
-  const stage = readPositiveInteger(url, "stage");
   const rawChannel = url.searchParams.get("channel");
   const channel =
     rawChannel === null
@@ -56,13 +52,11 @@ export function readRuntimeUrlState(url: URL): RuntimeUrlState {
   const invalid: RuntimeUrlParameter[] = [];
   if (id.invalid) invalid.push("id");
   if (champion.invalid) invalid.push("champion");
-  if (stage.invalid) invalid.push("stage");
   if (rawChannel !== null && channel === undefined) invalid.push("channel");
 
   return {
     ...(id.value === undefined ? {} : { id: id.value }),
     ...(champion.value === undefined ? {} : { champion: champion.value }),
-    ...(stage.value === undefined ? {} : { stage: stage.value }),
     channel,
     channelExplicit: channel !== undefined && rawChannel !== null,
     invalid,

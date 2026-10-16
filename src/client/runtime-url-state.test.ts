@@ -30,15 +30,15 @@ function documentWith(
 }
 
 describe('runtime URL state binding', () => {
-  it('keeps only valid id, champion, stage, and channel values on the language link', () => {
+  it('uses the stage ID as the skin ID on the language link', () => {
     const toggle = anchor('/zh-cn/skins/detail/?stale=1');
     bindRuntimeLanguageToggle(
       documentWith(toggle),
-      new URL('https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002&channel=latest&tracking=drop'),
+      new URL('https://chromaart.lol/skins/detail/?id=103002&champion=103&channel=latest&tracking=drop'),
     );
 
     expect(toggle.setHref).toHaveBeenCalledWith(
-      '/zh-cn/skins/detail/?id=103001&champion=103&stage=103002&channel=latest',
+      '/zh-cn/skins/detail/?id=103002&champion=103&channel=latest',
     );
   });
 
@@ -57,12 +57,12 @@ describe('runtime URL state binding', () => {
     bindRuntimeLanguageToggle(
       documentWith(toggle),
       new URL(
-        'https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002&channel=latest',
+        'https://chromaart.lol/skins/detail/?id=103002&champion=103&channel=latest',
       ),
     );
 
     expect(toggle.setHref).toHaveBeenCalledWith(
-      '/zh-cn/champions/detail/?id=103001&channel=latest',
+      '/zh-cn/champions/detail/?id=103002&channel=latest',
     );
   });
 
@@ -96,13 +96,12 @@ describe('runtime URL state', () => {
     expect(
       readRuntimeUrlState(
         new URL(
-          'https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002',
+          'https://chromaart.lol/skins/detail/?id=103002&champion=103',
         ),
       ),
     ).toEqual({
-      id: 103001,
+      id: 103002,
       champion: 103,
-      stage: 103002,
       channel: 'pbe',
       channelExplicit: false,
       invalid: [],
@@ -123,18 +122,17 @@ describe('runtime URL state', () => {
   it('marks invalid channel and entity values without guessing replacements', () => {
     const state = readRuntimeUrlState(
       new URL(
-        'https://chromaart.lol/champions/detail/?id=0&champion=-1&stage=1.5&channel=PBE',
+        'https://chromaart.lol/champions/detail/?id=0&champion=-1&channel=PBE',
       ),
     );
 
     expect(state).toMatchObject({
       channelExplicit: false,
-      invalid: ['id', 'champion', 'stage', 'channel'],
+      invalid: ['id', 'champion', 'channel'],
     });
     expect(state).toHaveProperty('channel', undefined);
     expect(state).not.toHaveProperty('id');
     expect(state).not.toHaveProperty('champion');
-    expect(state).not.toHaveProperty('stage');
     expect(
       formatRuntimeUrl(
         new URL('https://chromaart.lol/champions/detail/'),
@@ -147,20 +145,19 @@ describe('runtime URL state', () => {
   it('accepts the largest safe integer and rejects values above it', () => {
     const state = readRuntimeUrlState(
       new URL(
-        'https://chromaart.lol/skins/detail/?id=9007199254740991&champion=9007199254740992&stage=1e3',
+        'https://chromaart.lol/skins/detail/?id=9007199254740991&champion=9007199254740992',
       ),
     );
 
     expect(state.id).toBe(Number.MAX_SAFE_INTEGER);
     expect(state).not.toHaveProperty('champion');
-    expect(state).not.toHaveProperty('stage');
-    expect(state.invalid).toEqual(['champion', 'stage']);
+    expect(state.invalid).toEqual(['champion']);
   });
 
   it('uses the first value for duplicates and emits one stable canonical query', () => {
     const state = readRuntimeUrlState(
       new URL(
-        'https://chromaart.lol/skins/detail/?stage=103002&stage=103003&id=103001&id=103004&champion=103&channel=latest&channel=pbe',
+        'https://chromaart.lol/skins/detail/?id=103002&id=103004&champion=103&channel=latest&channel=pbe',
       ),
     );
 
@@ -168,15 +165,15 @@ describe('runtime URL state', () => {
       formatRuntimeUrl(
         new URL('https://chromaart.lol/skins/detail/?tracking=drop'),
         state,
-        ['id', 'champion', 'stage', 'channel'],
+        ['id', 'champion', 'channel'],
       ).search,
-    ).toBe('?id=103001&champion=103&stage=103002&channel=latest');
+    ).toBe('?id=103002&champion=103&channel=latest');
   });
 
   it('filters parameters by the target page and preserves explicit pbe only when requested by state', () => {
     const explicitPbe = readRuntimeUrlState(
       new URL(
-        'https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002&channel=pbe',
+        'https://chromaart.lol/skins/detail/?id=103001&champion=103&channel=pbe',
       ),
     );
     expect(
@@ -194,7 +191,7 @@ describe('runtime URL state', () => {
       formatRuntimeUrl(
         new URL('https://chromaart.lol/skins/detail/'),
         defaultPbe,
-        ['id', 'champion', 'stage', 'channel'],
+        ['id', 'champion', 'channel'],
       ).search,
     ).toBe('?id=103001&champion=103');
   });

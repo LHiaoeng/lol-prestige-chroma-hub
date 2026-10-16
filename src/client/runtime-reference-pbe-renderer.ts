@@ -60,9 +60,8 @@ export function appendPbeSkinCard(
       locale,
       "skins",
       {
-        id: item.skinId,
+        id: item.stageId ?? item.skinId,
         championId: item.championId,
-        stageId: item.stageId,
         channel: "pbe",
       },
       "detail",

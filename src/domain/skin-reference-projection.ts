@@ -1,4 +1,5 @@
 import type {
+  CommunityDragonLocale,
   RuntimeChroma,
   RuntimeHistoricalArtwork,
   RuntimeMedia,
@@ -18,7 +19,7 @@ export interface RuntimeSkinTarget {
 
 export interface RuntimeSkinReferenceItem {
   readonly kind: "skin" | "stage";
-  /** The top-level skin ID used by the existing skin detail route. */
+  /** The skin or stage ID used by the detail route. */
   readonly id: number;
   readonly championId: number;
   readonly skinId: number;
@@ -104,12 +105,17 @@ export function compareRuntimeSkinReferenceItems(
 }
 
 function skinItem(skin: RuntimeSkinEntity): RuntimeSkinReferenceItem {
-  const target = { championId: skin.championId, skinId: skin.id };
-  return {
-    kind: "skin",
-    id: skin.id,
+  const target = {
     championId: skin.championId,
     skinId: skin.id,
+    ...(skin.stageId === undefined ? {} : { stageId: skin.stageId }),
+  };
+  return {
+    kind: skin.stageId === undefined ? "skin" : "stage",
+    id: skin.stageId ?? skin.id,
+    championId: skin.championId,
+    skinId: skin.id,
+    ...(skin.stageId === undefined ? {} : { stageId: skin.stageId, stageIndex: skin.stageIndex }),
     target,
     stableKey: runtimeSkinReferenceIdentity(target),
     name: skin.name,
@@ -139,7 +145,7 @@ function stageItem(
   };
   return {
     kind: "stage",
-    id: skin.id,
+    id: stage.id,
     championId: skin.championId,
     skinId: skin.id,
     stageId: stage.id,
@@ -231,6 +237,7 @@ export function projectRuntimeSkinTarget(
     ...skin,
     stageId: resolvedStageId,
     stageIndex: stage.stageIndex,
+    stages: [],
     name: stage.name,
     description: stage.description ?? skin.description,
     rarity: stageRarity(skin, stage),
@@ -241,6 +248,17 @@ export function projectRuntimeSkinTarget(
     historicalArt: stage.historicalArt,
     chromas: stage.chromas,
   };
+}
+
+export function resolveRuntimeSkinTarget(
+  skins: readonly RuntimeSkin[],
+  id: number,
+): RuntimeSkin | RuntimeStageSkin | undefined {
+  for (const skin of skins) {
+    if (skin.stages.some((stage) => stage.id === id))
+      return projectRuntimeSkinTarget(skin, id);
+  }
+  return skins.find((skin) => skin.id === id);
 }
 
 /**
@@ -343,6 +361,21 @@ export function sortSkinReferenceItems(
   );
 }
 
+export function sortSkinlineReferenceItems(
+  items: readonly RuntimeSkinReferenceItem[],
+  sort: "champion" | "rarity",
+  championNames: ReadonlyMap<number, string>,
+  locale: CommunityDragonLocale,
+): readonly RuntimeSkinReferenceItem[] {
+  if (sort === "rarity") return sortSkinReferenceItems(items, "rarity");
+  return [...items].sort((left, right) =>
+    (championNames.get(left.championId) ?? left.championName ?? "").localeCompare(
+      championNames.get(right.championId) ?? right.championName ?? "",
+      locale === "zh_cn" ? "zh-CN" : "en",
+    ) || left.championId - right.championId || compareRuntimeSkinReferenceItems(left, right),
+  );
+}
+
 export function findSkinReferenceItem(
   skin: RuntimeSkinEntity,
   target: RuntimeSkinTarget,
@@ -371,7 +404,7 @@ export function projectSkinlineReferenceItems(
       (item) => !item.isBase && item.skinlineIds.includes(skinlineId),
     ),
   );
-  return [...deduplicateReferenceItems(items)].sort(
+  return [...deduplicateSkinReferenceItems(items)].sort(
     compareRuntimeSkinReferenceItems,
   );
 }
@@ -401,7 +434,7 @@ export function projectUniverseReferenceGroups(
       );
       return {
         skinlineId,
-        items: [...deduplicateReferenceItems(items)].sort(
+        items: [...deduplicateSkinReferenceItems(items)].sort(
           compareRuntimeSkinReferenceItems,
         ),
       };

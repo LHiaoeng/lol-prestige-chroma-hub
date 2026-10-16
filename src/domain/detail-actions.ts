@@ -14,7 +14,6 @@ export interface RuntimeSkinAction {
 
 export interface RuntimeSkinActionInput {
   readonly id: number;
-  /** The parent skin ID remains the URL identity when the view is a stage. */
   readonly stageId?: number;
   readonly championId: number;
   readonly championAlias?: string;
@@ -28,13 +27,13 @@ function teemoSkinModelUrl(input: RuntimeSkinActionInput): string | undefined {
   url.searchParams.set('game', 'league-of-legends');
   url.searchParams.set('type', 'champions');
   url.searchParams.set('object', alias);
-  url.searchParams.set('skinid', `${alias}-${input.id % 1000}`);
+  url.searchParams.set('skinid', `${alias}-${(input.stageId ?? input.id) % 1000}`);
   return url.toString();
 }
 
 function buguoguoModelUrl(input: RuntimeSkinActionInput): string {
   const url = new URL('https://3d.buguoguo.cn/model-viewer');
-  url.searchParams.set('id', String(input.id));
+  url.searchParams.set('id', String(input.stageId ?? input.id));
   return url.toString();
 }
 

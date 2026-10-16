@@ -1137,21 +1137,13 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
   gap: 12px;
   margin-top: 16px;
 }
-.runtime-history-item h3,
-.runtime-stage-item h3 {
+.runtime-history-item h3 {
   margin: 0;
   font-size:var(--font-size-title);
 }
-.runtime-history-media,
-.runtime-stage-media {
+.runtime-history-media {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
-.runtime-stage-item {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-.runtime-stage-item h3 a,
 .runtime-relation-link {
   color: var(--gold);
 }

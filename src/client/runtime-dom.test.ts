@@ -20,9 +20,17 @@ class TestElement {
   readonly dataset: Record<string, string> = {};
   parentElement: TestElement | null = null;
   className = "";
-  textContent = "";
+  private ownTextContent = "";
+  get textContent(): string {
+    return this.ownTextContent + this.children.map((child) => child.textContent).join("");
+  }
+  set textContent(value: string) {
+    this.ownTextContent = value;
+    this.replaceChildren();
+  }
   value = "";
   type = "";
+  checked = false;
   id = "";
   href = "";
   src = "";
@@ -30,8 +38,13 @@ class TestElement {
   loading = "";
   width = 0;
   height = 0;
+  style: Record<string, string> = {};
 
   constructor(readonly tagName: string) {}
+
+  get ownerDocument(): TestDocument {
+    return document as unknown as TestDocument;
+  }
 
   readonly classList = {
     add: (name: string): void => {
@@ -62,6 +75,10 @@ class TestElement {
   }
 
   click(): void {
+    if (this.tagName === "input" && this.type === "radio") {
+      this.checked = true;
+      this.listeners.get("change")?.forEach((listener) => listener());
+    }
     const event = { type: "click", target: this };
     let node: TestElement | null = this;
     while (node) {
@@ -82,6 +99,11 @@ class TestElement {
       child.parentElement = this;
       this.children.push(child);
     });
+  }
+
+  prepend(...children: TestElement[]): void {
+    children.forEach((child) => { child.parentElement = this; });
+    this.children.unshift(...children);
   }
 
   appendChild(child: TestElement): TestElement {
@@ -120,6 +142,12 @@ class TestElement {
     return this.attributes.get(name) ?? null;
   }
 
+  hasAttribute(name: string): boolean {
+    return name.startsWith("data-")
+      ? dataProperty(name) in this.dataset
+      : this.attributes.has(name);
+  }
+
   matches(selector: string): boolean {
     const data = selector.match(/^\[data-([a-z0-9-]+)\]$/);
     if (data) return dataProperty(`data-${data[1]}`) in this.dataset;
@@ -129,19 +157,21 @@ class TestElement {
         this.tagName === "meta" &&
         dataProperty(`data-${metaData[1]}`) in this.dataset
       );
+    const inputValue = selector.match(/^input\[value="([^"]+)"\]$/);
+    if (inputValue) return this.tagName === "input" && this.value === inputValue[1];
     return selector.startsWith(".")
-      ? this.className.split(" ").includes(selector.slice(1))
+      ? selector.slice(1).split(".").every((name) => this.className.split(" ").includes(name))
       : this.tagName === selector;
   }
 
-  querySelectorAll<T extends TestElement>(selector: string): T[] {
+  querySelectorAll<T = TestElement>(selector: string): T[] {
     return this.children.flatMap((child) => [
-      ...(child.matches(selector) ? [child as T] : []),
+      ...(child.matches(selector) ? [child as unknown as T] : []),
       ...child.querySelectorAll<T>(selector),
     ]);
   }
 
-  querySelector<T extends TestElement>(selector: string): T | null {
+  querySelector<T = TestElement>(selector: string): T | null {
     return this.querySelectorAll<T>(selector)[0] ?? null;
   }
 }
@@ -152,16 +182,20 @@ class TestDocument {
 
   addEventListener(): void {}
 
-  querySelector<T extends TestElement>(selector: string): T | null {
+  querySelector<T = TestElement>(selector: string): T | null {
     return this.head.querySelector<T>(selector);
   }
 
-  querySelectorAll<T extends TestElement>(selector: string): T[] {
+  querySelectorAll<T = TestElement>(selector: string): T[] {
     return this.head.querySelectorAll<T>(selector);
   }
 
   createElement(tagName: string): TestElement {
     return new TestElement(tagName);
+  }
+
+  createElementNS(_namespace: string, tagName: string): TestElement {
+    return this.createElement(tagName);
   }
 
   createTextNode(text: string): TestElement {
@@ -333,7 +367,7 @@ describe("runtime DOM boundaries", () => {
     ]);
     expect(content.querySelector("input")).not.toBeNull();
     expect(content.querySelectorAll("select")).toHaveLength(2);
-    expect(content.querySelector(".runtime-pagination")).not.toBeNull();
+    expect(content.querySelector(".runtime-pagination")).toBeNull();
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(3);
     expect(content.querySelector(".runtime-champion-link")?.href).toBe(
       "/champions/detail/?id=103",
@@ -353,7 +387,7 @@ describe("runtime DOM boundaries", () => {
     );
   });
 
-  it("searches, sorts, and paginates the champion list", () => {
+  it("searches and sorts the champion list", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
@@ -386,10 +420,7 @@ describe("runtime DOM boundaries", () => {
       { mode: "list", page: "champions", channel: "pbe" },
     );
 
-    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(24);
-    expect(
-      content.querySelector(".cn-pagination-list")?.children,
-    ).toHaveLength(3);
+    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(25);
 
     const search = content.querySelector("input")!;
     search.value = "Champion 25";
@@ -541,17 +572,8 @@ describe("runtime DOM boundaries", () => {
       { mode: "list", page: "universes", channel: "pbe" },
     );
 
-    expect(content.querySelector(".runtime-universe-skinlines")?.textContent).toBe(
-      "Star Guardian",
-    );
-    const link = content.querySelector("a");
-    expect(link?.textContent).toBe("");
-    expect(link?.querySelector(".runtime-universe-meta")?.querySelector("span")?.textContent).toBe(
-      "Star Guardian",
-    );
-    expect(link?.href).toBe(
-      "/universes/detail/?id=200",
-    );
+    expect(content.querySelector(".ant-tree-child-tree")?.querySelector("a")?.textContent).toBe("Star Guardian");
+    expect(content.querySelector(".runtime-universe-title")?.href).toBe("/universes/detail/?id=200");
   });
 
   it("renders deduplicated square-thumbnail skin cards, sorting, and rarity", () => {
@@ -631,18 +653,13 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-lede")).toBeNull();
     expect(content.querySelector(".runtime-champion-base")).toBeNull();
     expect(status.textContent).toBe("");
-    expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(
-      2,
-    );
-    expect(content.querySelectorAll(".runtime-rarity")).toHaveLength(2);
-    expect(content.querySelector(".runtime-rarity")?.querySelector("span")?.textContent).toBe(
-      "Legendary",
-    );
+    expect(content.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(3);
     expect(
       [...content.querySelectorAll(".runtime-skin-reference-card")].map(
         (card) => card.querySelector("img")?.src,
       ),
     ).toEqual([
+      "https://example.test/ahri-base-tile.jpg",
       "https://example.test/dynasty-tile.jpg",
       "https://example.test/dynasty-stage-tile.jpg",
     ]);
@@ -655,17 +672,19 @@ describe("runtime DOM boundaries", () => {
       [...content.querySelectorAll(".runtime-skin-reference-card")].map(
         (card) =>
           card
-            .querySelector(".runtime-skin-reference-meta")
-            ?.querySelector("span")?.textContent,
+            .querySelector(".runtime-skin-reference-name")?.textContent,
       ),
-    ).toEqual(["Dynasty Ahri", "Dynasty Ahri · Stage 2"]);
+    ).toEqual(["Dynasty Ahri", "Dynasty Ahri · Stage 2", "Ahri"]);
     skinSort.value = "release";
     skinSort.listeners.get("change")?.forEach((listener) => listener());
     expect(content.querySelectorAll(".runtime-skin-reference-card")[0]?.querySelector("a")?.href).toBe(
-      "/skins/detail/?id=103001&champion=103&channel=latest",
+      "/skins/detail/?id=103000&champion=103&channel=latest",
     );
     expect(content.querySelectorAll(".runtime-skin-reference-card")[1]?.querySelector("a")?.href).toBe(
-      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
+      "/skins/detail/?id=103001&champion=103&channel=latest",
+    );
+    expect(content.querySelectorAll(".runtime-skin-reference-card")[2]?.querySelector("a")?.href).toBe(
+      "/skins/detail/?id=103002&champion=103&channel=latest",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });
@@ -673,6 +692,9 @@ describe("runtime DOM boundaries", () => {
   it("renders a skin detail with a link back to the champion detail", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
+    const championSlot = new TestElement("span");
+    championSlot.dataset.runtimeSkinChampion = "";
+    document.head.append(championSlot);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
@@ -734,21 +756,20 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector("img")?.src).toBe(
       "https://example.test/dynasty.jpg",
     );
-    expect(content.querySelector("a")?.href).toBe(
-      "/champions/detail/?id=103&channel=latest",
-    );
-    expect(content.querySelectorAll("a")[1]?.href).toBe(
-      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
-    );
+    expect(championSlot.querySelector("a")?.href).toBe("/champions/detail/?id=103&channel=latest");
+    expect(content.querySelector(".runtime-skin-stages")).toBeNull();
     expect(content.querySelector(".runtime-lede")?.textContent).toBe(
       "A dynasty-inspired skin.",
     );
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });
 
-  it("renders localized rarity, all core media, historical artwork, and relations", () => {
+  it("renders skin media and historical artwork", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
+    const championSlot = new TestElement("span");
+    championSlot.dataset.runtimeSkinChampion = "";
+    document.head.append(championSlot);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
@@ -769,7 +790,7 @@ describe("runtime DOM boundaries", () => {
       page: "skins",
       getController: () => ({ navigate: vi.fn() }) as never,
       history: history(
-        "https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
+        "https://chromaart.lol/skins/detail/?id=103002&champion=103&channel=latest",
       ),
     });
 
@@ -828,7 +849,7 @@ describe("runtime DOM boundaries", () => {
 
     const mediaSection = content.querySelector(".runtime-skin-media");
     expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(5);
-    expect(mediaSection?.querySelector(".runtime-loadscreen-frame")).toBeNull();
+    expect(mediaSection?.querySelector(".runtime-loadscreen-frame")).not.toBeNull();
     expect(
       [...(mediaSection?.querySelectorAll(".runtime-media-item") ?? [])].some(
         (item) => item.children[0]?.src === "https://example.test/load.jpg",
@@ -854,7 +875,7 @@ describe("runtime DOM boundaries", () => {
     const carouselControls = mediaSection?.querySelector(".runtime-media-carousel-controls");
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.getAttribute("aria-label"),
-    ).toBe("下载当前显示内容");
+    ).toBe("Download displayed media");
     expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-icon-only")).not.toBeNull();
     expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-sm")).toBeNull();
     expect(carouselControls?.querySelector(".ant-radio-group-middle")).not.toBeNull();
@@ -883,50 +904,29 @@ describe("runtime DOM boundaries", () => {
     expect(mediaSection?.querySelector("video")?.src).toBe(
       "https://example.test/animated.webm",
     );
-    expect(content.querySelector(".runtime-rarity")?.querySelector("span")?.textContent).toBe(
-      "Legendary",
-    );
     expect(content.querySelector(".runtime-skin-history")?.querySelector("h3")?.textContent).toBe(
       "14.1",
     );
-    expect(content.querySelector(".runtime-stage-media")?.querySelector("img")?.src).toBe(
-      "https://example.test/stage.jpg",
-    );
-    expect(content.querySelector("a")?.href).toBe(
+    expect(content.querySelector(".runtime-stage-media")).toBeNull();
+    expect(document.head.querySelector("[data-runtime-skin-champion]")?.querySelector("a")?.href).toBe(
       "/champions/detail/?id=103&channel=latest",
     );
 
-    view.renderRelations!(
-      [
-        { kind: "skinline", id: 7, name: "Star Guardian", universeIds: [200] },
-        { kind: "universe", id: 200, name: "Star Guardian", skinlineIds: [7] },
-      ],
-      {
-        mode: "detail",
-        page: "skins",
-        kind: "skin",
-        id: 103001,
-        championId: 103,
-        stageId: 103002,
-        channel: "latest",
-      },
-    );
-
-    expect(
-      content.querySelectorAll("a").find((link) => link.href.includes("/skinlines/detail/"))?.href,
-    ).toBe(
-      "/skinlines/detail/?id=7&channel=latest",
-    );
-    expect(
-      content.querySelectorAll("a").find((link) => link.href.includes("/universes/detail/"))?.href,
-    ).toBe(
-      "/universes/detail/?id=200&channel=latest",
-    );
   });
 
   it("renders the skin self item, true chromas, colors, and locale-specific external actions", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
+    const summary = new TestElement("span");
+    summary.dataset.runtimeSkinChromaSummary = "";
+    const chromaLink = new TestElement("a");
+    chromaLink.className = "runtime-entity-relation-link";
+    chromaLink.href = "#runtime-skin-chromas";
+    const summaryCount = new TestElement("span");
+    summaryCount.dataset.runtimeSkinChromaCount = "";
+    chromaLink.append(summaryCount);
+    summary.append(chromaLink);
+    document.head.append(summary);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
@@ -947,7 +947,7 @@ describe("runtime DOM boundaries", () => {
       page: "skins",
       getController: () => ({ navigate: vi.fn() }) as never,
       history: history(
-        "https://chromaart.lol/skins/detail/?id=103001&champion=103&stage=103002",
+        "https://chromaart.lol/skins/detail/?id=103002&champion=103",
       ),
     });
 
@@ -963,7 +963,15 @@ describe("runtime DOM boundaries", () => {
         isBase: false,
         skinlineIds: [],
         media: { tileUrl: "https://example.test/stage-tile.jpg" },
-        stages: [],
+        stages: [
+          {
+            id: 103002,
+            name: "Dynasty Ahri · Ascended",
+            stageIndex: 2,
+            media: { tileUrl: "https://example.test/stage-tile.jpg" },
+            chromas: [],
+          },
+        ],
         chromas: [
           {
             id: 103051,
@@ -991,6 +999,10 @@ describe("runtime DOM boundaries", () => {
     );
 
     expect(content.querySelector(".runtime-chroma-count")?.textContent).toBe("2");
+    expect(content.querySelector(".runtime-skin-stages")).toBeNull();
+    expect(content.querySelector(".runtime-skin-chromas")?.id).toBe("runtime-skin-chromas");
+    expect(chromaLink.href).toBe("#runtime-skin-chromas");
+    expect(summaryCount.textContent).toBe("2 chromas");
     expect(content.querySelectorAll(".runtime-chroma-card")).toHaveLength(3);
     const base = content.querySelector(".runtime-chroma-base");
     expect(base?.querySelector(".runtime-chroma-name")?.textContent).toBe(
@@ -1021,12 +1033,18 @@ describe("runtime DOM boundaries", () => {
     ]);
     expect(externalLinks[0]?.getAttribute("target")).toBe("_blank");
     expect(externalLinks[0]?.getAttribute("rel")).toBe("noopener noreferrer");
-    expect(externalLinks[1]?.href).toContain("skinid=ahri-1");
+    expect(externalLinks[1]?.href).toContain("skinid=ahri-2");
   });
 
   it("links skinline relations to independent universe detail paths", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
+    const universeSummary = new TestElement("span");
+    universeSummary.dataset.runtimeSkinlineUniverseSummary = "";
+    const universeSlot = new TestElement("span");
+    universeSlot.dataset.runtimeSkinlineUniverses = "";
+    universeSummary.append(universeSlot);
+    document.head.append(universeSummary);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
@@ -1085,7 +1103,7 @@ describe("runtime DOM boundaries", () => {
       [
         {
           kind: "stage",
-          id: 103001,
+          id: 103002,
           skinId: 103001,
           championId: 103,
           stageId: 103002,
@@ -1110,11 +1128,9 @@ describe("runtime DOM boundaries", () => {
       },
     );
 
-    expect(content.querySelector("a")?.href).toBe(
-      "/universes/detail/?id=200&channel=latest",
-    );
+    expect(universeSlot.querySelector("a")?.href).toBe("/universes/detail/?id=200&channel=latest");
     expect(content.querySelector(".runtime-skin-reference-link")?.href).toBe(
-      "/skins/detail/?id=103001&champion=103&stage=103002&channel=latest",
+      "/skins/detail/?id=103002&champion=103&channel=latest",
     );
   });
 
@@ -1219,7 +1235,7 @@ describe("runtime DOM boundaries", () => {
         channel: "latest",
       },
     );
-    expect(content.querySelector(".runtime-universe-skin-group")?.querySelector("h3")?.textContent).toBe(
+    expect(content.querySelector(".runtime-universe-skin-group")?.querySelector("h2")?.textContent).toBe(
       "Star Guardian",
     );
     expect(content.querySelector(".runtime-skin-reference-link")?.href).toBe(
