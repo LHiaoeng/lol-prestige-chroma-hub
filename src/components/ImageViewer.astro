@@ -14,42 +14,21 @@ import { resolveLocale } from '../i18n/config';
 const isZh = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) === 'zh-cn';
 const alt = isZh ? altZh : altEn;
 ---
-<div class="image-viewer" data-image-viewer>
-  <button class="viewer-trigger" type="button" data-image-viewer-open aria-label={isZh ? '查看大图' : 'Open full-size image'}>
+<div class="image-viewer">
+  <button class="viewer-trigger" type="button" data-media-preview-trigger data-preview-kind="image" data-preview-src={src} data-preview-fallback={fallback} aria-label={isZh ? '查看大图' : 'Open full-size image'}>
     <picture>
       {mobileSrc && <source media="(max-width: 767px)" srcset={mobileSrc} data-fallback={mobileFallback} />}
       <img class="viewer-image" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={alt} width="1920" height="1080" />
     </picture>
+    <span class="viewer-cover" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></span>
   </button>
-  <dialog class="viewer-dialog" data-image-viewer-dialog aria-label={isZh ? '大图预览' : 'Full-size image preview'}>
-    <div class="viewer-controls">
-      <button class="viewer-control" type="button" data-image-viewer-zoom-out aria-label={isZh ? '缩小' : 'Zoom out'}>−</button>
-      <button class="viewer-control" type="button" data-image-viewer-zoom-in aria-label={isZh ? '放大' : 'Zoom in'}>+</button>
-      <button class="viewer-control viewer-close" type="button" data-image-viewer-close aria-label={isZh ? '关闭图片预览' : 'Close image preview'}>×</button>
-    </div>
-    <img class="viewer-full" src={src} data-fallback={fallback} data-placeholder={placeholder} alt={alt} draggable="false" />
-  </dialog>
 </div>
-<script>
-  import { bindImageViewers } from '../client/image-viewer';
-  bindImageViewers();
-</script>
 <style>
   .image-viewer,.viewer-trigger,.viewer-trigger picture{display:block;width:100%;height:100%}
-  .viewer-trigger{padding:0;border:0;background:none;cursor:zoom-in}
+  .viewer-trigger{position:relative;padding:0;border:0;background:none;cursor:zoom-in}
   .viewer-trigger:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
   .viewer-image{display:block;width:100%;height:100%;object-fit:cover}
-  .viewer-dialog{box-sizing:border-box;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--bg);color:var(--text);overflow:hidden}
-  .viewer-dialog[open]{display:flex;align-items:center;justify-content:center}
-  .viewer-dialog::backdrop{background:var(--mask);backdrop-filter:blur(3px)}
-  .viewer-controls{position:fixed;z-index:2;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));display:flex;gap:8px}
-  .viewer-control{display:grid;width:var(--control-height);height:var(--control-height);padding:0;place-items:center;border:1px solid var(--line);border-radius:var(--radius-control);background:var(--panel2);color:var(--text);font-size:var(--font-size-headline-sm);line-height:1;cursor:pointer;backdrop-filter:blur(8px);transition:background-color var(--motion-fast) ease,border-color var(--motion-fast) ease,color var(--motion-fast) ease}
-  .viewer-control:hover{background:var(--gold-hover);border-color:var(--gold-hover);color:var(--on-gold)}
-  .viewer-control:active{background:var(--gold-active);border-color:var(--gold-active);color:var(--on-gold)}
-  .viewer-control:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-  .viewer-control:disabled{background:var(--fill);border-color:var(--line-subtle);color:var(--disabled);cursor:default}
-  @media(max-width:767px){.viewer-control{width:var(--touch-target);height:var(--touch-target)}}
-  .viewer-dialog .viewer-full{--viewer-x:0px;--viewer-y:0px;--viewer-scale:1;display:block;width:auto;height:auto;max-width:100vw;max-height:100dvh;margin:auto;object-fit:contain;transform:translate3d(var(--viewer-x),var(--viewer-y),0) scale(var(--viewer-scale));transition:transform var(--motion-fast) ease;will-change:transform;cursor:grab;touch-action:none;user-select:none}
-  .viewer-dialog .viewer-full[data-dragging="true"]{cursor:grabbing;transition:none}
-  .viewer-dialog .viewer-full[data-pinching="true"]{cursor:grabbing;transition:none}
+  .viewer-cover{position:absolute;inset:0;display:grid;place-items:center;background:rgb(0 0 0 / 30%);color:#fff;opacity:0;transition:opacity var(--motion-slow) ease}
+  .viewer-cover svg{width:32px;height:32px}
+  .viewer-trigger:hover .viewer-cover,.viewer-trigger:focus-visible .viewer-cover{opacity:1}
 </style>

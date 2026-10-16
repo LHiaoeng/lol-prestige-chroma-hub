@@ -135,6 +135,12 @@ function setUniverseCount(element: HTMLElement, value: string): void {
 export function createRuntimeDetailRenderer(
   options: RuntimeDetailRendererOptions,
 ): RuntimeDetailRenderer {
+  const chromaLinksData = document.querySelector<HTMLElement>(
+    "[data-runtime-prestige-chroma-links]",
+  )?.dataset.runtimePrestigeChromaLinks;
+  const chromaLinks: Record<string, string> = chromaLinksData
+    ? JSON.parse(chromaLinksData) as Record<string, string>
+    : {};
   let relationSlot: HTMLElement | undefined;
   let skinlineSkinsSlot: HTMLElement | undefined;
   let universeSkinsSlot: HTMLElement | undefined;
@@ -706,17 +712,29 @@ export function createRuntimeDetailRenderer(
             locale: options.locale,
           }),
         );
-        item.chromas.forEach((chroma) =>
+        item.chromas.forEach((chroma) => {
+          const link = document.createElement("a");
+          const detailUrl = hrefFor(options.locale, "skins", {
+            id: chroma.id,
+            championId: item.championId,
+            channel: state.channel,
+          }, "detail", options.preservesExplicitPbe());
+          link.href =
+            chromaLinks[String(chroma.id)] ?? `${detailUrl.pathname}${detailUrl.search}`;
           chromaGrid.appendChild(
             createChromaCard({
               name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
               imageUrl: chroma.imageUrl,
+              originalImageUrl:
+                item.media.unfocusedSplashUrl ?? item.media.focusedSplashUrl,
+              preview: true,
               colors: chroma.colors,
               isBase: false,
               locale: options.locale,
+              link,
             }),
-          ),
-        );
+          );
+        });
         chromas.appendChild(chromaGrid);
         article.appendChild(chromas);
 

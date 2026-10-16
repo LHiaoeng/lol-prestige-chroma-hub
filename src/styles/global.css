@@ -965,6 +965,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-universe-skin-divider { margin: 0; }
 .runtime-universe-skin-cards { min-width: 0; }
 .runtime-skin-reference-champion { color: var(--muted); font-size: var(--font-size-small); }
+.runtime-skin-chromas { margin-top: var(--space-2); }
 .runtime-detail h1 {
   margin: 0;
   font-size:var(--font-size-display);
@@ -1060,6 +1061,35 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
   object-fit: contain;
   background: var(--panel2);
 }
+.runtime-media-preview-trigger { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.runtime-media-preview-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.ant-image-preview-root { box-sizing: border-box; position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; border-radius: 0; background: transparent; color: rgb(255 255 255 / 65%); text-align: center; user-select: none; }
+.ant-image-preview-root[open] { display: flex; align-items: center; justify-content: center; }
+.ant-image-preview-root::backdrop { background: var(--mask); backdrop-filter: blur(4px); }
+.ant-image-preview-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; touch-action: none; }
+.ant-image-preview-content > * { pointer-events: auto; }
+.ant-image-preview-media { display: block; max-width: 100%; max-height: 100%; object-fit: contain; vertical-align: middle; user-select: none; }
+.ant-image-preview-content img { cursor: grab; transition: transform var(--motion-slow) ease; will-change: transform; }
+.ant-image-preview-content[data-dragging="true"] img, .ant-image-preview-content[data-pinching="true"] img { transition: none; }
+.ant-image-preview-content video { width: min(100vw, 1200px); max-height: 70dvh; background: #000; }
+.ant-image-preview-close, .ant-image-preview-switch { position: absolute; z-index: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 8px; border: 0; border-radius: 50%; background: rgb(0 0 0 / 10%); color: #fff; font-size: 24px; line-height: 1; cursor: pointer; transition: background-color var(--motion-slow) ease; }
+.ant-image-preview-close:hover, .ant-image-preview-switch:hover { background: rgb(0 0 0 / 20%); }
+.ant-image-preview-close:focus-visible, .ant-image-preview-switch:focus-visible, .ant-image-preview-actions button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.ant-image-preview-close { top: max(8px, env(safe-area-inset-top)); right: max(8px, env(safe-area-inset-right)); }
+.ant-image-preview-switch { top: 50%; transform: translateY(-50%); }
+.ant-image-preview-switch[hidden] { display: none; }
+.ant-image-preview-switch-left { left: max(8px, env(safe-area-inset-left)); }
+.ant-image-preview-switch-right { right: max(8px, env(safe-area-inset-right)); }
+.ant-image-preview-footer { position: absolute; z-index: 1; bottom: max(32px, env(safe-area-inset-bottom)); left: 50%; display: flex; flex-direction: column; align-items: center; gap: 16px; transform: translateX(-50%); pointer-events: none; }
+.ant-image-preview-count, .ant-image-preview-actions { color: rgb(255 255 255 / 65%); }
+.ant-image-preview-count { font-size: var(--font-size-small); line-height: 1.5; }
+.ant-image-preview-count[hidden] { display: none; }
+.ant-image-preview-actions { display: flex; gap: 8px; padding: 0 24px; border-radius: 100px; background: rgb(0 0 0 / 10%); pointer-events: auto; }
+.ant-image-preview-actions button { display: flex; align-items: center; justify-content: center; padding: 8px; border: 0; background: transparent; color: inherit; font-size: 24px; line-height: 1; cursor: pointer; transition: color var(--motion-slow) ease; }
+.ant-image-preview-actions button:hover:not(:disabled) { color: rgb(255 255 255 / 85%); }
+.ant-image-preview-actions button:disabled { color: rgb(255 255 255 / 25%); cursor: not-allowed; }
+.ant-image-preview-root svg { display: block; width: 1em; height: 1em; fill: currentColor; }
+.ant-image-preview-actions button[hidden] { display: none; }
 .runtime-skin-borders {
   margin-top: 32px;
 }

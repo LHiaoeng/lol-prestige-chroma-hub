@@ -8,6 +8,7 @@ import Skeleton from './Skeleton.astro';
 import DomainIcon from './DomainIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import RuntimeDetailSummary from './RuntimeDetailSummary.astro';
+import { catalog } from '../data/catalog';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes' | 'pbe-additions';
@@ -42,6 +43,12 @@ const breadcrumbItems = [
   ...(mode === 'detail' && page === 'skins' ? [{ title: label }] : []),
   { title: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label, ...(mode === 'detail' ? { 'data-runtime-current-entity': '' } : {}) },
 ];
+const prestigeChromaLinks = page === 'skins' && mode === 'detail'
+  ? JSON.stringify(Object.fromEntries(catalog.map((chroma) => [
+      chroma.skinId,
+      localizedPath(locale, `/chromas/${chroma.slug}/`),
+    ])))
+  : undefined;
 ---
 
 {mode === 'detail' && <div class="page-backdrop page-backdrop--behind page-backdrop--detail" data-runtime-reference-backdrop hidden aria-hidden="true">
@@ -90,7 +97,7 @@ const breadcrumbItems = [
     <Divider class={showCompactListHeader ? undefined : 'runtime-header-divider'} />
   </header>}
   <section class="runtime-section">
-    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} aria-busy="true">
+    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} data-runtime-prestige-chroma-links={prestigeChromaLinks} aria-busy="true">
       <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载游戏资料…' : 'Loading game reference…'}</p>
       <div data-runtime-content><Skeleton filterCount={skeletonFilterCount} itemCount={skeletonItemCount} layout={skeletonLayout} showDetailHeader={!showEntityDetailSummary} /></div>
       <template data-runtime-skeleton-template="list"><Skeleton filterCount={page === 'champions' ? 3 : 2} itemCount={24} layout={listSkeletonLayout} /></template>

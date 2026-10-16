@@ -107,7 +107,6 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
         <div class="detail-image">
           <ImageViewer src={image} fallback={sourceImageUrl('large', chroma.instanceId)} altEn={seo.imageAlt} altZh={seo.imageAlt} {locale} />
         </div>
-        <p class="detail-preview-hint">{isZh ? '点击图片预览' : 'Click the image to preview'}</p>
       </div>
     </section>
     {isSummonGuideChroma && <p class="detail-context-link"><a href={summonGuideUrl}>{isZh ? '阅读璀璨臻彩召唤完全指南' : 'Read the complete Brilliant Prestige Chroma Summoning guide'}</a></p>}
@@ -149,7 +148,6 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   :global(main){position:relative;isolation:isolate}
   .detail{grid-template-columns:minmax(0,1fr);align-items:stretch;gap:var(--space-3);padding-bottom:0}
   .detail-media{min-width:0}
-  .detail-preview-hint{display:block;width:100%;margin:var(--space-3) 0 var(--space-4);color:var(--muted);font-size:var(--font-size-small);text-align:center}
   .detail-title-row{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
   .detail-display-title{display:flex;flex:1;align-items:center;gap:8px;min-width:0;margin:0;color:var(--gold);font-family:var(--font-ui);font-size:var(--font-size-display);line-height:var(--line-height-display);font-weight:600;overflow-wrap:anywhere}
   .detail-display-title :global(.color-wrap),.detail-display-title :global(.color-circle){width:1em;height:1em;flex:0 0 1em}

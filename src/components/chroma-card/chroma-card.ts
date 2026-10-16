@@ -17,6 +17,10 @@ export interface ChromaCardOptions {
   readonly imageUrl?: string;
   /** 图片 alt 文本，默认使用 name */
   readonly imageAlt?: string;
+  /** Parent skin artwork used by the image toggle. */
+  readonly originalImageUrl?: string;
+  /** Render a linked image as a preview button, leaving the card title as its link. */
+  readonly preview?: boolean;
   /** 描述文本，渲染在名称下方 */
   readonly description?: string;
   /** 炫彩色值列表 */
@@ -50,7 +54,7 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
   if (options.isBase) classes.push("runtime-chroma-base");
   card.className = classes.join(" ");
 
-  const content = options.link ?? card;
+  const content = options.link && !options.preview ? options.link : card;
 
   const media = document.createElement("div");
   media.className = "runtime-chroma-media";
@@ -72,7 +76,22 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       },
       { once: true },
     );
-    media.appendChild(image);
+    if (options.preview) {
+      const preview = document.createElement("button");
+      preview.className = "runtime-chroma-preview";
+      preview.type = "button";
+      preview.dataset.mediaPreviewTrigger = "";
+      preview.dataset.previewKind = "image";
+      preview.dataset.previewSrc = options.imageUrl;
+      preview.setAttribute(
+        "aria-label",
+        options.locale === "zh_cn"
+          ? `预览${options.name}大图`
+          : `Preview ${options.name}`,
+      );
+      preview.appendChild(image);
+      media.appendChild(preview);
+    } else media.appendChild(image);
   } else {
     showMissing();
   }
@@ -99,11 +118,45 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       textNode("p", options.description, "runtime-chroma-note"),
     );
   }
-  content.appendChild(meta);
+  (options.link && options.preview ? options.link : content).appendChild(meta);
 
   if (options.link) {
+    options.link.classList.add("runtime-chroma-link");
     options.link.setAttribute("aria-label", options.name);
     card.appendChild(options.link);
+  }
+
+  const chromaImageUrl = options.imageUrl;
+  const originalImageUrl = options.originalImageUrl;
+  if (chromaImageUrl && originalImageUrl && chromaImageUrl !== originalImageUrl) {
+    const image = card
+      .querySelector<HTMLElement>(".runtime-chroma-media")
+      ?.querySelector<HTMLImageElement>("img");
+    const preview = card.querySelector<HTMLElement>("[data-media-preview-trigger]");
+    const toggle = document.createElement("button");
+    toggle.className = "runtime-chroma-image-toggle";
+    toggle.type = "button";
+    const setArtwork = (showOriginal: boolean): void => {
+      if (!image) return;
+      image.src = showOriginal ? originalImageUrl : chromaImageUrl;
+      if (preview) preview.dataset.previewSrc = image.src;
+      toggle.setAttribute(
+        "aria-label",
+        options.locale === "zh_cn"
+          ? showOriginal
+            ? "切换到臻彩图"
+            : "切换到原图"
+          : showOriginal
+            ? "Show chroma artwork"
+            : "Show original artwork",
+      );
+      toggle.title = toggle.getAttribute("aria-label") ?? "";
+      toggle.dataset.showingOriginal = String(showOriginal);
+    };
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-2.5-2.5L17 3l5 5-5 5-1.5-1.5L18 9H7V7Zm10 10H6l2.5 2.5L7 21l-5-5 5-5 1.5 1.5L6 15h11v2Z"/></svg>';
+    toggle.addEventListener("click", () => setArtwork(toggle.dataset.showingOriginal !== "true"));
+    setArtwork(false);
+    card.appendChild(toggle);
   }
 
   if (options.ownerLink) {

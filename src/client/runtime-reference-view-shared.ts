@@ -276,6 +276,10 @@ function appendMediaResource(
   trigger.dataset.previewKind = descriptor.kind;
   trigger.dataset.previewSrc = url;
   trigger.setAttribute("aria-label", `${alt} · ${label}`);
+  const cover = document.createElement("span");
+  cover.className = "runtime-media-preview-cover";
+  cover.setAttribute("aria-hidden", "true");
+  cover.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
   const resource =
     descriptor.kind === "video"
       ? document.createElement("video")
@@ -296,6 +300,7 @@ function appendMediaResource(
   }
   resource.addEventListener("error", () => resource.remove(), { once: true });
   trigger.appendChild(resource);
+  trigger.appendChild(cover);
   figure.appendChild(trigger);
   if (showCaption) figure.appendChild(textNode("figcaption", label, "runtime-media-caption"));
   parent.appendChild(figure);
