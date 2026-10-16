@@ -82,7 +82,7 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
           </nav>
         </div>
         <a class="header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
-        {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title="English / 中文"><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
+        {canonical && <a class="language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
       </div>
     </header>
     <main><slot /></main>
@@ -133,11 +133,11 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .header-blog-link:hover { color: var(--gold-hover); background: var(--hover-bg); }
       .header-blog-link:active { color: var(--gold-active); }
       .header-blog-link:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; width: var(--control-height); min-width: var(--control-height); height: var(--control-height); border-radius: var(--radius-control); color: var(--text); cursor: pointer; flex-shrink: 0; transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease; }
+      .language-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; width: var(--control-height); min-width: var(--control-height); height: var(--control-height); border: 1px solid transparent; border-radius: var(--radius-control); color: var(--text); cursor: pointer; flex-shrink: 0; transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease; }
       .language-toggle-mark { position: relative; width: 32px; height: 32px; }
-      .language-toggle-current, .language-toggle-next { position: absolute; line-height: 1; }
-      .language-toggle-current { z-index: 1; top: 6px; left: 6px; color: var(--gold); font-size: 14px; font-weight: 600; }
-      .language-toggle-next { right: 4px; bottom: 6px; color: var(--muted); font-size: 12px; }
+      .language-toggle-current, .language-toggle-next { position: absolute; border: 1px solid var(--line); font-size: 16.8px; line-height: 16.8px; white-space: nowrap; }
+      .language-toggle-current { z-index: 1; top: 7px; left: 7px; border-color: var(--gold); background: var(--gold); color: var(--on-gold); font-weight: 400; transform: scale(.7); transform-origin: top left; }
+      .language-toggle-next { top: 15px; left: 16px; background: transparent; color: var(--muted); transform: scale(.5); transform-origin: top left; }
       .language-toggle:hover { background:var(--hover-bg); color:var(--gold-hover); }
       .language-toggle:active { color:var(--gold-active); }
       .language-toggle:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
