@@ -79,12 +79,6 @@ article.runtime-chroma-card {
   line-height: var(--line-height-title);
   font-weight: 600;
 }
-.runtime-chroma-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
-}
 /* linked variant (PBE): link wrapper + meta layout */
 .runtime-chroma-card--linked .runtime-chroma-link {
   display: block;

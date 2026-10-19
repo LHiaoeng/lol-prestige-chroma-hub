@@ -20,12 +20,39 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
   </div>}
   {layout === "skin-detail" && <div class="runtime-skin-detail-skeleton">
     <section class="runtime-skin-media-skeleton">
-      <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
-      <div class="runtime-media-carousel-skeleton">
-        <div class="runtime-skeleton-media"></div>
+      <div class="runtime-skin-skeleton-heading">
+        <span class="runtime-skeleton-media"></span>
+        <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
       </div>
-      <div class="runtime-media-carousel-controls-skeleton">
-        {Array.from({ length: 6 }, () => <span class="runtime-skeleton-line"></span>)}
+      <div class="runtime-skin-carousel-skeleton">
+        <div class="runtime-media-carousel-skeleton">
+          <div class="runtime-skeleton-media"></div>
+        </div>
+        <div class="runtime-media-carousel-controls-skeleton">
+          <div class="runtime-media-carousel-options-skeleton">
+            {Array.from({ length: 2 }, () => <span class="runtime-skeleton-line"></span>)}
+          </div>
+          <span class="runtime-media-carousel-divider-skeleton"></span>
+          <span class="runtime-skeleton-line runtime-media-carousel-download-skeleton"></span>
+        </div>
+      </div>
+    </section>
+    <section class="runtime-skin-chromas-skeleton">
+      <div class="runtime-skin-skeleton-heading">
+        <span class="runtime-skeleton-media"></span>
+        <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
+        <span class="runtime-skeleton-line runtime-skin-chroma-count-skeleton"></span>
+      </div>
+      <div class="runtime-skeleton-grid runtime-skeleton-grid--skins">
+        {Array.from({ length: itemCount }, () => <div class="runtime-skeleton-card runtime-skeleton-card--skin">
+          <div class="runtime-skeleton-media"></div>
+          <div class="runtime-skeleton-meta">
+            <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
+            <div class="runtime-skeleton-color-row">
+              {Array.from({ length: 3 }, () => <span class="runtime-skeleton-media"></span>)}
+            </div>
+          </div>
+        </div>)}
       </div>
     </section>
   </div>}

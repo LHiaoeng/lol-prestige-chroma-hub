@@ -1,6 +1,7 @@
 import type { CommunityDragonLocale } from "../../domain/communitydragon-runtime";
 import "./chroma-card.css";
 import { createBorderBeams, type BorderBeamOptions } from "../border-beam/BorderBeam";
+import { createParagraph } from "../Typography";
 import {
   appendChromaColorCircle,
   appendMissingField,
@@ -132,9 +133,10 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
   if (options.nameMissing) name.classList.add("runtime-missing");
   meta.appendChild(name);
   if (options.description) {
-    meta.appendChild(
-      textNode("p", options.description, "runtime-chroma-note"),
-    );
+    meta.appendChild(createParagraph({
+      text: options.description,
+      locale: options.locale,
+    }));
   }
   (options.link && options.preview ? options.link : content).appendChild(meta);
 

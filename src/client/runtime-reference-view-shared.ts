@@ -270,6 +270,8 @@ function appendMediaResource(
 ): void {
   const figure = document.createElement("figure");
   figure.className = "runtime-media-item";
+  if (descriptor.key === "loadScreenUrl") figure.classList.add("runtime-media-item--load-screen");
+  if (descriptor.key === "tileUrl") figure.classList.add("runtime-media-item--thumbnail");
   const trigger = document.createElement("button");
   trigger.type = "button";
   trigger.className = "runtime-media-preview-trigger";

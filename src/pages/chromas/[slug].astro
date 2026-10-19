@@ -8,6 +8,7 @@ import RuntimeDetailSummary from '../../components/RuntimeDetailSummary.astro';
 import Dropdown from '../../components/Dropdown.astro';
 import ExpandableChromaGroup from '../../components/ExpandableChromaGroup.astro';
 import ImageViewer from '../../components/ImageViewer.astro';
+import TypographyParagraph from '../../components/TypographyParagraph.astro';
 import { catalog } from '../../data/catalog';
 import { imageUrl, sourceImageUrl } from '../../domain/chroma';
 import { googleSearchUrl, khadaModelUrl, patchNotesUrl, skinSpotlightsSearchUrl } from '../../domain/detail-actions';
@@ -83,7 +84,7 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   ]} />
   <article class="detail runtime-detail runtime-detail--entity chroma-detail">
     <div class="detail-title-row"><h1 class="detail-display-title"><ChromaColorCircle colors={chroma.colors} />{isZh ? chroma.nameZh : chroma.nameEn}</h1></div>
-    {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <p class="detail-lede">{isZh ? chroma.descriptionZh : chroma.descriptionEn}</p>}
+    {(isZh ? chroma.descriptionZh : chroma.descriptionEn) && <TypographyParagraph className="detail-lede" expandLabel={isZh ? '展开' : 'Expand'} collapseLabel={isZh ? '收起' : 'Collapse'}>{isZh ? chroma.descriptionZh : chroma.descriptionEn}</TypographyParagraph>}
     <div class="detail-summary">
       <RuntimeDetailSummary locale={locale} kind="chroma"><dl>
         <div><dt class="sr-only">{isZh ? '分类' : 'Category'}</dt><dd><span class="detail-summary-item"><DomainIcon name="prestige-chromas" tooltipDetail={categoryLabel} {locale} /><span class="detail-category-name" data-category-icon={sourceImageUrl('tag', chroma.tagId)}>{categoryLabel}</span></span></dd></div>
@@ -153,7 +154,7 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   .detail-display-title :global(.color-wrap),.detail-display-title :global(.color-circle){width:1em;height:1em;flex:0 0 1em}
   .detail-category-name{cursor:help}
   :global(.category-icon-tooltip-image){display:block;width:auto;height:auto;max-width:min(240px,calc(100vw - (var(--page-gutter) * 2)));max-height:min(240px,65vh);object-fit:contain}
-  .detail-lede{grid-column:1/-1;margin:0;color:var(--muted);line-height:1.7}
+  .detail-lede{grid-column:1/-1}
   .detail-summary{grid-column:1/-1}
   .detail-summary :global(dl){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;border:0;color:var(--gold);font-size:var(--font-size-title);line-height:var(--line-height-title)}
   .detail-summary :global(dl>div){display:flex;align-items:center;gap:0;padding:0;border:0}

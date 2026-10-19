@@ -1,0 +1,19 @@
+---
+interface Props {
+  readonly className?: string;
+  readonly expandLabel: string;
+  readonly collapseLabel: string;
+}
+
+const { className, expandLabel, collapseLabel } = Astro.props;
+---
+
+<div class:list={["ant-typography", "ant-typography-paragraph", className]} data-typography-paragraph data-expand-label={expandLabel} data-collapse-label={collapseLabel}>
+  <span class="ant-typography-paragraph-content">
+    <span class="ant-typography-paragraph-text"><slot /></span>
+    <span class="ant-typography-actions" hidden>
+      <span class="ant-typography-ellipsis" aria-hidden="true" hidden>...</span>
+      <button class="ant-typography-expand" type="button" data-typography-expand aria-expanded="false" hidden></button>
+    </span>
+  </span>
+</div>

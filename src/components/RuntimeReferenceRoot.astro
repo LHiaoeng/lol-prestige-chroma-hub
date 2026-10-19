@@ -7,6 +7,7 @@ import Empty from './Empty.astro';
 import Skeleton from './Skeleton.astro';
 import DomainIcon from './DomainIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+import TypographyParagraph from './TypographyParagraph.astro';
 import RuntimeDetailSummary from './RuntimeDetailSummary.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
@@ -101,7 +102,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       <Divider type="vertical" />
       <span class="runtime-list-count" data-runtime-list-count hidden />
     </div>}
-    {!showCompactListHeader && <p class="runtime-lede">{lede}</p>}
+    {!showCompactListHeader && <TypographyParagraph className="runtime-lede" expandLabel={isZh ? '展开' : 'Expand'} collapseLabel={isZh ? '收起' : 'Collapse'}>{lede}</TypographyParagraph>}
     <Divider class={showCompactListHeader ? undefined : 'runtime-header-divider'} />
   </header>}
   <section class="runtime-section">
@@ -123,7 +124,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       <template data-runtime-invalid-template>
         <header class="runtime-detail runtime-detail--entity" data-runtime-invalid-header>
           <h1>{heading}</h1>
-          <p class="runtime-lede">{isZh ? '链接参数无效，请检查链接后返回目录重新选择资料。' : 'The link parameters are invalid. Check the link or return to the directory and choose an entry again.'}</p>
+          <TypographyParagraph className="runtime-lede" expandLabel={isZh ? '展开' : 'Expand'} collapseLabel={isZh ? '收起' : 'Collapse'}>{isZh ? '链接参数无效，请检查链接后返回目录重新选择资料。' : 'The link parameters are invalid. Check the link or return to the directory and choose an entry again.'}</TypographyParagraph>
         </header>
         <Alert type="error" title={isZh ? '资料链接无效' : 'Invalid reference link'} showIcon>
           <span slot="description" data-runtime-invalid-message></span>

@@ -52,7 +52,7 @@ import {
   type DomainIconName,
 } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
-import { createTitle } from "../components/Typography";
+import { bindTypographyParagraphs, createParagraph, createTitle } from "../components/Typography";
 import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
@@ -528,13 +528,25 @@ export function createRuntimeDetailRenderer(
       }
       article.appendChild(title);
       if (item.kind === "champion" && item.shortBio)
-        article.appendChild(textNode("p", item.shortBio, "runtime-lede"));
+        article.appendChild(createParagraph({
+          text: item.shortBio,
+          className: "runtime-lede",
+          locale: options.locale,
+        }));
       if (item.kind === "skin") {
         const description = item.description ?? (item.isBase ? item.championShortBio : undefined);
-        if (description) article.appendChild(textNode("p", description, "runtime-lede"));
+        if (description) article.appendChild(createParagraph({
+          text: description,
+          className: "runtime-lede",
+          locale: options.locale,
+        }));
       }
       if (item.kind === "skinline" && item.description)
-        article.appendChild(textNode("p", item.description, "runtime-lede"));
+        article.appendChild(createParagraph({
+          text: item.description,
+          className: "runtime-lede",
+          locale: options.locale,
+        }));
       if (
         item.kind === "champion" ||
         item.kind === "skin" ||
@@ -755,8 +767,11 @@ export function createRuntimeDetailRenderer(
         skins.appendChild(skinlineSkinsSlot);
         article.appendChild(skins);
       } else {
-        if (item.description)
-          article.appendChild(textNode("p", item.description, "runtime-lede"));
+        if (item.description) article.appendChild(createParagraph({
+          text: item.description,
+          className: "runtime-lede",
+          locale: options.locale,
+        }));
         relationSlot = textNode(
           "div",
           "",
@@ -787,6 +802,7 @@ export function createRuntimeDetailRenderer(
         article.appendChild(skins);
       }
       options.content.replaceChildren(article);
+      bindTypographyParagraphs(article);
       options.status.textContent =
         item.kind === "champion" || item.kind === "universe"
           ? ""

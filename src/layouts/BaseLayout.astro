@@ -96,8 +96,10 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
       import { bindHeaderGlass } from '../client/header-glass';
+      import { bindTypographyParagraphs } from '../components/Typography';
       bindImageFallbacks();
       bindHeaderGlass();
+      bindTypographyParagraphs();
       const browseMenu = document.querySelector<HTMLElement>('.browse-menu');
       const browseToggle = document.querySelector<HTMLButtonElement>('.browse-menu-toggle');
       if (browseMenu && browseToggle) {
