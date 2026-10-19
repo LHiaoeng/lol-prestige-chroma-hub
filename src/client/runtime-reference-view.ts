@@ -91,6 +91,8 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     options.root.querySelector<HTMLElement>("[data-runtime-content]") ??
     document.createElement("div");
   const pageShell = options.root.closest<HTMLElement>("[data-runtime-page-shell]");
+  const pbeSummary = pageShell?.querySelector<HTMLElement>("[data-runtime-pbe-summary]") ?? null;
+  const pbeSummarySkeleton = pbeSummary?.firstElementChild?.cloneNode(true);
   const entityDetailSummary = options.root.ownerDocument.querySelector<HTMLElement>(
     "[data-runtime-entity-detail-summary]",
   );
@@ -199,6 +201,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
   });
   const pbeRenderer = createRuntimePbeRenderer({
     content,
+    summary: pbeSummary,
     status,
     locale: options.locale,
     getController: options.getController,
@@ -322,6 +325,10 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       preservingContent = preserve;
       options.root.setAttribute("aria-busy", "true");
       if (!preserve) pageShell?.setAttribute("data-runtime-loading", "");
+      if (!preserve && context && typeof context === "object" && context.target.mode === "pbe") {
+        pbeSummary?.removeAttribute("hidden");
+        if (pbeSummarySkeleton) pbeSummary?.replaceChildren(pbeSummarySkeleton.cloneNode(true));
+      }
       clearRuntimeAlert();
       const isEntityDetail =
         context &&
@@ -387,6 +394,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     },
     failure(error, retry) {
       if (!preservingContent) detailRenderer.showDetailSummaryFailure();
+      if (!preservingContent) pbeSummary?.setAttribute("hidden", "");
       entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
       entityHeaderSkeleton?.setAttribute("hidden", "");
       entityChannelSource?.removeAttribute("data-runtime-summary-loading");

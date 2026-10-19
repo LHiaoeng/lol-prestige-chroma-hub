@@ -352,7 +352,6 @@ describe("RuntimeController", () => {
   it("renders the PBE additions stream without a channel URL", async () => {
     const stream: RuntimePbeAdditionsStream = {
       signal: new AbortController().signal,
-      versions: Promise.resolve({ pbe: "16.19", latest: "16.18" }),
       modules: [
         {
           kind: "champions",

@@ -127,10 +127,6 @@ export interface RuntimePbeModule {
 export interface RuntimePbeAdditionsStream {
   /** Aborted when the page navigation supersedes this comparison. */
   readonly signal: AbortSignal;
-  readonly versions: Promise<{
-    readonly pbe?: string;
-    readonly latest?: string;
-  }>;
   readonly modules: readonly RuntimePbeModule[];
 }
 

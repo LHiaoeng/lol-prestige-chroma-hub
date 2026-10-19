@@ -802,6 +802,9 @@ export function createRuntimeDetailRenderer(
         article.appendChild(skins);
       }
       options.content.replaceChildren(article);
+      if (window.location.hash === "#runtime-skin-chromas") {
+        article.querySelector<HTMLElement>(".runtime-skin-chromas")?.scrollIntoView({ block: "start" });
+      }
       bindTypographyParagraphs(article);
       options.status.textContent =
         item.kind === "champion" || item.kind === "universe"

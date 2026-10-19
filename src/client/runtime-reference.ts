@@ -488,7 +488,7 @@ export function initRuntimeReference(root: HTMLElement): RuntimeController {
     (page !== "pbe-additions" && pageMode === "pbe")
   )
     throw new Error("Runtime reference root is missing a valid page or locale");
-  const source = root.ownerDocument.querySelector<HTMLElement>("[data-runtime-source]");
+  const source = root.ownerDocument.querySelector<HTMLElement>("[data-runtime-source]") ?? (page === "pbe-additions" ? root : null);
   if (!source) throw new Error("Runtime reference source controls are missing");
   const history = browserHistory();
   const runtime = createCommunityDragonRuntime();

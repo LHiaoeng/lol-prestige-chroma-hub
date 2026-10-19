@@ -6,16 +6,11 @@ import type {
   RuntimePbeModuleItems,
   RuntimePbeModuleKind,
 } from "../domain/pbe-additions";
-import {
-  communityDragonChannelLabel,
-  communityDragonVersionMetadataUrl,
-} from "../domain/communitydragon-url";
 import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 import {
-  appendChromaColorCircle,
   appendMedia,
   appendMissingField,
-  appendSkinReferenceTitle,
+  appendSkinReferenceCard,
   hrefFor,
   linkWithNavigation,
   runtimeMissingLabel,
@@ -23,89 +18,17 @@ import {
   textNode,
 } from "./runtime-reference-view-shared";
 import { createChromaCard } from "../components/chroma-card/chroma-card";
-import { createDomainHeading, type DomainIconName } from "../components/domain-icons";
+import { createDivider } from "../components/Divider";
+import { createDomainHeading, createDomainIcon, type DomainIconName } from "../components/domain-icons";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
-function createPbeVersionItem(
-  locale: CommunityDragonLocale,
-  channel: "pbe" | "latest",
-): { readonly item: HTMLDivElement; readonly link: HTMLAnchorElement } {
-  const item = document.createElement("div");
-  item.className = "runtime-pbe-version";
-  item.appendChild(
-    textNode("dt", communityDragonChannelLabel(channel, locale)),
-  );
-  const value = document.createElement("dd");
-  const link = document.createElement("a");
-  link.href = communityDragonVersionMetadataUrl(channel);
-  link.textContent =
-    locale === "zh_cn" ? "版本加载中…" : "Loading version…";
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  value.appendChild(link);
-  item.appendChild(value);
-  return { item, link };
-}
 export function appendPbeSkinCard(
   parent: HTMLElement,
   item: RuntimeSkinReferenceItem,
   locale: CommunityDragonLocale,
   controller: RuntimeControllerLike,
 ): void {
-  const card = document.createElement("article");
-  card.className = "runtime-pbe-card runtime-pbe-skin-card";
-  const name = item.name ?? runtimeMissingLabel(locale, "name");
-  const link = linkWithNavigation(
-    "",
-    hrefFor(
-      locale,
-      "skins",
-      {
-        id: item.stageId ?? item.skinId,
-        championId: item.championId,
-        channel: "pbe",
-      },
-      "detail",
-      true,
-    ),
-    controller,
-    "runtime-pbe-card-link",
-  );
-  link.setAttribute("aria-label", name);
-  if (item.thumbnailUrl) appendMedia(link, item.thumbnailUrl, name);
-  else appendMissingField(link, locale, "thumbnail");
-  const meta = document.createElement("span");
-  meta.className = "runtime-pbe-card-meta";
-  const title = appendSkinReferenceTitle(meta, name, item.rarity);
-  if (!item.name) title.classList.add("runtime-missing");
-  link.appendChild(meta);
-  card.appendChild(link);
-
-  const owner = document.createElement("p");
-  owner.className = "runtime-pbe-card-owner";
-  owner.appendChild(
-    textNode("span", locale === "zh_cn" ? "所属英雄：" : "Champion: "),
-  );
-  owner.appendChild(
-    (() => {
-      const link = linkWithNavigation(
-        item.championName ?? runtimeMissingLabel(locale, "name"),
-        hrefFor(
-          locale,
-          "champions",
-          { id: item.championId, channel: "pbe" },
-          "detail",
-          true,
-        ),
-        controller,
-        "runtime-relation-link",
-      );
-      if (!item.championName) link.classList.add("runtime-missing");
-      return link;
-    })(),
-  );
-  card.appendChild(owner);
-  parent.appendChild(card);
+  appendSkinReferenceCard(parent, item, locale, "pbe", controller, true);
 }
 
 export function appendPbeChromaCard(
@@ -115,18 +38,6 @@ export function appendPbeChromaCard(
   controller: RuntimeControllerLike,
 ): void {
   const name = item.name ?? runtimeMissingLabel(locale, "name");
-  const link = linkWithNavigation(
-    "",
-    hrefFor(
-      locale,
-      "skins",
-      { id: item.skinId, championId: item.championId, channel: "pbe" },
-      "detail",
-      true,
-    ),
-    controller,
-    "runtime-chroma-link",
-  );
   const skinUrl = hrefFor(
     locale,
     "skins",
@@ -134,13 +45,13 @@ export function appendPbeChromaCard(
     "detail",
     true,
   );
-  const ownerLink = linkWithNavigation(
-    item.skinName ?? runtimeMissingLabel(locale, "name"),
+  skinUrl.hash = "runtime-skin-chromas";
+  const link = linkWithNavigation(
+    "",
     skinUrl,
     controller,
-    "runtime-relation-link",
+    "runtime-chroma-link",
   );
-  if (!item.skinName) ownerLink.classList.add("runtime-missing");
   const card = createChromaCard({
     name,
     nameMissing: !item.name,
@@ -150,7 +61,6 @@ export function appendPbeChromaCard(
     locale,
     missingKind: "artwork",
     link,
-    ownerLink,
   });
   parent.appendChild(card);
 }
@@ -217,6 +127,11 @@ const pbeModuleIcons: Record<RuntimePbeModuleKind, DomainIconName> = {
   wards: "skins",
   finishers: "pbe-additions",
 };
+const pbeModuleGroups: readonly (readonly RuntimePbeModuleKind[])[] = [
+  ["champions"], ["skins", "chromas"], ["skinlines"], ["universes"],
+  ["icons"], ["emotes"], ["borders"], ["wards"], ["finishers"],
+];
+const pbeModuleOrder = pbeModuleGroups.flat();
 
 function renderModuleItems(
   grid: HTMLElement,
@@ -370,12 +285,21 @@ function fillWithSkeleton(grid: HTMLElement, kind: RuntimePbeModuleKind): void {
 const EXPAND_SVG =
   '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 
-function measurePbeRowHeight(grid: HTMLElement): number {
-  const card = grid.querySelector<HTMLElement>(
-    ".runtime-pbe-card, .runtime-chroma-card",
-  );
-  const height = card ? card.offsetHeight : 0;
-  if (height) grid.style.setProperty("--pbe-row-height", `${height}px`);
+function measurePbeTwoRowHeight(grid: HTMLElement): number {
+  const gridTop = grid.getBoundingClientRect().top;
+  const rowBottoms = new Map<number, number>();
+  grid
+    .querySelectorAll<HTMLElement>(
+      ".runtime-pbe-card, .runtime-chroma-card, .runtime-skin-reference-card",
+    )
+    .forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const top = Math.round(rect.top - gridTop);
+      rowBottoms.set(top, Math.max(rowBottoms.get(top) ?? 0, rect.bottom - gridTop));
+    });
+  const rows = [...rowBottoms.values()];
+  const height = rows[1] ?? (rows.length === 1 ? rows[0] : 0);
+  if (height) grid.style.setProperty("--pbe-two-row-height", `${height}px`);
   return height || 280;
 }
 
@@ -389,9 +313,8 @@ function applyCollapsible(
   section?.querySelector(".runtime-pbe-expand")?.remove();
   if (!section) return;
 
-  const rowHeight = measurePbeRowHeight(grid);
-  const twoRowThreshold = rowHeight * 2 + 14 + 84;
-  if (grid.scrollHeight <= twoRowThreshold) return;
+  const twoRowHeight = measurePbeTwoRowHeight(grid);
+  if (grid.scrollHeight <= twoRowHeight + 84) return;
 
   grid.classList.add("has-overflow");
   grid.dataset.expanded = "false";
@@ -403,6 +326,7 @@ function applyCollapsible(
     "aria-label",
     locale === "zh_cn" ? "展开全部" : "Expand all",
   );
+  button.title = locale === "zh_cn" ? "展开全部" : "Expand all";
   button.innerHTML = EXPAND_SVG;
   button.addEventListener("click", () => {
     const expanded = grid.dataset.expanded === "true";
@@ -415,13 +339,14 @@ function applyCollapsible(
   if (!grid.dataset.collapsibleInited) {
     grid.dataset.collapsibleInited = "true";
     if ("ResizeObserver" in window) {
-      new ResizeObserver(() => measurePbeRowHeight(grid)).observe(grid);
+      new ResizeObserver(() => measurePbeTwoRowHeight(grid)).observe(grid);
     }
   }
 }
 
 export interface RuntimePbeRendererOptions {
   readonly content: HTMLElement;
+  readonly summary: HTMLElement | null;
   readonly status: HTMLElement;
   readonly locale: CommunityDragonLocale;
   readonly getController: () => RuntimeControllerLike;
@@ -463,8 +388,12 @@ export function createRuntimePbeRenderer(
 
   return {
     render(stream) {
+      if (!options.summary) throw new Error("PBE summary slot is missing");
       setRuntimeNoindex(false);
       const controller = options.getController();
+      const modules = [...stream.modules].sort(
+        (left, right) => pbeModuleOrder.indexOf(left.kind) - pbeModuleOrder.indexOf(right.kind),
+      );
       let disposed = stream.signal.aborted;
       stream.signal.addEventListener(
         "abort",
@@ -477,49 +406,62 @@ export function createRuntimePbeRenderer(
       const article = document.createElement("article");
       article.className = "runtime-pbe-additions";
 
-      const versions = document.createElement("dl");
-      versions.className = "runtime-pbe-versions";
-      const versionLinks = (["pbe", "latest"] as const).map((channel) => {
-        const { item, link } = createPbeVersionItem(locale, channel);
-        versions.appendChild(item);
-        return [channel, link] as const;
-      });
-      article.appendChild(versions);
-      stream.versions
-        .then((metadata) => {
-          if (disposed) return;
-          versionLinks.forEach(([channel, link]) => {
-            const version = metadata[channel];
-            if (version) link.textContent = version;
-          });
-        })
-        .catch(() => {
-          if (disposed) return;
-          versionLinks.forEach(([, link]) => {
-            link.textContent =
-              locale === "zh_cn" ? "版本信息缺失" : "Version unavailable";
-          });
-        });
-
-      const summary = document.createElement("div");
+      const summary = document.createElement("nav");
       summary.className = "runtime-pbe-summary";
+      summary.setAttribute("aria-label", locale === "zh_cn" ? "PBE 新增摘要" : "PBE additions summary");
       const totalLabel = locale === "zh_cn" ? "新增实体总数" : "Total new entities";
       const totalElement = textNode("strong", `${totalLabel}: …`);
       summary.appendChild(totalElement);
       const countElements = new Map<RuntimePbeModuleKind, HTMLSpanElement>();
-      stream.modules.forEach((module) => {
+      const summaryLinks = new Map<RuntimePbeModuleKind, HTMLAnchorElement>();
+      modules.forEach((module) => {
+        const link = document.createElement("a");
+        link.className = "runtime-pbe-summary-link";
+        link.href = `#runtime-pbe-${module.kind}`;
+        link.appendChild(createDomainIcon(pbeModuleIcons[module.kind]));
         const countElement = textNode(
           "span",
           `${moduleText[module.kind].label}: …`,
         );
         countElements.set(module.kind, countElement);
-        summary.appendChild(countElement);
+        summaryLinks.set(module.kind, link);
+        link.appendChild(countElement);
+        summary.appendChild(createDivider({ type: "vertical" }));
+        summary.appendChild(link);
       });
-      article.appendChild(summary);
+      options.summary.removeAttribute("hidden");
+      options.summary.replaceChildren(summary);
 
       let total = 0;
       let failures = 0;
-      const pending = new Set(stream.modules.map((module) => module.kind));
+      const pending = new Set(modules.map((module) => module.kind));
+      const moduleCounts = new Map<RuntimePbeModuleKind, number>();
+      const sections = new Map<RuntimePbeModuleKind, HTMLElement>();
+      const reorderContent = () => {
+        const ordered = pbeModuleGroups
+          .map((group) => modules.filter((module) => group.includes(module.kind)))
+          .filter((group) => group.length > 0)
+          .sort((left, right) => {
+            const groupRank = (group: readonly { readonly kind: RuntimePbeModuleKind }[]) =>
+              group.some((module) => (moduleCounts.get(module.kind) ?? 0) > 0)
+                ? 0
+                : group.some((module) => !moduleCounts.has(module.kind))
+                  ? 1
+                  : 2;
+            return groupRank(left) - groupRank(right);
+          })
+          .flat();
+        summary.replaceChildren(totalElement);
+        article.replaceChildren();
+        ordered.forEach((module, index) => {
+          if (index > 0) {
+            summary.appendChild(createDivider({ type: "vertical" }));
+            article.appendChild(createDivider({ dashed: true, className: "runtime-pbe-divider" }));
+          }
+          summary.appendChild(summaryLinks.get(module.kind)!);
+          article.appendChild(sections.get(module.kind)!);
+        });
+      };
       const refreshStatus = () => {
         if (disposed) return;
         if (pending.size > 0) {
@@ -529,25 +471,27 @@ export function createRuntimePbeRenderer(
           return;
         }
         options.status.textContent = failures === 0
-          ? locale === "zh_cn"
-            ? `已比较 PBE 与正式服，发现 ${total} 个新增实体`
-            : `Compared PBE and Live: ${total} new entities`
+          ? ""
           : locale === "zh_cn"
             ? `已加载 ${total} 个新增实体，${failures} 个分类加载失败，可单独重试。`
             : `Loaded ${total} new entities; ${failures} categories failed and can be retried.`;
         totalElement.textContent = `${totalLabel}: ${total}`;
+        reorderContent();
       };
 
-      stream.modules.forEach((module) => {
+      modules.forEach((module, index) => {
         const text = moduleText[module.kind];
         const countElement = countElements.get(module.kind)!;
         const section = document.createElement("section");
         section.className = "runtime-pbe-section";
+        section.id = `runtime-pbe-${module.kind}`;
         const headingLabel = textNode("span", text.title);
         const heading = createDomainHeading(pbeModuleIcons[module.kind], headingLabel);
         const grid = document.createElement("div");
         grid.className = "runtime-pbe-grid";
         section.append(heading, grid);
+        sections.set(module.kind, section);
+        if (index > 0) article.appendChild(createDivider({ dashed: true, className: "runtime-pbe-divider" }));
         article.appendChild(section);
 
         let counted = false;
@@ -557,6 +501,7 @@ export function createRuntimePbeRenderer(
           refreshStatus();
         };
         const showFailure = () => {
+          countElement.textContent = locale === "zh_cn" ? `${text.label}: 加载失败` : `${text.label}: failed`;
           headingLabel.textContent =
             locale === "zh_cn"
               ? `${text.title}（加载失败）`
@@ -579,6 +524,9 @@ export function createRuntimePbeRenderer(
             "click",
             () => {
               if (disposed) return;
+              pending.add(module.kind);
+              refreshStatus();
+              countElement.textContent = `${text.label}: …`;
               fillWithSkeleton(grid, module.kind);
               attempt();
             },
@@ -590,7 +538,8 @@ export function createRuntimePbeRenderer(
           module.load().then(
             (result) => {
               if (disposed) return;
-              heading.textContent = `${text.title} (${result.items.length})`;
+              moduleCounts.set(module.kind, result.items.length);
+              headingLabel.textContent = `${text.title} (${result.items.length})`;
               countElement.textContent = `${text.label}: ${result.items.length}`;
               grid.replaceChildren();
               if (result.items.length) {

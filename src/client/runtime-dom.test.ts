@@ -4,6 +4,12 @@ import {
   shouldHandleRuntimeNavigation,
   type RuntimeHistory,
 } from "./runtime-reference";
+import {
+  appendPbeChromaCard,
+  appendPbeSkinCard,
+  createRuntimePbeRenderer,
+} from "./runtime-reference-pbe-renderer";
+import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 
 function dataProperty(attribute: string): string {
   return attribute
@@ -43,6 +49,9 @@ class TestElement {
 
   get ownerDocument(): TestDocument {
     return document as unknown as TestDocument;
+  }
+  getBoundingClientRect(): { top: number; bottom: number } {
+    return { top: 0, bottom: this.height };
   }
   get nextSibling(): TestElement | null {
     if (!this.parentElement) return null;
@@ -177,6 +186,8 @@ class TestElement {
   }
 
   matches(selector: string): boolean {
+    if (selector.includes(","))
+      return selector.split(",").some((part) => this.matches(part.trim()));
     const data = selector.match(/^\[data-([a-z0-9-]+)\]$/);
     if (data) return dataProperty(`data-${data[1]}`) in this.dataset;
     const metaData = selector.match(/^meta\[data-([a-z0-9-]+)\]$/);
@@ -258,6 +269,237 @@ function createDomRuntimeView(
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
+  it("shows only the PBE summary after a successful comparison", async () => {
+    vi.stubGlobal("document", new TestDocument());
+    const content = new TestElement("div");
+    const summarySlot = new TestElement("div");
+    const status = new TestElement("p");
+    createRuntimePbeRenderer({
+      content: content as unknown as HTMLElement,
+      summary: summarySlot as unknown as HTMLElement,
+      status: status as unknown as HTMLElement,
+      locale: "zh_cn",
+      getController: () => ({ navigate: vi.fn() }),
+    }).render({
+      signal: new AbortController().signal,
+      modules: [{ kind: "champions", load: async () => ({ kind: "champions", items: [] }) }],
+    });
+    await Promise.resolve();
+    expect(summarySlot.textContent).toContain("新增实体总数: 0");
+    expect(status.textContent).toBe("");
+    expect(content.querySelector("dl")).toBeNull();
+  });
+
+  it("keeps PBE section icons after a category finishes loading", async () => {
+    vi.stubGlobal("document", new TestDocument());
+    const content = new TestElement("div");
+    const summarySlot = new TestElement("div");
+    const status = new TestElement("p");
+    createRuntimePbeRenderer({
+      content: content as unknown as HTMLElement,
+      summary: summarySlot as unknown as HTMLElement,
+      status: status as unknown as HTMLElement,
+      locale: "default",
+      getController: () => ({ navigate: vi.fn() }),
+    }).render({
+      signal: new AbortController().signal,
+      modules: [
+        { kind: "champions", load: async () => ({ kind: "champions", items: [] }) },
+        { kind: "skins", load: async () => { throw new Error("unavailable"); } },
+      ],
+    });
+
+    await Promise.resolve();
+    const summary = summarySlot.querySelector(".runtime-pbe-summary");
+    expect(content.querySelector(".runtime-pbe-summary")).toBeNull();
+    expect(summary?.getAttribute("aria-label")).toBe("PBE additions summary");
+    expect(summary?.querySelectorAll("a").map((link) => link.href)).toEqual([
+      "#runtime-pbe-skins", "#runtime-pbe-champions",
+    ]);
+    expect(content.querySelectorAll(".runtime-pbe-section").map((section) => section.id)).toEqual([
+      "runtime-pbe-skins", "runtime-pbe-champions",
+    ]);
+    expect(summary?.textContent).toContain("Champions: 0");
+    expect(summary?.textContent).toContain("Skins: failed");
+    const heading = content.querySelectorAll(".runtime-pbe-section")
+      .find((section) => section.id === "runtime-pbe-champions")
+      ?.querySelector(".runtime-section-heading");
+    expect(heading?.textContent).toBe("New champions (0)");
+    expect(heading?.children[0]?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("collapses PBE sections after one row and keeps the toggle state in sync", async () => {
+    vi.stubGlobal("document", new TestDocument());
+    vi.stubGlobal("window", { location: { origin: "https://chromaart.lol" } });
+    const content = new TestElement("div");
+    const summary = new TestElement("div");
+    const status = new TestElement("p");
+    createRuntimePbeRenderer({
+      content: content as unknown as HTMLElement,
+      summary: summary as unknown as HTMLElement,
+      status: status as unknown as HTMLElement,
+      locale: "zh_cn",
+      getController: () => ({ navigate: vi.fn() }),
+    }).render({
+      signal: new AbortController().signal,
+      modules: [{
+        kind: "skinlines",
+        load: async () => ({
+          kind: "skinlines",
+          items: Array.from({ length: 10 }, (_, id) => ({
+            kind: "skinline" as const,
+            id,
+            name: `Skinline ${id}`,
+            universeIds: [],
+          })),
+        }),
+      }],
+    });
+    const grid = content.querySelector(".runtime-pbe-grid")!;
+    Object.defineProperty(grid, "scrollHeight", { value: 500 });
+    await Promise.resolve();
+
+    const toggle = content.querySelector(".runtime-pbe-expand");
+    expect(toggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(grid.dataset.expanded).toBe("false");
+    toggle?.click();
+    expect(toggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(grid.dataset.expanded).toBe("true");
+  });
+
+  it("measures the full second PBE row for the collapsed preview", async () => {
+    vi.stubGlobal("document", new TestDocument());
+    let resize: (() => void) | undefined;
+    class TestResizeObserver {
+      constructor(callback: () => void) { resize = callback; }
+      observe(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", TestResizeObserver);
+    vi.stubGlobal("window", {
+      location: { origin: "https://chromaart.lol" },
+      ResizeObserver: TestResizeObserver,
+    });
+    const content = new TestElement("div");
+    createRuntimePbeRenderer({
+      content: content as unknown as HTMLElement,
+      summary: new TestElement("div") as unknown as HTMLElement,
+      status: new TestElement("p") as unknown as HTMLElement,
+      locale: "zh_cn",
+      getController: () => ({ navigate: vi.fn() }),
+    }).render({
+      signal: new AbortController().signal,
+      modules: [{
+        kind: "skinlines",
+        load: async () => ({
+          kind: "skinlines",
+          items: Array.from({ length: 12 }, (_, id) => ({
+            kind: "skinline" as const,
+            id,
+            name: `Skinline ${id}`,
+            universeIds: [],
+          })),
+        }),
+      }],
+    });
+    const grid = content.querySelector(".runtime-pbe-grid")!;
+    const styles = new Map<string, string>();
+    Object.defineProperty(grid, "style", {
+      value: { setProperty: (name: string, value: string) => styles.set(name, value) },
+    });
+    Object.defineProperty(grid, "scrollHeight", { value: 1200 });
+    Object.defineProperty(grid, "getBoundingClientRect", {
+      value: () => ({ top: 100 }),
+    });
+    await Promise.resolve();
+    grid.querySelectorAll(".runtime-pbe-card").forEach((card, index) => {
+      const top = index < 6 ? 100 : 340;
+      const height = index < 6 ? 120 : 160;
+      Object.defineProperty(card, "getBoundingClientRect", {
+        value: () => ({ top, bottom: top + height }),
+      });
+    });
+    resize?.();
+
+    expect(styles.get("--pbe-two-row-height")).toBe("400px");
+  });
+
+  it("shows populated sections first and keeps skins beside chromas", async () => {
+    vi.stubGlobal("document", new TestDocument());
+    vi.stubGlobal("window", { location: { origin: "https://chromaart.lol" } });
+    const content = new TestElement("div");
+    const summary = new TestElement("div");
+    const status = new TestElement("p");
+    createRuntimePbeRenderer({
+      content: content as unknown as HTMLElement,
+      summary: summary as unknown as HTMLElement,
+      status: status as unknown as HTMLElement,
+      locale: "zh_cn",
+      getController: () => ({ navigate: vi.fn() }),
+    }).render({
+      signal: new AbortController().signal,
+      modules: [
+        { kind: "chromas", load: async () => ({ kind: "chromas", items: [] }) },
+        { kind: "champions", load: async () => ({ kind: "champions", items: [] }) },
+        { kind: "skins", load: async () => ({ kind: "skins", items: [] }) },
+        {
+          kind: "skinlines",
+          load: async () => ({
+            kind: "skinlines",
+            items: [{ kind: "skinline", id: 1, name: "New skinline", universeIds: [] }],
+          }),
+        },
+      ],
+    });
+    await Promise.resolve();
+
+    expect(content.querySelectorAll(".runtime-pbe-section").map((section) => section.id)).toEqual([
+      "runtime-pbe-skinlines", "runtime-pbe-champions", "runtime-pbe-skins", "runtime-pbe-chromas",
+    ]);
+  });
+
+  it("omits parent labels on new PBE skins and chromas, linking chromas to the skin chroma section", () => {
+    vi.stubGlobal("document", new TestDocument());
+    vi.stubGlobal("window", { location: { origin: "https://chromaart.lol" } });
+    const parent = new TestElement("div");
+    const skin: RuntimeSkinReferenceItem = {
+      kind: "skin",
+      id: 1,
+      championId: 2,
+      skinId: 1,
+      target: { championId: 2, skinId: 1 },
+      stableKey: "skin:1",
+      name: "New skin",
+      championName: "Champion",
+      isBase: false,
+      skinlineIds: [],
+      universeIds: [],
+      media: {},
+      historicalArt: [],
+      chromas: [],
+    };
+    appendPbeSkinCard(parent as unknown as HTMLElement, skin, "zh_cn", { navigate: vi.fn() });
+    appendPbeChromaCard(parent as unknown as HTMLElement, {
+      kind: "chroma",
+      id: 3,
+      name: "New chroma",
+      skinId: 1,
+      championId: 2,
+      skinName: "Parent skin",
+    }, "zh_cn", { navigate: vi.fn() });
+
+    expect(parent.querySelector(".runtime-skin-reference-card")).not.toBeNull();
+    expect(parent.querySelector(".runtime-skin-reference-link")).not.toBeNull();
+    expect(parent.querySelector(".runtime-skin-reference-champion")).toBeNull();
+    expect(parent.querySelector(".runtime-pbe-card-owner")).toBeNull();
+    expect(parent.querySelector(".runtime-chroma-owner")).toBeNull();
+    const chromaHref = parent.querySelectorAll("a").map((link) => link.href)
+      .find((href) => href.includes("#runtime-skin-chromas"));
+    expect(chromaHref).toContain("/skins/detail/?");
+    expect(chromaHref).toContain("id=1");
+    expect(chromaHref).toContain("champion=2");
+    expect(chromaHref).toContain("channel=pbe");
+  });
+
   it("keeps the loaded detail visible while confirming a channel switch", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

@@ -17,7 +17,7 @@ interface Props {
   readonly locale: Locale;
   readonly label: string;
   readonly heading: string;
-  readonly lede: string;
+  readonly lede?: string;
   readonly mode: 'list' | 'detail' | 'pbe';
 }
 
@@ -64,9 +64,6 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   <img data-runtime-reference-backdrop-image data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
 </div>}
 <Breadcrumb {locale} items={breadcrumbItems} />
-{mode === 'pbe' && !showCompactListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-  {isZh ? 'PBE 与正式服比较' : 'PBE vs Live'}
-</div>}
 {showEntityDetailSummary && <div class="runtime-entity-detail-summary" data-runtime-entity-detail-summary>
   <div class="runtime-entity-detail-header-skeleton" data-runtime-entity-header-skeleton aria-hidden="true">
     <div class="runtime-entity-title-skeleton">
@@ -83,7 +80,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   <Divider class={showUniverseDetailSummary ? 'runtime-universe-detail-divider' : 'runtime-entity-detail-divider'} />
 </div>}
 {mode === 'detail' && !showEntityDetailSummary && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}><RuntimeChannelSwitcher {locale} /></div>}
-<div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--entity-detail': showEntityDetailSummary, 'runtime-page--universe-detail': showUniverseDetailSummary, 'runtime-page--compact-list-header': showCompactListHeader, 'runtime-page--universe-list': page === 'universes' && showCompactListHeader }]} data-runtime-page-shell data-runtime-loading>
+<div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--entity-detail': showEntityDetailSummary, 'runtime-page--universe-detail': showUniverseDetailSummary, 'runtime-page--compact-list-header': showCompactListHeader, 'runtime-page--universe-list': page === 'universes' && showCompactListHeader, 'runtime-page--pbe': mode === 'pbe' }]} data-runtime-page-shell data-runtime-loading>
   {mode !== 'detail' && <header>
     <div class="runtime-page-header-skeleton" aria-hidden="true">
       <span class="runtime-skeleton-line runtime-skeleton-line--heading"></span>
@@ -94,7 +91,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       </div> : <span class="runtime-skeleton-line runtime-skeleton-line--lede"></span>}
     </div>
     <h1>
-      {showCompactListHeader && <DomainIcon name={listIcon} class="runtime-list-icon" />}
+      {(showCompactListHeader || mode === 'pbe') && <DomainIcon name={mode === 'pbe' ? 'pbe-additions' : listIcon} class="runtime-list-icon" />}
       {showCompactListHeader ? label : heading}
     </h1>
     {showCompactListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
@@ -102,7 +99,10 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       <Divider type="vertical" />
       <span class="runtime-list-count" data-runtime-list-count hidden />
     </div>}
-    {!showCompactListHeader && <TypographyParagraph className="runtime-lede" expandLabel={isZh ? '展开' : 'Expand'} collapseLabel={isZh ? '收起' : 'Collapse'}>{lede}</TypographyParagraph>}
+    {mode !== 'pbe' && !showCompactListHeader && <TypographyParagraph className="runtime-lede" expandLabel={isZh ? '展开' : 'Expand'} collapseLabel={isZh ? '收起' : 'Collapse'}>{lede}</TypographyParagraph>}
+    {mode === 'pbe' && <div class="runtime-pbe-summary-slot" data-runtime-pbe-summary>
+      <span class="runtime-skeleton-line runtime-skeleton-line--summary" aria-hidden="true"></span>
+    </div>}
     <Divider class={showCompactListHeader ? undefined : 'runtime-header-divider'} />
   </header>}
   <section class="runtime-section">

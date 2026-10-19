@@ -86,7 +86,7 @@ export function linkWithNavigation(
 ): HTMLAnchorElement {
   const link = document.createElement("a");
   link.className = className;
-  link.href = `${url.pathname}${url.search}`;
+  link.href = `${url.pathname}${url.search}${url.hash}`;
   link.textContent = label;
   link.addEventListener("click", (event) => {
     if (!shouldHandleRuntimeNavigation(url, window.location.pathname)) return;

@@ -1137,11 +1137,6 @@ describe("CommunityDragon runtime reference", () => {
 
   it("loads every PBE comparison resource for both channels", async () => {
     const fetcher = vi.fn(async (input: string) => {
-      if (input.includes("compat-version-metadata.json")) {
-        return jsonResponse({
-          version: input.includes("/latest/") ? "16.18" : "16.19",
-        });
-      }
       if (input.includes("champion-summary.json")) {
         return jsonResponse(
           summary(
@@ -1158,16 +1153,12 @@ describe("CommunityDragon runtime reference", () => {
       locale: "zh_cn",
       channel: "pbe",
     });
-    await expect(stream.versions).resolves.toEqual({
-      pbe: "16.19",
-      latest: "16.18",
-    });
     const results = await Promise.all(stream.modules.map((m) => m.load()));
     expect(
       results.every((result) => result.items.length === 0),
     ).toBe(true);
 
-    expect(fetcher).toHaveBeenCalledTimes(20);
+    expect(fetcher).toHaveBeenCalledTimes(18);
     for (const channel of ["pbe", "latest"]) {
       for (const path of [
         "champion-summary.json",
@@ -1185,34 +1176,7 @@ describe("CommunityDragon runtime reference", () => {
           expect.anything(),
         );
       }
-      expect(fetcher).toHaveBeenCalledWith(
-        `https://raw.communitydragon.org/${channel}/compat-version-metadata.json`,
-        expect.anything(),
-      );
     }
-  });
-
-  it("keeps unrelated PBE modules working when one resource is unavailable", async () => {
-    const fetcher = vi.fn(async (input: string) =>
-      input.includes("compat-version-metadata.json") && input.includes("/latest/")
-        ? jsonResponse({ message: "offline" }, 503)
-        : jsonResponse([]),
-    );
-    const runtime = createCommunityDragonRuntime(fetcher);
-
-    const stream = runtime.getPbeAdditionsStream!({
-      locale: "default",
-      channel: "pbe",
-    });
-    await expect(stream.versions).rejects.toMatchObject({
-      code: "http",
-      status: 503,
-    });
-    const finishers = stream.modules.find((m) => m.kind === "finishers");
-    await expect(finishers!.load()).resolves.toEqual({
-      kind: "finishers",
-      items: [],
-    });
   });
 
   it("reloads a failed PBE module on retry", async () => {

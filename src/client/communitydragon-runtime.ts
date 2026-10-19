@@ -1,7 +1,6 @@
 import {
   communityDragonChampionUrl,
   communityDragonDataUrl,
-  communityDragonVersionMetadataUrl,
 } from "../domain/communitydragon-url";
 import {
   projectPbeChampionNames,
@@ -30,7 +29,6 @@ import {
   parseRuntimeSkinBorderCollection,
   parseRuntimeSkinCollection,
   parseRuntimeSummonerIconCollection,
-  parseRuntimeVersionMetadata,
   parseRuntimeWardSkinCollection,
   type CommunityDragonLocale,
   type RuntimeChannel,
@@ -411,20 +409,6 @@ export function createCommunityDragonRuntime(
     );
   }
 
-  function getVersionMetadata(
-    input: RuntimeRequestOptions,
-    channel: RuntimeChannel,
-  ) {
-    const options = validateOptions({ ...input, channel });
-    const url = communityDragonVersionMetadataUrl(channel);
-    return request(
-      `version-metadata:${channel}`,
-      url,
-      options,
-      parseRuntimeVersionMetadata,
-    );
-  }
-
   function getPbeAdditionsStream(
     input: RuntimeRequestOptions,
   ): RuntimePbeAdditionsStream {
@@ -451,12 +435,6 @@ export function createCommunityDragonRuntime(
     // Each module loads its own channel pair so sections fill as soon as
     // their data is ready; the request cache keeps shared resources
     // (champions, skins.json) at a single fetch per channel.
-    const loadVersions = (): Promise<{ pbe?: string; latest?: string }> =>
-      Promise.all([
-        getVersionMetadata(channelOptions("pbe"), "pbe"),
-        getVersionMetadata(channelOptions("latest"), "latest"),
-      ]).then(([pbe, latest]) => ({ pbe: pbe.version, latest: latest.version }));
-
     const loadChampionNames = () =>
       championList("pbe").then(projectPbeChampionNames);
 
@@ -554,7 +532,6 @@ export function createCommunityDragonRuntime(
 
     return {
       signal: baseOptions.signal ?? new AbortController().signal,
-      versions: loadVersions(),
       modules: [
         { kind: "champions", load: loadChampions },
         { kind: "skins", load: loadSkins },

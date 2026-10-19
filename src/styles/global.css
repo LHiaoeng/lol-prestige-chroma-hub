@@ -194,12 +194,16 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-universe-count-skeleton { display: inline-block; flex: 0 0 112px; vertical-align: middle; }
 .runtime-universe-count-skeleton--skins { flex-basis: 72px; width: 72px; }
 .runtime-page[data-runtime-loading] > header { position: relative; }
-.runtime-page[data-runtime-loading] > header > :not(.runtime-page-header-skeleton) { visibility: hidden; }
-.runtime-page[data-runtime-loading] > header > .runtime-page-header-skeleton { display: grid; }
+.runtime-page:not(.runtime-page--pbe)[data-runtime-loading] > header > :not(.runtime-page-header-skeleton) { visibility: hidden; }
+.runtime-page:not(.runtime-page--pbe)[data-runtime-loading] > header > .runtime-page-header-skeleton { display: grid; }
 .runtime-list-count { color: var(--muted); font-size: var(--font-size-body); font-weight: 400; }
 .runtime-page .runtime-channel-row { min-height: var(--control-height); margin: 8px 0 0; padding: 0; }
 .runtime-page--compact-list-header header { padding-bottom: 0; }
 .runtime-page--compact-list-header header h1 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; color: var(--gold); }
+.runtime-page--pbe header h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); }
+.runtime-page--pbe header { padding-bottom: 0; }
+.runtime-page--pbe .runtime-header-divider { margin: var(--space-4) 0; }
+.runtime-page--pbe .runtime-section { padding-top: 0; }
 .domain-icon { display: block; fill: none; color: var(--gold); stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .runtime-list-icon { width: 1em; height: 1em; flex: 0 0 auto; align-self: center; stroke-width: 1.7; }
 .runtime-page--compact-list-header .runtime-channel-row { margin-top: 0; }
@@ -516,10 +520,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-skeleton-card--skin .runtime-skeleton-meta { width: 100%; min-height: 44px; padding: 12px; }
 .runtime-skinline-detail-skeleton > .runtime-skeleton-line--group-title,
 .runtime-skinline-detail-skeleton > .runtime-skeleton-toolbar { margin-bottom: 0; }
-.runtime-pbe-skeleton .runtime-pbe-version .runtime-skeleton-line:first-child { width: 48px; height: var(--line-height-small); }
-.runtime-pbe-skeleton .runtime-pbe-version .runtime-skeleton-line:last-child { width: min(280px, 80%); height: var(--line-height-body); }
-.runtime-pbe-skeleton .runtime-pbe-summary { min-height: var(--line-height-body); }
-.runtime-pbe-skeleton .runtime-pbe-section .runtime-skeleton-line--group-title { height: var(--line-height-headline-sm); margin-bottom: 16px; }
+.runtime-pbe-skeleton .runtime-pbe-section .runtime-skeleton-line--group-title { height: var(--line-height-headline-sm); margin-bottom: 0; }
 .runtime-skeleton-relations { min-height: var(--control-height); align-items: center; }
 .runtime-skeleton-line--chip { height: var(--control-height); border-radius: var(--radius-control); }
 .runtime-skeleton-toolbar {
@@ -975,7 +976,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-universe-skin-divider { margin: 0; }
 .runtime-universe-skin-cards { min-width: 0; }
 .runtime-skin-reference-champion { color: var(--muted); font-size: var(--font-size-small); }
-.runtime-skin-chromas { margin-top: var(--space-2); }
+.runtime-skin-chromas { margin-top: var(--space-2); scroll-margin-top: calc(var(--site-header-height) + var(--space-4)); }
 .runtime-detail h1 {
   margin: 0;
   font-size:var(--font-size-display);
@@ -1388,65 +1389,50 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
   .runtime-skeleton-grid--skins { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .runtime-skeleton-card--skin .runtime-skeleton-meta { padding: 8px; }
 }
-.runtime-pbe-versions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0 0 16px;
-}
-.runtime-pbe-version {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 16px;
-  border: 1px solid var(--line);
-  border-radius:var(--radius-card);
-  background: var(--panel);
-}
-.runtime-pbe-version dt {
-  color: var(--muted);
-  font-size:var(--font-size-small);
-}
-.runtime-pbe-version dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-  font-size:var(--font-size-body);
-}
-.runtime-pbe-version a {
-  color: var(--text);
-  text-decoration: underline;
-  text-decoration-color: var(--gold);
-  text-underline-offset: 3px;
-}
+.runtime-pbe-summary-slot { display: grid; min-height: var(--touch-target); align-items: center; margin-top: var(--space-3); }
+.runtime-pbe-summary-slot[hidden] { display: none; }
 .runtime-pbe-summary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
-  margin-bottom: 32px;
+  gap: 8px var(--space-3);
+  margin: 0;
   color: var(--muted);
 }
 .runtime-pbe-summary strong {
   color: var(--gold);
 }
-.runtime-pbe-section + .runtime-pbe-section {
-  margin-top: 40px;
+.runtime-pbe-summary strong,
+.runtime-pbe-summary-link {
+  display: inline-flex;
+  min-height: var(--touch-target);
+  align-items: center;
+  gap: var(--space-2);
 }
+.runtime-pbe-summary-link { color: inherit; text-decoration: none; white-space: nowrap; }
+.runtime-pbe-summary .ant-divider-vertical { margin: 0; }
+.runtime-pbe-summary-link .domain-icon { width: 1em; height: 1em; flex: 0 0 auto; }
+.runtime-pbe-summary-link:hover { color: var(--gold); }
+.runtime-pbe-summary-link:focus-visible { border-radius: var(--radius-control); outline: 2px solid var(--gold); outline-offset: 2px; }
+.runtime-pbe-divider { width: 100%; margin: var(--space-4) 0; }
 .runtime-pbe-section {
   display: grid;
   gap: var(--space-3);
+  scroll-margin-top: calc(var(--site-header-height) + var(--space-4));
 }
 .runtime-pbe-grid {
+  --grid-gap: var(--space-3);
+  --peek-height: 84px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 16px;
+  gap: var(--grid-gap);
 }
 .runtime-pbe-grid.has-overflow {
-  --pbe-peek: 84px;
   position: relative;
+  grid-auto-rows: max-content;
 }
 .runtime-pbe-grid.has-overflow[data-expanded='false'] {
-  max-height: calc(var(--pbe-row-height, 280px) * 2 + 14px + var(--pbe-peek));
+  max-height: calc(var(--pbe-two-row-height, 280px) + var(--peek-height));
   overflow: hidden;
 }
 .runtime-pbe-grid.has-overflow[data-expanded='false']::after {
@@ -1455,7 +1441,7 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
   left: 0;
   right: 0;
   bottom: 0;
-  height: calc(var(--pbe-peek) + 56px);
+  height: min(var(--peek-height), 65%);
   background: linear-gradient(to top, var(--bg) 0%, rgba(0, 0, 0, 0.82) 35%, rgba(0, 0, 0, 0.35) 65%, transparent 100%);
   pointer-events: none;
   z-index: 1;
@@ -1465,21 +1451,23 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
   align-items: center;
   justify-content: center;
   margin: 16px auto 0;
-  width: 44px;
-  height: 44px;
+  width: var(--control-height);
+  height: var(--control-height);
   border: 1px solid var(--line);
-  border-radius: 50%;
+  border-radius: var(--radius-control);
   background: var(--panel);
   color: var(--gold);
   cursor: pointer;
-  transition: transform 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease;
 }
 .runtime-pbe-expand:hover {
-  border-color: var(--gold);
+  border-color: var(--gold-hover);
   background: var(--hover-bg);
 }
+.runtime-pbe-expand:active { border-color: var(--gold-active); background: var(--fill); }
+.runtime-pbe-expand:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .runtime-pbe-expand svg {
-  transition: transform 0.25s ease;
+  transition: transform var(--motion-mid) ease;
 }
 .runtime-pbe-expand.is-open svg {
   transform: rotate(180deg);
@@ -1554,12 +1542,15 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
   margin-right: 8px;
 }
 @media (max-width: 767px) {
-  .runtime-pbe-versions {
-    grid-template-columns: 1fr;
-  }
   .runtime-pbe-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    --grid-gap: var(--space-3);
+    --peek-height: 64px;
+  }
+  .runtime-pbe-expand {
+    margin-top: 8px;
+    width: var(--touch-target);
+    height: var(--touch-target);
   }
   .runtime-pbe-card-link > .runtime-missing,
   .runtime-pbe-card-media > .runtime-missing {
