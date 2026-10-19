@@ -24,10 +24,10 @@ interface Props {
 const { page, locale, label, heading, lede, mode } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
-const listPath = page === 'skins' || page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
-const invalidReturnPage = page === 'skins' ? 'champions' : page;
+const listPath = page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
+const invalidReturnPage = page;
 const invalidReturnPath = localizedPath(locale, `/${invalidReturnPage}/`);
-const invalidReturnLabel = invalidReturnPage === 'champions' ? (isZh ? '英雄目录' : 'champion list') : label;
+const invalidReturnLabel = label;
 const showCompactListHeader = mode === 'list';
 const showUniverseDetailSummary = page === 'universes' && mode === 'detail';
 const showEntityDetailSummary = mode === 'detail' && ['champions', 'skins', 'skinlines', 'universes'].includes(page);
@@ -42,7 +42,6 @@ const breadcrumbItems = [
   { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
   { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
   ...(mode === 'detail' && listPath ? [{ title: label, href: listPath, 'data-runtime-channel-link': '' }] : []),
-  ...(mode === 'detail' && page === 'skins' ? [{ title: label }] : []),
   { title: mode === 'detail' ? (isZh ? `${label}详情` : `${label} detail`) : label, ...(mode === 'detail' ? { 'data-runtime-current-entity': '' } : {}) },
 ];
 const prestigeChromaLinks = page === 'skins' && mode === 'detail'

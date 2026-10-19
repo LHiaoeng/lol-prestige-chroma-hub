@@ -13,6 +13,7 @@ const links = [
   { key: 'prestige-chromas', href: '/', label: isZh ? '臻彩原画' : 'Prestige chromas', icon: true },
   { key: 'pbe-additions', href: '/pbe-additions/', label: isZh ? 'PBE 新增' : 'PBE additions', icon: true },
   { key: 'champions', href: '/champions/', label: isZh ? '英雄' : 'Champions', icon: true },
+  { key: 'skins', href: '/skins/', label: isZh ? '皮肤' : 'Skins', icon: true },
   { key: 'skinlines', href: '/skinlines/', label: isZh ? '皮肤系列' : 'Skinlines', icon: true },
   { key: 'universes', href: '/universes/', label: isZh ? '皮肤宇宙' : 'Universes', icon: true },
 ];
@@ -35,6 +36,7 @@ const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.h
     <DomainIcon slot="tabIcon-prestige-chromas" name="prestige-chromas" />
     <DomainIcon slot="tabIcon-pbe-additions" name="pbe-additions" />
     <DomainIcon slot="tabIcon-champions" name="champions" />
+    <DomainIcon slot="tabIcon-skins" name="skins" />
     <DomainIcon slot="tabIcon-skinlines" name="skinlines" />
     <DomainIcon slot="tabIcon-universes" name="universes" />
     <slot />

@@ -41,4 +41,14 @@ describe('CommunityDragon entity SEO', () => {
       ],
     });
   });
+
+  it('links skin details back to the indexable skin catalog', () => {
+    const seo = createEntitySeo('skins/detail', undefined, '皮肤详情', '运行时皮肤资料。', 'zh-cn');
+    expect(seo.jsonLd[1]).toMatchObject({ itemListElement: [
+      { position: 1, name: '首页' },
+      { position: 2, name: '英雄联盟' },
+      { position: 3, name: '皮肤', item: 'https://chromaart.lol/zh-cn/skins/' },
+      { position: 4, name: '皮肤详情', item: seo.canonical },
+    ] });
+  });
 });

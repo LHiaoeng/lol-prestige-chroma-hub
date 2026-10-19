@@ -80,6 +80,7 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
           <nav id="browse-nav" class="browse-nav" aria-label={isZh ? '英雄联盟' : 'League of Legends'}>
             <a href={localizedPath(locale, '/pbe-additions/')}><DomainIcon name="pbe-additions" class="browse-nav-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a>
             <a href={localizedPath(locale, '/champions/')}><DomainIcon name="champions" class="browse-nav-icon" />{isZh ? '英雄' : 'Champions'}</a>
+            <a href={localizedPath(locale, '/skins/')}><DomainIcon name="skins" class="browse-nav-icon" />{isZh ? '皮肤' : 'Skins'}</a>
             <a href={localizedPath(locale, '/skinlines/')}><DomainIcon name="skinlines" class="browse-nav-icon" />{isZh ? '系列' : 'Skinlines'}</a>
             <a href={localizedPath(locale, '/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a>
           </nav>

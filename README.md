@@ -4,7 +4,7 @@
 
 臻彩原画（Prestige Chroma Splash Art）是国服将炫彩升级为臻彩后单独提供的原画；炫彩本身并不天然拥有独立原画。站内将“臻彩”译作 `Prestige Chroma`，但不将其描述为传统 `Prestige Skin`。
 
-中英文首页直接展示最新 3 篇博客、五项资料导航和可筛选的臻彩原画目录。目录首批展示 24 款，分页可继续浏览；手机上筛选默认展开，卡片收为缩略图加名称的列表。导航中的问号链接通向当前语言的《什么是臻彩》。
+中英文首页直接展示最新 3 篇博客、六项资料导航和可筛选的臻彩原画目录。目录首批展示 24 款，分页可继续浏览；手机上筛选默认展开，卡片收为缩略图加名称的列表。导航中的问号链接通向当前语言的《什么是臻彩》。
 
 图片由管理后台上传和维护在 R2，通过 `https://img.chromaart.lol` 公开；本仓库只保存 JSON 中的图片相对路径，不保存图片文件。
 
@@ -12,11 +12,11 @@
 
 英文博客位于 `/blog/`，简体中文博客位于 `/zh-cn/blog/`；两种语言使用相同文章 slug。文章正文直接由共享 Astro 页面维护，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章由已提交的 `data/champion-coverage.snapshot.json` 生成完整静态正文；浏览器打开页面后可以显式刷新辅助数据，失败时保留快照。普通构建不在线更新快照，维护者使用 `pnpm coverage:snapshot` 在核对两个区域数据视图、来源 URL、抓取时间和内容版本后更新它。公开页面不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
-图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤系列和宇宙保留双语静态列表与详情壳，运行时皮肤只保留独立详情壳；这些运行时资料页通过浏览器直接读取当前本地化视图和数据通道的 CommunityDragon 资料，动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和炫彩所属皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
+图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤、皮肤系列和宇宙保留双语静态目录壳，皮肤详情仍是独立详情壳；这些运行时资料页通过浏览器直接读取当前本地化视图和数据通道的 CommunityDragon 资料，动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和炫彩所属皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
 
-运行时资料入口包括 `/champions/`、`/skinlines/`、`/universes/` 和 `/pbe-additions/` 四个双语目录/比较壳，以及独立的英雄、皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。静态臻彩详情还会渐进加载可失败的英雄、所属皮肤和炫彩补充资料。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效；`id`、`champion`、`stage`、`channel` 的读取、校验、筛选和格式化集中在 `src/domain/runtime-url-state.ts`，DOM 链接更新由独立 adapter 负责，转发时保留显式 PBE 意图并删除目标页面不允许的参数。两类浏览器入口共享取消、迟到响应保护、成功后提交 URL、保留旧内容和失败重试的通道生命周期。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
+运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 和 `/pbe-additions/` 五个双语目录/比较壳，以及独立的英雄、皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。静态臻彩详情还会渐进加载可失败的英雄、所属皮肤和炫彩补充资料。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效；`id`、`champion`、`stage`、`channel` 的读取、校验、筛选和格式化集中在 `src/domain/runtime-url-state.ts`，DOM 链接更新由独立 adapter 负责，转发时保留显式 PBE 意图并删除目标页面不允许的参数。两类浏览器入口共享取消、迟到响应保护、成功后提交 URL、保留旧内容和失败重试的通道生命周期。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 
-系列详情、宇宙详情和 PBE 新增页才会按需读取完整 `skins.json`；英雄目录/详情、运行时皮肤详情、首页、臻彩详情和博客不会加载它。PBE 新增在同一本地化视图内比较 `pbe` 与 `latest`，同时校验 `compat-version-metadata.json` 的版本字段；必要数据失败时不展示部分差集。运行时实体详情初始 HTML 保持 `noindex`，目录壳和 PBE 新增页进入双语 sitemap，站点不生成逐实体 HTML。
+皮肤目录、系列详情、宇宙详情和 PBE 新增页才会按需读取完整 `skins.json`；皮肤目录提供中英文名称搜索、稀有度多选、英雄名称排序和 PBE／正式服切换，筛选条件保存在 URL；竖版卡片按视口虚拟滚动，目录壳可索引，运行时卡片不作为静态 SEO 内容；英雄目录/详情、运行时皮肤详情、首页、臻彩详情和博客不会加载它。PBE 新增在同一本地化视图内比较 `pbe` 与 `latest`，同时校验 `compat-version-metadata.json` 的版本字段；必要数据失败时不展示部分差集。运行时实体详情初始 HTML 保持 `noindex`，目录壳和 PBE 新增页进入双语 sitemap，站点不生成逐实体 HTML。
 
 CommunityDragon 的通用 RAW 访问规则、版本与区域数据视图，以及英雄联盟和云顶之弈资源说明，见 [CommunityDragon 资源指南](docs/CD资源指南.md)。
 

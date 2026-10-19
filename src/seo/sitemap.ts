@@ -49,6 +49,7 @@ export function renderSitemap(): string {
     "/privacy/",
     "/blog/",
     "/champions/",
+    "/skins/",
     "/skinlines/",
     "/universes/",
     "/pbe-additions/",

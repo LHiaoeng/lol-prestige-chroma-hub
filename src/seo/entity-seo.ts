@@ -24,8 +24,8 @@ export function createEntitySeo(kind: string, slug: string | undefined, name: st
   const itemListElement = [
     { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
     { '@type': 'ListItem', position: 2, name: gameName, item: gameUrl },
-    ...(isDetail && section !== 'skins' ? [{ '@type': 'ListItem', position: 3, name: sectionLabels[section]?.[locale] ?? section, item: sectionUrl }] : []),
-    { '@type': 'ListItem', position: isDetail && section !== 'skins' ? 4 : 3, name: isDetail ? name : sectionLabel, item: canonical },
+    ...(isDetail ? [{ '@type': 'ListItem', position: 3, name: sectionLabels[section]?.[locale] ?? section, item: sectionUrl }] : []),
+    { '@type': 'ListItem', position: isDetail ? 4 : 3, name: isDetail ? name : sectionLabel, item: canonical },
   ];
   return {
     title,

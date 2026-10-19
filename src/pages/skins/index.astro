@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SkinCatalogRoot from '../../components/SkinCatalogRoot.astro';
+import { resolveLocale, type Locale } from '../../i18n/config';
+import { createEntitySeo } from '../../seo/entity-seo';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const isZh = locale === 'zh-cn';
+const seo = createEntitySeo('skins', undefined, isZh ? '皮肤目录' : 'Skin catalog', isZh ? '浏览英雄联盟皮肤，按英雄名称、皮肤名称和稀有度查找当前资料版本的皮肤。' : 'Browse League of Legends skins by champion, skin name, and rarity in the current reference data.', locale);
+---
+
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+  <SkinCatalogRoot {locale} />
+</BaseLayout>
