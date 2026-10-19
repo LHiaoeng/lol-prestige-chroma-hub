@@ -89,12 +89,14 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).not.toThrow();
   });
 
-  it('rejects the retired skin entry shells', () => {
+  it('allows bilingual skin catalog shells', () => {
     const root = createBuild();
     mkdirSync(join(root, 'skins'));
-    writeFileSync(join(root, 'skins', 'index.html'), '<html></html>');
+    mkdirSync(join(root, 'zh-cn', 'skins'));
+    writeFileSync(join(root, 'skins', 'index.html'), '<link rel="canonical" href="https://chromaart.lol/skins/">');
+    writeFileSync(join(root, 'zh-cn', 'skins', 'index.html'), '<link rel="canonical" href="https://chromaart.lol/zh-cn/skins/">');
 
-    expect(() => auditBuild(root)).toThrow(/skin entry/i);
+    expect(() => auditBuild(root)).not.toThrow();
   });
 
   it.each([

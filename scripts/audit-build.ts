@@ -27,8 +27,6 @@ export function auditBuild(root: string): string[] {
   if (runtimeEntityPages.length) throw new Error(`Runtime entity pages must not be published: ${runtimeEntityPages.join(', ')}`);
   const nestedPbeEntityPages = files.filter((file) => /^(?:zh-cn\/)?pbe-additions\/.+\/index\.html$/.test(file));
   if (nestedPbeEntityPages.length) throw new Error(`PBE entity pages must not be published: ${nestedPbeEntityPages.join(', ')}`);
-  const retiredSkinEntryPages = files.filter((file) => /^(?:zh-cn\/)?skins\/index\.html$/.test(file));
-  if (retiredSkinEntryPages.length) throw new Error(`Retired skin entry shells must not be published: ${retiredSkinEntryPages.join(', ')}`);
   const jsonArtifacts = files.filter((file) => file.toLowerCase().endsWith('.json'));
   if (jsonArtifacts.length) throw new Error(`JSON source artifacts must not be published: ${jsonArtifacts.join(', ')}`);
   if (!files.includes('index.html') || !files.includes('zh-cn/index.html') || !files.includes('404.html')) throw new Error('Required static pages are missing');

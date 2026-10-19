@@ -12,6 +12,7 @@
 .skin-catalog-channel > :last-child, .skin-catalog-explore > :last-child { margin-left: -1px; border-radius: 0 var(--radius-control) var(--radius-control) 0; }
 .skin-catalog-channel [aria-pressed="true"] { position: relative; border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
 .skin-catalog-explore a:hover, .skin-catalog-explore a:focus-visible { position: relative; border-color: var(--gold); color: var(--gold); }
+.skin-catalog-explore a[aria-current="page"] { position: relative; border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
 .skin-catalog .ant-divider-horizontal { margin: var(--space-4) 0; }
 .skin-catalog-explore { margin-bottom: var(--space-4); }
 .skin-catalog-search { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
@@ -38,7 +39,7 @@
 .skin-catalog-viewport:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .skin-catalog { --catalog-columns: 5; --catalog-gap: var(--space-3); }
 .skin-catalog-card { position: relative; display: block; min-width: 0; overflow: visible; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--text); }
-.skin-catalog-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.skin-catalog-card:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
 .skin-catalog-card-media { position: relative; display: block; overflow: hidden; aspect-ratio: 2 / 3; border-radius: var(--radius-card); background: var(--panel2); }
 .skin-catalog-card-image { display: block; width: 100%; height: 100%; object-fit: cover; }
 .skin-catalog-card-border { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }

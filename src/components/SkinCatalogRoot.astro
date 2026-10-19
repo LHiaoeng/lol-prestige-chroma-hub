@@ -26,7 +26,7 @@ const isZh = locale === 'zh-cn';
   </header>
   <Divider />
   <nav class="skin-catalog-explore" aria-label={isZh ? '其他浏览方式' : 'Other ways to browse'}>
-    <a href={localizedPath(locale, '/champions/')}>{isZh ? '按英雄' : 'By champion'}</a>
+    <a href={localizedPath(locale, '/skins/')} aria-current="page">{isZh ? '按英雄' : 'By champion'}</a>
     <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '按系列' : 'By skinline'}</a>
   </nav>
   <div class="skin-catalog-search">
