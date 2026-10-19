@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseCatalog } from '../src/domain/chroma';
+import { parseReleaseSnapshot } from '../.agents/skills/lol-skin-release-dates/scripts/update-skin-release-dates';
 
 export function validateCatalogFile(path: string): { records: number; imageReferences: number } {
   const catalog = parseCatalog(JSON.parse(readFileSync(path, 'utf8')));
@@ -12,4 +13,6 @@ export function validateCatalogFile(path: string): { records: number; imageRefer
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const result = validateCatalogFile(resolve(process.cwd(), 'data/prestige-chromas.json'));
   console.log(`Validated ${result.records} chromas and ${result.imageReferences} remote image references.`);
+  const releases = parseReleaseSnapshot(JSON.parse(readFileSync(resolve(process.cwd(), 'data/skin-release-dates.json'), 'utf8')));
+  console.log(`Validated ${releases.skins.length} live skin release records.`);
 }

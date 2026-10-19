@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'prestige-chroma-summon-2026-22',
+    href: '/blog/prestige-chroma-summon-2026-22/',
+    titleEn: 'Brilliant Prestige Chroma Summoning — Session 202622',
+    titleZh: '璀璨臻彩召唤 — 第 202622 期',
+    summaryEn: 'The Brilliant Prestige Chroma Summoning event runs October 16 – November 15, 2026 on the Chinese server. Spirit Blossom Zyra (Tanzanite) and Cafe Cuties Poppy (Sandstone) headline the self-select prize pools, the Prestige Spirit Blossom Lux skin joins the grand-prize tier, and the first summon costs 12 RMB.',
+    summaryZh: '2026 年 10 月 16 日至 11 月 15 日，新一期璀璨臻彩召唤上线：特等奖自选灵魂莲华 婕拉 星回或至臻皮肤 灵魂莲华 拉克丝，一等奖自选咖啡甜心 波比 冰花蛋球，首次召唤 12 元。',
+    publishedAt: '2026-10-16',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/c0c125d0-0f27-46bf-8209-0a2100ee280d/site3.jpg',
+    coverAltEn: 'Spirit Blossom Zyra (Tanzanite) prestige chroma splash art — Brilliant Prestige Chroma Summoning Session 202622 grand prize',
+    coverAltZh: '灵魂莲华 婕拉 星回臻彩原画 — 璀璨臻彩召唤第 202622 期特等奖',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=5082358224246800614',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'joy-club-peak-gala-202609',
     href: '/blog/joy-club-peak-gala-202609/',
     titleEn: 'Joy Club Peak Gala — Session 202609',

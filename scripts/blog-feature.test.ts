@@ -69,6 +69,7 @@ describe('blog feature contract', () => {
     const officialUrls = [
       'https://lol.qq.com/act/a202610094865prizewheel/index.html?e_code=500132',
       'https://lol.qq.com/act/a202609233754lustertreasure/index.html',
+      'https://lol.qq.com/act/a202610168353tendraws37/index.html',
       'https://lol.qq.com/act/a202609170214tendraws36/index.html',
       'https://lol.qq.com/act/a202608077548tendraws34/index.html',
       'https://lol.qq.com/act/a202609047293tendraws35/index.html',
@@ -81,13 +82,14 @@ describe('blog feature contract', () => {
       'https://lol.qq.com/news/space-detail.shtml?docid=2507283551738806898',
     ];
     for (const url of officialUrls) expect(page.split(url)).toHaveLength(3);
-    expect(page.match(/class="official-source-link"/g)).toHaveLength(24);
-    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(24);
+    expect(page.match(/class="official-source-link"/g)).toHaveLength(26);
+    expect(page.match(/target="_blank" rel="noreferrer"/g)).toHaveLength(26);
     for (const label of [
       'Official acquisition sources',
       'Official cultural sources',
       'Lucky Gate — October 9, 2026',
       'Splendid Treasure Summoning — September 2026',
+      'Brilliant Prestige Summoning — Session 202622',
       'Brilliant Prestige Summoning — Session 202621',
       'Brilliant Prestige Summoning — August 2026',
       'Brilliant Prestige Summoning — September 2026',
@@ -102,6 +104,7 @@ describe('blog feature contract', () => {
       '官方文化来源',
       '幸运之门 — 2026 年 10 月 9 日',
       '华彩秘宝·召唤 — 2026 年 9 月场',
+      '璀璨臻彩召唤 — 第 202622 期',
       '璀璨臻彩召唤 — 第 202621 期',
       '璀璨臻彩召唤 — 2026 年 8 月',
       '璀璨臻彩召唤 — 2026 年 9 月',
@@ -113,6 +116,9 @@ describe('blog feature contract', () => {
       'LPL 十周年纪念臻彩',
       '熊猫拉克丝臻彩公益项目',
     ]) expect(page).toContain(label);
+    expect(page).toContain('/blog/prestige-chroma-summon-2026-22/');
+    expect(page).toContain('Session 202622 article');
+    expect(page).toContain('第 202622 期活动文章');
   });
 
   it('defines China Exclusive as an artwork property in the prestige chroma FAQ', () => {
@@ -930,6 +936,67 @@ describe('blog feature contract', () => {
       '10 月 9 日至 11 月 5 日，与两场并行召唤活动同期',
       '仍在开放中的往期幸运之门活动',
       '其他未过期臻彩获取活动',
+    ]) expect(page).toContain(heading);
+  });
+
+  it('renders a complete localized Brilliant Prestige Chroma Summoning Session 202622 article', () => {
+    const page = source('src/pages/blog/prestige-chroma-summon-2026-22.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(2);
+    expect(page).toContain('<h1>{article.titleEn}</h1>');
+    expect(page).toContain('<h1>{article.titleZh}</h1>');
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'en')");
+    expect(page).toContain("formatBlogDate(article.publishedAt, 'zh')");
+    expect(page).toContain("import { brilliantSummonSessions } from '../../domain/brilliant-summon'");
+    expect(page).toContain("sessionId === '202622'");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/prestige-chroma-summon-2026-21/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('https://lol.qq.com/news/detail.shtml?docid=5082358224246800614');
+    expect(page).toContain('https://lol.qq.com/act/a202610168353tendraws37/index.html');
+    expect(page).toContain('Prestige Spirit Blossom Lux');
+    expect(page).toContain('至臻皮肤 灵魂莲华 拉克丝');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
+    expect(page).not.toContain('imageUrl(chroma.images.medium)');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page).toContain('data-alt-en=');
+    expect(page).toContain('data-alt-zh=');
+    expect(page).toContain('labelEn="Spirit Blossom Zyra (Tanzanite)"');
+    expect(page).toContain('labelZh="灵魂莲华 婕拉 星回"');
+    expect(page).toContain('labelEn="Cafe Cuties Poppy (Sandstone)"');
+    expect(page).toContain('labelZh="咖啡甜心 波比 冰花蛋球"');
+    expect(page).toContain("heroId === '143'");
+    expect(page).toContain("heroId === '78'");
+    expect(page).toContain("'Spirit Blossom Zyra'");
+    expect(page).toContain("'Cafe Cuties Poppy'");
+    expect(page).toContain("'Spirit Blossom Zyra (Tanzanite)'");
+    expect(page).toContain("'Cafe Cuties Poppy (Sandstone)'");
+    expect(page).toContain('summon-table');
+    expect(page.match(/<details>/g)).toHaveLength(5);
+    expect(page.match(/<figure/g)).toHaveLength(2);
+    expect(page).toContain('article.coverUrl');
+    for (const heading of [
+      'Two prestige chromas and a prestige skin in the pools',
+      'Spirit Blossom Zyra (Tanzanite)',
+      'Cafe Cuties Poppy (Sandstone)',
+      'Summon prices and odds',
+      'Participation rules worth knowing',
+      'Past sessions',
+      'Prestige chromas need the base skin',
+      '奖池里的两款臻彩与一款至臻皮肤',
+      '灵魂莲华 婕拉 星回',
+      '咖啡甜心 波比 冰花蛋球',
+      '召唤价格与概率',
+      '参与规则要点',
+      '往期活动',
+      '臻彩需要原皮肤',
     ]) expect(page).toContain(heading);
   });
 

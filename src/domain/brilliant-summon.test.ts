@@ -22,4 +22,13 @@ describe('Brilliant Prestige Chroma Summoning session data', () => {
     expect(session?.drawCosts).toEqual([1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]);
     expect(session?.drawCosts?.reduce((sum, cost) => sum + cost, 0)).toBe(57000);
   });
+
+  it('retains the published 202622 event window, price curve and total', () => {
+    const session = brilliantSummonSessions.find((entry) => entry.sessionId === '202622');
+    expect(session?.eventUrl).toBe('https://lol.qq.com/act/a202610168353tendraws37/index.html');
+    expect(session?.windowStart).toBe('2026-10-16');
+    expect(session?.windowEnd).toBe('2026-11-15');
+    expect(session?.drawCosts).toEqual([1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000]);
+    expect(session?.drawCosts?.reduce((sum, cost) => sum + cost, 0)).toBe(57000);
+  });
 });

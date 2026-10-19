@@ -70,7 +70,7 @@ describe('responsive layout contract', () => {
     expect(runtimeView).toContain('runtime-pbe-grid');
     expect(runtimeView).toContain('runtime-pbe-card-link');
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[\s\S]*?\.runtime-page\{/);
-    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)\s*\{\s*\.runtime-pbe-versions[\s\S]*?\.runtime-pbe-grid\s*\{/);
+    expect(css).toMatch(/@media\s*\(max-width:\s*767px\)\s*\{\s*\.runtime-pbe-grid\s*\{/);
     expect(css).toContain('min-height: var(--touch-target)');
   });
 

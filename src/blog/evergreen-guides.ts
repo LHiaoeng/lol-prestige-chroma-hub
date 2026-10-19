@@ -115,7 +115,7 @@ export const evergreenGuideMaintenance = {
     ],
   },
   'brilliant-prestige-chroma-summoning-guide': {
-    updatedAt: '2026-09-17',
+    updatedAt: '2026-10-16',
     sources: [
       tencentPrestigeSource,
       {
@@ -128,6 +128,12 @@ export const evergreenGuideMaintenance = {
         href: 'https://lol.qq.com/act/a202609170214tendraws36/index.html',
         labelEn: 'Tencent League of Legends — Brilliant Prestige Chroma Summoning Session 202621',
         labelZh: '腾讯《英雄联盟》— 璀璨臻彩召唤第 202621 期',
+        external: true,
+      },
+      {
+        href: 'https://lol.qq.com/act/a202610168353tendraws37/index.html',
+        labelEn: 'Tencent League of Legends — Brilliant Prestige Chroma Summoning Session 202622',
+        labelZh: '腾讯《英雄联盟》— 璀璨臻彩召唤第 202622 期',
         external: true,
       },
     ],

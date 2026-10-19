@@ -80,4 +80,19 @@ export const brilliantSummonSessions: readonly BrilliantSummonSession[] = [
     ],
     drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
   },
+  {
+    sessionId: '202622',
+    eventUrl: 'https://lol.qq.com/act/a202610168353tendraws37/index.html',
+    articleSlug: 'prestige-chroma-summon-2026-22',
+    windowStart: '2026-10-16',
+    windowEnd: '2026-11-15',
+    rewardHeroId: '143',
+    rewardSkinNameEn: 'Spirit Blossom Zyra',
+    rewardChromaNameEn: 'Spirit Blossom Zyra (Tanzanite)',
+    rewards: [
+      { heroId: '143', skinNameEn: 'Spirit Blossom Zyra', chromaNameEn: 'Spirit Blossom Zyra (Tanzanite)' },
+      { heroId: '78', skinNameEn: 'Cafe Cuties Poppy', chromaNameEn: 'Cafe Cuties Poppy (Sandstone)' },
+    ],
+    drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
+  },
 ];

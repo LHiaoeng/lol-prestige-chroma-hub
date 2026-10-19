@@ -153,6 +153,27 @@ describe("static site build", () => {
     ).toBe(true);
     expect(
       existsSync(
+        join(
+          dist,
+          "blog",
+          "prestige-chroma-summon-2026-22",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dist,
+          "zh-cn",
+          "blog",
+          "prestige-chroma-summon-2026-22",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
         join(dist, "blog", "lucky-gate-summon-october-2026", "index.html"),
       ),
     ).toBe(true);
@@ -806,7 +827,10 @@ describe("static site build", () => {
     );
     expect(english).toContain('data-runtime-page="pbe-additions"');
     expect(english).toContain('data-runtime-mode="pbe"');
-    expect(english).toContain("PBE vs Live");
+    expect(english).not.toContain("PBE vs Live");
+    expect(english).not.toContain("Compare additions between PBE and Live in one localization view.");
+    expect(english).toContain('runtime-page--pbe');
+    expect(english.indexOf('data-runtime-pbe-summary')).toBeLessThan(english.indexOf('runtime-header-divider'));
 
     expect(chinese).toContain('<html lang="zh-CN"');
     expect(chinese).toContain("<title>英雄联盟 PBE 新增 | LoL Chroma Art</title>");
@@ -825,7 +849,9 @@ describe("static site build", () => {
     expect(chinese).not.toContain(
       '<meta name="robots" content="noindex, nofollow">',
     );
-    expect(chinese).toContain("PBE 与正式服比较");
+    expect(chinese).not.toContain("PBE 与正式服比较");
+    expect(chinese).not.toContain("在同一语言视图内比较 PBE 与正式服的新增资料。");
+    expect(chinese.indexOf('data-runtime-pbe-summary')).toBeLessThan(chinese.indexOf('runtime-header-divider'));
   });
 
   it("uses factual informational SEO copy", () => {
@@ -878,9 +904,14 @@ describe("static site build", () => {
     expect(home).toContain(`Blog <span class="heading-count"`);
     expect(home).toContain(`>(${blogArticles.length} articles)</span>`);
     expect(home).toContain('href="/blog/"');
+    expect(home).toContain(
+      'href="/blog/prestige-chroma-summon-2026-22/"',
+    );
     expect(home).toContain('href="/blog/lucky-gate-summon-202620/"');
     expect(home).toContain('href="/blog/joy-club-peak-gala-202609/"');
-    expect(home).toContain('href="/blog/lucky-gate-summon-october-2026/"');
+    expect(home).not.toContain(
+      'href="/blog/lucky-gate-summon-october-2026/"',
+    );
     expect(home).not.toContain(
       'href="/blog/patch-26-19-prestige-chromas/"',
     );
@@ -911,12 +942,15 @@ describe("static site build", () => {
     expect(chineseHome).toContain(`>（共 ${blogArticles.length} 篇）</span>`);
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
     expect(chineseHome).toContain(
+      'href="/zh-cn/blog/prestige-chroma-summon-2026-22/"',
+    );
+    expect(chineseHome).toContain(
       'href="/zh-cn/blog/lucky-gate-summon-202620/"',
     );
     expect(chineseHome).toContain(
       'href="/zh-cn/blog/joy-club-peak-gala-202609/"',
     );
-    expect(chineseHome).toContain(
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/lucky-gate-summon-october-2026/"',
     );
     expect(chineseHome).not.toContain(
@@ -1083,10 +1117,17 @@ describe("static site build", () => {
     expect(chineseGuide).toContain(
       "https://lol.qq.com/act/a202609170214tendraws36/index.html",
     );
+    expect(guide).toContain(
+      "https://lol.qq.com/act/a202610168353tendraws37/index.html",
+    );
+    expect(chineseGuide).toContain(
+      "https://lol.qq.com/act/a202610168353tendraws37/index.html",
+    );
     expect(guide).toContain('"@type":"FAQPage"');
     expect(chineseGuide).toContain('"@type":"FAQPage"');
     expect(guide).toContain("data-article-maintenance");
     expect(chineseGuide).toContain("data-article-maintenance");
+    expect(guide).toContain('href="/blog/prestige-chroma-summon-2026-22/"');
     expect(guide).toContain('href="/blog/prestige-chroma-summon-2026-21/"');
     expect(guide).toContain(
       'href="/blog/prestige-chroma-summon-september-2026/"',
@@ -1094,6 +1135,8 @@ describe("static site build", () => {
     expect(guide).toContain('href="/blog/what-are-prestige-chromas/"');
     expect(guide).toContain('href="/"');
     for (const slug of [
+      "rise-of-the-thorns-zyra-spirit-blossom-zyra-tanzanite-143070",
+      "keeper-of-the-hammer-poppy-cafe-cuties-poppy-sandstone-78041",
       "the-rogue-assassin-akali-spirit-blossom-akali-pearl-84098",
       "the-hallowed-seamstress-gwen-soul-fighter-gwen-sapphire-887023",
       "the-rebel-xayah-battle-academia-xayah-sapphire-498060",
@@ -1118,6 +1161,9 @@ describe("static site build", () => {
         'href="/zh-cn/blog/brilliant-prestige-chroma-summoning-guide/"',
       );
     }
+    expect(chineseGuide).toContain(
+      'href="/zh-cn/blog/prestige-chroma-summon-2026-22/"',
+    );
     expect(chineseGuide).toContain(
       'href="/zh-cn/blog/prestige-chroma-summon-2026-21/"',
     );
