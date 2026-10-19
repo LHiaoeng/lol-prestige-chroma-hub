@@ -630,6 +630,255 @@ describe("RuntimeController", () => {
     expect(viewState.events.at(-1)).toBe("failure");
   });
 
+  it.each([
+    ["champions", "champion", 103, "champions", "champion"],
+    ["skinlines", "skinline", 7, "skinlines", "skinline"],
+    ["universes", "universe", 200, "universes", "universe"],
+  ] as const)("falls back from a missing %s to its localized target directory", async (page, kind, id, directory, reason) => {
+    const source = `https://chromaart.lol/zh-cn/${page}/detail/?id=${id}`;
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const service = runtime({
+      get: vi.fn(async (_kind, _id, options) => {
+        if (options.channel === "latest") throw new CommunityDragonRuntimeError("not-found", "missing");
+        return { kind, id, name: "original", ...(kind === "champion" ? { skins: [] } : {}) } as RuntimeEntity;
+      }),
+    });
+    const controller = new RuntimeController(service, view(), navigation, {
+      page, pageMode: "detail", locale: "zh_cn", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    await controller.navigate(new URL(`${source}&channel=latest`));
+    expect(destinations.map(String)).toEqual([
+      `https://chromaart.lol/zh-cn/${directory}/?channel=latest&fallback=${reason}`,
+    ]);
+    expect(navigation.url.href).toBe(source);
+    expect(service.list).toHaveBeenCalledWith(directory, expect.objectContaining({ locale: "zh_cn", channel: "latest" }));
+  });
+
+  it("falls back from a missing skin to its champion, then the directory if needed", async () => {
+    const source = "https://chromaart.lol/skins/detail/?id=103001&champion=103";
+    for (const championMissing of [false, true]) {
+      const navigation = history(source);
+      const destinations: URL[] = [];
+      const service = runtime({
+        get: vi.fn(async (kind, _id, options) => {
+          if (options.channel === "latest" && (kind === "skin" || championMissing))
+            throw new CommunityDragonRuntimeError("not-found", "missing");
+          return kind === "champion" ? champion : { kind: "skin", id: 103001, championId: 103, name: "PBE skin" } as RuntimeEntity;
+        }),
+      });
+      const controller = new RuntimeController(service, view(), navigation, {
+        page: "skins", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+      });
+      await controller.start();
+      await controller.navigate(new URL(`${source}&channel=latest`));
+      expect(destinations.map(String)).toEqual([championMissing
+        ? "https://chromaart.lol/champions/?channel=latest&fallback=skin-champion"
+        : "https://chromaart.lol/champions/detail/?id=103&channel=latest&fallback=skin"]);
+      expect(navigation.url.href).toBe(source);
+      expect(service.get).toHaveBeenCalledWith("champion", 103, expect.objectContaining({ locale: "default", channel: "latest" }));
+      const targetChampionLists = vi.mocked(service.list).mock.calls.filter(
+        ([kind, options]) => kind === "champions" && options.channel === "latest",
+      );
+      expect(targetChampionLists).toHaveLength(championMissing ? 1 : 0);
+    }
+  });
+
+  it("keeps the original detail and URL on a fallback lookup failure and retries", async () => {
+    const source = "https://chromaart.lol/skins/detail/?id=103001&champion=103&channel=latest";
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const shown = view();
+    let attempts = 0;
+    const service = runtime({
+      get: vi.fn(async (kind, _id, options) => {
+        if (options.channel === "pbe" && kind === "skin") throw new CommunityDragonRuntimeError("not-found", "missing");
+        if (options.channel === "pbe" && kind === "champion" && ++attempts === 1) throw new Error("offline");
+        return kind === "champion" ? champion : { kind: "skin", id: 103001, championId: 103, name: "Live skin" } as RuntimeEntity;
+      }),
+    });
+    const controller = new RuntimeController(service, shown, navigation, {
+      page: "skins", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    await controller.navigate(new URL("https://chromaart.lol/skins/detail/?id=103001&champion=103&channel=pbe"));
+    expect(destinations).toEqual([]);
+    expect(navigation.url.href).toBe(source);
+    expect(shown.rendered).toMatchObject({ name: "Live skin" });
+    expect(shown.retry).toBeDefined();
+    shown.retry!();
+    await vi.waitFor(() => expect(destinations).toHaveLength(1));
+    expect(destinations[0]?.search).toBe("?id=103&channel=pbe&fallback=skin");
+  });
+
+  it("keeps the original detail when the fallback directory fails, then retries it", async () => {
+    const source = "https://chromaart.lol/champions/detail/?id=103";
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const shown = view();
+    let directoryAttempts = 0;
+    const service = runtime({
+      get: vi.fn(async (_kind, _id, options) => {
+        if (options.channel === "latest") throw new CommunityDragonRuntimeError("not-found", "missing");
+        return champion;
+      }),
+      list: vi.fn(async (_kind, options) => {
+        if (options.channel === "latest" && ++directoryAttempts === 1) throw new Error("offline");
+        return summary;
+      }),
+    });
+    const controller = new RuntimeController(service, shown, navigation, {
+      page: "champions", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    await controller.navigate(new URL(`${source}&channel=latest`));
+    expect(destinations).toEqual([]);
+    expect(shown.rendered).toBe(champion);
+    expect(navigation.url.href).toBe(source);
+    shown.retry!();
+    await vi.waitFor(() => expect(destinations.map(String)).toEqual([
+      "https://chromaart.lol/champions/?channel=latest&fallback=champion",
+    ]));
+    expect(directoryAttempts).toBe(2);
+  });
+
+  it("leaves the original detail in browser history after a cross-page fallback", async () => {
+    const source = "https://chromaart.lol/champions/detail/?id=103";
+    const visited = [source];
+    const service = runtime({
+      get: vi.fn(async (_kind, _id, options) => {
+        if (options.channel === "latest") throw new CommunityDragonRuntimeError("not-found", "missing");
+        return champion;
+      }),
+    });
+    const originalHistory = history(source);
+    const original = new RuntimeController(service, view(), originalHistory, {
+      page: "champions", pageMode: "detail", locale: "default",
+      navigateAway: (url) => visited.push(url.href),
+    });
+    await original.start();
+    await original.navigate(new URL(`${source}&channel=latest`));
+    expect(visited).toEqual([source, "https://chromaart.lol/champions/?channel=latest&fallback=champion"]);
+    expect(originalHistory.pushes).toEqual([]);
+
+    const fallbackHistory = history(visited.at(-1)!);
+    const fallback = new RuntimeController(service, view(), fallbackHistory, {
+      page: "champions", pageMode: "list", locale: "default",
+    });
+    await fallback.start();
+    expect(service.list).toHaveBeenCalledWith("champions", expect.objectContaining({ channel: "latest" }));
+    visited.pop();
+    const returnedHistory = history(visited.at(-1)!);
+    const returnedView = view();
+    const returned = new RuntimeController(service, returnedView, returnedHistory, {
+      page: "champions", pageMode: "detail", locale: "default",
+    });
+    await returned.start();
+    expect(returnedView.rendered).toBe(champion);
+    expect(returnedHistory.url.href).toBe(source);
+    expect(service.get).toHaveBeenLastCalledWith("champion", 103, expect.objectContaining({ channel: "pbe" }));
+  });
+
+  it("ignores a stale fallback lookup after a newer channel choice", async () => {
+    const source = "https://chromaart.lol/skins/detail/?id=103001&champion=103";
+    let resolveChampion!: (entity: RuntimeEntity) => void;
+    const pendingChampion = new Promise<RuntimeEntity>((resolve) => { resolveChampion = resolve; });
+    const destinations: URL[] = [];
+    const navigation = history(source);
+    const service = runtime({
+      get: vi.fn(async (kind, _id, options) => {
+        if (options.channel === "latest" && kind === "skin")
+          throw new CommunityDragonRuntimeError("not-found", "missing");
+        if (options.channel === "latest" && kind === "champion") return pendingChampion;
+        return { kind: "skin", id: 103001, championId: 103, name: "PBE skin" } as RuntimeEntity;
+      }),
+    });
+    const controller = new RuntimeController(service, view(), navigation, {
+      page: "skins", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    const first = controller.navigate(new URL(`${source}&channel=latest`));
+    await vi.waitFor(() => expect(service.get).toHaveBeenCalledWith(
+      "champion", 103, expect.objectContaining({ channel: "latest" }),
+    ));
+    await controller.navigate(new URL(`${source}&channel=pbe`));
+    resolveChampion(champion);
+    await first;
+    expect(destinations).toEqual([]);
+    expect(navigation.url.search).toBe("?id=103001&champion=103&channel=pbe");
+  });
+
+  it("does not fall back when a detail is missing on direct entry", async () => {
+    const source = "https://chromaart.lol/champions/detail/?id=999&channel=latest";
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const shown = view();
+    const service = runtime({ get: vi.fn(async () => { throw new CommunityDragonRuntimeError("not-found", "missing"); }) });
+    const controller = new RuntimeController(service, shown, navigation, {
+      page: "champions", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    expect(destinations).toEqual([]);
+    expect(shown.events.at(-1)).toBe("failure");
+    expect(navigation.url.href).toBe(source);
+  });
+
+  it("does not fall back when navigating to another entity in the same channel", async () => {
+    const source = "https://chromaart.lol/champions/detail/?id=103";
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const shown = view();
+    const service = runtime({ get: vi.fn(async (_kind, id) => {
+      if (id === 999) throw new CommunityDragonRuntimeError("not-found", "missing");
+      return champion;
+    }) });
+    const controller = new RuntimeController(service, shown, navigation, {
+      page: "champions", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    await controller.navigate(new URL("https://chromaart.lol/champions/detail/?id=999"));
+    expect(destinations).toEqual([]);
+    expect(shown.events.at(-1)).toBe("failure");
+    expect(navigation.url.href).toBe(source);
+  });
+
+  it.each(["network", "schema"] as const)("keeps the loaded detail on a %s target failure", async (code) => {
+    const source = "https://chromaart.lol/champions/detail/?id=103";
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const shown = view();
+    const service = runtime({ get: vi.fn(async (_kind, _id, options) => {
+      if (options.channel === "latest") throw new CommunityDragonRuntimeError(code, "failed");
+      return champion;
+    }) });
+    const controller = new RuntimeController(service, shown, navigation, {
+      page: "champions", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    await controller.navigate(new URL(`${source}&channel=latest`));
+    expect(destinations).toEqual([]);
+    expect(shown.rendered).toBe(champion);
+    expect(shown.retry).toBeDefined();
+    expect(navigation.url.href).toBe(source);
+  });
+
+  it("keeps the entity detail when it exists in the target channel", async () => {
+    const source = "https://chromaart.lol/champions/detail/?id=103";
+    const navigation = history(source);
+    const destinations: URL[] = [];
+    const service = runtime();
+    const shown = view();
+    const controller = new RuntimeController(service, shown, navigation, {
+      page: "champions", pageMode: "detail", locale: "default", navigateAway: (url) => destinations.push(url),
+    });
+    await controller.start();
+    await controller.navigate(new URL(`${source}&channel=latest`));
+    expect(destinations).toEqual([]);
+    expect(shown.rendered).toBe(champion);
+    expect(navigation.url.search).toBe("?id=103&channel=latest");
+  });
+
   it("restores the committed URL when a popstate load fails", async () => {
     const service = runtime({
       list: vi.fn(async (_kind, options) => {

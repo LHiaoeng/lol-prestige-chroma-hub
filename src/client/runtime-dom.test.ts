@@ -110,6 +110,13 @@ class TestElement {
     this.children.unshift(...children);
   }
 
+  before(...siblings: TestElement[]): void {
+    if (!this.parentElement) return;
+    const index = this.parentElement.children.indexOf(this);
+    siblings.forEach((sibling) => { sibling.parentElement = this.parentElement; });
+    this.parentElement.children.splice(index, 0, ...siblings);
+  }
+
   appendChild(child: TestElement): TestElement {
     this.append(child);
     return child;
@@ -251,6 +258,77 @@ function createDomRuntimeView(
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
+  it("keeps the loaded detail visible while confirming a channel switch", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    const skinCount = new TestElement("span");
+    skinCount.dataset.runtimeEntitySkinCount = "";
+    skinCount.textContent = "12 skins";
+    document.head.append(skinCount);
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    const detail = new TestElement("article");
+    detail.textContent = "Loaded skin";
+    content.append(detail);
+    root.append(status, content);
+    const originalQuery = root.querySelector.bind(root);
+    vi.spyOn(root, "querySelector").mockImplementation((selector: string) =>
+      selector === '[data-runtime-skeleton-template="detail"]'
+        ? { content: { cloneNode: () => new TestElement("div") } } as never
+        : originalQuery(selector),
+    );
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: new TestElement("div") as unknown as HTMLElement,
+      locale: "default",
+      page: "skins",
+      getController: () => ({ navigate: vi.fn() }),
+      history: history("https://chromaart.lol/skins/detail/?id=103001&champion=103"),
+    });
+    view.loading(true, { target: { mode: "detail", kind: "skin" }, channel: "latest" });
+    expect(content.children).toEqual([detail]);
+    expect(skinCount.textContent).toBe("12 skins");
+    expect(status.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it.each([
+    ["default", "This champion is unavailable", "/champions/?channel=latest&fallback=champion"],
+    ["zh_cn", "目标通道没有该英雄", "/zh-cn/champions/?channel=latest&fallback=champion"],
+  ] as const)("shows a persistent accessible fallback notice in %s", (locale, message, path) => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", { location: { origin: "https://chromaart.lol", pathname: path.split("?")[0] } });
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: new TestElement("div") as unknown as HTMLElement,
+      locale,
+      page: "champions",
+      getController: () => ({ navigate: vi.fn() }),
+      history: history(`https://chromaart.lol${path}`),
+    });
+    view.render({
+      context: {
+        channel: "latest", target: { mode: "list", page: "champions", channel: "latest" },
+        url: new URL(`https://chromaart.lol${path}`), signal: new AbortController().signal,
+        isCurrent: () => true,
+      },
+      core: { status: "ready", value: { mode: "list", items: [] } },
+      slots: {},
+    });
+    const notice = root.querySelector("[data-runtime-fallback-notice]");
+    expect(notice?.textContent).toContain(message);
+    expect(notice?.getAttribute("role")).toBe("status");
+  });
+
   it("binds source controls outside the content root and uses player-facing channel labels", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

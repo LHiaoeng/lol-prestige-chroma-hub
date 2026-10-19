@@ -2,6 +2,7 @@ import {
   CommunityDragonRuntimeError,
   type CommunityDragonLocale,
   type RuntimeEntity,
+  type RuntimeEntityKind,
   type RuntimeList,
   type RuntimeListKind,
 } from "../domain/communitydragon-runtime";
@@ -17,6 +18,7 @@ import {
 import { asCommunityDragonError } from "./communitydragon-errors";
 export { runtimeFailureMessage } from "./communitydragon-errors";
 import { browserHistory, createDomRuntimeView } from "./runtime-reference-view";
+import { runtimePath } from "./runtime-reference-view-shared";
 import {
   RuntimeChannelLifecycle,
   type RuntimeChannelLoadContext,
@@ -79,7 +81,15 @@ export interface RuntimeControllerOptions {
   readonly page: RuntimePage;
   readonly locale: CommunityDragonLocale;
   readonly pageMode: RuntimePageMode;
+  readonly navigateAway?: (url: URL) => void;
 }
+
+const entityRoutes = {
+  champion: { detail: "champions", fallback: "champions" },
+  skin: { detail: "skins", fallback: "champions" },
+  skinline: { detail: "skinlines", fallback: "skinlines" },
+  universe: { detail: "universes", fallback: "universes" },
+} as const satisfies Record<RuntimeEntityKind, { detail: RuntimePage; fallback: RuntimeListKind }>;
 
 export function parseRuntimeLocation(
   url: URL,
@@ -122,12 +132,10 @@ export function parseRuntimeLocation(
       channel: selectedChannel,
     };
   }
-  const kind =
-    page === "champions"
-      ? "champion"
-      : page === "skinlines"
-        ? "skinline"
-        : "universe";
+  const kind = (Object.keys(entityRoutes) as RuntimeEntityKind[]).find(
+    (candidate) => entityRoutes[candidate].detail === page,
+  );
+  if (!kind) return { mode: "invalid", page, channel: selectedChannel };
   return { mode: "detail", page, kind, id, channel: selectedChannel };
 }
 
@@ -229,6 +237,8 @@ export class RuntimeController {
       normalizeError: (error) =>
         asCommunityDragonError(error, this.options.locale),
       isAborted: (error) => error.code === "aborted",
+      resolveMissing: (state, previous, error, signal) => this.resolveMissing(state, previous, error, signal, history.url),
+      navigateAway: options.navigateAway ?? ((url) => window.location.assign(url.href)),
       view: {
         loading: (preserveContent, context) =>
           (this.orchestration.begin(context),
@@ -301,6 +311,51 @@ export class RuntimeController {
         signal,
       }),
     };
+  }
+
+  private async resolveMissing(
+    state: RuntimeLocationState,
+    previous: RuntimeLocationState,
+    error: CommunityDragonRuntimeError,
+    signal: AbortSignal,
+    currentUrl: URL,
+  ): Promise<URL | undefined> {
+    if (error.code !== "not-found" || state.mode !== "detail" || previous.mode !== "detail" ||
+      state.page !== previous.page || state.kind !== previous.kind || state.id !== previous.id ||
+      state.championId !== previous.championId || state.channel === previous.channel)
+      return undefined;
+    const route = entityRoutes[state.kind];
+    let page: RuntimeListKind = route.fallback;
+    let detailId: number | undefined;
+    let reason: string = state.kind;
+    if (state.kind === "skin") {
+      if (!state.championId) throw new Error("Skin detail is missing its champion ID");
+      try {
+        await this.runtime.get("champion", state.championId, {
+          locale: this.options.locale,
+          channel: state.channel,
+          signal,
+        });
+        detailId = state.championId;
+      } catch (championError) {
+        if (asCommunityDragonError(championError, this.options.locale).code !== "not-found")
+          throw championError;
+        reason = "skin-champion";
+      }
+    }
+    if (detailId === undefined)
+      await this.runtime.list(page, {
+        locale: this.options.locale,
+        channel: state.channel,
+        signal,
+      });
+    const destination = formatRuntimeUrl(
+      new URL(runtimePath(this.options.locale, page, detailId === undefined ? "list" : "detail"), currentUrl),
+      { id: detailId, channel: state.channel, channelExplicit: true },
+      detailId === undefined ? ["channel"] : ["id", "channel"],
+    );
+    destination.searchParams.set("fallback", reason);
+    return destination;
   }
 
   private planSupplements(

@@ -48,6 +48,8 @@ export interface RuntimeChannelLifecycleOptions<T, R, E> {
   load(target: T, signal: AbortSignal): Promise<R>;
   normalizeError(error: unknown): E;
   isAborted(error: E): boolean;
+  resolveMissing?(target: T, previous: T, error: E, signal: AbortSignal): Promise<URL | undefined>;
+  navigateAway?(url: URL): void;
   readonly view: RuntimeChannelView<T, R, E>;
 }
 
@@ -61,6 +63,7 @@ export class RuntimeChannelLifecycle<T, R, E> {
   private generation = 0;
   private hasContent = false;
   private committedUrl: URL | undefined;
+  private committedTarget: T | undefined;
   private unsubscribePopState: (() => void) | undefined;
 
   constructor(
@@ -115,12 +118,27 @@ export class RuntimeChannelLifecycle<T, R, E> {
       if (!context.isCurrent()) return;
       this.options.view.render(result, context);
       this.commitUrl(url, commit);
+      this.committedTarget = parsed.target;
       this.options.view.committed?.(context);
       this.hasContent = true;
     } catch (error) {
       if (!context.isCurrent()) return;
-      const runtimeError = this.options.normalizeError(error);
+      let runtimeError = this.options.normalizeError(error);
       if (this.options.isAborted(runtimeError)) return;
+      if (commit && this.committedTarget !== undefined && this.options.resolveMissing) {
+        try {
+          const fallback = await this.options.resolveMissing(parsed.target, this.committedTarget, runtimeError, controller.signal);
+          if (!context.isCurrent()) return;
+          if (fallback) {
+            this.options.navigateAway?.(fallback);
+            return;
+          }
+        } catch (fallbackError) {
+          if (!context.isCurrent()) return;
+          runtimeError = this.options.normalizeError(fallbackError);
+          if (this.options.isAborted(runtimeError)) return;
+        }
+      }
 
       if (
         !commit &&

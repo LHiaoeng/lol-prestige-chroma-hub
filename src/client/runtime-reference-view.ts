@@ -111,6 +111,35 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
   });
   const clearRuntimeAlert = () =>
     options.root.querySelector("[data-runtime-error-alert]")?.remove();
+  const showFallbackNotice = (context: RuntimeChannelLoadContext<RuntimeLocationState>) => {
+    options.root.querySelector("[data-runtime-fallback-notice]")?.remove();
+    const reason = context.url.searchParams.get("fallback");
+    const isChampionDetail = context.target.mode === "detail" && context.target.kind === "champion";
+    const isChampionList = context.target.mode === "list" && context.target.page === "champions";
+    if (!reason || (reason === "skin" && !isChampionDetail) ||
+      (reason === "skin-champion" && !isChampionList) ||
+      (reason === "champion" && !isChampionList) ||
+      (reason === "skinline" && !(context.target.mode === "list" && context.target.page === "skinlines")) ||
+      (reason === "universe" && !(context.target.mode === "list" && context.target.page === "universes"))) return;
+    const messages = options.locale === "zh_cn" ? {
+      skin: "目标通道没有该皮肤，已显示所属英雄资料。",
+      "skin-champion": "目标通道没有该皮肤及所属英雄，已显示英雄目录。",
+      champion: "目标通道没有该英雄，已显示英雄目录。",
+      skinline: "目标通道没有该皮肤系列，已显示皮肤系列目录。",
+      universe: "目标通道没有该皮肤宇宙，已显示皮肤宇宙目录。",
+    } : {
+      skin: "This skin is unavailable in the selected channel. Showing its champion instead.",
+      "skin-champion": "This skin and its champion are unavailable in the selected channel. Showing the champion directory.",
+      champion: "This champion is unavailable in the selected channel. Showing the champion directory.",
+      skinline: "This skinline is unavailable in the selected channel. Showing the skinline directory.",
+      universe: "This universe is unavailable in the selected channel. Showing the universe directory.",
+    };
+    if (!Object.hasOwn(messages, reason)) return;
+    const notice = textNode("p", `${communityDragonChannelLabel(context.channel, options.locale)}${options.locale === "zh_cn" ? "：" : ": "}${messages[reason as keyof typeof messages]}`);
+    notice.dataset.runtimeFallbackNotice = "";
+    notice.setAttribute("role", "status");
+    content.before(notice);
+  };
   if (!status.parentElement) options.root.append(status);
   if (!content.parentElement) options.root.append(content);
   status.setAttribute("role", "status");
@@ -123,6 +152,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     ".domain-icon--reference",
   );
   let renderedContext: RuntimeChannelLoadContext<RuntimeLocationState> | undefined;
+  let preservingContent = false;
   const preservesExplicitPbe = () =>
     readRuntimeUrlState(renderedContext?.url ?? options.history.url)
       .channelExplicit;
@@ -234,6 +264,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
           listRenderer.render(state.core.value.items, target);
         else if (target.mode === "detail" && state.core.value.mode === "detail")
           detailRenderer.render(state.core.value.item, target);
+        showFallbackNotice(context);
       }
 
       const target = context.target;
@@ -288,23 +319,24 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       bindRuntimeLanguageToggle(document, url);
     },
     loading(preserve, context) {
+      preservingContent = preserve;
       options.root.setAttribute("aria-busy", "true");
-      pageShell?.setAttribute("data-runtime-loading", "");
+      if (!preserve) pageShell?.setAttribute("data-runtime-loading", "");
       clearRuntimeAlert();
       const isEntityDetail =
         context &&
         typeof context === "object" &&
         context.target.mode === "detail" &&
         ["champion", "skin", "skinline", "universe"].includes(context.target.kind);
-      if (isEntityDetail) {
+      if (isEntityDetail && !preserve) {
         entityDetailSummary?.removeAttribute("hidden");
         entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
         entityHeaderSkeleton?.removeAttribute("hidden");
         if (entityDetailSummary && entityChannelSource && entityDivider)
           entityDetailSummary.append(entityChannelSource, entityDivider);
         entityChannelSource?.setAttribute("data-runtime-summary-loading", "");
-      } else entityHeaderSkeleton?.setAttribute("hidden", "");
-      if (isEntityDetail) detailRenderer.showDetailSummaryLoading();
+      } else if (!preserve) entityHeaderSkeleton?.setAttribute("hidden", "");
+      if (isEntityDetail && !preserve) detailRenderer.showDetailSummaryLoading();
       const channel =
         context && typeof context === "object"
           ? context.target.mode === "pbe"
@@ -322,7 +354,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       const template = options.root.querySelector<HTMLTemplateElement>(
         `[data-runtime-skeleton-template="${targetMode}"]`,
       );
-      if (template) content.replaceChildren(template.content.cloneNode(true));
+      if (template && !preserve) content.replaceChildren(template.content.cloneNode(true));
     },
     invalid(message, channel) {
       setRuntimeNoindex(true);
@@ -354,7 +386,7 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       content.replaceChildren(fragment);
     },
     failure(error, retry) {
-      detailRenderer.showDetailSummaryFailure();
+      if (!preservingContent) detailRenderer.showDetailSummaryFailure();
       entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
       entityHeaderSkeleton?.setAttribute("hidden", "");
       entityChannelSource?.removeAttribute("data-runtime-summary-loading");
