@@ -93,13 +93,32 @@ export function initSkinCatalog(
       .forEach((button) => { button.disabled = disabled; });
   };
   setControlsDisabled(true);
+  const showFilters = (visible: boolean) => {
+    const searchRow = search.closest<HTMLElement>(".skin-catalog-search");
+    const rarityRow = rarities.closest<HTMLElement>(".skin-catalog-rarities");
+    const toolbar = sort.closest<HTMLElement>(".skin-catalog-toolbar");
+    if (searchRow) searchRow.hidden = !visible;
+    if (rarityRow) rarityRow.hidden = !visible;
+    if (toolbar) toolbar.hidden = !visible;
+  };
 
-  const showMessage = (message: string, retry?: () => void) => {
-    const line = document.createElement("p");
-    line.textContent = message;
-    content.replaceChildren(line);
+  const showMessage = (message: string, kind: "plain" | "empty" | "error" = "plain", retry?: () => void) => {
+    const template = root.querySelector<HTMLTemplateElement>(
+      kind === "empty" ? "[data-catalog-empty-template]" : "[data-catalog-error-template]",
+    );
+    const panel = kind === "plain" ? document.createElement("p") : template?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
+    if (panel) {
+      const description = kind === "empty" ? panel.querySelector(".ant-empty-description") : panel.querySelector(".alert__content");
+      (description ?? panel).textContent = message;
+      content.replaceChildren(panel);
+    } else {
+      const line = document.createElement("p");
+      line.textContent = message;
+      content.replaceChildren(line);
+    }
     if (retry) {
       const button = document.createElement("button");
+      button.className = "ant-btn";
       button.type = "button";
       button.textContent = copy.retry;
       button.addEventListener("click", retry);
@@ -164,12 +183,13 @@ export function initSkinCatalog(
     const title = document.createElement("span");
     title.className = "skin-catalog-card-title";
     title.textContent = item.name ?? item.championName ?? String(item.id);
-    const rarity = item.rarity?.label;
+    const key = catalogRarityKey(item, locale);
+    const rarity = key ? rarityLabel(item.rarity, key, locale) : undefined;
     link.setAttribute("aria-label", [item.championName, title.textContent, rarity].filter(Boolean).join(" · "));
     link.title = [title.textContent, rarity].filter(Boolean).join(" · ");
+    if (rarity && item.rarity?.iconUrl) link.dataset.catalogRarityHint = rarity;
     link.append(title);
     article.append(link);
-    const key = catalogRarityKey(item, locale);
     if (key && item.rarity?.iconUrl) {
       const icon = document.createElement("img");
       icon.className = "skin-catalog-card-rarity";
@@ -216,7 +236,7 @@ export function initSkinCatalog(
     lastStart = -1;
     if (!items.length || !filtered.length) {
       viewport.hidden = true;
-      showMessage(items.length ? copy.noMatches : copy.empty);
+      showMessage(items.length ? copy.noMatches : copy.empty, "empty");
     } else {
       content.hidden = true;
       viewport.hidden = false;
@@ -280,6 +300,7 @@ export function initSkinCatalog(
     view: {
       loading(preserve) {
         setControlsDisabled(true);
+        if (!preserve) showFilters(false);
         status.textContent = copy.loading;
         content.hidden = preserve;
         if (!preserve) {
@@ -297,6 +318,7 @@ export function initSkinCatalog(
         committedChannel = context.channel;
         status.textContent = "";
         renderRarities();
+        showFilters(items.length > 0);
         syncControls();
         refresh();
         setControlsDisabled(false);
@@ -307,14 +329,18 @@ export function initSkinCatalog(
       },
       invalid(message) {
         status.textContent = message;
-        showMessage(message);
-        setControlsDisabled(false);
+        showFilters(false);
+        viewport.hidden = true;
+        showMessage(message, "error");
       },
       failure(error, retry, preserve) {
         const message = runtimeFailureMessage(error, locale);
         status.textContent = message;
-        showMessage(message, retry);
-        if (!preserve) viewport.hidden = true;
+        showMessage(message, "error", retry);
+        if (!preserve) {
+          showFilters(false);
+          viewport.hidden = true;
+        }
         setControlsDisabled(false);
       },
     },

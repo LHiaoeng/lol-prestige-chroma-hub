@@ -4,6 +4,8 @@ import { localizedPath } from '../i18n/config';
 import Breadcrumb from './Breadcrumb.astro';
 import Divider from './Divider.astro';
 import DomainIcon from './DomainIcon.astro';
+import Empty from './Empty.astro';
+import Alert from './Alert.astro';
 import '../styles/skin-catalog.css';
 
 interface Props { locale: Locale }
@@ -20,8 +22,8 @@ const isZh = locale === 'zh-cn';
   <header class="skin-catalog-header">
     <h1 id="skin-catalog-title"><DomainIcon name="skins" />{isZh ? '皮肤' : 'Skins'}</h1>
     <div class="skin-catalog-channel" role="group" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-      <button type="button" data-catalog-channel="pbe" aria-pressed="true">PBE</button>
-      <button type="button" data-catalog-channel="latest" aria-pressed="false">{isZh ? '正式服' : 'Live'}</button>
+      <button class="ant-btn" type="button" data-catalog-channel="pbe" aria-pressed="true">PBE</button>
+      <button class="ant-btn" type="button" data-catalog-channel="latest" aria-pressed="false">{isZh ? '正式服' : 'Live'}</button>
     </div>
   </header>
   <Divider />
@@ -31,7 +33,7 @@ const isZh = locale === 'zh-cn';
   </nav>
   <div class="skin-catalog-search">
     <label for="skin-catalog-search">{isZh ? '搜索皮肤或英雄' : 'Search skins or champions'}</label>
-    <input id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '输入皮肤或英雄名称' : 'Skin or champion name'} />
+    <input class="cn-input" id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '输入皮肤或英雄名称' : 'Skin or champion name'} />
   </div>
   <fieldset class="skin-catalog-rarities">
     <legend>{isZh ? '稀有度' : 'Rarity'}</legend>
@@ -40,7 +42,7 @@ const isZh = locale === 'zh-cn';
   <div class="skin-catalog-toolbar">
     <p data-catalog-count role="status" aria-live="polite">{isZh ? '正在统计皮肤…' : 'Counting skins…'}</p>
     <label>{isZh ? '按英雄排序' : 'Sort by champion'}
-      <select data-catalog-sort>
+      <select class="cn-select" data-catalog-sort>
         <option value="asc">{isZh ? '英雄名称升序' : 'Champion name A–Z'}</option>
         <option value="desc">{isZh ? '英雄名称降序' : 'Champion name Z–A'}</option>
       </select>
@@ -52,6 +54,8 @@ const isZh = locale === 'zh-cn';
       {Array.from({ length: 6 }, () => <div class="skin-catalog-skeleton-card"><span></span><span></span></div>)}
     </div>
   </div>
+  <template data-catalog-empty-template><Empty description="" /></template>
+  <template data-catalog-error-template><Alert type="error" title="" /></template>
   <div class="skin-catalog-viewport" data-catalog-viewport tabindex="0" role="region" aria-label={isZh ? '皮肤列表' : 'Skin list'} hidden></div>
   <noscript><p>{isZh ? '请启用 JavaScript 以浏览皮肤目录。' : 'Enable JavaScript to browse the skin catalog.'}</p></noscript>
 </section>

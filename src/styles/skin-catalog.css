@@ -1,4 +1,6 @@
 .skin-catalog {
+  --catalog-columns: 5;
+  --catalog-gap: var(--space-3);
   width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2)));
   margin: 0 auto;
   padding-bottom: 96px;
@@ -7,7 +9,7 @@
 .skin-catalog h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); font-family: var(--font-ui); }
 .skin-catalog h1 svg { width: 1em; height: 1em; flex: none; }
 .skin-catalog-channel, .skin-catalog-explore { display: inline-flex; align-items: stretch; }
-.skin-catalog-channel button, .skin-catalog-explore a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--touch-target); padding: 0 var(--space-3); border: 1px solid var(--line); background: var(--panel); color: var(--text); }
+.skin-catalog-channel button, .skin-catalog-explore a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--control-height); padding: 0 var(--space-3); border: 1px solid var(--line); background: var(--panel); color: var(--text); }
 .skin-catalog-channel > :first-child, .skin-catalog-explore > :first-child { border-radius: var(--radius-control) 0 0 var(--radius-control); }
 .skin-catalog-channel > :last-child, .skin-catalog-explore > :last-child { margin-left: -1px; border-radius: 0 var(--radius-control) var(--radius-control) 0; }
 .skin-catalog-channel [aria-pressed="true"] { position: relative; border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
@@ -17,13 +19,11 @@
 .skin-catalog-explore { margin-bottom: var(--space-4); }
 .skin-catalog-search { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
 .skin-catalog-search label, .skin-catalog-rarities legend, .skin-catalog-toolbar label { color: var(--muted); }
-.skin-catalog-search input, .skin-catalog-toolbar select { min-height: var(--touch-target); border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--panel); color: var(--text); padding: 0 var(--space-3); }
 .skin-catalog-search input { width: 100%; }
-.skin-catalog-search input:focus-visible, .skin-catalog-toolbar select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .skin-catalog-rarities { min-width: 0; margin: 0 0 var(--space-4); padding: 0; border: 0; }
 .skin-catalog-rarities legend { padding: 0 0 var(--space-2); }
 .skin-catalog-rarity-options { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.skin-catalog-rarity-options button { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--touch-target); padding: 0 var(--space-3); }
+.skin-catalog-rarity-options button { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height); padding: 0 var(--space-3); }
 .skin-catalog-rarity-options button[aria-pressed="true"] { border-color: var(--gold); background: var(--selected-bg); color: var(--gold); }
 .skin-catalog-rarity-options img { width: 20px; height: 20px; object-fit: contain; }
 .skin-catalog-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
@@ -35,9 +35,8 @@
 .skin-catalog-skeleton-card { position: relative; min-width: 0; overflow: hidden; aspect-ratio: 2 / 3; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); }
 .skin-catalog-skeleton-card span:first-child { display: block; height: 100%; background: var(--panel2); }
 .skin-catalog-skeleton-card span:last-child { position: absolute; right: var(--space-2); bottom: var(--space-2); left: var(--space-2); height: var(--line-height-body); border-radius: var(--radius-control); background: var(--line-subtle); }
-.skin-catalog-viewport { --catalog-columns: 5; --catalog-gap: var(--space-3); height: min(75vh, 900px); min-height: 380px; overflow: auto; overscroll-behavior: contain; border-radius: var(--radius-card); scrollbar-gutter: stable; }
+.skin-catalog-viewport { height: min(75vh, 900px); min-height: 380px; overflow: auto; overscroll-behavior: contain; border-radius: var(--radius-card); scrollbar-gutter: stable; }
 .skin-catalog-viewport:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.skin-catalog { --catalog-columns: 5; --catalog-gap: var(--space-3); }
 .skin-catalog-card { position: relative; display: block; min-width: 0; overflow: visible; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--text); }
 .skin-catalog-card:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
 .skin-catalog-card-media { position: relative; display: block; overflow: hidden; aspect-ratio: 2 / 3; border-radius: var(--radius-card); background: var(--panel2); }
@@ -45,8 +44,11 @@
 .skin-catalog-card-border { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
 .skin-catalog-card-title { position: absolute; right: 0; bottom: 0; left: 0; display: block; min-width: 0; padding: var(--space-4) var(--space-2) var(--space-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; font-size: var(--font-size-body); background: linear-gradient(transparent, #000c); }
 .skin-catalog-card-rarity { position: absolute; bottom: -12px; left: 50%; z-index: 1; width: 24px; height: 24px; transform: translateX(-50%); object-fit: contain; }
+.skin-catalog-card a[data-catalog-rarity-hint]::after { position: absolute; right: var(--space-2); bottom: 32px; left: var(--space-2); z-index: 2; display: none; padding: var(--space-1) var(--space-2); border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--panel); color: var(--text); content: attr(data-catalog-rarity-hint); text-align: center; pointer-events: none; }
+.skin-catalog-card a[data-catalog-rarity-hint]:is(:hover, :focus-visible)::after { display: block; }
 @media (hover: hover) and (pointer: fine) { .skin-catalog-card:hover { border-color: var(--gold-hover); box-shadow: var(--shadow-card); } }
-@media (max-width: 1023px) { .skin-catalog { --catalog-columns: 4; } .skin-catalog-viewport { --catalog-columns: 4; } }
-@media (max-width: 767px) { .skin-catalog { --catalog-columns: 3; --catalog-gap: var(--space-2); padding-bottom: 72px; } .skin-catalog-viewport { --catalog-columns: 3; --catalog-gap: var(--space-2); } .skin-catalog-toolbar { align-items: flex-start; } .skin-catalog-toolbar label { width: 100%; justify-content: space-between; } }
-@media (max-width: 359px) { .skin-catalog { --catalog-columns: 2; } .skin-catalog-viewport { --catalog-columns: 2; } }
+@media (max-width: 1023px) { .skin-catalog { --catalog-columns: 4; } }
+@media (max-width: 767px) { .skin-catalog { --catalog-columns: 3; --catalog-gap: var(--space-2); padding-bottom: 72px; } .skin-catalog-toolbar { align-items: flex-start; } .skin-catalog-toolbar label { width: 100%; justify-content: space-between; } }
+@media (max-width: 359px) { .skin-catalog { --catalog-columns: 2; } }
+@media (pointer: coarse) { .skin-catalog-channel button, .skin-catalog-explore a, .skin-catalog-rarity-options button { min-height: var(--touch-target); } }
 @media (prefers-reduced-motion: reduce) { .skin-catalog-card { transition: none; } }
