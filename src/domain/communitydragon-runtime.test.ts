@@ -1135,6 +1135,25 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher).toHaveBeenCalledOnce();
   });
 
+  it("loads the catalog skin collection and localized champion names through shared cache", async () => {
+    const fetcher = vi.fn(async (input: string) =>
+      jsonResponse(
+        input.includes("skins.json")
+          ? [{ championId: 103, id: 103001, name: "玉狐", isBase: false }]
+          : summary("zh_cn", "latest"),
+      ),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    await expect(runtime.listSkinCatalog({ locale: "zh_cn", channel: "latest" }))
+      .resolves.toMatchObject({
+        skins: [{ id: 103001, championId: 103 }],
+        champions: [{ id: 103, name: "阿狸" }],
+      });
+    await runtime.listSkinlineSkins(7, { locale: "zh_cn", channel: "latest" });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
   it("loads every PBE comparison resource for both channels", async () => {
     const fetcher = vi.fn(async (input: string) => {
       if (input.includes("champion-summary.json")) {

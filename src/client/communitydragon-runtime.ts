@@ -61,6 +61,10 @@ export interface RuntimeRequestOptions {
 }
 
 export interface CommunityDragonRuntime {
+  listSkinCatalog(options: RuntimeRequestOptions): Promise<{
+    readonly skins: readonly RuntimeSkin[];
+    readonly champions: readonly RuntimeChampionSummary[];
+  }>;
   list(
     kind: RuntimeListKind,
     options: RuntimeRequestOptions,
@@ -334,6 +338,19 @@ export function createCommunityDragonRuntime(
     );
   }
 
+  async function listSkinCatalog(input: RuntimeRequestOptions) {
+    const [skins, champions] = await Promise.all([
+      listSkinCollection(input),
+      list("champions", input),
+    ]);
+    return {
+      skins,
+      champions: champions.filter(
+        (item): item is RuntimeChampionSummary => item.kind === "champion",
+      ),
+    };
+  }
+
   function listSummonerIconCollection(
     input: RuntimeRequestOptions,
   ): Promise<readonly RuntimeSummonerIcon[]> {
@@ -592,6 +609,7 @@ export function createCommunityDragonRuntime(
   }
 
   return {
+    listSkinCatalog,
     list,
     get,
     listSkinlineSkins,
