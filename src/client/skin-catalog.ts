@@ -164,6 +164,9 @@ export function initSkinCatalog(
     const title = document.createElement("span");
     title.className = "skin-catalog-card-title";
     title.textContent = item.name ?? item.championName ?? String(item.id);
+    const rarity = item.rarity?.label;
+    link.setAttribute("aria-label", [item.championName, title.textContent, rarity].filter(Boolean).join(" · "));
+    link.title = [title.textContent, rarity].filter(Boolean).join(" · ");
     link.append(title);
     article.append(link);
     const key = catalogRarityKey(item, locale);
