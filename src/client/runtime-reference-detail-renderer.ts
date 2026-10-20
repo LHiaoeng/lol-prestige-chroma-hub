@@ -570,16 +570,36 @@ export function createRuntimeDetailRenderer(
         item.kind === "skinline"
       ) {
         article.classList.add("runtime-detail--entity");
+        const skinEmblem = item.kind === "skin" ? item.emblems?.[0] : undefined;
+        const withSkinIconTooltip = (icon: HTMLElement | SVGElement): HTMLElement | SVGElement => {
+          if (!skinEmblem) return item.kind === "skin" && item.rarity?.label
+            ? createTooltip(icon, item.rarity.label)
+            : icon;
+          const content = document.createElement("div");
+          content.className = "runtime-skin-emblem-tooltip-content";
+          const preview = document.createElement("img");
+          preview.className = "runtime-skin-emblem-preview";
+          preview.src = skinEmblem.imageUrl;
+          preview.alt = skinEmblem.name ?? (options.locale === "zh_cn" ? "皮肤徽章" : "Skin emblem");
+          preview.loading = "lazy";
+          content.appendChild(preview);
+          if (item.kind === "skin" && item.rarity?.label)
+            content.appendChild(textNode("span", item.rarity.label, "runtime-skin-emblem-rarity"));
+          const tooltip = createTooltip(icon, content);
+          tooltip.querySelector(".ant-tooltip")?.classList.add("runtime-skin-emblem-tooltip");
+          return tooltip;
+        };
         if (item.kind === "skin" && item.rarity?.iconUrl) {
           const icon = document.createElement("img");
           icon.className = "runtime-rarity-title-icon";
           icon.src = item.rarity.iconUrl;
           icon.alt = "";
-          title.prepend(item.rarity.label ? createTooltip(icon, item.rarity.label) : icon);
+          title.prepend(withSkinIconTooltip(icon));
         } else {
-          title.prepend(createDomainIcon(
+          const icon = createDomainIcon(
             item.kind === "champion" ? "champions" : item.kind === "skin" ? "skins" : "skinlines",
-          ));
+          );
+          title.prepend(item.kind === "skin" ? withSkinIconTooltip(icon) : icon);
         }
       }
       if (item.kind === "universe") {
