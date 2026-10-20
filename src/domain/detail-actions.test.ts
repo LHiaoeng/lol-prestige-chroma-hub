@@ -68,7 +68,7 @@ describe('detail action URLs', () => {
       {
         id: 'voice',
         label: '布锅锅语音站',
-        href: 'https://voice.buguoguo.cn/voice/103',
+        href: 'https://voice.buguoguo.cn/#/voice/103',
       },
       {
         id: 'bilibili',

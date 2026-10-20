@@ -17,6 +17,7 @@ import {
 } from "../domain/skin-reference-projection";
 import { relatedRuntimeItems } from "../domain/runtime-relations";
 import {
+  buguoguoVoiceUrl,
   googleSearchUrl,
   khadaChampionUrl,
   runtimeSkinActions,
@@ -552,6 +553,7 @@ export function createRuntimeDetailRenderer(
             { label: isZh ? "在 SKINSPOTLIGHTS 查看" : "VIEW ON SKINSPOTLIGHTS", href: skinSpotlightsSearchUrl(entityName) },
             { label: isZh ? "在 KHADA 查看 3D 模型" : "VIEW 3D MODEL ON KHADA", href: khadaChampionUrl(String(item.id)) },
             { label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(entityName) },
+            ...(isZh ? [{ label: "布锅锅语音站", href: buguoguoVoiceUrl(item.id) }] : []),
           ]
         : item.kind === "skinline" || item.kind === "universe"
           ? [{ label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(`${entityName} ${item.kind === "skinline" ? "Skinlines" : "Universes"}`) }]

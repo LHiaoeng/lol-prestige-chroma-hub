@@ -946,6 +946,44 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-universe-title")?.href).toBe("/universes/detail/?id=200");
   });
 
+  it.each([
+    ["zh_cn", "https://voice.buguoguo.cn/#/voice/103"],
+    ["default", undefined],
+  ] as const)("shows the champion voice action only in %s", (locale, voiceUrl) => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    vi.stubGlobal("window", { addEventListener: vi.fn(), location: { origin: "https://chromaart.lol", pathname: "/champions/detail/" } });
+    const summary = new TestElement("div");
+    summary.dataset.runtimeEntityActionsSummary = "";
+    const menu = new TestElement("ul");
+    menu.className = "ant-dropdown-menu";
+    summary.append(menu);
+    document.head.append(summary);
+    const root = new TestElement("div");
+    const status = new TestElement("p");
+    status.dataset.runtimeStatus = "";
+    const content = new TestElement("div");
+    content.dataset.runtimeContent = "";
+    root.append(status, content);
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: new TestElement("div") as unknown as HTMLElement,
+      locale,
+      page: "champions",
+      getController: () => ({ navigate: vi.fn() }) as never,
+      history: history(),
+    });
+
+    view.renderDetail(
+      { kind: "champion", id: 103, name: "Ahri", skins: [] },
+      { mode: "detail", page: "champions", kind: "champion", id: 103, channel: "latest" },
+    );
+
+    const voice = [...menu.querySelectorAll("a")].find((link) => link.textContent === "布锅锅语音站");
+    expect(voice?.href).toBe(voiceUrl);
+    expect(summary.hidden).toBe(false);
+  });
+
   it("renders deduplicated square-thumbnail skin cards, sorting, and rarity", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

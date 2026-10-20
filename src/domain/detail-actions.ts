@@ -37,6 +37,10 @@ function buguoguoModelUrl(input: RuntimeSkinActionInput): string {
   return url.toString();
 }
 
+export function buguoguoVoiceUrl(championId: number): string {
+  return `https://voice.buguoguo.cn/#/voice/${championId}`;
+}
+
 /** Build only the reference project's external actions for the active locale. */
 export function runtimeSkinActions(
   locale: CommunityDragonLocale,
@@ -60,7 +64,7 @@ export function runtimeSkinActions(
     {
       id: 'voice',
       label: '布锅锅语音站',
-      href: `https://voice.buguoguo.cn/voice/${input.championId}`,
+      href: buguoguoVoiceUrl(input.championId),
     },
   ];
   if (input.name) {
