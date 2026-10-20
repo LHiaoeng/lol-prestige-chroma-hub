@@ -19,6 +19,15 @@ class ElementStub {
     add: (...names: string[]) => {
       this.className = [...new Set([...this.className.split(" ").filter(Boolean), ...names])].join(" ");
     },
+    remove: (...names: string[]) => {
+      this.className = this.className.split(" ").filter((name) => !names.includes(name)).join(" ");
+    },
+    toggle: (name: string, force?: boolean) => {
+      const enabled = force ?? !this.className.split(" ").includes(name);
+      if (enabled) this.classList.add(name); else this.classList.remove(name);
+      return enabled;
+    },
+    contains: (name: string) => this.className.split(" ").includes(name),
   };
   id = "";
   text = "";
@@ -27,6 +36,7 @@ class ElementStub {
   src = "";
   alt = "";
   title = "";
+  innerHTML = "";
   type = "";
   loading = "";
   hidden = false;
@@ -42,6 +52,7 @@ class ElementStub {
     if (name.startsWith("data-")) this.dataset[name.slice(5).replace(/-([a-z])/g, (_, x: string) => x.toUpperCase())] = value;
   }
   getAttribute(name: string) { return this.attributes.get(name) ?? null; }
+  removeAttribute(name: string) { this.attributes.delete(name); }
   toggleAttribute(name: string, force?: boolean) {
     const enabled = force ?? !this.attributes.has(name);
     if (enabled) this.attributes.set(name, ""); else this.attributes.delete(name);
@@ -49,6 +60,9 @@ class ElementStub {
   }
   addEventListener(type: string, listener: (event: any) => void) {
     this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener]);
+  }
+  removeEventListener(type: string, listener: (event: any) => void) {
+    this.listeners.set(type, (this.listeners.get(type) ?? []).filter((current) => current !== listener));
   }
   fire(type: string, extra: Record<string, unknown> = {}) {
     const event = { type, target: this, shiftKey: false, key: "", preventDefault: vi.fn(), ...extra };
@@ -58,10 +72,28 @@ class ElementStub {
   }
   click() { this.fire("click"); }
   focus() { this.ownerDocument.activeElement = this; }
+  get isConnected() { return this.ownerDocument.root.contains(this); }
+  get nextSibling() {
+    if (!this.parentElement) return null;
+    const siblings = this.parentElement.children;
+    return siblings[siblings.indexOf(this) + 1] ?? null;
+  }
+  getBoundingClientRect() { return { top: 0, bottom: 24, left: 0, right: 24, width: 24, height: 24 }; }
   append(...children: ElementStub[]) {
     for (const child of children) { child.remove(); child.parentElement = this; this.children.push(child); }
   }
   appendChild(child: ElementStub) { child.remove(); this.append(child); return child; }
+  insertBefore(child: ElementStub, reference: ElementStub | null) {
+    child.remove();
+    child.parentElement = this;
+    const index = reference ? this.children.indexOf(reference) : -1;
+    this.children.splice(index < 0 ? this.children.length : index, 0, child);
+    return child;
+  }
+  replaceWith(replacement: ElementStub) {
+    if (this.parentElement) this.parentElement.insertBefore(replacement, this.nextSibling);
+    this.remove();
+  }
   replaceChildren(...children: ElementStub[]) {
     this.children.forEach((child) => { child.parentElement = null; });
     this.children = [];
@@ -73,10 +105,13 @@ class ElementStub {
     this.parentElement.children.splice(this.parentElement.children.indexOf(this), 1);
     this.parentElement = null;
   }
-  contains(child: ElementStub): boolean {
+  contains(child: ElementStub | null): boolean {
+    if (!child) return false;
     return child === this || this.children.some((item) => item.contains(child));
   }
   matches(selector: string): boolean {
+    if (selector.includes(":focus") && this.ownerDocument.activeElement === this) return true;
+    if (selector === ":hover") return false;
     const dataValue = selector.match(/^\[data-([\w-]+)="([^"]+)"\]$/);
     if (dataValue) return this.dataset[dataValue[1].replace(/-([a-z])/g, (_, x: string) => x.toUpperCase())] === dataValue[2];
     const data = selector.match(/^\[data-([\w-]+)\]$/);
@@ -103,13 +138,17 @@ class ElementStub {
 class DocumentStub {
   root = new ElementStub("body", this);
   activeElement: ElementStub | null = null;
+  get body() { return this.root; }
   createElement(tag: string) { return new ElementStub(tag, this); }
+  createElementNS(_namespace: string, tag: string) { return this.createElement(tag); }
   createTextNode(text: string) {
     const node = this.createElement("text");
     node.textContent = text;
     return node;
   }
   querySelector(selector: string) { return this.root.querySelector(selector); }
+  addEventListener() {}
+  removeEventListener() {}
 }
 
 function history(initial = "https://chromaart.lol/skins/") {
@@ -148,10 +187,13 @@ const skins = [
   skin(102, 1, { key: "kMythic", label: "Mythic" }),
   skin(201, 2),
 ];
-function fixture(initial?: string, list = vi.fn(async () => ({ skins, champions })), columns = 6, locale = "default") {
+function fixture(initial?: string, list = vi.fn(async (_options: { channel: string }) => ({ skins, champions })), columns = 6, locale = "default") {
   const document = new DocumentStub();
   const root = document.createElement("section");
   root.dataset.catalogLocale = locale;
+  root.dataset.catalogReleaseDates = JSON.stringify([
+    [101, "2024-01-01", null], [102, "2024-02-01", null], [201, "2024-03-01", null],
+  ]);
   document.root.append(root);
   const add = (tag: string, data: string, parent = root) => {
     const node = document.createElement(tag);
@@ -212,7 +254,18 @@ function fixture(initial?: string, list = vi.fn(async () => ({ skins, champions 
   const loadMore = add("button", "catalogLoadMore", loadMoreFooter);
   const h = history(initial);
   vi.stubGlobal("document", document);
-  vi.stubGlobal("window", { location: { origin: "https://chromaart.lol" } });
+  vi.stubGlobal("Node", ElementStub);
+  vi.stubGlobal("window", {
+    location: { origin: "https://chromaart.lol" },
+    innerHeight: 800,
+    innerWidth: 1200,
+    scrollX: 0,
+    scrollY: 0,
+    setTimeout,
+    clearTimeout,
+    addEventListener() {},
+    removeEventListener() {},
+  });
   vi.stubGlobal("getComputedStyle", () => ({ getPropertyValue: () => String(columns) }));
   const runtime = { listSkinCatalog: list } as unknown as CommunityDragonRuntime;
   const controller = initSkinCatalog(root as unknown as HTMLElement, runtime, h);
@@ -224,7 +277,9 @@ afterEach(() => vi.unstubAllGlobals());
 describe("skin catalog browser behavior", () => {
   it("replaces aligned loading placeholders with the shared channel summary and filters", async () => {
     let resolve!: (value: { skins: RuntimeSkin[]; champions: RuntimeChampionSummary[] }) => void;
-    const page = fixture(undefined, vi.fn(() => new Promise((done) => { resolve = done; })));
+    const page = fixture(undefined, vi.fn(({ channel }: { channel: string }) => channel === "pbe"
+      ? new Promise((done) => { resolve = done; })
+      : Promise.resolve({ skins, champions })));
     expect(page.summary.hidden).toBe(true);
     expect(page.summarySkeleton.hidden).toBe(false);
     expect(page.filterSkeleton.hidden).toBe(false);
@@ -236,6 +291,18 @@ describe("skin catalog browser behavior", () => {
     expect(page.filterSkeleton.hidden).toBe(true);
     expect(page.search.closest(".skin-catalog-search")?.hidden).toBe(false);
     expect(page.channelLabel.textContent).toBe("PBE");
+  });
+
+  it("opens the skin details Popover on hover without wrapping the button in a Tooltip", async () => {
+    const page = fixture();
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+
+    const button = page.grid.querySelector(".skin-catalog-info-button")!;
+    button.fire("pointerenter");
+
+    expect(button.parentElement?.className).toBe("skin-catalog-card-actions");
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(page.document.root.querySelector(".ant-popover")?.textContent).toContain("Skin details");
   });
 
   it("combines search and multiple rarities, then restores the URL on popstate", async () => {
@@ -252,6 +319,36 @@ describe("skin catalog browser behavior", () => {
     await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 3"));
     expect(page.search.value).toBe("Zed");
     expect(page.grid.querySelectorAll(".skin-catalog-card")).toHaveLength(1);
+  });
+
+  it("applies release sorting and keeps it in the URL", async () => {
+    const page = fixture();
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+    page.sort.value = "release_asc";
+    page.sort.fire("change");
+    expect(page.list).toHaveBeenCalledTimes(2);
+    await vi.waitFor(() => expect(page.h.url.searchParams.get("sort")).toBe("release_asc"));
+    expect(page.grid.querySelectorAll(".skin-catalog-card-title-name").map((item) => item.textContent))
+      .toEqual(["Skin 101", "Skin 102", "Skin 201"]);
+    page.h.pop("https://chromaart.lol/skins/?sort=release_desc");
+    await vi.waitFor(() => expect(page.sort.value).toBe("release_desc"));
+    expect(page.grid.querySelectorAll(".skin-catalog-card-title-name").map((item) => item.textContent))
+      .toEqual(["Skin 201", "Skin 102", "Skin 101"]);
+  });
+
+  it("only raises skins absent from the live channel in a PBE release sort", async () => {
+    const list = vi.fn(async ({ channel }: { channel: string }) => ({
+      skins: channel === "pbe" ? [...skins, skin(301, 1)] : skins,
+      champions,
+    }));
+    const page = fixture(undefined, list);
+    await vi.waitFor(() => expect(page.count.textContent).toContain("4 / 4"));
+    page.sort.value = "release_desc";
+    page.sort.fire("change");
+    await vi.waitFor(() => expect(page.grid.querySelector(".skin-catalog-card-title-name")?.textContent).toBe("Skin 301"));
+    expect(page.grid.querySelectorAll(".skin-catalog-card-title-name").map((item) => item.textContent))
+      .toEqual(["Skin 301", "Skin 201", "Skin 102", "Skin 101"]);
+    expect(list).toHaveBeenCalledWith(expect.objectContaining({ channel: "latest" }));
   });
 
   it("includes classic names by default and restores the exclusion setting", async () => {
@@ -293,14 +390,18 @@ describe("skin catalog browser behavior", () => {
 
   it("keeps old cards and URL after a failed channel switch, then retries", async () => {
     let reject!: (error: Error) => void;
-    const list = vi.fn()
-      .mockResolvedValueOnce({ skins, champions })
-      .mockImplementationOnce(() => new Promise((_resolve, fail) => { reject = fail; }))
-      .mockResolvedValueOnce({ skins: [skin(301, 2)], champions });
+    let liveCalls = 0;
+    const list = vi.fn(({ channel }: { channel: string }) => {
+      if (channel === "pbe") return Promise.resolve({ skins, champions });
+      liveCalls += 1;
+      if (liveCalls === 1) return Promise.resolve({ skins, champions });
+      if (liveCalls === 2) return new Promise((_resolve, fail) => { reject = fail; });
+      return Promise.resolve({ skins: [skin(301, 2)], champions });
+    });
     const page = fixture(undefined, list);
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     page.latest.click();
-    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(3));
     reject(new Error("offline"));
     await vi.waitFor(() => expect(page.content.textContent).toContain("could not be reached"));
     expect(page.h.url.searchParams.has("channel")).toBe(false);
@@ -313,17 +414,17 @@ describe("skin catalog browser behavior", () => {
   });
 
   it("uses the aligned skeleton instead of visible loading copy, including on retry", async () => {
-    let reject!: (error: Error) => void;
-    const list = vi.fn()
-      .mockImplementationOnce(() => new Promise((_resolve, fail) => { reject = fail; }))
-      .mockResolvedValueOnce({ skins, champions });
+    let pbeCalls = 0;
+    const list = vi.fn(({ channel }: { channel: string }) => {
+      if (channel === "pbe" && ++pbeCalls === 1) return Promise.reject(new Error("offline"));
+      return Promise.resolve({ skins, champions });
+    });
     const page = fixture(undefined, list);
     expect(page.status.textContent).toBe("Loading the full skin catalog…");
     expect(page.status.className).toContain("sr-only");
     expect(page.content.querySelector(".skin-catalog-skeleton")).not.toBeNull();
     expect(page.content.textContent).not.toContain("Loading the full skin catalog");
 
-    reject(new Error("offline"));
     await vi.waitFor(() => expect(page.content.textContent).toContain("could not be reached"));
     expect(page.content.querySelector(".skin-catalog-skeleton")).toBeNull();
     page.content.querySelector("button")!.click();
@@ -335,14 +436,17 @@ describe("skin catalog browser behavior", () => {
 
   it("ignores a late channel response and hides filters when the loaded catalog is empty", async () => {
     let resolveLate!: (value: { skins: RuntimeSkin[]; champions: RuntimeChampionSummary[] }) => void;
-    const list = vi.fn()
-      .mockResolvedValueOnce({ skins, champions })
-      .mockImplementationOnce(() => new Promise((resolve) => { resolveLate = resolve; }))
-      .mockResolvedValueOnce({ skins: [], champions });
+    let pbeCalls = 0;
+    let liveCalls = 0;
+    const list = vi.fn(({ channel }: { channel: string }) => {
+      if (channel === "pbe") return Promise.resolve({ skins: ++pbeCalls === 1 ? skins : [], champions });
+      if (++liveCalls === 1 || liveCalls === 3) return Promise.resolve({ skins, champions });
+      return new Promise((resolve) => { resolveLate = resolve; });
+    });
     const page = fixture(undefined, list);
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     page.latest.click();
-    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(3));
     page.h.pop("https://chromaart.lol/skins/");
     await vi.waitFor(() => expect(page.content.textContent).toContain("No skins"));
     expect(page.search.closest(".skin-catalog-search")?.hidden).toBe(true);

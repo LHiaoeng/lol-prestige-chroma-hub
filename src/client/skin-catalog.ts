@@ -4,6 +4,8 @@ import {
   formatSkinCatalogUrl,
   projectSkinCatalogItems,
   readSkinCatalogUrlState,
+  type SkinCatalogReleaseDate,
+  type SkinCatalogSort,
   UNMARKED_RARITY,
 } from "../domain/skin-catalog";
 import {
@@ -14,7 +16,8 @@ import {
 } from "../domain/communitydragon-runtime";
 import { runtimeSkinRarityRank, type RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
-import { setDomainIconTooltip } from "../components/domain-icons";
+import { createDomainIcon, setDomainIconTooltip } from "../components/domain-icons";
+import { createPopover } from "../components/popover";
 import { createTooltip } from "../components/tooltip";
 import { createCommunityDragonRuntime, type CommunityDragonRuntime } from "./communitydragon-runtime";
 import { asCommunityDragonError, runtimeFailureMessage } from "./communitydragon-errors";
@@ -23,8 +26,10 @@ import { browserHistory } from "./runtime-reference-view";
 import { hrefFor } from "./runtime-reference-view-shared";
 
 type CatalogState = ReturnType<typeof readSkinCatalogUrlState>;
+type CatalogLoadResult = { items: readonly RuntimeSkinReferenceItem[]; pbeNewSkinIds?: ReadonlySet<number> };
 type SkinCatalogArtworkMode = { plainUrl: string; framedUrl: string; borderUrls: readonly string[] };
 const CATALOG_PAGE_SIZE = 50;
+const isReleaseSort = (sort: SkinCatalogSort) => sort === "release_desc" || sort === "release_asc";
 
 const zh = {
   loading: "正在加载完整皮肤目录…",
@@ -38,6 +43,9 @@ const zh = {
   borderCount: (shown: number, total: number) => `带框 ${shown} / ${total} 款`,
   hideBorder: "切换到无边框载入图",
   showBorder: "切换到带边框载入图",
+  borderToggle: "切换载入图边框",
+  skinDetails: "皮肤详情",
+  pbeNewSkin: "PBE 新增皮肤",
   missing: "暂无原画",
 };
 const en = {
@@ -52,6 +60,9 @@ const en = {
   borderCount: (shown: number, total: number) => `${shown} / ${total} framed`,
   hideBorder: "Switch to the plain loading screen",
   showBorder: "Switch to the framed loading screen",
+  borderToggle: "Toggle loading-screen border",
+  skinDetails: "Skin details",
+  pbeNewSkin: "New on PBE",
   missing: "Artwork unavailable",
 };
 
@@ -70,9 +81,14 @@ export function initSkinCatalog(
   root: HTMLElement,
   runtime: CommunityDragonRuntime = createCommunityDragonRuntime(),
   history: RuntimeChannelHistory = browserHistory(),
-): RuntimeChannelLifecycle<CatalogState, readonly RuntimeSkinReferenceItem[], ReturnType<typeof asCommunityDragonError>> {
+): RuntimeChannelLifecycle<CatalogState, CatalogLoadResult, ReturnType<typeof asCommunityDragonError>> {
   const locale = root.dataset.catalogLocale as CommunityDragonLocale;
   if (locale !== "zh_cn" && locale !== "default") throw new Error("Skin catalog locale is invalid");
+  if (!root.dataset.catalogReleaseDates) throw new Error("Skin catalog release dates are missing");
+  const releaseDates = new Map<number, SkinCatalogReleaseDate>(
+    (JSON.parse(root.dataset.catalogReleaseDates) as [number, string | null, string | null][])
+      .map(([id, globalReleaseDate, chinaReleaseDate]) => [id, { globalReleaseDate, chinaReleaseDate }]),
+  );
   const copy = locale === "zh_cn" ? zh : en;
   const status = element<HTMLElement>(root, "[data-catalog-status]");
   const content = element<HTMLElement>(root, "[data-catalog-content]");
@@ -89,9 +105,11 @@ export function initSkinCatalog(
   const showEmblems = locale === "zh_cn"
     ? element<HTMLInputElement>(root, "[data-catalog-emblems-all]")
     : undefined;
+  const onlyPbeAdditions = root.querySelector<HTMLInputElement>("[data-catalog-pbe-only]");
   const framedCount = element<HTMLElement>(root, "[data-catalog-framed-count]");
   const framedTooltipTrigger = element<HTMLElement>(root, "[data-catalog-framed-tooltip-trigger]");
   const framedSetting = framedTooltipTrigger.closest<HTMLElement>(".skin-catalog-framed-setting");
+  const pbeSetting = onlyPbeAdditions?.closest<HTMLElement>(".skin-catalog-pbe-setting");
   const framedTooltip = createTooltip(framedTooltipTrigger, framedCount);
   framedTooltip.className += " skin-catalog-framed-tooltip";
   framedTooltip.tabIndex = -1;
@@ -105,6 +123,7 @@ export function initSkinCatalog(
   status.setAttribute("role", "status");
   status.setAttribute("aria-live", "polite");
   let items: readonly RuntimeSkinReferenceItem[] = [];
+  let pbeNewSkinIds: ReadonlySet<number> | undefined;
   let state = readSkinCatalogUrlState(history.url);
   let committedChannel: RuntimeChannel | undefined;
   let filtered: readonly RuntimeSkinReferenceItem[] = [];
@@ -113,6 +132,11 @@ export function initSkinCatalog(
   let emblemsVisible = true;
   const framedOverrides = new Map<number, boolean>();
   const artworkModes = new Map<number, { plain: HTMLElement; framed: HTMLElement }>();
+  const popoverCleanups: (() => void)[] = [];
+  const clearPopovers = () => {
+    for (const cleanup of popoverCleanups) cleanup();
+    popoverCleanups.length = 0;
+  };
   const loadingScreenModes = (item: RuntimeSkinReferenceItem): SkinCatalogArtworkMode | undefined => {
     const plainUrl = item.media.loadScreenUrl;
     if (!plainUrl) return;
@@ -142,6 +166,7 @@ export function initSkinCatalog(
     loadMore.disabled = disabled;
     showFramedScreens.disabled = disabled;
     if (showEmblems) showEmblems.disabled = disabled;
+    if (onlyPbeAdditions) onlyPbeAdditions.disabled = disabled;
     root.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-trigger], [data-runtime-channel], [data-catalog-rarity]")
       .forEach((button) => { button.disabled = disabled; });
   };
@@ -194,6 +219,8 @@ export function initSkinCatalog(
   const card = (item: RuntimeSkinReferenceItem): HTMLElement => {
     const article = document.createElement("article");
     article.className = "skin-catalog-card";
+    const actions = document.createElement("div");
+    actions.className = "skin-catalog-card-actions";
     const link = document.createElement("a");
     link.href = hrefFor(
       locale, "skins",
@@ -237,7 +264,7 @@ export function initSkinCatalog(
           } else {
             media.style.removeProperty("--catalog-backdrop");
             artworkModes.delete(item.id);
-            modeToggle?.remove();
+            modeToggle?.closest<HTMLElement>(".skin-catalog-card-action-tooltip")?.remove();
             showMissingImage();
           }
         });
@@ -256,13 +283,21 @@ export function initSkinCatalog(
           framed.append(border);
         }
         modeToggle = document.createElement("button");
-        modeToggle.className = "skin-catalog-artwork-toggle";
+        modeToggle.className = "ant-btn ant-btn-sm ant-btn-icon-only skin-catalog-artwork-toggle";
         modeToggle.type = "button";
         modeToggle.dataset.skinArtworkToggle = String(item.id);
         modeToggle.setAttribute("aria-pressed", String(isFramed(item.id)));
         modeToggle.setAttribute("aria-label", isFramed(item.id) ? copy.hideBorder : copy.showBorder);
-        modeToggle.textContent = isFramed(item.id) ? "带框" : "原图";
-        article.append(modeToggle);
+        const mediaIcon = createDomainIcon("media");
+        mediaIcon.setAttribute("width", "14");
+        mediaIcon.setAttribute("height", "14");
+        modeToggle.append(mediaIcon);
+        const borderTooltip = createTooltip(modeToggle, copy.borderToggle);
+        borderTooltip.classList.add("skin-catalog-card-action-tooltip");
+        borderTooltip.tabIndex = -1;
+        const borderTooltipId = borderTooltip.getAttribute("aria-describedby");
+        if (borderTooltipId) modeToggle.setAttribute("aria-describedby", borderTooltipId);
+        actions.append(borderTooltip);
       }
     } else {
       showMissingImage();
@@ -302,6 +337,37 @@ export function initSkinCatalog(
     link.setAttribute("aria-label", [item.championName, name.textContent, rarity].filter(Boolean).join(" · "));
     link.append(title);
     article.append(link);
+    const detailsButton = document.createElement("button");
+    detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only skin-catalog-info-button";
+    detailsButton.type = "button";
+    detailsButton.setAttribute("aria-label", copy.skinDetails);
+    const detailsIcon = createDomainIcon("reference");
+    detailsIcon.setAttribute("width", "14");
+    detailsIcon.setAttribute("height", "14");
+    detailsButton.append(detailsIcon);
+    const dates = releaseDates.get(item.skinId);
+    const releaseDate = locale === "zh_cn"
+      ? dates?.chinaReleaseDate ?? dates?.globalReleaseDate
+      : dates?.globalReleaseDate;
+    const details = [
+      item.championName && `${locale === "zh_cn" ? "英雄" : "Champion"}：${item.championName}`,
+      `${locale === "zh_cn" ? "皮肤" : "Skin"}：${name.textContent}`,
+      `${locale === "zh_cn" ? "稀有度" : "Rarity"}：${rarity ?? copy.unmarked}`,
+      releaseDate && `${locale === "zh_cn" ? "发售" : "Released"}：${releaseDate}`,
+      item.chromas.length > 0 && `${locale === "zh_cn" ? "炫彩" : "Chromas"}：${item.chromas.length}`,
+    ].filter(Boolean).join(" · ");
+    popoverCleanups.push(createPopover(detailsButton, copy.skinDetails, details));
+    actions.append(detailsButton);
+    article.append(actions);
+    if (state.channel === "pbe" && pbeNewSkinIds?.has(item.skinId)) {
+      const label = document.createElement("span");
+      label.textContent = "PBE";
+      label.setAttribute("aria-hidden", "true");
+      const marker = createTooltip(label, copy.pbeNewSkin);
+      marker.classList.add("skin-catalog-pbe-marker");
+      marker.setAttribute("aria-label", copy.pbeNewSkin);
+      article.append(marker);
+    }
     if (key && item.rarity?.iconUrl) {
       const icon = document.createElement("img");
       icon.className = "skin-catalog-card-rarity";
@@ -332,10 +398,15 @@ export function initSkinCatalog(
       search: state.search,
       rarities: state.rarities,
       excludeClassic: state.excludeClassic,
+      onlyPbeAdditions: state.channel === "pbe" && onlyPbeAdditions?.checked === true && pbeNewSkinIds !== undefined,
       sort: state.sort,
+      channel: state.channel,
+      releaseDates,
+      pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
     });
     count.textContent = copy.count(filtered.length, items.length);
     syncFramedSetting();
+    clearPopovers();
     grid.replaceChildren();
     artworkModes.clear();
     shownCount = 0;
@@ -358,7 +429,6 @@ export function initSkinCatalog(
       const toggle = root.querySelector<HTMLButtonElement>(`[data-skin-artwork-toggle="${id}"]`);
       toggle?.setAttribute("aria-pressed", String(framedByDefault));
       toggle?.setAttribute("aria-label", framedByDefault ? copy.hideBorder : copy.showBorder);
-      if (toggle) toggle.textContent = framedByDefault ? "带框" : "原图";
     }
     syncFramedSetting();
   });
@@ -367,6 +437,7 @@ export function initSkinCatalog(
     grid.querySelectorAll<HTMLElement>("[data-catalog-emblems]")
       .forEach((group) => { group.hidden = !emblemsVisible; });
   });
+  onlyPbeAdditions?.addEventListener("change", refresh);
   grid.addEventListener("click", (event) => {
     const toggle = (event.target as Element).closest<HTMLButtonElement>("[data-skin-artwork-toggle]");
     if (!toggle || !grid.contains(toggle)) return;
@@ -380,7 +451,6 @@ export function initSkinCatalog(
     }
     toggle.setAttribute("aria-pressed", String(framed));
     toggle.setAttribute("aria-label", framed ? copy.hideBorder : copy.showBorder);
-    toggle.textContent = framed ? "带框" : "原图";
     syncFramedSetting();
   });
   const syncControls = () => {
@@ -446,8 +516,20 @@ export function initSkinCatalog(
         : { status: "valid", channel: parsed.channel ?? "pbe", target: parsed };
     },
     async load(target, signal) {
-      const collection = await runtime.listSkinCatalog({ locale, channel: target.channel, signal });
-      return projectSkinCatalogItems(collection.skins, collection.champions);
+      const comparePbe = target.channel === "pbe" && (onlyPbeAdditions !== null || isReleaseSort(target.sort));
+      const [collection, live] = await Promise.all([
+        runtime.listSkinCatalog({ locale, channel: target.channel, signal }),
+        comparePbe
+          ? runtime.listSkinCatalog({ locale, channel: "latest", signal }).catch(() => undefined)
+          : Promise.resolve(undefined),
+      ]);
+      const liveIds = new Set(live?.skins.map((skin) => skin.id));
+      return {
+        items: projectSkinCatalogItems(collection.skins, collection.champions),
+        pbeNewSkinIds: live
+          ? new Set(collection.skins.filter((skin) => !liveIds.has(skin.id)).map((skin) => skin.id))
+          : undefined,
+      };
     },
     normalizeError: (error) => asCommunityDragonError(error, locale),
     isAborted: (error) => error.code === "aborted",
@@ -468,14 +550,16 @@ export function initSkinCatalog(
         }
       },
       render(result, context) {
-        items = result;
+        items = result.items;
+        pbeNewSkinIds = result.pbeNewSkinIds;
         framedOverrides.clear();
-        const available = new Set(result.map((item) => catalogRarityKey(item, locale) || UNMARKED_RARITY));
+        const available = new Set(items.map((item) => catalogRarityKey(item, locale) || UNMARKED_RARITY));
         state = {
           ...context.target,
           rarities: context.target.rarities.filter((key) => available.has(key)),
         };
         committedChannel = context.channel;
+        pbeSetting?.toggleAttribute("hidden", context.channel !== "pbe" || !pbeNewSkinIds);
         status.textContent = "";
         finishLoading();
         count.hidden = items.length === 0;
@@ -507,13 +591,14 @@ export function initSkinCatalog(
           showFilters(false);
           results.hidden = true;
         }
+        syncControls();
         setControlsDisabled(false);
       },
     },
   });
   search.addEventListener("input", () => update({ ...state, search: search.value }));
   includeClassic.addEventListener("change", () => update({ ...state, excludeClassic: !includeClassic.checked }));
-  sort.addEventListener("change", () => update({ ...state, sort: sort.value === "desc" ? "desc" : "asc" }));
+  sort.addEventListener("change", () => update({ ...state, sort: sort.value as SkinCatalogSort }));
   rarities.addEventListener("click", (event) => {
     const button = (event.target as Element).closest<HTMLButtonElement>("[data-catalog-rarity]");
     if (!button || !rarities.contains(button)) return;

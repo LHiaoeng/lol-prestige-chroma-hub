@@ -1,5 +1,5 @@
 @import "./tokens.css";
-:root{--z-index-tooltip:1070}
+:root{--z-index-popover:1030;--z-index-tooltip:1070}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:clip}
 body{margin:0;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:clip;font-size:var(--font-size-body);line-height:var(--line-height-body)}
@@ -883,6 +883,101 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 }
 .ant-tooltip.is-open {
   visibility: visible;
+}
+.ant-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--z-index-popover);
+  display: block;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-body);
+  font-weight: 400;
+  line-height: var(--line-height-body);
+  white-space: normal;
+  text-align: start;
+  cursor: auto;
+  user-select: text;
+  transform-origin: var(--popover-arrow-x, 50%) var(--popover-arrow-y, 50%);
+  visibility: hidden;
+}
+.ant-popover.is-open {
+  visibility: visible;
+  animation: antZoomBigIn var(--motion-mid) cubic-bezier(.08, .82, .17, 1) both;
+}
+.ant-popover.is-closing {
+  visibility: visible;
+  animation: antZoomBigOut var(--motion-mid) cubic-bezier(.78, .14, .15, .86) both;
+  pointer-events: none;
+}
+.ant-popover-container {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 177px;
+  padding: 12px;
+  border-radius: var(--radius-card);
+  background: var(--panel2);
+  background-clip: padding-box;
+  color: var(--text);
+  box-shadow: var(--shadow-popup);
+}
+.ant-popover-title {
+  min-width: 177px;
+  margin-bottom: var(--space-2);
+  color: var(--text);
+  font-weight: 600;
+}
+.ant-popover-content {
+  position: relative;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.ant-popover-arrow {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ant-popover-arrow::before {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 16px;
+  height: 8px;
+  background: var(--panel2);
+  clip-path: polygon(2.34px 100%, 50% 2.34px, 13.66px 100%, 2.34px 100%);
+  clip-path: path("M 0 8 A 4 4 0 0 0 2.828 6.828 L 6.586 3.071 A 2 2 0 0 1 9.414 3.071 L 13.172 6.828 A 4 4 0 0 0 16 8 Z");
+  content: "";
+}
+.ant-popover-placement-top > .ant-popover-arrow {
+  bottom: 0;
+  left: var(--popover-arrow-x, 50%);
+  transform: translateX(-50%) translateY(100%) rotate(180deg);
+}
+.ant-popover-placement-bottom > .ant-popover-arrow {
+  top: 0;
+  left: var(--popover-arrow-x, 50%);
+  transform: translateX(-50%) translateY(-100%);
+}
+@keyframes antZoomBigIn {
+  from { transform: scale(.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes antZoomBigOut {
+  from { transform: scale(1); }
+  to { transform: scale(.8); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ant-popover.is-open, .ant-popover.is-closing { animation: none; }
 }
 .runtime-chroma-count {
   color: var(--muted);

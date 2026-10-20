@@ -11,7 +11,8 @@ import {
 } from "./skin-reference-projection";
 import type { RuntimeChannel } from "./communitydragon-runtime";
 
-export type SkinCatalogSort = "asc" | "desc";
+export type SkinCatalogSort = "asc" | "desc" | "release_desc" | "release_asc";
+export type SkinCatalogReleaseDate = { readonly globalReleaseDate: string | null; readonly chinaReleaseDate: string | null };
 export const UNMARKED_RARITY = "unmarked";
 
 export interface SkinCatalogFilters {
@@ -19,7 +20,11 @@ export interface SkinCatalogFilters {
   readonly search: string;
   readonly rarities: readonly string[];
   readonly excludeClassic: boolean;
+  readonly onlyPbeAdditions?: boolean;
   readonly sort: SkinCatalogSort;
+  readonly channel: RuntimeChannel;
+  readonly releaseDates: ReadonlyMap<number, SkinCatalogReleaseDate>;
+  readonly pbeNewSkinIds: ReadonlySet<number>;
 }
 
 export interface SkinCatalogUrlState {
@@ -60,7 +65,7 @@ function isClassicSkinName(name: string | undefined): boolean {
 
 export function filterSkinCatalogItems(
   items: readonly RuntimeSkinReferenceItem[],
-  { locale, search, rarities, excludeClassic, sort }: SkinCatalogFilters,
+  { locale, search, rarities, excludeClassic, onlyPbeAdditions = false, sort, channel, releaseDates, pbeNewSkinIds }: SkinCatalogFilters,
 ): readonly RuntimeSkinReferenceItem[] {
   const language = locale === "zh_cn" ? "zh-CN" : "en";
   const query = search.trim().toLocaleLowerCase(language);
@@ -70,19 +75,37 @@ export function filterSkinCatalogItems(
     return (
       (selected.size === 0 || selected.has(rarity)) &&
       (!excludeClassic || !isClassicSkinName(item.name)) &&
+      (!onlyPbeAdditions || channel !== "pbe" || pbeNewSkinIds.has(item.skinId)) &&
       (!query ||
         (item.name ?? "").toLocaleLowerCase(language).includes(query) ||
         (item.championName ?? "").toLocaleLowerCase(language).includes(query))
     );
   });
-  return result.sort(
-    (left, right) =>
-      (left.championName ?? "").localeCompare(
-        right.championName ?? "",
-        language,
-      ) * (sort === "asc" ? 1 : -1) ||
-      left.championId - right.championId ||
-      compareRuntimeSkinReferenceItems(left, right),
+  if (sort === "release_desc" || sort === "release_asc") {
+    const dateFor = (item: RuntimeSkinReferenceItem) => {
+      const dates = releaseDates.get(item.skinId);
+      return locale === "zh_cn" ? dates?.chinaReleaseDate ?? dates?.globalReleaseDate : dates?.globalReleaseDate;
+    };
+    const tieBreak = (left: RuntimeSkinReferenceItem, right: RuntimeSkinReferenceItem) =>
+      left.championId - right.championId || compareRuntimeSkinReferenceItems(left, right);
+    return result.sort((left, right) => {
+      const leftNew = channel === "pbe" && pbeNewSkinIds.has(left.skinId);
+      const rightNew = channel === "pbe" && pbeNewSkinIds.has(right.skinId);
+      if (leftNew !== rightNew) return leftNew ? -1 : 1;
+      if (leftNew) return tieBreak(left, right);
+      const leftDate = dateFor(left);
+      const rightDate = dateFor(right);
+      if (!leftDate || !rightDate) {
+        if (!!leftDate !== !!rightDate) return leftDate ? -1 : 1;
+      } else if (leftDate !== rightDate) {
+        return leftDate.localeCompare(rightDate) * (sort === "release_desc" ? -1 : 1);
+      }
+      return tieBreak(left, right);
+    });
+  }
+  return result.sort((left, right) =>
+    (left.championName ?? "").localeCompare(right.championName ?? "", language) * (sort === "asc" ? 1 : -1) ||
+    left.championId - right.championId || compareRuntimeSkinReferenceItems(left, right),
   );
 }
 
@@ -95,7 +118,7 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
   const rawRarities = url.searchParams.getAll("rarity");
   const invalid: SkinCatalogUrlState["invalid"][number][] = [];
   if (runtime.invalid.includes("channel")) invalid.push("channel");
-  if (rawSort !== null && rawSort !== "asc" && rawSort !== "desc")
+  if (rawSort !== null && rawSort !== "asc" && rawSort !== "desc" && rawSort !== "release_desc" && rawSort !== "release_asc")
     invalid.push("sort");
   if (rawExcludeClassic !== null && rawExcludeClassic !== "1")
     invalid.push("excludeClassic");
@@ -105,7 +128,7 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
     search: url.searchParams.get("q") ?? "",
     rarities: [...new Set(rawRarities.filter((value) => rarityParameter.test(value)))],
     excludeClassic: rawExcludeClassic === "1",
-    sort: rawSort === "desc" ? "desc" : "asc",
+    sort: rawSort === "asc" || rawSort === "desc" || rawSort === "release_asc" ? rawSort : "release_desc",
     channel: runtime.channel ?? "pbe",
     channelExplicit: runtime.channelExplicit,
     invalid,
@@ -125,7 +148,7 @@ export function formatSkinCatalogUrl(
     if (rarityParameter.test(rarity)) next.searchParams.append("rarity", rarity);
   }
   if (state.excludeClassic) next.searchParams.set("excludeClassic", "1");
-  if (state.sort === "desc") next.searchParams.set("sort", "desc");
+  if (state.sort !== "release_desc") next.searchParams.set("sort", state.sort);
   if (state.channel === "latest" || state.channelExplicit)
     next.searchParams.set("channel", state.channel);
   return next;

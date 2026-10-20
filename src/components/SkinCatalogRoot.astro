@@ -8,10 +8,12 @@ import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Empty from './Empty.astro';
 import Alert from './Alert.astro';
 import '../styles/skin-catalog.css';
+import releaseSnapshot from '../../data/skin-release-dates.json';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const isZh = locale === 'zh-cn';
+const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalReleaseDate, chinaReleaseDate }) => [skinId, globalReleaseDate, chinaReleaseDate]));
 ---
 
 <Breadcrumb {locale} items={[
@@ -19,7 +21,7 @@ const isZh = locale === 'zh-cn';
   { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
   { title: isZh ? '皮肤' : 'Skins' },
 ]} />
-<section class="skin-catalog" data-skin-catalog data-catalog-locale={isZh ? 'zh_cn' : 'default'} aria-labelledby="skin-catalog-title">
+<section class="skin-catalog" data-skin-catalog data-catalog-locale={isZh ? 'zh_cn' : 'default'} data-catalog-release-dates={releaseDates} aria-labelledby="skin-catalog-title">
   <header class="skin-catalog-header">
     <h1 id="skin-catalog-title"><DomainIcon name="skins" />{isZh ? '皮肤' : 'Skins'}</h1>
     <div class="skin-catalog-summary-skeleton" data-catalog-summary-skeleton aria-hidden="true">
@@ -34,10 +36,6 @@ const isZh = locale === 'zh-cn';
     </div>
   </header>
   <Divider />
-  <nav class="skin-catalog-explore" aria-label={isZh ? '其他浏览方式' : 'Other ways to browse'}>
-    <a href={localizedPath(locale, '/skins/')} aria-current="page">{isZh ? '按英雄' : 'By champion'}</a>
-    <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '按系列' : 'By skinline'}</a>
-  </nav>
   <div class="skin-catalog-filter-skeleton" data-catalog-filter-skeleton aria-hidden="true">
     <span class="runtime-skeleton-line"></span>
     <span class="runtime-skeleton-line"></span>
@@ -52,27 +50,33 @@ const isZh = locale === 'zh-cn';
     <div class="skin-catalog-rarity-options" data-catalog-rarities></div>
   </fieldset>
   <div class="skin-catalog-toolbar" hidden>
-    <label class="skin-catalog-classic-setting">
-      <input type="checkbox" data-catalog-classic checked aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
-      <span>{isZh ? '经典皮肤' : 'Classic skins'}</span>
-    </label>
-    <label class="skin-catalog-framed-setting">
-      <span data-catalog-framed-tooltip-trigger>
-        <input type="checkbox" data-catalog-framed-all aria-label={isZh ? '显示边框' : 'Show borders'} />
-        <span>{isZh ? '边框' : 'Borders'}</span>
-      </span>
-      <span class="skin-catalog-framed-count" data-catalog-framed-count></span>
-    </label>
-    {isZh && <label class="skin-catalog-emblems-setting">
-      <input type="checkbox" data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
-      <span>皮肤徽章</span>
-    </label>}
-    <label>{isZh ? '按英雄排序' : 'Sort by champion'}
-      <select class="cn-select" data-catalog-sort>
-        <option value="asc">{isZh ? '英雄名称升序' : 'Champion name A–Z'}</option>
-        <option value="desc">{isZh ? '英雄名称降序' : 'Champion name Z–A'}</option>
-      </select>
-    </label>
+    <div class="skin-catalog-display-settings">
+      <label class="skin-catalog-framed-setting">
+        <span data-catalog-framed-tooltip-trigger>
+          <input type="checkbox" data-catalog-framed-all aria-label={isZh ? '显示边框' : 'Show borders'} />
+          <span>{isZh ? '边框' : 'Borders'}</span>
+        </span>
+        <span class="skin-catalog-framed-count" data-catalog-framed-count></span>
+      </label>
+      {isZh && <label class="skin-catalog-emblems-setting">
+        <input type="checkbox" data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
+        <span>皮肤徽章</span>
+      </label>}
+      <label class="skin-catalog-classic-setting">
+        <input type="checkbox" data-catalog-classic checked aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
+        <span>{isZh ? '经典皮肤' : 'Classic skins'}</span>
+      </label>
+      <label class="skin-catalog-pbe-setting">
+        <input type="checkbox" data-catalog-pbe-only aria-label={isZh ? 'PBE新增' : 'PBE additions'} />
+        <span>{isZh ? 'PBE新增' : 'PBE additions'}</span>
+      </label>
+    </div>
+    <select class="cn-select" data-catalog-sort aria-label={isZh ? '排序方式' : 'Sort order'}>
+      <option value="asc">{isZh ? '英雄名称升序' : 'Champion name A–Z'}</option>
+      <option value="desc">{isZh ? '英雄名称降序' : 'Champion name Z–A'}</option>
+      <option value="release_desc">{isZh ? '发布时间：最新优先' : 'Release date: newest first'}</option>
+      <option value="release_asc">{isZh ? '发布时间：最早优先' : 'Release date: oldest first'}</option>
+    </select>
   </div>
   <p class="sr-only skin-catalog-status" data-catalog-status role="status" aria-live="polite"></p>
   <div data-catalog-content>
