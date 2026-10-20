@@ -821,15 +821,22 @@ export function createRuntimeDetailRenderer(
         chromas.appendChild(chromaHeading);
         const chromaGrid = document.createElement("div");
         chromaGrid.className = "runtime-chroma-grid";
-        chromaGrid.appendChild(
-          createChromaCard({
-            name: item.name ?? runtimeMissingLabel(options.locale, "name"),
-            imageUrl: item.chromaImageUrl ?? item.media.tileUrl,
-            preview: true,
-            isBase: true,
-            locale: options.locale,
-          }),
-        );
+        if (item.chromaImageUrl) {
+          chromaGrid.appendChild(
+            createChromaCard({
+              name: item.name ?? runtimeMissingLabel(options.locale, "name"),
+              imageUrl: item.chromaImageUrl,
+              preview: true,
+              isBase: true,
+              locale: options.locale,
+            }),
+          );
+        } else {
+          const emptyTemplate = options.content
+            .closest<HTMLElement>(".runtime-reference-root")
+            ?.querySelector<HTMLTemplateElement>("[data-runtime-chroma-empty-template]");
+          if (emptyTemplate) chromaGrid.append(emptyTemplate.content.cloneNode(true));
+        }
         item.chromas.forEach((chroma) => {
           const prestigeChroma = chromaLinks[String(chroma.id)];
           const link = prestigeChroma

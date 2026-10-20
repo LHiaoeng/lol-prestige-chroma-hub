@@ -128,6 +128,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       <template data-runtime-supplement-skeleton-template="skinline"><Skeleton itemCount={6} layout="skin-grid" /></template>
       <template data-runtime-supplement-skeleton-template="universe"><Skeleton filterCount={2} itemCount={6} layout="universe-detail" /></template>
       <template data-runtime-empty-template><Empty description={isZh ? '没有匹配结果' : 'No matching references'} /></template>
+      <template data-runtime-chroma-empty-template><Empty description={isZh ? '暂无炫彩' : 'No chroma artwork available'} /></template>
       <template data-runtime-alert-template>
         <Alert type="error" showIcon>
           <span slot="description" data-runtime-alert-message></span>
