@@ -9,6 +9,7 @@ import type {
   RuntimeSkinStage,
   RuntimeStageSkin,
   RuntimeSkinEntity,
+  RuntimeSkinEmblem,
 } from "./communitydragon-runtime";
 
 export interface RuntimeSkinTarget {
@@ -33,6 +34,7 @@ export interface RuntimeSkinReferenceItem {
   readonly isBase: boolean;
   readonly isLegacy?: boolean;
   readonly rarity?: RuntimeRarity;
+  readonly emblems?: readonly RuntimeSkinEmblem[];
   readonly skinlineIds: readonly number[];
   readonly universeIds: readonly number[];
   readonly media: RuntimeMedia;
@@ -124,6 +126,7 @@ function skinItem(skin: RuntimeSkinEntity): RuntimeSkinReferenceItem {
     isBase: skin.isBase,
     isLegacy: skin.isLegacy,
     rarity: skin.rarity,
+    emblems: skin.emblems,
     skinlineIds: skin.skinlineIds,
     universeIds: skin.universeIds ?? [],
     media: skin.media,
@@ -158,6 +161,7 @@ function stageItem(
     isBase: skin.isBase,
     isLegacy: skin.isLegacy,
     rarity: stageRarity(skin, stage),
+    emblems: skin.emblems,
     skinlineIds: stage.skinlineIds ?? skin.skinlineIds,
     universeIds: stage.universeIds ?? skin.universeIds ?? [],
     media: stage.media,
@@ -323,7 +327,7 @@ export function projectChampionSkinListItems(
   );
 }
 
-function rarityRank(item: RuntimeSkinReferenceItem): number {
+export function runtimeSkinRarityRank(item: RuntimeSkinReferenceItem): number {
   if (item.isBase) return 0;
   if (item.rarity?.key) return defaultRarityRank[item.rarity.key] ?? 0;
   if (item.rarity?.id !== undefined)
@@ -339,7 +343,7 @@ export function selectRuntimeBackdropItem(
     .filter((item) => item.media.unfocusedSplashUrl || item.media.focusedSplashUrl)
     .sort(
       (left, right) =>
-        rarityRank(right) - rarityRank(left) ||
+        runtimeSkinRarityRank(right) - runtimeSkinRarityRank(left) ||
         right.skinId - left.skinId ||
         (right.stageIndex ?? 0) - (left.stageIndex ?? 0),
     )[0];
@@ -356,7 +360,7 @@ export function sortSkinReferenceItems(
   if (sort === "release") return items;
   return [...items].sort(
     (left, right) =>
-      rarityRank(right) - rarityRank(left) ||
+      runtimeSkinRarityRank(right) - runtimeSkinRarityRank(left) ||
       compareRuntimeSkinReferenceItems(left, right),
   );
 }

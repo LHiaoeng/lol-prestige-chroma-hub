@@ -54,6 +54,11 @@ export interface RuntimeRarity {
   readonly iconUrl?: string;
 }
 
+export interface RuntimeSkinEmblem {
+  readonly name?: string;
+  readonly imageUrl: string;
+}
+
 export interface RuntimeHistoricalArtwork {
   readonly version?: string;
   readonly media: RuntimeMedia;
@@ -77,6 +82,7 @@ export interface RuntimeSkinSummary {
   readonly isLegacy?: boolean;
   readonly description?: string;
   readonly rarity?: RuntimeRarity;
+  readonly emblems?: readonly RuntimeSkinEmblem[];
   readonly skinlineIds: readonly number[];
   readonly universeIds?: readonly number[];
   readonly media: RuntimeMedia;
@@ -94,6 +100,7 @@ export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly championId: number;
   readonly championAlias?: string;
   readonly championName?: string;
+  readonly championTitle?: string;
   readonly championShortBio?: string;
   readonly name?: string;
   /** The source-provided image used by the skin's default chroma item. */
@@ -337,6 +344,18 @@ const chromaSchema = z
       .optional(),
   })
   .passthrough();
+const skinEmblemSchema = z
+  .object({
+    name: z.string().nullable().optional(),
+    emblemPath: z
+      .object({
+        large: z.string().nullable().optional(),
+        small: z.string().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
+  })
+  .passthrough();
 const skinStageSchema = z
   .object({
     id: z.number().int().nullable().optional(),
@@ -395,6 +414,7 @@ const skinSchema = z
     rarity: z.string().nullable().optional(),
     regionRarityId: z.number().int().nonnegative().nullable().optional(),
     rarityGemPath: z.string().nullable().optional(),
+    emblems: z.array(skinEmblemSchema).nullable().optional(),
     splashPath: z.string().nullable().optional(),
     uncenteredSplashPath: z.string().nullable().optional(),
     tilePath: z.string().nullable().optional(),
@@ -532,6 +552,37 @@ function asset(
       { cause: error },
     );
   }
+}
+
+function localizedEmblemAsset(
+  path: string,
+  channel: RuntimeChannel,
+): string {
+  const match = path.match(
+    /^\/lol-game-data\/assets\/v1\/emblem-images\/([1-9]\d*)\.png$/i,
+  );
+  if (!match)
+    throw new CommunityDragonRuntimeError(
+      "unsafe-url",
+      "CommunityDragon returned an unsafe localized emblem path",
+    );
+  return communityDragonAssetUrl(
+    `/plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/${match[1]}.png`,
+    channel,
+  );
+}
+
+function normalizeEmblems(
+  raw: z.infer<typeof skinEmblemSchema>[] | null | undefined,
+  channel: RuntimeChannel,
+  locale: CommunityDragonLocale,
+): RuntimeSkinEmblem[] | undefined {
+  if (locale !== "zh_cn" || !raw?.length) return undefined;
+  return raw.flatMap((emblem) => {
+    const path = text(emblem.emblemPath?.small) ?? text(emblem.emblemPath?.large);
+    if (!path) return [];
+    return [{ name: text(emblem.name), imageUrl: localizedEmblemAsset(path, channel) }];
+  });
 }
 
 function externalMediaUrl(
@@ -914,6 +965,7 @@ function normalizeSkin(
     isLegacy: raw.isLegacy ?? undefined,
     description: text(raw.description),
     rarity: normalizeRarity(raw, locale, channel),
+    emblems: normalizeEmblems(raw.emblems, channel, locale),
     skinlineIds: positiveIds(raw.skinLines),
     universeIds: raw.universeIds ?? undefined,
     media: normalizeMedia(raw, channel, loadScreenBorders),
@@ -1336,6 +1388,7 @@ export function parseRuntimeEntity(
   return {
     ...skin,
     championName: labels.name,
+    championTitle: labels.title,
     championShortBio: text(raw.shortBio),
   };
 }

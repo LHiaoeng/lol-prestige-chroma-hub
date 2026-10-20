@@ -85,6 +85,7 @@ describe("skin catalog domain", () => {
         locale: "default",
         search: " bEtA ",
         rarities: ["key:kEpic", "unmarked"],
+        excludeClassic: false,
         sort: "desc",
       }).map((item) => item.name),
     ).toEqual(["Blue Skin", "Blue Stage"]);
@@ -93,6 +94,7 @@ describe("skin catalog domain", () => {
         locale: "zh_cn",
         search: "",
         rarities: ["id:6"],
+        excludeClassic: false,
         sort: "asc",
       }).map((item) => item.name),
     ).toEqual(["Red Skin"]);
@@ -104,19 +106,44 @@ describe("skin catalog domain", () => {
         locale: "default",
         search: "",
         rarities: [],
+        excludeClassic: false,
         sort: "desc",
       }).map((item) => item.name),
     ).toEqual(["Blue Skin", "Blue Stage", "Red Skin"]);
   });
 
+  it("excludes names marked Classic or 经典 only when requested", () => {
+    const namedItems = [
+      ...items,
+      { ...items[0], stableKey: "classic-cn", name: "经典皮肤" },
+      { ...items[0], stableKey: "classic-en", name: "Classic Skin" },
+      { ...items[0], stableKey: "classic-middle", name: "Prestige Classic Skin" },
+      { ...items[0], stableKey: "classical", name: "Classical Skin" },
+    ];
+    const filtered = filterSkinCatalogItems(namedItems, {
+      locale: "default",
+      search: "",
+      rarities: [],
+      excludeClassic: true,
+      sort: "asc",
+    });
+    expect(filtered.map((item) => item.name).sort()).toEqual([
+      "Blue Skin", "Blue Stage", "Classical Skin", "Prestige Classic Skin", "Red Skin",
+    ]);
+    expect(filterSkinCatalogItems(namedItems, {
+      locale: "default", search: "", rarities: [], excludeClassic: false, sort: "asc",
+    })).toHaveLength(7);
+  });
+
   it("validates and round-trips shareable catalog conditions", () => {
     const url = new URL(
-      "https://example.test/skins/?q=%20Blue%20&rarity=key:kEpic&rarity=unmarked&sort=desc&channel=latest",
+      "https://example.test/skins/?q=%20Blue%20&rarity=key:kEpic&rarity=unmarked&excludeClassic=1&sort=desc&channel=latest",
     );
     const state = readSkinCatalogUrlState(url);
     expect(state).toMatchObject({
       search: " Blue ",
       rarities: ["key:kEpic", "unmarked"],
+      excludeClassic: true,
       sort: "desc",
       channel: "latest",
       invalid: [],
@@ -124,14 +151,16 @@ describe("skin catalog domain", () => {
     expect(readSkinCatalogUrlState(formatSkinCatalogUrl(url, state))).toMatchObject({
       search: "Blue",
       rarities: ["key:kEpic", "unmarked"],
+      excludeClassic: true,
       sort: "desc",
       channel: "latest",
       invalid: [],
     });
     expect(
       readSkinCatalogUrlState(
-        new URL("https://example.test/skins/?rarity=bad&sort=random&channel=no"),
+        new URL("https://example.test/skins/?rarity=bad&sort=random&channel=no&excludeClassic=true"),
       ).invalid,
-    ).toEqual(["channel", "sort", "rarity"]);
+    ).toEqual(["channel", "sort", "excludeClassic", "rarity"]);
+    expect(readSkinCatalogUrlState(new URL("https://example.test/skins/")).excludeClassic).toBe(false);
   });
 });

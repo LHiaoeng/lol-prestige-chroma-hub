@@ -188,6 +188,8 @@ describe("CommunityDragon runtime reference", () => {
       id: 103001,
       championId: 103,
       championAlias: "Ahri",
+      championName: "Ahri",
+      championTitle: "the Nine-Tailed Fox",
       name: "Dynasty Ahri",
       championShortBio: "A vastayan fox.",
     });
@@ -202,6 +204,17 @@ describe("CommunityDragon runtime reference", () => {
     });
     expect(fetcher.mock.calls[0][0]).toContain("/champions/103.json");
     expect(fetcher.mock.calls[0][0]).not.toContain("skins.json");
+  });
+
+  it("includes the localized champion title on a skin", () => {
+    const result = parseRuntimeEntity(
+      "skin",
+      103001,
+      champion("zh_cn"),
+      { locale: "zh_cn", championId: 103 },
+    );
+
+    expect(result).toMatchObject({ championName: "阿狸", championTitle: "九尾妖狐" });
   });
 
   it("keeps every valid stage ID without inventing a missing stage name", async () => {
@@ -735,6 +748,47 @@ describe("CommunityDragon runtime reference", () => {
           "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/cn-gem-7.png",
       },
     });
+  });
+
+  it("maps localized skin emblems by their supplied paths and keeps them with stages", () => {
+    const emblem = {
+      name: "Wisdom of Pioneer",
+      emblemPath: {
+        large: "/lol-game-data/assets/v1/emblem-images/29.png",
+        small: "/lol-game-data/assets/v1/emblem-images/28.png",
+      },
+    };
+    const skins = parseRuntimeSkinCollection([{
+      championId: 103,
+      id: 103001,
+      name: "玉狐",
+      isBase: false,
+      regionRarityId: 7,
+      emblems: [emblem],
+      questSkinInfo: { tiers: [{ id: 103002, stage: 2, name: "玉狐·二阶" }] },
+    }], { locale: "zh_cn", channel: "latest" });
+    const emblemUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/28.png";
+
+    expect(skins[0]).toMatchObject({
+      rarity: { id: 7, iconUrl: "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/cn-gem-7.png" },
+      emblems: [{ name: "Wisdom of Pioneer", imageUrl: emblemUrl }],
+    });
+    expect(projectChampionSkinListItems(103, skins).map((item) => item.emblems)).toEqual([
+      [{ name: "Wisdom of Pioneer", imageUrl: emblemUrl }],
+      [{ name: "Wisdom of Pioneer", imageUrl: emblemUrl }],
+    ]);
+  });
+
+  it("rejects localized skin emblem paths outside the emblem image directory", () => {
+    expect(() => parseRuntimeSkinCollection([{
+      championId: 103,
+      id: 103001,
+      name: "玉狐",
+      isBase: false,
+      emblems: [{ name: "Epic", emblemPath: { small: "https://example.com/29.png" } }],
+    }], { locale: "zh_cn", channel: "latest" })).toThrowError(
+      expect.objectContaining({ code: "unsafe-url" }),
+    );
   });
 
   it("projects the owning skin and stages with stable targets and allowed inheritance", () => {

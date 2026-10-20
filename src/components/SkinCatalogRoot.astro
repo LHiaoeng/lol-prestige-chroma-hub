@@ -4,6 +4,7 @@ import { localizedPath } from '../i18n/config';
 import Breadcrumb from './Breadcrumb.astro';
 import Divider from './Divider.astro';
 import DomainIcon from './DomainIcon.astro';
+import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Empty from './Empty.astro';
 import Alert from './Alert.astro';
 import '../styles/skin-catalog.css';
@@ -21,9 +22,15 @@ const isZh = locale === 'zh-cn';
 <section class="skin-catalog" data-skin-catalog data-catalog-locale={isZh ? 'zh_cn' : 'default'} aria-labelledby="skin-catalog-title">
   <header class="skin-catalog-header">
     <h1 id="skin-catalog-title"><DomainIcon name="skins" />{isZh ? '皮肤' : 'Skins'}</h1>
-    <div class="skin-catalog-channel" role="group" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
-      <button class="ant-btn" type="button" data-catalog-channel="pbe" aria-pressed="true">PBE</button>
-      <button class="ant-btn" type="button" data-catalog-channel="latest" aria-pressed="false">{isZh ? '正式服' : 'Live'}</button>
+    <div class="skin-catalog-summary-skeleton" data-catalog-summary-skeleton aria-hidden="true">
+      <span class="runtime-skeleton-line runtime-skeleton-line--version"></span>
+      <span class="runtime-skeleton-line runtime-skeleton-line--divider"></span>
+      <span class="runtime-skeleton-line runtime-skeleton-line--count"></span>
+    </div>
+    <div class="runtime-source runtime-channel-row skin-catalog-summary" data-catalog-summary aria-label={isZh ? '资料版本' : 'Reference data channel'} hidden>
+      <RuntimeChannelSwitcher {locale} />
+      <Divider type="vertical" />
+      <span class="runtime-list-count" data-catalog-count role="status" aria-live="polite" hidden></span>
     </div>
   </header>
   <Divider />
@@ -31,16 +38,35 @@ const isZh = locale === 'zh-cn';
     <a href={localizedPath(locale, '/skins/')} aria-current="page">{isZh ? '按英雄' : 'By champion'}</a>
     <a href={localizedPath(locale, '/skinlines/')}>{isZh ? '按系列' : 'By skinline'}</a>
   </nav>
-  <div class="skin-catalog-search">
+  <div class="skin-catalog-filter-skeleton" data-catalog-filter-skeleton aria-hidden="true">
+    <span class="runtime-skeleton-line"></span>
+    <span class="runtime-skeleton-line"></span>
+    <span class="runtime-skeleton-line"></span>
+  </div>
+  <div class="skin-catalog-search" hidden>
     <label for="skin-catalog-search">{isZh ? '搜索皮肤或英雄' : 'Search skins or champions'}</label>
     <input class="cn-input" id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '输入皮肤或英雄名称' : 'Skin or champion name'} />
   </div>
-  <fieldset class="skin-catalog-rarities">
+  <fieldset class="skin-catalog-rarities" hidden>
     <legend>{isZh ? '稀有度' : 'Rarity'}</legend>
     <div class="skin-catalog-rarity-options" data-catalog-rarities></div>
   </fieldset>
-  <div class="skin-catalog-toolbar">
-    <p data-catalog-count role="status" aria-live="polite">{isZh ? '正在统计皮肤…' : 'Counting skins…'}</p>
+  <div class="skin-catalog-toolbar" hidden>
+    <label class="skin-catalog-classic-setting">
+      <input type="checkbox" data-catalog-classic checked aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
+      <span>{isZh ? '经典皮肤' : 'Classic skins'}</span>
+    </label>
+    <label class="skin-catalog-framed-setting">
+      <span data-catalog-framed-tooltip-trigger>
+        <input type="checkbox" data-catalog-framed-all aria-label={isZh ? '显示边框' : 'Show borders'} />
+        <span>{isZh ? '边框' : 'Borders'}</span>
+      </span>
+      <span class="skin-catalog-framed-count" data-catalog-framed-count></span>
+    </label>
+    {isZh && <label class="skin-catalog-emblems-setting">
+      <input type="checkbox" data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
+      <span>皮肤徽章</span>
+    </label>}
     <label>{isZh ? '按英雄排序' : 'Sort by champion'}
       <select class="cn-select" data-catalog-sort>
         <option value="asc">{isZh ? '英雄名称升序' : 'Champion name A–Z'}</option>
@@ -48,7 +74,7 @@ const isZh = locale === 'zh-cn';
       </select>
     </label>
   </div>
-  <p class="skin-catalog-status" data-catalog-status role="status" aria-live="polite">{isZh ? '正在加载皮肤资料…' : 'Loading skin references…'}</p>
+  <p class="sr-only skin-catalog-status" data-catalog-status role="status" aria-live="polite"></p>
   <div data-catalog-content>
     <div class="skin-catalog-skeleton" aria-hidden="true">
       {Array.from({ length: 6 }, () => <div class="skin-catalog-skeleton-card"><span></span><span></span></div>)}
@@ -56,7 +82,12 @@ const isZh = locale === 'zh-cn';
   </div>
   <template data-catalog-empty-template><Empty description="" /></template>
   <template data-catalog-error-template><Alert type="error" title="" /></template>
-  <div class="skin-catalog-viewport" data-catalog-viewport tabindex="0" role="region" aria-label={isZh ? '皮肤列表' : 'Skin list'} hidden></div>
+  <div class="skin-catalog-results" data-catalog-results role="region" aria-label={isZh ? '皮肤列表' : 'Skin list'} hidden>
+    <div class="skin-catalog-grid" id="skin-catalog-grid" data-catalog-grid></div>
+    <div class="skin-catalog-load-more-footer" data-catalog-load-more-footer hidden>
+      <button class="ant-btn" type="button" data-catalog-load-more aria-controls="skin-catalog-grid">{isZh ? '加载更多' : 'Load more'}</button>
+    </div>
+  </div>
   <noscript><p>{isZh ? '请启用 JavaScript 以浏览皮肤目录。' : 'Enable JavaScript to browse the skin catalog.'}</p></noscript>
 </section>
 

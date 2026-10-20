@@ -12,7 +12,10 @@ import {
   type RuntimeRarity,
   resolveBorderModule,
 } from "../domain/communitydragon-runtime";
-import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
+import { runtimeSkinRarityRank, type RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
+import { communityDragonChannelLabel } from "../domain/communitydragon-url";
+import { setDomainIconTooltip } from "../components/domain-icons";
+import { createTooltip } from "../components/tooltip";
 import { createCommunityDragonRuntime, type CommunityDragonRuntime } from "./communitydragon-runtime";
 import { asCommunityDragonError, runtimeFailureMessage } from "./communitydragon-errors";
 import { RuntimeChannelLifecycle, type RuntimeChannelHistory } from "./runtime-channel-lifecycle";
@@ -20,6 +23,8 @@ import { browserHistory } from "./runtime-reference-view";
 import { hrefFor } from "./runtime-reference-view-shared";
 
 type CatalogState = ReturnType<typeof readSkinCatalogUrlState>;
+type SkinCatalogArtworkMode = { plainUrl: string; framedUrl: string; borderUrls: readonly string[] };
+const CATALOG_PAGE_SIZE = 50;
 
 const zh = {
   loading: "正在加载完整皮肤目录…",
@@ -27,8 +32,12 @@ const zh = {
   noMatches: "没有符合条件的皮肤。",
   retry: "重试",
   invalid: "目录链接中的筛选参数无效。",
-  unmarked: "未标注",
+  unmarked: "其他",
   count: (shown: number, total: number) => `找到 ${shown} / ${total} 款皮肤`,
+  loadMore: "加载更多",
+  borderCount: (shown: number, total: number) => `带框 ${shown} / ${total} 款`,
+  hideBorder: "切换到无边框载入图",
+  showBorder: "切换到带边框载入图",
   missing: "暂无原画",
 };
 const en = {
@@ -37,8 +46,12 @@ const en = {
   noMatches: "No skins match these filters.",
   retry: "Retry",
   invalid: "The catalog link contains invalid filters.",
-  unmarked: "Unmarked",
+  unmarked: "Other",
   count: (shown: number, total: number) => `${shown} / ${total} skins`,
+  loadMore: "Load more",
+  borderCount: (shown: number, total: number) => `${shown} / ${total} framed`,
+  hideBorder: "Switch to the plain loading screen",
+  showBorder: "Switch to the framed loading screen",
   missing: "Artwork unavailable",
 };
 
@@ -53,11 +66,6 @@ function rarityLabel(rarity: RuntimeRarity | undefined, key: string, locale: Com
   return rarity?.label || rarity?.key || String(rarity?.id ?? key);
 }
 
-export function catalogColumns(viewport: HTMLElement): number {
-  const parsed = Number.parseInt(getComputedStyle(viewport).getPropertyValue("--catalog-columns"), 10);
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 2;
-}
-
 export function initSkinCatalog(
   root: HTMLElement,
   runtime: CommunityDragonRuntime = createCommunityDragonRuntime(),
@@ -68,31 +76,81 @@ export function initSkinCatalog(
   const copy = locale === "zh_cn" ? zh : en;
   const status = element<HTMLElement>(root, "[data-catalog-status]");
   const content = element<HTMLElement>(root, "[data-catalog-content]");
-  const viewport = element<HTMLElement>(root, "[data-catalog-viewport]");
+  const loadingSkeleton = element<HTMLElement>(content, ".skin-catalog-skeleton");
+  const results = element<HTMLElement>(root, "[data-catalog-results]");
+  const grid = element<HTMLElement>(root, "[data-catalog-grid]");
+  const loadMoreFooter = element<HTMLElement>(root, "[data-catalog-load-more-footer]");
+  const loadMore = element<HTMLButtonElement>(root, "[data-catalog-load-more]");
   const search = element<HTMLInputElement>(root, "[data-catalog-search]");
   const rarities = element<HTMLElement>(root, "[data-catalog-rarities]");
   const sort = element<HTMLSelectElement>(root, "[data-catalog-sort]");
+  const includeClassic = element<HTMLInputElement>(root, "[data-catalog-classic]");
+  const showFramedScreens = element<HTMLInputElement>(root, "[data-catalog-framed-all]");
+  const showEmblems = locale === "zh_cn"
+    ? element<HTMLInputElement>(root, "[data-catalog-emblems-all]")
+    : undefined;
+  const framedCount = element<HTMLElement>(root, "[data-catalog-framed-count]");
+  const framedTooltipTrigger = element<HTMLElement>(root, "[data-catalog-framed-tooltip-trigger]");
+  const framedSetting = framedTooltipTrigger.closest<HTMLElement>(".skin-catalog-framed-setting");
+  const framedTooltip = createTooltip(framedTooltipTrigger, framedCount);
+  framedTooltip.className += " skin-catalog-framed-tooltip";
+  framedTooltip.tabIndex = -1;
+  const framedTooltipId = framedTooltip.getAttribute("aria-describedby");
+  if (framedTooltipId) showFramedScreens.setAttribute("aria-describedby", framedTooltipId);
+  framedSetting?.replaceChildren(framedTooltip);
   const count = element<HTMLElement>(root, "[data-catalog-count]");
+  const summary = element<HTMLElement>(root, "[data-catalog-summary]");
+  const summarySkeleton = element<HTMLElement>(root, "[data-catalog-summary-skeleton]");
+  const filterSkeleton = element<HTMLElement>(root, "[data-catalog-filter-skeleton]");
   status.setAttribute("role", "status");
   status.setAttribute("aria-live", "polite");
-  const grid = document.createElement("div");
-  grid.className = "skin-catalog-grid";
-  viewport.replaceChildren(grid);
   let items: readonly RuntimeSkinReferenceItem[] = [];
   let state = readSkinCatalogUrlState(history.url);
   let committedChannel: RuntimeChannel | undefined;
   let filtered: readonly RuntimeSkinReferenceItem[] = [];
-  let rowHeight = 380;
-  let lastColumns = 0;
-  let lastStart = -1;
-  let lastEnd = -1;
+  let shownCount = 0;
+  let framedByDefault = true;
+  let emblemsVisible = true;
+  const framedOverrides = new Map<number, boolean>();
+  const artworkModes = new Map<number, { plain: HTMLElement; framed: HTMLElement }>();
+  const loadingScreenModes = (item: RuntimeSkinReferenceItem): SkinCatalogArtworkMode | undefined => {
+    const plainUrl = item.media.loadScreenUrl;
+    if (!plainUrl) return;
+    if (item.media.loadScreenVintageUrl)
+      return { plainUrl, framedUrl: item.media.loadScreenVintageUrl, borderUrls: [] };
+    const borders = resolveBorderModule(item.media);
+    if (borders?.kind !== "composite") return;
+    return {
+      plainUrl,
+      framedUrl: plainUrl,
+      borderUrls: borders.groups.flatMap((layer) => layer.options.at(-1)?.url ?? []),
+    };
+  };
+  const isFramed = (id: number) => framedOverrides.get(id) ?? framedByDefault;
+  const syncFramedSetting = () => {
+    const eligible = items.filter((item) => loadingScreenModes(item));
+    const framed = eligible.filter((item) => isFramed(item.id)).length;
+    showFramedScreens.checked = framed === eligible.length;
+    showFramedScreens.indeterminate = framed > 0 && framed < eligible.length;
+    framedCount.textContent = copy.borderCount(framed, eligible.length);
+    showFramedScreens.closest<HTMLElement>(".skin-catalog-framed-setting")?.toggleAttribute("hidden", eligible.length === 0);
+  };
   const setControlsDisabled = (disabled: boolean) => {
     search.disabled = disabled;
     sort.disabled = disabled;
-    root.querySelectorAll<HTMLButtonElement>("[data-catalog-channel], [data-catalog-rarity]")
+    includeClassic.disabled = disabled;
+    loadMore.disabled = disabled;
+    showFramedScreens.disabled = disabled;
+    if (showEmblems) showEmblems.disabled = disabled;
+    root.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-trigger], [data-runtime-channel], [data-catalog-rarity]")
       .forEach((button) => { button.disabled = disabled; });
   };
   setControlsDisabled(true);
+  const finishLoading = () => {
+    summarySkeleton.hidden = true;
+    filterSkeleton.hidden = true;
+    summary.hidden = false;
+  };
   const showFilters = (visible: boolean) => {
     const searchRow = search.closest<HTMLElement>(".skin-catalog-search");
     const rarityRow = rarities.closest<HTMLElement>(".skin-catalog-rarities");
@@ -102,11 +160,11 @@ export function initSkinCatalog(
     if (toolbar) toolbar.hidden = !visible;
   };
 
-  const showMessage = (message: string, kind: "plain" | "empty" | "error" = "plain", retry?: () => void) => {
+  const showMessage = (message: string, kind: "empty" | "error", retry?: () => void) => {
     const template = root.querySelector<HTMLTemplateElement>(
       kind === "empty" ? "[data-catalog-empty-template]" : "[data-catalog-error-template]",
     );
-    const panel = kind === "plain" ? document.createElement("p") : template?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
+    const panel = template?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
     if (panel) {
       const description = kind === "empty" ? panel.querySelector(".ant-empty-description") : panel.querySelector(".alert__content");
       (description ?? panel).textContent = message;
@@ -133,11 +191,10 @@ export function initSkinCatalog(
     const target = formatSkinCatalogUrl(new URL(href, history.url), state);
     toggle.setAttribute("href", `${target.pathname}${target.search}${target.hash}`);
   };
-  const card = (item: RuntimeSkinReferenceItem, index: number): HTMLElement => {
+  const card = (item: RuntimeSkinReferenceItem): HTMLElement => {
     const article = document.createElement("article");
     article.className = "skin-catalog-card";
     const link = document.createElement("a");
-    link.dataset.catalogIndex = String(index);
     link.href = hrefFor(
       locale, "skins",
       { id: item.id, championId: item.championId, channel: state.channel ?? "pbe" },
@@ -145,49 +202,104 @@ export function initSkinCatalog(
     ).href;
     const media = document.createElement("span");
     media.className = "skin-catalog-card-media";
-    const imageUrl = item.media.loadScreenVintageUrl ?? item.media.loadScreenUrl ?? item.media.focusedSplashUrl ?? item.media.unfocusedSplashUrl;
+    const modes = loadingScreenModes(item);
+    const imageUrl = modes
+      ? isFramed(item.id) ? modes.framedUrl : modes.plainUrl
+      : item.media.loadScreenVintageUrl ?? item.media.loadScreenUrl ?? item.media.focusedSplashUrl ?? item.media.unfocusedSplashUrl;
     const fallbackUrl = item.media.focusedSplashUrl ?? item.media.unfocusedSplashUrl;
+    const showMissingImage = () => {
+      media.className += " skin-catalog-card-media--missing";
+      media.replaceChildren(document.createTextNode(copy.missing));
+    };
+    let modeToggle: HTMLButtonElement | undefined;
     if (imageUrl) {
-      const image = document.createElement("img");
-      image.className = "skin-catalog-card-image";
-      image.src = imageUrl;
-      image.alt = "";
-      image.loading = "lazy";
-      image.addEventListener("error", () => {
-        if (fallbackUrl && image.src !== fallbackUrl) {
-          media.querySelectorAll(".skin-catalog-card-border").forEach((border) => border.remove());
-          image.src = fallbackUrl;
-        } else media.replaceChildren(document.createTextNode(copy.missing));
-      });
-      media.append(image);
-      if (!item.media.loadScreenVintageUrl && imageUrl === item.media.loadScreenUrl) {
-        const borders = resolveBorderModule(item.media);
-        if (borders?.kind === "composite") {
-          for (const layer of borders.groups) {
-            const selected = layer.options.at(-1);
-            if (!selected) continue;
-            const border = document.createElement("img");
-            border.className = "skin-catalog-card-border";
-            border.src = selected.url;
-            border.alt = "";
-            border.loading = "lazy";
-            border.addEventListener("error", () => border.remove());
-            media.append(border);
+      media.style.setProperty("--catalog-backdrop", `url("${imageUrl}")`);
+      const plain = modes ? document.createElement("span") : media;
+      const framed = modes ? document.createElement("span") : undefined;
+      if (modes && framed) {
+        plain.className = "skin-catalog-card-artwork skin-catalog-card-artwork--plain";
+        framed.className = "skin-catalog-card-artwork skin-catalog-card-artwork--framed";
+        plain.hidden = isFramed(item.id);
+        framed.hidden = !isFramed(item.id);
+        media.append(plain, framed);
+        artworkModes.set(item.id, { plain, framed });
+      }
+      const appendLoadScreen = (parent: HTMLElement, sourceUrl: string) => {
+        const image = document.createElement("img");
+        image.className = "skin-catalog-card-image";
+        image.src = sourceUrl;
+        image.alt = "";
+        image.loading = "lazy";
+        image.addEventListener("error", () => {
+          if (fallbackUrl && image.src !== fallbackUrl) {
+            image.src = fallbackUrl;
+            media.style.setProperty("--catalog-backdrop", `url("${fallbackUrl}")`);
+          } else {
+            media.style.removeProperty("--catalog-backdrop");
+            artworkModes.delete(item.id);
+            modeToggle?.remove();
+            showMissingImage();
           }
+        });
+        parent.append(image);
+      };
+      appendLoadScreen(plain, modes?.plainUrl ?? imageUrl);
+      if (framed) {
+        appendLoadScreen(framed, modes?.framedUrl ?? imageUrl);
+        for (const url of modes?.borderUrls ?? []) {
+          const border = document.createElement("img");
+          border.className = "skin-catalog-card-border";
+          border.src = url;
+          border.alt = "";
+          border.loading = "lazy";
+          border.addEventListener("error", () => border.remove());
+          framed.append(border);
         }
+        modeToggle = document.createElement("button");
+        modeToggle.className = "skin-catalog-artwork-toggle";
+        modeToggle.type = "button";
+        modeToggle.dataset.skinArtworkToggle = String(item.id);
+        modeToggle.setAttribute("aria-pressed", String(isFramed(item.id)));
+        modeToggle.setAttribute("aria-label", isFramed(item.id) ? copy.hideBorder : copy.showBorder);
+        modeToggle.textContent = isFramed(item.id) ? "带框" : "原图";
+        article.append(modeToggle);
       }
     } else {
-      media.textContent = copy.missing;
+      showMissingImage();
     }
     link.append(media);
     const title = document.createElement("span");
     title.className = "skin-catalog-card-title";
-    title.textContent = item.name ?? item.championName ?? String(item.id);
+    const name = document.createElement("span");
+    name.className = "skin-catalog-card-title-name";
+    name.textContent = item.name ?? item.championName ?? String(item.id);
+    if (locale === "zh_cn" && item.emblems?.length) {
+      const emblemGroup = document.createElement("span");
+      emblemGroup.className = "skin-catalog-emblems";
+      emblemGroup.dataset.catalogEmblems = "";
+      emblemGroup.hidden = !emblemsVisible;
+      for (const emblem of item.emblems) {
+        const image = document.createElement("img");
+        image.src = emblem.imageUrl;
+        image.alt = emblem.name ?? "";
+        image.loading = "lazy";
+        const preview = document.createElement("img");
+        preview.src = emblem.imageUrl;
+        preview.alt = "";
+        preview.className = "skin-catalog-emblem-preview";
+        preview.loading = "lazy";
+        const tooltip = createTooltip(image, preview);
+        tooltip.classList.add("skin-catalog-emblem-tooltip");
+        tooltip.querySelector(".ant-tooltip")?.classList.add("skin-catalog-emblem-image-tooltip");
+        image.addEventListener("error", () => tooltip.remove());
+        emblemGroup.append(tooltip);
+      }
+      title.append(emblemGroup);
+    }
+    title.append(name);
     const key = catalogRarityKey(item, locale);
     const rarity = key ? rarityLabel(item.rarity, key, locale) : undefined;
-    link.setAttribute("aria-label", [item.championName, title.textContent, rarity].filter(Boolean).join(" · "));
-    link.title = [title.textContent, rarity].filter(Boolean).join(" · ");
-    if (rarity && item.rarity?.iconUrl) link.dataset.catalogRarityHint = rarity;
+    link.setAttribute("aria-label", [item.championName, name.textContent, rarity].filter(Boolean).join(" · "));
     link.append(title);
     article.append(link);
     if (key && item.rarity?.iconUrl) {
@@ -195,60 +307,94 @@ export function initSkinCatalog(
       icon.className = "skin-catalog-card-rarity";
       icon.src = item.rarity.iconUrl;
       icon.alt = rarityLabel(item.rarity, key, locale);
-      icon.title = icon.alt;
       icon.addEventListener("error", () => icon.remove());
-      article.append(icon);
+      const tooltip = createTooltip(icon, icon.alt);
+      tooltip.classList.add("skin-catalog-rarity-tooltip");
+      article.append(tooltip);
     }
     return article;
   };
-  const draw = (force = false) => {
-    const columns = catalogColumns(viewport);
-    const first = Math.max(0, Math.floor(viewport.scrollTop / rowHeight) - 2);
-    const start = first * columns;
-    const end = Math.min(filtered.length, (Math.ceil((viewport.scrollTop + viewport.clientHeight) / rowHeight) + 2) * columns);
-    if (!force && columns === lastColumns && start === lastStart && end === lastEnd) return;
-    lastColumns = columns;
-    lastStart = start;
-    lastEnd = end;
-    grid.style.paddingTop = `${first * rowHeight}px`;
-    grid.style.paddingBottom = `${Math.max(0, Math.ceil(filtered.length / columns) - Math.ceil(end / columns)) * rowHeight}px`;
-    grid.replaceChildren(...filtered.slice(start, end).map((item, offset) => card(item, start + offset)));
-    const firstCard = grid.querySelector<HTMLElement>(".skin-catalog-card");
-    if (firstCard) {
-      const measured = firstCard.getBoundingClientRect().height;
-      const gap = Number.parseFloat(getComputedStyle(grid).rowGap) || 0;
-      if (measured > 0 && Math.abs(measured + gap - rowHeight) > 2) {
-        rowHeight = measured + gap;
-        draw(true);
-      }
-    }
+  const appendNextPage = (focusFirst = false) => {
+    const columns = Number.parseInt(getComputedStyle(root).getPropertyValue("--catalog-columns"), 10);
+    const pageSize = Math.ceil(CATALOG_PAGE_SIZE / columns) * columns;
+    const next = filtered.slice(shownCount, shownCount + pageSize);
+    const cards = next.map(card);
+    grid.append(...cards);
+    shownCount += next.length;
+    loadMoreFooter.hidden = shownCount >= filtered.length;
+    if (focusFirst) cards[0]?.querySelector<HTMLAnchorElement>("a")?.focus();
   };
+  loadMore.textContent = copy.loadMore;
+  loadMore.addEventListener("click", (event) => appendNextPage(event.detail === 0));
   const refresh = () => {
     filtered = filterSkinCatalogItems(items, {
       locale,
       search: state.search,
       rarities: state.rarities,
+      excludeClassic: state.excludeClassic,
       sort: state.sort,
     });
     count.textContent = copy.count(filtered.length, items.length);
-    viewport.scrollTop = 0;
+    syncFramedSetting();
     grid.replaceChildren();
-    lastStart = -1;
+    artworkModes.clear();
+    shownCount = 0;
+    loadMoreFooter.hidden = true;
     if (!items.length || !filtered.length) {
-      viewport.hidden = true;
+      results.hidden = true;
       showMessage(items.length ? copy.noMatches : copy.empty, "empty");
     } else {
       content.hidden = true;
-      viewport.hidden = false;
-      draw(true);
+      results.hidden = false;
+      appendNextPage();
     }
   };
+  showFramedScreens.addEventListener("change", () => {
+    framedByDefault = showFramedScreens.checked;
+    framedOverrides.clear();
+    for (const [id, artwork] of artworkModes) {
+      artwork.plain.hidden = framedByDefault;
+      artwork.framed.hidden = !framedByDefault;
+      const toggle = root.querySelector<HTMLButtonElement>(`[data-skin-artwork-toggle="${id}"]`);
+      toggle?.setAttribute("aria-pressed", String(framedByDefault));
+      toggle?.setAttribute("aria-label", framedByDefault ? copy.hideBorder : copy.showBorder);
+      if (toggle) toggle.textContent = framedByDefault ? "带框" : "原图";
+    }
+    syncFramedSetting();
+  });
+  showEmblems?.addEventListener("change", () => {
+    emblemsVisible = showEmblems.checked;
+    grid.querySelectorAll<HTMLElement>("[data-catalog-emblems]")
+      .forEach((group) => { group.hidden = !emblemsVisible; });
+  });
+  grid.addEventListener("click", (event) => {
+    const toggle = (event.target as Element).closest<HTMLButtonElement>("[data-skin-artwork-toggle]");
+    if (!toggle || !grid.contains(toggle)) return;
+    const id = Number(toggle.dataset.skinArtworkToggle);
+    const framed = !isFramed(id);
+    framedOverrides.set(id, framed);
+    const artwork = artworkModes.get(id);
+    if (artwork) {
+      artwork.plain.hidden = framed;
+      artwork.framed.hidden = !framed;
+    }
+    toggle.setAttribute("aria-pressed", String(framed));
+    toggle.setAttribute("aria-label", framed ? copy.hideBorder : copy.showBorder);
+    toggle.textContent = framed ? "带框" : "原图";
+    syncFramedSetting();
+  });
   const syncControls = () => {
     search.value = state.search;
     sort.value = state.sort;
-    root.querySelectorAll<HTMLButtonElement>("[data-catalog-channel]").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.catalogChannel === state.channel));
+    includeClassic.checked = !state.excludeClassic;
+    const selected = state.channel ?? "pbe";
+    root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel]").forEach((button) => {
+      button.setAttribute("aria-checked", String(button.dataset.runtimeChannel === selected));
     });
+    const label = communityDragonChannelLabel(selected, locale);
+    element<HTMLElement>(root, "[data-runtime-channel-label]").textContent = label;
+    const icon = root.querySelector<SVGSVGElement>(".domain-icon--reference");
+    if (icon) setDomainIconTooltip(icon, "reference", label, locale);
     rarities.querySelectorAll<HTMLButtonElement>("[data-catalog-rarity]").forEach((button) => {
       const key = button.dataset.catalogRarity ?? "";
       button.setAttribute("aria-pressed", String(key ? state.rarities.includes(key) : state.rarities.length === 0));
@@ -256,10 +402,13 @@ export function initSkinCatalog(
     syncLanguageLink();
   };
   const renderRarities = () => {
-    const available = new Map<string, string>();
+    const available = new Map<string, { label: string; rank: number }>();
     for (const item of items) {
       const key = catalogRarityKey(item, locale) || UNMARKED_RARITY;
-      if (!available.has(key)) available.set(key, rarityLabel(item.rarity, key, locale));
+      if (!available.has(key)) available.set(key, {
+        label: rarityLabel(item.rarity, key, locale),
+        rank: key === UNMARKED_RARITY ? -1 : runtimeSkinRarityRank(item),
+      });
     }
     rarities.replaceChildren();
     const all = document.createElement("button");
@@ -268,7 +417,12 @@ export function initSkinCatalog(
     all.textContent = locale === "zh_cn" ? "全部" : "All";
     all.setAttribute("aria-pressed", String(state.rarities.length === 0));
     rarities.append(all);
-    for (const [key, label] of available) {
+    const ordered = [...available].sort(
+      ([, left], [, right]) =>
+        right.rank - left.rank ||
+        left.label.localeCompare(right.label, locale === "zh_cn" ? "zh-CN" : "en"),
+    );
+    for (const [key, { label }] of ordered) {
       const button = document.createElement("button");
       button.type = "button";
       button.dataset.catalogRarity = key;
@@ -300,16 +454,22 @@ export function initSkinCatalog(
     view: {
       loading(preserve) {
         setControlsDisabled(true);
-        if (!preserve) showFilters(false);
-        status.textContent = copy.loading;
-        content.hidden = preserve;
         if (!preserve) {
-          viewport.hidden = true;
-          if (!content.querySelector(".skin-catalog-skeleton")) showMessage(copy.loading);
+          showFilters(false);
+          summary.hidden = true;
+          summarySkeleton.hidden = false;
+          filterSkeleton.hidden = false;
+        }
+        status.textContent = copy.loading;
+        content.hidden = preserve && !results.hidden;
+        if (!preserve) {
+          results.hidden = true;
+          content.replaceChildren(loadingSkeleton);
         }
       },
       render(result, context) {
         items = result;
+        framedOverrides.clear();
         const available = new Set(result.map((item) => catalogRarityKey(item, locale) || UNMARKED_RARITY));
         state = {
           ...context.target,
@@ -317,6 +477,8 @@ export function initSkinCatalog(
         };
         committedChannel = context.channel;
         status.textContent = "";
+        finishLoading();
+        count.hidden = items.length === 0;
         renderRarities();
         showFilters(items.length > 0);
         syncControls();
@@ -329,8 +491,10 @@ export function initSkinCatalog(
       },
       invalid(message) {
         status.textContent = message;
+        finishLoading();
+        count.hidden = true;
         showFilters(false);
-        viewport.hidden = true;
+        results.hidden = true;
         showMessage(message, "error");
       },
       failure(error, retry, preserve) {
@@ -338,14 +502,17 @@ export function initSkinCatalog(
         status.textContent = message;
         showMessage(message, "error", retry);
         if (!preserve) {
+          finishLoading();
+          count.hidden = true;
           showFilters(false);
-          viewport.hidden = true;
+          results.hidden = true;
         }
         setControlsDisabled(false);
       },
     },
   });
   search.addEventListener("input", () => update({ ...state, search: search.value }));
+  includeClassic.addEventListener("change", () => update({ ...state, excludeClassic: !includeClassic.checked }));
   sort.addEventListener("change", () => update({ ...state, sort: sort.value === "desc" ? "desc" : "asc" }));
   rarities.addEventListener("click", (event) => {
     const button = (event.target as Element).closest<HTMLButtonElement>("[data-catalog-rarity]");
@@ -358,9 +525,9 @@ export function initSkinCatalog(
         : [],
     });
   });
-  root.querySelectorAll<HTMLButtonElement>("[data-catalog-channel]").forEach((button) => {
+  root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel]").forEach((button) => {
     button.addEventListener("click", () => {
-      const channel = button.dataset.catalogChannel;
+      const channel = button.dataset.runtimeChannel;
       if ((channel !== "pbe" && channel !== "latest") || channel === committedChannel) return;
       void lifecycle.navigate(formatSkinCatalogUrl(history.url, {
         ...state,
@@ -369,34 +536,6 @@ export function initSkinCatalog(
       }));
     });
   });
-  viewport.addEventListener("scroll", () => draw());
-  viewport.setAttribute(
-    "aria-description",
-    locale === "zh_cn" ? "用方向键或 Tab 键继续浏览皮肤。" : "Use arrow keys or Tab to browse more skins.",
-  );
-  viewport.addEventListener("keydown", (event) => {
-    const focused = (event.target as Element).closest<HTMLAnchorElement>("[data-catalog-index]");
-    const index = focused ? Number(focused.dataset.catalogIndex) : -1;
-    let next: number;
-    if (event.key === "ArrowDown") next = index < 0 ? 0 : index + catalogColumns(viewport);
-    else if (event.key === "ArrowUp") next = index - catalogColumns(viewport);
-    else if (event.key === "ArrowRight") next = index + 1;
-    else if (event.key === "ArrowLeft") next = index - 1;
-    else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = filtered.length - 1;
-    else if (event.key === "Tab" && focused && !event.shiftKey && index === lastEnd - 1) next = index + 1;
-    else if (event.key === "Tab" && focused && event.shiftKey && index === lastStart) next = index - 1;
-    else return;
-    if (next < 0 || next >= filtered.length) return;
-    event.preventDefault();
-    viewport.scrollTop = Math.floor(next / catalogColumns(viewport)) * rowHeight;
-    draw(true);
-    grid.querySelector<HTMLAnchorElement>(`[data-catalog-index="${next}"]`)?.focus();
-  });
-  new ResizeObserver(() => {
-    rowHeight = 380;
-    draw(true);
-  }).observe(viewport);
   void lifecycle.start();
   return lifecycle;
 }

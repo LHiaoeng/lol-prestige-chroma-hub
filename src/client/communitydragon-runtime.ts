@@ -313,6 +313,7 @@ export function createCommunityDragonRuntime(
         return {
           ...skin,
           championName: champion.name,
+          championTitle: champion.title,
           championShortBio: champion.shortBio,
         };
       });

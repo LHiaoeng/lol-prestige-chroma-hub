@@ -110,6 +110,8 @@ https://raw.communitydragon.org/{version}/{relativePath}
 
 JSON 和媒体必须使用同一 `{version}`。路径来自 JSON 字段或已验证的官方目录，不根据名称、slug 或数字格式猜测。
 
+已验证的特殊路径：简体中文 `skins.json` 中 `emblems[].emblemPath.large/small` 的 `/lol-game-data/assets/v1/emblem-images/{file}.png`，应按字段给出的文件名解析到 `plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/{file}.png`。这组图不遵循通用 `/lol-game-data/assets/` 到 `global/default/` 的转换；`latest` 的 [`28.png`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/28.png) 可在该中文目录验证。详见 [皮肤徽章映射](#皮肤徽章映射)。
+
 ### 2.4 响应与失败处理
 
 - 目录为空、文件不存在、404、缺失字段和格式不符合预期，都保留为真实状态。
@@ -212,11 +214,12 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | --- | --- | --- |
 | 英雄摘要或英雄详情 | `squarePortraitPath` | 英雄方形头像 |
 | 英雄详情或皮肤目录 | `splashPath`、`uncenteredSplashPath`、`tilePath`、`loadScreenPath` | 聚焦原画、非聚焦原画、缩略图和载入图 |
-| 皮肤记录或阶段记录 | `splashVideoPath`、`previewVideoUrl`、`collectionSplashVideoPath`、`collectionCardHoverVideoPath`、`loadScreenVintagePath` | 详情轮播优先用 `collectionSplashVideoPath` 作为非聚焦动态原画，并以 `splashVideoPath` 提供聚焦动态原画选项；动态原画静音、循环并自动播放，不显示原生控制条；其余为预览、合集媒体和来源提供的历史载入图 |
+| 皮肤记录或阶段记录 | `splashVideoPath`、`previewVideoUrl`、`collectionSplashVideoPath`、`collectionCardHoverVideoPath`、`loadScreenVintagePath` | 详情轮播以独立选项展示聚焦动态原画和非聚焦动态原画；动态原画静音、循环并自动播放，不显示原生控制条；其余为预览、合集媒体和来源提供的历史载入图 |
 | 英雄详情或皮肤目录 | `chromaPath` | 炫彩资源 |
 | 皮肤记录 | `skinLines`、`isBase`、`questSkinInfo.tiers` | 系列关系、英雄默认外观标记和阶段信息 |
 | 皮肤记录 | `skinAugments.borders` | 载入图边框：`layer{n}` 是叠加层，同层多条为互斥备选项，按 `priority` 取最高项 |
 | 皮肤记录或阶段记录 | `rarity`、`regionRarityId`、`rarityGemPath` | 英文全球稀有度、中文区域稀有度及对应图标 |
+| 中文皮肤记录 | `emblems[].name`、`emblemPath.large`、`emblemPath.small`、`positions` | 皮肤徽章及其来源名称、大小图路径和位置元数据 |
 | 炫彩记录 | `colors` | 来源提供的炫彩颜色，缺失时保持缺失 |
 | 系列 | `imagePath` 等实际存在的媒体字段 | 系列图片 |
 | 皮肤宇宙 | `imagePath` | 皮肤宇宙图片 |
@@ -231,11 +234,18 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 成就头衔 | `plugins/rcp-be-lol-game-data/global/{lang}/assets/playertitles/` |
 | 终结特效 | `plugins/rcp-be-lol-game-data/global/{lang}/assets/loadouts/nexusfinishers/` |
 | 稀有度图标 | `plugins/rcp-be-lol-game-data/global/default/v1/rarity-gem-icons/` |
+| 皮肤徽章 | `plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/` |
+
+#### 皮肤徽章映射
+
+CommunityDragon 的通用 JSON 资源路径说明将 `/lol-game-data/assets/<path>` 映射到 `global/default/<path>`，但中文 `skins.json` 的 `emblems` 图有单独的实存目录。以当前 [`zh_cn/skins.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/skins.json) 为准：每条 `emblems[]` 含来源名称 `name`，以及 `emblemPath.large`、`emblemPath.small`；两种路径的文件名对应 [`zh_cn/v1/emblem-images/`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/emblem-images/) 下的同名 PNG，例如 `emblemPath.large: "/lol-game-data/assets/v1/emblem-images/28.png"` 对应 `28.png`。
+
+这些皮肤徽章与 `regionRarityId` / `rarityGemPath` 是分开的字段，不能根据稀有度 ID 拼出徽章文件名。例如皮肤 ID `1001` 的 `regionRarityId` 为 `7`，但来源徽章名为 `Wisdom of Pioneer`、路径为 `28.png`；皮肤 ID `1005` 的 `regionRarityId` 为 `4`，徽章名为 `Epic`、路径为 `29.png`。页面应读取当前视图皮肤记录实际提供的 `emblems[].emblemPath`；无徽章数据时不猜测或补图。`latest` 为滚动目录，以上路径关系应在资源改动时重新核验。
 
 稀有度规则：
 
 - `default` 视图使用记录中的 `rarity`，已知类型按参考项目映射到 `epic.png`、`legendary.png`、`mythic.png`、`ultimate.png`、`transcendent.png` 或 `exalted.png`；未知类型才保留源记录提供的图标路径。
-- `zh_cn` 视图的国服展示等级以 `regionRarityId` 为准，不能与 `rarity` 的标签或直营服图标混用；按参考项目使用 `cn-gem-{regionRarityId}.png`，例如 `5` 为 `cn-gem-5.png`、`7` 为 `cn-gem-7.png`。原始 `rarityGemPath` 的 `*_large.png` 不作为页面徽章资源。
+- `zh_cn` 视图的国服展示等级以 `regionRarityId` 为准，不能与 `rarity` 的标签或直营服图标混用；按参考项目使用 `cn-gem-{regionRarityId}.png`，例如 `5` 为 `cn-gem-5.png`、`7` 为 `cn-gem-7.png`。原始 `rarityGemPath` 的 `*_large.png` 不直接作为稀有度图标；稀有度图标仍由 `regionRarityId` 映射为 `cn-gem`。
 - 官方数据中的 `kNoRarity`、直营服 `kRare` 或 `regionRarityId: 0` 在本页面都按没有可展示的稀有度处理：不显示稀有度字段、文字或宝石。`kRare` 虽是原始枚举值，但不在页面上另造一个 `Rare` 等级。
 
 ### 3.4 运行时读取规则
