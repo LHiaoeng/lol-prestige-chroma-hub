@@ -102,6 +102,8 @@ export interface RuntimeSkin extends Omit<RuntimeSkinSummary, "name"> {
   readonly championName?: string;
   readonly championTitle?: string;
   readonly championShortBio?: string;
+  /** Skin IDs and names in champion detail release order, including skin stages. */
+  readonly championSkinReleaseOrder?: readonly { readonly id: number; readonly name: string }[];
   readonly name?: string;
   /** The source-provided image used by the skin's default chroma item. */
   readonly chromaImageUrl?: string;

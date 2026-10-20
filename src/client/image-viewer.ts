@@ -17,7 +17,10 @@ type PreviewTrigger = HTMLElement & { readonly dataset: DOMStringMap };
 
 function previewItems(trigger: PreviewTrigger): PreviewTrigger[] {
   const group = trigger.closest<HTMLElement>("[data-media-preview-group]");
-  return group ? [...group.querySelectorAll<PreviewTrigger>("[data-media-preview-trigger]")] : [trigger];
+  if (!group) return [trigger];
+  const items = [...group.querySelectorAll<PreviewTrigger>("[data-media-preview-trigger]")];
+  const variant = trigger.dataset.previewVariant;
+  return variant ? items.filter((item) => item.dataset.previewVariant === variant) : items;
 }
 
 export function bindMediaViewers(root: ParentNode = document): void {
@@ -342,6 +345,11 @@ export function bindMediaViewers(root: ParentNode = document): void {
     }
     sourcePlayback.clear();
     videoStates.clear();
+    if (displayedTrigger) {
+      displayedTrigger.closest<HTMLElement>("[data-media-preview-group]")?.dispatchEvent(
+        new CustomEvent("media-preview-close", { detail: displayedTrigger }),
+      );
+    }
     displayedTrigger = undefined;
     activeTrigger?.focus();
   });

@@ -153,6 +153,12 @@ export function createRuntimeDetailRenderer(
   let entityDetailDivider: HTMLElement | undefined;
   let universeDetailSource: HTMLElement | undefined;
   let universeDetailDivider: HTMLElement | undefined;
+  let skinNavigation: {
+    readonly championId: number;
+    readonly channel: "pbe" | "latest";
+    readonly items: readonly { readonly id: number; readonly name: string }[];
+    readonly index: number;
+  } | undefined;
   const entitySkinCount = document.querySelector<HTMLElement>(
     "[data-runtime-entity-skin-count]",
   );
@@ -167,6 +173,64 @@ export function createRuntimeDetailRenderer(
   const skinChromaSummary = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-summary]");
   const skinChromaCount = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-count]");
   const skinActionsSummary = document.querySelector<HTMLElement>("[data-runtime-skin-actions-summary]");
+  const skinNavigationGroup = document.querySelector<HTMLElement>("[data-runtime-skin-navigation]");
+  const skinNavigationPrevious = skinNavigationGroup?.querySelector<HTMLButtonElement>("[data-runtime-skin-navigation-previous]");
+  const skinNavigationPreviousName = skinNavigationGroup?.querySelector<HTMLElement>("[data-runtime-skin-navigation-previous-name]");
+  const skinNavigationNext = skinNavigationGroup?.querySelector<HTMLButtonElement>("[data-runtime-skin-navigation-next]");
+  const skinNavigationNextName = skinNavigationGroup?.querySelector<HTMLElement>("[data-runtime-skin-navigation-next-name]");
+  const navigateSkin = (delta: number): boolean => {
+    const current = skinNavigation;
+    const length = current?.items.length ?? 0;
+    if (!current || length < 2) return false;
+    const target = current.items[(current.index + delta + length) % length];
+    if (!target) return false;
+    const scrollY = window.scrollY;
+    void options.getController().navigate(
+      hrefFor(
+        options.locale,
+        "skins",
+        { id: target.id, championId: current.championId, channel: current.channel },
+        "detail",
+        options.preservesExplicitPbe(),
+      ),
+    ).then(() => window.scrollTo(0, scrollY));
+    return true;
+  };
+  skinNavigationPrevious?.addEventListener("click", () => { navigateSkin(-1); });
+  skinNavigationNext?.addEventListener("click", () => { navigateSkin(1); });
+  const renderSkinNavigation = (): void => {
+    if (!skinNavigationGroup || !skinNavigationPrevious || !skinNavigationPreviousName || !skinNavigationNext || !skinNavigationNextName) return;
+    skinNavigationGroup.hidden = !skinNavigation;
+    if (!skinNavigation) return;
+    const updateControl = (delta: -1 | 1, button: HTMLButtonElement, name: HTMLElement, label: string): void => {
+      const { index, items } = skinNavigation;
+      const target = items.length > 1 ? items[(index + delta + items.length) % items.length] : undefined;
+      button.disabled = !target;
+      button.setAttribute("aria-label", target ? `${label}: ${target.name}` : label);
+      name.textContent = target?.name ?? "";
+      name.hidden = !target;
+      if (target) name.setAttribute("title", target.name);
+    };
+    updateControl(-1, skinNavigationPrevious, skinNavigationPreviousName, options.locale === "zh_cn" ? "上一款皮肤" : "Previous skin");
+    updateControl(1, skinNavigationNext, skinNavigationNextName, options.locale === "zh_cn" ? "下一款皮肤" : "Next skin");
+  };
+  options.content.ownerDocument.addEventListener("keydown", (event) => {
+    const keyEvent = event as KeyboardEvent;
+    const current = skinNavigation;
+    const delta = keyEvent.key === "ArrowLeft" ? -1 : keyEvent.key === "ArrowRight" ? 1 : 0;
+    if (
+      !current ||
+      !delta ||
+      keyEvent.altKey ||
+      keyEvent.ctrlKey ||
+      keyEvent.metaKey ||
+      keyEvent.shiftKey
+    ) return;
+    const target = keyEvent.target as (Element & { closest?: (selectors: string) => Element | null }) | null;
+    if (target?.closest?.("input, select, textarea, button, a, [contenteditable], [role='button'], [role='radio'], [role='menuitem'], [role='menuitemradio'], [data-media-viewer]")) return;
+    if (!navigateSkin(delta)) return;
+    keyEvent.preventDefault();
+  });
   const skinActionsMenu = skinActionsSummary?.querySelector<HTMLElement>(".ant-dropdown-menu");
   const entityActionsSummary = document.querySelector<HTMLElement>("[data-runtime-entity-actions-summary]");
   const entityActionsMenu = entityActionsSummary?.querySelector<HTMLElement>(".ant-dropdown-menu");
@@ -429,6 +493,19 @@ export function createRuntimeDetailRenderer(
 
   return {
     render(item, state) {
+      const skinReleaseOrder = item.kind === "skin"
+        ? item.championSkinReleaseOrder
+        : undefined;
+      const skinReleaseIndex = skinReleaseOrder?.findIndex(({ id }) => id === item.id) ?? -1;
+      skinNavigation = item.kind === "skin" && skinReleaseOrder && skinReleaseIndex >= 0
+        ? {
+            championId: item.championId,
+            channel: state.channel,
+            items: skinReleaseOrder,
+            index: skinReleaseIndex,
+          }
+        : undefined;
+      renderSkinNavigation();
       relationSlot = undefined;
       skinlineSkinsSlot = undefined;
       universeSkinsSlot = undefined;
@@ -652,19 +729,22 @@ export function createRuntimeDetailRenderer(
           skinChampionSlot.removeAttribute("aria-hidden");
         }
         const championName = item.championName ?? (options.locale === "zh_cn" ? `英雄 #${item.championId}` : `Champion #${item.championId}`);
+        const championLabel = item.championTitle && item.championTitle !== championName
+          ? `${item.championTitle} ${championName}`
+          : championName;
         const championIcon = skinChampionSlot
           ?.closest<HTMLElement>(".runtime-universe-stat")
           ?.querySelector<SVGSVGElement>(".domain-icon");
-        if (championIcon) setDomainIconTooltip(championIcon, "champions", championName, options.locale);
+        if (championIcon) setDomainIconTooltip(championIcon, "champions", championLabel, options.locale);
         const championLink = linkWithNavigation(
-          championName,
+          championLabel,
           hrefFor(options.locale, "champions", { id: item.championId, channel: state.channel }, "detail", options.preservesExplicitPbe()),
           controller,
           "runtime-entity-relation-link",
         );
         championLink.setAttribute(
           "aria-label",
-          domainIconTooltipLabel("champions", championName, options.locale),
+          domainIconTooltipLabel("champions", championLabel, options.locale),
         );
         skinChampionSlot?.replaceChildren(championLink);
 
@@ -706,13 +786,18 @@ export function createRuntimeDetailRenderer(
         const chromas = document.createElement("section");
         chromas.className = "runtime-skin-chromas";
         chromas.id = "runtime-skin-chromas";
+        chromas.dataset.mediaPreviewGroup = "";
         const chromaHeading = createDomainHeading(
           "prestige-chromas",
-          options.locale === "zh_cn" ? "炫彩" : "Chromas",
+          options.locale === "zh_cn"
+            ? `炫彩（${item.chromas.length}）`
+            : "Chromas",
         );
-        chromaHeading.append(
-          textNode("span", String(item.chromas.length), "runtime-chroma-count"),
-        );
+        if (options.locale !== "zh_cn") {
+          chromaHeading.append(
+            textNode("span", String(item.chromas.length), "runtime-chroma-count"),
+          );
+        }
         chromas.appendChild(chromaHeading);
         const chromaGrid = document.createElement("div");
         chromaGrid.className = "runtime-chroma-grid";
@@ -749,6 +834,15 @@ export function createRuntimeDetailRenderer(
               link,
             }),
           );
+        });
+        chromas.addEventListener("media-preview-close", (event) => {
+          const trigger = (event as CustomEvent<HTMLElement>).detail;
+          const toggle = trigger
+            ?.closest<HTMLElement>(".runtime-chroma-card")
+            ?.querySelector<HTMLButtonElement>(".runtime-chroma-image-toggle");
+          const showingOriginal = trigger?.dataset.previewVariant === "chroma";
+          if (toggle && toggle.dataset.showingOriginal !== String(showingOriginal))
+            toggle.click();
         });
         chromas.appendChild(chromaGrid);
         article.appendChild(chromas);
@@ -995,6 +1089,7 @@ export function createRuntimeDetailRenderer(
       if (entitySkinCount) setUniverseCount(entitySkinCount, "—");
       if (skinChromaSummary) skinChromaSummary.hidden = true;
       if (skinChampionSummary) skinChampionSummary.hidden = true;
+      if (skinNavigationGroup) skinNavigationGroup.hidden = true;
       for (const { summary } of skinRelationSummaries)
         if (summary) summary.hidden = true;
       if (skinlineUniverseSummary) skinlineUniverseSummary.hidden = true;

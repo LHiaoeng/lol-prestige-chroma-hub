@@ -10,6 +10,7 @@ export interface CarouselSlide {
   readonly tooltip?: () => string;
   readonly onSelect?: () => string | undefined;
   readonly onReselect?: () => string | undefined;
+  readonly onPreviewSelect?: (key: string) => string | undefined;
 }
 
 export interface CarouselOptions {
@@ -167,6 +168,17 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   });
 
   carousel.append(viewport, controls);
+  carousel.addEventListener("media-preview-close", (event) => {
+    const trigger = (event as CustomEvent<HTMLElement>).detail;
+    const slide = slides.find(({ content }) => content.contains(trigger));
+    if (!slide) return;
+    const label = slide.onPreviewSelect?.(trigger.dataset.previewKey ?? "");
+    if (label !== undefined) slide.label = label;
+    if (selectedKey === slide.key && label === undefined) return;
+    selectedKey = slide.key;
+    renderControls();
+    update();
+  });
   renderControls();
   update();
   return carousel;

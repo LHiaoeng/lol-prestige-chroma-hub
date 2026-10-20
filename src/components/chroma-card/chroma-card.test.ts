@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { createChromaCard } from "./chroma-card";
 
 class MockElement {
@@ -6,15 +6,15 @@ class MockElement {
   className = "";
   textContent = "";
   readonly attributes = new Map<string, string>();
+  readonly dataset: Record<string, string> = {};
   readonly children: MockElement[] = [];
   parentElement: MockElement | null = null;
   src = "";
   alt = "";
+  hidden = false;
   loading = "";
   decoding = "";
-  readonly style = {
-    setProperty(): void {},
-  };
+  readonly style = { setProperty(): void {} };
 
   constructor(tagName: string) {
     this.tagName = tagName;
@@ -27,6 +27,10 @@ class MockElement {
 
   getAttribute(name: string): string | null {
     return this.attributes.get(name) ?? null;
+  }
+
+  removeAttribute(name: string): void {
+    this.attributes.delete(name);
   }
 
   appendChild(child: MockElement): MockElement {
@@ -52,8 +56,11 @@ class MockElement {
   };
 
   querySelectorAll(sel: string): MockElement[] {
-    const match = (el: MockElement): boolean =>
-      sel.startsWith(".")
+    const dataAttribute = sel.match(/^\[data-([a-z-]+)\]$/);
+    const dataKey = dataAttribute?.[1]?.replace(/-([a-z])/g, (_match, letter: string) => letter.toUpperCase());
+    const match = (el: MockElement): boolean => dataKey
+      ? dataKey in el.dataset
+      : sel.startsWith(".")
         ? el.className.split(" ").includes(sel.slice(1))
         : el.tagName === sel;
     return this.children.flatMap((child) => [
@@ -145,6 +152,27 @@ describe("createChromaCard", () => {
     expect(missing?.textContent).toBe("Artwork unavailable");
   });
 
+  it("marks prestige and chroma artwork as separate preview variants", () => {
+    const card = createChromaCard({
+      name: "Prestige Chromatic",
+      imageUrl: "https://img.test/prestige-card.png",
+      previewImageUrl: "https://img.test/prestige-full.png",
+      originalImageUrl: "https://img.test/chroma.png",
+      preview: true,
+      locale: "zh_cn",
+    });
+
+    const media = card.querySelector<HTMLElement>(".runtime-chroma-media");
+    const prestige = media?.querySelector<HTMLButtonElement>(".runtime-chroma-preview");
+    const chroma = media?.querySelector<HTMLButtonElement>(".runtime-chroma-preview-alternate");
+    expect(prestige?.dataset.previewSrc).toBe("https://img.test/prestige-full.png");
+    expect(prestige?.dataset.previewVariant).toBe("prestige");
+    expect(chroma?.dataset.previewSrc).toBe("https://img.test/chroma.png");
+    expect(chroma?.dataset.previewVariant).toBe("chroma");
+    expect(chroma?.hidden).toBe(true);
+    expect(chroma?.getAttribute("aria-label")).toBe("预览Prestige Chromatic炫彩图");
+  });
+
   it("marks missing name with runtime-missing class", () => {
     const card = createChromaCard({
       name: "Name unavailable",
@@ -200,13 +228,15 @@ describe("createChromaCard", () => {
       locale: "default",
     });
 
-    const note = card.querySelector(".runtime-chroma-note");
-    expect(note?.tagName).toBe("p");
-    expect(note?.textContent).toBe("A limited edition chroma released in 2024.");
+    const note = card.querySelector(".ant-typography-paragraph");
+    expect(note?.tagName).toBe("div");
+    expect(note?.querySelector(".ant-typography-paragraph-text")?.textContent).toBe(
+      "A limited edition chroma released in 2024.",
+    );
     // description comes after name in meta
     const meta = card.querySelector(".runtime-chroma-meta");
     expect(meta?.querySelector(".runtime-chroma-name")).not.toBeNull();
-    expect(meta?.querySelector(".runtime-chroma-note")).not.toBeNull();
+    expect(meta?.querySelector(".ant-typography-paragraph")).not.toBeNull();
   });
 
   it("shows missing placeholder when image fails to load", () => {

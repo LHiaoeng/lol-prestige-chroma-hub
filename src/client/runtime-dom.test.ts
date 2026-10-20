@@ -43,7 +43,8 @@ class TestElement {
   loading = "";
   width = 0;
   height = 0;
-  style: Record<string, string> = {};
+  disabled = false;
+  style = { setProperty(): void {} };
 
   constructor(readonly tagName: string) {}
 
@@ -100,6 +101,17 @@ class TestElement {
       );
       node = node.parentElement;
     }
+  }
+
+  contains(target: TestElement): boolean {
+    return this === target || this.children.some((child) => child.contains(target));
+  }
+
+  dispatchEvent(event: Event): boolean {
+    (this.listeners.get(event.type) ?? []).forEach((listener) =>
+      (listener as (event: Event) => void)(event),
+    );
+    return true;
   }
 
 
@@ -217,9 +229,18 @@ class TestElement {
 
 class TestDocument {
   readonly head = new TestElement("head");
+  readonly listeners = new Map<string, ((event: Record<string, unknown>) => void)[]>();
   defaultView: { location: { href: string; search: string } } | null = null;
 
-  addEventListener(): void {}
+  addEventListener(type: string, listener: (event: Record<string, unknown>) => void): void {
+    this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener]);
+  }
+
+  dispatch(type: string, event: Record<string, unknown> = {}): Record<string, unknown> {
+    const dispatched = { type, target: null, preventDefault: vi.fn(), ...event };
+    this.listeners.get(type)?.forEach((listener) => listener(dispatched));
+    return dispatched;
+  }
 
   querySelector<T = TestElement>(selector: string): T | null {
     return this.head.querySelector<T>(selector);
@@ -929,6 +950,7 @@ describe("runtime DOM boundaries", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
       location: {
         origin: "https://chromaart.lol",
         pathname: "/champions/detail/",
@@ -1051,7 +1073,7 @@ describe("runtime DOM boundaries", () => {
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
   });
 
-  it("renders a skin detail with a link back to the champion detail", () => {
+  it("renders a skin detail with release-ordered skin navigation", async () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     const championSlot = new TestElement("span");
@@ -1065,11 +1087,26 @@ describe("runtime DOM boundaries", () => {
     championStat.append(championIcon);
     championStat.append(championSlot);
     document.head.append(championStat);
+    const navigationGroup = new TestElement("nav");
+    navigationGroup.dataset.runtimeSkinNavigation = "";
+    navigationGroup.hidden = true;
+    const previousButton = new TestElement("button");
+    previousButton.dataset.runtimeSkinNavigationPrevious = "";
+    const previousName = new TestElement("span");
+    previousName.dataset.runtimeSkinNavigationPreviousName = "";
+    const nextName = new TestElement("span");
+    nextName.dataset.runtimeSkinNavigationNextName = "";
+    const nextButton = new TestElement("button");
+    nextButton.dataset.runtimeSkinNavigationNext = "";
+    navigationGroup.append(previousButton, previousName, nextName, nextButton);
+    document.head.append(navigationGroup);
     vi.stubGlobal("window", {
       location: {
         origin: "https://chromaart.lol",
         pathname: "/skins/detail/",
       },
+      scrollY: 720,
+      scrollTo: vi.fn(),
     });
     const root = new TestElement("div");
     const status = new TestElement("p");
@@ -1078,12 +1115,13 @@ describe("runtime DOM boundaries", () => {
     content.dataset.runtimeContent = "";
     root.append(status, content);
     const source = new TestElement("div");
+    const navigate = vi.fn().mockResolvedValue(undefined);
     const view = createDomRuntimeView({
       root: root as unknown as HTMLElement,
       source: source as unknown as HTMLElement,
       locale: "default",
       page: "skins",
-      getController: () => ({ navigate: vi.fn() }) as never,
+      getController: () => ({ navigate }) as never,
       history: history(
         "https://chromaart.lol/skins/detail/?id=103001&champion=103&channel=latest",
       ),
@@ -1095,6 +1133,12 @@ describe("runtime DOM boundaries", () => {
         id: 103001,
         championId: 103,
         championName: "Ahri",
+        championTitle: "the Nine-Tailed Fox",
+        championSkinReleaseOrder: [
+          { id: 103000, name: "Classic Ahri" },
+          { id: 103001, name: "Dynasty Ahri" },
+          { id: 103002, name: "Dynasty Ahri · Stage 2" },
+        ],
         name: "Dynasty Ahri",
         description: "A dynasty-inspired skin.",
         isBase: false,
@@ -1128,13 +1172,32 @@ describe("runtime DOM boundaries", () => {
       "https://example.test/dynasty.jpg",
     );
     expect(championSlot.querySelector("a")?.href).toBe("/champions/detail/?id=103&channel=latest");
+    expect(championSlot.querySelector("a")?.textContent).toBe("the Nine-Tailed Fox Ahri");
     expect(content.querySelector(".runtime-skin-stages")).toBeNull();
-    expect(content.querySelector(".runtime-lede")?.textContent).toBe(
+    expect(content.querySelector(".runtime-lede")?.querySelector(".ant-typography-paragraph-text")?.textContent).toBe(
       "A dynasty-inspired skin.",
     );
     expect(championStat.querySelector(".ant-tooltip-trigger")?.querySelector(".ant-tooltip")?.textContent)
-      .toBe("Champion: Ahri");
+      .toBe("Champion: the Nine-Tailed Fox Ahri");
     expect(document.head.querySelector("meta[data-runtime-noindex]")).not.toBeNull();
+
+    const next = document.dispatch("keydown", { key: "ArrowRight" });
+    expect((navigate.mock.calls[0]?.[0] as URL).searchParams.get("id")).toBe("103002");
+    expect(next.preventDefault).toHaveBeenCalledOnce();
+    const previous = document.dispatch("keydown", { key: "ArrowLeft" });
+    expect((navigate.mock.calls[1]?.[0] as URL).searchParams.get("id")).toBe("103000");
+    expect(previous.preventDefault).toHaveBeenCalledOnce();
+    document.dispatch("keydown", { key: "ArrowRight", target: new TestElement("button") });
+    expect(navigate).toHaveBeenCalledTimes(2);
+    expect(navigationGroup.hidden).toBe(false);
+    expect(previousName.textContent).toBe("Classic Ahri");
+    expect(nextName.textContent).toBe("Dynasty Ahri · Stage 2");
+    nextButton.click();
+    expect((navigate.mock.calls[2]?.[0] as URL).searchParams.get("id")).toBe("103002");
+    previousButton.click();
+    expect((navigate.mock.calls[3]?.[0] as URL).searchParams.get("id")).toBe("103000");
+    await Promise.resolve();
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 720);
   });
 
   it("renders skin media and historical artwork", () => {
@@ -1144,6 +1207,7 @@ describe("runtime DOM boundaries", () => {
     championSlot.dataset.runtimeSkinChampion = "";
     document.head.append(championSlot);
     vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
       location: {
         origin: "https://chromaart.lol",
         pathname: "/skins/detail/",
@@ -1221,7 +1285,8 @@ describe("runtime DOM boundaries", () => {
     );
 
     const mediaSection = content.querySelector(".runtime-skin-media");
-    expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(5);
+    expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(4);
+    expect(mediaSection?.querySelectorAll("[data-media-preview-trigger]")).toHaveLength(5);
     expect(mediaSection?.querySelector(".runtime-loadscreen-frame")).not.toBeNull();
     expect(
       [...(mediaSection?.querySelectorAll(".runtime-media-item") ?? [])].some(
@@ -1246,12 +1311,36 @@ describe("runtime DOM boundaries", () => {
     expect(borderSection?.querySelector("[data-download-kind]")).toBeNull();
     expect(borderSection?.querySelector(".runtime-border-composite-download")).toBeNull();
     const carouselControls = mediaSection?.querySelector(".runtime-media-carousel-controls");
+    const carousel = mediaSection?.querySelector(".runtime-media-carousel");
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.getAttribute("aria-label"),
     ).toBe("Download displayed media");
     expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-icon-only")).not.toBeNull();
     expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-sm")).toBeNull();
     expect(carouselControls?.querySelector(".ant-radio-group-middle")).not.toBeNull();
+    const carouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input") ?? [];
+    const carouselSlides = carousel?.querySelectorAll<HTMLElement>(".ant-carousel-slide") ?? [];
+    expect(carouselOptions.map((option) => option.value)).toEqual([
+      "artwork-video",
+      "artwork-image",
+      "other-media-0",
+      "other-media-1",
+      "borders",
+    ]);
+    expect(carouselOptions.map((option) => option.getAttribute("aria-controls"))).toEqual(
+      carouselSlides.map((slide) => slide.id),
+    );
+    const lastViewedTrigger = [
+      ...(carouselSlides[1]?.querySelectorAll<HTMLElement>("[data-media-preview-trigger]") ?? []),
+    ].find((trigger) => trigger.dataset.previewKey === "unfocusedSplashUrl");
+    carousel?.dispatchEvent(new CustomEvent("media-preview-close", { detail: lastViewedTrigger }));
+    const syncedCarouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input") ?? [];
+    expect(syncedCarouselOptions[0]?.checked).toBe(false);
+    expect(syncedCarouselOptions[1]?.checked).toBe(true);
+    expect(carouselControls?.querySelectorAll(".ant-radio-button-wrapper")[1]?.textContent)
+      .toBe("Static artwork · Unfocused");
+    expect(carouselSlides[1]?.querySelector(".runtime-media-preview-trigger")?.querySelector("img")?.src)
+      .toBe("https://example.test/uncentered.jpg");
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-divider")?.getAttribute("aria-orientation"),
     ).toBe("vertical");
@@ -1290,6 +1379,18 @@ describe("runtime DOM boundaries", () => {
   it("renders the skin self item, true chromas, colors, and locale-specific external actions", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
+    const prestigeChromaLinks = new TestElement("div");
+    prestigeChromaLinks.dataset.runtimePrestigeChromaLinks = JSON.stringify({
+      "103051": {
+        href: "/chromas/prestige-ruby/",
+        imageUrl: "https://example.test/prestige-ruby-card.png",
+        fallbackUrl: "https://example.test/prestige-ruby-card-fallback.png",
+        previewUrl: "https://example.test/prestige-ruby.png",
+        previewFallbackUrl: "https://example.test/prestige-ruby-fallback.png",
+        colors: ["#DAA520"],
+      },
+    });
+    document.head.append(prestigeChromaLinks);
     const summary = new TestElement("span");
     summary.dataset.runtimeSkinChromaSummary = "";
     const chromaLink = new TestElement("a");
@@ -1307,6 +1408,7 @@ describe("runtime DOM boundaries", () => {
     actionsSummary.append(actionsMenu);
     document.head.append(actionsSummary);
     vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
       location: {
         origin: "https://chromaart.lol",
         pathname: "/skins/detail/",
@@ -1380,10 +1482,47 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelector(".runtime-chroma-count")?.textContent).toBe("2");
     expect(content.querySelector(".runtime-skin-stages")).toBeNull();
     expect(content.querySelector(".runtime-skin-chromas")?.id).toBe("runtime-skin-chromas");
+    const chromaSection = content.querySelector<HTMLElement>(".runtime-skin-chromas");
+    expect(chromaSection?.dataset.mediaPreviewGroup).toBe("");
     expect(chromaLink.href).toBe("#runtime-skin-chromas");
     expect(summaryCount.textContent).toBe("2 chromas");
     expect(content.querySelectorAll(".runtime-chroma-card")).toHaveLength(3);
+    const chromaCards = content.querySelectorAll<HTMLElement>(".runtime-chroma-card");
+    const prestigeCard = chromaCards[1];
+    const prestigeTriggers = prestigeCard?.querySelectorAll<HTMLElement>("[data-media-preview-trigger]");
+    expect(prestigeCard?.querySelector("img")?.src).toBe(
+      "https://example.test/prestige-ruby-card.png",
+    );
+    expect(prestigeTriggers).toHaveLength(2);
+    const visiblePrestigeTrigger = prestigeTriggers?.[0];
+    const hiddenChromaTrigger = prestigeTriggers?.[1];
+    expect(visiblePrestigeTrigger?.dataset.previewSrc).toBe(
+      "https://example.test/prestige-ruby.png",
+    );
+    expect(visiblePrestigeTrigger?.dataset.previewVariant).toBe("prestige");
+    expect(hiddenChromaTrigger?.hidden).toBe(true);
+    expect(hiddenChromaTrigger?.dataset.previewSrc).toBe("https://example.test/ruby.png");
+    expect(hiddenChromaTrigger?.dataset.previewVariant).toBe("chroma");
+    chromaSection?.dispatchEvent(
+      new CustomEvent("media-preview-close", { detail: hiddenChromaTrigger }),
+    );
+    expect(prestigeCard?.querySelector<HTMLButtonElement>(".runtime-chroma-image-toggle")?.dataset.showingOriginal).toBe(
+      "true",
+    );
+    expect(prestigeCard?.querySelector("img")?.src).toBe("https://example.test/ruby.png");
+    expect(visiblePrestigeTrigger?.dataset.previewVariant).toBe("chroma");
+    expect(hiddenChromaTrigger?.dataset.previewVariant).toBe("prestige");
+    chromaSection?.dispatchEvent(
+      new CustomEvent("media-preview-close", { detail: hiddenChromaTrigger }),
+    );
+    expect(prestigeCard?.querySelector<HTMLButtonElement>(".runtime-chroma-image-toggle")?.dataset.showingOriginal).toBe(
+      "false",
+    );
+    expect(prestigeCard?.querySelector("img")?.src).toBe(
+      "https://example.test/prestige-ruby-card.png",
+    );
     const base = content.querySelector(".runtime-chroma-base");
+    expect(base?.querySelector<HTMLElement>("[data-media-preview-trigger]")?.dataset.previewVariant).toBe("base");
     expect(base?.querySelector(".runtime-chroma-name")?.textContent).toBe(
       "Dynasty Ahri · Ascended",
     );

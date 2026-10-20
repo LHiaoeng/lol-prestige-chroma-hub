@@ -13,6 +13,7 @@ import {
   type RuntimePbeModuleItems,
 } from "../domain/pbe-additions";
 import {
+  projectChampionSkinListItems,
   resolveRuntimeSkinTarget,
   projectUniverseReferenceGroups,
   projectSkinlineReferenceItems,
@@ -315,6 +316,10 @@ export function createCommunityDragonRuntime(
           championName: champion.name,
           championTitle: champion.title,
           championShortBio: champion.shortBio,
+          championSkinReleaseOrder: projectChampionSkinListItems(
+            championId,
+            champion.skins,
+          ).map(({ id: skinId, name }) => ({ id: skinId, name: name ?? `#${skinId}` })),
         };
       });
     }

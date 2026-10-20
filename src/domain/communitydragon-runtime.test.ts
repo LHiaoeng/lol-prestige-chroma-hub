@@ -192,6 +192,11 @@ describe("CommunityDragon runtime reference", () => {
       championTitle: "the Nine-Tailed Fox",
       name: "Dynasty Ahri",
       championShortBio: "A vastayan fox.",
+      championSkinReleaseOrder: [
+        { id: 103000, name: "Ahri" },
+        { id: 103001, name: "Dynasty Ahri" },
+        { id: 103002, name: "Dynasty Ahri · Stage 2" },
+      ],
     });
     expect(result).toMatchObject({
       stages: [

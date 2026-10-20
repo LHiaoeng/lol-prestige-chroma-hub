@@ -10,6 +10,7 @@ class TestElement {
   dataset: Record<string, string> = {};
   attributes = new Map<string, string>();
   listeners = new Map<string, Handler[]>();
+  dispatchedEvents: Event[] = [];
   properties = new Map<string, string>();
   classes = new Set<string>();
   captures = new Set<number>();
@@ -36,6 +37,11 @@ class TestElement {
   }
   dispatch(type: string, event: Record<string, unknown> = {}): void {
     this.listeners.get(type)?.forEach((handler) => handler({ target: this, preventDefault: () => undefined, ...event }));
+  }
+  dispatchEvent(event: Event): boolean {
+    this.dispatchedEvents.push(event);
+    this.dispatch(event.type, { detail: (event as CustomEvent).detail });
+    return true;
   }
   closest<T extends TestElement>(selector: string): T | null {
     if (selector === "[data-media-preview-trigger]" && this.dataset.mediaPreviewTrigger !== undefined) return this as unknown as T;
@@ -306,6 +312,53 @@ describe("media viewer", () => {
     controls.get("[data-media-viewer-next]")?.dispatch("click");
     expect(content.children[0]?.src).toBe("second.jpg");
     expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("2 / 2");
+  });
+
+  it("keeps chroma and prestige artwork in separate galleries", () => {
+    const { root, dialog, trigger, content, controls } = setup();
+    const prestige = trigger;
+    prestige.dataset.previewVariant = "prestige";
+    const chroma = new TestTrigger(new TestMedia("IMG"));
+    chroma.dataset.previewVariant = "chroma";
+    chroma.dataset.previewSrc = "chroma.jpg";
+    const nextPrestige = new TestTrigger(new TestMedia("IMG"));
+    nextPrestige.dataset.previewVariant = "prestige";
+    nextPrestige.dataset.previewSrc = "prestige-next.jpg";
+    const nextChroma = new TestTrigger(new TestMedia("IMG"));
+    nextChroma.dataset.previewVariant = "chroma";
+    nextChroma.dataset.previewSrc = "chroma-next.jpg";
+    const group = new TestGroup([prestige, chroma, nextPrestige, nextChroma]);
+    for (const item of group.triggers) item.group = group;
+
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: chroma });
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 2");
+    controls.get("[data-media-viewer-next]")?.dispatch("click");
+    expect(content.children[0]?.src).toBe("chroma-next.jpg");
+    dialog.close();
+
+    root.dispatch("click", { target: prestige });
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 2");
+    controls.get("[data-media-viewer-next]")?.dispatch("click");
+    expect(content.children[0]?.src).toBe("prestige-next.jpg");
+  });
+
+  it("returns the last viewed group item to its carousel when closing", () => {
+    const { root, dialog, trigger, controls } = setup();
+    const second = new TestTrigger(new TestMedia("IMG"));
+    second.dataset.previewSrc = "second.jpg";
+    const group = new TestGroup([trigger, second]);
+    trigger.group = second.group = group;
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    controls.get("[data-media-viewer-next]")?.dispatch("click");
+
+    dialog.close();
+
+    expect(group.dispatchedEvents[0]).toMatchObject({
+      type: "media-preview-close",
+      detail: second,
+    });
   });
 
   it.each(["image", "video"])("allows pinch zoom from the initial scale and then dragging for %s", (kind) => {

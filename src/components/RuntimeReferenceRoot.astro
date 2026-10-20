@@ -107,6 +107,20 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   <section class="runtime-section">
     <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} data-runtime-prestige-chroma-links={prestigeChromaLinks} aria-busy="true">
       <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载游戏资料…' : 'Loading game reference…'}</p>
+      {page === 'skins' && mode === 'detail' && <div class="runtime-skin-navigation" data-runtime-skin-navigation role="group" aria-label={isZh ? '切换皮肤' : 'Skin navigation'} hidden>
+        <div class="runtime-skin-navigation-side runtime-skin-navigation-side--previous">
+          <button class="ant-btn ant-btn-text runtime-skin-navigation-button" type="button" data-runtime-skin-navigation-previous aria-label={isZh ? '上一款皮肤' : 'Previous skin'} disabled>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+            <span class="runtime-skin-navigation-name" data-runtime-skin-navigation-previous-name hidden></span>
+          </button>
+        </div>
+        <div class="runtime-skin-navigation-side runtime-skin-navigation-side--next">
+          <button class="ant-btn ant-btn-text runtime-skin-navigation-button" type="button" data-runtime-skin-navigation-next aria-label={isZh ? '下一款皮肤' : 'Next skin'} disabled>
+            <span class="runtime-skin-navigation-name" data-runtime-skin-navigation-next-name hidden></span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
+        </div>
+      </div>}
       <div data-runtime-content><Skeleton filterCount={skeletonFilterCount} itemCount={skeletonItemCount} layout={skeletonLayout} showDetailHeader={!showEntityDetailSummary} /></div>
       <template data-runtime-skeleton-template="list"><Skeleton filterCount={page === 'champions' ? 3 : 2} itemCount={24} layout={listSkeletonLayout} /></template>
       <template data-runtime-skeleton-template="detail"><Skeleton itemCount={6} layout={detailSkeletonLayout} showDetailHeader={!showEntityDetailSummary} /></template>
@@ -142,8 +156,55 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   bindRuntimeChannelLinks(document);
   const root = document.querySelector<HTMLElement>('[data-runtime-page]');
   if (root) initRuntimeReference(root);
+  const skinNavigation = document.querySelector<HTMLElement>('[data-runtime-skin-navigation]');
+  const footer = document.querySelector<HTMLElement>('footer');
+  if (skinNavigation && footer) {
+    const baseBottom = Number.parseFloat(getComputedStyle(skinNavigation).bottom) || 72;
+    const updatePosition = () => {
+      const footerTop = footer.getBoundingClientRect().top;
+      const height = skinNavigation.offsetHeight;
+      const gap = 12;
+      skinNavigation.style.setProperty('--runtime-skin-navigation-bottom', `${Math.max(baseBottom, window.innerHeight - footerTop + gap)}px`);
+      const headerHeight = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height')) || 0;
+      skinNavigation.toggleAttribute('data-footer-occluded', footerTop <= height + headerHeight + gap);
+    };
+    window.addEventListener('scroll', updatePosition, { passive: true });
+    window.addEventListener('resize', updatePosition);
+    if ('ResizeObserver' in window) new ResizeObserver(updatePosition).observe(skinNavigation);
+    updatePosition();
+  }
 </script>
 
 <style is:global>
   main:has([data-runtime-reference-backdrop]) { position: relative; isolation: isolate; }
+  .runtime-skin-navigation { position: fixed; z-index: 9; inset: 0; pointer-events: none; }
+  .runtime-skin-navigation-side { position: absolute; top: 50%; display: flex; align-items: center; gap: var(--space-2); max-width: calc(50vw - var(--page-gutter)); transform: translateY(-50%); }
+  .runtime-skin-navigation-side--previous { left: var(--page-gutter); }
+  .runtime-skin-navigation-side--next { right: var(--page-gutter); }
+  .runtime-skin-navigation-button.ant-btn-text { width: max-content; min-width: var(--touch-target); min-height: var(--touch-target); max-width: 100%; gap: var(--space-2); padding: 8px 12px; border-color: transparent; background: transparent; color: var(--text); box-shadow: none; pointer-events: auto; }
+  .runtime-skin-navigation-button.ant-btn-text:hover:not(:disabled) { border-color: transparent; background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--gold); }
+  .runtime-skin-navigation-button svg { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .runtime-skin-navigation-name { display: block; min-width: 0; max-width: min(10rem, calc(50vw - var(--page-gutter) - var(--touch-target) - var(--space-2) - 26px)); overflow: hidden; color: inherit; font-size: var(--font-size-small); line-height: var(--line-height-small); text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+  .runtime-skin-navigation-side--next .runtime-skin-navigation-name { text-align: right; }
+  .runtime-skin-navigation-name[hidden] { display: none; }
+  @media (min-width: 768px) and (max-width: 1599px) {
+    .runtime-skin-navigation-side--previous { left: calc(var(--page-gutter) + 5.5rem); }
+    .runtime-skin-navigation-side--next { right: calc(var(--page-gutter) + 5.5rem); }
+  }
+  @media (min-width: 1600px) {
+    .runtime-skin-navigation-side--previous { left: calc((100vw - var(--content-width)) / 4); transform: translate(-50%, -50%); }
+    .runtime-skin-navigation-side--next { right: calc((100vw - var(--content-width)) / 4); transform: translate(50%, -50%); }
+    .runtime-skin-navigation-name { max-width: min(10rem, calc((100vw - var(--content-width)) / 2 - var(--touch-target) - var(--space-2) - 26px)); }
+  }
+  @media (max-width: 767px) {
+    .runtime-skin-navigation { inset: auto var(--page-gutter) var(--runtime-skin-navigation-bottom, calc(env(safe-area-inset-bottom) + 72px)); display: flex; align-items: center; gap: var(--space-2); padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-popup); backdrop-filter: blur(12px); }
+    .runtime-skin-navigation[data-footer-occluded] { visibility: hidden; }
+    .runtime-skin-navigation-side { position: static; top: auto; left: auto; right: auto; width: calc((100% - var(--space-2)) / 2); max-width: none; min-width: 0; transform: none; }
+    .runtime-skin-navigation-side--previous { justify-content: flex-start; }
+    .runtime-skin-navigation-side--next { justify-content: flex-end; }
+    .runtime-skin-navigation-button.ant-btn-text { width: 100%; min-width: 0; justify-content: flex-start; padding-inline: 4px; }
+    .runtime-skin-navigation-side--next .runtime-skin-navigation-button { justify-content: flex-end; }
+    .runtime-skin-navigation-name { display: -webkit-box; flex: 1 1 auto; max-width: none; overflow: hidden; line-height: 1.35; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .runtime-skin-navigation-side--next .runtime-skin-navigation-name { text-align: right; }
+  }
 </style>

@@ -100,6 +100,11 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       preview.dataset.mediaPreviewTrigger = "";
       preview.dataset.previewKind = "image";
       preview.dataset.previewSrc = options.previewImageUrl ?? options.imageUrl;
+      preview.dataset.previewVariant = options.isBase
+        ? "base"
+        : options.originalImageUrl && options.originalImageUrl !== options.imageUrl
+          ? "prestige"
+          : "chroma";
       if (options.previewFallbackUrl)
         preview.dataset.previewFallback = options.previewFallbackUrl;
       preview.setAttribute(
@@ -110,6 +115,15 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       );
       preview.appendChild(image);
       media.appendChild(preview);
+      if (options.originalImageUrl && options.originalImageUrl !== options.imageUrl) {
+        const alternatePreview = document.createElement("button");
+        alternatePreview.className = "runtime-chroma-preview-alternate";
+        alternatePreview.type = "button";
+        alternatePreview.hidden = true;
+        alternatePreview.dataset.mediaPreviewTrigger = "";
+        alternatePreview.dataset.previewKind = "image";
+        media.appendChild(alternatePreview);
+      }
     } else media.appendChild(image);
   } else {
     showMissing();
@@ -166,10 +180,44 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
         preview.dataset.previewSrc = showOriginal
           ? originalImageUrl
           : options.previewImageUrl ?? chromaImageUrl;
+        preview.dataset.previewVariant = showOriginal ? "chroma" : "prestige";
+        preview.setAttribute(
+          "aria-label",
+          options.locale === "zh_cn"
+            ? showOriginal
+              ? `预览${options.name}炫彩图`
+              : `预览${options.name}臻彩原画`
+            : showOriginal
+              ? `Preview ${options.name} chroma artwork`
+              : `Preview ${options.name} prestige artwork`,
+        );
         if (showOriginal || !options.previewFallbackUrl)
           delete preview.dataset.previewFallback;
         else
           preview.dataset.previewFallback = options.previewFallbackUrl;
+        const alternatePreview = preview.parentElement?.querySelector<HTMLButtonElement>(
+          ".runtime-chroma-preview-alternate",
+        );
+        if (alternatePreview) {
+          alternatePreview.dataset.previewSrc = showOriginal
+            ? options.previewImageUrl ?? chromaImageUrl
+            : originalImageUrl;
+          alternatePreview.dataset.previewVariant = showOriginal ? "prestige" : "chroma";
+          alternatePreview.setAttribute(
+            "aria-label",
+            options.locale === "zh_cn"
+              ? showOriginal
+                ? `预览${options.name}臻彩原画`
+                : `预览${options.name}炫彩图`
+              : showOriginal
+                ? `Preview ${options.name} prestige artwork`
+                : `Preview ${options.name} chroma artwork`,
+          );
+          if (showOriginal || !options.previewFallbackUrl)
+            delete alternatePreview.dataset.previewFallback;
+          else
+            alternatePreview.dataset.previewFallback = options.previewFallbackUrl;
+        }
       }
       toggle.setAttribute(
         "aria-label",

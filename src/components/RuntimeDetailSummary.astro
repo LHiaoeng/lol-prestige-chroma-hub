@@ -94,6 +94,9 @@ const isZh = locale === 'zh-cn';
   .runtime-skin-actions-summary:not([hidden]),
   .runtime-entity-universe-summary:not([hidden]),
   .runtime-entity-relation-summary:not([hidden]) { display: inline-flex; flex-shrink: 0; align-items: center; gap: var(--space-2); }
+  [data-runtime-skin-champion-summary] { min-width: 0; flex-shrink: 1; }
+  [data-runtime-skin-champion-summary] :global(.runtime-universe-stat) { min-width: 0; max-width: 100%; flex-shrink: 1; white-space: normal; }
+  [data-runtime-skin-champion] { min-width: 0; overflow-wrap: anywhere; }
   .runtime-detail-summary :global(.runtime-universe-stat-icon) { width: 1em; height: 1em; flex: 0 0 auto; }
   @media (max-width: 767px) {
     .runtime-summary-row-skeleton { top: calc((var(--touch-target) - var(--font-size-title)) / 2); }

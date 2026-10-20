@@ -272,14 +272,7 @@ function appendMediaResource(
   figure.className = "runtime-media-item";
   if (descriptor.key === "loadScreenUrl") figure.classList.add("runtime-media-item--load-screen");
   if (descriptor.key === "tileUrl") figure.classList.add("runtime-media-item--thumbnail");
-  const trigger = document.createElement("button");
-  trigger.type = "button";
-  trigger.className = "runtime-media-preview-trigger";
-  trigger.dataset.mediaPreviewTrigger = "";
-  trigger.dataset.previewKind = descriptor.kind;
-  trigger.dataset.previewSrc = url;
-  trigger.dataset.previewFilename = alt;
-  trigger.setAttribute("aria-label", `${alt} · ${label}`);
+  const trigger = createMediaPreviewTrigger(url, alt, descriptor, label);
   const cover = document.createElement("span");
   cover.className = "runtime-media-preview-cover";
   cover.setAttribute("aria-hidden", "true");
@@ -308,6 +301,34 @@ function appendMediaResource(
   figure.appendChild(trigger);
   if (showCaption) figure.appendChild(textNode("figcaption", label, "runtime-media-caption"));
   parent.appendChild(figure);
+}
+
+function createMediaPreviewTrigger(
+  url: string,
+  alt: string,
+  descriptor: DetailMediaDescriptor,
+  label: string,
+): HTMLButtonElement {
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "runtime-media-preview-trigger";
+  trigger.dataset.mediaPreviewTrigger = "";
+  trigger.dataset.previewKey = descriptor.key;
+  trigger.dataset.previewKind = descriptor.kind;
+  trigger.dataset.previewSrc = url;
+  trigger.dataset.previewFilename = alt;
+  trigger.setAttribute("aria-label", `${alt} · ${label}`);
+  return trigger;
+}
+
+function appendHiddenMediaPreviewTrigger(
+  parent: HTMLElement,
+  url: string,
+  alt: string,
+  descriptor: DetailMediaDescriptor,
+  label: string,
+): void {
+  parent.appendChild(createMediaPreviewTrigger(url, alt, descriptor, label));
 }
 
 export function appendMediaCollection(
@@ -386,6 +407,19 @@ export function appendMediaCarousel(
         mediaLabel,
         false,
       );
+      const gallery = document.createElement("div");
+      gallery.hidden = true;
+      variants.filter((variant) => variant !== selected).forEach(({ descriptor, url }) => {
+        const itemLabel = locale === "zh_cn" ? descriptor.zh : descriptor.en;
+        appendHiddenMediaPreviewTrigger(
+          gallery,
+          url,
+          `${altBase} · ${itemLabel}`,
+          descriptor,
+          itemLabel,
+        );
+      });
+      slide.appendChild(gallery);
       slide.querySelector("video")?.setAttribute("preload", "none");
     };
     render();
@@ -417,6 +451,13 @@ export function appendMediaCarousel(
         render();
         return label();
       } : undefined,
+      onPreviewSelect: (key) => {
+        const variant = variants.find(({ descriptor }) => descriptor.key === key);
+        if (!variant || variant === selected) return undefined;
+        selected = variant;
+        render();
+        return label();
+      },
     };
   });
   const otherMediaSlides = detailMediaDescriptors
