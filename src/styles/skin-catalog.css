@@ -60,6 +60,11 @@
 .skin-catalog-card-actions .ui-icon { width: 14px; height: 14px; color: currentColor; }
 .skin-catalog-artwork-toggle[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
 .skin-catalog-artwork-toggle:focus-visible, .skin-catalog-info-button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.skin-catalog-details { display: grid; min-width: 220px; max-width: calc(100vw - 48px); gap: var(--space-2); margin: 0; }
+.skin-catalog-detail { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: var(--space-3); }
+.skin-catalog-detail dt { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--muted); }
+.skin-catalog-detail .domain-icon { width: 1em; height: 1em; flex: 0 0 auto; }
+.skin-catalog-detail dd { min-width: 0; margin: 0; color: var(--text); overflow-wrap: anywhere; }
 .skin-catalog-card-artwork { position: absolute; inset: 0; display: block; }
 .skin-catalog-card-artwork .skin-catalog-card-image { position: absolute; inset: 0; }
 .skin-catalog-card-title { position: absolute; right: 0; bottom: 0; left: 0; display: block; min-width: 0; padding: var(--space-3); overflow-wrap: break-word; text-align: center; font-size: var(--font-size-body); line-height: var(--line-height-body); }

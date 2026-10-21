@@ -16,7 +16,7 @@ import {
 } from "../domain/communitydragon-runtime";
 import { runtimeSkinRarityRank, type RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
-import { setDomainIconTooltip } from "../components/domain-icons";
+import { createDomainIcon, setDomainIconTooltip } from "../components/domain-icons";
 import { createUiIcon } from "../components/ui-icons";
 import { createPopover } from "../components/popover";
 import { createTooltip } from "../components/tooltip";
@@ -350,13 +350,48 @@ export function initSkinCatalog(
     const releaseDate = locale === "zh_cn"
       ? dates?.chinaReleaseDate ?? dates?.globalReleaseDate
       : dates?.globalReleaseDate;
-    const details = [
-      item.championName && `${locale === "zh_cn" ? "英雄" : "Champion"}：${item.championName}`,
-      `${locale === "zh_cn" ? "皮肤" : "Skin"}：${name.textContent}`,
-      `${locale === "zh_cn" ? "稀有度" : "Rarity"}：${rarity ?? copy.unmarked}`,
-      releaseDate && `${locale === "zh_cn" ? "发售" : "Released"}：${releaseDate}`,
-      item.chromas.length > 0 && `${locale === "zh_cn" ? "炫彩" : "Chromas"}：${item.chromas.length}`,
-    ].filter(Boolean).join(" · ");
+    const details = document.createElement("dl");
+    details.className = "skin-catalog-details";
+    const appendDetail = (
+      iconName: Parameters<typeof createDomainIcon>[0],
+      label: string,
+      value: string,
+      href?: string,
+    ) => {
+      const row = document.createElement("div");
+      row.className = "skin-catalog-detail";
+      const term = document.createElement("dt");
+      term.append(createDomainIcon(iconName), document.createTextNode(label));
+      const description = document.createElement("dd");
+      if (href) {
+        const valueLink = document.createElement("a");
+        valueLink.href = href;
+        valueLink.textContent = value;
+        description.append(valueLink);
+      } else description.textContent = value;
+      row.append(term, description);
+      details.append(row);
+    };
+    appendDetail("skins", locale === "zh_cn" ? "皮肤" : "Skin", name.textContent, link.href);
+    if (item.championName) {
+      appendDetail(
+        "champions",
+        locale === "zh_cn" ? "英雄" : "Champion",
+        item.championName,
+        hrefFor(locale, "champions", { id: item.championId, channel: state.channel ?? "pbe" }, "detail", state.channelExplicit).href,
+      );
+    }
+    appendDetail("rarity", locale === "zh_cn" ? "稀有度" : "Rarity", rarity ?? copy.unmarked);
+    const chromaCount = item.chromas.length;
+    const chromaLink = new URL(link.href);
+    chromaLink.hash = "runtime-skin-chromas";
+    appendDetail(
+      "prestige-chromas",
+      locale === "zh_cn" ? "炫彩" : "Chromas",
+      locale === "zh_cn" ? `${chromaCount} 款` : `${chromaCount} ${chromaCount === 1 ? "chroma" : "chromas"}`,
+      chromaCount > 0 ? chromaLink.href : undefined,
+    );
+    if (releaseDate) appendDetail("release-date", locale === "zh_cn" ? "上线时间" : "Released", releaseDate);
     popoverCleanups.push(createPopover(detailsButton, copy.skinDetails, details));
     actions.append(detailsButton);
     article.append(actions);

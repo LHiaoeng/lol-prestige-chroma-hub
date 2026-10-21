@@ -305,6 +305,57 @@ describe("skin catalog browser behavior", () => {
     expect(page.document.root.querySelector(".ant-popover")?.textContent).toContain("Skin details");
   });
 
+  it("shows related skin details with domain icons and links", async () => {
+    const item = { ...skin(101, 1, { key: "kEpic", label: "Epic" }), chromas: [{ id: 501 }] };
+    const page = fixture(undefined, vi.fn(async () => ({ skins: [item], champions })));
+    await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 1"));
+
+    page.grid.querySelector(".skin-catalog-info-button")!.fire("pointerenter");
+    const popover = page.document.root.querySelector(".ant-popover")!;
+    const fields = popover.querySelectorAll("dt").map((label) => {
+      const row = label.parentElement!;
+      const value = row.querySelector("dd")!;
+      return {
+        label: label.textContent,
+        icon: label.querySelector("svg")?.className,
+        value: value.textContent,
+        href: value.querySelector("a")?.href,
+      };
+    });
+
+    expect(fields).toEqual([
+      { label: "Skin", icon: "domain-icon domain-icon--skins", value: "Skin 101", href: "https://chromaart.lol/skins/detail/?id=101&champion=1" },
+      { label: "Champion", icon: "domain-icon domain-icon--champions", value: "Ahri", href: "https://chromaart.lol/champions/detail/?id=1" },
+      { label: "Rarity", icon: "domain-icon domain-icon--rarity", value: "Epic", href: undefined },
+      { label: "Chromas", icon: "domain-icon domain-icon--prestige-chromas", value: "1 chroma", href: "https://chromaart.lol/skins/detail/?id=101&champion=1#runtime-skin-chromas" },
+      { label: "Released", icon: "domain-icon domain-icon--release-date", value: "2024-01-01", href: undefined },
+    ]);
+  });
+
+  it("labels the last Chinese date field as launch time", async () => {
+    const item = skin(101, 1, { key: "kEpic", label: "Epic" });
+    const page = fixture(undefined, vi.fn(async () => ({ skins: [item], champions })), 6, "zh_cn");
+    await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 1"));
+
+    page.grid.querySelector(".skin-catalog-info-button")!.fire("pointerenter");
+    const labels = page.document.root.querySelector(".ant-popover")!.querySelectorAll("dt").map((label) => label.textContent);
+
+    expect(labels.at(-1)).toBe("上线时间");
+  });
+
+  it("keeps a zero chroma count informational", async () => {
+    const page = fixture();
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+
+    page.grid.querySelector(".skin-catalog-info-button")!.fire("pointerenter");
+    const popover = page.document.root.querySelector(".ant-popover")!;
+    const chromaLabel = popover.querySelectorAll("dt").find((label) => label.textContent === "Chromas")!;
+    const value = chromaLabel.parentElement!.querySelector("dd")!;
+
+    expect(value.textContent).toBe("0 chromas");
+    expect(value.querySelector("a")).toBeNull();
+  });
+
   it("combines search and multiple rarities, then restores the URL on popstate", async () => {
     const page = fixture();
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
