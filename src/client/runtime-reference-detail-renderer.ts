@@ -539,7 +539,7 @@ export function createRuntimeDetailRenderer(
       const skinReleaseOrder = item.kind === "skin"
         ? item.championSkinReleaseOrder
         : undefined;
-      const skinReleaseIndex = skinReleaseOrder?.findIndex(({ id }) => id === item.id) ?? -1;
+      const skinReleaseIndex = skinReleaseOrder?.findIndex(({ id }) => id === (item.stageId ?? item.id)) ?? -1;
       skinNavigation = item.kind === "skin" && skinReleaseOrder && skinReleaseIndex >= 0
         ? {
             championId: item.championId,

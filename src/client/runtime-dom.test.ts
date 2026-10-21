@@ -1141,6 +1141,7 @@ describe("runtime DOM boundaries", () => {
     navigationGroup.append(previousButton, previousName, nextName, nextButton);
     document.head.append(navigationGroup);
     vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
       location: {
         origin: "https://chromaart.lol",
         pathname: "/skins/detail/",
@@ -1238,6 +1239,40 @@ describe("runtime DOM boundaries", () => {
     expect((navigate.mock.calls[3]?.[0] as URL).searchParams.get("id")).toBe("103000");
     await Promise.resolve();
     expect(window.scrollTo).toHaveBeenCalledWith(0, 720);
+
+    view.renderDetail(
+      {
+        kind: "skin",
+        id: 103001,
+        stageId: 103002,
+        stageIndex: 2,
+        championId: 103,
+        championSkinReleaseOrder: [
+          { id: 103000, name: "Classic Ahri" },
+          { id: 103001, name: "Dynasty Ahri" },
+          { id: 103002, name: "Dynasty Ahri · Stage 2" },
+        ],
+        name: "Dynasty Ahri · Stage 2",
+        isBase: false,
+        skinlineIds: [],
+        media: {},
+        stages: [],
+        chromas: [],
+      },
+      {
+        mode: "detail",
+        page: "skins",
+        kind: "skin",
+        id: 103002,
+        championId: 103,
+        channel: "latest",
+      },
+    );
+
+    expect(previousName.textContent).toBe("Dynasty Ahri");
+    expect(nextName.textContent).toBe("Classic Ahri");
+    nextButton.click();
+    expect((navigate.mock.calls[4]?.[0] as URL).searchParams.get("id")).toBe("103000");
   });
 
   it("renders skin media and historical artwork", () => {
