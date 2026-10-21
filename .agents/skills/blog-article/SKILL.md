@@ -9,7 +9,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 
 ## 触发与前置
 
-- **最高优先级**：先读取 `CONTEXT.md`，确认“臻彩”“璀璨臻彩”“华彩秘宝”“至臻皮肤”等领域术语和 `_Avoid_` 表述；所有后续写作与数据核对都以它为准。
+- **最高优先级**：先读取 `GLOSSARY.md`，确认“臻彩”“璀璨臻彩”“华彩秘宝”“至臻皮肤”等领域术语和 `_Avoid_` 表述；所有后续写作与数据核对都以它为准。
 - 用户要求新增博客、博文、新闻改写或文章页面时触发。
 - 提供 `lol.qq.com` 新闻链接时，先使用 `league-of-legends-cn-official-news` 或 `lol-news-detail` skill 获取标题、发布时间、正文和图片；不得凭链接猜正文。
 - 撰写「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，官方活动类型标识 `tendraws`）活动文章时，先使用 `tendraws-activity-list` skill 核对当期活动目录 ID、期号、完整活动链接、导航缩略图 URL、开放时间与奖池概率，并获取往期活动链接；不要凭记忆或 URL 规律猜测期号与链接。
@@ -58,7 +58,7 @@ import { SITE } from '../../seo/site';
 - 英文和中文分别组织信息，不逐句翻译；两种语言都要有完整事实、内链和 FAQ。
 - 开头直接给结论或读者要解决的问题；小标题写具体信息；数字、日期、版本和获取限制优先于空泛形容。
 - 避免模板化 AI 词和广告腔：英文少用 `delve`、`explore`、`comprehensive`、`seamless`、`robust`、`leverage`、`unlock`、`empower`；中文少用“此外”“至关重要”“深入探讨”“值得一提的是”“不可否认”。
-- 中文正文不得保留英文术语括号标注（如『中国大陆服（China Server）』），用 `CONTEXT.md` 的中文称呼直接替换；英文原词仅用于 JSON-LD `inLanguage`、`author` 等结构化字段和允许的专有名词（如 `LoL Chroma Art`、`QQ`、`LPL`）。
+- 中文正文不得保留英文术语括号标注（如『中国大陆服（China Server）』），用 `GLOSSARY.md` 的中文称呼直接替换；英文原词仅用于 JSON-LD `inLanguage`、`author` 等结构化字段和允许的专有名词（如 `LoL Chroma Art`、`QQ`、`LPL`）。
 - 官网公告只支持公告明确的事实；活动规则有歧义时链接官方活动页并明确不确定性。
 
 ## 内容组件与样式边界

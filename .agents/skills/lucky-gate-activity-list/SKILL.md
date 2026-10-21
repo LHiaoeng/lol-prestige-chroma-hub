@@ -5,13 +5,13 @@ description: "获取国服「幸运之门召唤」（Lucky Gate Summoning，官�
 
 # 幸运之门召唤活动列表
 
-获取国服限时活动系列「幸运之门召唤」（**Lucky Gate Summoning**，英文名以 `CONTEXT.md` 领域术语为准）的各期活动数据。**数据来源是腾讯官方的静态 JS 文件，不是 JSON API**，所有期页面共用同一份导航数据。
+获取国服限时活动系列「幸运之门召唤」（**Lucky Gate Summoning**，英文名以 `GLOSSARY.md` 领域术语为准）的各期活动数据。**数据来源是腾讯官方的静态 JS 文件，不是 JSON API**，所有期页面共用同一份导航数据。
 
 ## 术语与标识：prizewheel 是什么
 
 `prizewheel` **不是活动名称**，玩家在页面上看不到它；它只是腾讯为本系列活动 URL 分配的目录后缀：
 
-- **领域名称（面向玩家）**：中文「幸运之门召唤」，英文 **Lucky Gate Summoning**（CONTEXT.md 定义，全站统一，勿另造译名）。
+- **领域名称（面向玩家）**：中文「幸运之门召唤」，英文 **Lucky Gate Summoning**（GLOSSARY.md 定义，全站统一，勿另造译名）。
 - **`prizewheel`（URL 技术后缀）**：本系列活动目录名均以 `prizewheel` 结尾（截至 2026-09 的 18 期无一例外），可作为目录 ID 的判定特征。
 - **`actType` 不可用于判定系列**：与 tendraws 系列不同，本系列各期 `actInfo.js` 的 `actType` 并不统一——第202616期为 `"tendraws"`、第202618期为 `"blessingwish"`。判定系列归属看 nav.js 收录 + 目录 ID 以 `prizewheel` 结尾 + `actName` 交叉核对，不要用 `actType` 推断。
 
@@ -93,7 +93,7 @@ nav.js 尚未收录的新期：
   ```
 - nav.js / actInfo.js / skins-data.js 均为公开静态资源，无需登录或鉴权。
 - 数据仅用于资料核对与文章撰写；活动规则、奖池、时间以当期官方页面为准，不要把某期奖池、概率或档位结构沿用到其它期。
-- 英文文案统一使用 Lucky Gate Summoning；与「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，tendraws 系列）、「华彩秘宝·召唤」（Splendid Treasure Summoning，aprilpray 系列）是不同活动系列，勿混称（见 CONTEXT.md）。
+- 英文文案统一使用 Lucky Gate Summoning；与「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，tendraws 系列）、「华彩秘宝·召唤」（Splendid Treasure Summoning，aprilpray 系列）是不同活动系列，勿混称（见 GLOSSARY.md）。
 
 ## 参考：nav.js 已收录的期（2026-09 核对，以线上文件为准）
 

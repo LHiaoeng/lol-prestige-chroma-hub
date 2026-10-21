@@ -5,13 +5,13 @@ description: "获取国服「璀璨臻彩召唤」（Brilliant Prestige Chroma S
 
 # 璀璨臻彩召唤活动列表
 
-获取国服限时活动系列「璀璨臻彩召唤」（**Brilliant Prestige Chroma Summoning**，英文名以 `CONTEXT.md` 领域术语为准）的各期活动数据。**数据来源是腾讯官方的静态 JS 文件，不是 JSON API**，所有期页面共用同一份导航数据。
+获取国服限时活动系列「璀璨臻彩召唤」（**Brilliant Prestige Chroma Summoning**，英文名以 `GLOSSARY.md` 领域术语为准）的各期活动数据。**数据来源是腾讯官方的静态 JS 文件，不是 JSON API**，所有期页面共用同一份导航数据。
 
 ## 术语与标识：tendraws 是什么
 
 `tendraws` **不是活动名称**，玩家在页面上看不到它；它是腾讯为该活动系列分配的内部技术标识：
 
-- **领域名称（面向玩家）**：中文「璀璨臻彩召唤」，英文 **Brilliant Prestige Chroma Summoning**（CONTEXT.md 定义，全站统一，勿另造译名）。
+- **领域名称（面向玩家）**：中文「璀璨臻彩召唤」，英文 **Brilliant Prestige Chroma Summoning**（GLOSSARY.md 定义，全站统一，勿另造译名）。
 - **`tendraws`（技术标识）**：腾讯内部的活动类型码。每期 `js/actInfo.js` 里 `"actType":"tendraws"` 是判定某活动属于本系列的权威依据；它同时被用作官网活动目录和静态资源的 URL 关键字。
 
 一期活动有三个并行标识，不要混用：
@@ -92,7 +92,7 @@ nav.js 尚未收录的新期（如第202620期 `a202609047293tendraws35`）：
 - Windows PowerShell 下 `curl` 是 `Invoke-WebRequest` 别名，须用 `curl.exe`。
 - nav.js / actInfo.js / skins-data.js 均为公开静态资源，无需登录或鉴权。
 - 数据仅用于资料核对与文章撰写；活动规则、奖池、时间以当期官方页面为准，不要把某期概率或自选臻彩沿用到其它期。
-- 英文文案统一使用 Brilliant Prestige Chroma Summoning；与「幸运之门召唤」（Lucky Gate Summoning，prizewheel 系列）、「华彩秘宝·召唤」（Splendid Treasure Summoning，aprilpray 系列）是不同活动系列，勿混称（见 CONTEXT.md）。
+- 英文文案统一使用 Brilliant Prestige Chroma Summoning；与「幸运之门召唤」（Lucky Gate Summoning，prizewheel 系列）、「华彩秘宝·召唤」（Splendid Treasure Summoning，aprilpray 系列）是不同活动系列，勿混称（见 GLOSSARY.md）。
 
 ## 参考：nav.js 已收录的期（2026-09 核对，以线上文件为准）
 
