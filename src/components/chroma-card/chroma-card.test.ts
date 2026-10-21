@@ -78,6 +78,9 @@ class MockDocument {
   createElement(tag: string): MockElement {
     return new MockElement(tag);
   }
+  createElementNS(_namespace: string, tag: string): MockElement {
+    return new MockElement(tag);
+  }
   createTextNode(text: string): MockElement {
     const el = new MockElement("text");
     el.textContent = text;
@@ -171,6 +174,22 @@ describe("createChromaCard", () => {
     expect(chroma?.dataset.previewVariant).toBe("chroma");
     expect(chroma?.hidden).toBe(true);
     expect(chroma?.getAttribute("aria-label")).toBe("预览Prestige Chromatic炫彩图");
+    const actions = card.querySelector(".runtime-chroma-card-actions");
+    const toggle = actions?.querySelector(".runtime-chroma-image-toggle");
+    expect(toggle?.className).toContain("ant-btn-sm ant-btn-icon-only");
+    expect(toggle?.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("adds an info action only when a model label is supplied", () => {
+    const card = createChromaCard({
+      name: "Ruby",
+      imageUrl: "https://img.test/ruby.png",
+      locale: "zh_cn",
+      modelInfoLabel: "炫彩详情",
+    });
+    const button = card.querySelector(".runtime-chroma-info-button");
+    expect(button?.className).toContain("ant-btn-sm ant-btn-icon-only");
+    expect(button?.getAttribute("aria-label")).toBe("炫彩详情");
   });
 
   it("marks missing name with runtime-missing class", () => {

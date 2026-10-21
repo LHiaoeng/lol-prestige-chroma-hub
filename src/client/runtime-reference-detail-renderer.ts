@@ -17,11 +17,16 @@ import {
 } from "../domain/skin-reference-projection";
 import { relatedRuntimeItems } from "../domain/runtime-relations";
 import {
+  buguoguoModelUrl,
   buguoguoVoiceUrl,
   googleSearchUrl,
   khadaChampionUrl,
+  khadaModelUrl,
+  leagueWikiChampionUrl,
+  qqHeroBattleDataUrl,
   runtimeSkinActions,
   skinSpotlightsSearchUrl,
+  type RuntimeSkinAction,
 } from "../domain/detail-actions";
 import type {
   RuntimeLocationState,
@@ -53,10 +58,35 @@ import {
   type DomainIconName,
 } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
+import { createPopover } from "../components/popover";
 import { bindTypographyParagraphs, createParagraph, createTitle } from "../components/Typography";
 import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
+type SummaryActionIcon = "voice" | "video" | "model" | "search" | "wiki" | "stats" | "external";
+type SummaryAction = Pick<RuntimeSkinAction, "label" | "href"> & {
+  readonly id?: RuntimeSkinAction["id"];
+  readonly icon?: SummaryActionIcon;
+};
+
+const summaryActionPaths: Record<SummaryActionIcon, string> = {
+  voice: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/>',
+  video: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
+  model: '<path d="m12 2 9 5-9 5-9-5 9-5Zm-9 5v10l9 5 9-5V7M12 12v10"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+  wiki: '<path d="M12 7v14M3 5.5A2.5 2.5 0 0 1 5.5 3H12v18H5.5A2.5 2.5 0 0 0 3 23V5.5Zm18 0A2.5 2.5 0 0 0 18.5 3H12v18h6.5A2.5 2.5 0 0 1 21 23V5.5Z"/>',
+  stats: '<path d="M4 20V10h4v10M10 20V4h4v16M16 20v-7h4v7M3 21h18"/>',
+  external: '<path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/>',
+};
+
+function createSummaryActionIcon(kind: SummaryActionIcon): SVGSVGElement {
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.classList.add("runtime-summary-action-icon");
+  icon.setAttribute("viewBox", "0 0 24 24");
+  icon.setAttribute("aria-hidden", "true");
+  icon.innerHTML = summaryActionPaths[kind];
+  return icon;
+}
 
 export interface RuntimeDetailRendererOptions {
   readonly content: HTMLElement;
@@ -160,6 +190,7 @@ export function createRuntimeDetailRenderer(
     readonly items: readonly { readonly id: number; readonly name: string }[];
     readonly index: number;
   } | undefined;
+  let chromaPopoverCleanups: (() => void)[] = [];
   const entitySkinCount = document.querySelector<HTMLElement>(
     "[data-runtime-entity-skin-count]",
   );
@@ -238,7 +269,7 @@ export function createRuntimeDetailRenderer(
   const renderSummaryActions = (
     summary: HTMLElement | null | undefined,
     menu: HTMLElement | null | undefined,
-    actions: readonly { readonly label: string; readonly href: string }[],
+    actions: readonly SummaryAction[],
   ): void => {
     if (!summary || !menu) return;
     summary.hidden = actions.length === 0;
@@ -248,6 +279,15 @@ export function createRuntimeDetailRenderer(
       entry.setAttribute("role", "none");
       appendExternalAction(entry, action);
       const link = entry.querySelector<HTMLElement>("a");
+      if (link) {
+        const kind = action.icon ?? (action.id === "voice" ? "voice"
+          : action.id === "bilibili" || action.id === "skinspotlights" ? "video"
+            : action.id === "wikipedia" ? "wiki"
+              : action.id === "battle-data" ? "stats" : "model");
+        const label = textNode("span", action.label, "runtime-summary-action-label");
+        link.classList.add("runtime-summary-action");
+        link.replaceChildren(createSummaryActionIcon(kind), label, createSummaryActionIcon("external"));
+      }
       link?.setAttribute("role", "menuitem");
       link?.setAttribute("data-ant-dropdown-item", "");
       menu.appendChild(entry);
@@ -494,6 +534,8 @@ export function createRuntimeDetailRenderer(
 
   return {
     render(item, state) {
+      chromaPopoverCleanups.forEach((cleanup) => cleanup());
+      chromaPopoverCleanups = [];
       const skinReleaseOrder = item.kind === "skin"
         ? item.championSkinReleaseOrder
         : undefined;
@@ -548,15 +590,22 @@ export function createRuntimeDetailRenderer(
       article.className = "runtime-detail";
       const entityName = item.name ?? runtimeMissingLabel(options.locale, "name");
       const isZh = options.locale === "zh_cn";
-      const entityActions = item.kind === "champion"
+      const entityActions: readonly SummaryAction[] = item.kind === "champion"
         ? [
-            { label: isZh ? "在 SKINSPOTLIGHTS 查看" : "VIEW ON SKINSPOTLIGHTS", href: skinSpotlightsSearchUrl(entityName) },
-            { label: isZh ? "在 KHADA 查看 3D 模型" : "VIEW 3D MODEL ON KHADA", href: khadaChampionUrl(String(item.id)) },
-            { label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(entityName) },
-            ...(isZh ? [{ label: "布锅锅语音站", href: buguoguoVoiceUrl(item.id) }] : []),
+            { label: isZh ? "在 SKINSPOTLIGHTS 查看" : "VIEW ON SKINSPOTLIGHTS", href: skinSpotlightsSearchUrl(entityName), icon: "video" },
+            { label: isZh ? "在 KHADA 查看 3D 模型" : "VIEW 3D MODEL ON KHADA", href: khadaChampionUrl(String(item.id)), icon: "model" },
+            { label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(entityName), icon: "search" },
+            ...(isZh ? [{ label: "布锅锅语音站", href: buguoguoVoiceUrl(item.id), icon: "voice" as const }] : []),
+            ...(isZh ? [{ id: "battle-data" as const, label: "对战数据", href: qqHeroBattleDataUrl(item.id), icon: "stats" as const }] : []),
+            ...(item.alias ? [{
+              id: "wikipedia" as const,
+              label: isZh ? "维基百科" : "Wiki",
+              href: leagueWikiChampionUrl(item.alias),
+              icon: "wiki" as const,
+            }] : []),
           ]
         : item.kind === "skinline" || item.kind === "universe"
-          ? [{ label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(`${entityName} ${item.kind === "skinline" ? "Skinlines" : "Universes"}`) }]
+          ? [{ label: isZh ? "谷歌搜索" : "GOOGLE SEARCH", href: googleSearchUrl(`${entityName} ${item.kind === "skinline" ? "Skinlines" : "Universes"}`), icon: "search" }]
           : [];
       renderSummaryActions(entityActionsSummary, entityActionsMenu, entityActions);
       const title = createTitle({
@@ -817,7 +866,7 @@ export function createRuntimeDetailRenderer(
         );
         if (options.locale !== "zh_cn") {
           chromaHeading.append(
-            textNode("span", String(item.chromas.length), "runtime-chroma-count"),
+            textNode("span", `(${item.chromas.length})`, "runtime-chroma-count"),
           );
         }
         chromas.appendChild(chromaHeading);
@@ -845,24 +894,46 @@ export function createRuntimeDetailRenderer(
             ? document.createElement("a")
             : undefined;
           if (link && prestigeChroma) link.href = prestigeChroma.href;
-          chromaGrid.appendChild(
-            createChromaCard({
-              name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
-              imageUrl: prestigeChroma?.imageUrl ?? chroma.imageUrl,
-              imageFallbackUrl: prestigeChroma?.fallbackUrl,
-              previewImageUrl: prestigeChroma?.previewUrl,
-              previewFallbackUrl: prestigeChroma?.previewFallbackUrl,
-              originalImageUrl: prestigeChroma ? chroma.imageUrl : undefined,
-              preview: true,
-              colors: chroma.colors,
-              isBase: false,
-              borderBeam: prestigeChroma
-                ? { colors: ["var(--gold)", ...prestigeChroma.colors] }
-                : false,
-              locale: options.locale,
-              link,
-            }),
-          );
+          const title = options.locale === "zh_cn"
+            ? prestigeChroma ? "臻彩详情" : "炫彩详情"
+            : "Chroma Details";
+          const card = createChromaCard({
+            name: chroma.name ?? runtimeMissingLabel(options.locale, "name"),
+            imageUrl: prestigeChroma?.imageUrl ?? chroma.imageUrl,
+            imageFallbackUrl: prestigeChroma?.fallbackUrl,
+            previewImageUrl: prestigeChroma?.previewUrl,
+            previewFallbackUrl: prestigeChroma?.previewFallbackUrl,
+            originalImageUrl: prestigeChroma ? chroma.imageUrl : undefined,
+            preview: true,
+            colors: chroma.colors,
+            isBase: false,
+            borderBeam: prestigeChroma
+              ? { colors: ["var(--gold)", ...prestigeChroma.colors] }
+              : false,
+            locale: options.locale,
+            link,
+            modelInfoLabel: title,
+          });
+          const info = card.querySelector<HTMLButtonElement>(".runtime-chroma-info-button");
+          if (info) {
+            const modelLink = document.createElement("a");
+            modelLink.href = options.locale === "zh_cn"
+              ? buguoguoModelUrl(item.id, chroma.id)
+              : khadaModelUrl(item.id, chroma.id);
+            modelLink.target = "_blank";
+            modelLink.rel = "noopener noreferrer";
+            modelLink.classList.add("runtime-summary-action");
+            const modelLabel = options.locale === "zh_cn"
+              ? "去卡达查看3D模型"
+              : "View 3D model on KHADA";
+            modelLink.replaceChildren(
+              createSummaryActionIcon("model"),
+              textNode("span", modelLabel, "runtime-summary-action-label"),
+              createSummaryActionIcon("external"),
+            );
+            chromaPopoverCleanups.push(createPopover(info, title, modelLink));
+          }
+          chromaGrid.appendChild(card);
         });
         chromas.addEventListener("media-preview-close", (event) => {
           const trigger = (event as CustomEvent<HTMLElement>).detail;

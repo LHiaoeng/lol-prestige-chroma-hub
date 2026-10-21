@@ -14,36 +14,28 @@ article.runtime-chroma-card {
   position: relative;
   overflow: visible;
 }
-.runtime-chroma-image-toggle {
+.runtime-chroma-card-actions {
   position: absolute;
-  z-index: 2;
-  top: 12px;
-  right: 12px;
-  display: grid;
-  width: 32px;
-  height: 32px;
-  min-height: 32px;
-  padding: 0;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: #f3d27e;
-  line-height: 1;
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(-2px);
-  transition: opacity var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) ease;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  transition: opacity var(--motion-fast);
 }
-.runtime-chroma-image-toggle svg { width: 20px; height: 20px; fill: currentColor; }
-.runtime-chroma-image-toggle:hover { color: #fff2c2; }
-.runtime-chroma-image-toggle:active:not(:disabled) { border-color: transparent; background: transparent; }
-.runtime-chroma-card:has(.runtime-chroma-media:hover, .runtime-chroma-image-toggle:hover) .runtime-chroma-image-toggle,
-.runtime-chroma-image-toggle:focus-visible { opacity: 1; transform: translateY(0); }
+.runtime-chroma-card-actions .ui-icon { width: 14px; height: 14px; color: currentColor; }
+.runtime-chroma-image-toggle[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.runtime-chroma-card-actions .ant-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .runtime-chroma-card-actions { opacity: 0; pointer-events: none; }
+  .runtime-chroma-card:hover .runtime-chroma-card-actions,
+  .runtime-chroma-card:focus-within .runtime-chroma-card-actions,
+  .runtime-chroma-card-actions:has(.runtime-chroma-info-button[aria-expanded="true"]) { opacity: 1; pointer-events: auto; }
+}
 .runtime-chroma-link { display: block; color: var(--text); }
 .runtime-chroma-link:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .runtime-chroma-preview { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; cursor: zoom-in; }
-@media (hover: none) { .runtime-chroma-image-toggle { opacity: 1; transform: none; } }
 .runtime-chroma-media img {
   display: block;
   width: 100%;

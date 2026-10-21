@@ -947,9 +947,9 @@ describe("runtime DOM boundaries", () => {
   });
 
   it.each([
-    ["zh_cn", "https://voice.buguoguo.cn/#/voice/103"],
-    ["default", undefined],
-  ] as const)("shows the champion voice action only in %s", (locale, voiceUrl) => {
+    ["zh_cn", "https://voice.buguoguo.cn/#/voice/103", "https://101.qq.com/#/hero-detail?heroId=103"],
+    ["default", undefined, undefined],
+  ] as const)("shows Chinese champion actions only in %s", (locale, voiceUrl, battleDataUrl) => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", { addEventListener: vi.fn(), location: { origin: "https://chromaart.lol", pathname: "/champions/detail/" } });
@@ -981,6 +981,8 @@ describe("runtime DOM boundaries", () => {
 
     const voice = [...menu.querySelectorAll("a")].find((link) => link.textContent === "布锅锅语音站");
     expect(voice?.href).toBe(voiceUrl);
+    const battleData = [...menu.querySelectorAll("a")].find((link) => link.textContent === "对战数据");
+    expect(battleData?.href).toBe(battleDataUrl);
     expect(summary.hidden).toBe(false);
   });
 
@@ -1517,7 +1519,7 @@ describe("runtime DOM boundaries", () => {
       },
     );
 
-    expect(content.querySelector(".runtime-chroma-count")?.textContent).toBe("2");
+    expect(content.querySelector(".runtime-chroma-count")?.textContent).toBe("(2)");
     expect(content.querySelector(".runtime-skin-stages")).toBeNull();
     expect(content.querySelector(".runtime-skin-chromas")?.id).toBe("runtime-skin-chromas");
     const chromaSection = content.querySelector<HTMLElement>(".runtime-skin-chromas");
@@ -1527,6 +1529,10 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".runtime-chroma-card")).toHaveLength(3);
     const chromaCards = content.querySelectorAll<HTMLElement>(".runtime-chroma-card");
     const prestigeCard = chromaCards[1];
+    expect(chromaCards[0]?.querySelector(".runtime-chroma-info-button")).toBeNull();
+    expect(prestigeCard?.querySelector(".runtime-chroma-info-button")?.getAttribute("aria-label")).toBe("Chroma Details");
+    expect(prestigeCard?.querySelector(".runtime-chroma-info-button")?.getAttribute("aria-haspopup")).toBe("dialog");
+    expect(prestigeCard?.querySelector(".runtime-chroma-image-toggle")?.className).toContain("ant-btn-sm ant-btn-icon-only");
     const prestigeTriggers = prestigeCard?.querySelectorAll<HTMLElement>("[data-media-preview-trigger]");
     expect(prestigeCard?.querySelector("img")?.src).toBe(
       "https://example.test/prestige-ruby-card.png",
@@ -1560,7 +1566,7 @@ describe("runtime DOM boundaries", () => {
       "https://example.test/prestige-ruby-card.png",
     );
     const base = content.querySelector(".runtime-chroma-base");
-    expect(base?.querySelector<HTMLElement>("[data-media-preview-trigger]")?.dataset.previewVariant).toBe("base");
+    expect(base?.querySelector<HTMLElement>("[data-media-preview-trigger]")?.dataset.previewVariant).toBe("chroma");
     expect(base?.querySelector(".runtime-chroma-name")?.textContent).toBe(
       "Dynasty Ahri · Ascended",
     );
@@ -1582,19 +1588,22 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".color-row")).toHaveLength(2);
 
     const externalLinks = document.head.querySelectorAll(".runtime-external-link");
-    expect(externalLinks).toHaveLength(2);
+    expect(externalLinks).toHaveLength(3);
     expect(actionsSummary.hidden).toBe(false);
     expect(externalLinks.map((link) => link.getAttribute("role"))).toEqual([
       "menuitem",
       "menuitem",
     ]);
     expect(externalLinks.map((link) => link.textContent)).toEqual([
-      "SkinSpotlights",
-      "Teemo.GG",
+      "Watch on SkinSpotlights",
+      "View 3D model on KHADA",
+      "Wiki",
     ]);
+    expect(externalLinks.every((link) => link.querySelectorAll(".runtime-summary-action-icon").length === 2)).toBe(true);
     expect(externalLinks[0]?.getAttribute("target")).toBe("_blank");
     expect(externalLinks[0]?.getAttribute("rel")).toBe("noopener noreferrer");
-    expect(externalLinks[1]?.href).toContain("skinid=ahri-2");
+    expect(externalLinks[1]?.href).toBe("https://modelviewer.lol/model-viewer?id=103002&lang=en-US");
+    expect(externalLinks[2]?.href).toBe("https://wiki.leagueoflegends.com/en-us/Ahri");
   });
 
   it("links skinline relations to independent universe detail paths", () => {

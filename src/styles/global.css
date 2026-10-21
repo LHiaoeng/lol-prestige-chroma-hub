@@ -204,7 +204,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 .runtime-page--pbe header { padding-bottom: 0; }
 .runtime-page--pbe .runtime-header-divider { margin: var(--space-4) 0; }
 .runtime-page--pbe .runtime-section { padding-top: 0; }
-.domain-icon { display: block; fill: none; color: var(--gold); stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.domain-icon, .ui-icon { display: block; fill: none; color: var(--gold); stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .runtime-list-icon { width: 1em; height: 1em; flex: 0 0 auto; align-self: center; stroke-width: 1.7; }
 .runtime-page--compact-list-header .runtime-channel-row { margin-top: 0; }
 .runtime-page--compact-list-header .runtime-source { gap: 0; font-size: var(--font-size-body); }
@@ -330,6 +330,10 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
   cursor: pointer;
 }
 .ant-dropdown-menu a { color: inherit; text-decoration: none; }
+.ant-dropdown-menu a.runtime-summary-action { justify-content: flex-start; gap: var(--space-2); }
+.runtime-summary-action-label { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.runtime-summary-action-icon { display: block; width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.runtime-summary-action-icon:last-child { width: 14px; height: 14px; margin-left: var(--space-2); }
 .ant-dropdown-menu button:hover,
 .ant-dropdown-menu button:focus-visible,
 .ant-dropdown-menu a:hover,
@@ -938,6 +942,15 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
   color: var(--text);
   overflow-wrap: anywhere;
 }
+.ant-popover-content a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+.ant-popover-content a.runtime-summary-action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text);
+  text-decoration: none;
+}
+.ant-popover-content a.runtime-summary-action:hover { color: var(--gold); }
 .ant-popover-arrow {
   position: absolute;
   z-index: 1;
@@ -978,12 +991,6 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--t
 }
 @media (prefers-reduced-motion: reduce) {
   .ant-popover.is-open, .ant-popover.is-closing { animation: none; }
-}
-.runtime-chroma-count {
-  color: var(--muted);
-  font-family:var(--font-ui);
-  font-size:var(--font-size-small);
-  font-weight: 600;
 }
 .runtime-chroma-grid {
   display: grid;

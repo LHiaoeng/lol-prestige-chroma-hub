@@ -188,17 +188,13 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   .runtime-skin-navigation-name { display: block; min-width: 0; max-width: min(10rem, calc(50vw - var(--page-gutter) - var(--touch-target) - var(--space-2) - 26px)); overflow: hidden; color: inherit; font-size: var(--font-size-small); line-height: var(--line-height-small); text-align: left; text-overflow: ellipsis; white-space: nowrap; }
   .runtime-skin-navigation-side--next .runtime-skin-navigation-name { text-align: right; }
   .runtime-skin-navigation-name[hidden] { display: none; }
-  @media (min-width: 768px) and (max-width: 1599px) {
-    .runtime-skin-navigation-side--previous { left: calc(var(--page-gutter) + 5.5rem); }
-    .runtime-skin-navigation-side--next { right: calc(var(--page-gutter) + 5.5rem); }
-  }
   @media (min-width: 1600px) {
     .runtime-skin-navigation-side--previous { left: calc((100vw - var(--content-width)) / 4); transform: translate(-50%, -50%); }
     .runtime-skin-navigation-side--next { right: calc((100vw - var(--content-width)) / 4); transform: translate(50%, -50%); }
     .runtime-skin-navigation-name { max-width: min(10rem, calc((100vw - var(--content-width)) / 2 - var(--touch-target) - var(--space-2) - 26px)); }
   }
-  @media (max-width: 767px) {
-    .runtime-skin-navigation { inset: auto var(--page-gutter) var(--runtime-skin-navigation-bottom, calc(env(safe-area-inset-bottom) + 72px)); display: flex; align-items: center; gap: var(--space-2); padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-popup); backdrop-filter: blur(12px); }
+  @media (max-width: 1599px) {
+    .runtime-skin-navigation { inset: auto auto var(--runtime-skin-navigation-bottom, calc(env(safe-area-inset-bottom) + 72px)) 50%; width: min(560px, calc(100vw - (var(--page-gutter) * 2))); display: flex; align-items: center; gap: var(--space-2); padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-popup); backdrop-filter: blur(12px); transform: translateX(-50%); }
     .runtime-skin-navigation[data-footer-occluded] { visibility: hidden; }
     .runtime-skin-navigation-side { position: static; top: auto; left: auto; right: auto; width: calc((100% - var(--space-2)) / 2); max-width: none; min-width: 0; transform: none; }
     .runtime-skin-navigation-side--previous { justify-content: flex-start; }

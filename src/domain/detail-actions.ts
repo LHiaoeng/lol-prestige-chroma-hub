@@ -7,7 +7,7 @@ function searchUrl(base: string, parameter: string, keyword: string): string {
 }
 
 export interface RuntimeSkinAction {
-  readonly id: 'skinspotlights' | 'teemo' | 'voice' | 'bilibili' | 'buguoguo-model';
+  readonly id: 'skinspotlights' | 'khada-model' | 'voice' | 'bilibili' | 'buguoguo-model' | 'wikipedia' | 'battle-data';
   readonly label: string;
   readonly href: string;
 }
@@ -20,25 +20,24 @@ export interface RuntimeSkinActionInput {
   readonly name?: string;
 }
 
-function teemoSkinModelUrl(input: RuntimeSkinActionInput): string | undefined {
-  if (!input.championAlias) return undefined;
-  const alias = input.championAlias.toLowerCase();
-  const url = new URL('https://teemo.gg/model-viewer');
-  url.searchParams.set('game', 'league-of-legends');
-  url.searchParams.set('type', 'champions');
-  url.searchParams.set('object', alias);
-  url.searchParams.set('skinid', `${alias}-${(input.stageId ?? input.id) % 1000}`);
-  return url.toString();
-}
-
-function buguoguoModelUrl(input: RuntimeSkinActionInput): string {
+export function buguoguoModelUrl(id: number, chromaId?: number): string {
   const url = new URL('https://3d.buguoguo.cn/model-viewer');
-  url.searchParams.set('id', String(input.stageId ?? input.id));
+  url.searchParams.set('id', String(id));
+  if (chromaId !== undefined) url.searchParams.set('chroma', String(chromaId));
   return url.toString();
 }
 
 export function buguoguoVoiceUrl(championId: number): string {
   return `https://voice.buguoguo.cn/#/voice/${championId}`;
+}
+
+export function leagueWikiChampionUrl(championAlias: string): string {
+  const page = championAlias.trim().replace(/\s+/g, '_');
+  return `https://wiki.leagueoflegends.com/en-us/${encodeURIComponent(page)}`;
+}
+
+export function qqHeroBattleDataUrl(championId: number): string {
+  return `https://101.qq.com/#/hero-detail?heroId=${championId}`;
 }
 
 /** Build only the reference project's external actions for the active locale. */
@@ -51,26 +50,36 @@ export function runtimeSkinActions(
     if (input.name) {
       actions.push({
         id: 'skinspotlights',
-        label: 'SkinSpotlights',
+        label: 'Watch on SkinSpotlights',
         href: skinSpotlightsSearchUrl(input.name),
       });
     }
-    const teemoUrl = teemoSkinModelUrl(input);
-    if (teemoUrl) actions.push({ id: 'teemo', label: 'Teemo.GG', href: teemoUrl });
+    actions.push({
+      id: 'khada-model',
+      label: 'View 3D model on KHADA',
+      href: khadaModelUrl(input.stageId ?? input.id),
+    });
+    if (input.championAlias) {
+      actions.push({
+        id: 'wikipedia',
+        label: 'Wiki',
+        href: leagueWikiChampionUrl(input.championAlias),
+      });
+    }
     return actions;
   }
 
   const actions: RuntimeSkinAction[] = [
     {
       id: 'voice',
-      label: '布锅锅语音站',
+      label: '去语音站收听英雄语音',
       href: buguoguoVoiceUrl(input.championId),
     },
   ];
   if (input.name) {
     actions.push({
       id: 'bilibili',
-      label: '哔哩哔哩',
+      label: '去哔哩哔哩看皮肤演示',
       href: searchUrl(
         'https://space.bilibili.com/9385598/search/video',
         'keyword',
@@ -80,9 +89,21 @@ export function runtimeSkinActions(
   }
   actions.push({
     id: 'buguoguo-model',
-    label: '布锅锅 3D 模型站',
-    href: buguoguoModelUrl(input),
+    label: '去卡达查看3D模型',
+    href: buguoguoModelUrl(input.stageId ?? input.id),
   });
+  actions.push({
+    id: 'battle-data',
+    label: '对战数据',
+    href: qqHeroBattleDataUrl(input.championId),
+  });
+  if (input.championAlias) {
+    actions.push({
+      id: 'wikipedia',
+      label: '维基百科',
+      href: leagueWikiChampionUrl(input.championAlias),
+    });
+  }
   return actions;
 }
 

@@ -5,7 +5,7 @@ const animationDuration = 200;
 const viewportPadding = 8;
 const popupGap = 8;
 
-export function createPopover(trigger: HTMLButtonElement, title: string, content: string): () => void {
+export function createPopover(trigger: HTMLButtonElement, title: string, content: string | HTMLElement): () => void {
   const popover = document.createElement("div");
   const container = document.createElement("div");
   const titleElement = document.createElement("div");
@@ -19,7 +19,8 @@ export function createPopover(trigger: HTMLButtonElement, title: string, content
 
   popover.id = id;
   popover.className = "ant-popover ant-popover-placement-top";
-  popover.setAttribute("role", "tooltip");
+  popover.setAttribute("role", typeof content === "string" ? "tooltip" : "dialog");
+  if (typeof content !== "string") trigger.setAttribute("aria-haspopup", "dialog");
   popover.setAttribute("aria-hidden", "true");
   popover.style.visibility = "hidden";
   arrow.className = "ant-popover-arrow";
@@ -29,7 +30,8 @@ export function createPopover(trigger: HTMLButtonElement, title: string, content
   titleElement.textContent = title;
   titleElement.id = `${id}-title`;
   contentElement.className = "ant-popover-content";
-  contentElement.textContent = content;
+  if (typeof content === "string") contentElement.textContent = content;
+  else contentElement.append(content);
   popover.setAttribute("aria-labelledby", titleElement.id);
   container.append(titleElement, contentElement);
   popover.append(arrow, container);
@@ -75,6 +77,13 @@ export function createPopover(trigger: HTMLButtonElement, title: string, content
     if (target instanceof Node && !trigger.contains(target) && !popover.contains(target)) close();
   };
   const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Tab" && !event.shiftKey && document.activeElement === trigger) {
+      const link = popover.querySelector<HTMLElement>("a[href]");
+      if (link) {
+        event.preventDefault();
+        link.focus();
+      }
+    }
     if (event.key === "Escape") {
       event.preventDefault();
       close(true);
@@ -186,5 +195,6 @@ export function createPopover(trigger: HTMLButtonElement, title: string, content
     trigger.removeAttribute("aria-controls");
     trigger.setAttribute("aria-expanded", "false");
     trigger.removeAttribute("data-popover-description");
+    if (typeof content !== "string") trigger.removeAttribute("aria-haspopup");
   };
 }

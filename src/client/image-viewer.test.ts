@@ -314,8 +314,11 @@ describe("media viewer", () => {
     expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("2 / 2");
   });
 
-  it("keeps chroma and prestige artwork in separate galleries", () => {
+  it("includes the base skin in the chroma gallery only", () => {
     const { root, dialog, trigger, content, controls } = setup();
+    const base = new TestTrigger(new TestMedia("IMG"));
+    base.dataset.previewVariant = "chroma";
+    base.dataset.previewSrc = "base.jpg";
     const prestige = trigger;
     prestige.dataset.previewVariant = "prestige";
     const chroma = new TestTrigger(new TestMedia("IMG"));
@@ -327,14 +330,14 @@ describe("media viewer", () => {
     const nextChroma = new TestTrigger(new TestMedia("IMG"));
     nextChroma.dataset.previewVariant = "chroma";
     nextChroma.dataset.previewSrc = "chroma-next.jpg";
-    const group = new TestGroup([prestige, chroma, nextPrestige, nextChroma]);
+    const group = new TestGroup([base, prestige, chroma, nextPrestige, nextChroma]);
     for (const item of group.triggers) item.group = group;
 
     bindMediaViewers(root as unknown as ParentNode);
-    root.dispatch("click", { target: chroma });
-    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 2");
+    root.dispatch("click", { target: base });
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 3");
     controls.get("[data-media-viewer-next]")?.dispatch("click");
-    expect(content.children[0]?.src).toBe("chroma-next.jpg");
+    expect(content.children[0]?.src).toBe("chroma.jpg");
     dialog.close();
 
     root.dispatch("click", { target: prestige });

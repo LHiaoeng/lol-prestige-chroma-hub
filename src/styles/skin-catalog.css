@@ -57,7 +57,7 @@
 .skin-catalog-card-border { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .skin-catalog-card-actions { position: absolute; top: var(--space-2); right: var(--space-2); z-index: 3; display: flex; flex-direction: column; gap: var(--space-1); transition: opacity var(--motion-fast); }
 .skin-catalog-card-actions .ant-tooltip-trigger { display: flex; }
-.skin-catalog-card-actions .domain-icon { width: 14px; height: 14px; color: currentColor; }
+.skin-catalog-card-actions .ui-icon { width: 14px; height: 14px; color: currentColor; }
 .skin-catalog-artwork-toggle[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
 .skin-catalog-artwork-toggle:focus-visible, .skin-catalog-info-button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .skin-catalog-card-artwork { position: absolute; inset: 0; display: block; }

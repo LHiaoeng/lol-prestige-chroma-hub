@@ -2,6 +2,7 @@ import type { CommunityDragonLocale } from "../../domain/communitydragon-runtime
 import "./chroma-card.css";
 import { createBorderBeams, type BorderBeamOptions } from "../border-beam/BorderBeam";
 import { createParagraph } from "../Typography";
+import { createUiIcon } from "../ui-icons";
 import {
   appendChromaColorCircle,
   appendMissingField,
@@ -44,6 +45,8 @@ export interface ChromaCardOptions {
   readonly link?: HTMLAnchorElement;
   /** 预构建的所属皮肤链接，渲染为卡片尾部段落（无前缀文案） */
   readonly ownerLink?: HTMLAnchorElement;
+  /** Label for the optional 3D model info action. */
+  readonly modelInfoLabel?: string;
 }
 
 /**
@@ -100,11 +103,9 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       preview.dataset.mediaPreviewTrigger = "";
       preview.dataset.previewKind = "image";
       preview.dataset.previewSrc = options.previewImageUrl ?? options.imageUrl;
-      preview.dataset.previewVariant = options.isBase
-        ? "base"
-        : options.originalImageUrl && options.originalImageUrl !== options.imageUrl
-          ? "prestige"
-          : "chroma";
+      preview.dataset.previewVariant = options.originalImageUrl && options.originalImageUrl !== options.imageUrl
+        ? "prestige"
+        : "chroma";
       if (options.previewFallbackUrl)
         preview.dataset.previewFallback = options.previewFallbackUrl;
       preview.setAttribute(
@@ -162,13 +163,15 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
 
   const chromaImageUrl = options.imageUrl;
   const originalImageUrl = options.originalImageUrl;
+  const actions = document.createElement("div");
+  actions.className = "runtime-chroma-card-actions";
   if (chromaImageUrl && originalImageUrl && chromaImageUrl !== originalImageUrl) {
     const image = card
       .querySelector<HTMLElement>(".runtime-chroma-media")
       ?.querySelector<HTMLImageElement>("img");
     const preview = card.querySelector<HTMLElement>("[data-media-preview-trigger]");
     const toggle = document.createElement("button");
-    toggle.className = "runtime-chroma-image-toggle";
+    toggle.className = "ant-btn ant-btn-sm ant-btn-icon-only runtime-chroma-image-toggle";
     toggle.type = "button";
     const setArtwork = (showOriginal: boolean): void => {
       if (!image) return;
@@ -231,12 +234,29 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       );
       toggle.title = toggle.getAttribute("aria-label") ?? "";
       toggle.dataset.showingOriginal = String(showOriginal);
+      toggle.setAttribute("aria-pressed", String(showOriginal));
     };
-    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h13l-3-3 1.4-1.4L21 8l-5.6 5.4L14 12l3-3H4V7Zm16 10H7l3 3-1.4 1.4L3 16l5.6-5.4L10 12l-3 3h13v2Z"/></svg>';
+    const icon = createUiIcon("image-switch");
+    icon.setAttribute("width", "14");
+    icon.setAttribute("height", "14");
+    toggle.append(icon);
     toggle.addEventListener("click", () => setArtwork(toggle.dataset.showingOriginal !== "true"));
     setArtwork(false);
-    (options.preview ? media : card).appendChild(toggle);
+    actions.append(toggle);
   }
+
+  if (options.modelInfoLabel) {
+    const info = document.createElement("button");
+    info.className = "ant-btn ant-btn-sm ant-btn-icon-only runtime-chroma-info-button";
+    info.type = "button";
+    info.setAttribute("aria-label", options.modelInfoLabel);
+    const icon = createUiIcon("info");
+    icon.setAttribute("width", "14");
+    icon.setAttribute("height", "14");
+    info.append(icon);
+    actions.append(info);
+  }
+  if (actions.children.length) card.append(actions);
 
   if (options.ownerLink) {
     const owner = document.createElement("p");
