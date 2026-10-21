@@ -1,7 +1,7 @@
 import { createButton } from "./Button";
 import { createDivider } from "./Divider";
 import { createRadioButtonGroup } from "./RadioButtonGroup";
-import { createDropdown } from "./dropdown-menu";
+import { enhanceSelect, refreshSelect } from "./select";
 
 export interface CarouselSelectOption {
   readonly label: string;
@@ -44,35 +44,35 @@ export interface CarouselOptions {
 
 let carouselId = 0;
 
-function dropdownChevron(): SVGSVGElement {
-  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  icon.classList.add("ant-dropdown-down-icon");
-  icon.setAttribute("viewBox", "0 0 1024 1024");
-  icon.setAttribute("aria-hidden", "true");
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", "M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z");
-  icon.append(path);
-  return icon;
+interface CarouselSelectControl {
+  readonly wrapper: HTMLSpanElement;
+  readonly source: HTMLSelectElement;
 }
 
-function menuRadioItem(label: string, value: string, onSelect: () => void): HTMLLIElement {
-  const item = document.createElement("li");
-  item.setAttribute("role", "none");
-  const button = document.createElement("button");
-  button.type = "button";
-  button.dataset.antDropdownItem = "";
-  button.dataset.carouselValue = value;
-  button.setAttribute("role", "menuitemradio");
-  button.setAttribute("aria-checked", "false");
-  const check = document.createElement("span");
-  check.setAttribute("aria-hidden", "true");
-  check.textContent = "✓";
-  const text = document.createElement("span");
-  text.textContent = label;
-  button.append(text, check);
-  button.addEventListener("click", onSelect);
-  item.append(button);
-  return item;
+function createCarouselSelect(
+  prefix: string,
+  options: readonly CarouselSelectOption[],
+  value: string,
+  onChange: (value: string) => void,
+): CarouselSelectControl {
+  const wrapper = document.createElement("span");
+  wrapper.className = "ant-radio-button-wrapper runtime-carousel-border-select";
+  const source = document.createElement("select");
+  source.className = "ant-select-source";
+  source.dataset.selectSize = "middle";
+  source.dataset.selectPrefix = prefix;
+  source.setAttribute("aria-label", prefix);
+  options.forEach(({ label, value: optionValue }) => {
+    const option = document.createElement("option");
+    option.value = optionValue;
+    option.textContent = label;
+    source.appendChild(option);
+  });
+  source.value = value;
+  wrapper.appendChild(source);
+  enhanceSelect(source);
+  source.addEventListener("change", () => onChange(source.value));
+  return { wrapper, source };
 }
 
 /**
@@ -105,10 +105,8 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   const borderSlideKeys = new Set(borderOptions.map(({ value }) => value));
   let selectedBorderKey = borderOptions[0]?.value;
   let radioGroup: HTMLFieldSetElement | undefined;
-  let borderDropdown: HTMLDivElement | undefined;
-  let borderLabel: HTMLSpanElement | undefined;
-  let borderVariants: HTMLDivElement | undefined;
-  let variantDropdowns: { dropdown: HTMLDivElement; variant: CarouselBorderVariantMenu; label: HTMLSpanElement }[] = [];
+  let borderSelect: CarouselSelectControl | undefined;
+  let variantSelects: { control: CarouselSelectControl; variant: CarouselBorderVariantMenu }[] = [];
   const divider = createDivider({ type: "vertical", className: "runtime-media-carousel-divider" });
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   icon.setAttribute("viewBox", "0 0 16 16");
@@ -144,17 +142,13 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     const activeIndex = Math.max(0, slides.findIndex(({ key }) => key === selectedKey));
     const selectedSlide = slides.find(({ key }) => key === selectedKey);
     downloadButton.disabled = failedSlides.has(selectedKey) || selectedSlide?.downloadAvailable?.() === false;
-    if (borderDropdown) {
+    if (borderSelect) {
       if (borderSlideKeys.has(selectedKey)) selectedBorderKey = selectedKey;
-      const selectedBorderLabel = borderOptions.find(({ value }) => value === selectedBorderKey)?.label;
-      if (borderLabel) borderLabel.textContent = selectedBorderLabel ?? options.borderMenu?.label ?? "";
-      borderDropdown.querySelector(".ant-dropdown-trigger")?.setAttribute(
-        "aria-label", [options.borderMenu?.label, selectedBorderLabel].filter(Boolean).join(": "),
-      );
-      borderDropdown.classList.toggle("ant-radio-button-wrapper-checked", borderSlideKeys.has(selectedKey));
-      borderDropdown.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-item]").forEach((button) => {
-        button.setAttribute("aria-checked", String(button.dataset.carouselValue === selectedBorderKey));
-      });
+      if (selectedBorderKey && borderSelect.source.value !== selectedBorderKey) {
+        borderSelect.source.value = selectedBorderKey;
+        refreshSelect(borderSelect.source);
+      }
+      borderSelect.wrapper.classList.toggle("ant-radio-button-wrapper-checked", borderSlideKeys.has(selectedKey));
     }
     if (borderSlideKeys.has(selectedKey)) {
       radioGroup?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input").forEach((input) => {
@@ -162,15 +156,14 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
         input.parentElement?.classList.remove("ant-radio-button-wrapper-checked");
       });
     }
-    if (borderVariants) {
-      borderVariants.hidden = selectedKey !== options.borderMenu?.variantSlideKey;
-      variantDropdowns.forEach(({ dropdown, variant, label }) => {
-        label.textContent = `${variant.label}: ${variant.options.find(({ value }) => value === variant.value())?.label ?? ""}`;
-        dropdown.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-item]").forEach((button) => {
-          button.setAttribute("aria-checked", String(button.dataset.carouselValue === variant.value()));
-        });
-      });
-    }
+    variantSelects.forEach(({ control, variant }) => {
+      control.wrapper.hidden = selectedKey !== options.borderMenu?.variantSlideKey;
+      const value = variant.value();
+      if (value && control.source.value !== value) {
+        control.source.value = value;
+        refreshSelect(control.source);
+      }
+    });
     track.style.transform = `translateX(-${activeIndex * 100}%)`;
     slides.forEach(({ content }, index) => {
       content.setAttribute("aria-hidden", String(index !== activeIndex));
@@ -216,53 +209,24 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
       },
     });
     controlNodes.push(radioGroup);
-    borderDropdown = undefined;
-    borderLabel = undefined;
-    borderVariants = undefined;
-    variantDropdowns = [];
-    if (options.borderMenu) {
-      borderLabel = document.createElement("span");
-      borderLabel.textContent = options.borderMenu.label;
-      borderDropdown = createDropdown(
-        `ant-carousel-${id}-borders`, borderLabel,
-        borderOptions.map(({ label, value }) => menuRadioItem(label, value, () => {
-            selectedKey = value;
-            update();
-          })),
-      );
-      borderDropdown.classList.add("ant-radio-button-wrapper");
-      borderDropdown.classList.add("runtime-carousel-border-dropdown");
-      borderDropdown.querySelector(".ant-dropdown-trigger")?.append(dropdownChevron());
-      borderDropdown.querySelector(".ant-dropdown-trigger")?.addEventListener("click", () => {
-        if (selectedBorderKey) selectedKey = selectedBorderKey;
+    if (!borderSelect && options.borderMenu && borderOptions.length) {
+      borderSelect = createCarouselSelect(options.borderMenu.label, borderOptions, selectedBorderKey ?? "", (value) => {
+        selectedBorderKey = value;
+        selectedKey = value;
         update();
       });
-      radioGroup?.append(borderDropdown);
-
-      if (options.borderMenu.variants?.length) {
-        const variantControls = document.createElement("div");
-        variantControls.className = "runtime-carousel-border-variants";
-        variantControls.hidden = true;
-        options.borderMenu.variants.forEach((variant, index) => {
-          const label = document.createElement("span");
-          label.textContent = variant.label;
-          const dropdown = createDropdown(
-            `ant-carousel-${id}-border-layer-${index}`, label,
-            variant.options.map(({ label: optionLabel, value }) => menuRadioItem(optionLabel, value, () => {
-              variant.onChange(value);
-              update();
-            })),
-          );
-          dropdown.classList.add("runtime-carousel-border-variant-dropdown");
-          dropdown.querySelector(".ant-dropdown-trigger")?.append(dropdownChevron());
-          dropdown.querySelector(".ant-dropdown-trigger")?.setAttribute("aria-label", variant.label);
-          variantControls.append(dropdown);
-          variantDropdowns.push({ dropdown, variant, label });
-        });
-        borderVariants = variantControls;
-        controlNodes.push(variantControls);
-      }
     }
+    if (borderSelect) radioGroup.appendChild(borderSelect.wrapper);
+    if (!variantSelects.length) {
+      variantSelects = (options.borderMenu?.variants ?? []).map((variant) => ({
+        control: createCarouselSelect(variant.label, variant.options, variant.value(), (value) => {
+          variant.onChange(value);
+          update();
+        }),
+        variant,
+      }));
+    }
+    variantSelects.forEach(({ control }) => radioGroup?.appendChild(control.wrapper));
     controls.replaceChildren(...controlNodes, divider, downloadButton);
   };
 

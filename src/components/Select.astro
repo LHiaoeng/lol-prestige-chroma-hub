@@ -1,33 +1,69 @@
 ---
-/**
- * 下拉选择组件（视觉参考 shadcn/ui Select，保留原生 <select>）。
- *
- * 不引入自绘下拉列表，保证移动端系统选择器与键盘可达性；
- * 视觉上通过 `appearance:none` + 内联 SVG chevron 背景统一外观。
- * 样式类 `cn-select` 统一定义在 `src/styles/global.css`。
- *
- * 用法：
- * ```astro
- * <Select name="hero" options={[{ value: '', label: '全部英雄' }, { value: '1', label: '安妮' }]} />
- * ```
- */
+import type { HTMLAttributes } from "astro/types";
+
 export interface SelectOption {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
-interface Props {
-  name: string;
+export interface SelectOptionGroup {
+  label: string;
   options: SelectOption[];
-  /** 当前选中值，缺省由浏览器选中第一项。 */
+}
+
+type OptionOrGroup = SelectOption | SelectOptionGroup;
+
+interface Props extends Omit<HTMLAttributes<"select">, "size" | "value" | "aria-label"> {
+  options: OptionOrGroup[];
+  name?: string;
   value?: string;
   ariaLabel?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  showSearch?: boolean;
+  allowClear?: boolean;
+  prefix?: string;
+  size?: "small" | "middle" | "large";
   class?: string;
 }
 
-const { name, options, value, ariaLabel } = Astro.props;
+const {
+  options,
+  name,
+  value,
+  ariaLabel,
+  placeholder,
+  disabled = false,
+  showSearch = false,
+  allowClear = false,
+  prefix,
+  size = "middle",
+  ...attributes
+} = Astro.props;
+const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in item;
 ---
 
-<select class:list={['cn-select', Astro.props.class]} {name} aria-label={ariaLabel}>
-  {options.map((option) => <option value={option.value} selected={value !== undefined && option.value === value}>{option.label}</option>)}
+<select
+  {...attributes}
+  class:list={["ant-select-source", attributes.class]}
+  data-select-source
+  data-select-size={size}
+  data-select-show-search={showSearch ? "" : undefined}
+  data-select-allow-clear={allowClear ? "" : undefined}
+  data-select-prefix={prefix}
+  data-select-placeholder={placeholder}
+  {name}
+  aria-label={ariaLabel}
+  disabled={disabled}
+>
+  {options.map((item) => isGroup(item)
+    ? <optgroup label={item.label}>{item.options.map((option) => <option value={option.value} disabled={option.disabled} selected={value !== undefined && option.value === value}>{option.label}</option>)}</optgroup>
+    : <option value={item.value} disabled={item.disabled} selected={value !== undefined && item.value === value}>{item.label}</option>)}
 </select>
+
+<script>
+  import { enhanceSelects } from "./select";
+
+  enhanceSelects(document);
+</script>

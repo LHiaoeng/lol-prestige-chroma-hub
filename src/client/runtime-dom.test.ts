@@ -302,7 +302,7 @@ function createDomRuntimeView(
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
-  it("keeps the border dropdown available when it is the only media control", () => {
+  it("keeps the border select in the radio group when it is the only media control", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     const parent = document.createElement("div");
@@ -311,13 +311,16 @@ describe("runtime DOM boundaries", () => {
       loadScreenVintageUrl: "https://example.test/bordered.jpg",
     }, "default", "Border only");
     const group = parent.querySelector(".ant-radio-group-button");
-    const dropdown = group?.querySelector(".runtime-carousel-border-dropdown");
-    expect(dropdown).not.toBeNull();
-    expect(dropdown?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Bordered loading screen");
-    expect(dropdown?.querySelector(".ant-dropdown-down-icon")?.parentElement?.className).toBe("ant-dropdown-trigger");
-    expect(dropdown?.querySelector("[data-ant-dropdown-item]")?.getAttribute("aria-checked")).toBe("true");
-    dropdown?.querySelector("[data-ant-dropdown-item]")?.click();
-    expect(dropdown?.className).toContain("ant-radio-button-wrapper-checked");
+    const borderSelect = group?.querySelector(".runtime-carousel-border-select");
+    const source = borderSelect?.querySelector<HTMLSelectElement>("select");
+    expect(borderSelect?.parentElement).toBe(group);
+    expect(source?.dataset.selectPrefix).toBe("Borders");
+    expect(source?.value).toBe("other-media-0");
+    expect(Array.from(source?.querySelectorAll("option") ?? [], (option) => option.textContent)).toEqual([
+      "Bordered loading screen",
+    ]);
+    source?.dispatchEvent(new Event("change"));
+    expect(borderSelect?.className).toContain("ant-radio-button-wrapper-checked");
   });
   it("shows only the PBE summary after a successful comparison", async () => {
     vi.stubGlobal("document", new TestDocument());
@@ -1452,20 +1455,24 @@ describe("runtime DOM boundaries", () => {
     ).toBeNull();
     expect(carouselControls?.querySelector(".ant-radio-group-middle"),
     ).not.toBeNull();
-    const borderDropdown = () => carouselControls?.querySelector<HTMLElement>(
-      ".runtime-carousel-border-dropdown",
-    );
-    const borderItems = () => borderDropdown()?.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-item]") ?? [];
-    expect(borderDropdown()?.parentElement?.className).toContain("ant-radio-group-button");
-    expect(borderDropdown()?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Bordered loading screen");
-    expect(borderDropdown()?.querySelector(".ant-dropdown-trigger")?.getAttribute("aria-label")).toBe("Borders: Bordered loading screen");
-    expect(Array.from(borderItems(), (button) => button.textContent.replace("✓", ""))).toEqual([
+    const borderSelect = () => carouselControls?.querySelectorAll<HTMLElement>(
+      ".runtime-carousel-border-select",
+    )[0];
+    const borderSource = () => borderSelect()?.querySelector<HTMLSelectElement>("select");
+    const borderItems = () => borderSource()?.querySelectorAll<HTMLOptionElement>("option") ?? [];
+    const chooseBorder = (value: string) => {
+      const source = borderSource();
+      if (!source) return;
+      source.value = value;
+      source.dispatchEvent(new Event("change"));
+    };
+    expect(borderSelect()?.parentElement?.className).toContain("ant-radio-group-button");
+    expect(borderSource()?.getAttribute("aria-label")).toBe("Borders");
+    expect(borderSource()?.value).toBe("other-media-0");
+    expect(Array.from(borderItems(), (option) => option.textContent)).toEqual([
       "Bordered loading screen",
       "Transparent border image",
     ]);
-    expect(borderItems()[0]?.getAttribute("aria-checked")).toBe("true");
-    borderDropdown()?.querySelector<HTMLButtonElement>(".ant-dropdown-trigger")?.click();
-    expect(borderDropdown()?.querySelector(".ant-dropdown-trigger")?.getAttribute("aria-expanded")).toBe("true");
     const carouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input",
       ) ?? [];
     const carouselSlides = carousel?.querySelectorAll<HTMLElement>(".ant-carousel-slide") ?? [];
@@ -1504,7 +1511,7 @@ describe("runtime DOM boundaries", () => {
         detail: borderedLoadscreenTrigger,
       }),
     );
-    expect(borderItems()[0]?.getAttribute("aria-checked")).toBe("true");
+    expect(borderSource()?.value).toBe("other-media-0");
     const borderPreviewTrigger = [
       ...(carouselSlides[5]?.querySelectorAll<HTMLElement>(
         "[data-media-preview-trigger]",
@@ -1513,38 +1520,41 @@ describe("runtime DOM boundaries", () => {
     carousel?.dispatchEvent(
       new CustomEvent("media-preview-close", { detail: borderPreviewTrigger }),
     );
-    expect(borderItems()[1]?.getAttribute("aria-checked")).toBe("true");
-    expect(borderDropdown()?.className).toContain("ant-radio-button-wrapper-checked");
+    expect(borderSource()?.value).toBe("border-image");
+    expect(borderSelect()?.className).toContain("ant-radio-button-wrapper-checked");
     carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input")[0]?.click();
-    expect(borderDropdown()?.className).not.toContain("ant-radio-button-wrapper-checked");
-    expect(borderItems()[1]?.getAttribute("aria-checked")).toBe("true");
+    expect(borderSelect()?.className).not.toContain("ant-radio-button-wrapper-checked");
+    expect(borderSource()?.value).toBe("border-image");
     expect(carouselSlides[0]?.getAttribute("aria-hidden")).toBe("false");
-    borderDropdown()?.querySelector<HTMLButtonElement>(".ant-dropdown-trigger")?.click();
+    chooseBorder("border-image");
     expect(carouselSlides[5]?.getAttribute("aria-hidden")).toBe("false");
     expect(
       carouselControls
         ?.querySelector(".runtime-media-carousel-divider")?.getAttribute("aria-orientation"),
     ).toBe("vertical");
-    const borderVariants = carouselControls?.querySelector<HTMLElement>(
-      ".runtime-carousel-border-variants",
-    );
-    expect(borderVariants?.hidden).toBe(false);
-    const layerDropdown = () => carouselControls?.querySelector<HTMLElement>(
-      ".runtime-carousel-border-variant-dropdown",
-    );
-    const layerItems = () => layerDropdown()?.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-item]") ?? [];
-    expect(layerDropdown()?.querySelector(".ant-dropdown-trigger")?.getAttribute("aria-label")).toBe("Layer 1 border");
-    expect(layerDropdown()?.querySelector(".ant-dropdown-down-icon")?.getAttribute("aria-hidden")).toBe("true");
-    expect(Array.from(layerItems(), (button) => button.textContent.replace("✓", ""))).toEqual([
+    const layerSelect = () => carouselControls?.querySelectorAll<HTMLElement>(
+      ".runtime-carousel-border-select",
+    )[1];
+    const layerSource = () => layerSelect()?.querySelector<HTMLSelectElement>("select");
+    const layerItems = () => layerSource()?.querySelectorAll<HTMLOptionElement>("option") ?? [];
+    const chooseLayer = (value: string) => {
+      const source = layerSource();
+      if (!source) return;
+      source.value = value;
+      source.dispatchEvent(new Event("change"));
+    };
+    expect(layerSelect()?.hidden).toBe(false);
+    expect(layerSource()?.getAttribute("aria-label")).toBe("Layer 1 border");
+    expect(Array.from(layerItems(), (option) => option.textContent)).toEqual([
       "Border-base",
       "Border-top",
     ]);
-    layerItems()[0]?.click();
-    expect(layerDropdown()?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Layer 1 border: Border-base");
+    chooseLayer("https://example.test/border-base.png");
+    expect(layerSource()?.value).toBe("https://example.test/border-base.png");
     expect(
       [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
     ).toBe("https://example.test/border-base.png");
-    expect(borderItems()[1]?.getAttribute("aria-checked")).toBe("true");
+    expect(borderSource()?.value).toBe("border-image");
     carouselControls
       ?.querySelector<HTMLButtonElement>(".runtime-media-carousel-download")
       ?.click();
@@ -1555,7 +1565,7 @@ describe("runtime DOM boundaries", () => {
         "noopener,noreferrer",
       ),
     );
-    borderItems()[0]?.click();
+    chooseBorder("other-media-0");
     expect(carouselSlides[4]?.getAttribute("aria-hidden")).toBe("false");
     expect(carouselSlides[5]?.getAttribute("aria-hidden")).toBe("true");
     carouselSlides[4]?.dispatchEvent(new Event("error"));
@@ -1565,7 +1575,7 @@ describe("runtime DOM boundaries", () => {
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
     ).toBe(true);
-    expect(borderItems()[0]?.getAttribute("aria-checked")).toBe("true");
+    expect(borderSource()?.value).toBe("other-media-0");
     expect(carousel?.querySelectorAll(".ant-carousel-slide")).toHaveLength(6);
     const borderPreviewError = borderSection?.querySelector<HTMLElement>(
       ".runtime-border-load-error",
@@ -1578,9 +1588,9 @@ describe("runtime DOM boundaries", () => {
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
     ).toBe(true);
-    borderItems()[1]?.click();
-    layerItems()[1]?.click();
-    expect(layerDropdown()?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Layer 1 border: Border-top");
+    chooseBorder("border-image");
+    chooseLayer("https://example.test/border-top.png");
+    expect(layerSource()?.value).toBe("https://example.test/border-top.png");
     expect(
       [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
     ).toBe("https://example.test/border-top.png");
