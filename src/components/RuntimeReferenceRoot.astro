@@ -160,14 +160,19 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   const skinNavigation = document.querySelector<HTMLElement>('[data-runtime-skin-navigation]');
   const footer = document.querySelector<HTMLElement>('footer');
   if (skinNavigation && footer) {
+    const pageShell = skinNavigation.closest<HTMLElement>('[data-runtime-page-shell]');
     const baseBottom = Number.parseFloat(getComputedStyle(skinNavigation).bottom) || 72;
+    const pageSpacing = getComputedStyle(document.documentElement);
+    const footerGap = Number.parseFloat(pageSpacing.getPropertyValue('--space-3'));
+    const contentGap = Number.parseFloat(pageSpacing.getPropertyValue('--space-4'));
     const updatePosition = () => {
-      const footerTop = footer.getBoundingClientRect().top;
       const height = skinNavigation.offsetHeight;
-      const gap = 12;
-      skinNavigation.style.setProperty('--runtime-skin-navigation-bottom', `${Math.max(baseBottom, window.innerHeight - footerTop + gap)}px`);
+      if (skinNavigation.hidden) pageShell?.style.removeProperty('--runtime-skin-navigation-page-padding');
+      else pageShell?.style.setProperty('--runtime-skin-navigation-page-padding', `${height + footerGap + contentGap}px`);
+      const footerTop = footer.getBoundingClientRect().top;
+      skinNavigation.style.setProperty('--runtime-skin-navigation-bottom', `${Math.max(baseBottom, window.innerHeight - footerTop + footerGap)}px`);
       const headerHeight = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--site-header-height')) || 0;
-      skinNavigation.toggleAttribute('data-footer-occluded', footerTop <= height + headerHeight + gap);
+      skinNavigation.toggleAttribute('data-footer-occluded', footerTop <= height + headerHeight + footerGap);
     };
     window.addEventListener('scroll', updatePosition, { passive: true });
     window.addEventListener('resize', updatePosition);
@@ -182,10 +187,11 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   .runtime-skin-navigation-side { position: absolute; top: 50%; display: flex; align-items: center; gap: var(--space-2); max-width: calc(50vw - var(--page-gutter)); transform: translateY(-50%); }
   .runtime-skin-navigation-side--previous { left: var(--page-gutter); }
   .runtime-skin-navigation-side--next { right: var(--page-gutter); }
-  .runtime-skin-navigation-button.ant-btn-text { width: max-content; min-width: var(--touch-target); min-height: var(--touch-target); max-width: 100%; gap: var(--space-2); padding: 8px 12px; border-color: transparent; background: transparent; color: var(--text); box-shadow: none; pointer-events: auto; }
+  .runtime-skin-navigation-button.ant-btn-text { width: max-content; min-width: var(--touch-target); min-height: var(--touch-target); max-width: 100%; gap: var(--space-2); padding: 8px 12px; border-color: transparent; background: transparent; color: var(--text); font-size: var(--font-size-body); font-weight: 600; line-height: var(--line-height-body); box-shadow: none; pointer-events: auto; }
   .runtime-skin-navigation-button.ant-btn-text:hover:not(:disabled) { border-color: transparent; background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--gold); }
+  .runtime-skin-navigation-button:not(:disabled) svg { color: var(--gold); }
   .runtime-skin-navigation-button svg { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .runtime-skin-navigation-name { display: block; min-width: 0; max-width: min(10rem, calc(50vw - var(--page-gutter) - var(--touch-target) - var(--space-2) - 26px)); overflow: hidden; color: inherit; font-size: var(--font-size-small); line-height: var(--line-height-small); text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+  .runtime-skin-navigation-name { display: block; min-width: 0; max-width: min(10rem, calc(50vw - var(--page-gutter) - var(--touch-target) - var(--space-2) - 26px)); overflow: hidden; color: inherit; font-size: inherit; font-weight: inherit; line-height: inherit; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
   .runtime-skin-navigation-side--next .runtime-skin-navigation-name { text-align: right; }
   .runtime-skin-navigation-name[hidden] { display: none; }
   @media (min-width: 1600px) {
@@ -194,6 +200,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
     .runtime-skin-navigation-name { max-width: min(10rem, calc((100vw - var(--content-width)) / 2 - var(--touch-target) - var(--space-2) - 26px)); }
   }
   @media (max-width: 1599px) {
+    .runtime-page:has([data-runtime-skin-navigation]:not([hidden])) { padding-bottom: var(--runtime-skin-navigation-page-padding, calc(var(--space-5) * 3)); }
     .runtime-skin-navigation { inset: auto auto var(--runtime-skin-navigation-bottom, calc(env(safe-area-inset-bottom) + 72px)) 50%; width: min(560px, calc(100vw - (var(--page-gutter) * 2))); display: flex; align-items: center; gap: var(--space-2); padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-popup); backdrop-filter: blur(12px); transform: translateX(-50%); }
     .runtime-skin-navigation[data-footer-occluded] { visibility: hidden; }
     .runtime-skin-navigation-side { position: static; top: auto; left: auto; right: auto; width: calc((100% - var(--space-2)) / 2); max-width: none; min-width: 0; transform: none; }
@@ -203,5 +210,9 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
     .runtime-skin-navigation-side--next .runtime-skin-navigation-button { justify-content: flex-end; }
     .runtime-skin-navigation-name { display: -webkit-box; flex: 1 1 auto; max-width: none; overflow: hidden; line-height: 1.35; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
     .runtime-skin-navigation-side--next .runtime-skin-navigation-name { text-align: right; }
+  }
+  @media (min-width: 768px) and (max-width: 1599px) {
+    .runtime-skin-navigation { width: min(var(--content-width), calc(100vw - (var(--page-gutter) * 2))); }
+    .runtime-skin-navigation-button.ant-btn-text { padding-inline: 12px; }
   }
 </style>
