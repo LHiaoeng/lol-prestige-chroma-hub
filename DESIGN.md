@@ -230,13 +230,9 @@ components:
     backgroundColor: '{colors.surface-elevated}'
     textColor: '{colors.on-surface}'
     rounded: '{rounded.lg}'
-    padding-block: 5px
-    width: 160px
-    item-height: 40px
-    item-margin-block: 4px
-    item-margin-inline: 4px
-    item-width: calc(100% - 8px)
-    item-padding-inline: 16px
+    padding: 4px
+    item-height: 32px
+    item-padding: 5px 12px
 ---
 
 # LoL Chroma Art 夜间设计规范
@@ -297,7 +293,7 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 - Menu/Tabs：水平 Menu 用主色文字与 2px 底部指示条标记选中项，不使用选中背景色；Tabs 用主色文字和 2px 下划线。键盘焦点与当前位置分别可辨识。
 - Table/Tag：表头用弱填色和14px/600字体；Tag用独立暗色填色、12px文字、4px圆角。彩色 Tag 对应预设色系，关键信息不只靠颜色。
 - Alert/Badge：四类 Alert 用对应暗色背景和边框，正文保持主文本；状态点必须有文字或可访问名称。
-- Tooltip/Dropdown：Tooltip 使用 spotlight 表面与白字；Dropdown 使用 elevated 表面，默认宽度160px、纵向内边距5px；菜单项高40px、内外横向间距16px/4px、纵向外间距4px。窄屏或触控输入时菜单项点击区域至少44px；条目悬停叠加 surface-hover。浮层检查层级、键盘关闭与焦点返回，避开手机安全区。
+- Tooltip/Dropdown：Tooltip 使用 spotlight 表面与白字；Dropdown 按上游样式使用 elevated 菜单表面、4px 内边距和 8px 圆角，菜单项默认高 32px、内边距 5px 12px。触控输入时菜单项点击区域至少 44px；条目悬停叠加 surface-hover，选中项使用主色与选中背景。浮层检查层级、键盘关闭与焦点返回，避开手机安全区。
 - Divider：内容区水平分隔和行内垂直分隔使用共享组件，线条使用 outline Token；带文字时文字与分隔线保持清晰间距。
 
 ## Do's and Don'ts

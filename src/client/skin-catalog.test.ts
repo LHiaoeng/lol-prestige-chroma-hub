@@ -592,6 +592,9 @@ describe("skin catalog browser behavior", () => {
     expect(framed.every((artwork) => !artwork.hidden)).toBe(true);
     expect(plain.every((artwork) => artwork.hidden)).toBe(true);
     expect(page.showFramedScreens.checked).toBe(true);
+    expect(
+      framed[0].querySelector(".skin-catalog-card-border")?.src,
+    ).toBe("https://example.com/border.png");
     expect(plain[1].querySelector("img")?.src).toBe("https://example.com/plain.jpg");
     expect(framed[1].querySelector("img")?.src).toBe("https://example.com/framed.jpg");
     expect(framed[1].querySelector(".skin-catalog-card-border")).toBeNull();
@@ -614,5 +617,26 @@ describe("skin catalog browser behavior", () => {
     expect(framed.every((artwork) => !artwork.hidden)).toBe(true);
     expect(plain.every((artwork) => artwork.hidden)).toBe(true);
     expect(first.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("falls back to the plain loading screen when a transparent border layer fails", async () => {
+    const page = fixture(
+      undefined,
+      vi.fn(async () => ({
+        skins: [borderedSkin(901), vintageBorderedSkin(902)],
+        champions,
+      })),
+    );
+    await vi.waitFor(() => expect(page.grid.querySelectorAll(".skin-catalog-card")).toHaveLength(2));
+    const [borderedCard] = page.grid.querySelectorAll(".skin-catalog-card");
+    const plain = borderedCard?.querySelector(".skin-catalog-card-artwork--plain");
+    const framed = borderedCard?.querySelector(".skin-catalog-card-artwork--framed");
+    borderedCard?.querySelector(".skin-catalog-card-border")?.fire("error");
+
+    expect(plain?.hidden).toBe(false);
+    expect(framed?.hidden).toBe(true);
+    expect(borderedCard?.querySelector(".skin-catalog-artwork-toggle")).toBeNull();
+    expect(page.grid.querySelectorAll(".skin-catalog-artwork-toggle")).toHaveLength(1);
+    expect(page.framedCount.textContent).toBe("1 / 1 framed");
   });
 });

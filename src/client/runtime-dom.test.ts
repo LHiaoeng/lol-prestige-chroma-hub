@@ -9,6 +9,7 @@ import {
   appendPbeSkinCard,
   createRuntimePbeRenderer,
 } from "./runtime-reference-pbe-renderer";
+import { appendMediaCarousel } from "./runtime-reference-view-shared";
 import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 
 function dataProperty(attribute: string): string {
@@ -61,6 +62,7 @@ class TestElement {
   }
 
   readonly classList = {
+    contains: (name: string): boolean => this.className.split(" ").includes(name),
     add: (name: string): void => {
       const classes = this.className.split(" ").filter(Boolean);
       if (!classes.includes(name)) this.setAttribute("class", [...classes, name].join(" "));
@@ -101,6 +103,11 @@ class TestElement {
       );
       node = node.parentElement;
     }
+    this.ownerDocument.dispatch("click", { target: this });
+  }
+
+  focus(): void {
+    this.ownerDocument.activeElement = this;
   }
 
   contains(target: TestElement): boolean {
@@ -200,8 +207,11 @@ class TestElement {
   matches(selector: string): boolean {
     if (selector.includes(","))
       return selector.split(",").some((part) => this.matches(part.trim()));
-    const data = selector.match(/^\[data-([a-z0-9-]+)\]$/);
-    if (data) return dataProperty(`data-${data[1]}`) in this.dataset;
+    const data = selector.match(/^\[data-([a-z0-9-]+)(?:="([^"]*)")?\]$/);
+    if (data) {
+      const key = dataProperty(`data-${data[1]}`);
+      return key in this.dataset && (data[2] === undefined || this.dataset[key] === data[2]);
+    }
     const metaData = selector.match(/^meta\[data-([a-z0-9-]+)\]$/);
     if (metaData)
       return (
@@ -229,6 +239,8 @@ class TestElement {
 
 class TestDocument {
   readonly head = new TestElement("head");
+  readonly body = new TestElement("body");
+  activeElement: TestElement | null = null;
   readonly listeners = new Map<string, ((event: Record<string, unknown>) => void)[]>();
   defaultView: { location: { href: string; search: string } } | null = null;
 
@@ -243,11 +255,11 @@ class TestDocument {
   }
 
   querySelector<T = TestElement>(selector: string): T | null {
-    return this.head.querySelector<T>(selector);
+    return this.head.querySelector<T>(selector) ?? this.body.querySelector<T>(selector);
   }
 
   querySelectorAll<T = TestElement>(selector: string): T[] {
-    return this.head.querySelectorAll<T>(selector);
+    return [...this.head.querySelectorAll<T>(selector), ...this.body.querySelectorAll<T>(selector)];
   }
 
   createElement(tagName: string): TestElement {
@@ -290,6 +302,23 @@ function createDomRuntimeView(
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
+  it("keeps the border dropdown available when it is the only media control", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    const parent = document.createElement("div");
+    document.body.append(parent);
+    appendMediaCarousel(parent as unknown as HTMLElement, {
+      loadScreenVintageUrl: "https://example.test/bordered.jpg",
+    }, "default", "Border only");
+    const group = parent.querySelector(".ant-radio-group-button");
+    const dropdown = group?.querySelector(".runtime-carousel-border-dropdown");
+    expect(dropdown).not.toBeNull();
+    expect(dropdown?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Bordered loading screen");
+    expect(dropdown?.querySelector(".ant-dropdown-down-icon")?.parentElement?.className).toBe("ant-dropdown-trigger");
+    expect(dropdown?.querySelector("[data-ant-dropdown-item]")?.getAttribute("aria-checked")).toBe("true");
+    dropdown?.querySelector("[data-ant-dropdown-item]")?.click();
+    expect(dropdown?.className).toContain("ant-radio-button-wrapper-checked");
+  });
   it("shows only the PBE summary after a successful comparison", async () => {
     vi.stubGlobal("document", new TestDocument());
     const content = new TestElement("div");
@@ -1275,18 +1304,19 @@ describe("runtime DOM boundaries", () => {
     expect((navigate.mock.calls[4]?.[0] as URL).searchParams.get("id")).toBe("103000");
   });
 
-  it("renders skin media and historical artwork", () => {
+  it("renders skin media and historical artwork", async () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     const championSlot = new TestElement("span");
     championSlot.dataset.runtimeSkinChampion = "";
     document.head.append(championSlot);
+    const windowOpen = vi.fn();
     vi.stubGlobal("window", {
       addEventListener: vi.fn(),
+      open: windowOpen,
       location: {
         origin: "https://chromaart.lol",
-        pathname: "/skins/detail/",
-      },
+        pathname: "/skins/detail/" },
     });
     const root = new TestElement("div");
     const status = new TestElement("p");
@@ -1294,6 +1324,7 @@ describe("runtime DOM boundaries", () => {
     const content = new TestElement("div");
     content.dataset.runtimeContent = "";
     root.append(status, content);
+    document.body.append(root);
     const source = new TestElement("div");
     const view = createDomRuntimeView({
       root: root as unknown as HTMLElement,
@@ -1324,11 +1355,15 @@ describe("runtime DOM boundaries", () => {
           unfocusedSplashUrl: "https://example.test/uncentered.jpg",
           tileUrl: "https://example.test/tile.jpg",
           loadScreenUrl: "https://example.test/load.jpg",
+          loadScreenVintageUrl: "https://example.test/load-vintage.jpg",
           animatedSplashUrl: "https://example.test/animated.webm",
           loadScreenBorders: [
-            { layer: 0, priority: 0, contentId: "border-a", url: "https://example.test/border-base.png" },
-            { layer: 0, priority: 1, contentId: "border-b", url: "https://example.test/border-top.png" },
-            { layer: 1, priority: 0, contentId: "border-s", url: "https://example.test/border-signature.png" },
+            { layer: 0, priority: 0, contentId: "border-a", url: "https://example.test/border-base.png",
+            },
+            { layer: 0, priority: 1, contentId: "border-b", url: "https://example.test/border-top.png",
+            },
+            { layer: 1, priority: 0, contentId: "border-s", url: "https://example.test/border-signature.png",
+            },
           ],
         },
         historicalArt: [
@@ -1360,94 +1395,208 @@ describe("runtime DOM boundaries", () => {
     );
 
     const mediaSection = content.querySelector(".runtime-skin-media");
-    expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(4);
-    expect(mediaSection?.querySelectorAll("[data-media-preview-trigger]")).toHaveLength(5);
-    expect(mediaSection?.querySelector(".runtime-loadscreen-frame")).not.toBeNull();
+    expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(
+      5,
+    );
+    expect(mediaSection?.querySelectorAll("[data-media-preview-trigger]"),
+    ).toHaveLength(7);
+    expect(mediaSection?.querySelector(".runtime-loadscreen-frame"),
+    ).not.toBeNull();
     expect(
       [...(mediaSection?.querySelectorAll(".runtime-media-item") ?? [])].some(
         (item) => item.querySelector(".runtime-media-preview-trigger")?.querySelector("img")?.src === "https://example.test/load.jpg",
       ),
     ).toBe(true);
 
-    const borderSection = content.querySelector(".runtime-skin-borders");
-    const borderLayers = borderSection?.querySelectorAll(".runtime-loadscreen-border");
-    expect(borderSection?.querySelector(".runtime-loadscreen-art")?.src).toBe(
-      "https://example.test/load.jpg",
+    const borderSection = content.querySelector<HTMLElement>(
+      '[data-border-preview="border"]',
     );
-    expect(borderLayers?.map((image) => image.src)).toEqual([
+    const borderLayers = borderSection?.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border",
+    );
+    const vintagePreviewTrigger = [
+      ...(mediaSection?.querySelectorAll<HTMLElement>(
+        "[data-media-preview-trigger]",
+      ) ?? []),
+    ].find((trigger) => trigger.dataset.previewKey === "loadScreenVintageUrl");
+    expect(
+      vintagePreviewTrigger?.querySelector<HTMLImageElement>("img")?.src,
+    ).toBe("https://example.test/load-vintage.jpg");
+    expect([...(borderLayers ?? [])].map((image) => image.src)).toEqual([
       "https://example.test/border-top.png",
       "https://example.test/border-signature.png",
     ]);
     expect(
-      borderLayers?.every((image) => image.getAttribute("aria-hidden") === "true"),
+      [...(borderLayers ?? [])].every((image) => image.getAttribute("aria-hidden") === "true",
+      ),
     ).toBe(true);
-    const choices = borderSection?.querySelectorAll(".runtime-border-choice");
-    expect(choices).toHaveLength(2);
+    expect(
+      borderSection?.querySelectorAll(".runtime-border-choice"),
+    ).toHaveLength(0);
+    expect(borderSection?.querySelector('[data-preview-key="border-image"]'),
+    ).not.toBeNull();
+    expect(borderSection?.querySelector(".runtime-loadscreen-art")).toBeNull();
     expect(borderSection?.querySelector("[data-download-kind]")).toBeNull();
-    expect(borderSection?.querySelector(".runtime-border-composite-download")).toBeNull();
-    const carouselControls = mediaSection?.querySelector(".runtime-media-carousel-controls");
+    expect(borderSection?.querySelector(".runtime-border-composite-download"),
+    ).toBeNull();
+    const carouselControls = mediaSection?.querySelector(".runtime-media-carousel-controls",
+    );
     const carousel = mediaSection?.querySelector(".runtime-media-carousel");
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.getAttribute("aria-label"),
     ).toBe("Download displayed media");
-    expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-icon-only")).not.toBeNull();
-    expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-sm")).toBeNull();
-    expect(carouselControls?.querySelector(".ant-radio-group-middle")).not.toBeNull();
-    const carouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input") ?? [];
+    expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-icon-only",
+      ),
+    ).not.toBeNull();
+    expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-sm",
+      ),
+    ).toBeNull();
+    expect(carouselControls?.querySelector(".ant-radio-group-middle"),
+    ).not.toBeNull();
+    const borderDropdown = () => carouselControls?.querySelector<HTMLElement>(
+      ".runtime-carousel-border-dropdown",
+    );
+    const borderItems = () => borderDropdown()?.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-item]") ?? [];
+    expect(borderDropdown()?.parentElement?.className).toContain("ant-radio-group-button");
+    expect(borderDropdown()?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Bordered loading screen");
+    expect(borderDropdown()?.querySelector(".ant-dropdown-trigger")?.getAttribute("aria-label")).toBe("Borders: Bordered loading screen");
+    expect(Array.from(borderItems(), (button) => button.textContent.replace("✓", ""))).toEqual([
+      "Bordered loading screen",
+      "Transparent border image",
+    ]);
+    expect(borderItems()[0]?.getAttribute("aria-checked")).toBe("true");
+    borderDropdown()?.querySelector<HTMLButtonElement>(".ant-dropdown-trigger")?.click();
+    expect(borderDropdown()?.querySelector(".ant-dropdown-trigger")?.getAttribute("aria-expanded")).toBe("true");
+    const carouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input",
+      ) ?? [];
     const carouselSlides = carousel?.querySelectorAll<HTMLElement>(".ant-carousel-slide") ?? [];
     expect(carouselOptions.map((option) => option.value)).toEqual([
       "artwork-video",
       "artwork-image",
       "other-media-0",
       "other-media-1",
-      "borders",
     ]);
-    expect(carouselOptions.map((option) => option.getAttribute("aria-controls"))).toEqual(
-      carouselSlides.map((slide) => slide.id),
-    );
+    expect(
+      carouselSlides).toHaveLength(6);
+    expect(carouselSlides[4]?.getAttribute("aria-hidden")).toBe("false");
     const lastViewedTrigger = [
-      ...(carouselSlides[1]?.querySelectorAll<HTMLElement>("[data-media-preview-trigger]") ?? []),
+      ...(carouselSlides[1]?.querySelectorAll<HTMLElement>("[data-media-preview-trigger]",
+      ) ?? []),
     ].find((trigger) => trigger.dataset.previewKey === "unfocusedSplashUrl");
-    carousel?.dispatchEvent(new CustomEvent("media-preview-close", { detail: lastViewedTrigger }));
-    const syncedCarouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input") ?? [];
+    carousel?.dispatchEvent(new CustomEvent("media-preview-close", { detail: lastViewedTrigger }),
+    );
+    const syncedCarouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input",
+      ) ?? [];
     expect(syncedCarouselOptions[0]?.checked).toBe(false);
     expect(syncedCarouselOptions[1]?.checked).toBe(true);
-    expect(carouselControls?.querySelectorAll(".ant-radio-button-wrapper")[1]?.textContent)
+    expect(carouselControls?.querySelectorAll(".ant-radio-button-wrapper")[1]?.textContent,
+    )
       .toBe("Static artwork · Unfocused");
-    expect(carouselSlides[1]?.querySelector(".runtime-media-preview-trigger")?.querySelector("img")?.src)
+    expect(carouselSlides[1]?.querySelector(".runtime-media-preview-trigger")?.querySelector("img")?.src,
+    )
       .toBe("https://example.test/uncentered.jpg");
+    const borderedLoadscreenTrigger = [
+      ...(carouselSlides[4]?.querySelectorAll<HTMLElement>(
+        "[data-media-preview-trigger]",
+      ) ?? []),
+    ].find((trigger) => trigger.dataset.previewKey === "loadScreenVintageUrl");
+    carousel?.dispatchEvent(
+      new CustomEvent("media-preview-close", {
+        detail: borderedLoadscreenTrigger,
+      }),
+    );
+    expect(borderItems()[0]?.getAttribute("aria-checked")).toBe("true");
+    const borderPreviewTrigger = [
+      ...(carouselSlides[5]?.querySelectorAll<HTMLElement>(
+        "[data-media-preview-trigger]",
+      ) ?? []),
+    ].find((trigger) => trigger.dataset.previewKey === "border-image");
+    carousel?.dispatchEvent(
+      new CustomEvent("media-preview-close", { detail: borderPreviewTrigger }),
+    );
+    expect(borderItems()[1]?.getAttribute("aria-checked")).toBe("true");
+    expect(borderDropdown()?.className).toContain("ant-radio-button-wrapper-checked");
+    carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input")[0]?.click();
+    expect(borderDropdown()?.className).not.toContain("ant-radio-button-wrapper-checked");
+    expect(borderItems()[1]?.getAttribute("aria-checked")).toBe("true");
+    expect(carouselSlides[0]?.getAttribute("aria-hidden")).toBe("false");
+    borderDropdown()?.querySelector<HTMLButtonElement>(".ant-dropdown-trigger")?.click();
+    expect(carouselSlides[5]?.getAttribute("aria-hidden")).toBe("false");
     expect(
-      carouselControls?.querySelector(".runtime-media-carousel-divider")?.getAttribute("aria-orientation"),
+      carouselControls
+        ?.querySelector(".runtime-media-carousel-divider")?.getAttribute("aria-orientation"),
     ).toBe("vertical");
-    const borderFrame = borderSection?.querySelector<HTMLElement>(".runtime-loadscreen-frame");
-    const borderMode = borderSection?.querySelector<HTMLInputElement>('input[value="border"]');
-    expect(borderFrame?.dataset.borderMode).toBe("loadscreen");
-    expect(
-      borderSection?.querySelector<HTMLInputElement>('input[value="loadscreen"]')?.checked,
-    ).toBe(true);
-    expect(borderMode?.checked).toBe(false);
-    borderMode?.click();
-    expect(borderFrame?.dataset.borderMode).toBe("border");
-    expect(borderFrame?.querySelector<HTMLImageElement>(".runtime-loadscreen-art")?.hidden).toBe(true);
-    borderSection?.querySelector<HTMLInputElement>('input[value="loadscreen"]')?.click();
-    expect(borderFrame?.dataset.borderMode).toBe("loadscreen");
-    expect(choices?.[1]?.getAttribute("aria-pressed")).toBe("true");
-    choices?.[0]?.click();
+    const borderVariants = carouselControls?.querySelector<HTMLElement>(
+      ".runtime-carousel-border-variants",
+    );
+    expect(borderVariants?.hidden).toBe(false);
+    const layerDropdown = () => carouselControls?.querySelector<HTMLElement>(
+      ".runtime-carousel-border-variant-dropdown",
+    );
+    const layerItems = () => layerDropdown()?.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-item]") ?? [];
+    expect(layerDropdown()?.querySelector(".ant-dropdown-trigger")?.getAttribute("aria-label")).toBe("Layer 1 border");
+    expect(layerDropdown()?.querySelector(".ant-dropdown-down-icon")?.getAttribute("aria-hidden")).toBe("true");
+    expect(Array.from(layerItems(), (button) => button.textContent.replace("✓", ""))).toEqual([
+      "Border-base",
+      "Border-top",
+    ]);
+    layerItems()[0]?.click();
+    expect(layerDropdown()?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Layer 1 border: Border-base");
     expect(
       [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
     ).toBe("https://example.test/border-base.png");
-    expect(choices?.[0]?.getAttribute("aria-pressed")).toBe("true");
-    expect(choices?.[1]?.getAttribute("aria-pressed")).toBe("false");
+    expect(borderItems()[1]?.getAttribute("aria-checked")).toBe("true");
+    carouselControls
+      ?.querySelector<HTMLButtonElement>(".runtime-media-carousel-download")
+      ?.click();
+    await vi.waitFor(() =>
+      expect(windowOpen).toHaveBeenCalledWith(
+        "https://example.test/border-base.png",
+        "_blank",
+        "noopener,noreferrer",
+      ),
+    );
+    borderItems()[0]?.click();
+    expect(carouselSlides[4]?.getAttribute("aria-hidden")).toBe("false");
+    expect(carouselSlides[5]?.getAttribute("aria-hidden")).toBe("true");
+    carouselSlides[4]?.dispatchEvent(new Event("error"));
+    expect(
+      carouselSlides[4]?.querySelector(".runtime-media-load-error")?.textContent,
+    ).toBe("Bordered loading screen failed to load");
+    expect(
+      carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
+    ).toBe(true);
+    expect(borderItems()[0]?.getAttribute("aria-checked")).toBe("true");
+    expect(carousel?.querySelectorAll(".ant-carousel-slide")).toHaveLength(6);
+    const borderPreviewError = borderSection?.querySelector<HTMLElement>(
+      ".runtime-border-load-error",
+    );
+    [...(borderLayers ?? [])]
+      .find((image) => image.dataset.layer === "0")
+      ?.dispatchEvent(new Event("error"));
+    expect(borderPreviewError?.hidden).toBe(false);
+    expect(carouselSlides[5]?.parentElement).not.toBeNull();
+    expect(
+      carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
+    ).toBe(true);
+    borderItems()[1]?.click();
+    layerItems()[1]?.click();
+    expect(layerDropdown()?.querySelector(".ant-dropdown-trigger")?.textContent).toBe("Layer 1 border: Border-top");
+    expect(
+      [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
+    ).toBe("https://example.test/border-top.png");
+    expect(
+      carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
+    ).toBe(false);
     expect(mediaSection?.querySelector("video")?.src).toBe(
       "https://example.test/animated.webm",
     );
-    expect(content.querySelector(".runtime-skin-history")?.querySelector("h3")?.textContent).toBe(
-      "14.1",
-    );
+    expect(content.querySelector(".runtime-skin-history")?.querySelector("h3")?.textContent,
+    ).toBe(
+      "14.1");
     expect(content.querySelector(".runtime-stage-media")).toBeNull();
-    expect(document.head.querySelector("[data-runtime-skin-champion]")?.querySelector("a")?.href).toBe(
-      "/champions/detail/?id=103&channel=latest",
-    );
+    expect(document.head.querySelector("[data-runtime-skin-champion]")?.querySelector("a")?.href,
+    ).toBe(
+      "/champions/detail/?id=103&channel=latest");
 
   });
 

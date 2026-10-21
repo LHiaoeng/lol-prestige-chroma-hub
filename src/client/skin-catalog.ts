@@ -132,6 +132,7 @@ export function initSkinCatalog(
   let framedByDefault = true;
   let emblemsVisible = true;
   const framedOverrides = new Map<number, boolean>();
+  const failedBorderModes = new Set<number>();
   const artworkModes = new Map<number, { plain: HTMLElement; framed: HTMLElement }>();
   const popoverCleanups: (() => void)[] = [];
   const clearPopovers = () => {
@@ -139,12 +140,13 @@ export function initSkinCatalog(
     popoverCleanups.length = 0;
   };
   const loadingScreenModes = (item: RuntimeSkinReferenceItem): SkinCatalogArtworkMode | undefined => {
+    if (failedBorderModes.has(item.id)) return;
     const plainUrl = item.media.loadScreenUrl;
     if (!plainUrl) return;
     if (item.media.loadScreenVintageUrl)
       return { plainUrl, framedUrl: item.media.loadScreenVintageUrl, borderUrls: [] };
     const borders = resolveBorderModule(item.media);
-    if (borders?.kind !== "composite") return;
+    if (!borders) return;
     return {
       plainUrl,
       framedUrl: plainUrl,
@@ -280,7 +282,16 @@ export function initSkinCatalog(
           border.src = url;
           border.alt = "";
           border.loading = "lazy";
-          border.addEventListener("error", () => border.remove());
+          border.addEventListener("error", () => {
+            failedBorderModes.add(item.id);
+            framed.hidden = true;
+            plain.hidden = false;
+            framedOverrides.set(item.id, false);
+            artworkModes.delete(item.id);
+            modeToggle?.closest<HTMLElement>(".skin-catalog-card-action-tooltip")?.remove();
+            syncFramedSetting();
+            border.remove();
+          }, { once: true });
           framed.append(border);
         }
         modeToggle = document.createElement("button");
@@ -589,6 +600,7 @@ export function initSkinCatalog(
         items = result.items;
         pbeNewSkinIds = result.pbeNewSkinIds;
         framedOverrides.clear();
+        failedBorderModes.clear();
         const available = new Set(items.map((item) => catalogRarityKey(item, locale) || UNMARKED_RARITY));
         state = {
           ...context.target,

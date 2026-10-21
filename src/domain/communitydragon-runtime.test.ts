@@ -448,18 +448,12 @@ describe("CommunityDragon runtime reference", () => {
     expect(
       resolveBorderModule({
         loadScreenUrl: "https://x.test/load.jpg",
-        loadScreenBorders: borders,
-      }),
-    ).toMatchObject({ kind: "composite", artUrl: "https://x.test/load.jpg" });
-
-    expect(
-      resolveBorderModule({
-        loadScreenUrl: "https://x.test/load.jpg",
         loadScreenVintageUrl: "https://x.test/load_le.jpg",
         loadScreenBorders: borders,
       }),
-    ).toEqual({ kind: "baked", imageUrl: "https://x.test/load_le.jpg" });
+    ).toEqual({ artUrl: "https://x.test/load.jpg", groups });
 
+    expect(resolveBorderModule({ loadScreenBorders: borders })).toBeUndefined();
     expect(resolveBorderModule({ focusedSplashUrl: "https://x.test/a.jpg" })).toBeUndefined();
   });
 

@@ -700,13 +700,10 @@ export interface BorderVariantGroup {
   readonly options: readonly BorderVariantOption[];
 }
 
-export type BorderModule =
-  | { readonly kind: "baked"; readonly imageUrl: string }
-  | {
-      readonly kind: "composite";
-      readonly artUrl: string;
-      readonly groups: readonly BorderVariantGroup[];
-    };
+export interface BorderModule {
+  readonly artUrl: string;
+  readonly groups: readonly BorderVariantGroup[];
+}
 
 const borderLabelTokens: readonly (readonly [string, string, string])[] = [
   ["grandmaster", "Grandmaster", "傲世宗师"],
@@ -763,14 +760,10 @@ export function listBorderGroups(
 
 /** Single decision point for the dedicated skin-detail border section. */
 export function resolveBorderModule(media: RuntimeMedia): BorderModule | undefined {
-  if (media.loadScreenVintageUrl) {
-    return { kind: "baked", imageUrl: media.loadScreenVintageUrl };
-  }
   const groups = listBorderGroups(media.loadScreenBorders);
-  if (groups.length && media.loadScreenUrl) {
-    return { kind: "composite", artUrl: media.loadScreenUrl, groups };
-  }
-  return undefined;
+  return groups.length && media.loadScreenUrl
+    ? { artUrl: media.loadScreenUrl, groups }
+    : undefined;
 }
 
 const defaultRarityInfo: Readonly<Record<string, { label: string; icon?: string }>> = {

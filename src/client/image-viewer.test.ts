@@ -101,6 +101,7 @@ class TestGroup extends TestElement {
 }
 
 class TestTrigger extends TestElement {
+  tagName = "BUTTON";
   constructor(readonly original: TestMedia) { super(); Object.assign(this.dataset, { mediaPreviewTrigger: "", previewKind: "image", previewSrc: "first.jpg" }); }
   override querySelector<T extends TestElement>(selector?: string): T | null {
     return selector === "img, video" || selector?.toUpperCase() === this.original.tagName ? this.original as unknown as T : null;
@@ -200,12 +201,15 @@ describe("media viewer", () => {
     second.dataset.previewKind = "video";
     second.dataset.previewSrc = "clip.webm";
     second.dataset.previewFilename = "自定义视频.webm";
-    const group = new TestGroup([trigger, second]);
+    const unavailable = new TestTrigger(new TestMedia("IMG"));
+    unavailable.disabled = true;
+    const group = new TestGroup([trigger, unavailable, second]);
     trigger.group = second.group = group;
     let finish!: () => void;
     vi.mocked(downloadMediaFile).mockReturnValueOnce(new Promise<void>((resolve) => { finish = resolve; }));
     bindMediaViewers(root as unknown as ParentNode);
     root.dispatch("click", { target: trigger });
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 2");
     const download = controls.get("[data-media-viewer-download]")!;
     download.dispatch("click");
     download.dispatch("click");

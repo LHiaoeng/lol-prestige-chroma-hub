@@ -18,7 +18,8 @@ type PreviewTrigger = HTMLElement & { readonly dataset: DOMStringMap };
 function previewItems(trigger: PreviewTrigger): PreviewTrigger[] {
   const group = trigger.closest<HTMLElement>("[data-media-preview-group]");
   if (!group) return [trigger];
-  const items = [...group.querySelectorAll<PreviewTrigger>("[data-media-preview-trigger]")];
+  const items = [...group.querySelectorAll<PreviewTrigger>("[data-media-preview-trigger]")]
+    .filter((item) => item.tagName !== "BUTTON" || !(item as HTMLButtonElement).disabled);
   const variant = trigger.dataset.previewVariant;
   return variant ? items.filter((item) => item.dataset.previewVariant === variant) : items;
 }

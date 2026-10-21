@@ -83,7 +83,7 @@ export function createRadioButtonGroup(
     updateLabel(option.label);
 
     input.addEventListener("click", () => {
-      if (selectedValue === option.value && option.onReselect) {
+      if (selectedValue === option.value && wrapper.classList.contains("ant-radio-button-wrapper-checked") && option.onReselect) {
         updateLabel(option.onReselect());
       }
     });
