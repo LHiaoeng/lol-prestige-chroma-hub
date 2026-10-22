@@ -4,8 +4,11 @@ import {
   catalogRarityKey,
   filterSkinCatalogItems,
   formatSkinCatalogUrl,
+  getSkinCatalogTimelinePageEnd,
+  groupSkinCatalogTimelineItems,
   projectSkinCatalogItems,
   readSkinCatalogUrlState,
+  skinCatalogReleaseDate,
   type SkinCatalogReleaseDate,
 } from "./skin-catalog";
 
@@ -91,7 +94,7 @@ describe("skin catalog domain", () => {
         locale: "default",
         search: " bEtA ",
         rarities: ["key:kEpic", "unmarked"],
-        excludeClassic: false,
+        classicOnly: false,
         sort: "desc",
         ...dateContext,
       }).map((item) => item.name),
@@ -101,7 +104,7 @@ describe("skin catalog domain", () => {
         locale: "zh_cn",
         search: "",
         rarities: ["id:6"],
-        excludeClassic: false,
+        classicOnly: false,
         sort: "asc",
         ...dateContext,
       }).map((item) => item.name),
@@ -114,14 +117,14 @@ describe("skin catalog domain", () => {
         locale: "default",
         search: "",
         rarities: [],
-        excludeClassic: false,
+        classicOnly: false,
         sort: "desc",
         ...dateContext,
       }).map((item) => item.name),
     ).toEqual(["Blue Skin", "Blue Stage", "Red Skin"]);
   });
 
-  it("excludes names marked Classic or 经典 only when requested", () => {
+  it("shows only names marked Classic or 经典 when requested", () => {
     const namedItems = [
       ...items,
       { ...items[0], stableKey: "classic-cn", name: "经典皮肤" },
@@ -133,70 +136,151 @@ describe("skin catalog domain", () => {
       locale: "default",
       search: "",
       rarities: [],
-      excludeClassic: true,
+      classicOnly: true,
       sort: "asc",
       ...dateContext,
     });
     expect(filtered.map((item) => item.name).sort()).toEqual([
-      "Blue Skin", "Blue Stage", "Classical Skin", "Prestige Classic Skin", "Red Skin",
+      "Classic Skin", "经典皮肤",
     ]);
     expect(filterSkinCatalogItems(namedItems, {
-      locale: "default", search: "", rarities: [], excludeClassic: false, sort: "asc",
+      locale: "default", search: "", rarities: [], classicOnly: false, sort: "asc",
       ...dateContext,
     })).toHaveLength(7);
   });
 
-  it("sorts releases by locale, puts PBE additions first, and leaves unknown live dates last", () => {
+  it("sorts releases by locale, puts undated non-classic skins near the front, and leaves classic skins last", () => {
     const preview = { ...items[0], skinId: 5001, id: 5001, stableKey: "1:5001", name: "Preview" };
     const previewOtherChampion = { ...items[0], skinId: 3001, id: 3001, championId: 3, stableKey: "3:3001", name: "Preview Other Champion" };
     const sameDay = { ...items[0], skinId: 5002, id: 5002, championId: 3, stableKey: "3:5002", name: "Same Day" };
     const unknown = { ...items[0], skinId: 4001, id: 4001, championId: 5, stableKey: "5:4001", name: "Unknown" };
     const unknownOtherChampion = { ...items[0], skinId: 4002, id: 4002, championId: 2, stableKey: "2:4002", name: "Unknown Other Champion" };
-    const catalog = [unknown, ...items, previewOtherChampion, sameDay, preview, unknownOtherChampion];
+    const classicUnknown = { ...items[0], skinId: 60001301, id: 60001301, championId: 60001, stableKey: "60001:60001301", name: "Classic Annie" };
+    const catalog = [unknown, ...items, previewOtherChampion, sameDay, preview, unknownOtherChampion, classicUnknown];
     const datesWithUnknown = new Map(releaseDates)
       .set(4001, { globalReleaseDate: null, chinaReleaseDate: null })
       .set(4002, { globalReleaseDate: null, chinaReleaseDate: null })
       .set(5002, { globalReleaseDate: "2024-01-02", chinaReleaseDate: null });
-    const filters = { locale: "default" as const, search: "", rarities: [], excludeClassic: false, releaseDates: datesWithUnknown, pbeNewSkinIds: new Set([5001, 3001]) };
+    const filters = { locale: "default" as const, search: "", rarities: [], classicOnly: false, releaseDates: datesWithUnknown, pbeNewSkinIds: new Set([5001, 3001]) };
     expect(filterSkinCatalogItems(catalog, { ...filters, channel: "pbe", sort: "release_desc" }).map((item) => item.name))
-      .toEqual(["Preview", "Preview Other Champion", "Blue Skin", "Blue Stage", "Red Skin", "Same Day", "Unknown Other Champion", "Unknown"]);
+      .toEqual(["Preview", "Preview Other Champion", "Unknown Other Champion", "Unknown", "Blue Skin", "Blue Stage", "Red Skin", "Same Day", "Classic Annie"]);
     expect(filterSkinCatalogItems(catalog, { ...filters, channel: "pbe", sort: "release_asc" }).map((item) => item.name))
-      .toEqual(["Preview", "Preview Other Champion", "Red Skin", "Same Day", "Blue Skin", "Blue Stage", "Unknown Other Champion", "Unknown"]);
+      .toEqual(["Preview", "Preview Other Champion", "Unknown Other Champion", "Unknown", "Red Skin", "Same Day", "Blue Skin", "Blue Stage", "Classic Annie"]);
     expect(filterSkinCatalogItems(items, { ...filters, channel: "latest", sort: "release_asc" }).map((item) => item.name))
       .toEqual(["Red Skin", "Blue Skin", "Blue Stage"]);
     expect(filterSkinCatalogItems(items, { ...filters, locale: "zh_cn", channel: "latest", sort: "release_desc" }).map((item) => item.name))
       .toEqual(["Red Skin", "Blue Skin", "Blue Stage"]);
-    expect(filterSkinCatalogItems([unknown, ...items], { ...filters, channel: "latest", sort: "release_desc" }).at(-1)?.name)
-      .toBe("Unknown");
+    expect(filterSkinCatalogItems([unknown, classicUnknown, ...items], { ...filters, channel: "latest", sort: "release_desc" }).map((item) => item.name))
+      .toEqual(["Unknown", "Blue Skin", "Blue Stage", "Red Skin", "Classic Annie"]);
+  });
+
+  it("uses skinline, then champion, then skin ID within the same date or undated group", () => {
+    const candidates = [
+      { ...skins[1], id: 10001, championId: 10, name: "Aatrox", skinlineIds: [2], stages: [] },
+      { ...skins[1], id: 10002, championId: 1, name: "Zed", skinlineIds: [1], stages: [] },
+      { ...skins[1], id: 10003, championId: 99, name: "Ahri", skinlineIds: [1], stages: [] },
+      { ...skins[1], id: 10006, championId: 99, name: "Ahri", skinlineIds: [1], stages: [] },
+      { ...skins[1], id: 10004, championId: 2, name: "No series", skinlineIds: [], stages: [] },
+      { ...skins[1], id: 10005, championId: 3, name: "Newer date", skinlineIds: [3], stages: [] },
+    ];
+    const entries = projectSkinCatalogItems(candidates, [
+      { kind: "champion", id: 10, name: "Aatrox" },
+      { kind: "champion", id: 1, name: "Zed" },
+      { kind: "champion", id: 99, name: "Ahri" },
+      { kind: "champion", id: 2, name: "No series" },
+      { kind: "champion", id: 3, name: "Newer date" },
+    ]);
+    const dates = new Map<number, SkinCatalogReleaseDate>(candidates.map(({ id }) => [
+      id, { globalReleaseDate: id === 10005 ? "2024-01-02" : "2024-01-01", chinaReleaseDate: null },
+    ]));
+    const filters = { locale: "default" as const, search: "", rarities: [], classicOnly: false, sort: "release_desc" as const, channel: "latest" as const, releaseDates: dates, pbeNewSkinIds: new Set<number>() };
+    expect(filterSkinCatalogItems(entries, filters).map(({ skinId }) => skinId))
+      .toEqual([10005, 10003, 10006, 10002, 10001, 10004]);
+    expect(groupSkinCatalogTimelineItems(entries, filters).map((group) => group.items.map(({ skinId }) => skinId)))
+      .toEqual([[10005], [10003, 10006, 10002, 10001, 10004]]);
+    expect(groupSkinCatalogTimelineItems(entries, { ...filters, releaseDates: new Map() })[0].items.map(({ skinId }) => skinId))
+      .toEqual([10003, 10006, 10002, 10001, 10005, 10004]);
+  });
+
+  it("groups same-day skins and stages, with PBE and undated skins first and classics last", () => {
+    const stage = items.find((item) => item.kind === "stage")!;
+    const sameGlobalDay = { ...items[1], skinId: 3002, id: 3002, championId: 3, stableKey: "3:3002", name: "Other Skin" };
+    const pbe = { ...items[0], skinId: 5001, id: 5001, name: "PBE" };
+    const unknown = { ...items[0], skinId: 4001, id: 4001, name: "Unknown" };
+    const classic = { ...items[0], skinId: 60001301, id: 60001301, name: "Classic Annie" };
+    const dates = new Map(releaseDates)
+      .set(5001, { globalReleaseDate: "2025-01-01", chinaReleaseDate: null })
+      .set(3002, { globalReleaseDate: "2024-01-04", chinaReleaseDate: null })
+      .set(4001, { globalReleaseDate: null, chinaReleaseDate: null });
+    const groups = groupSkinCatalogTimelineItems(
+      [unknown, classic, sameGlobalDay, stage, items[1], items[0], pbe],
+      { locale: "default", channel: "pbe", sort: "release_desc", releaseDates: dates, pbeNewSkinIds: new Set([5001]) },
+    );
+    expect(groups.map((group) => [group.kind, "date" in group ? group.date : undefined, group.items.map((item) => item.name)])).toEqual([
+      ["pbe", undefined, ["PBE"]],
+      ["unknown", undefined, ["Unknown"]],
+      ["date", "2024-01-04", ["Blue Skin", "Blue Stage", "Other Skin"]],
+      ["date", "2024-01-02", ["Red Skin"]],
+      ["classic", undefined, ["Classic Annie"]],
+    ]);
+    expect(skinCatalogReleaseDate(stage, "zh_cn", dates)).toEqual({ date: "2024-01-04", source: "global" });
+  });
+
+  it("uses the country date when known and expands batches to whole timeline groups", () => {
+    expect(skinCatalogReleaseDate(items[0], "zh_cn", releaseDates)).toEqual({ date: "2024-01-05", source: "china" });
+    expect(skinCatalogReleaseDate(items[0], "default", releaseDates)).toEqual({ date: "2024-01-02", source: "wiki" });
+    const groups = [
+      { kind: "date" as const, date: "2024-01-01", items: Array.from({ length: 48 }, () => items[0]) },
+      { kind: "date" as const, date: "2024-01-02", items: Array.from({ length: 7 }, () => items[0]) },
+      { kind: "unknown" as const, items: Array.from({ length: 80 }, () => items[0]) },
+    ];
+    expect(getSkinCatalogTimelinePageEnd(groups, 0)).toBe(2);
+    expect(getSkinCatalogTimelinePageEnd(groups, 2)).toBe(3);
   });
 
   it("validates and round-trips shareable catalog conditions", () => {
     const url = new URL(
-      "https://example.test/skins/?q=%20Blue%20&rarity=key:kEpic&rarity=unmarked&excludeClassic=1&sort=desc&channel=latest",
+      "https://example.test/skins/?q=%20Blue%20&rarity=key:kEpic&rarity=unmarked&classicOnly=1&sort=desc&channel=latest&view=cards",
     );
     const state = readSkinCatalogUrlState(url);
     expect(state).toMatchObject({
       search: " Blue ",
       rarities: ["key:kEpic", "unmarked"],
-      excludeClassic: true,
+      classicOnly: true,
       sort: "desc",
+      view: "cards",
+      onlyPbeAdditions: false,
       channel: "latest",
       invalid: [],
     });
     expect(readSkinCatalogUrlState(formatSkinCatalogUrl(url, state))).toMatchObject({
       search: "Blue",
       rarities: ["key:kEpic", "unmarked"],
-      excludeClassic: true,
+      classicOnly: true,
       sort: "desc",
+      view: "cards",
+      onlyPbeAdditions: false,
       channel: "latest",
       invalid: [],
     });
     expect(
       readSkinCatalogUrlState(
-        new URL("https://example.test/skins/?rarity=bad&sort=random&channel=no&excludeClassic=true"),
+        new URL("https://example.test/skins/?rarity=bad&sort=random&channel=no&classicOnly=true"),
       ).invalid,
-    ).toEqual(["channel", "sort", "excludeClassic", "rarity"]);
-    expect(readSkinCatalogUrlState(new URL("https://example.test/skins/")).excludeClassic).toBe(false);
+    ).toEqual(["channel", "sort", "classicOnly", "rarity"]);
+    expect(readSkinCatalogUrlState(new URL("https://example.test/skins/"))).toMatchObject({ view: "timeline", classicOnly: false });
     expect(readSkinCatalogUrlState(formatSkinCatalogUrl(url, { ...state, sort: "release_desc" })).sort).toBe("release_desc");
+  });
+
+  it("round-trips timeline mode and the PBE additions filter, while invalid views fall back to timeline", () => {
+    const url = new URL("https://example.test/skins/?view=timeline&pbeOnly=1&q=Ahri");
+    const state = readSkinCatalogUrlState(url);
+    expect(state).toMatchObject({ view: "timeline", onlyPbeAdditions: true, search: "Ahri", invalid: [] });
+    expect(readSkinCatalogUrlState(formatSkinCatalogUrl(url, state))).toMatchObject({
+      view: "timeline", onlyPbeAdditions: true, search: "Ahri", invalid: [],
+    });
+    expect(readSkinCatalogUrlState(new URL("https://example.test/skins/?view=bad&pbeOnly=yes"))).toMatchObject({
+      view: "timeline", onlyPbeAdditions: false, invalid: ["pbeOnly"],
+    });
   });
 });

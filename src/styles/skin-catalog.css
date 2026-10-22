@@ -29,7 +29,7 @@
 .skin-catalog [data-catalog-count] { font-variant-numeric: tabular-nums; }
 .skin-catalog-toolbar label { display: inline-flex; align-items: center; gap: var(--space-2); }
 .skin-catalog-display-settings { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); min-width: 0; margin-right: auto; }
-.skin-catalog-toolbar > .cn-select { width: auto; }
+.skin-catalog-toolbar > .ant-select { width: auto; }
 .skin-catalog-toolbar .skin-catalog-framed-setting { justify-content: flex-start; color: var(--text); cursor: pointer; }
 .skin-catalog-toolbar .skin-catalog-emblems-setting { justify-content: flex-start; color: var(--text); cursor: pointer; }
 .skin-catalog-toolbar .skin-catalog-classic-setting { justify-content: flex-start; color: var(--text); cursor: pointer; }
@@ -91,3 +91,39 @@
 @media (max-width: 559px) { .skin-catalog { --catalog-columns: 2; } .skin-catalog-card-title { font-size: var(--font-size-small); line-height: var(--line-height-small); } .skin-catalog-card > .skin-catalog-rarity-tooltip { bottom: -10px; width: 20px; height: 20px; } .skin-catalog-card-rarity { width: 20px; height: 20px; } }
 @media (pointer: coarse) { .skin-catalog-rarity-options button { min-height: var(--touch-target); } }
 @media (prefers-reduced-motion: reduce) { .skin-catalog-results:not([hidden]) { animation: none; } }
+.skin-catalog-view-switch { display: flex; min-width: 0; }
+.skin-catalog-view-switch .ant-radio-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.skin-catalog-results { scroll-margin-top: var(--space-4); }
+.skin-catalog-timeline { min-width: 0; }
+.skin-catalog-timeline-list, .skin-catalog-timeline-entries, .skin-catalog-timeline-skeleton { min-width: 0; margin: 0; padding: 0; list-style: none; }
+.skin-catalog-timeline-list { display: grid; gap: 0; }
+.skin-catalog-timeline, .skin-catalog-timeline-skeleton { --skin-catalog-timeline-track-width: var(--space-3); --skin-catalog-timeline-dot-size: calc(var(--control-height-lg) / 4); --skin-catalog-timeline-dot-offset: calc((var(--line-height-headline-md) - var(--skin-catalog-timeline-dot-size)) / 2); }
+.skin-catalog-timeline-node { position: relative; display: grid; min-width: 0; padding: 0 0 calc(var(--space-3) + var(--space-1)) var(--skin-catalog-timeline-track-width); }
+.skin-catalog-timeline-node::before { position: absolute; top: calc(var(--skin-catalog-timeline-dot-size) + var(--skin-catalog-timeline-dot-offset)); right: auto; bottom: calc(0px - var(--skin-catalog-timeline-dot-offset)); left: 0; width: 0; border-left: var(--line-width-bold) solid var(--gold); content: ""; transform: translateX(-50%); }
+.skin-catalog-timeline-node::after { position: absolute; top: var(--skin-catalog-timeline-dot-offset); left: 0; box-sizing: border-box; width: var(--skin-catalog-timeline-dot-size); height: var(--skin-catalog-timeline-dot-size); border: var(--line-width-bold) solid var(--gold); border-radius: 50%; background: var(--panel); content: ""; transform: translateX(-50%); }
+.skin-catalog-timeline-node--process::before { display: none; }
+.skin-catalog-timeline-node--process::after { background: var(--selected-bg); }
+.skin-catalog-timeline-node--rail-process::before { border-left-style: dotted; }
+.skin-catalog-timeline-heading { display: flex; flex-wrap: wrap; min-width: 0; align-items: baseline; justify-content: flex-start; gap: var(--space-2) var(--space-3); }
+.skin-catalog-timeline-label, .skin-catalog-timeline-date-heading { min-width: 0; margin: 0; color: var(--gold); overflow-wrap: anywhere; }
+.skin-catalog-timeline-label { position: absolute; top: calc((var(--line-height-headline-md) - var(--line-height-body)) / 2); right: calc(100% + var(--space-3) + var(--skin-catalog-timeline-dot-size) / 2); width: 6rem; font-size: var(--font-size-body); font-weight: 400; line-height: var(--line-height-body); text-align: end; }
+.skin-catalog-timeline-date-heading { font-size: var(--font-size-headline-md); font-weight: 600; line-height: var(--line-height-headline-md); }
+.skin-catalog-timeline-content { display: grid; min-width: 0; gap: var(--space-2); margin-top: var(--space-2); }
+.skin-catalog-timeline-date { color: inherit; }
+.skin-catalog-timeline-skeleton { display: grid; gap: 0; }
+.skin-catalog-timeline-skeleton li { position: relative; display: grid; min-width: 0; padding: 0 0 calc(var(--space-3) + var(--space-1)) var(--skin-catalog-timeline-track-width); }
+.skin-catalog-timeline-skeleton li::before { position: absolute; top: calc(var(--skin-catalog-timeline-dot-size) + var(--skin-catalog-timeline-dot-offset)); right: auto; bottom: calc(0px - var(--skin-catalog-timeline-dot-offset)); left: 0; width: 0; border-left: var(--line-width-bold) solid var(--line-subtle); content: ""; transform: translateX(-50%); }
+.skin-catalog-timeline-skeleton li::after { position: absolute; top: var(--skin-catalog-timeline-dot-offset); left: 0; box-sizing: border-box; width: var(--skin-catalog-timeline-dot-size); height: var(--skin-catalog-timeline-dot-size); border: var(--line-width-bold) solid var(--line); border-radius: 50%; background: var(--panel); content: ""; transform: translateX(-50%); }
+.skin-catalog-timeline-skeleton-title { position: absolute; top: calc((var(--line-height-headline-md) - var(--line-height-body)) / 2); right: calc(100% + var(--space-3) + var(--skin-catalog-timeline-dot-size) / 2); width: 6rem; height: var(--line-height-body); border-radius: var(--radius-control); background: var(--panel2); }
+.skin-catalog-timeline-skeleton-heading { display: flex; min-width: 0; justify-content: flex-start; gap: var(--space-3); }
+.skin-catalog-timeline-skeleton-heading > span { width: min(180px, 100%); height: var(--line-height-headline-md); border-radius: var(--radius-control); background: var(--panel2); }
+.skin-catalog-timeline-skeleton-content { display: grid; min-width: 0; gap: var(--space-2); }
+.skin-catalog-timeline-skeleton li > div { padding: 0; background: transparent; }
+.skin-catalog-timeline-skeleton li > div.skin-catalog-grid span { aspect-ratio: 11 / 20; border-radius: var(--radius-control); background: var(--panel2); }
+@media (max-width: 1479px) {
+  .skin-catalog-timeline-label, .skin-catalog-timeline-skeleton-title { position: static; width: auto; text-align: start; }
+  .skin-catalog-timeline-skeleton-title { width: min(6rem, 100%); }
+}
+@media (max-width: 559px) {
+  .skin-catalog-timeline-heading { align-items: start; }
+}

@@ -73,7 +73,7 @@ class ElementStub {
   click() { this.fire("click"); }
   focus() { this.ownerDocument.activeElement = this; }
   get isConnected() { return this.ownerDocument.root.contains(this); }
-  get nextSibling() {
+  get nextSibling(): ElementStub | null {
     if (!this.parentElement) return null;
     const siblings = this.parentElement.children;
     return siblings[siblings.indexOf(this) + 1] ?? null;
@@ -151,7 +151,7 @@ class DocumentStub {
   removeEventListener() {}
 }
 
-function history(initial = "https://chromaart.lol/skins/") {
+function history(initial = "https://chromaart.lol/skins/?view=cards") {
   let url = new URL(initial);
   const listeners = new Set<() => void>();
   const changes: string[] = [];
@@ -168,7 +168,7 @@ function history(initial = "https://chromaart.lol/skins/") {
 function skin(id: number, championId: number, rarity?: RuntimeRarity): RuntimeSkin {
   return {
     kind: "skin", id, championId, name: `Skin ${id}`, isBase: false,
-    skinlineIds: [], media: { loadScreenUrl: "https://example.com/skin.jpg" },
+    skinlineIds: [], media: { loadScreenUrl: "https://example.com/skin.jpg", tileUrl: "https://example.com/skin-tile.jpg" },
     stages: [], chromas: [], rarity,
   };
 }
@@ -187,13 +187,19 @@ const skins = [
   skin(102, 1, { key: "kMythic", label: "Mythic" }),
   skin(201, 2),
 ];
-function fixture(initial?: string, list = vi.fn(async (_options: { channel: string }) => ({ skins, champions })), columns = 6, locale = "default") {
+function fixture(
+  initial?: string,
+  list = vi.fn(async (_options: { channel: string }) => ({ skins, champions })),
+  columns = 6,
+  locale = "default",
+  releaseDateRows: readonly [number, string | null, string | null, string | null, string | null][] = [
+    [101, "2024-01-01", null, null, null], [102, "2024-02-01", null, null, null], [201, "2024-03-01", null, null, null],
+  ],
+) {
   const document = new DocumentStub();
   const root = document.createElement("section");
   root.dataset.catalogLocale = locale;
-  root.dataset.catalogReleaseDates = JSON.stringify([
-    [101, "2024-01-01", null], [102, "2024-02-01", null], [201, "2024-03-01", null],
-  ]);
+  root.dataset.catalogReleaseDates = JSON.stringify(releaseDateRows);
   document.root.append(root);
   const add = (tag: string, data: string, parent = root) => {
     const node = document.createElement(tag);
@@ -227,8 +233,9 @@ function fixture(initial?: string, list = vi.fn(async (_options: { channel: stri
   toolbar.className = "skin-catalog-toolbar";
   toolbar.hidden = true;
   root.append(toolbar);
-  const includeClassic = add("input", "catalogClassic", toolbar);
+  const classicOnly = add("input", "catalogClassic", toolbar);
   const sort = add("select", "catalogSort", toolbar);
+  const viewSwitch = add("div", "catalogViewSwitch", toolbar);
   const borderSetting = document.createElement("label");
   borderSetting.className = "skin-catalog-framed-setting";
   toolbar.append(borderSetting);
@@ -240,15 +247,25 @@ function fixture(initial?: string, list = vi.fn(async (_options: { channel: stri
   const framedCount = add("span", "catalogFramedCount", borderSetting);
   const showEmblems = add("input", "catalogEmblemsAll", toolbar);
   showEmblems.checked = true;
+  const pbeSetting = document.createElement("label");
+  pbeSetting.className = "skin-catalog-pbe-setting";
+  toolbar.append(pbeSetting);
+  const onlyPbeAdditions = add("input", "catalogPbeOnly", pbeSetting);
   const status = add("p", "catalogStatus");
   status.className = "sr-only skin-catalog-status";
   const content = add("div", "catalogContent");
   const loadingSkeleton = document.createElement("div");
   loadingSkeleton.className = "skin-catalog-skeleton";
   content.append(loadingSkeleton);
+  const timelineSkeleton = document.createElement("ol");
+  timelineSkeleton.className = "skin-catalog-timeline-skeleton";
+  timelineSkeleton.hidden = true;
+  content.append(timelineSkeleton);
   const results = add("div", "catalogResults");
   results.hidden = true;
   const grid = add("div", "catalogGrid", results);
+  const timeline = add("div", "catalogTimeline", results);
+  timeline.hidden = true;
   const loadMoreFooter = add("div", "catalogLoadMoreFooter", results);
   loadMoreFooter.hidden = true;
   const loadMore = add("button", "catalogLoadMore", loadMoreFooter);
@@ -269,12 +286,184 @@ function fixture(initial?: string, list = vi.fn(async (_options: { channel: stri
   vi.stubGlobal("getComputedStyle", () => ({ getPropertyValue: () => String(columns) }));
   const runtime = { listSkinCatalog: list } as unknown as CommunityDragonRuntime;
   const controller = initSkinCatalog(root as unknown as HTMLElement, runtime, h);
-  return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, includeClassic, sort, showFramedScreens, framedCount, showEmblems, count, pbe, latest, status, content, results, grid, loadMoreFooter, loadMore, h, list, controller };
+  return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, classicOnly, sort, viewSwitch, showFramedScreens, framedCount, showEmblems, onlyPbeAdditions, count, pbe, latest, status, content, results, grid, timeline, loadMoreFooter, loadMore, h, list, controller };
 }
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("skin catalog browser behavior", () => {
+  it("switches and restores timeline mode from URL without reloading the skin collection", async () => {
+    const list = vi.fn(async ({ channel }: { channel: string }) => ({
+      skins: channel === "latest" ? [] : skins,
+      champions,
+    }));
+    const page = fixture("https://chromaart.lol/skins/?sort=desc&view=cards", list);
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+    expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-grid");
+    const modes = page.viewSwitch.querySelectorAll("input");
+    expect(modes.map((mode) => [mode.value, mode.checked])).toEqual([
+      ["cards", true], ["timeline", false],
+    ]);
+    expect(page.content.querySelector(".skin-catalog-timeline-skeleton")).toBeNull();
+
+    page.search.value = "Ahri";
+    page.search.fire("input");
+    page.onlyPbeAdditions.checked = true;
+    page.onlyPbeAdditions.fire("change");
+    modes[1].checked = true;
+    modes[1].fire("change");
+
+    expect(page.h.url.searchParams.has("view")).toBe(false);
+    expect(page.h.url.searchParams.get("q")).toBe("Ahri");
+    expect(page.h.url.searchParams.get("pbeOnly")).toBe("1");
+    expect(page.h.url.searchParams.has("sort")).toBe(false);
+    expect(page.sort.value).toBe("release_desc");
+    expect(page.timeline.hidden).toBe(false);
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-node")).toHaveLength(1);
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(2);
+    expect(page.timeline.querySelectorAll("time")).toHaveLength(0);
+    expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-timeline");
+    expect(page.list).toHaveBeenCalledTimes(2);
+
+    page.h.pop("https://chromaart.lol/skins/?q=Ahri&pbeOnly=1&view=cards");
+    expect(page.viewSwitch.querySelectorAll("input")[0].checked).toBe(true);
+    expect(page.timeline.hidden).toBe(true);
+    expect(page.grid.hidden).toBe(false);
+    expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-grid");
+    page.h.pop("https://chromaart.lol/skins/?q=Ahri&pbeOnly=1");
+    expect(page.viewSwitch.querySelectorAll("input")[1].checked).toBe(true);
+    expect(page.list).toHaveBeenCalledTimes(2);
+  });
+
+  it("opens direct timeline links and normalizes unsupported hero sorting to newest first", async () => {
+    const page = fixture("https://chromaart.lol/skins/?view=timeline&sort=asc");
+    expect(page.content.querySelector(".skin-catalog-timeline-skeleton")).not.toBeNull();
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+    expect(page.viewSwitch.querySelectorAll("input")[1].checked).toBe(true);
+    expect(page.sort.value).toBe("release_desc");
+    expect(page.h.url.searchParams.has("view")).toBe(false);
+    expect(page.h.url.searchParams.has("sort")).toBe(false);
+    expect(page.timeline.querySelectorAll("time")).toHaveLength(3);
+    page.timeline.querySelector(".skin-catalog-info-button")?.click();
+    expect(page.document.querySelector(".skin-catalog-details")?.textContent)
+      .toContain("League of Legends Wiki");
+    const nodes = page.timeline.querySelectorAll(".skin-catalog-timeline-node");
+    expect(nodes[0].className).toContain("skin-catalog-timeline-node--finish");
+    expect(nodes[1].className).toContain("skin-catalog-timeline-node--rail-process");
+    expect(nodes[2].className).toContain("skin-catalog-timeline-node--process");
+  });
+
+  it("shows undated skins before dated skins and classic appearances in the Chinese timeline", async () => {
+    const upcoming = { ...skin(103, 1), name: "2026 全球总决赛 真实伤害 亚索" };
+    const classic = { ...skin(104, 1), name: "经典 安妮" };
+    const page = fixture(
+      "https://chromaart.lol/zh-cn/skins/?view=timeline&channel=latest",
+      vi.fn(async () => ({ skins: [skin(101, 1), upcoming, classic], champions })),
+      6,
+      "zh_cn",
+      [[101, "2024-01-01", null, null, null]],
+    );
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+    const nodes = page.timeline.querySelectorAll(".skin-catalog-timeline-node");
+    expect(nodes.map((node) => node.querySelector(".skin-catalog-timeline-label")?.textContent))
+      .toEqual([undefined, undefined, "经典外观"]);
+    expect(nodes.map((node) => node.querySelector(".skin-catalog-timeline-date-heading")?.textContent))
+      .toEqual(["日期待确认", "2024年1月1日", "日期待确认"]);
+    expect(nodes.map((node) => node.querySelector(".skin-catalog-card-title-name")?.textContent))
+      .toEqual(["2026 全球总决赛 真实伤害 亚索", "Skin 101", "经典 安妮"]);
+  });
+
+  it("reuses card-mode skin cards and border controls in timeline mode", async () => {
+    const vintageOnly = {
+      ...skin(101, 1),
+      media: { loadScreenUrl: "https://example.com/vintage-only-plain.jpg", loadScreenVintageUrl: "https://example.com/vintage-only.jpg" },
+    };
+    const paired = vintageBorderedSkin(102);
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=timeline&channel=latest",
+      vi.fn(async () => ({ skins: [vintageOnly, paired], champions })),
+    );
+    await vi.waitFor(() => expect(page.count.textContent).toContain("2 / 2"));
+
+    const entry = (name: string) => page.timeline.querySelectorAll(".skin-catalog-timeline-entry")
+      .find((candidate) => candidate.querySelector(".skin-catalog-card-title-name")?.textContent === name)!;
+    const vintageOnlyEntry = entry("Skin 101");
+    const pairedEntry = entry("Skin 102");
+    expect(page.timeline.querySelectorAll(".skin-catalog-card")).toHaveLength(2);
+    expect(page.timeline.querySelectorAll(".runtime-skin-reference-card")).toHaveLength(0);
+    expect(vintageOnlyEntry.querySelector(".skin-catalog-card-artwork--framed")?.querySelector("img")?.src)
+      .toBe("https://example.com/vintage-only.jpg");
+    expect(pairedEntry.querySelector(".skin-catalog-artwork-toggle")).not.toBeNull();
+    expect(page.showFramedScreens.closest(".skin-catalog-framed-setting")?.getAttribute("hidden"))
+      .toBeNull();
+    const toggle = pairedEntry.querySelector(".skin-catalog-artwork-toggle")!;
+    toggle.click();
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    expect(pairedEntry.querySelector(".skin-catalog-card-artwork--plain")?.hidden).toBe(false);
+    expect(pairedEntry.querySelector(".skin-catalog-card-artwork--framed")?.hidden).toBe(true);
+  });
+
+  it("uses the card-mode missing-artwork state when timeline artwork fails", async () => {
+    const item = {
+      ...skin(101, 1),
+      media: { loadScreenUrl: "https://example.com/skin.jpg" },
+    };
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=timeline&channel=latest",
+      vi.fn(async () => ({ skins: [item], champions })),
+    );
+    await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 1"));
+
+    const media = page.timeline.querySelector(".skin-catalog-card-media")!;
+    const image = media.querySelector("img")!;
+    expect(image.src).toBe("https://example.com/skin.jpg");
+    image.fire("error");
+    expect(media.querySelector("img")).toBeNull();
+    expect(media.className).toContain("skin-catalog-card-media--missing");
+  });
+
+  it("loads timeline pages by complete date nodes and ends with 55 entries", async () => {
+    const many = Array.from({ length: 55 }, (_, index) => skin(1000 + index, index % 2 ? 1 : 2));
+    const releaseDateRows = many.map((item, index) => [
+      item.id, new Date(Date.UTC(2024, 0, index + 1)).toISOString().slice(0, 10), null, null, null,
+    ] as [number, string, null, null, null]);
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=timeline&channel=latest",
+      vi.fn(async () => ({ skins: many, champions })),
+      6,
+      "default",
+      releaseDateRows,
+    );
+    await vi.waitFor(() => expect(page.count.textContent).toContain("55 / 55"));
+
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(50);
+    expect(page.loadMoreFooter.hidden).toBe(false);
+    expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-timeline");
+    page.loadMore.fire("click", { detail: 0 });
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(55);
+    expect(page.loadMoreFooter.hidden).toBe(true);
+    expect(page.document.activeElement?.tagName).toBe("a");
+  });
+
+  it("shows timeline empty and failure states without leaving result entries behind", async () => {
+    const emptyPage = fixture(
+      "https://chromaart.lol/skins/?view=timeline&channel=latest",
+      vi.fn(async () => ({ skins: [], champions })),
+    );
+    await vi.waitFor(() => expect(emptyPage.content.textContent).toContain("No skins"));
+    expect(emptyPage.results.hidden).toBe(true);
+    expect(emptyPage.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(0);
+
+    const failedPage = fixture(
+      "https://chromaart.lol/skins/?view=timeline&channel=latest",
+      vi.fn(async () => { throw new Error("offline"); }),
+    );
+    await vi.waitFor(() => expect(failedPage.content.textContent).toContain("could not be reached"));
+    expect(failedPage.results.hidden).toBe(true);
+    expect(failedPage.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(0);
+    expect(failedPage.content.querySelector("button")?.textContent).toBe("Retry");
+  });
+
   it("replaces aligned loading placeholders with the shared channel summary and filters", async () => {
     let resolve!: (value: { skins: RuntimeSkin[]; champions: RuntimeChampionSummary[] }) => void;
     const page = fixture(undefined, vi.fn(({ channel }: { channel: string }) => channel === "pbe"
@@ -402,7 +591,7 @@ describe("skin catalog browser behavior", () => {
     expect(list).toHaveBeenCalledWith(expect.objectContaining({ channel: "latest" }));
   });
 
-  it("includes classic names by default and restores the exclusion setting", async () => {
+  it("shows all skins by default and restores the classic-only filter", async () => {
     const classicSkins = [
       ...skins,
       { ...skin(301, 1), name: "经典阿狸" },
@@ -410,17 +599,17 @@ describe("skin catalog browser behavior", () => {
     ];
     const page = fixture(undefined, vi.fn(async () => ({ skins: classicSkins, champions })));
     await vi.waitFor(() => expect(page.count.textContent).toContain("5 / 5"));
-    expect(page.includeClassic.checked).toBe(true);
+    expect(page.classicOnly.checked).toBe(false);
 
-    page.includeClassic.checked = false;
-    page.includeClassic.fire("change");
-    expect(page.count.textContent).toContain("3 / 5");
-    expect(page.h.url.searchParams.get("excludeClassic")).toBe("1");
+    page.classicOnly.checked = true;
+    page.classicOnly.fire("change");
+    expect(page.count.textContent).toContain("2 / 5");
+    expect(page.h.url.searchParams.get("classicOnly")).toBe("1");
 
-    page.h.pop("https://chromaart.lol/skins/?excludeClassic=1");
-    await vi.waitFor(() => expect(page.includeClassic.checked).toBe(false));
+    page.h.pop("https://chromaart.lol/skins/?classicOnly=1");
+    await vi.waitFor(() => expect(page.classicOnly.checked).toBe(true));
     page.h.pop("https://chromaart.lol/skins/");
-    await vi.waitFor(() => expect(page.includeClassic.checked).toBe(true));
+    await vi.waitFor(() => expect(page.classicOnly.checked).toBe(false));
     expect(page.count.textContent).toContain("5 / 5");
   });
 
@@ -446,7 +635,7 @@ describe("skin catalog browser behavior", () => {
       if (channel === "pbe") return Promise.resolve({ skins, champions });
       liveCalls += 1;
       if (liveCalls === 1) return Promise.resolve({ skins, champions });
-      if (liveCalls === 2) return new Promise((_resolve, fail) => { reject = fail; });
+      if (liveCalls === 2) return new Promise<{ skins: RuntimeSkin[]; champions: RuntimeChampionSummary[] }>((_resolve, fail) => { reject = fail; });
       return Promise.resolve({ skins: [skin(301, 2)], champions });
     });
     const page = fixture(undefined, list);
@@ -492,7 +681,7 @@ describe("skin catalog browser behavior", () => {
     const list = vi.fn(({ channel }: { channel: string }) => {
       if (channel === "pbe") return Promise.resolve({ skins: ++pbeCalls === 1 ? skins : [], champions });
       if (++liveCalls === 1 || liveCalls === 3) return Promise.resolve({ skins, champions });
-      return new Promise((resolve) => { resolveLate = resolve; });
+      return new Promise<{ skins: RuntimeSkin[]; champions: RuntimeChampionSummary[] }>((resolve) => { resolveLate = resolve; });
     });
     const page = fixture(undefined, list);
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
@@ -579,7 +768,13 @@ describe("skin catalog browser behavior", () => {
   });
 
   it("switches complete loading-screen modes per skin and in bulk", async () => {
-    const page = fixture(undefined, vi.fn(async () => ({ skins: [borderedSkin(901), vintageBorderedSkin(902), skin(903, 1)], champions })));
+    const page = fixture(
+      undefined,
+      vi.fn(async () => ({
+        skins: [borderedSkin(901), vintageBorderedSkin(902), skin(903, 1)],
+        champions,
+      })),
+    );
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     expect(page.framedCount.textContent).toBe("2 / 2 framed");
     const framedTooltip = page.root.querySelector(".skin-catalog-framed-tooltip")!;

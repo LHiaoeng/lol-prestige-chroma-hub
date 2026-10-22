@@ -7,13 +7,14 @@ import DomainIcon from './DomainIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Empty from './Empty.astro';
 import Alert from './Alert.astro';
+import Select from './Select.astro';
 import '../styles/skin-catalog.css';
 import releaseSnapshot from '../../data/skin-release-dates.json';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const isZh = locale === 'zh-cn';
-const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalReleaseDate, chinaReleaseDate }) => [skinId, globalReleaseDate, chinaReleaseDate]));
+const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalReleaseDate, chinaReleaseDate, globalReleaseVersion, chinaReleaseVersion }) => [skinId, globalReleaseDate, chinaReleaseDate, globalReleaseVersion, chinaReleaseVersion]));
 ---
 
 <Breadcrumb {locale} items={[
@@ -60,34 +61,44 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
       </label>
       {isZh && <label class="skin-catalog-emblems-setting">
         <input type="checkbox" data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
-        <span>皮肤徽章</span>
+        <span>徽章</span>
       </label>}
       <label class="skin-catalog-classic-setting">
-        <input type="checkbox" data-catalog-classic checked aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
+        <input type="checkbox" data-catalog-classic aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
         <span>{isZh ? '经典皮肤' : 'Classic skins'}</span>
       </label>
       <label class="skin-catalog-pbe-setting">
-        <input type="checkbox" data-catalog-pbe-only aria-label={isZh ? 'PBE新增' : 'PBE additions'} />
-        <span>{isZh ? 'PBE新增' : 'PBE additions'}</span>
+        <input type="checkbox" data-catalog-pbe-only aria-label={isZh ? 'PBE 新增' : 'PBE additions'} />
+        <span>{isZh ? 'PBE 新增' : 'PBE additions'}</span>
       </label>
     </div>
-    <select class="cn-select" data-catalog-sort aria-label={isZh ? '排序方式' : 'Sort order'}>
-      <option value="asc">{isZh ? '英雄名称升序' : 'Champion name A–Z'}</option>
-      <option value="desc">{isZh ? '英雄名称降序' : 'Champion name Z–A'}</option>
-      <option value="release_desc">{isZh ? '发布时间：最新优先' : 'Release date: newest first'}</option>
-      <option value="release_asc">{isZh ? '发布时间：最早优先' : 'Release date: oldest first'}</option>
-    </select>
+    <div class="skin-catalog-view-switch" data-catalog-view-switch></div>
+    <Select
+      class="skin-catalog-sort"
+      data-catalog-sort=""
+      ariaLabel={isZh ? '排序方式' : 'Sort order'}
+      options={[
+        { value: 'asc', label: isZh ? '英雄名称升序' : 'Champion name A–Z' },
+        { value: 'desc', label: isZh ? '英雄名称降序' : 'Champion name Z–A' },
+        { value: 'release_desc', label: isZh ? '发布时间：最新优先' : 'Release date: newest first' },
+        { value: 'release_asc', label: isZh ? '发布时间：最早优先' : 'Release date: oldest first' },
+      ]}
+    />
   </div>
   <p class="sr-only skin-catalog-status" data-catalog-status role="status" aria-live="polite"></p>
   <div data-catalog-content>
     <div class="skin-catalog-skeleton" aria-hidden="true">
       {Array.from({ length: 6 }, () => <div class="skin-catalog-skeleton-card"><span></span><span></span></div>)}
     </div>
+    <ol class="skin-catalog-timeline-skeleton" aria-hidden="true" hidden>
+      {Array.from({ length: 4 }, () => <li><span class="skin-catalog-timeline-skeleton-title"></span><div class="skin-catalog-timeline-skeleton-content"><div class="skin-catalog-timeline-skeleton-heading"><span></span></div><div class="skin-catalog-grid">{Array.from({ length: 6 }, () => <span></span>)}</div></div></li>)}
+    </ol>
   </div>
   <template data-catalog-empty-template><Empty description="" /></template>
   <template data-catalog-error-template><Alert type="error" title="" /></template>
   <div class="skin-catalog-results" data-catalog-results role="region" aria-label={isZh ? '皮肤列表' : 'Skin list'} hidden>
     <div class="skin-catalog-grid" id="skin-catalog-grid" data-catalog-grid></div>
+    <div class="skin-catalog-timeline" id="skin-catalog-timeline" data-catalog-timeline hidden></div>
     <div class="skin-catalog-load-more-footer" data-catalog-load-more-footer hidden>
       <button class="ant-btn" type="button" data-catalog-load-more aria-controls="skin-catalog-grid">{isZh ? '加载更多' : 'Load more'}</button>
     </div>

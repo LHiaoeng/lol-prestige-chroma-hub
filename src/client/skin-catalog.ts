@@ -2,10 +2,15 @@ import {
   catalogRarityKey,
   filterSkinCatalogItems,
   formatSkinCatalogUrl,
+  getSkinCatalogTimelinePageEnd,
+  groupSkinCatalogTimelineItems,
   projectSkinCatalogItems,
   readSkinCatalogUrlState,
+  skinCatalogReleaseDate,
+  skinCatalogReleaseVersion,
   type SkinCatalogReleaseDate,
   type SkinCatalogSort,
+  type SkinCatalogTimelineGroup,
   UNMARKED_RARITY,
 } from "../domain/skin-catalog";
 import {
@@ -19,6 +24,8 @@ import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import { createDomainIcon, setDomainIconTooltip } from "../components/domain-icons";
 import { createUiIcon } from "../components/ui-icons";
 import { createPopover } from "../components/popover";
+import { enhanceSelect, refreshSelect } from "../components/select";
+import { createRadioButtonGroup } from "../components/RadioButtonGroup";
 import { createTooltip } from "../components/tooltip";
 import { createCommunityDragonRuntime, type CommunityDragonRuntime } from "./communitydragon-runtime";
 import { asCommunityDragonError, runtimeFailureMessage } from "./communitydragon-errors";
@@ -42,12 +49,24 @@ const zh = {
   count: (shown: number, total: number) => `找到 ${shown} / ${total} 款皮肤`,
   loadMore: "加载更多",
   borderCount: (shown: number, total: number) => `带框 ${shown} / ${total} 款`,
+  borderHelp: "批量切换支持边框的皮肤载入图。",
+  emblemHelp: "显示或隐藏卡片上的皮肤徽章。",
+  classicHelp: "只显示名称以“经典”或 Classic 开头的皮肤。",
+  pbeHelp: "只显示相较正式服新增的 PBE 皮肤。",
+  cardsHelp: "以卡片网格浏览皮肤。",
+  timelineHelp: "按发布时间以时间轴浏览皮肤。",
   hideBorder: "切换到无边框载入图",
   showBorder: "切换到带边框载入图",
   borderToggle: "切换载入图边框",
   skinDetails: "皮肤详情",
   pbeNewSkin: "PBE 新增皮肤",
   missing: "暂无原画",
+  cards: "卡片",
+  timeline: "时间轴",
+  timelineReleaseSource: (source: "china" | "global" | "wiki") => source === "china" ? "国服" : "直营服参考日期",
+  timelinePbe: "PBE 新增",
+  timelineUnknown: "日期待确认",
+  timelineClassic: "经典外观",
 };
 const en = {
   loading: "Loading the full skin catalog…",
@@ -59,12 +78,24 @@ const en = {
   count: (shown: number, total: number) => `${shown} / ${total} skins`,
   loadMore: "Load more",
   borderCount: (shown: number, total: number) => `${shown} / ${total} framed`,
+  borderHelp: "Show or hide loading-screen borders for supported skins.",
+  emblemHelp: "Show or hide skin emblems on cards.",
+  classicHelp: "Show only skins whose names begin with Classic or 经典.",
+  pbeHelp: "Show only skins newly added on PBE compared with live.",
+  cardsHelp: "Browse skins in a card grid.",
+  timelineHelp: "Browse skins by release date on a timeline.",
   hideBorder: "Switch to the plain loading screen",
   showBorder: "Switch to the framed loading screen",
   borderToggle: "Toggle loading-screen border",
   skinDetails: "Skin details",
   pbeNewSkin: "New on PBE",
   missing: "Artwork unavailable",
+  cards: "Cards",
+  timeline: "Timeline",
+  timelineReleaseSource: () => "League of Legends Wiki",
+  timelinePbe: "PBE additions",
+  timelineUnknown: "Date to be confirmed",
+  timelineClassic: "Classic skins",
 };
 
 function element<T extends HTMLElement>(root: HTMLElement, selector: string): T {
@@ -87,21 +118,30 @@ export function initSkinCatalog(
   if (locale !== "zh_cn" && locale !== "default") throw new Error("Skin catalog locale is invalid");
   if (!root.dataset.catalogReleaseDates) throw new Error("Skin catalog release dates are missing");
   const releaseDates = new Map<number, SkinCatalogReleaseDate>(
-    (JSON.parse(root.dataset.catalogReleaseDates) as [number, string | null, string | null][])
-      .map(([id, globalReleaseDate, chinaReleaseDate]) => [id, { globalReleaseDate, chinaReleaseDate }]),
+    (JSON.parse(root.dataset.catalogReleaseDates) as [number, string | null, string | null, string | null, string | null][])
+      .map(([id, globalReleaseDate, chinaReleaseDate, globalReleaseVersion, chinaReleaseVersion]) => [
+        id, { globalReleaseDate, chinaReleaseDate, globalReleaseVersion, chinaReleaseVersion },
+      ]),
   );
   const copy = locale === "zh_cn" ? zh : en;
   const status = element<HTMLElement>(root, "[data-catalog-status]");
   const content = element<HTMLElement>(root, "[data-catalog-content]");
   const loadingSkeleton = element<HTMLElement>(content, ".skin-catalog-skeleton");
+  const timelineSkeleton = element<HTMLElement>(content, ".skin-catalog-timeline-skeleton");
   const results = element<HTMLElement>(root, "[data-catalog-results]");
   const grid = element<HTMLElement>(root, "[data-catalog-grid]");
+  const timeline = element<HTMLElement>(root, "[data-catalog-timeline]");
+  const timelineList = document.createElement("ol");
+  timelineList.className = "skin-catalog-timeline-list";
+  timeline.append(timelineList);
+  const viewSwitcher = element<HTMLElement>(root, "[data-catalog-view-switch]");
   const loadMoreFooter = element<HTMLElement>(root, "[data-catalog-load-more-footer]");
   const loadMore = element<HTMLButtonElement>(root, "[data-catalog-load-more]");
   const search = element<HTMLInputElement>(root, "[data-catalog-search]");
   const rarities = element<HTMLElement>(root, "[data-catalog-rarities]");
   const sort = element<HTMLSelectElement>(root, "[data-catalog-sort]");
-  const includeClassic = element<HTMLInputElement>(root, "[data-catalog-classic]");
+  enhanceSelect(sort);
+  const classicOnly = element<HTMLInputElement>(root, "[data-catalog-classic]");
   const showFramedScreens = element<HTMLInputElement>(root, "[data-catalog-framed-all]");
   const showEmblems = locale === "zh_cn"
     ? element<HTMLInputElement>(root, "[data-catalog-emblems-all]")
@@ -111,12 +151,30 @@ export function initSkinCatalog(
   const framedTooltipTrigger = element<HTMLElement>(root, "[data-catalog-framed-tooltip-trigger]");
   const framedSetting = framedTooltipTrigger.closest<HTMLElement>(".skin-catalog-framed-setting");
   const pbeSetting = onlyPbeAdditions?.closest<HTMLElement>(".skin-catalog-pbe-setting");
-  const framedTooltip = createTooltip(framedTooltipTrigger, framedCount);
+  const framedTooltipContent = document.createElement("span");
+  framedTooltipContent.textContent = `${copy.borderHelp} `;
+  framedTooltipContent.append(framedCount);
+  const framedTooltip = createTooltip(framedTooltipTrigger, framedTooltipContent);
   framedTooltip.className += " skin-catalog-framed-tooltip";
   framedTooltip.tabIndex = -1;
   const framedTooltipId = framedTooltip.getAttribute("aria-describedby");
   if (framedTooltipId) showFramedScreens.setAttribute("aria-describedby", framedTooltipId);
   framedSetting?.replaceChildren(framedTooltip);
+  for (const [input, description] of [
+    [showEmblems, copy.emblemHelp],
+    [classicOnly, copy.classicHelp],
+    [onlyPbeAdditions, copy.pbeHelp],
+  ] as const) {
+    const label = input?.closest("label");
+    const parent = label?.parentElement;
+    if (!input || !label || !parent) continue;
+    const next = label.nextSibling;
+    const tooltip = createTooltip(label, description);
+    tooltip.tabIndex = -1;
+    const id = tooltip.getAttribute("aria-describedby");
+    if (id) input.setAttribute("aria-describedby", id);
+    parent.insertBefore(tooltip, next);
+  }
   const count = element<HTMLElement>(root, "[data-catalog-count]");
   const summary = element<HTMLElement>(root, "[data-catalog-summary]");
   const summarySkeleton = element<HTMLElement>(root, "[data-catalog-summary-skeleton]");
@@ -128,12 +186,30 @@ export function initSkinCatalog(
   let state = readSkinCatalogUrlState(history.url);
   let committedChannel: RuntimeChannel | undefined;
   let filtered: readonly RuntimeSkinReferenceItem[] = [];
+  let timelineGroups: readonly SkinCatalogTimelineGroup[] = [];
   let shownCount = 0;
+  let shownGroupCount = 0;
+  let pendingChannel: RuntimeChannel | undefined;
   let framedByDefault = true;
   let emblemsVisible = true;
   const framedOverrides = new Map<number, boolean>();
   const failedBorderModes = new Set<number>();
   const artworkModes = new Map<number, { plain: HTMLElement; framed: HTMLElement }>();
+  viewSwitcher.replaceChildren(createRadioButtonGroup({
+    name: "skin-catalog-view",
+    idPrefix: "skin-catalog-view",
+    value: state.view,
+    ariaLabel: locale === "zh_cn" ? "目录显示方式" : "Catalog display mode",
+    options: [
+      { label: copy.cards, value: "cards", controls: "skin-catalog-grid", tooltip: () => copy.cardsHelp },
+      { label: copy.timeline, value: "timeline", controls: "skin-catalog-timeline", tooltip: () => copy.timelineHelp },
+    ],
+    onChange(value) {
+      const view = value === "timeline" ? "timeline" : "cards";
+      update({ ...state, view, sort: view === "timeline" && !isReleaseSort(state.sort) ? "release_desc" : state.sort });
+      results.scrollIntoView?.({ block: "start" });
+    },
+  }));
   const popoverCleanups: (() => void)[] = [];
   const clearPopovers = () => {
     for (const cleanup of popoverCleanups) cleanup();
@@ -160,16 +236,20 @@ export function initSkinCatalog(
     showFramedScreens.checked = framed === eligible.length;
     showFramedScreens.indeterminate = framed > 0 && framed < eligible.length;
     framedCount.textContent = copy.borderCount(framed, eligible.length);
-    showFramedScreens.closest<HTMLElement>(".skin-catalog-framed-setting")?.toggleAttribute("hidden", eligible.length === 0);
+    showFramedScreens.closest<HTMLElement>(".skin-catalog-framed-setting")?.toggleAttribute(
+      "hidden",
+      eligible.length === 0,
+    );
   };
   const setControlsDisabled = (disabled: boolean) => {
     search.disabled = disabled;
     sort.disabled = disabled;
-    includeClassic.disabled = disabled;
+    classicOnly.disabled = disabled;
     loadMore.disabled = disabled;
     showFramedScreens.disabled = disabled;
     if (showEmblems) showEmblems.disabled = disabled;
     if (onlyPbeAdditions) onlyPbeAdditions.disabled = disabled;
+    viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => { input.disabled = disabled; });
     root.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-trigger], [data-runtime-channel], [data-catalog-rarity]")
       .forEach((button) => { button.disabled = disabled; });
   };
@@ -219,7 +299,7 @@ export function initSkinCatalog(
     const target = formatSkinCatalogUrl(new URL(href, history.url), state);
     toggle.setAttribute("href", `${target.pathname}${target.search}${target.hash}`);
   };
-  const card = (item: RuntimeSkinReferenceItem): HTMLElement => {
+  const card = (item: RuntimeSkinReferenceItem, releaseSource?: string): HTMLElement => {
     const article = document.createElement("article");
     article.className = "skin-catalog-card";
     const actions = document.createElement("div");
@@ -403,6 +483,7 @@ export function initSkinCatalog(
       chromaCount > 0 ? chromaLink.href : undefined,
     );
     if (releaseDate) appendDetail("release-date", locale === "zh_cn" ? "上线时间" : "Released", releaseDate);
+    if (releaseSource) appendDetail("release-date", locale === "zh_cn" ? "日期来源" : "Date source", releaseSource);
     popoverCleanups.push(createPopover(detailsButton, copy.skinDetails, details));
     actions.append(detailsButton);
     article.append(actions);
@@ -427,11 +508,88 @@ export function initSkinCatalog(
     }
     return article;
   };
+  const timelineEntry = (item: RuntimeSkinReferenceItem, groupKind: SkinCatalogTimelineGroup["kind"]): HTMLElement => {
+    const release = groupKind === "date" ? skinCatalogReleaseDate(item, locale, releaseDates) : undefined;
+    const entry = card(item, release ? copy.timelineReleaseSource(release.source) : undefined);
+    entry.classList.add("skin-catalog-timeline-entry");
+    return entry;
+  };
+  const appendTimelineGroups = (groups: readonly SkinCatalogTimelineGroup[]) => {
+    for (const [index, group] of groups.entries()) {
+      const node = document.createElement("li");
+      const timelineIndex = shownGroupCount + index;
+      node.className = [
+        "skin-catalog-timeline-node",
+        `skin-catalog-timeline-node--${timelineIndex === timelineGroups.length - 1 ? "process" : "finish"}`,
+        timelineIndex === timelineGroups.length - 2 ? "skin-catalog-timeline-node--rail-process" : "",
+      ].filter(Boolean).join(" ");
+      const label = document.createElement("h2");
+      label.className = "skin-catalog-timeline-label";
+      const heading = document.createElement("div");
+      heading.className = "skin-catalog-timeline-heading";
+      const dateHeading = document.createElement("h2");
+      dateHeading.className = "skin-catalog-timeline-date-heading";
+      if (group.kind === "date") {
+        const versions = group.items.map((item) => skinCatalogReleaseVersion(item, locale, releaseDates));
+        if (versions.every((value): value is string => Boolean(value)))
+          label.textContent = [...new Set(versions)].join(" / ");
+        const time = document.createElement("time");
+        time.className = "skin-catalog-timeline-date";
+        time.setAttribute("datetime", group.date);
+        const date = new Date(`${group.date}T00:00:00Z`);
+        time.textContent = new Intl.DateTimeFormat(locale === "zh_cn" ? "zh-CN" : "en", {
+          year: "numeric", month: "long", day: "numeric", timeZone: "UTC",
+        }).format(date);
+        dateHeading.append(time);
+      } else if (group.kind === "unknown") {
+        const versions = group.items.map((item) => skinCatalogReleaseVersion(item, locale, releaseDates));
+        if (versions.every((value): value is string => Boolean(value)))
+          label.textContent = [...new Set(versions)].join(" / ");
+        const date = document.createElement("span");
+        date.className = "skin-catalog-timeline-date";
+        date.textContent = copy.timelineUnknown;
+        dateHeading.append(date);
+      } else if (group.kind === "classic") {
+        const date = document.createElement("span");
+        date.className = "skin-catalog-timeline-date";
+        date.textContent = copy.timelineUnknown;
+        label.textContent = copy.timelineClassic;
+        dateHeading.append(date);
+      } else {
+        dateHeading.textContent = copy.timelinePbe;
+      }
+      heading.append(dateHeading);
+      const content = document.createElement("div");
+      content.className = "skin-catalog-timeline-content";
+      const entries = document.createElement("div");
+      entries.className = "skin-catalog-grid skin-catalog-timeline-entries";
+      entries.append(...group.items.map((item) => timelineEntry(item, group.kind)));
+      content.append(entries);
+      if (label.textContent) node.append(label);
+      node.append(heading);
+      node.append(content);
+      timelineList.append(node);
+    }
+  };
   const appendNextPage = (focusFirst = false) => {
+    if (state.view === "timeline") {
+      const end = getSkinCatalogTimelinePageEnd(timelineGroups, shownGroupCount, CATALOG_PAGE_SIZE);
+      const nextGroups = timelineGroups.slice(shownGroupCount, end);
+      appendTimelineGroups(nextGroups);
+      shownGroupCount = end;
+      shownCount += nextGroups.reduce((total, group) => total + group.items.length, 0);
+      loadMoreFooter.hidden = shownGroupCount >= timelineGroups.length;
+      if (focusFirst) {
+        const addedItems = nextGroups.reduce((total, group) => total + group.items.length, 0);
+        Array.from(timeline.querySelectorAll<HTMLElement>(".skin-catalog-timeline-entry"))
+          .slice(-addedItems)[0]?.querySelector<HTMLAnchorElement>("a")?.focus();
+      }
+      return;
+    }
     const columns = Number.parseInt(getComputedStyle(root).getPropertyValue("--catalog-columns"), 10);
     const pageSize = Math.ceil(CATALOG_PAGE_SIZE / columns) * columns;
     const next = filtered.slice(shownCount, shownCount + pageSize);
-    const cards = next.map(card);
+    const cards = next.map((item) => card(item));
     grid.append(...cards);
     shownCount += next.length;
     loadMoreFooter.hidden = shownCount >= filtered.length;
@@ -444,10 +602,17 @@ export function initSkinCatalog(
       locale,
       search: state.search,
       rarities: state.rarities,
-      excludeClassic: state.excludeClassic,
-      onlyPbeAdditions: state.channel === "pbe" && onlyPbeAdditions?.checked === true && pbeNewSkinIds !== undefined,
+      classicOnly: state.classicOnly,
+      onlyPbeAdditions: state.channel === "pbe" && state.onlyPbeAdditions && pbeNewSkinIds !== undefined,
       sort: state.sort,
       channel: state.channel,
+      releaseDates,
+      pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
+    });
+    timelineGroups = groupSkinCatalogTimelineItems(filtered, {
+      locale,
+      channel: state.channel,
+      sort: isReleaseSort(state.sort) ? state.sort : "release_desc",
       releaseDates,
       pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
     });
@@ -455,8 +620,10 @@ export function initSkinCatalog(
     syncFramedSetting();
     clearPopovers();
     grid.replaceChildren();
+    timelineList.replaceChildren();
     artworkModes.clear();
     shownCount = 0;
+    shownGroupCount = 0;
     loadMoreFooter.hidden = true;
     if (!items.length || !filtered.length) {
       results.hidden = true;
@@ -464,6 +631,8 @@ export function initSkinCatalog(
     } else {
       content.hidden = true;
       results.hidden = false;
+      grid.hidden = state.view === "timeline";
+      timeline.hidden = state.view !== "timeline";
       appendNextPage();
     }
   };
@@ -481,13 +650,13 @@ export function initSkinCatalog(
   });
   showEmblems?.addEventListener("change", () => {
     emblemsVisible = showEmblems.checked;
-    grid.querySelectorAll<HTMLElement>("[data-catalog-emblems]")
+    root.querySelectorAll<HTMLElement>("[data-catalog-emblems]")
       .forEach((group) => { group.hidden = !emblemsVisible; });
   });
-  onlyPbeAdditions?.addEventListener("change", refresh);
-  grid.addEventListener("click", (event) => {
+  onlyPbeAdditions?.addEventListener("change", () => update({ ...state, onlyPbeAdditions: onlyPbeAdditions.checked }));
+  results.addEventListener("click", (event) => {
     const toggle = (event.target as Element).closest<HTMLButtonElement>("[data-skin-artwork-toggle]");
-    if (!toggle || !grid.contains(toggle)) return;
+    if (!toggle || !results.contains(toggle)) return;
     const id = Number(toggle.dataset.skinArtworkToggle);
     const framed = !isFramed(id);
     framedOverrides.set(id, framed);
@@ -503,7 +672,19 @@ export function initSkinCatalog(
   const syncControls = () => {
     search.value = state.search;
     sort.value = state.sort;
-    includeClassic.checked = !state.excludeClassic;
+    refreshSelect(sort);
+    loadMore.setAttribute("aria-controls", state.view === "timeline" ? "skin-catalog-timeline" : "skin-catalog-grid");
+    sort.querySelectorAll<HTMLOptionElement>('option[value="asc"], option[value="desc"]')
+      .forEach((option) => { option.hidden = state.view === "timeline"; });
+    viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
+      input.checked = input.value === state.view;
+      input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle(
+        "ant-radio-button-wrapper-checked",
+        input.checked,
+      );
+    });
+    classicOnly.checked = state.classicOnly;
+    if (onlyPbeAdditions) onlyPbeAdditions.checked = state.onlyPbeAdditions;
     const selected = state.channel ?? "pbe";
     root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel]").forEach((button) => {
       button.setAttribute("aria-checked", String(button.dataset.runtimeChannel === selected));
@@ -554,8 +735,25 @@ export function initSkinCatalog(
     syncControls();
     if (committedChannel) refresh();
   };
+  const lifecycleHistory: RuntimeChannelHistory = {
+    get url() { return history.url; },
+    push(url) { history.push(url); },
+    replace(url) { history.replace(url); },
+    onPopState(listener) {
+      return history.onPopState(() => {
+        const parsed = readSkinCatalogUrlState(history.url);
+        if (!pendingChannel && committedChannel && !parsed.invalid.length && parsed.channel === committedChannel) {
+          const previousView = state.view;
+          state = parsed;
+          syncControls();
+          refresh();
+          if (previousView !== state.view) results.scrollIntoView?.({ block: "start" });
+        } else listener();
+      });
+    },
+  };
   const lifecycle = new RuntimeChannelLifecycle({
-    history,
+    history: lifecycleHistory,
     parse(url) {
       const parsed = readSkinCatalogUrlState(url);
       return parsed.invalid.length
@@ -581,7 +779,8 @@ export function initSkinCatalog(
     normalizeError: (error) => asCommunityDragonError(error, locale),
     isAborted: (error) => error.code === "aborted",
     view: {
-      loading(preserve) {
+      loading(preserve, context) {
+        pendingChannel = context.channel;
         setControlsDisabled(true);
         if (!preserve) {
           showFilters(false);
@@ -593,7 +792,8 @@ export function initSkinCatalog(
         content.hidden = preserve && !results.hidden;
         if (!preserve) {
           results.hidden = true;
-          content.replaceChildren(loadingSkeleton);
+          timelineSkeleton.hidden = false;
+          content.replaceChildren(state.view === "timeline" ? timelineSkeleton : loadingSkeleton);
         }
       },
       render(result, context) {
@@ -607,7 +807,8 @@ export function initSkinCatalog(
           rarities: context.target.rarities.filter((key) => available.has(key)),
         };
         committedChannel = context.channel;
-        pbeSetting?.toggleAttribute("hidden", context.channel !== "pbe" || !pbeNewSkinIds);
+        pendingChannel = undefined;
+        pbeSetting?.parentElement?.toggleAttribute("hidden", context.channel !== "pbe" || !pbeNewSkinIds);
         status.textContent = "";
         finishLoading();
         count.hidden = items.length === 0;
@@ -618,8 +819,8 @@ export function initSkinCatalog(
         setControlsDisabled(false);
       },
       committed() {
-        if (state.rarities.length !== readSkinCatalogUrlState(history.url).rarities.length)
-          history.replace(formatSkinCatalogUrl(history.url, state));
+        const normalized = formatSkinCatalogUrl(history.url, state);
+        if (normalized.href !== history.url.href) history.replace(normalized);
       },
       invalid(message) {
         status.textContent = message;
@@ -630,6 +831,7 @@ export function initSkinCatalog(
         showMessage(message, "error");
       },
       failure(error, retry, preserve) {
+        pendingChannel = undefined;
         const message = runtimeFailureMessage(error, locale);
         status.textContent = message;
         showMessage(message, "error", retry);
@@ -645,7 +847,7 @@ export function initSkinCatalog(
     },
   });
   search.addEventListener("input", () => update({ ...state, search: search.value }));
-  includeClassic.addEventListener("change", () => update({ ...state, excludeClassic: !includeClassic.checked }));
+  classicOnly.addEventListener("change", () => update({ ...state, classicOnly: classicOnly.checked }));
   sort.addEventListener("change", () => update({ ...state, sort: sort.value as SkinCatalogSort }));
   rarities.addEventListener("click", (event) => {
     const button = (event.target as Element).closest<HTMLButtonElement>("[data-catalog-rarity]");
