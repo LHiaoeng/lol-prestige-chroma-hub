@@ -77,6 +77,7 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
       class="skin-catalog-sort"
       data-catalog-sort=""
       ariaLabel={isZh ? '排序方式' : 'Sort order'}
+      popupMatchSelectWidth={false}
       options={[
         { value: 'asc', label: isZh ? '英雄名称升序' : 'Champion name A–Z' },
         { value: 'desc', label: isZh ? '英雄名称降序' : 'Champion name Z–A' },
