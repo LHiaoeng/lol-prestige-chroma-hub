@@ -38,6 +38,9 @@ export interface SkinCatalogEntityGroup {
 export interface SkinCatalogFilters {
   readonly locale: CommunityDragonLocale;
   readonly search: string;
+  readonly skinlineNames?: ReadonlyMap<number, string>;
+  readonly universeNames?: ReadonlyMap<number, string>;
+  readonly universeSkinlineIds?: ReadonlyMap<number, readonly number[]>;
   readonly rarities: readonly string[];
   readonly classicOnly: boolean;
   readonly onlyPbeAdditions?: boolean;
@@ -207,13 +210,22 @@ export function projectSkinCatalogItems(
   skins: readonly RuntimeSkin[],
   champions: readonly RuntimeChampionSummary[],
 ): readonly RuntimeSkinReferenceItem[] {
-  const names = new Map(champions.map((champion) => [champion.id, champion.name]));
+  const championById = new Map(champions.map((champion) => [champion.id, champion]));
   return projectSkinReferenceCollectionItems(skins)
     .filter((item) => !item.isBase)
-    .map((item) => ({
-      ...item,
-      championName: names.get(item.championId) ?? item.championName,
-    }));
+    .map((item) => {
+      const champion = championById.get(item.championId);
+      return {
+        ...item,
+        championName: champion?.name ?? item.championName,
+        ...(champion?.alias ?? item.championAlias
+          ? { championAlias: champion?.alias ?? item.championAlias }
+          : {}),
+        ...(champion?.title ?? item.championTitle
+          ? { championTitle: champion?.title ?? item.championTitle }
+          : {}),
+      };
+    });
 }
 
 export function catalogRarityKey(
@@ -231,20 +243,47 @@ function isClassicSkinName(name: string | undefined): boolean {
 
 export function filterSkinCatalogItems(
   items: readonly RuntimeSkinReferenceItem[],
-  { locale, search, rarities, classicOnly, onlyPbeAdditions = false, sort, channel, releaseDates, pbeNewSkinIds }: SkinCatalogFilters,
+  {
+    locale,
+    search,
+    skinlineNames,
+    universeNames,
+    universeSkinlineIds,
+    rarities,
+    classicOnly,
+    onlyPbeAdditions = false,
+    sort,
+    channel,
+    releaseDates,
+    pbeNewSkinIds,
+  }: SkinCatalogFilters,
 ): readonly RuntimeSkinReferenceItem[] {
   const language = locale === "zh_cn" ? "zh-CN" : "en";
   const query = search.trim().toLocaleLowerCase(language);
+  const matchesName = (name: string | undefined) => name?.toLocaleLowerCase(language).includes(query) ?? false;
   const selected = new Set(rarities);
   const result = items.filter((item) => {
     const rarity = catalogRarityKey(item, locale) || UNMARKED_RARITY;
+    const universeIds = item.universeIds.length
+      ? item.universeIds
+      : [...(universeSkinlineIds ?? [])]
+          .filter(([, skinlineIds]) => item.skinlineIds.some((id) => skinlineIds.includes(id)))
+          .map(([id]) => id);
     return (
       (selected.size === 0 || selected.has(rarity)) &&
       (!classicOnly || isClassicSkinName(item.name)) &&
       (!onlyPbeAdditions || channel !== "pbe" || pbeNewSkinIds.has(item.skinId)) &&
       (!query ||
-        (item.name ?? "").toLocaleLowerCase(language).includes(query) ||
-        (item.championName ?? "").toLocaleLowerCase(language).includes(query))
+        [
+          item.name,
+          item.championName,
+          item.championAlias,
+          item.championTitle,
+          ...item.chromas.map((chroma) => chroma.name),
+          ...(item.emblems ?? []).map((emblem) => emblem.name),
+        ].some(matchesName) ||
+        item.skinlineIds.some((id) => matchesName(skinlineNames?.get(id))) ||
+        universeIds.some((id) => matchesName(universeNames?.get(id))))
     );
   });
   if (sort === "release_desc" || sort === "release_asc") {

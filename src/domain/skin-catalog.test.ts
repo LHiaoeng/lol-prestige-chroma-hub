@@ -112,6 +112,33 @@ describe("skin catalog domain", () => {
     ).toEqual(["Red Skin"]);
   });
 
+  it("searches skin, champion, chroma, emblem, skinline, and universe names", () => {
+    const searchableItems = projectSkinCatalogItems([{
+      ...skins[2],
+      emblems: [{ name: "Spirit Blossom", imageUrl: "https://example.test/emblem.png" }],
+      skinlineIds: [10],
+      universeIds: [],
+      chromas: [{ id: 55, name: "Rose Quartz" }],
+    }], [{ kind: "champion", id: 1, name: "Alpha", alias: "Fox", title: "Nine-Tailed" }]);
+    const filters = {
+      locale: "default" as const,
+      search: "",
+      skinlineNames: new Map([[10, "Starlight"]]),
+      universeNames: new Map([[20, "Runeterra"]]),
+      universeSkinlineIds: new Map([[20, [10]]]),
+      rarities: [],
+      classicOnly: false,
+      sort: "asc" as const,
+      channel: "latest" as const,
+      releaseDates: new Map<number, SkinCatalogReleaseDate>(),
+      pbeNewSkinIds: new Set<number>(),
+    };
+
+    for (const search of ["red skin", "fox", "nine-tailed", "rose quartz", "spirit blossom", "starlight", "runeterra"]) {
+      expect(filterSkinCatalogItems(searchableItems, { ...filters, search })).toHaveLength(1);
+    }
+  });
+
   it("sorts by hero name in either direction and keeps one hero's skins stable", () => {
     expect(
       filterSkinCatalogItems(items, {

@@ -415,6 +415,23 @@ describe("skin catalog browser behavior", () => {
     expect(page.viewSwitch.querySelectorAll("input")[2].checked).toBe(true);
   });
 
+  it("loads skinline and universe names on demand for search", async () => {
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=cards&channel=latest",
+      vi.fn(async () => ({
+        skins: [{ ...skin(301, 1), skinlineIds: [10], universeIds: [20] }],
+        champions,
+      })),
+    );
+    await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 1"));
+    expect(page.listEntities).not.toHaveBeenCalled();
+
+    page.search.value = "Universe Gamma";
+    page.search.fire("input");
+    await vi.waitFor(() => expect(page.grid.querySelectorAll(".skin-catalog-card")).toHaveLength(1));
+    expect(page.listEntities.mock.calls.map(([kind]) => kind).sort()).toEqual(["skinlines", "universes"]);
+  });
+
   it("falls back to relation IDs if the skinline directory cannot load", async () => {
     const page = fixture(
       "https://chromaart.lol/skins/?view=skinline&channel=latest",

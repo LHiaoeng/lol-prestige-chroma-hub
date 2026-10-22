@@ -43,8 +43,8 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
     <span class="runtime-skeleton-line"></span>
   </div>
   <div class="skin-catalog-search" hidden>
-    <label for="skin-catalog-search">{isZh ? '搜索皮肤或英雄' : 'Search skins or champions'}</label>
-    <input class="cn-input" id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '输入皮肤或英雄名称' : 'Skin or champion name'} />
+    <label for="skin-catalog-search">{isZh ? '搜索皮肤相关名称' : 'Search related names'}</label>
+    <input class="cn-input" id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '皮肤、英雄、系列、宇宙、炫彩或徽章名称' : 'Skin, champion, skinline, universe, chroma, or emblem name'} />
   </div>
   <fieldset class="skin-catalog-rarities" hidden>
     <legend>{isZh ? '稀有度' : 'Rarity'}</legend>

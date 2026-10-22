@@ -208,6 +208,25 @@ export function initSkinCatalog(
   let timelineGroups: readonly SkinCatalogTimelineGroup[] = [];
   const entityCache = new Map<string, readonly (RuntimeSkinline | RuntimeUniverse)[]>();
   const pendingEntityNames = new Set<string>();
+  const ensureEntityNames = (view: "skinline" | "universe", channel: RuntimeChannel) => {
+    const cacheKey = `${channel}:${view}`;
+    if (entityCache.has(cacheKey) || pendingEntityNames.has(cacheKey)) return;
+    pendingEntityNames.add(cacheKey);
+    void runtime.list(view === "skinline" ? "skinlines" : "universes", {
+      locale,
+      channel,
+    }).then((entities) => {
+      entityCache.set(cacheKey, entities.filter(
+        (entity): entity is RuntimeSkinline | RuntimeUniverse => entity.kind === view,
+      ));
+    }).catch(() => {
+      entityCache.set(cacheKey, []);
+    }).finally(() => {
+      pendingEntityNames.delete(cacheKey);
+      if (committedChannel === channel && (state.view === view || state.search.trim()))
+        refresh();
+    });
+  };
   let shownCount = 0;
   let shownGroupCount = 0;
   let pendingChannel: RuntimeChannel | undefined;
@@ -637,9 +656,21 @@ export function initSkinCatalog(
   loadMore.textContent = copy.loadMore;
   loadMore.addEventListener("click", (event) => appendNextPage(event.detail === 0));
   const refresh = () => {
+    if (state.search.trim()) {
+      ensureEntityNames("skinline", state.channel);
+      ensureEntityNames("universe", state.channel);
+    }
+    const entityNames = (view: "skinline" | "universe") =>
+      new Map((entityCache.get(`${state.channel}:${view}`) ?? []).map(({ id, name }) => [id, name] as const));
+    const universeSkinlineIds = new Map((entityCache.get(`${state.channel}:universe`) ?? [])
+      .filter((entity): entity is RuntimeUniverse => entity.kind === "universe")
+      .map(({ id, skinlineIds }) => [id, skinlineIds] as const));
     filtered = filterSkinCatalogItems(items, {
       locale,
       search: state.search,
+      skinlineNames: entityNames("skinline"),
+      universeNames: entityNames("universe"),
+      universeSkinlineIds,
       rarities: state.rarities,
       classicOnly: state.classicOnly,
       onlyPbeAdditions: state.channel === "pbe" && state.onlyPbeAdditions && pbeNewSkinIds !== undefined,
@@ -661,25 +692,8 @@ export function initSkinCatalog(
     } else if (state.view !== "cards") {
       const view = state.view;
       const channel = state.channel;
-      const cacheKey = `${channel}:${view}`;
-      timelineGroups = groupSkinCatalogItemsByEntity(filtered, view, locale, entityCache.get(cacheKey));
-      if (!entityCache.has(cacheKey) && !pendingEntityNames.has(cacheKey)) {
-        pendingEntityNames.add(cacheKey);
-        void runtime.list(view === "skinline" ? "skinlines" : "universes", {
-          locale,
-          channel,
-        }).then((entities) => {
-          entityCache.set(cacheKey, entities.filter(
-            (entity): entity is RuntimeSkinline | RuntimeUniverse => entity.kind === view,
-          ));
-        }).catch(() => {
-          entityCache.set(cacheKey, []);
-        }).finally(() => {
-          pendingEntityNames.delete(cacheKey);
-          if (committedChannel === channel && state.view === view)
-            refresh();
-        });
-      }
+      ensureEntityNames(view, channel);
+      timelineGroups = groupSkinCatalogItemsByEntity(filtered, view, locale, entityCache.get(`${channel}:${view}`));
     } else {
       timelineGroups = [];
     }
