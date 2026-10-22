@@ -15,6 +15,7 @@ import { localizedPath } from "../i18n/config";
 import { formatRuntimeUrl } from "../domain/runtime-url-state";
 import { createDomainHeading } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
+import { enhanceSelect } from "../components/select";
 import {
   createCarousel,
   type CarouselSelectOption,
@@ -786,7 +787,7 @@ export function appendUniverseSkinGroups(
   const controls = document.createElement("div");
   controls.className = "runtime-toolbar runtime-universe-filters";
   const skinlineSelect = document.createElement("select");
-  skinlineSelect.className = "cn-select";
+  skinlineSelect.className = "ant-select-source";
   skinlineSelect.id = "runtime-universe-skinline-filter";
   skinlineSelect.setAttribute("aria-label", locale === "zh_cn" ? "系列筛选" : "Filter by skinline");
   const allOption = document.createElement("option");
@@ -807,9 +808,10 @@ export function appendUniverseSkinGroups(
     textNode("span", locale === "zh_cn" ? "系列" : "Skinline"),
     skinlineSelect,
   );
+  enhanceSelect(skinlineSelect);
 
   const sortSelect = document.createElement("select");
-  sortSelect.className = "cn-select";
+  sortSelect.className = "ant-select-source";
   sortSelect.id = "runtime-universe-skins-sort";
   sortSelect.setAttribute("aria-label", locale === "zh_cn" ? "皮肤排序" : "Sort skins");
   for (const [value, label] of [
@@ -828,6 +830,7 @@ export function appendUniverseSkinGroups(
     textNode("span", locale === "zh_cn" ? "排序" : "Sort by"),
     sortSelect,
   );
+  enhanceSelect(sortSelect);
   controls.append(skinlineLabel, sortLabel);
   parent.appendChild(controls);
 

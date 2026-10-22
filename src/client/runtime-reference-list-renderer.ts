@@ -23,6 +23,7 @@ import {
 import { runtimeFailureMessage } from "./communitydragon-errors";
 import { createTree, type TreeNode } from "../components/Tree";
 import { createDomainIcon } from "../components/domain-icons";
+import { enhanceSelect } from "../components/select";
 
 export interface RuntimeListRendererOptions {
   readonly content: HTMLElement;
@@ -103,7 +104,7 @@ export function createRuntimeListRenderer(
       toolbar.append(searchLabel);
       if (isChampionList) {
         const select = document.createElement("select");
-        select.className = "cn-select";
+        select.className = "ant-select-source";
         roleFilter = select;
         select.id = "runtime-champions-role";
         select.setAttribute(
@@ -123,10 +124,11 @@ export function createRuntimeListRenderer(
           textNode("span", options.locale === "zh_cn" ? "职业" : "Role"),
           select,
         );
+        enhanceSelect(select);
         toolbar.append(roleLabelElement);
       }
       const sort = document.createElement("select");
-      sort.className = "cn-select";
+      sort.className = "ant-select-source";
       sort.id = `runtime-${options.page}-sort`;
       sort.setAttribute(
         "aria-label",
@@ -148,6 +150,7 @@ export function createRuntimeListRenderer(
         textNode("span", options.locale === "zh_cn" ? "排序" : "Sort"),
         sort,
       );
+      enhanceSelect(sort);
       toolbar.append(sortLabel);
       const grid = document.createElement("div");
       grid.className = isChampionList

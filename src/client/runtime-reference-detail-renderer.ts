@@ -60,6 +60,7 @@ import {
 import { createTooltip } from "../components/tooltip";
 import { createPopover } from "../components/popover";
 import { bindTypographyParagraphs, createParagraph, createTitle } from "../components/Typography";
+import { enhanceSelect } from "../components/select";
 import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
@@ -715,7 +716,7 @@ export function createRuntimeDetailRenderer(
         const controls = document.createElement("div");
         controls.className = "runtime-toolbar runtime-skin-reference-controls";
         const sortSelect = document.createElement("select");
-        sortSelect.className = "cn-select";
+        sortSelect.className = "ant-select-source";
         sortSelect.id = "runtime-champion-skins-sort";
         sortSelect.setAttribute(
           "aria-label",
@@ -738,6 +739,7 @@ export function createRuntimeDetailRenderer(
           textNode("span", options.locale === "zh_cn" ? "排序" : "Sort by"),
           sortSelect,
         );
+        enhanceSelect(sortSelect);
         controls.append(sortLabel);
         section.appendChild(controls);
         const grid = document.createElement("div");
@@ -1089,7 +1091,7 @@ export function createRuntimeDetailRenderer(
       controls.className = "runtime-toolbar runtime-skin-reference-controls";
       let championNames = new Map<number, string>();
       const sortSelect = document.createElement("select");
-      sortSelect.className = "cn-select";
+      sortSelect.className = "ant-select-source";
       sortSelect.id = "runtime-skinline-skins-sort";
       sortSelect.setAttribute("aria-label", options.locale === "zh_cn" ? "皮肤排序" : "Sort skins");
       for (const [value, label] of [
@@ -1106,6 +1108,7 @@ export function createRuntimeDetailRenderer(
       sortLabel.className = "runtime-toolbar-field";
       sortLabel.htmlFor = sortSelect.id;
       sortLabel.append(textNode("span", options.locale === "zh_cn" ? "排序" : "Sort by"), sortSelect);
+      enhanceSelect(sortSelect);
       controls.append(sortLabel);
       const results = document.createElement("div");
       const renderSkins = () => {

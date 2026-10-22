@@ -110,6 +110,9 @@ rounded:
   lg: 8px
   xl: 16px
   full: 9999px
+line-width:
+  DEFAULT: 1px
+  bold: 2px
 spacing:
   unit: 4px
   xs: 4px
@@ -118,6 +121,7 @@ spacing:
   lg: 24px
   xl: 32px
   control-height: 32px
+  control-height-lg: 40px
 components:
   button-primary:
     backgroundColor: '{colors.primary}'
@@ -239,7 +243,7 @@ components:
 
 ## Overview
 
-本文件基于 [Antdv Next 已发布的 design.md](https://antdv-next.com/design.md) 定制，保留其完整 Token 分类、10 档字体、7 档圆角、7 个间距/尺寸项和全部 22 个组件范式；增加夜间表面与状态语义，以及页面和下拉菜单两项容器映射。颜色来自 `antdv-next@1.6.0` 的真实 `darkAlgorithm` 输出，提取日期为 2026-10-14。源文件对应仓库提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248`。
+本文件基于 [Antdv Next 已发布的 design.md](https://antdv-next.com/design.md) 定制，保留其完整 Token 分类、10 档字体、7 档圆角、8 个间距/尺寸项、两档线宽和全部 22 个组件范式；增加夜间表面与状态语义，以及页面和下拉菜单两项容器映射。颜色来自 `antdv-next@1.6.0` 的真实 `darkAlgorithm` 输出，提取日期为 2026-10-14。源文件对应仓库提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248`。
 
 本站是暗色金色的臻彩原画图鉴。原画承担视觉焦点，控件遵循 Antdv Next 的比例、密度与交互语义，页面共享同一套规则。遵循熟悉的操作模式、明确的反馈、与任务相关的强调和可持续复用的组件；保留 Astro 静态架构，通过现有 CSS 和组件消费本规范。
 
@@ -263,7 +267,7 @@ Chroma Gold 是最终可见主色 `primary: #d7b56d`。普通暗色算法会把�
 
 ## Layout
 
-采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。按钮、表单字段和图标操作等独立控件默认 32px 高。皮肤详情媒体轮播控制条按 Antdv Next 组件尺寸：Radio.Button 与下载图标按钮均使用默认 32px，并通过组件 `size` 属性控制；尺寸不随视口或触控类型放大。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
+采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。控件高度使用 32px 和 40px 两档；边框线宽使用 1px，强调线宽（含时间轴轨迹和焦点环）使用 2px。皮肤详情媒体轮播控制条按 Antdv Next 组件尺寸：Radio.Button 与下载图标按钮均使用默认 32px，并通过组件 `size` 属性控制；尺寸不随视口或触控类型放大。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
 
 本站版心与横向边距继续通过 `--content-width` 和 `--page-gutter` 共享。首页直接呈现工具导航、筛选与原画目录；目录便于比较；详情突出完整作品和资料；博客维持连续阅读。原画展示面积、完整媒体比例和触控可用性是密度规则的明确例外，其余同类控件不逐页另定尺寸。
 

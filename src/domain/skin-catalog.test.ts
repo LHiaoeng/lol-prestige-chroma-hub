@@ -262,6 +262,32 @@ describe("skin catalog domain", () => {
     ]);
   });
 
+  it("groups skins by champion without loading a relation directory", () => {
+    expect(groupSkinCatalogItemsByEntity(items, "champion", "default").map(({ id, name, items: groupItems }) => [
+      id, name, groupItems.map(({ stableKey }) => stableKey),
+    ])).toEqual([
+      [1, "Alpha", ["1:1002"]],
+      [2, "Beta", ["2:2002", "2:2002:stage:22002"]],
+    ]);
+  });
+
+  it("places champions without names after named champions in ID order", () => {
+    const unnamedItems = [60002, 60001].map((championId) => ({
+      ...items[0],
+      championId,
+      championName: undefined,
+      stableKey: `${championId}:1002`,
+    }));
+
+    expect(groupSkinCatalogItemsByEntity([...items, ...unnamedItems], "champion", "default")
+      .map(({ id, name }) => [id, name])).toEqual([
+      [1, "Alpha"],
+      [2, "Beta"],
+      [60001, undefined],
+      [60002, undefined],
+    ]);
+  });
+
   it("validates and round-trips shareable catalog conditions", () => {
     const url = new URL(
       "https://example.test/skins/?q=%20Blue%20&rarity=key:kEpic&rarity=unmarked&classicOnly=1&sort=desc&channel=latest&view=cards",
@@ -306,7 +332,7 @@ describe("skin catalog domain", () => {
     expect(readSkinCatalogUrlState(new URL("https://example.test/skins/?view=bad&pbeOnly=yes"))).toMatchObject({
       view: "timeline", onlyPbeAdditions: false, invalid: ["pbeOnly"],
     });
-    for (const view of ["skinline", "universe"] as const) {
+    for (const view of ["champion", "skinline", "universe"] as const) {
       const relationState = readSkinCatalogUrlState(new URL(`https://example.test/skins/?view=${view}&sort=release_asc`));
       expect(relationState).toMatchObject({ view, sort: "release_desc" });
       const normalized = formatSkinCatalogUrl(url, relationState);

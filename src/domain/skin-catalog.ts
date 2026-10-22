@@ -14,7 +14,7 @@ import {
 import type { RuntimeChannel } from "./communitydragon-runtime";
 
 export type SkinCatalogSort = "asc" | "desc" | "release_desc" | "release_asc";
-export type SkinCatalogView = "cards" | "timeline" | "skinline" | "universe";
+export type SkinCatalogView = "cards" | "timeline" | "champion" | "skinline" | "universe";
 export type SkinCatalogReleaseDate = {
   readonly globalReleaseDate: string | null;
   readonly chinaReleaseDate: string | null;
@@ -29,7 +29,7 @@ export type SkinCatalogTimelineGroup =
   | SkinCatalogEntityGroup;
 
 export interface SkinCatalogEntityGroup {
-  readonly kind: "skinline" | "universe";
+  readonly kind: "champion" | "skinline" | "universe";
   readonly id: number;
   readonly name?: string;
   readonly items: readonly RuntimeSkinReferenceItem[];
@@ -155,6 +155,20 @@ export function groupSkinCatalogItemsByEntity(
   entities: readonly (RuntimeSkinline | RuntimeUniverse)[] = [],
 ): readonly SkinCatalogEntityGroup[] {
   const groups = new Map<number, RuntimeSkinReferenceItem[]>();
+  if (kind === "champion") {
+    for (const item of items) {
+      const group = groups.get(item.championId) ?? [];
+      group.push(item);
+      groups.set(item.championId, group);
+    }
+    return [...groups]
+      .map(([id, groupItems]) => ({ kind, id, name: groupItems[0].championName, items: groupItems }))
+      .sort((left, right) =>
+        (left.name === undefined ? 1 : 0) - (right.name === undefined ? 1 : 0)
+        || (left.name ?? "").localeCompare(right.name ?? "", locale === "zh_cn" ? "zh-CN" : "en")
+        || left.id - right.id,
+      );
+  }
   const entityById = new Map(entities.filter((entity) => entity.kind === kind).map((entity) => [entity.id, entity]));
   const universesBySkinline = new Map<number, number[]>();
   if (kind === "universe") {
@@ -271,7 +285,7 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
   const rawClassicOnly = url.searchParams.get("classicOnly");
   const rawPbeOnly = url.searchParams.get("pbeOnly");
   const rawView = url.searchParams.get("view");
-  const view = rawView === "cards" || rawView === "skinline" || rawView === "universe"
+  const view = rawView === "cards" || rawView === "champion" || rawView === "skinline" || rawView === "universe"
     ? rawView
     : "timeline";
   const rawRarities = url.searchParams.getAll("rarity");
@@ -289,7 +303,7 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
     rarities: [...new Set(rawRarities.filter((value) => rarityParameter.test(value)))],
     classicOnly: rawClassicOnly === "1",
     onlyPbeAdditions: rawPbeOnly === "1",
-    sort: (view === "skinline" || view === "universe") || (view !== "cards" && (rawSort === "asc" || rawSort === "desc"))
+    sort: (view === "champion" || view === "skinline" || view === "universe") || (view !== "cards" && (rawSort === "asc" || rawSort === "desc"))
       ? "release_desc"
       : rawSort === "asc" || rawSort === "desc" || rawSort === "release_asc" ? rawSort : "release_desc",
     view,

@@ -305,7 +305,7 @@ describe("skin catalog browser behavior", () => {
     expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-grid");
     const modes = page.viewSwitch.querySelectorAll("input");
     expect(modes.map((mode) => [mode.value, mode.checked])).toEqual([
-      ["cards", true], ["timeline", false], ["skinline", false], ["universe", false],
+      ["cards", true], ["timeline", false], ["champion", false], ["skinline", false], ["universe", false],
     ]);
     expect(page.content.querySelector(".skin-catalog-timeline-skeleton")).toBeNull();
 
@@ -370,23 +370,49 @@ describe("skin catalog browser behavior", () => {
     expect(page.h.url.searchParams.get("view")).toBe("skinline");
     expect(page.h.url.searchParams.has("sort")).toBe(false);
     expect(page.viewSwitch.querySelectorAll("input").map(({ value, checked }) => [value, checked])).toEqual([
-      ["cards", false], ["timeline", false], ["skinline", true], ["universe", false],
+      ["cards", false], ["timeline", false], ["champion", false], ["skinline", true], ["universe", false],
     ]);
     expect(page.timeline.querySelectorAll(".skin-catalog-timeline-node").map((node) =>
       node.querySelector(".skin-catalog-timeline-date-heading")?.textContent)).toEqual(["Series Alpha", "Series Zed"]);
+    const skinlineTitle = page.timeline.querySelector(".skin-catalog-timeline-entity-link");
+    expect(skinlineTitle?.href).toContain("/skinlines/detail/?id=10");
+    expect(skinlineTitle?.querySelector(".domain-icon--skinlines")).not.toBeNull();
     expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(3);
     expect(page.timeline.querySelectorAll(".skin-catalog-card")).toHaveLength(3);
     expect(page.count.textContent).toContain("2 / 2");
 
-    const universeMode = page.viewSwitch.querySelectorAll("input")[3];
+    const universeMode = page.viewSwitch.querySelectorAll("input")[4];
     universeMode.checked = true;
     universeMode.fire("change");
     await vi.waitFor(() => expect(page.timeline.querySelector(".skin-catalog-timeline-date-heading")?.textContent)
       .toBe("Universe Gamma"));
     expect(page.h.url.searchParams.get("view")).toBe("universe");
+    const universeTitle = page.timeline.querySelector(".skin-catalog-timeline-entity-link");
+    expect(universeTitle?.href).toContain("/universes/detail/?id=20");
+    expect(universeTitle?.querySelector(".domain-icon--universes")).not.toBeNull();
     expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(2);
     expect(page.timeline.querySelectorAll(".skin-catalog-card")).toHaveLength(2);
     expect(page.listEntities.mock.calls.map(([kind]) => kind)).toEqual(["skinlines", "universes"]);
+  });
+
+  it("groups skins by champion and persists the mode in the URL", async () => {
+    const page = fixture("https://chromaart.lol/skins/?view=cards&channel=latest&sort=release_asc");
+    await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+    const championMode = page.viewSwitch.querySelectorAll("input")[2];
+    championMode.checked = true;
+    championMode.fire("change");
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-node")).toHaveLength(2);
+    expect(page.h.url.searchParams.get("view")).toBe("champion");
+    expect(page.h.url.searchParams.has("sort")).toBe(false);
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-date-heading").map(({ textContent }) => textContent))
+      .toEqual(["Ahri", "Zed"]);
+    expect(page.timeline.querySelector(".skin-catalog-timeline-entity-link")?.href)
+      .toContain("/champions/detail/?id=1");
+    expect(page.timeline.querySelector(".domain-icon--champions")).not.toBeNull();
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(3);
+    expect(page.count.textContent).toContain("3 / 3");
+    expect(page.listEntities).not.toHaveBeenCalled();
+    expect(page.viewSwitch.querySelectorAll("input")[2].checked).toBe(true);
   });
 
   it("falls back to relation IDs if the skinline directory cannot load", async () => {

@@ -21,6 +21,8 @@
   --selected-hover-bg: #6c5c3c;
   --line: #424242;
   --line-subtle: #303030;
+  --line-width: 1px;
+  --line-width-bold: 2px;
   --success: #49aa19;
   --success-bg: #162312;
   --success-border: #274916;
@@ -63,9 +65,9 @@
   --space-4: 24px;
   --space-5: 32px;
   --control-height: 32px;
+  --control-height-lg: 40px;
   --touch-target: 44px;
   --content-width: 1240px;
-  --control-height-lg: 40px;
   --page-gutter: 24px;
   --site-header-height: 72px;
   --shadow-popup: 0 6px 16px 0 rgba(255,255,255,.016), 0 3px 6px -4px rgba(255,255,255,.024), 0 9px 28px 8px rgba(255,255,255,.01);

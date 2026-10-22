@@ -42,7 +42,7 @@ type CatalogLoadResult = { items: readonly RuntimeSkinReferenceItem[]; pbeNewSki
 type SkinCatalogArtworkMode = { plainUrl: string; framedUrl: string; borderUrls: readonly string[] };
 const CATALOG_PAGE_SIZE = 50;
 const isReleaseSort = (sort: SkinCatalogSort) => sort === "release_desc" || sort === "release_asc";
-const isRelationView = (view: SkinCatalogView) => view === "skinline" || view === "universe";
+const isGroupedView = (view: SkinCatalogView) => view === "champion" || view === "skinline" || view === "universe";
 
 const zh = {
   loading: "正在加载完整皮肤目录…",
@@ -60,6 +60,7 @@ const zh = {
   pbeHelp: "只显示相较正式服新增的 PBE 皮肤。",
   cardsHelp: "以卡片网格浏览皮肤。",
   timelineHelp: "按发布时间以时间轴浏览皮肤。",
+  championHelp: "按英雄以时间轴浏览皮肤。",
   skinlineHelp: "按皮肤系列以时间轴浏览皮肤。",
   universeHelp: "按宇宙以时间轴浏览皮肤。",
   hideBorder: "切换到无边框载入图",
@@ -70,9 +71,10 @@ const zh = {
   missing: "暂无原画",
   cards: "卡片",
   timeline: "时间轴",
+  champion: "英雄",
   skinline: "皮肤系列",
   universe: "宇宙",
-  entityFallback: (kind: "skinline" | "universe", id: number) => `${kind === "skinline" ? "系列" : "宇宙"} #${id}`,
+  entityFallback: (kind: "champion" | "skinline" | "universe", id: number) => `${kind === "champion" ? "英雄" : kind === "skinline" ? "系列" : "宇宙"} #${id}`,
   timelineReleaseSource: (source: "china" | "global" | "wiki") => source === "china" ? "国服" : "直营服参考日期",
   timelinePbe: "PBE 新增",
   timelineUnknown: "日期待确认",
@@ -94,6 +96,7 @@ const en = {
   pbeHelp: "Show only skins newly added on PBE compared with live.",
   cardsHelp: "Browse skins in a card grid.",
   timelineHelp: "Browse skins by release date on a timeline.",
+  championHelp: "Browse skins by champion on a timeline.",
   skinlineHelp: "Browse skins by skinline on a timeline.",
   universeHelp: "Browse skins by universe on a timeline.",
   hideBorder: "Switch to the plain loading screen",
@@ -104,9 +107,10 @@ const en = {
   missing: "Artwork unavailable",
   cards: "Cards",
   timeline: "Timeline",
+  champion: "Champions",
   skinline: "Skinlines",
   universe: "Universes",
-  entityFallback: (kind: "skinline" | "universe", id: number) => `${kind === "skinline" ? "Skinline" : "Universe"} #${id}`,
+  entityFallback: (kind: "champion" | "skinline" | "universe", id: number) => `${kind === "champion" ? "Champion" : kind === "skinline" ? "Skinline" : "Universe"} #${id}`,
   timelineReleaseSource: () => "League of Legends Wiki",
   timelinePbe: "PBE additions",
   timelineUnknown: "Date to be confirmed",
@@ -220,15 +224,16 @@ export function initSkinCatalog(
     options: [
       { label: copy.cards, value: "cards", controls: "skin-catalog-grid", tooltip: () => copy.cardsHelp },
       { label: copy.timeline, value: "timeline", controls: "skin-catalog-timeline", tooltip: () => copy.timelineHelp },
+      { label: copy.champion, value: "champion", controls: "skin-catalog-timeline", tooltip: () => copy.championHelp },
       { label: copy.skinline, value: "skinline", controls: "skin-catalog-timeline", tooltip: () => copy.skinlineHelp },
       { label: copy.universe, value: "universe", controls: "skin-catalog-timeline", tooltip: () => copy.universeHelp },
     ],
     onChange(value) {
-      const view: SkinCatalogView = value === "timeline" || value === "skinline" || value === "universe" ? value : "cards";
+      const view: SkinCatalogView = value === "timeline" || value === "champion" || value === "skinline" || value === "universe" ? value : "cards";
       update({
         ...state,
         view,
-        sort: isRelationView(view) || (view === "timeline" && !isReleaseSort(state.sort)) ? "release_desc" : state.sort,
+        sort: isGroupedView(view) || (view === "timeline" && !isReleaseSort(state.sort)) ? "release_desc" : state.sort,
       });
       results.scrollIntoView?.({ block: "start" });
     },
@@ -578,8 +583,17 @@ export function initSkinCatalog(
         date.textContent = copy.timelineUnknown;
         label.textContent = copy.timelineClassic;
         dateHeading.append(date);
-      } else if (group.kind === "skinline" || group.kind === "universe") {
-        dateHeading.textContent = group.name ?? copy.entityFallback(group.kind, group.id);
+      } else if (group.kind === "champion" || group.kind === "skinline" || group.kind === "universe") {
+        const page = group.kind === "champion" ? "champions" : group.kind === "skinline" ? "skinlines" : "universes";
+        const icon = group.kind === "champion" ? "champions" : group.kind === "skinline" ? "skinlines" : "universes";
+        const link = document.createElement("a");
+        link.className = "skin-catalog-timeline-entity-link";
+        link.href = hrefFor(locale, page, { id: group.id, channel: state.channel ?? "pbe" }, "detail", state.channelExplicit).href;
+        link.append(createDomainIcon(icon));
+        const name = document.createElement("span");
+        name.textContent = group.name ?? copy.entityFallback(group.kind, group.id);
+        link.append(name);
+        dateHeading.append(link);
       } else {
         dateHeading.textContent = copy.timelinePbe;
       }
@@ -642,6 +656,8 @@ export function initSkinCatalog(
         releaseDates,
         pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
       });
+    } else if (state.view === "champion") {
+      timelineGroups = groupSkinCatalogItemsByEntity(filtered, "champion", locale);
     } else if (state.view !== "cards") {
       const view = state.view;
       const channel = state.channel;
@@ -731,7 +747,7 @@ export function initSkinCatalog(
     sort.querySelectorAll<HTMLOptionElement>('option[value="asc"], option[value="desc"]')
       .forEach((option) => { option.hidden = state.view !== "cards"; });
     sort.querySelectorAll<HTMLOptionElement>('option[value="release_asc"]')
-      .forEach((option) => { option.hidden = isRelationView(state.view); });
+      .forEach((option) => { option.hidden = isGroupedView(state.view); });
     viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
       input.checked = input.value === state.view;
       input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle(
