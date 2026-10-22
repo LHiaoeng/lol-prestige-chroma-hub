@@ -265,7 +265,7 @@ Chroma Gold 是最终可见主色 `primary: #d7b56d`。普通暗色算法会把�
 
 完整采用上游的系统无衬线字体栈，展墙、页面标题、控件与正文都使用该体系。保留原文件的 display-lg 38/46、headline-lg 30/38、headline-md 24/32、headline-sm 20/28、title-lg 16/24、title-md 14/22、body-lg 16/24、body-md 14/22、body-sm 12/20 和 code 13/20px 字号/行高。
 
-界面字体使用 400 与 600 两档字重，通过颜色、边框和下划线表达选中状态。控件默认 14/22px；博客长文允许使用 body-lg 并增加行高以适应中文连续阅读。Kicker 仅在能补充标题没有表达的类别或语境时使用，不重复面包屑或主标题。窄屏长标题允许自然换行，不以无限缩小字号或隐藏关键名称保持单行。品牌 Logo 作为已有图形资产保留其字标。
+界面字体使用 400 与 600 两档字重，通过颜色、边框和下划线表达选中状态。Button、Input、Select、Radio.Button 的小号和默认文字为 14/22px，大号为 16/24px；Card 标题为 16/24px、小号标题为 14/22px，均为 600 字重；Card Tabs、Tree、Tooltip、Dropdown、Pagination 的正文为 14/22px、400 字重。Alert 普通标题为 14/22px，带描述的标题为 16/24px，均为 400 字重。Typography.Title 的 h1 至 h5 依次为 38/46、30/38、24/32、20/28、16/24px，均为 600 字重。组件字体按 [上游主题字体 Token](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/theme/themes/shared/genFontMapToken.ts) 与对应组件样式映射。博客长文允许使用 body-lg 并增加行高以适应中文连续阅读。Kicker 仅在能补充标题没有表达的类别或语境时使用，不重复面包屑或主标题。窄屏长标题允许自然换行，不以无限缩小字号或隐藏关键名称保持单行。品牌 Logo 作为已有图形资产保留其字标。
 
 ## Layout
 

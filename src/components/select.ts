@@ -22,16 +22,24 @@ interface SelectController {
 }
 
 export function nextEnabledIndex(
-  options: readonly { disabled: boolean }[],
+  options: readonly { disabled: boolean; hidden?: boolean }[],
   currentIndex: number,
   direction: -1 | 1,
 ): number {
   if (!options.length) return -1;
   for (let step = 1; step <= options.length; step += 1) {
     const index = (currentIndex + direction * step + options.length) % options.length;
-    if (!options[index]?.disabled) return index;
+    if (!options[index]?.disabled && !options[index]?.hidden) return index;
   }
   return -1;
+}
+
+export function matchesSelectSearch(
+  query: string,
+  option: { label: string; value: string },
+  filterProp: "label" | "value" = "label",
+): boolean {
+  return option[filterProp].toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
 }
 
 function optionLabel(option: HTMLOptionElement): string {
@@ -78,8 +86,9 @@ function bindDocument(document: Document): void {
 }
 
 export function enhanceSelect(source: HTMLSelectElement): void {
-  if (controllers.has(source) || !source.ownerDocument.defaultView) return;
   const document = source.ownerDocument;
+  const view = document.defaultView;
+  if (controllers.has(source) || !view) return;
   bindDocument(document);
   selectId += 1;
 
@@ -123,6 +132,8 @@ export function enhanceSelect(source: HTMLSelectElement): void {
   input.setAttribute("aria-label", selectLabel(source));
   trigger.append(placeholderNode, label, input);
   const search = source.hasAttribute("data-select-show-search") ? input : undefined;
+  const filterOption = source.dataset.selectFilterOption !== "false";
+  const optionFilterProp = source.dataset.selectOptionFilterProp === "value" ? "value" : "label";
 
   let clearButton: HTMLButtonElement | undefined;
   if (source.hasAttribute("data-select-allow-clear")) {
@@ -188,7 +199,10 @@ export function enhanceSelect(source: HTMLSelectElement): void {
 
   const allOptions = (): HTMLOptionElement[] => Array.from(source.options);
   const nextOptionIndex = (index: number, direction: -1 | 1): number =>
-    nextEnabledIndex(allOptions().map((option) => ({ disabled: optionDisabled(option) })), index, direction);
+    nextEnabledIndex(allOptions().map((option, optionIndex) => ({
+      disabled: optionDisabled(option),
+      hidden: Boolean(list.querySelector<HTMLElement>(`[data-select-index="${optionIndex}"]`)?.hidden),
+    })), index, direction);
   const enabledIndices = (): number[] => allOptions()
     .map((option, index) => optionDisabled(option) ? -1 : index)
     .filter((index) => index >= 0 && !list.querySelector<HTMLElement>(`[data-select-index="${index}"]`)?.hidden);
@@ -354,7 +368,7 @@ export function enhanceSelect(source: HTMLSelectElement): void {
         const enabled = enabledIndices();
         controller.moveActive(event.key === "Home" ? enabled[0] ?? -1 : enabled.at(-1) ?? -1);
       }
-    } else if (event.key === "Enter" || event.key === " ") {
+    } else if (event.key === "Enter" || (event.key === " " && event.target !== search)) {
       event.preventDefault();
       if (popup.hidden) controller.open();
       else controller.choose(controller.activeIndex);
@@ -378,9 +392,17 @@ export function enhanceSelect(source: HTMLSelectElement): void {
   search?.addEventListener("input", () => {
     trigger.classList.toggle("ant-select-content-has-search-value", !!search.value);
     if (search.value && popup.hidden) controller.open();
-    const query = search.value.trim().toLocaleLowerCase();
+    source.dispatchEvent(new view.CustomEvent("search", {
+      bubbles: true,
+      detail: search.value,
+    }));
     list.querySelectorAll<HTMLElement>("[role=option]").forEach((item) => {
-      item.hidden = !item.textContent?.toLocaleLowerCase().includes(query);
+      const option = source.options[Number(item.dataset.selectIndex)];
+      item.hidden = filterOption && (!option || !matchesSelectSearch(
+        search.value,
+        { label: optionLabel(option), value: option.value },
+        optionFilterProp,
+      ));
     });
     list.querySelectorAll<HTMLElement>("[data-select-group]").forEach((group) => {
       let next = group.nextElementSibling;

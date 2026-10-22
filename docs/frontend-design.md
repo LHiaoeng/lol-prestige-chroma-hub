@@ -13,7 +13,7 @@
 
 修改视觉规则时，先核对 `DESIGN.md` 与 Token，再更新共享组件和所有消费者。本文件不复制 Token 数值。独立控件触控目标、原画展示等例外须符合 `DESIGN.md`，不能靠页面私有颜色或字号建立另一套主题。
 
-Select 的输入框、弹层、选中与悬停项统一使用暗色语义 Token；下拉列表保留可见的细滚动条，滑块随暗色文本层级显示，悬停时增强对比。长选项可按上游 `popupMatchSelectWidth={false}` 让弹层至少与控件同宽并随内容展开；视口不足时选项换行。无脚本时仍保留原生选择框。
+Select 的输入框、弹层、选中与悬停项统一使用暗色语义 Token；下拉列表保留可见的细滚动条，滑块随暗色文本层级显示，悬停时增强对比。长选项可按上游 `popupMatchSelectWidth={false}` 让弹层至少与控件同宽并随内容展开；视口不足时选项换行。与上游单选默认值一致，搜索须由 `showSearch` 显式开启；首页英雄、版本、分类，小小英雄类别、种类及宇宙系列等选项较多的筛选已开启。开启后默认按选项标签进行不区分大小写的包含匹配，`optionFilterProp="value"` 可改为匹配选项值，`filterOption={false}` 关闭本地过滤；搜索输入在原生 `<select>` 上派发带查询字符串 `detail` 的冒泡 `search` 事件，供远程搜索监听，行为对照 [固定版本 Antdv Next Select 搜索示例](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/select/demo/search.vue)。无脚本时仍保留原生选择框。
 
 Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/tree/main/packages/antdv-next/src/dropdown/style)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。触控输入不改变菜单项的默认尺寸。
 边框菜单的触发箭头使用独立 SVG 图标节点，在按钮的 flex 布局中垂直居中；不以文字字形充当箭头。

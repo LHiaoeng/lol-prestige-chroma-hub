@@ -43,11 +43,11 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
     </label>
     <label class="tft-little-legends-field">
       <span>{isZh ? '类别' : 'Type'}</span>
-      <Select class="tft-little-legends-select" data-little-legends-type="" options={[{ value: '', label: isZh ? '全部类别' : 'All types' }]} />
+      <Select class="tft-little-legends-select" data-little-legends-type="" showSearch options={[{ value: '', label: isZh ? '全部类别' : 'All types' }]} />
     </label>
     <label class="tft-little-legends-field">
       <span>{isZh ? '种类' : 'Species'}</span>
-      <Select class="tft-little-legends-select" data-little-legends-species="" options={[{ value: '', label: isZh ? '全部种类' : 'All species' }]} />
+      <Select class="tft-little-legends-select" data-little-legends-species="" showSearch options={[{ value: '', label: isZh ? '全部种类' : 'All species' }]} />
     </label>
     <label class="tft-little-legends-field">
       <span>{isZh ? '稀有度' : 'Rarity'}</span>

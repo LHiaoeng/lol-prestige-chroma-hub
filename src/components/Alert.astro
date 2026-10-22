@@ -87,7 +87,8 @@ const hasDescription = Boolean(description || Astro.slots.has('description'));
   .alert--description-only .alert__description { margin-top: 0; }
   .alert--description-only .alert__icon :global(svg) { width: 16px; height: 16px; }
   .alert__content { min-width: 0; flex: 1; }
-  .alert__title { font-size: var(--font-size-title); font-weight: 600; line-height: var(--line-height-title); }
+  .alert__title { font-size: var(--font-size-body); line-height: var(--line-height-body); }
+  .alert--with-description .alert__title { font-size: var(--font-size-title); line-height: var(--line-height-title); }
   .alert__description { margin-top: var(--space-1); color: var(--muted); }
   .alert__action { flex: none; margin-inline-start: var(--space-1); }
   .alert__close { display: inline-flex; min-width: var(--control-height); min-height: var(--control-height); flex: none; align-items: center; justify-content: center; margin: -8px; padding: 0; border: 0; background: transparent; color: var(--muted); }

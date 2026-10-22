@@ -22,6 +22,8 @@ interface Props extends Omit<HTMLAttributes<"select">, "size" | "value" | "aria-
   placeholder?: string;
   disabled?: boolean;
   showSearch?: boolean;
+  filterOption?: boolean;
+  optionFilterProp?: "label" | "value";
   allowClear?: boolean;
   prefix?: string;
   popupMatchSelectWidth?: boolean;
@@ -37,6 +39,8 @@ const {
   placeholder,
   disabled = false,
   showSearch = false,
+  filterOption = true,
+  optionFilterProp = "label",
   allowClear = false,
   prefix,
   popupMatchSelectWidth = true,
@@ -52,6 +56,8 @@ const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in
   data-select-source
   data-select-size={size}
   data-select-show-search={showSearch ? "" : undefined}
+  data-select-filter-option={filterOption ? undefined : "false"}
+  data-select-option-filter-prop={optionFilterProp !== "label" ? optionFilterProp : undefined}
   data-select-allow-clear={allowClear ? "" : undefined}
   data-select-prefix={prefix}
   data-select-popup-match-width={popupMatchSelectWidth ? undefined : "false"}

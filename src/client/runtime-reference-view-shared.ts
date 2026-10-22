@@ -788,6 +788,7 @@ export function appendUniverseSkinGroups(
   controls.className = "runtime-toolbar runtime-universe-filters";
   const skinlineSelect = document.createElement("select");
   skinlineSelect.className = "ant-select-source";
+  skinlineSelect.dataset.selectShowSearch = "";
   skinlineSelect.id = "runtime-universe-skinline-filter";
   skinlineSelect.setAttribute("aria-label", locale === "zh_cn" ? "系列筛选" : "Filter by skinline");
   const allOption = document.createElement("option");
