@@ -14,6 +14,7 @@ import { sortSkinReferenceItems } from "../domain/skin-reference-projection";
 import { localizedPath } from "../i18n/config";
 import { formatRuntimeUrl } from "../domain/runtime-url-state";
 import { createDomainHeading } from "../components/domain-icons";
+import { createIcon } from "../components/icons/create-icon";
 import { createTooltip } from "../components/tooltip";
 import { enhanceSelect } from "../components/select";
 import {
@@ -280,7 +281,7 @@ function appendMediaResource(
   const cover = document.createElement("span");
   cover.className = "runtime-media-preview-cover";
   cover.setAttribute("aria-hidden", "true");
-  cover.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+  cover.append(createIcon("EyeOutlined"));
   const resource =
     descriptor.kind === "video"
       ? document.createElement("video")

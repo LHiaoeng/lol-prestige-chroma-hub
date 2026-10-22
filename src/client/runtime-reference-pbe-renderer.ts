@@ -20,6 +20,7 @@ import {
 import { createChromaCard } from "../components/chroma-card/chroma-card";
 import { createDivider } from "../components/Divider";
 import { createDomainHeading, createDomainIcon, type DomainIconName } from "../components/domain-icons";
+import { createIcon } from "../components/icons/create-icon";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
 export function appendPbeSkinCard(
@@ -282,9 +283,6 @@ function fillWithSkeleton(grid: HTMLElement, kind: RuntimePbeModuleKind): void {
   for (let index = 0; index < 6; index += 1) grid.appendChild(createSkeletonCard(kind));
 }
 
-const EXPAND_SVG =
-  '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
-
 function measurePbeTwoRowHeight(grid: HTMLElement): number {
   const gridTop = grid.getBoundingClientRect().top;
   const rowBottoms = new Map<number, number>();
@@ -327,7 +325,7 @@ function applyCollapsible(
     locale === "zh_cn" ? "展开全部" : "Expand all",
   );
   button.title = locale === "zh_cn" ? "展开全部" : "Expand all";
-  button.innerHTML = EXPAND_SVG;
+  button.append(createIcon("DownOutlined"));
   button.addEventListener("click", () => {
     const expanded = grid.dataset.expanded === "true";
     grid.dataset.expanded = expanded ? "false" : "true";

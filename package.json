@@ -22,6 +22,7 @@
     "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
+    "@ant-design/icons-svg": "4.4.2",
     "astro": "7.3.8",
     "zod": "4.4.3"
   },

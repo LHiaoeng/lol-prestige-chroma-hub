@@ -1,4 +1,6 @@
 ---
+import MailOutlined from '../components/icons/MailOutlined.astro';
+import XOutlined from '../components/icons/XOutlined.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
 import { catalog } from '../data/catalog';
@@ -102,12 +104,12 @@ const jsonLd = {
       <p>For questions about a catalog record, editorial decision, source, or correction, use the contact methods above and include the relevant URL. We welcome precise, evidence-based feedback that helps keep this reference useful.</p>
       <ul class="contact-list">
         <li>
-          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM2 1v1.145l5.803 3.546.197-.14.197.14L14 2.145V1zm13.8 2.698L8 9.586 2.2 3.698l-.15.158V12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.856z" fill="currentColor"/></svg>
+          <MailOutlined class="contact-icon" />
           <span class="contact-label">Email</span>
           <a class="contact-link" href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>
         </li>
         <li>
-          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" fill="currentColor"/></svg>
+          <XOutlined class="contact-icon" />
           <span class="contact-label">X (Official)</span>
           <a class="contact-link" href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@BreadJ</a>
         </li>
@@ -182,12 +184,12 @@ const jsonLd = {
       <p>如果你想询问某条图鉴记录、编辑决定、资料来源或纠错结果，请使用上方联系方式并附上相关网址。欢迎能够帮助这份资料保持准确的具体、可核验反馈。</p>
       <ul class="contact-list">
         <li>
-          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM2 1v1.145l5.803 3.546.197-.14.197.14L14 2.145V1zm13.8 2.698L8 9.586 2.2 3.698l-.15.158V12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.856z" fill="currentColor"/></svg>
+          <MailOutlined class="contact-icon" />
           <span class="contact-label">邮箱</span>
           <a class="contact-link" href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>
         </li>
         <li>
-          <svg class="contact-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" fill="currentColor"/></svg>
+          <XOutlined class="contact-icon" />
           <span class="contact-label">X（官方）</span>
           <a class="contact-link" href="https://x.com/LiaoHeng3364" target="_blank" rel="noopener noreferrer">@BreadJ</a>
         </li>

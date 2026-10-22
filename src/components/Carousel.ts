@@ -2,6 +2,7 @@ import { createButton } from "./Button";
 import { createDivider } from "./Divider";
 import { createRadioButtonGroup } from "./RadioButtonGroup";
 import { enhanceSelect, refreshSelect } from "./select";
+import { createIcon } from "./icons/create-icon";
 
 export interface CarouselSelectOption {
   readonly label: string;
@@ -98,14 +99,9 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   let radioGroup: HTMLFieldSetElement | undefined;
   let borderSelect: CarouselSelectControl | undefined;
   const divider = createDivider({ type: "vertical", className: "runtime-media-carousel-divider" });
-  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  icon.setAttribute("viewBox", "0 0 16 16");
+  const icon = createIcon("DownloadOutlined");
   icon.setAttribute("width", "16");
   icon.setAttribute("height", "16");
-  icon.setAttribute("aria-hidden", "true");
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", "M8 1.5v8m0 0 3-3m-3 3-3-3M3 10v3.5h10V10");
-  icon.appendChild(path);
   const downloadLabel = options.locale === "zh_cn" ? "下载当前显示内容" : "Download displayed media";
   const downloadButton = createButton({
     size: "medium",

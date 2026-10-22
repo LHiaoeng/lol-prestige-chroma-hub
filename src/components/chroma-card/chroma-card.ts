@@ -2,7 +2,7 @@ import type { CommunityDragonLocale } from "../../domain/communitydragon-runtime
 import "./chroma-card.css";
 import { createBorderBeams, type BorderBeamOptions } from "../border-beam/BorderBeam";
 import { createParagraph } from "../Typography";
-import { createUiIcon } from "../ui-icons";
+import { createIcon } from "../icons/create-icon";
 import {
   appendChromaColorCircle,
   appendMissingField,
@@ -236,7 +236,7 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
       toggle.dataset.showingOriginal = String(showOriginal);
       toggle.setAttribute("aria-pressed", String(showOriginal));
     };
-    const icon = createUiIcon("image-switch");
+    const icon = createIcon("SwapOutlined");
     icon.setAttribute("width", "14");
     icon.setAttribute("height", "14");
     toggle.append(icon);
@@ -250,7 +250,7 @@ export function createChromaCard(options: ChromaCardOptions): HTMLElement {
     info.className = "ant-btn ant-btn-sm ant-btn-icon-only runtime-chroma-info-button";
     info.type = "button";
     info.setAttribute("aria-label", options.modelInfoLabel);
-    const icon = createUiIcon("info");
+    const icon = createIcon("InfoCircleOutlined");
     icon.setAttribute("width", "14");
     icon.setAttribute("height", "14");
     info.append(icon);

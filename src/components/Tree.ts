@@ -1,3 +1,5 @@
+import { createIcon } from "./icons/create-icon";
+
 export interface TreeNode {
   readonly title: string;
   readonly children?: readonly TreeNode[];
@@ -48,7 +50,7 @@ export function createTree<T extends TreeNode>(
           switcher.className = "ant-tree-switcher";
           switcher.setAttribute("aria-expanded", String(expanded));
           switcher.setAttribute("aria-label", options.expandLabel(node.title, expanded));
-          switcher.innerHTML = '<svg aria-hidden="true" viewBox="0 0 16 16"><path d="m6 3 5 5-5 5" /></svg>';
+          switcher.append(createIcon("RightOutlined"));
           switcher.addEventListener("click", () => {
             const nextExpanded = switcher.getAttribute("aria-expanded") !== "true";
             switcher.setAttribute("aria-expanded", String(nextExpanded));

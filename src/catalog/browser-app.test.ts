@@ -7,7 +7,10 @@ class TestElement {
   attributes = new Map<string, string>();
   children: TestElement[] = [];
   className = '';
+  classList = { add: (...names: string[]) => { this.className = [this.className, ...names].filter(Boolean).join(' '); } };
   dataset: Record<string, string> = {};
+  style = { fill: '', stroke: '' };
+  innerHTML = '';
   hidden = false;
   parentElement: TestElement | null = null;
   textContent = '';
@@ -117,6 +120,7 @@ class TestDocument {
   addEventListener(): void {}
 
   createElement(tagName: string): TestElement { return new TestElement(tagName, this); }
+  createElementNS(_namespace: string, tagName: string): TestElement { return this.createElement(tagName); }
 
   querySelectorAll<T extends TestElement>(selector: string): T[] {
     return this.roots.flatMap((root) => [
@@ -222,6 +226,18 @@ describe('catalog browser adapter', () => {
     expect(page.status.hidden).toBe(false);
     expect(page.status.textContent).toContain('3 prestige chromas');
     expect(page.status.textContent).toContain('3 of 3');
+  });
+
+  it('uses shared icons for client-side pagination', async () => {
+    const page = fixture('?pageSize=1&page=2');
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+
+    const icons = page.pagination.querySelectorAll('svg');
+    expect(icons.map((icon) => icon.className)).toEqual([
+      'project-icon project-icon--ant', 'project-icon project-icon--ant',
+    ]);
+    expect(icons.every((icon) => icon.getAttribute('aria-hidden') === 'true')).toBe(true);
   });
 
   it('pushes submit/reset changes and normalizes a clamped popstate URL', async () => {

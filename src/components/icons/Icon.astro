@@ -1,0 +1,25 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { iconData, type IconName } from './icon-data';
+
+export interface Props extends Omit<HTMLAttributes<'svg'>, 'name' | 'style'> {
+  name: IconName;
+  style?: string;
+  ariaLabel?: string;
+}
+
+const { name, class: className, style, ariaLabel, ...attributes } = Astro.props;
+const { body, viewBox, custom } = iconData(name);
+---
+
+<svg
+  {...attributes}
+  class:list={['project-icon', custom ? 'project-icon--custom' : 'project-icon--ant', className]}
+  style={`${custom ? 'fill:none;stroke:currentColor' : 'fill:currentColor;stroke:none'};${style ?? ''}`}
+  {viewBox}
+  role={ariaLabel ? 'img' : undefined}
+  aria-label={ariaLabel}
+  aria-hidden={ariaLabel ? undefined : 'true'}
+  focusable="false"
+  set:html={body}
+/>

@@ -1,4 +1,6 @@
 ---
+import LeftOutlined from '../icons/LeftOutlined.astro';
+import RightOutlined from '../icons/RightOutlined.astro';
 /**
  * 分页导航组件（移植自 shadcn/ui Pagination）。
  *
@@ -54,12 +56,12 @@ const nextHref = current < total ? href(current + 1) : undefined;
     <li class="cn-pagination-item">
       {prevHref ? (
         <a class="cn-pagination-link cn-pagination-previous" href={prevHref} rel="prev" aria-label={prevText}>
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+          <LeftOutlined width="16" height="16" />
           <span class="cn-pagination-text">{prevText}</span>
         </a>
       ) : (
         <span class="cn-pagination-link cn-pagination-previous is-disabled" aria-disabled="true">
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+          <LeftOutlined width="16" height="16" />
           <span class="cn-pagination-text">{prevText}</span>
         </span>
       )}
@@ -88,12 +90,12 @@ const nextHref = current < total ? href(current + 1) : undefined;
       {nextHref ? (
         <a class="cn-pagination-link cn-pagination-next" href={nextHref} rel="next" aria-label={nextText}>
           <span class="cn-pagination-text">{nextText}</span>
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+          <RightOutlined width="16" height="16" />
         </a>
       ) : (
         <span class="cn-pagination-link cn-pagination-next is-disabled" aria-disabled="true">
           <span class="cn-pagination-text">{nextText}</span>
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+          <RightOutlined width="16" height="16" />
         </span>
       )}
     </li>

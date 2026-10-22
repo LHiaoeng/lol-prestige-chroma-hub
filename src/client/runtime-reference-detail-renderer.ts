@@ -61,6 +61,8 @@ import { createTooltip } from "../components/tooltip";
 import { createPopover } from "../components/popover";
 import { bindTypographyParagraphs, createParagraph, createTitle } from "../components/Typography";
 import { enhanceSelect } from "../components/select";
+import { createIcon } from "../components/icons/create-icon";
+import type { IconName } from "../components/icons/icon-data";
 import { bindImageFallbacks } from "./image-fallback";
 
 type DetailState = Extract<RuntimeLocationState, { mode: "detail" }>;
@@ -70,22 +72,19 @@ type SummaryAction = Pick<RuntimeSkinAction, "label" | "href"> & {
   readonly icon?: SummaryActionIcon;
 };
 
-const summaryActionPaths: Record<SummaryActionIcon, string> = {
-  voice: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/>',
-  video: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
-  model: '<path d="m12 2 9 5-9 5-9-5 9-5Zm-9 5v10l9 5 9-5V7M12 12v10"/>',
-  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
-  wiki: '<path d="M12 7v14M3 5.5A2.5 2.5 0 0 1 5.5 3H12v18H5.5A2.5 2.5 0 0 0 3 23V5.5Zm18 0A2.5 2.5 0 0 0 18.5 3H12v18h6.5A2.5 2.5 0 0 1 21 23V5.5Z"/>',
-  stats: '<path d="M4 20V10h4v10M10 20V4h4v16M16 20v-7h4v7M3 21h18"/>',
-  external: '<path d="M14 4h6v6M20 4l-9 9M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/>',
-};
+const summaryActionIcons = {
+  voice: "AudioOutlined",
+  video: "VideoCameraOutlined",
+  model: "CodeSandboxOutlined",
+  search: "SearchOutlined",
+  wiki: "BookOutlined",
+  stats: "BarChartOutlined",
+  external: "ExportOutlined",
+} as const satisfies Record<SummaryActionIcon, IconName>;
 
 function createSummaryActionIcon(kind: SummaryActionIcon): SVGSVGElement {
-  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const icon = createIcon(summaryActionIcons[kind]);
   icon.classList.add("runtime-summary-action-icon");
-  icon.setAttribute("viewBox", "0 0 24 24");
-  icon.setAttribute("aria-hidden", "true");
-  icon.innerHTML = summaryActionPaths[kind];
   return icon;
 }
 

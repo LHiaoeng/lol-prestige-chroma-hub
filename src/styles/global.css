@@ -66,6 +66,7 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .cn-pagination-list{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;padding:0;list-style:none}
 .cn-pagination-item{list-style:none}
 .cn-pagination-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:var(--control-height);min-height:var(--control-height);padding:4px 12px;border:1px solid var(--line);border-radius:var(--radius-control);background:var(--panel);color:var(--text);font:inherit;font-size:var(--font-size-body);line-height:var(--line-height-body);text-decoration:none;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color var(--motion-fast) ease,background-color .2s ease,color .2s ease}
+.cn-pagination-link .project-icon{width:16px;height:16px}
 .cn-pagination-link.is-active,.cn-pagination-link[aria-current="page"]{border-color:var(--gold);background:var(--selected-bg);color:var(--gold);cursor:default}
 .cn-pagination-link.is-disabled,.cn-pagination-link[aria-disabled="true"]{color:var(--disabled);background:var(--tag-bg);border-color:var(--line-subtle);cursor:not-allowed;pointer-events:none}
 .cn-pagination-link:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -127,9 +128,9 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .ant-select-open .ant-select-content-has-value .ant-select-content-value{opacity:.25}
 .ant-select-open .ant-select-content-has-search-value>:not(.ant-select-input){opacity:0}
 .ant-select-suffix{display:inline-flex;flex:none;align-self:center;align-items:center;color:var(--tertiary);font-size:12px;line-height:1;transition:opacity .2s ease,color .2s ease}
-.ant-select-suffix svg,.ant-select-clear svg,.ant-select-item-option-state svg{display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ant-select-suffix svg,.ant-select-clear svg,.ant-select-item-option-state svg{display:block}
 .ant-select-suffix svg{width:12px;height:12px;transition:transform .2s ease}
-.ant-select-suffix svg.ant-select-icon-filled{fill:currentColor;stroke:none}
+.ant-select-clear svg,.ant-select-item-option-state svg{width:12px;height:12px}
 .ant-select-open .ant-select-suffix svg{transform:rotate(180deg)}
 .ant-select-suffix>:not(:last-child){margin-inline-end:8px}
 .ant-select-clear{position:absolute;top:50%;inset-inline-end:11px;z-index:1;display:inline-block;width:12px;height:12px;margin-top:-6px;padding:0;border:0;background:transparent;color:var(--tertiary);font:inherit;font-size:12px;font-style:normal;line-height:0;text-align:center;text-transform:none;appearance:none;opacity:0;transform:translateZ(0);transition:color .2s ease,opacity .2s ease;pointer-events:none;cursor:pointer}
@@ -268,7 +269,8 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .runtime-page--pbe header { padding-bottom: 0; }
 .runtime-page--pbe .runtime-header-divider { margin: var(--space-4) 0; }
 .runtime-page--pbe .runtime-section { padding-top: 0; }
-.domain-icon, .ui-icon { display: block; fill: none; color: var(--gold); stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.project-icon { display: inline-block; width: 1em; height: 1em; flex: none; vertical-align: -.125em; }
+.domain-icon { display: block; color: var(--gold); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .runtime-list-icon { width: 1em; height: 1em; flex: 0 0 auto; align-self: center; stroke-width: 1.7; }
 .runtime-page--compact-list-header .runtime-channel-row { margin-top: 0; }
 .runtime-page--compact-list-header .runtime-source { gap: 0; font-size: var(--font-size-body); }
@@ -399,8 +401,9 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-dropdown-menu a { color: inherit; text-decoration: none; }
 .ant-dropdown-menu a.runtime-summary-action { justify-content: flex-start; gap: var(--space-2); }
 .runtime-summary-action-label { min-width: 0; flex: 1; overflow-wrap: anywhere; }
-.runtime-summary-action-icon { display: block; width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.runtime-summary-action-icon { display: block; width: 18px; height: 18px; flex: none; }
 .runtime-summary-action-icon:last-child { width: 14px; height: 14px; margin-left: var(--space-2); }
+.runtime-media-carousel-download .project-icon { width: 16px; height: 16px; }
 .ant-dropdown-menu button:hover,
 .ant-dropdown-menu button:focus-visible,
 .ant-dropdown-menu a:hover,
@@ -1306,8 +1309,9 @@ html.media-viewer-scroll-compensated body { width: calc(100% - var(--media-viewe
 .ant-image-preview-time { font-size: var(--font-size-small); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ant-image-preview-status { position: absolute; z-index: 1; max-width: calc(100% - 32px); padding: var(--space-3); border-radius: var(--radius-card); background: var(--mask); color: #fff; }
 .ant-image-preview-status button { margin-inline-start: var(--space-2); border: 0; border-radius: var(--radius-control); padding: var(--space-2); background: transparent; color: var(--gold); cursor: pointer; }
-.ant-image-preview-player[hidden], .ant-image-preview-status[hidden], .ant-image-preview-player .ant-image-preview-pause-icon, .ant-image-preview-player [data-playing="true"] .ant-image-preview-play-icon, .ant-image-preview-player .ant-image-preview-muted-icon { display: none; }
+.ant-image-preview-player[hidden], .ant-image-preview-status[hidden], .ant-image-preview-player .ant-image-preview-pause-icon, .ant-image-preview-player [data-playing="true"] .ant-image-preview-play-icon, .ant-image-preview-player .ant-image-preview-muted-icon, .ant-image-preview-player [data-muted="true"] .ant-image-preview-sound-icon { display: none; }
 .ant-image-preview-player [data-playing="true"] .ant-image-preview-pause-icon, .ant-image-preview-player [data-muted="true"] .ant-image-preview-muted-icon { display: block; }
+.ant-image-preview-flip-y-icon { transform: rotate(90deg); }
 @media (max-width: 480px) {
   .ant-image-preview-actions { gap: 0; padding-inline: var(--space-2); }
   .ant-image-preview-actions button { font-size: var(--font-size-headline-sm); }

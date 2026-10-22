@@ -24,7 +24,7 @@ article.runtime-chroma-card {
   gap: var(--space-1);
   transition: opacity var(--motion-fast);
 }
-.runtime-chroma-card-actions .ui-icon { width: 14px; height: 14px; color: currentColor; }
+.runtime-chroma-card-actions .project-icon { width: 14px; height: 14px; color: currentColor; }
 .runtime-chroma-image-toggle[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
 .runtime-chroma-card-actions .ant-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (hover: hover) and (pointer: fine) {

@@ -26,7 +26,7 @@ import {
 import { runtimeSkinRarityRank, type RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import { createDomainIcon, setDomainIconTooltip } from "../components/domain-icons";
-import { createUiIcon } from "../components/ui-icons";
+import { createIcon } from "../components/icons/create-icon";
 import { createPopover } from "../components/popover";
 import { enhanceSelect, refreshSelect } from "../components/select";
 import { createRadioButtonGroup } from "../components/RadioButtonGroup";
@@ -427,7 +427,7 @@ export function initSkinCatalog(
         modeToggle.dataset.skinArtworkToggle = String(item.id);
         modeToggle.setAttribute("aria-pressed", String(isFramed(item.id)));
         modeToggle.setAttribute("aria-label", isFramed(item.id) ? copy.hideBorder : copy.showBorder);
-        const mediaIcon = createUiIcon("image-switch");
+        const mediaIcon = createIcon("SwapOutlined");
         mediaIcon.setAttribute("width", "14");
         mediaIcon.setAttribute("height", "14");
         modeToggle.append(mediaIcon);
@@ -480,7 +480,7 @@ export function initSkinCatalog(
     detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only skin-catalog-info-button";
     detailsButton.type = "button";
     detailsButton.setAttribute("aria-label", copy.skinDetails);
-    const detailsIcon = createUiIcon("info");
+    const detailsIcon = createIcon("InfoCircleOutlined");
     detailsIcon.setAttribute("width", "14");
     detailsIcon.setAttribute("height", "14");
     detailsButton.append(detailsIcon);

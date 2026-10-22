@@ -1,4 +1,5 @@
 ---
+import DownOutlined from './icons/DownOutlined.astro';
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
 import DomainIcon from './DomainIcon.astro';
 import type { Chroma } from '../domain/chroma';
@@ -30,9 +31,7 @@ const hasOverflow = chromas.length > 6;
       aria-label={isZh ? '展开全部炫彩' : 'Expand all chromas'}
       title={isZh ? '展开全部' : 'Expand all'}
     >
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
+      <DownOutlined width="22" height="22" />
     </button>
   )}
 </div>

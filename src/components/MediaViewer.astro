@@ -1,4 +1,18 @@
 ---
+import CaretRightOutlined from './icons/CaretRightOutlined.astro';
+import CloseOutlined from './icons/CloseOutlined.astro';
+import DownloadOutlined from './icons/DownloadOutlined.astro';
+import LeftOutlined from './icons/LeftOutlined.astro';
+import MutedOutlined from './icons/MutedOutlined.astro';
+import PauseOutlined from './icons/PauseOutlined.astro';
+import ReloadOutlined from './icons/ReloadOutlined.astro';
+import RightOutlined from './icons/RightOutlined.astro';
+import RotateLeftOutlined from './icons/RotateLeftOutlined.astro';
+import RotateRightOutlined from './icons/RotateRightOutlined.astro';
+import SoundOutlined from './icons/SoundOutlined.astro';
+import SwapOutlined from './icons/SwapOutlined.astro';
+import ZoomInOutlined from './icons/ZoomInOutlined.astro';
+import ZoomOutOutlined from './icons/ZoomOutOutlined.astro';
 interface Props {
   locale?: import('../i18n/config').Locale;
 }
@@ -13,52 +27,52 @@ const isZh = (Astro.props.locale ?? (Astro.currentLocale === 'zh-cn' ? 'zh-cn' :
     <button type="button" data-media-viewer-retry hidden>{isZh ? '重试' : 'Retry'}</button>
   </div>
   <button class="ant-image-preview-close" data-media-viewer-close type="button" aria-label={isZh ? '关闭预览' : 'Close preview'}>
-    <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z" /></svg>
+    <CloseOutlined />
   </button>
   <button class="ant-image-preview-switch ant-image-preview-switch-left" data-media-viewer-prev type="button" aria-label={isZh ? '上一项' : 'Previous'} hidden>
-    <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 0 0 0 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z" /></svg>
+    <LeftOutlined />
   </button>
   <button class="ant-image-preview-switch ant-image-preview-switch-right" data-media-viewer-next type="button" aria-label={isZh ? '下一项' : 'Next'} hidden>
-    <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M765.7 486.8L314.9 134.7A7.97 7.97 0 0 0 302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 0 0 0-50.4z" /></svg>
+    <RightOutlined />
   </button>
   <div class="ant-image-preview-footer">
     <div class="ant-image-preview-player" data-media-viewer-player role="group" aria-label={isZh ? '视频播放控制' : 'Video playback controls'} hidden>
       <button type="button" data-media-viewer-play data-play={isZh ? '播放' : 'Play'} data-pause={isZh ? '暂停' : 'Pause'} aria-label={isZh ? '播放' : 'Play'}>
-        <svg class="ant-image-preview-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" /></svg>
-        <svg class="ant-image-preview-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" /></svg>
+        <CaretRightOutlined class="ant-image-preview-play-icon" />
+        <PauseOutlined class="ant-image-preview-pause-icon" />
       </button>
       <input class="ant-image-preview-seek" data-media-viewer-seek type="range" min="0" max="0" step="0.1" value="0" aria-label={isZh ? '播放进度' : 'Playback position'} disabled />
       <span class="ant-image-preview-time" data-media-viewer-time>0:00 / 0:00</span>
       <button type="button" data-media-viewer-mute data-mute={isZh ? '静音' : 'Mute'} data-unmute={isZh ? '取消静音' : 'Unmute'} aria-label={isZh ? '静音' : 'Mute'}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9Zm13-2v10a6 6 0 0 0 0-10Z" /><path class="ant-image-preview-muted-icon" d="m3 2-1 1 19 19 1-1Z" /></svg>
+        <SoundOutlined class="ant-image-preview-sound-icon" /><MutedOutlined class="ant-image-preview-muted-icon" />
       </button>
       <input class="ant-image-preview-volume" data-media-viewer-volume type="range" min="0" max="1" step="0.05" value="1" aria-label={isZh ? '音量' : 'Volume'} />
     </div>
     <span class="ant-image-preview-count" data-media-viewer-count aria-live="polite" hidden></span>
     <div class="ant-image-preview-actions" role="toolbar" aria-label={isZh ? '预览工具栏' : 'Preview toolbar'}>
       <button type="button" data-media-viewer-zoom-out aria-label={isZh ? '缩小' : 'Zoom out'} title={isZh ? '缩小' : 'Zoom out'}>
-        <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M637 443H325c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h312c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8zm284 424L775 721c122.1-148.9 113.6-369.5-26-509-148-148.1-388.4-148.1-537 0-148.1 148.6-148.1 389 0 537 139.5 139.6 360.1 148.1 509 26l146 146c3.2 2.8 8.3 2.8 11 0l43-43c2.8-2.7 2.8-7.8 0-11zM696 696c-118.8 118.7-311.2 118.7-430 0-118.7-118.8-118.7-311.2 0-430 118.8-118.7 311.2-118.7 430 0 118.7 118.8 118.7 311.2 0 430z" /></svg>
+        <ZoomOutOutlined />
       </button>
       <button type="button" data-media-viewer-zoom-in aria-label={isZh ? '放大' : 'Zoom in'} title={isZh ? '放大' : 'Zoom in'}>
-        <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M637 443H519V309c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v134H325c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h118v134c0 4.4 3.6 8 8 8h60c4.4 0 8-3.6 8-8V519h118c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8zm284 424L775 721c122.1-148.9 113.6-369.5-26-509-148-148.1-388.4-148.1-537 0-148.1 148.6-148.1 389 0 537 139.5 139.6 360.1 148.1 509 26l146 146c3.2 2.8 8.3 2.8 11 0l43-43c2.8-2.7 2.8-7.8 0-11zM696 696c-118.8 118.7-311.2 118.7-430 0-118.7-118.8-118.7-311.2 0-430 118.8-118.7 311.2-118.7 430 0 118.7 118.8 118.7 311.2 0 430z" /></svg>
+        <ZoomInOutlined />
       </button>
       <button type="button" data-media-viewer-rotate-left aria-label={isZh ? '向左旋转' : 'Rotate left'} title={isZh ? '向左旋转' : 'Rotate left'}>
-        <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M672 418H144c-17.7 0-32 14.3-32 32v414c0 17.7 14.3 32 32 32h528c17.7 0 32-14.3 32-32V450c0-17.7-14.3-32-32-32z m-44 402H188V494h440v326zM819.3 328.5c-78.8-100.7-196-153.6-314.6-154.2l-.2-64c0-6.5-7.6-10.1-12.6-6.1l-128 101c-4 3.1-3.9 9.1 0 12.3L492 318.6c5.1 4 12.7.4 12.6-6.1v-63.9c12.9.1 25.9.9 38.8 2.5 42.1 5.2 82.1 18.2 119 38.7 38.1 21.2 71.2 49.7 98.4 84.3 27.1 34.7 46.7 73.7 58.1 115.8 11 40.7 14 82.7 8.9 124.8-.7 5.4-1.4 10.8-2.4 16.1h74.9c14.8-103.6-11.3-213-81-302.3z" /></svg>
+        <RotateLeftOutlined />
       </button>
       <button type="button" data-media-viewer-rotate-right aria-label={isZh ? '向右旋转' : 'Rotate right'} title={isZh ? '向右旋转' : 'Rotate right'}>
-        <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M480.5 251.2c13-1.6 25.9-2.4 38.8-2.5v63.9c0 6.5 7.5 10.1 12.6 6.1L660 217.6c4-3.2 4-9.2 0-12.3l-128-101c-5.1-4-12.6-.4-12.6 6.1l-.2 64c-118.6.5-235.8 53.4-314.6 154.2A399.75 399.75 0 00123.5 631h74.9c-.9-5.3-1.7-10.7-2.4-16.1-5.1-42.1-2.1-84.1 8.9-124.8 11.4-42.2 31-81.1 58.1-115.8 27.2-34.7 60.3-63.2 98.4-84.3 37-20.6 76.9-33.6 119.1-38.8z" /><path d="M880 418H352c-17.7 0-32 14.3-32 32v414c0 17.7 14.3 32 32 32h528c17.7 0 32-14.3 32-32V450c0-17.7-14.3-32-32-32zm-44 402H396V494h440v326z" /></svg>
+        <RotateRightOutlined />
       </button>
       <button type="button" data-media-viewer-flip-x aria-label={isZh ? '水平翻转' : 'Flip horizontally'} title={isZh ? '水平翻转' : 'Flip horizontally'}>
-        <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path d="M847.9 592H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h605.2L612.9 851c-4.1 5.2-.4 13 6.3 13h72.5c4.9 0 9.5-2.2 12.6-6.1l168.8-214.1c16.5-21 1.6-51.8-25.2-51.8zM872 356H266.8l144.3-183c4.1-5.2.4-13-6.3-13h-72.5c-4.9 0-9.5 2.2-12.6 6.1L150.9 380.2c-16.5 21-1.6 51.8 25.1 51.8h696c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8z" /></svg>
+        <SwapOutlined />
       </button>
       <button type="button" data-media-viewer-flip-y aria-label={isZh ? '垂直翻转' : 'Flip vertically'} title={isZh ? '垂直翻转' : 'Flip vertically'}>
-        <svg viewBox="64 64 896 896" aria-hidden="true" focusable="false"><path transform="rotate(90 512 512)" d="M847.9 592H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h605.2L612.9 851c-4.1 5.2-.4 13 6.3 13h72.5c4.9 0 9.5-2.2 12.6-6.1l168.8-214.1c16.5-21 1.6-51.8-25.2-51.8zM872 356H266.8l144.3-183c4.1-5.2.4-13-6.3-13h-72.5c-4.9 0-9.5 2.2-12.6 6.1L150.9 380.2c-16.5 21-1.6 51.8 25.1 51.8h696c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8z" /></svg>
+        <SwapOutlined class="ant-image-preview-flip-y-icon" />
       </button>
       <button type="button" data-media-viewer-reset aria-label={isZh ? '重置视图' : 'Reset view'} title={isZh ? '重置视图' : 'Reset view'}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 1-7.75 10h2.1A6 6 0 1 0 8 7.53L11 10H3V2l3.43 3.43A7.96 7.96 0 0 1 12 4Z" /></svg>
+        <ReloadOutlined />
       </button>
       <button type="button" data-media-viewer-download aria-label={isZh ? '下载当前媒体' : 'Download current media'} title={isZh ? '下载当前媒体' : 'Download current media'}>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 1.5v8m0 0 3-3m-3 3-3-3M3 10v3.5h10V10" /></svg>
+        <DownloadOutlined />
       </button>
     </div>
   </div>

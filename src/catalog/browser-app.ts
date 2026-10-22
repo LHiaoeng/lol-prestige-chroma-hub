@@ -4,15 +4,13 @@ import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
 import { chromaImageAlt } from '../seo/chroma-seo';
 import { buildPages } from '../components/pagination/pagination';
+import { createIcon } from '../components/icons/create-icon';
 import {
   parseCatalogQuery,
   queryCatalog,
   type BrowserCatalogItem,
   type CatalogResult,
 } from './browser-catalog';
-
-const PAGINATION_CHEVRON_LEFT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
-const PAGINATION_CHEVRON_RIGHT = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
 
 export interface CatalogBrowserEnvironment {
   document: Document;
@@ -108,7 +106,10 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       prev.className = 'cn-pagination-link cn-pagination-previous';
       prev.dataset.page = String(page - 1);
       prev.setAttribute('aria-label', prevText);
-      prev.innerHTML = `${PAGINATION_CHEVRON_LEFT}<span class="cn-pagination-text">${prevText}</span>`;
+      const label = document.createElement('span');
+      label.className = 'cn-pagination-text';
+      label.textContent = prevText;
+      prev.append(createIcon('LeftOutlined', document), label);
       addItem(prev);
     }
 
@@ -140,7 +141,10 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       next.className = 'cn-pagination-link cn-pagination-next';
       next.dataset.page = String(page + 1);
       next.setAttribute('aria-label', nextText);
-      next.innerHTML = `<span class="cn-pagination-text">${nextText}</span>${PAGINATION_CHEVRON_RIGHT}`;
+      const label = document.createElement('span');
+      label.className = 'cn-pagination-text';
+      label.textContent = nextText;
+      next.append(label, createIcon('RightOutlined', document));
       addItem(next);
     }
 

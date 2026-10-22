@@ -1,4 +1,5 @@
 ---
+import DownOutlined from './icons/DownOutlined.astro';
 import { communityDragonChannelLabel } from '../domain/communitydragon-url';
 import type { Locale } from '../i18n/config';
 import DomainIcon from './DomainIcon.astro';
@@ -20,7 +21,7 @@ const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
     <DomainIcon name="reference" class="runtime-channel-icon" tooltipDetail={pbeLabel} {locale} />
     <span class="sr-only">{isZh ? '资料版本' : 'Reference data'}</span>
     <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
-    <svg class="runtime-channel-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+    <DownOutlined class="runtime-channel-chevron" />
   </span>
   <li role="none"><button type="button" role="menuitemradio" aria-checked="true" data-ant-dropdown-item data-runtime-channel="pbe"><span>{pbeLabel}</span><span aria-hidden="true">✓</span></button></li>
   <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>

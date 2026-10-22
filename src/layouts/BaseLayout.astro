@@ -6,6 +6,7 @@ import BackToTop from '../components/BackToTop.astro';
 import MediaViewer from '../components/MediaViewer.astro';
 import AdSlot from '../components/AdSlot.astro';
 import DomainIcon from '../components/DomainIcon.astro';
+import DownOutlined from '../components/icons/DownOutlined.astro';
 import { safeJsonLd } from '../domain/chroma';
 import type { AdPlacement } from '../domain/ad-policy';
 import { alternateUrls, localeConfig, localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -75,7 +76,7 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
           <button type="button" class="header-action browse-menu-toggle" aria-label={isZh ? '英雄联盟' : 'League of Legends'} aria-expanded="false" aria-controls="browse-nav">
             <img class="browse-league-icon" src="/img/icons/league-of-legends.svg" alt="" width="18" height="18" />
             {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
-            <svg class="browse-menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            <DownOutlined class="browse-menu-chevron" width="16" height="16" />
           </button>
           <nav id="browse-nav" class="browse-nav" aria-label={isZh ? '英雄联盟' : 'League of Legends'}>
             <a href={localizedPath(locale, '/pbe-additions/')}><DomainIcon name="pbe-additions" class="browse-nav-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a>
@@ -149,7 +150,7 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .tft-nav-link { gap:var(--space-1); }
       .tft-nav-icon { width:16px; height:16px; flex:none; }
       .tft-nav-label-short { display:none; }
-      .browse-menu-chevron { flex:none; transition:transform var(--motion-fast) ease; }
+      .browse-menu-chevron { width:16px; height:16px; flex:none; transition:transform var(--motion-fast) ease; }
       .browse-menu.is-open .browse-menu-chevron { transform:rotate(180deg); }
       .browse-menu > .browse-nav { display:none; position:absolute; top:calc(100% + 6px); left:0; flex-direction:column; min-width:160px; padding:5px 0; background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius-card); box-shadow:var(--shadow-popup); z-index:30; }
       .browse-menu.is-open > .browse-nav { display:flex; }

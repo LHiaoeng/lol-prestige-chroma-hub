@@ -1,4 +1,6 @@
 ---
+import LeftOutlined from './icons/LeftOutlined.astro';
+import RightOutlined from './icons/RightOutlined.astro';
 import { localizedPath, type Locale } from '../i18n/config';
 import Breadcrumb from './Breadcrumb.astro';
 import Divider from './Divider.astro';
@@ -110,14 +112,14 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
       {page === 'skins' && mode === 'detail' && <div class="runtime-skin-navigation" data-runtime-skin-navigation role="group" aria-label={isZh ? '切换皮肤' : 'Skin navigation'} hidden>
         <div class="runtime-skin-navigation-side runtime-skin-navigation-side--previous">
           <button class="ant-btn ant-btn-text runtime-skin-navigation-button" type="button" data-runtime-skin-navigation-previous aria-label={isZh ? '上一款皮肤' : 'Previous skin'} disabled>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+            <LeftOutlined />
             <span class="runtime-skin-navigation-name" data-runtime-skin-navigation-previous-name hidden></span>
           </button>
         </div>
         <div class="runtime-skin-navigation-side runtime-skin-navigation-side--next">
           <button class="ant-btn ant-btn-text runtime-skin-navigation-button" type="button" data-runtime-skin-navigation-next aria-label={isZh ? '下一款皮肤' : 'Next skin'} disabled>
             <span class="runtime-skin-navigation-name" data-runtime-skin-navigation-next-name hidden></span>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+            <RightOutlined />
           </button>
         </div>
       </div>}

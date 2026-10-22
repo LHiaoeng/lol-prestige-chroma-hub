@@ -1,6 +1,7 @@
 ---
-import { DOMAIN_ICONS, type DomainIconName } from './domain-icons';
+import type { DomainIconName } from './domain-icons';
 import type { Locale } from '../i18n/config';
+import Icon from './icons/Icon.astro';
 
 interface Props {
   readonly name: DomainIconName;
@@ -12,7 +13,7 @@ interface Props {
 const { name, class: className, tooltipDetail, locale } = Astro.props;
 ---
 
-<svg class:list={['domain-icon', `domain-icon--${name}`, className]} viewBox="0 0 24 24" fill="none" aria-hidden="true" data-domain-icon-name={name} data-domain-icon-tooltip-detail={tooltipDetail} data-domain-icon-tooltip-locale={locale} set:html={DOMAIN_ICONS[name]} />
+<Icon name={name} class={['domain-icon', `domain-icon--${name}`, className].filter(Boolean).join(' ')} data-domain-icon-name={name} data-domain-icon-tooltip-detail={tooltipDetail} data-domain-icon-tooltip-locale={locale} />
 
 <script>
   import { setDomainIconTooltip } from './domain-icons';

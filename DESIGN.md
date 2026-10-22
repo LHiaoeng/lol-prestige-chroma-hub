@@ -295,7 +295,8 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 - 首页 Card Tabs：整条页签栏外沿同时运行三条渐变色 BorderBeam（金→品红、紫→青、青→主题金），各条相位均匀错开（0、-2、-4 秒），使用系统主题金色及上游 purple/cyan/magenta Token；1px 线宽、64px 光束、6 秒一圈，顶部圆角与 Card 一致。保留选中页签的 2px 下划线、原生链接、吸顶和移动端横向滚动；流光位于滚动容器外，不跟随页签文字滚动。
 - Masonry：内容高度不一的列表使用响应式列数与统一水平、垂直间距；图片尺寸稳定后及时重排，过滤和排序后保持当前 DOM 顺序。
 - Tree：父子资料保持嵌套关系；`expandable: false` 时常显子节点并隐藏展开控件，默认支持展开/收起；可按节点类型定制标题前图标，装饰图标对辅助技术隐藏，展开控件使用明确的可访问名称和状态。
-- 领域图标：统一在 [domain-icons.ts](src/components/domain-icons.ts) 按领域词语映射，图形与 Tooltip 的中英文类别名称都在此维护；页面传入具体实体或数量，由共享 Tooltip 拼成完整提示，不在各页面重写领域标签。页面标题、导航、树节点及运行时资料分节标题复用同一图标，不在调用处重复绘制。运行时详情与 PBE 分节 `h2` 使用对应领域图标置于标题文字前，统一由共享 `runtime-section-heading` 样式控制为主题色、600 字重、headline-sm 字号/行高；图标为 `1em`，与文字间隔 `--space-2`，标题自身无外边距，区块容器负责间距。多媒体展示使用 `media` 图标；PBE 中没有专属领域图标的附加内容类别使用 `pbe-additions` 图标。
+- 图标：通用控件使用 [icons/](src/components/icons/) 中按 Antdv Next 命名的 Astro 组件，客户端动态内容通过同目录 `createIcon` 渲染；图形来自框架无关的 `@ant-design/icons-svg`，只收录本站实际使用的图标。上游没有语义准确的图形时保留项目 SVG；装饰图标隐藏于辅助技术，仅图标的控件提供中英文可访问名称。不引入 Vue 或远程 iconfont。
+- 领域图标：图形在 [domain-icon-glyphs.ts](src/components/icons/domain-icon-glyphs.ts) 按领域词语映射，Tooltip 的中英文类别名称由 [domain-icons.ts](src/components/domain-icons.ts) 维护；页面传入具体实体或数量，由共享 Tooltip 拼成完整提示，不在各页面重写领域标签。页面标题、导航、树节点及运行时资料分节标题复用同一图标，不在调用处重复绘制。运行时详情与 PBE 分节 `h2` 使用对应领域图标置于标题文字前，统一由共享 `runtime-section-heading` 样式控制为主题色、600 字重、headline-sm 字号/行高；图标为 `1em`，与文字间隔 `--space-2`，标题自身无外边距，区块容器负责间距。多媒体展示使用 `media` 图标；PBE 中没有专属领域图标的附加内容类别使用 `pbe-additions` 图标。
 - Menu/Tabs：水平 Menu 用主色文字与 2px 底部指示条标记选中项，不使用选中背景色；Tabs 用主色文字和 2px 下划线。键盘焦点与当前位置分别可辨识。
 - Table/Tag：表头用弱填色和14px/600字体；Tag用独立暗色填色、12px文字、4px圆角。彩色 Tag 对应预设色系，关键信息不只靠颜色。
 - Alert/Badge：四类 Alert 用对应暗色背景和边框，正文保持主文本；状态点必须有文字或可访问名称。

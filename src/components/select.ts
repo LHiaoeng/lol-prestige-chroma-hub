@@ -1,3 +1,5 @@
+import { createIcon } from "./icons/create-icon";
+
 const sourceSelector = "select.ant-select-source";
 const controllers = new WeakMap<HTMLSelectElement, SelectController>();
 const openSelects = new WeakMap<Document, SelectController>();
@@ -48,19 +50,6 @@ function optionLabel(option: HTMLOptionElement): string {
 
 function optionDisabled(option: HTMLOptionElement): boolean {
   return option.disabled || (option.parentElement?.tagName === "OPTGROUP" && (option.parentElement as HTMLOptGroupElement).disabled);
-}
-
-function makeIcon(document: Document, pathData: string, filled = false): SVGSVGElement {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", filled ? "0 0 1024 1024" : "0 0 16 16");
-  svg.setAttribute("width", "12");
-  svg.setAttribute("height", "12");
-  svg.setAttribute("aria-hidden", "true");
-  if (filled) svg.classList.add("ant-select-icon-filled");
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("d", pathData);
-  svg.appendChild(path);
-  return svg;
 }
 
 function selectLabel(source: HTMLSelectElement): string {
@@ -141,7 +130,7 @@ export function enhanceSelect(source: HTMLSelectElement): void {
     clear.className = "ant-select-clear";
     clear.type = "button";
     clear.setAttribute("aria-label", source.dataset.selectClearLabel ?? (document.documentElement.lang.startsWith("zh") ? "清除" : "Clear"));
-    clear.appendChild(makeIcon(document, "M4 4l8 8M12 4l-8 8"));
+    clear.appendChild(createIcon("CloseOutlined", document));
     clear.addEventListener("click", (event) => {
       event.stopPropagation();
       if (source.disabled) return;
@@ -154,7 +143,7 @@ export function enhanceSelect(source: HTMLSelectElement): void {
 
   const arrow = document.createElement("span");
   arrow.className = "ant-select-suffix";
-  arrow.appendChild(makeIcon(document, "M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352 486.1c12.8 17.7 39.2 17.7 52 0l352-486.1c3.8-5.3 0-12.7-6.5-12.7z", true));
+  arrow.appendChild(createIcon("DownOutlined", document));
 
   const popup = document.createElement("div");
   popup.className = "ant-select-dropdown";
@@ -281,7 +270,7 @@ export function enhanceSelect(source: HTMLSelectElement): void {
       content.textContent = optionLabel(option);
       const state = document.createElement("span");
       state.className = "ant-select-item-option-state";
-      state.appendChild(makeIcon(document, "m3 8 3 3 7-7"));
+      state.appendChild(createIcon("CheckOutlined", document));
       item.append(content, state);
       parent.appendChild(item);
     };

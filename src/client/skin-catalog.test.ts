@@ -606,11 +606,11 @@ describe("skin catalog browser behavior", () => {
     });
 
     expect(fields).toEqual([
-      { label: "Skin", icon: "domain-icon domain-icon--skins", value: "Skin 101", href: "https://chromaart.lol/skins/detail/?id=101&champion=1" },
-      { label: "Champion", icon: "domain-icon domain-icon--champions", value: "Ahri", href: "https://chromaart.lol/champions/detail/?id=1" },
-      { label: "Rarity", icon: "domain-icon domain-icon--rarity", value: "Epic", href: undefined },
-      { label: "Chromas", icon: "domain-icon domain-icon--prestige-chromas", value: "1 chroma", href: "https://chromaart.lol/skins/detail/?id=101&champion=1#runtime-skin-chromas" },
-      { label: "Released", icon: "domain-icon domain-icon--release-date", value: "2024-01-01", href: undefined },
+      { label: "Skin", icon: "project-icon project-icon--custom domain-icon domain-icon--skins", value: "Skin 101", href: "https://chromaart.lol/skins/detail/?id=101&champion=1" },
+      { label: "Champion", icon: "project-icon project-icon--custom domain-icon domain-icon--champions", value: "Ahri", href: "https://chromaart.lol/champions/detail/?id=1" },
+      { label: "Rarity", icon: "project-icon project-icon--custom domain-icon domain-icon--rarity", value: "Epic", href: undefined },
+      { label: "Chromas", icon: "project-icon project-icon--custom domain-icon domain-icon--prestige-chromas", value: "1 chroma", href: "https://chromaart.lol/skins/detail/?id=101&champion=1#runtime-skin-chromas" },
+      { label: "Released", icon: "project-icon project-icon--custom domain-icon domain-icon--release-date", value: "2024-01-01", href: undefined },
     ]);
   });
 

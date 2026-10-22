@@ -1,21 +1,9 @@
 import { createTooltip } from "./tooltip";
 
-export const DOMAIN_ICONS = {
-  "prestige-chromas": '<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7 1.8 1.8 0 0 1 1-3.3H17a4 4 0 0 0 4-4c0-4-4-7-9-7Z"/><circle cx="7.5" cy="10" r=".7"/><circle cx="11" cy="7" r=".7"/><circle cx="16" cy="8" r=".7"/>',
-  "game-version": '<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h4M8 2v4M16 2v4M8 18v4M16 18v4"/>',
-  "pbe-additions": '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
-  "teamfight-tactics": '<path transform="scale(.3)" fill="currentColor" stroke="none" d="M59.7878 39.6018C56.4953 37.5915 57.5312 38.9992 58.9318 40.3185C64.8198 45.8608 68.7035 51.3131 70.1506 56.0198C71.095 59.0939 70.255 60.9628 68.8432 58.2727C66.699 54.1895 63.8803 51.0608 62.1665 49.6853C60.464 48.3194 60.4929 48.9734 61.3137 50.0694C64.6657 54.5431 66.654 59.0537 64.6624 62.5424C61.3924 68.2695 48.19 66.8168 35.2333 59.3333C18.7352 49.8026 8.55234 36.7672 12.2753 30.0952C13.9007 27.1851 18.3208 25.9799 23.5423 26.417C24.6522 26.5102 24.5911 26.1598 23.6066 25.9011C17.3748 24.2637 10.0316 25.7919 7.42002 30.3298C2.65785 38.6072 13.7385 53.9453 32.1913 64.6057C36.1007 66.8634 41.2017 69.3831 47.2327 71.3998C50.8833 72.621 50.3599 74.0914 44.0863 72.8749C37.4129 71.5814 29.1092 68.1152 21.2616 63.5017C18.9938 62.1679 18.6983 62.6982 20.3783 64.3453C21.9346 65.8703 24.8995 68.2036 28.4812 70.3376C46.8007 81.2535 69.6543 84.0993 76.2185 72.7014C82.0921 62.5022 71.5495 46.7832 59.7878 39.6018Z"/><path transform="scale(.3)" fill="currentColor" stroke="none" d="M0 0L9.84 16.8523H30.2592V50.1265C35.4 54.2301 43.9392 58.5661 49.7392 58.9474V16.8523H70.16L80 0H0Z"/>',
-  champions: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  skins: '<path d="m8 4 4 2 4-2 5 3-2 5-3-2v10H8V10l-3 2-2-5 5-3Z"/>',
-  rarity: '<path d="m12 3 8 6-8 12L4 9l8-6Z"/><path d="M4 9h16M9 9l3 12 3-12M8 5.5 9 9m7-3.5L15 9"/>',
-  "release-date": '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/>',
-  media: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 8 6 4-6 4V8Z"/><path d="m3 17 4-4 3 3 2-2 3 3"/>',
-  skinlines: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/>',
-  universes: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
-  reference: '<path d="M8 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2M9 2h8l4 4v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M17 2v5h5M11 11h6M11 14h6"/>',
-} as const;
-
-export type DomainIconName = keyof typeof DOMAIN_ICONS;
+import { createIcon } from "./icons/create-icon";
+import { DOMAIN_ICONS, type DomainIconName } from "./icons/domain-icon-glyphs";
+export { DOMAIN_ICONS };
+export type { DomainIconName };
 
 const DOMAIN_ICON_LABELS: Record<DomainIconName, { readonly zh: string; readonly en: string }> = {
   "prestige-chromas": { zh: "臻彩", en: "Chromas" },
@@ -62,11 +50,8 @@ export function setDomainIconTooltip(
 }
 
 export function createDomainIcon(name: DomainIconName): SVGSVGElement {
-  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  icon.setAttribute("viewBox", "0 0 24 24");
-  icon.setAttribute("aria-hidden", "true");
+  const icon = createIcon(name);
   icon.classList.add("domain-icon", `domain-icon--${name}`);
-  icon.innerHTML = DOMAIN_ICONS[name];
   return icon;
 }
 

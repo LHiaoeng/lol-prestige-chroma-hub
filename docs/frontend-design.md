@@ -22,7 +22,7 @@ Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next
 
 ## 2. 组件库和模式库
 
-“组件库”指仓库内 [src/components/](../src/components/) 的复用组件、相邻逻辑、样式和测试，不是独立软件包。先复用已有的 Input、Select、Dropdown、Button、Divider、Masonry、Tree、[领域图标映射](../src/components/domain-icons.ts)、分页、臻彩卡片、图片查看器和操作菜单；表格等共享外观目前由全局或文章样式承担。Checkbox 和 Toast 等尚无实际需求的组件不因范式清单而预建。需要 Antdv Next 组件行为时，在本站技术栈内新增本地组件适配，避免引入 Vue 运行时。
+“组件库”指仓库内 [src/components/](../src/components/) 的复用组件、相邻逻辑、样式和测试，不是独立软件包。先复用已有的 Input、Select、Dropdown、Button、Divider、Masonry、Tree、[图标组件](../src/components/icons/)、[领域图标映射](../src/components/domain-icons.ts)、分页、臻彩卡片、图片查看器和操作菜单；表格等共享外观目前由全局或文章样式承担。Checkbox 和 Toast 等尚无实际需求的组件不因范式清单而预建。需要 Antdv Next 组件行为时，在本站技术栈内新增本地组件适配，避免引入 Vue 运行时。
 
 | 页面模式 | 当前入口 | 重点状态 |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ BorderBeam 使用本地 [border-beam](../src/components/border-beam/) 组件，�
 代码约束按以下范围逐步接入工具：
 
 - 共享控件的品牌色、字号、圆角、间距和动效时长使用语义 Token；原画内容色、媒体比例和专属布局允许局部值。先审计现有合法值，再用 Stylelint 或小型仓库检查限制新增硬编码，避免对所有 `px` 一刀切。
-- 新图标优先复用现有资产或 SVG，界面图标的颜色尽量继承 `currentColor`；尺寸与线宽按所在组件统一。当前没有独立图标库，不为此新增依赖。
+- 通用图标从 [icons/](../src/components/icons/) 导入命名 Astro 组件，例如 `HomeOutlined.astro`；客户端动态内容从 [create-icon.ts](../src/components/icons/create-icon.ts) 调用 `createIcon(name)`。只收录本站实际使用的图形，来源为框架无关的 `@ant-design/icons-svg`；上游没有语义准确的图形时保留项目 SVG。图标颜色继承 `currentColor`，尺寸由所在控件控制；装饰图标对辅助技术隐藏，仅图标的按钮或链接由控件提供中英文可访问名称。领域图标保留类别语义和双语 Tooltip，不引入 Vue 或远程 iconfont。
 - 动效时长使用共享 Token，新增重复缓动规则时再收敛。
 - 本站只有暗色主题，没有亮暗切换需求。未来若增加主题，先调整语义 Token 和组件状态，不在页面中分叉一套样式。
 

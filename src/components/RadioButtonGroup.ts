@@ -1,4 +1,5 @@
 import { createTooltip } from "./tooltip";
+import { createIcon } from "./icons/create-icon";
 
 export interface RadioButtonOption {
   readonly label: string;
@@ -57,7 +58,7 @@ export function createRadioButtonGroup(
       const toggleIcon = document.createElement("span");
       toggleIcon.className = "ant-radio-button-toggle-icon";
       toggleIcon.setAttribute("aria-hidden", "true");
-      toggleIcon.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 5h9l-2-2m2 2-2 2M13 11H4l2 2m-2-2 2-2" /></svg>';
+      toggleIcon.append(createIcon("SwapOutlined"));
       label.appendChild(toggleIcon);
     }
 
