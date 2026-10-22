@@ -49,7 +49,7 @@ function createCarouselSelect(
   wrapper.className = "ant-radio-button-wrapper runtime-carousel-border-select";
   const source = document.createElement("select");
   source.className = "ant-select-source";
-  source.dataset.selectSize = "middle";
+  source.dataset.selectSize = "medium";
   source.dataset.selectPrefix = prefix;
   source.dataset.selectPopupMatchWidth = "false";
   source.setAttribute("aria-label", prefix);
@@ -108,7 +108,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   icon.appendChild(path);
   const downloadLabel = options.locale === "zh_cn" ? "下载当前显示内容" : "Download displayed media";
   const downloadButton = createButton({
-    size: "middle",
+    size: "medium",
     icon,
     block: true,
     ariaLabel: downloadLabel,
@@ -164,7 +164,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     const controlNodes: HTMLElement[] = [];
     const radioSlides = slides.filter(({ key }) => !borderSlideKeys.has(key));
     radioGroup = createRadioButtonGroup({
-      size: "middle",
+      size: "medium",
       options: radioSlides.map((slide) => ({
         label: slide.label,
         value: slide.key,

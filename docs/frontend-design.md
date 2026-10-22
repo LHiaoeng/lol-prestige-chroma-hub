@@ -15,7 +15,7 @@
 
 Select 的输入框、弹层、选中与悬停项统一使用暗色语义 Token；下拉列表保留可见的细滚动条，滑块随暗色文本层级显示，悬停时增强对比。长选项可按上游 `popupMatchSelectWidth={false}` 让弹层至少与控件同宽并随内容展开；视口不足时选项换行。无脚本时仍保留原生选择框。
 
-Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/tree/main/packages/antdv-next/src/dropdown/style)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。站内触控目标仍遵循本项目的 44px 规则。
+Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/tree/main/packages/antdv-next/src/dropdown/style)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。触控输入不改变菜单项的默认尺寸。
 边框菜单的触发箭头使用独立 SVG 图标节点，在按钮的 flex 布局中垂直居中；不以文字字形充当箭头。
 
 目录数据、语言路由和 SEO 各有自己的事实来源，分别查 [领域模型](../src/domain/)、[国际化配置](../src/i18n/config.ts) 和 [SEO 模块](../src/seo/)；视觉治理不覆盖这些规则。
@@ -32,7 +32,7 @@ Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next
 | 博客列表与长文 | [BlogIndexView](../src/components/BlogIndexView.astro)、[article.css](../src/styles/article.css) | 分页、双语长标题、来源信息 |
 | 说明与错误页 | [About](../src/pages/about.astro)、[404](../src/pages/404.astro) | 可读性、返回入口、无脚本内容 |
 
-新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。Card 的 `size` 使用 `small` 与 `medium` 两档控制密度和页签字号，`default`/`middle` 兼容映射到 `medium`；页签命中区遵守 `DESIGN.md`。Card 页签支持页面链接与面板切换两种模式；本地面板初始页签由 `activeTabKey` 或 `defaultActiveTabKey` 指定，随后用方向键、Home/End 键切换，并触发 `card-tab-change` 事件；页面链接保留原生导航语义。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
+新增或修改组件时明确：**尺寸、变体、默认/悬停/焦点/禁用等适用状态、交互、无障碍、双语、响应式**。交互控件使用 `small`、`medium`、`large` 三档，高度分别为 24、32、40px，默认 `medium`；Card 的 `size` 只有 `small` 与 `medium` 两档控制密度和页签字号。页签命中区遵守 `DESIGN.md`。Card 页签支持页面链接与面板切换两种模式；本地面板初始页签由 `activeTabKey` 或 `defaultActiveTabKey` 指定，随后用方向键、Home/End 键切换，并触发 `card-tab-change` 事件；页面链接保留原生导航语义。只有浏览器状态或事件需要脚本时才加客户端代码。两个页面出现同一规则时，先检查能否放回现有组件或共享样式；局部差异必须有内容或功能原因。
 
 新增或重做页面时，按 [页面模板契约](page-templates.md) 选类型并核对骨架；页面布局或响应式改动按其中的 [响应式适配](page-templates.md#响应式适配) 验收。复用 `BaseLayout` 和现有页面组件。
 

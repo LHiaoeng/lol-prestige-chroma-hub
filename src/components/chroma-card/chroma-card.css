@@ -112,5 +112,5 @@ article.runtime-chroma-card {
   .runtime-chroma-media > .runtime-missing {
     min-height: 108px;
   }
-  .runtime-chroma-owner .runtime-relation-link { min-height: var(--touch-target); }
+  .runtime-chroma-owner .runtime-relation-link { min-height: var(--control-height); }
 }

@@ -1500,12 +1500,13 @@ describe("runtime DOM boundaries", () => {
     expect(carouselControls?.querySelector(".runtime-media-carousel-download.ant-btn-sm",
       ),
     ).toBeNull();
-    expect(carouselControls?.querySelector(".ant-radio-group-middle"),
+    expect(carouselControls?.querySelector(".ant-radio-group-button"),
     ).not.toBeNull();
     const borderSelect = () => carouselControls?.querySelectorAll<HTMLElement>(
       ".runtime-carousel-border-select",
     )[0];
     const borderSource = () => borderSelect()?.querySelector<HTMLSelectElement>("select");
+    expect(borderSource()?.dataset.selectSize).toBe("medium");
     const borderItems = () => borderSource()?.querySelectorAll<HTMLOptionElement>("option") ?? [];
     const chooseBorder = (value: string) => {
       const source = borderSource();

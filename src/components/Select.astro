@@ -25,7 +25,7 @@ interface Props extends Omit<HTMLAttributes<"select">, "size" | "value" | "aria-
   allowClear?: boolean;
   prefix?: string;
   popupMatchSelectWidth?: boolean;
-  size?: "small" | "middle" | "large";
+  size?: "small" | "medium" | "large";
   class?: string;
 }
 
@@ -40,7 +40,7 @@ const {
   allowClear = false,
   prefix,
   popupMatchSelectWidth = true,
-  size = "middle",
+  size = "medium",
   ...attributes
 } = Astro.props;
 const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in item;

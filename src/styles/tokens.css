@@ -64,9 +64,10 @@
   --space-3: 16px;
   --space-4: 24px;
   --space-5: 32px;
+  --control-height-xs: 16px;
+  --control-height-sm: 24px;
   --control-height: 32px;
   --control-height-lg: 40px;
-  --touch-target: 44px;
   --content-width: 1240px;
   --page-gutter: 24px;
   --site-header-height: 72px;

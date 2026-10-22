@@ -120,6 +120,8 @@ spacing:
   md: 16px
   lg: 24px
   xl: 32px
+  control-height-xs: 16px
+  control-height-sm: 24px
   control-height: 32px
   control-height-lg: 40px
 components:
@@ -243,7 +245,7 @@ components:
 
 ## Overview
 
-本文件基于 [Antdv Next 已发布的 design.md](https://antdv-next.com/design.md) 定制，保留其完整 Token 分类、10 档字体、7 档圆角、8 个间距/尺寸项、两档线宽和全部 22 个组件范式；增加夜间表面与状态语义，以及页面和下拉菜单两项容器映射。颜色来自 `antdv-next@1.6.0` 的真实 `darkAlgorithm` 输出，提取日期为 2026-10-14。源文件对应仓库提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248`。
+本文件基于 [Antdv Next 已发布的 design.md](https://antdv-next.com/design.md) 定制，保留其完整 Token 分类、10 档字体、7 档圆角、间距尺度、两档线宽和全部 22 个组件范式；补全上游主题由默认 32px 推导的控件尺寸，并增加夜间表面与状态语义，以及页面和下拉菜单两项容器映射。颜色来自 `antdv-next@1.6.0` 的真实 `darkAlgorithm` 输出，提取日期为 2026-10-14。源文件对应仓库提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248`。
 
 本站是暗色金色的臻彩原画图鉴。原画承担视觉焦点，控件遵循 Antdv Next 的比例、密度与交互语义，页面共享同一套规则。遵循熟悉的操作模式、明确的反馈、与任务相关的强调和可持续复用的组件；保留 Astro 静态架构，通过现有 CSS 和组件消费本规范。
 
@@ -267,7 +269,7 @@ Chroma Gold 是最终可见主色 `primary: #d7b56d`。普通暗色算法会把�
 
 ## Layout
 
-采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。控件高度使用 32px 和 40px 两档；边框线宽使用 1px，强调线宽（含时间轴轨迹和焦点环）使用 2px。皮肤详情媒体轮播控制条按 Antdv Next 组件尺寸：Radio.Button 与下载图标按钮均使用默认 32px，并通过组件 `size` 属性控制；尺寸不随视口或触控类型放大。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
+采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。Button、Input/Select、Radio.Button 的公开尺寸为 `small`、`medium`、`large`，高度分别为 24、32、40px；主题另有内部 `controlHeightXS` 16px，不是第四个 `size` 选项。Card 只有 `small`、`medium` 两档。上游定义见 [SizeContext](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/config-provider/SizeContext.tsx)、[控件高度推导](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/theme/themes/shared/genControlHeight.ts)和 [Card](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/card/Card.tsx)。边框线宽使用 1px，强调线宽（含时间轴轨迹和焦点环）使用 2px。皮肤详情媒体轮播控制条按 Antdv Next 组件尺寸：Radio.Button 与下载图标按钮均使用默认 32px，并通过组件 `size` 属性控制；尺寸不随视口或触控类型放大。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
 
 本站版心与横向边距继续通过 `--content-width` 和 `--page-gutter` 共享。首页直接呈现工具导航、筛选与原画目录；目录便于比较；详情突出完整作品和资料；博客维持连续阅读。原画展示面积、完整媒体比例和触控可用性是密度规则的明确例外，其余同类控件不逐页另定尺寸。
 
@@ -297,7 +299,7 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 - Menu/Tabs：水平 Menu 用主色文字与 2px 底部指示条标记选中项，不使用选中背景色；Tabs 用主色文字和 2px 下划线。键盘焦点与当前位置分别可辨识。
 - Table/Tag：表头用弱填色和14px/600字体；Tag用独立暗色填色、12px文字、4px圆角。彩色 Tag 对应预设色系，关键信息不只靠颜色。
 - Alert/Badge：四类 Alert 用对应暗色背景和边框，正文保持主文本；状态点必须有文字或可访问名称。
-- Tooltip/Dropdown：Tooltip 使用 spotlight 表面与白字；Dropdown 按上游样式使用 elevated 菜单表面、4px 内边距和 8px 圆角，菜单项默认高 32px、内边距 5px 12px。触控输入时菜单项点击区域至少 44px；条目悬停叠加 surface-hover，选中项使用主色与选中背景。浮层检查层级、键盘关闭与焦点返回，避开手机安全区。
+- Tooltip/Dropdown：Tooltip 使用 spotlight 表面与白字；Dropdown 按上游样式使用 elevated 菜单表面、4px 内边距和 8px 圆角，菜单项高 32px、内边距 5px 12px。条目悬停叠加 surface-hover，选中项使用主色与选中背景。浮层检查层级、键盘关闭与焦点返回，避开手机安全区。
 - Divider：内容区水平分隔和行内垂直分隔使用共享组件，线条使用 outline Token；带文字时文字与分隔线保持清晰间距。
 
 ## Do's and Don'ts
@@ -318,7 +320,7 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 
 品牌正式拼写为 `LoL Chroma Art`，SEO与正文均保持这一拼写。现有 Logo 中 `LoL CHROMA` 为金色，`ART` 为白色；占位图保留低对比水印，徽标约20%、字标约32%不透明度。广告品牌图保持5:1、600×120px且不超过150KB。
 
-Header 使用80%不透明的暗色玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的暗色表面。语言控件默认高度32px，窄屏或存在触控输入时点击区域至少44px。
+Header 使用80%不透明的暗色玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的暗色表面。语言控件高度保持默认 32px，不随视口或触控类型放大。
 
 博客使用响应式原画背景，767px以下读取中图；背景延伸到Header之后，使用svh适应移动浏览器栏。首页直接展开最新博客、工具导航和臻彩目录，不使用全屏 Hero。减少动态效果时关闭原画漂移和视差。返回顶部仍在滚动超过480px后显示，使用金色及深色图标，并适配安全区。
 

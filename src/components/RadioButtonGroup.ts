@@ -9,7 +9,7 @@ export interface RadioButtonOption {
   readonly onReselect?: () => string | undefined;
 }
 
-export type RadioButtonGroupSize = "small" | "middle" | "large";
+export type RadioButtonGroupSize = "small" | "medium" | "large";
 
 export interface RadioButtonGroupOptions {
   readonly options: readonly RadioButtonOption[];
@@ -30,7 +30,7 @@ export function createRadioButtonGroup(
 ): HTMLFieldSetElement {
   const group = document.createElement("fieldset");
   group.className = "ant-radio-group ant-radio-group-solid ant-radio-group-button";
-  group.classList.add(`ant-radio-group-${options.size ?? "middle"}`);
+  if (options.size === "small" || options.size === "large") group.classList.add(`ant-radio-group-${options.size}`);
   group.setAttribute("aria-label", options.ariaLabel);
   let selectedValue = options.value;
 

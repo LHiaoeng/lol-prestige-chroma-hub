@@ -51,10 +51,10 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
 
 <style is:global>
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
-  .home-catalog { scroll-margin-top: calc(var(--site-header-height) + var(--touch-target) + var(--space-4)); }
+  .home-catalog { scroll-margin-top: calc(var(--site-header-height) + var(--control-height) + var(--space-4)); }
   .home-catalog > .alert { margin-bottom: var(--space-3); }
   .home-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
-  .home-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--touch-target); height: var(--touch-target); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
+  .home-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
   .home-catalog .catalog-intro-link::before { position: absolute; inset: 10px; border: 1px solid var(--line-subtle); border-radius: var(--radius-control); background: transparent; content: ''; pointer-events: none; transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
   .home-catalog .catalog-intro-link svg { position: relative; width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .home-catalog .catalog-intro-link:hover { color: var(--gold-hover); }

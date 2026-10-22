@@ -30,7 +30,7 @@ Ant Design 将 token 分为 Seed、Map、Alias 三层：Seed 表达少量基础�
 | 页面表面 | `--bg`、`--panel`、`--panel2` | 页面背景、卡片、悬浮/次级表面 |
 | 文字与分隔 | `--text`、`--muted`、`--line`、`--danger` | 文字层级、边界、错误反馈 |
 | 布局 | `--content-width`、`--page-gutter`、`--site-header-height` | 版心、统一横向边距、Header 几何 |
-| 交互 | `--touch-target` | 最小触控尺寸及焦点状态 |
+| 交互 | `--control-height-sm`、`--control-height`、`--control-height-lg` | 24/32/40px 控件尺寸及焦点状态 |
 | 待收敛项 | 字号/行高、少量间距档位、圆角档位 | 仅在两个以上真实消费者有一致需求时提升为共享值 |
 
 这是把 Ant Design 的“基础值 → 语义用途”思想映射到本站 CSS，而不是照搬其动态色板生成。本站单一暗色品牌主题已明确，静态 CSS 变量足够；亮暗主题切换、运行时算法、组件局部主题编辑目前没有产品需求。

@@ -1428,7 +1428,7 @@ describe("static site build", () => {
     expect(chineseAbout).not.toContain("data-ad-boundary=");
     expect(article).toContain('href="/about/"');
     expect(chineseArticle).toContain('href="/zh-cn/about/"');
-    expect(article).toContain("min-height:var(--touch-target)");
+    expect(article).toContain("min-height:var(--control-height)");
     expect(home).toContain('href="/about/"');
     expect(home).not.toContain('href="/editorial-policy/"');
   });

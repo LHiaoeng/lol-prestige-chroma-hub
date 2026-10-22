@@ -33,10 +33,38 @@ describe('responsive layout contract', () => {
     }
   });
 
-  it('uses the approved one, two, and three-column gallery progression', () => {
+  it('enforces upstream component sizes and responsive gallery progression', () => {
     const css = source('src/styles/global.css');
+    const tokens = source('src/styles/tokens.css');
     expect(css).toContain('@import "./tokens.css"');
-    expect(source('src/styles/tokens.css')).toMatch(/--touch-target:\s*44px/);
+    expect(tokens).toMatch(/--control-height-sm:\s*24px/);
+    expect(tokens).toMatch(/--control-height:\s*32px/);
+    expect(tokens).toMatch(/--control-height-lg:\s*40px/);
+    expect(css).not.toMatch(/--control-height:\s*44px/);
+
+    const sizeApis = [
+      source('src/components/Button.ts').match(/export type ButtonSize = ([^;]+);/)?.[1],
+      source('src/components/Input.astro').match(/size\?: ([^;]+);/)?.[1],
+      source('src/components/RadioButtonGroup.ts').match(/export type RadioButtonGroupSize = ([^;]+);/)?.[1],
+      source('src/components/Select.astro').match(/size\?: ([^;]+);/)?.[1],
+      source('src/components/Card.astro').match(/size\?: ([^;]+);/)?.[1],
+    ];
+    expect(sizeApis).toEqual([
+      '"small" | "medium" | "large"',
+      "'small' | 'medium' | 'large'",
+      '"small" | "medium" | "large"',
+      '"small" | "medium" | "large"',
+      "'small' | 'medium'",
+    ]);
+
+    const mediaRules = [...css.matchAll(/@media[^{}]*\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
+    expect(mediaRules.length).toBeGreaterThan(0);
+    const responsiveControlRules = mediaRules
+      .flatMap(([, rules]) => [...(rules ?? '').matchAll(/([^{}]+)\{([^{}]*)\}/g)])
+      .filter(([, selector]) => /\bbutton\b|\.button\b|\.ant-btn\b|\.cn-input\b|\.ant-select\b|\.ant-radio-button\b|\.card__tab\b|\.language-toggle\b/.test(selector ?? ''))
+      .map(([, , declarations]) => declarations);
+    expect(responsiveControlRules.join('\n')).not.toMatch(/(?:^|;)\s*(?:min-)?height\s*:/);
+
     expect(css).not.toContain('min-width:320px');
     expect(css).not.toContain('.filter-shortcuts');
     expect(css).toMatch(/\.chroma-grid\{[^}]*grid-template-columns:repeat\(3/);
@@ -71,7 +99,7 @@ describe('responsive layout contract', () => {
     expect(runtimeView).toContain('runtime-pbe-card-link');
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)[\s\S]*?\.runtime-page\{/);
     expect(css).toMatch(/@media\s*\(max-width:\s*767px\)\s*\{\s*\.runtime-pbe-grid\s*\{/);
-    expect(css).toContain('min-height: var(--touch-target)');
+    expect(css).toContain('min-height: var(--control-height)');
   });
 
   it('centers the header language toggle label in both axes', () => {
