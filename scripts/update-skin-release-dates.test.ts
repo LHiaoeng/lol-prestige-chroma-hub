@@ -182,13 +182,71 @@ describe('skin release update', () => {
     expect(() => build({ wikiTable: parseLuaTable(lua.replace('["New"] = { ["id"] = 1', '["New"] = { ["id"] = 0')) })).toThrow(/Duplicate Wiki skin ID/);
   });
 
+  it('imports the Wiki raw module when its API returns 403', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'skin-release-wiki-raw-test-'));
+    const fetcher = (async (url: string) => {
+      if (url.includes('/api.php')) return new Response('blocked', { status: 403 });
+      if (url.includes('Module:SkinData/data?action=raw')) return new Response(lua, { headers: { 'Content-Type': 'text/x-wiki' } });
+      const value = url.includes('/zh_cn/') ? (url.endsWith('/skins.json') ? cdChineseSkins : cdChineseChampions)
+        : url.endsWith('/skins.json') ? cdSkins : cdChampions;
+      return new Response(JSON.stringify(value));
+    }) as typeof fetch;
+    try {
+      const report = await updateSkinReleaseDates({ root, fetcher, today: '2026-01-02' });
+      expect(report.added).toEqual([1000, 1001, 1002, 1003]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it('keeps existing dates and reports a blocked Wiki source', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'skin-release-wiki-blocked-test-'));
+    const fetcher = (async (url: string) => {
+      if (url.includes('Module:SkinData/data?action=raw')) return new Response('blocked', { status: 403 });
+      const value = url.includes('/zh_cn/') ? (url.endsWith('/skins.json') ? cdChineseSkins : cdChineseChampions)
+        : url.endsWith('/skins.json') ? cdSkins : cdChampions;
+      return new Response(JSON.stringify(value));
+    }) as typeof fetch;
+    try {
+      await expect(updateSkinReleaseDates({ root, fetcher, today: '2026-01-02' })).rejects.toThrow(/no saved release snapshot/);
+      await mkdir(join(root, 'data'));
+      await writeFile(join(root, 'data/skin-release-dates.json'), JSON.stringify(previous));
+      const report = await updateSkinReleaseDates({ root, fetcher, today: '2026-01-02' });
+      const candidate = JSON.parse(await readFile(join(root, '.tmp/skin-release-candidate.json'), 'utf8'));
+      expect(report.unavailableSources).toEqual(['League Wiki HTTP 403']);
+      expect(report.cdWithoutWiki).toEqual([]);
+      expect(candidate.skins.find((skin: { skinId: number }) => skin.skinId === 1000).globalReleaseDate).toBe('2009-02-22');
+      expect(candidate.skins.find((skin: { skinId: number }) => skin.skinId === 1001).globalReleaseDate).toBeNull();
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it('accepts a local Wiki module when remote access is blocked', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'skin-release-wiki-file-test-'));
+    const wikiSource = join(root, 'skin-data.lua');
+    const fetcher = (async (url: string) => {
+      if (url.includes('wiki.leagueoflegends.com')) throw new Error('Wiki must be read from the local file');
+      const value = url.includes('/zh_cn/') ? (url.endsWith('/skins.json') ? cdChineseSkins : cdChineseChampions)
+        : url.endsWith('/skins.json') ? cdSkins : cdChampions;
+      return new Response(JSON.stringify(value));
+    }) as typeof fetch;
+    try {
+      await writeFile(wikiSource, lua);
+      const report = await updateSkinReleaseDates({ root, fetcher, wikiSource, today: '2026-01-02' });
+      expect(report.globalDatesFilled).toEqual([1000, 1001]);
+      expect(report.unavailableSources).toEqual([]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('applies only the exact candidate that was previewed', async () => {
     const root = await mkdtemp(join(tmpdir(), 'skin-release-test-'));
     let currentSkins = cdSkins;
     const fetcher = (async (url: string) => {
-      const value = url.includes('api.php')
-        ? { query: { pages: { '1': { revisions: [{ revid: 10, timestamp: '2026-01-02T00:00:00Z', slots: { main: { '*': lua } } }] } } } }
-      : url.includes('/zh_cn/') ? (url.endsWith('/skins.json') ? cdChineseSkins : cdChineseChampions)
+      if (url.includes('Module:SkinData/data?action=raw')) return new Response(lua);
+      const value = url.includes('/zh_cn/') ? (url.endsWith('/skins.json') ? cdChineseSkins : cdChineseChampions)
       : url.endsWith('/skins.json') ? currentSkins : cdChampions;
       return new Response(JSON.stringify(value));
     }) as typeof fetch;

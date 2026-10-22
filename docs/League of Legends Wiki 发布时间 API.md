@@ -1,6 +1,6 @@
 # League of Legends Wiki 发布时间 API
 
-本文记录从英文 [League of Legends Wiki](https://wiki.leagueoflegends.com/en-us/) 获取《英雄联盟》英雄与皮肤发布时间的已验证入口，供后续全量皮肤时间轴的数据导入使用。核对时间：2026-10-16。这里的日期采用 Wiki 自身口径，不代表国服的游戏内开放或商城开售时间。
+本文记录从英文 [League of Legends Wiki](https://wiki.leagueoflegends.com/en-us/) 获取《英雄联盟》英雄与皮肤发布时间的入口，供后续全量皮肤时间轴的数据导入使用。入口复核时间：2026-10-22。这里的日期采用 Wiki 自身口径，不代表国服的游戏内开放或商城开售时间。
 
 ## 数据在哪里
 
@@ -8,9 +8,11 @@
 
 **时间轴口径**：皮肤英文名取 CommunityDragon `latest` 正式版 `global/default/v1/skins.json` 的 `name`，中文名取 `global/zh_cn/v1/skins.json` 的 `name`；日期按 `skinId` 使用本 Wiki `SkinData/data` 中对应皮肤的 `release`。默认皮肤本地 ID 为 `0`（合成 `skinId` 后通常以 `000` 结尾），名称改用对应语言 `champion-summary.json` 拼接：英文为 `description` + `name`，中文为 `name` + `description`，例如 `1000` 为 `the Dark Child Annie`、`黑暗之女 安妮`；Wiki 将默认皮肤称为 `Original`。英雄 `date` 只用于核对，不覆盖默认皮肤日期。没有有效皮肤日期时不推断。
 
-## MediaWiki Action API
+## Wiki 源码入口
 
-基础地址：`https://wiki.leagueoflegends.com/en-us/api.php`。以下请求已返回 JSON；URL 中的 `text` 是经过 URL 编码的 Wiki 模板语法。
+2026-10-22 实测：`api.php`、普通模块页及部分 raw 请求返回带有“Please wait”的 HTTP 403；更换 User-Agent 或重试不能稳定恢复。导入程序先尝试[模块 raw 源码](https://wiki.leagueoflegends.com/en-us/Module:SkinData/data?action=raw)，该入口曾返回完整 Lua 表，但也可能遇到相同的 403。此时程序仍读取 CommunityDragon，保留已有日期，让新增记录的直营服日期保持 `null`，并在报告的 `unavailableSources` 中标明来源不可用；若本地尚无日期快照则直接报错。若从 Wiki 页面取得当前模块源码并保存为本地 Lua 文件，可运行 `pnpm skin-dates:update --wiki-source <path>` 完成日期核对；预览和 `--apply` 须使用同一份文件。
+
+以下 MediaWiki Action API 请求在 2026-10-16 曾返回 JSON，目前只作历史参考；URL 中的 `text` 是经过 URL 编码的 Wiki 模板语法。
 
 | 用途 | 请求与结果 |
 | --- | --- |
@@ -20,18 +22,7 @@
 | 获取全量英雄来源 | [查询 `Module:ChampionData/data` 源码](https://wiki.leagueoflegends.com/en-us/api.php?action=query&prop=revisions&rvprop=content&rvslots=main&titles=Module%3AChampionData%2Fdata&format=json)：响应结构相同，内容是 Lua 表。 |
 | 获取来源版本 | [同时查询两个模块的修订号和时间](https://wiki.leagueoflegends.com/en-us/api.php?action=query&prop=revisions&rvprop=ids%7Ctimestamp&rvslots=main&titles=Module%3ASkinData%2Fdata%7CModule%3AChampionData%2Fdata&format=json)：记录每个模块的 `revid`，用于复核快照。 |
 
-在 PowerShell 中可用下面的请求快速验证单款皮肤；返回 `{"expandtemplates":{"wikitext":"2013-06-12"}}`：
-
-```powershell
-curl.exe --get --user-agent "LoLChromaArt/0.1 data-import" `
-  --data-urlencode "action=expandtemplates" `
-  --data-urlencode "format=json" `
-  --data-urlencode "prop=wikitext" `
-  --data-urlencode "text={{#invoke:SkinData|getRelease|champion=Aatrox|skin=Original}}" `
-  "https://wiki.leagueoflegends.com/en-us/api.php"
-```
-
-单条查询适合检查疑点。全量导入应分别读取两个模块，而不是对数千款皮肤逐一调用 `expandtemplates`。`SkinData/data` 目前约 2.2 MB；响应虽为 JSON，`slots.main["*"]` **不是 JSON 数据表，而是 Lua 源码**，导入程序需要解析并校验其结构，不应直接用正则替代完整的结构识别，也不应执行远端 Lua 代码。
+单条查询适合检查疑点。全量皮肤日期导入读取整个 `SkinData/data` 模块，而不是对数千款皮肤逐一调用 `expandtemplates`。模块约 2.2 MB；raw 响应是 Lua 源码，Action API 曾将同一源码放在 JSON 的 `slots.main["*"]` 中。导入程序解析并校验 Lua 结构，不执行远端代码。
 
 ## 版本号来源
 
@@ -59,7 +50,7 @@ https://wiki.leagueoflegends.com/en-us/api.php?action=query&list=search&srsearch
 
 ## 运行边界
 
-- 导入时设置明确的 HTTP `User-Agent`。本机测试中，PowerShell 默认请求得到 403；设置 `User-Agent` 后，API 返回 200。
+- Wiki 返回 403 时，预览的 `unavailableSources` 会提示日期来源缺失；不要把 CD 中未查到的直营服日期推断为发布日，也不要把这次预览当成已完成的 Wiki 日期回填。
 - 把审核后的精简日期表保存为仓库快照；普通构建和浏览器页面不实时请求 Wiki。Wiki 内容是社区维护资料，模块结构或日期可能改变；更新时查看差异并在解析结构变化时失败报错。
 - 页面上的日期应标为“League of Legends Wiki 发布时间”，不标为国服上线日期。两类日期的差异见[国服与直营服发布时间口径调研](国服与直营服发布时间口径调研.md)。
 
@@ -67,8 +58,8 @@ https://wiki.leagueoflegends.com/en-us/api.php?action=query&list=search&srsearch
 
 目标数据源只收录 CommunityDragon `latest` 正式版中存在的正常英雄皮肤，并为每款皮肤分别保存直营服与国服的发布时间和版本号。Wiki 的 `release` 提供直营服日期；版本号优先采用对应地区官方版本公告中明确列出的首次推出皮肤，官方未覆盖时再搜索 Wiki 等来源并核对原文。国服公告正文的停机维护日期提供国服日期。来源没有明确值时保持空值。
 
-1. 运行 `pnpm skin-dates:update` 预览，再追加 `--apply` 写入。预览在 `.tmp/` 生成报告和候选 JSON；只有重新读取后仍形成相同候选时，`--apply` 才会写入。常规更新读取 Wiki 模块与 CD `latest` 的完整数据后增量合并本地 JSON；带 `--china-input` 的国服回填只读本地快照和输入，不重新请求 Wiki 或 CD。普通站点构建只读本地快照。
-2. 读取 Wiki Lua 表和 CD `latest` 皮肤集合。以 CD 的正式服数字皮肤 ID 为数据范围，用 ID 关联 Wiki 日期；Wiki 独有和缺少 ID 的记录只进入人工核对报告。解析和日期校验失败时保持旧快照。
+1. 运行 `pnpm skin-dates:update` 预览，再追加 `--apply` 写入。预览在 `.tmp/` 生成报告和候选 JSON；只有重新读取后仍形成相同候选时，`--apply` 才会写入。常规更新读取 Wiki raw 模块与 CD `latest`；Wiki 返回 403 时仅用 CD 更新收录和名称，已有日期照旧。带 `--china-input` 的国服回填只读本地快照和输入。普通站点构建只读本地快照。
+2. Wiki 源码可用时解析 Lua 表，以 CD 的正式服数字皮肤 ID 为数据范围，用 ID 关联 Wiki 日期；Wiki 独有和缺少 ID 的记录只进入人工核对报告。解析和日期校验失败时保持旧快照。
 3. 与旧快照合并时只新增 CD 正式版皮肤、回填空的有效日期和版本号。已确认值保持原值；来源后续给出不同值时只报告差异。Wiki 标注的 Upcoming 或 Canceled 不阻止 CD 已收录皮肤回填日期。未来日期先报告，不作为已确认发布时间。日期通过 `--china-input <path>` 回填；版本通过 `--version-input <path>` 回填，数组每项按需包含 `globalReleaseVersion` 和/或 `chinaReleaseVersion`。两个字段均为来源原样字符串或 `null`。
 4. Wiki 中不在 CD `latest` 的记录不进入正式服数据源，并在报告中保留其来源状态；无法确定身份的记录不得用名称或顺序猜 ID。
 5. 生成新增、回填和冲突报告；全部校验通过后原子替换 JSON。页面按服务器分别使用对应的已确认日期。

@@ -2,7 +2,8 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const WIKI_URL = 'https://wiki.leagueoflegends.com/en-us/api.php?action=query&prop=revisions&rvprop=content&rvslots=main&titles=Module%3ASkinData%2Fdata&format=json';
+const WIKI_URL = 'https://wiki.leagueoflegends.com/en-us/Module:SkinData/data?action=raw';
+const WIKI_HEADERS = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', Accept: 'text/x-wiki,*/*' };
 const CD_ROOT = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1';
 const CD_ZH_ROOT = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1';
 const SKINS_URL = `${CD_ROOT}/skins.json`;
@@ -65,13 +66,14 @@ export interface UpdateReport {
   existingVersionConflicts: Array<{ skinId: number; server: 'global' | 'china'; storedVersion: string; sourceVersion: string }>;
   disappearedFromCd: number[];
   excludedUnknownChampion: Array<{ skinId: number; skinName: string }>;
+  unavailableSources: string[];
 }
 
 function emptyReport(): UpdateReport {
   return {
     added: [], globalDatesFilled: [], chinaDatesFilled: [], globalVersionsFilled: [], chinaVersionsFilled: [], wikiWithoutId: [],
     wikiWithoutCd: [], cdWithoutWiki: [], futureWikiDates: [], existingDateConflicts: [], existingVersionConflicts: [],
-    disappearedFromCd: [], excludedUnknownChampion: [],
+    disappearedFromCd: [], excludedUnknownChampion: [], unavailableSources: [],
   };
 }
 
@@ -269,7 +271,7 @@ function versionInputs(value: unknown): Map<number, VersionInput> {
 }
 
 export function buildReleaseSnapshot(input: {
-  wikiTable: RecordValue;
+  wikiTable: RecordValue | null;
   cdSkins: unknown;
   cdChineseSkins: unknown;
   cdChampions: unknown;
@@ -305,9 +307,10 @@ export function buildReleaseSnapshot(input: {
   }
   const cd = object(input.cdSkins, 'CD skins');
   const cdChinese = object(input.cdChineseSkins, 'CD Chinese skins');
-  const wiki = wikiSkins(input.wikiTable);
+  const wiki = input.wikiTable === null ? [] : wikiSkins(input.wikiTable);
   const wikiById = new Map(wiki.filter((skin) => skin.skinId !== null).map((skin) => [skin.skinId!, skin]));
   const report = emptyReport();
+  if (input.wikiTable === null) report.unavailableSources.push('League Wiki HTTP 403');
   const liveIds = new Set<number>();
   const includedIds = new Set<number>();
   const skins: ReleaseSkin[] = [];
@@ -329,7 +332,7 @@ export function buildReleaseSnapshot(input: {
     const wikiSkin = wikiById.get(skinId);
     const old = previous.byId.get(skinId);
     if (!old) report.added.push(skinId);
-    if (!wikiSkin) report.cdWithoutWiki.push({ skinId, skinName: cdSkin.name });
+    if (input.wikiTable !== null && !wikiSkin) report.cdWithoutWiki.push({ skinId, skinName: cdSkin.name });
 
     const oldGlobalRaw = old?.globalReleaseDate ?? old?.releaseDate ?? null;
     const oldChinaRaw = old?.chinaReleaseDate ?? null;
@@ -442,22 +445,31 @@ function buildOfflineSnapshot(previous: unknown, chinaDates: unknown, versionDat
   return { snapshot: parseReleaseSnapshot({ schemaVersion: 1, skins }), report };
 }
 
-async function fetchJson(url: string, fetcher: typeof fetch): Promise<unknown> {
+class HttpStatusError extends Error {
+  constructor(readonly status: number, url: string) {
+    super(`Request failed (${status}): ${url}`);
+  }
+}
+
+async function fetchText(url: string, fetcher: typeof fetch, headers: Record<string, string> = { 'User-Agent': 'LoLChromaArt/0.1 skin-release-import' }): Promise<string> {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const response = await fetcher(url, { headers: { 'User-Agent': 'LoLChromaArt/0.1 skin-release-import' } });
+      const response = await fetcher(url, { headers });
       if (!response.ok) {
-        if (response.status !== 429 && response.status < 500) throw new Error(`Request failed (${response.status}): ${url}`);
+        if (response.status !== 429 && response.status < 500) throw new HttpStatusError(response.status, url);
         throw new TypeError(`Transient request failure (${response.status}): ${url}`);
       }
-      const body = await response.text();
-      return JSON.parse(body) as unknown;
+      return await response.text();
     } catch (error) {
       if (attempt === 2 || !(error instanceof TypeError)) throw error;
       await new Promise((done) => setTimeout(done, 500 * (attempt + 1)));
     }
   }
   throw new Error(`Request failed: ${url}`);
+}
+
+async function fetchJson(url: string, fetcher: typeof fetch): Promise<unknown> {
+  return JSON.parse(await fetchText(url, fetcher)) as unknown;
 }
 
 async function atomicJson(path: string, value: unknown): Promise<void> {
@@ -467,7 +479,7 @@ async function atomicJson(path: string, value: unknown): Promise<void> {
   await rename(temporary, path);
 }
 
-export async function updateSkinReleaseDates(options: { root: string; apply?: boolean; chinaInput?: string; versionInput?: string; fetcher?: typeof fetch; today?: string }): Promise<UpdateReport> {
+export async function updateSkinReleaseDates(options: { root: string; apply?: boolean; chinaInput?: string; versionInput?: string; wikiSource?: string; fetcher?: typeof fetch; today?: string }): Promise<UpdateReport> {
   const root = resolve(options.root);
   const oldPath = resolve(root, OUTPUT);
   let previousText: string | null;
@@ -487,15 +499,13 @@ export async function updateSkinReleaseDates(options: { root: string; apply?: bo
     result = buildOfflineSnapshot(previous, chinaDates, versions, today);
   } else {
     const fetcher = options.fetcher ?? fetch;
-    const [wiki, cdSkins, cdChineseSkins, cdChampions, cdChineseChampions] = await Promise.all([fetchJson(WIKI_URL, fetcher), fetchJson(SKINS_URL, fetcher), fetchJson(ZH_SKINS_URL, fetcher), fetchJson(CHAMPIONS_URL, fetcher), fetchJson(ZH_CHAMPIONS_URL, fetcher)]);
-    const wikiResponse = object(wiki, 'Wiki response');
-    const pages = object(object(wikiResponse.query, 'Wiki query').pages, 'Wiki pages');
-    const page = object(Object.values(pages)[0], 'Wiki page');
-    if (!Array.isArray(page.revisions) || page.revisions.length !== 1) throw new Error('Wiki revision missing');
-    const revision = object(page.revisions[0], 'Wiki revision');
-    const source = object(object(revision.slots, 'Wiki slots').main, 'Wiki main slot')['*'];
-    if (typeof source !== 'string') throw new Error('Wiki Lua source missing');
-    result = buildReleaseSnapshot({ wikiTable: parseLuaTable(source), cdSkins, cdChineseSkins, cdChampions, cdChineseChampions, previous, today });
+    const wiki = options.wikiSource ? readFile(resolve(options.wikiSource), 'utf8') : fetchText(WIKI_URL, fetcher, WIKI_HEADERS).catch((error: unknown) => {
+      if (error instanceof HttpStatusError && error.status === 403) return null;
+      throw error;
+    });
+    const [wikiSource, cdSkins, cdChineseSkins, cdChampions, cdChineseChampions] = await Promise.all([wiki, fetchJson(SKINS_URL, fetcher), fetchJson(ZH_SKINS_URL, fetcher), fetchJson(CHAMPIONS_URL, fetcher), fetchJson(ZH_CHAMPIONS_URL, fetcher)]);
+    if (wikiSource === null && previousText === null) throw new Error('League Wiki HTTP 403 and no saved release snapshot to preserve');
+    result = buildReleaseSnapshot({ wikiTable: wikiSource === null ? null : parseLuaTable(wikiSource), cdSkins, cdChineseSkins, cdChampions, cdChineseChampions, previous, today });
   }
   const { snapshot, report } = result;
   await atomicJson(resolve(root, REPORT), report);
@@ -522,8 +532,11 @@ async function cli(): Promise<void> {
   const chinaInput = inputIndex < 0 ? undefined : args[inputIndex + 1];
   const versionIndex = args.indexOf('--version-input');
   const versionInput = versionIndex < 0 ? undefined : args[versionIndex + 1];
-  if (inputIndex >= 0 && !chinaInput || versionIndex >= 0 && !versionInput) throw new Error('Usage: pnpm skin-dates:update [--apply] [--china-input path.json] [--version-input path.json]');
-  const report = await updateSkinReleaseDates({ root: process.cwd(), apply: args.includes('--apply'), chinaInput, versionInput });
+  const wikiSourceIndex = args.indexOf('--wiki-source');
+  const wikiSource = wikiSourceIndex < 0 ? undefined : args[wikiSourceIndex + 1];
+  if (inputIndex >= 0 && !chinaInput || versionIndex >= 0 && !versionInput || wikiSourceIndex >= 0 && !wikiSource || wikiSource && (chinaInput || versionInput)) throw new Error('Usage: pnpm skin-dates:update [--apply] [--china-input path.json] [--version-input path.json] [--wiki-source module.lua]');
+  const report = await updateSkinReleaseDates({ root: process.cwd(), apply: args.includes('--apply'), chinaInput, versionInput, wikiSource });
+  for (const source of report.unavailableSources) console.warn(`${source}: existing global dates were kept; new global dates remain null. Use --wiki-source with a current raw module when available.`);
   console.log(JSON.stringify({ applied: args.includes('--apply'), reportPath: REPORT, counts: Object.fromEntries(Object.entries(report).map(([key, items]) => [key, items.length])) }, null, 2));
 }
 
