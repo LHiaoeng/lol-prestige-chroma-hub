@@ -22,6 +22,9 @@ describe("SEO sitemap", () => {
     );
     expect(xml).toContain("<loc>https://chromaart.lol/skins/</loc>");
     expect(xml).toContain("<loc>https://chromaart.lol/zh-cn/skins/</loc>");
+    expect(xml).toContain("<loc>https://chromaart.lol/tft/companions/</loc>");
+    expect(xml).toContain("<loc>https://chromaart.lol/zh-cn/tft/companions/</loc>");
+    expect(xml).toContain('hreflang="zh-CN" href="https://chromaart.lol/zh-cn/tft/companions/"');
     expect(xml).not.toContain("/champions/103/");
     expect(xml).not.toContain("/champions/ahri/");
     expect(xml).not.toContain("/skins/103001/");

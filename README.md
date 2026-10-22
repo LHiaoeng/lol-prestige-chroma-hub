@@ -18,6 +18,8 @@
 
 皮肤目录、系列详情、宇宙详情和 PBE 新增页才会按需读取完整 `skins.json`；皮肤目录提供中英文名称搜索、稀有度多选、英雄名称排序和 PBE／正式服切换，筛选条件保存在 URL；页面按列表模板在标题下显示共享版本切换与命中数／总数，首次加载以骨架占住摘要、筛选和卡片位置；卡片以普通整页网格滚动展示，首批显示 50 张，并按列数补齐行后通过“加载更多”追加，目录壳可索引，运行时卡片不作为静态 SEO 内容；英雄目录/详情、运行时皮肤详情、首页、臻彩详情和博客不会加载它。PBE 新增在同一本地化视图内比较 `pbe` 与 `latest`，同时校验 `compat-version-metadata.json` 的版本字段；必要数据失败时不展示部分差集。运行时实体详情初始 HTML 保持 `noindex`，目录壳和 PBE 新增页进入双语 sitemap，站点不生成逐实体 HTML。
 
+云顶之弈小小英雄目录位于 `/tft/little-legends/` 和 `/zh-cn/tft/little-legends/`，按需读取当前语言与资料通道的 CommunityDragon `companions.json`，只展示 `kLittleLegend` 资料项；列表卡片是动态内容，SEO 只覆盖双语静态页面壳。
+
 皮肤目录还支持按发布时间最新或最早排序。中文页优先使用国服日期，缺失时使用直营服日期；英文页使用直营服日期。PBE 新增皮肤排在有日期的皮肤之前，其余无日期皮肤排末尾。日期来自构建时的 `data/skin-release-dates.json`，排序选项随 URL 保存。
 
 CommunityDragon 的通用 RAW 访问规则、版本与区域数据视图，以及英雄联盟和云顶之弈资源说明，见 [CommunityDragon 资源指南](docs/CD资源指南.md)。

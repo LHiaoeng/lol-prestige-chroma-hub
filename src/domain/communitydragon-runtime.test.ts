@@ -1217,6 +1217,126 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher).toHaveBeenCalledOnce();
   });
 
+  it("loads all TFT companion categories from the selected locale and channel and caches each view", async () => {
+    const fetcher = vi.fn(async (_input: string) =>
+      jsonResponse([
+        {
+          companionType: "kLittleLegend",
+          itemId: 1,
+          name: "Poro",
+          speciesId: 1,
+          speciesName: "Poro",
+          level: 1,
+          TFTRarity: "kStandard",
+          loadoutsIcon: "/lol-game-data/assets/ASSETS/Characters/Poro/Icon.png",
+        },
+        {
+          companionType: "kChibi",
+          itemId: 2,
+          name: "Chibi Ahri",
+          speciesId: 4,
+          speciesName: "Ahri",
+          level: 1,
+          TFTRarity: "kPrestige",
+          loadoutsIcon: "/lol-game-data/assets/ASSETS/Characters/Ahri/Icon.png",
+        },
+        {
+          companionType: "kStyle2",
+          itemId: 3,
+          name: "Unbound Ahri",
+          speciesId: 4,
+          speciesName: "Ahri",
+          level: 1,
+          TFTRarity: "kMythic",
+          loadoutsIcon: "/lol-game-data/assets/ASSETS/Characters/Ahri/Icon.png",
+        },
+      ]),
+    );
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    const latestZh = await runtime.listTftCompanions({
+      locale: "zh_cn",
+      channel: "latest",
+    });
+    expect(latestZh).toHaveLength(3);
+    expect(latestZh).toEqual(
+      expect.arrayContaining([
+        {
+          itemId: 1,
+          companionType: "kLittleLegend",
+          name: "Poro",
+          speciesId: 1,
+          speciesName: "Poro",
+          level: 1,
+          TFTRarity: "kStandard",
+          imageUrl:
+            "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/characters/poro/icon.png",
+        },
+        expect.objectContaining({
+          itemId: 2,
+          companionType: "kChibi",
+          TFTRarity: "kPrestige",
+        }),
+        expect.objectContaining({
+          itemId: 3,
+          companionType: "kStyle2",
+          TFTRarity: "kMythic",
+        }),
+      ]),
+    );
+    await runtime.listTftCompanions({ locale: "zh_cn", channel: "latest" });
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(fetcher.mock.calls[0][0]).toBe(
+      "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/companions.json",
+    );
+
+    const latestDefault = await runtime.listTftCompanions({
+      locale: "default",
+      channel: "latest",
+    });
+    expect(latestDefault[0]?.imageUrl).toContain(
+      "https://raw.communitydragon.org/latest/",
+    );
+    expect(fetcher.mock.calls[1][0]).toBe(
+      "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/companions.json",
+    );
+
+    const pbeDefault = await runtime.listTftCompanions({
+      locale: "default",
+      channel: "pbe",
+    });
+    expect(pbeDefault[0]?.imageUrl).toContain(
+      "https://raw.communitydragon.org/pbe/",
+    );
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    expect(fetcher.mock.calls[2][0]).toBe(
+      "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/companions.json",
+    );
+  });
+
+  it("rejects an invalid TFT companion source record through the runtime error boundary", async () => {
+    const runtime = createCommunityDragonRuntime(
+      vi.fn(async (_input: string) =>
+        jsonResponse([
+          {
+            companionType: "kLittleLegend",
+            itemId: -1,
+            name: "Poro",
+            speciesId: 1,
+            speciesName: "Poro",
+            level: 1,
+            TFTRarity: "kStandard",
+            loadoutsIcon: "/lol-game-data/assets/Characters/Poro/Icon.png",
+          },
+        ]),
+      ),
+    );
+
+    await expect(
+      runtime.listTftCompanions({ locale: "default", channel: "pbe" }),
+    ).rejects.toMatchObject({ code: "schema" });
+  });
+
   it("loads the catalog skin collection and localized champion names through shared cache", async () => {
     const fetcher = vi.fn(async (input: string) =>
       jsonResponse(

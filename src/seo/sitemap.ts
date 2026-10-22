@@ -53,6 +53,7 @@ export function renderSitemap(): string {
     "/skinlines/",
     "/universes/",
     "/pbe-additions/",
+    "/tft/companions/",
   ];
   const fixed = SITE_LOCALES.flatMap((locale) => [
     ...crawlablePaths.map((pathname) => page(pathname, locale)),

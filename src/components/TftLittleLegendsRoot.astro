@@ -1,0 +1,92 @@
+---
+import type { Locale } from '../i18n/config';
+import { localizedPath } from '../i18n/config';
+import Alert from './Alert.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import Divider from './Divider.astro';
+import Empty from './Empty.astro';
+import LittleLegendsIcon from './LittleLegendsIcon.astro';
+import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+import Skeleton from './Skeleton.astro';
+import Spin from './Spin.astro';
+import Select from './Select.astro';
+import '../styles/tft-little-legends.css';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isZh = locale === 'zh-cn';
+const pageTitle = isZh ? '小小英雄' : 'Tacticians';
+---
+
+<Breadcrumb {locale} items={[
+  { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+  { title: isZh ? '云顶之弈' : 'Teamfight Tactics', href: 'https://teamfighttactics.leagueoflegends.com/en-us/index/', icon: 'teamfight-tactics' },
+  { title: isZh ? '小小英雄' : 'Tacticians' },
+]} />
+<section class="runtime-page runtime-page--compact-list-header tft-little-legends" data-little-legends data-little-legends-locale={isZh ? 'zh_cn' : 'default'} data-little-legends-default-channel="pbe" aria-labelledby="little-legends-title">
+  <header>
+    <h1 id="little-legends-title"><LittleLegendsIcon />{pageTitle}</h1>
+    <div class="runtime-source runtime-channel-row tft-little-legends-summary" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+      <RuntimeChannelSwitcher {locale} />
+      <Divider type="vertical" />
+      <span class="runtime-list-count" data-little-legends-count></span>
+    </div>
+  </header>
+  <Divider />
+  <div class="tft-little-legends-filter-skeleton" data-little-legends-filter-skeleton aria-hidden="true">
+    {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
+  </div>
+  <div class="tft-little-legends-filters" data-little-legends-filters hidden>
+    <label class="tft-little-legends-field">
+      <span>{isZh ? '搜索小小英雄' : 'Search Tacticians'}</span>
+      <input class="cn-input" type="search" data-little-legends-search autocomplete="off" placeholder={isZh ? '名称或种类名称' : 'Name or species name'} />
+    </label>
+    <label class="tft-little-legends-field">
+      <span>{isZh ? '类别' : 'Type'}</span>
+      <Select class="tft-little-legends-select" data-little-legends-type="" options={[{ value: '', label: isZh ? '全部类别' : 'All types' }]} />
+    </label>
+    <label class="tft-little-legends-field">
+      <span>{isZh ? '种类' : 'Species'}</span>
+      <Select class="tft-little-legends-select" data-little-legends-species="" options={[{ value: '', label: isZh ? '全部种类' : 'All species' }]} />
+    </label>
+    <label class="tft-little-legends-field">
+      <span>{isZh ? '稀有度' : 'Rarity'}</span>
+      <Select class="tft-little-legends-select" data-little-legends-rarity="" options={[{ value: '', label: isZh ? '全部稀有度' : 'All rarities' }]} />
+    </label>
+    <label class="tft-little-legends-field">
+      <span>{isZh ? '等级' : 'Level'}</span>
+      <Select class="tft-little-legends-select" data-little-legends-level="" options={[{ value: '', label: isZh ? '全部等级' : 'All levels' }]} />
+    </label>
+  </div>
+  <p class="tft-little-legends-status" data-little-legends-status role="status" aria-live="polite" aria-atomic="true"></p>
+  <Spin rootClass="tft-little-legends-spinner">
+    <div data-little-legends-content>
+      <div data-little-legends-skeleton>
+        <Skeleton layout="skin-grid" itemCount={6} />
+      </div>
+    </div>
+    <div class="tft-little-legends-results" data-little-legends-results role="region" aria-label={isZh ? '小小英雄列表' : 'Tacticians list'} hidden>
+      <p class="runtime-list-count" data-little-legends-result-count role="status" aria-live="polite"></p>
+      <div class="tft-little-legends-grid" id="little-legends-grid" data-little-legends-grid></div>
+      <div class="tft-little-legends-load-more-footer" data-little-legends-load-more-footer hidden>
+        <button class="ant-btn" type="button" data-little-legends-load-more aria-controls="little-legends-grid">{isZh ? '加载更多' : 'Load more'}</button>
+      </div>
+    </div>
+  </Spin>
+  <template data-little-legends-empty-template><Empty description="" /></template>
+  <template data-little-legends-error-template>
+    <div class="tft-little-legends-error">
+      <Alert type="error" title={isZh ? '无法加载小小英雄资料' : 'Unable to load Tacticians'}>
+        <span slot="description" data-little-legends-error-message></span>
+      </Alert>
+      <button class="ant-btn" type="button" data-little-legends-retry>{isZh ? '重试' : 'Retry'}</button>
+    </div>
+  </template>
+  <noscript><p>{isZh ? '请启用 JavaScript 以浏览小小英雄列表。' : 'Enable JavaScript to browse Tacticians.'}</p></noscript>
+</section>
+
+<script>
+  import { initTftLittleLegends } from '../client/tft-little-legends';
+  const root = document.querySelector<HTMLElement>('[data-little-legends]');
+  if (root) initTftLittleLegends(root);
+</script>

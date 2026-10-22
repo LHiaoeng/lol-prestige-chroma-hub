@@ -21,6 +21,10 @@ import {
   type RuntimeSkinReferenceItem,
 } from "../domain/skin-reference-projection";
 import {
+  projectTftCompanions,
+  type TftCompanion,
+} from "../domain/little-legends";
+import {
   CommunityDragonRuntimeError,
   normalizeRuntimeOptions,
   parseRuntimeEmoteCollection,
@@ -62,6 +66,9 @@ export interface RuntimeRequestOptions {
 }
 
 export interface CommunityDragonRuntime {
+  listTftCompanions(
+    options: RuntimeRequestOptions,
+  ): Promise<readonly TftCompanion[]>;
   listSkinCatalog(options: RuntimeRequestOptions): Promise<{
     readonly skins: readonly RuntimeSkin[];
     readonly champions: readonly RuntimeChampionSummary[];
@@ -250,6 +257,21 @@ export function createCommunityDragonRuntime(
     const key = `${options.channel}:${options.locale}:list:${kind}`;
     return request(key, url, options, (value) =>
       parseRuntimeList(kind, value, options),
+    );
+  }
+
+  function listTftCompanions(
+    input: RuntimeRequestOptions,
+  ): Promise<readonly TftCompanion[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl(
+      "companions.json",
+      options.locale,
+      options.channel,
+    );
+    const key = `${options.channel}:${options.locale}:tft-companions`;
+    return request(key, url, options, (value) =>
+      projectTftCompanions(value, options.locale, options.channel),
     );
   }
 
@@ -615,6 +637,7 @@ export function createCommunityDragonRuntime(
   }
 
   return {
+    listTftCompanions,
     listSkinCatalog,
     list,
     get,

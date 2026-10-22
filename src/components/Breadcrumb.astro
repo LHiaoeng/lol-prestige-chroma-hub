@@ -1,6 +1,7 @@
 ---
 import { resolveLocale, type Locale } from '../i18n/config';
 import { buildBreadcrumbEntries, type BreadcrumbItem } from './breadcrumb';
+import DomainIcon from './DomainIcon.astro';
 
 interface Props {
   items: BreadcrumbItem[];
@@ -29,8 +30,8 @@ const menuHref = (base: string | undefined, path: string | undefined) => path ==
         {entry.menu ? (
           <details class="cn-breadcrumb-menu">
             <summary>
-              {entry.href && <a class="cn-breadcrumb-link ant-breadcrumb-link" href={entry.href}>{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</a>}
-              {!entry.href && <span class="cn-breadcrumb-link ant-breadcrumb-link" aria-current={index === lastRouteIndex ? 'page' : undefined}>{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</span>}
+              {entry.href && <a class="cn-breadcrumb-link ant-breadcrumb-link" href={entry.href}>{entry.icon && <DomainIcon name={entry.icon} class="cn-breadcrumb-icon" />}{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</a>}
+              {!entry.href && <span class="cn-breadcrumb-link ant-breadcrumb-link" aria-current={index === lastRouteIndex ? 'page' : undefined}>{entry.icon && <DomainIcon name={entry.icon} class="cn-breadcrumb-icon" />}{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</span>}
               <svg class="cn-breadcrumb-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </summary>
             <ul class="cn-breadcrumb-menu-list">
@@ -42,9 +43,9 @@ const menuHref = (base: string | undefined, path: string | undefined) => path ==
             </ul>
           </details>
         ) : entry.href ? (
-          <a class="cn-breadcrumb-link ant-breadcrumb-link" href={entry.href}>{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</a>
+          <a class="cn-breadcrumb-link ant-breadcrumb-link" href={entry.href}>{entry.icon && <DomainIcon name={entry.icon} class="cn-breadcrumb-icon" />}{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</a>
         ) : (
-          <span class="cn-breadcrumb-page ant-breadcrumb-link" aria-current={index === lastRouteIndex ? 'page' : undefined}>{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</span>
+          <span class="cn-breadcrumb-page ant-breadcrumb-link" aria-current={index === lastRouteIndex ? 'page' : undefined}>{entry.icon && <DomainIcon name={entry.icon} class="cn-breadcrumb-icon" />}{index === firstRouteIndex && <svg class="cn-breadcrumb-home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7" /></svg>}{entry.title}</span>
         )}
       </li>
     ))}

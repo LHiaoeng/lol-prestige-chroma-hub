@@ -124,6 +124,7 @@ function runtime(
   return {
     list: vi.fn(async () => summary),
     get: vi.fn(async () => champion),
+    listTftCompanions: vi.fn(async () => []),
     listSkinlineSkins: vi.fn(async () => []),
     listSkinCatalog: vi.fn(async () => ({ skins: [], champions: [] })),
     ...overrides,

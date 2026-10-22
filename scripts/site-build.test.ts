@@ -854,6 +854,51 @@ describe("static site build", () => {
     expect(chinese.indexOf('data-runtime-pbe-summary')).toBeLessThan(chinese.indexOf('runtime-header-divider'));
   });
 
+  it("emits the bilingual Teamfight Tactics Little Legends page shells", () => {
+    const english = readFileSync(join(dist, "tft", "companions", "index.html"), "utf8");
+    const chinese = readFileSync(join(dist, "zh-cn", "tft", "companions", "index.html"), "utf8");
+
+    expect(english).toContain("<title>Teamfight Tactics Tacticians | LoL Chroma Art</title>");
+    expect(english).toContain('<meta name="description" content="Browse Teamfight Tactics Tacticians across Little Legends, Chibis, and Unbound by type, species, rarity, and level.">');
+    expect(english).toContain('<link rel="canonical" href="https://chromaart.lol/tft/companions/">');
+    expect(english).toContain('<link rel="alternate" hreflang="zh-CN" href="https://chromaart.lol/zh-cn/tft/companions/">');
+    expect(english).toContain('href="/tft/companions/" aria-label="Teamfight Tactics"');
+    expect(english).toContain('href="https://teamfighttactics.leagueoflegends.com/en-us/index/"');
+    expect(english).toContain('Teamfight Tactics</a></li><li class="cn-breadcrumb-separator');
+    expect(english.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
+    expect(english).toContain('src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-parties/global/default/little_legends_icon.svg"');
+    expect(english).toContain("Tacticians</h1>");
+    expect(english).toContain('data-little-legends-default-channel="pbe"');
+    expect(english).toContain('data-runtime-spin data-spinning="true" aria-live="polite" aria-busy="true"');
+    expect(english).toContain('class="ant-spin-container"><div data-little-legends-content>');
+    expect(english).not.toContain("Loading Tacticians");
+    expect(english).toContain("All rarities");
+    expect(english).toContain("<span>Rarity</span>");
+    expect(english).toContain("All types");
+    expect(english).toContain("<span>Type</span>");
+    expect(english).toContain("Enable JavaScript to browse Tacticians.");
+    expect(english).toContain('"@type":"BreadcrumbList"');
+
+    expect(chinese).toContain("<title>云顶之弈小小英雄 | LoL Chroma Art</title>");
+    expect(chinese).toContain('<meta name="description" content="浏览云顶之弈小小英雄资料，涵盖小小英雄、英雄级小小英雄和不朽弈士形象，并按类别、种类、稀有度和等级查找。">');
+    expect(chinese).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/tft/companions/">');
+    expect(chinese).toContain('<link rel="alternate" hreflang="en" href="https://chromaart.lol/tft/companions/">');
+    expect(chinese).toContain('href="/zh-cn/tft/companions/" aria-label="云顶之弈"');
+    expect(chinese).toContain('云顶之弈</a></li><li class="cn-breadcrumb-separator');
+    expect(chinese.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
+    expect(chinese).toContain('src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-parties/global/default/little_legends_icon.svg"');
+    expect(chinese).toContain("小小英雄</h1>");
+    expect(chinese).toContain("全部稀有度");
+    expect(chinese).toContain("<span>稀有度</span>");
+    expect(chinese).toContain("全部类别");
+    expect(chinese).toContain("<span>类别</span>");
+    expect(chinese).toContain('data-runtime-spin data-spinning="true" aria-live="polite" aria-busy="true"');
+    expect(chinese).toContain('class="ant-spin-container"><div data-little-legends-content>');
+    expect(chinese).not.toContain('正在加载小小英雄资料');
+    expect(chinese).toContain("请启用 JavaScript 以浏览小小英雄列表。");
+    expect(chinese).toContain('"@type":"BreadcrumbList"');
+  });
+
   it("uses factual informational SEO copy", () => {
     const home = readFileSync(join(dist, "index.html"), "utf8");
     const chineseHome = readFileSync(join(dist, "zh-cn", "index.html"), "utf8");
@@ -1321,11 +1366,17 @@ describe("static site build", () => {
     expect(privacy).toContain("<title>Privacy Policy | LoL Chroma Art</title>");
     expect(privacy).toContain("Google AdSense");
     expect(privacy).toContain("adssettings.google.com");
+    expect(privacy).toContain("companions.json");
+    expect(privacy).toContain("all three companion categories");
+    expect(privacy).toContain("their images directly from CommunityDragon");
     expect(privacy).not.toContain("隐私说明");
     expect(chinesePrivacy).toContain(
       "<title>隐私说明 | LoL Chroma Art</title>",
     );
     expect(chinesePrivacy).toContain("Google AdSense");
+    expect(chinesePrivacy).toContain("companions.json");
+    expect(chinesePrivacy).toContain("英雄级小小英雄和不朽弈士形象");
+    expect(chinesePrivacy).toContain("直接读取");
     expect(chinesePrivacy).toContain('href="mailto:lolchromaart@outlook.com"');
     expect(privacy).toContain('href="mailto:lolchromaart@outlook.com"');
     expect(privacy).not.toContain(

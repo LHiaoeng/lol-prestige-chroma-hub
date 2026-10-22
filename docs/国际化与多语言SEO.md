@@ -7,7 +7,7 @@
 | `en` | 无前缀 | `en` | `en` | `en_US` |
 | `zh-cn` | `/zh-cn/` | `zh-CN` | `zh-CN` | `zh_CN` |
 
-英文是默认语言，保留 `/`、`/blog/`、`/chromas/<slug>/` 等现有路径。简体中文使用 `/zh-cn/`、`/zh-cn/blog/` 和 `/zh-cn/chromas/<slug>/`。静态臻彩详情页保持可索引；CommunityDragon 运行时详情使用数字查询参数并由客户端设置 `noindex`，不生成实体 sitemap 条目。不要创建含义不明确的 `/zh/`。
+英文是默认语言，保留 `/`、`/blog/`、`/chromas/<slug>/` 等现有路径。简体中文使用 `/zh-cn/`、`/zh-cn/blog/` 和 `/zh-cn/chromas/<slug>/`。云顶之弈小小英雄列表使用 `/tft/companions/` 与 `/zh-cn/tft/companions/`。静态臻彩详情页保持可索引；CommunityDragon 运行时详情使用数字查询参数并由客户端设置 `noindex`，不生成实体 sitemap 条目。不要创建含义不明确的 `/zh/`。
 
 语言由 URL 决定。页面不会根据浏览器语言、IP、请求头或本地偏好自动跳转。Header 的语言入口是普通链接，禁用 JavaScript 后仍可使用。
 
@@ -21,6 +21,8 @@
 - `src/seo/sitemap.ts`：双语固定资料页和博客文章 URL、图片与 XHTML alternate；不输出图鉴详情页。
 
 可索引的 CommunityDragon 资料列表与臻彩详情标题、描述应自然包含本地化游戏名（“英雄联盟”/“League of Legends”）。运行时详情仍为 `noindex`，除非为具体实体提供稳定 URL、独立元数据和可索引的静态正文。`BreadcrumbList` 必须与页面可见的面包屑层级一致。
+
+云顶之弈小小英雄列表的 `CollectionPage` 使用本地化游戏名；其面包屑包含首页、云顶之弈和小小英雄三级。
 
 页面模板在构建时根据 locale 选择文案。每个公开 URL 只显示对应语言正文；新增页面必须同时提供英文和简体中文路由、标题、描述、可访问名称、JSON-LD 与站内链接，页面实际包含图片时还必须提供对应语言的图片 Alt。
 

@@ -1,3 +1,5 @@
+import type { DomainIconName } from './domain-icons';
+
 export interface BreadcrumbMenuItem {
   title?: string;
   label?: string;
@@ -12,6 +14,7 @@ export interface BreadcrumbRouteItem {
   path?: string;
   separator?: string;
   class?: string;
+  icon?: DomainIconName;
   menu?: { items: BreadcrumbMenuItem[] };
   [attribute: `data-${string}`]: string | number | undefined;
   [attribute: `aria-${string}`]: string | number | undefined;
@@ -29,6 +32,7 @@ export interface BreadcrumbEntry {
   title?: string;
   href?: string;
   class?: string;
+  icon?: DomainIconName;
   menu?: BreadcrumbRouteItem['menu'];
   attributes?: Record<string, string | number>;
   separator?: string;
@@ -58,6 +62,7 @@ export function buildBreadcrumbEntries(
       title: item.title === undefined ? undefined : fillParams(item.title),
       href,
       class: item.class,
+      ...(item.icon ? { icon: item.icon } : {}),
       menu: item.menu,
       attributes,
       separator: items[index + 1]?.type === 'separator' ? '' : item.separator ?? (index === items.length - 1 ? '' : separator),

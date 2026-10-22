@@ -1,22 +1,43 @@
 ---
 interface Props {
-  readonly tip: string;
+  readonly description?: string;
+  readonly spinning?: boolean;
+  readonly rootClass?: string;
 }
 
-const { tip } = Astro.props;
+const { description, spinning = true, rootClass } = Astro.props;
+const nested = Astro.slots.has('default');
+const classes = [
+  'ant-spin',
+  !nested && 'ant-spin-section',
+  spinning && 'ant-spin-spinning',
+  rootClass,
+].filter(Boolean).join(' ');
 ---
 
-<div class="ant-spin ant-spin-nested-loading" data-runtime-spin data-spinning="false" aria-live="polite" aria-busy="false">
-  <div class="ant-spin-section">
-    <span class="ant-spin-dot-holder">
-      <span class="ant-spin-dot ant-spin-dot-spin">
-        <i class="ant-spin-dot-item"></i>
-        <i class="ant-spin-dot-item"></i>
-        <i class="ant-spin-dot-item"></i>
-        <i class="ant-spin-dot-item"></i>
-      </span>
-    </span>
-    <div class="ant-spin-description">{tip}</div>
-  </div>
-  <div class="ant-spin-container"><slot /></div>
+<div class={classes} data-runtime-spin data-spinning={String(spinning)} aria-live="polite" aria-busy={spinning}>
+  {nested
+    ? <div class="ant-spin-section">
+        <span class="ant-spin-dot-holder" aria-hidden="true">
+          <span class="ant-spin-dot ant-spin-dot-spin">
+            <i class="ant-spin-dot-item"></i>
+            <i class="ant-spin-dot-item"></i>
+            <i class="ant-spin-dot-item"></i>
+            <i class="ant-spin-dot-item"></i>
+          </span>
+        </span>
+        {description && <div class="ant-spin-description">{description}</div>}
+      </div>
+    : <>
+        <span class="ant-spin-dot-holder" aria-hidden="true">
+          <span class="ant-spin-dot ant-spin-dot-spin">
+            <i class="ant-spin-dot-item"></i>
+            <i class="ant-spin-dot-item"></i>
+            <i class="ant-spin-dot-item"></i>
+            <i class="ant-spin-dot-item"></i>
+          </span>
+        </span>
+        {description && <div class="ant-spin-description">{description}</div>}
+      </>}
+  {nested && <div class="ant-spin-container"><slot /></div>}
 </div>

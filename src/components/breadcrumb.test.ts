@@ -24,4 +24,11 @@ describe('buildBreadcrumbEntries', () => {
       { type: 'route', title: 'Current', href: undefined, class: undefined, menu: undefined, attributes: {}, separator: '' },
     ]);
   });
+
+  it('preserves a domain icon on its breadcrumb entry', () => {
+    expect(buildBreadcrumbEntries([
+      { title: 'Teamfight Tactics', icon: 'teamfight-tactics' },
+      { title: 'Little Legends' },
+    ])[0]).toMatchObject({ title: 'Teamfight Tactics', icon: 'teamfight-tactics' });
+  });
 });

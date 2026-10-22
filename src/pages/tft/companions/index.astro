@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TftLittleLegendsRoot from '../../../components/TftLittleLegendsRoot.astro';
+import { resolveLocale, type Locale } from '../../../i18n/config';
+import { createTftLittleLegendsSeo } from '../../../seo/tft-little-legends-seo';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const seo = createTftLittleLegendsSeo(locale);
+---
+
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+  <TftLittleLegendsRoot {locale} />
+</BaseLayout>

@@ -30,7 +30,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>Game reference requests</h2>
-      <p>The browser directly requests selected public JSON and media from a <a href="https://raw.communitydragon.org/" target="_blank" rel="noopener noreferrer">public game-data source</a> for the runtime champion, skin, skinline, universe, and optional chroma reference views. The site does not proxy or persist these responses, and requests are made without credentials and with the Referer omitted where the browser permits.</p>
+      <p>The browser directly requests selected public JSON and media from a <a href="https://raw.communitydragon.org/" target="_blank" rel="noopener noreferrer">public game-data source</a> for the runtime champion, skin, skinline, universe, optional chroma reference views, and Teamfight Tactics Tacticians. The Tacticians page loads all three companion categories from <code>companions.json</code> and their images directly from CommunityDragon. The site does not proxy or persist these responses, and requests are made without credentials and with the Referer omitted where the browser permits.</p>
       <p>These requests are optional for the static archive, chroma pages, and blog articles. If the data source is unavailable, the static page remains readable and the affected reference area shows a retryable failure.</p>
     </section>
 
@@ -71,7 +71,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>游戏资料请求</h2>
-      <p>浏览器会直接从<a href="https://raw.communitydragon.org/" target="_blank" rel="noopener noreferrer">公开游戏资料源</a>请求运行时英雄、皮肤、皮肤系列、宇宙和臻彩辅助资料所需的公开 JSON 与媒体。本站不代理或持久保存这些响应，请求不携带凭据，并在浏览器允许时省略 Referer。</p>
+      <p>浏览器会直接从<a href="https://raw.communitydragon.org/" target="_blank" rel="noopener noreferrer">公开游戏资料源</a>请求运行时英雄、皮肤、皮肤系列、宇宙、臻彩辅助资料和云顶之弈小小英雄资料集所需的公开 JSON 与媒体。小小英雄页面会从 CommunityDragon 直接读取 <code>companions.json</code> 中的三种类别资料及对应图片：小小英雄、英雄级小小英雄和不朽弈士形象。本站不代理或持久保存这些响应，请求不携带凭据，并在浏览器允许时省略 Referer。</p>
       <p>这些请求不影响静态图鉴、臻彩正文和博客文章的阅读。资料源不可用时，静态页面仍保持可读，受影响的资料区会显示可以重试的失败状态。</p>
     </section>
 
