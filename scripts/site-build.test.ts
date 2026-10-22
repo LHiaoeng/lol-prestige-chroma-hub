@@ -866,10 +866,10 @@ describe("static site build", () => {
     expect(english).toContain('href="https://teamfighttactics.leagueoflegends.com/en-us/index/"');
     expect(english).toContain('Teamfight Tactics</a></li><li class="cn-breadcrumb-separator');
     expect(english.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
-    expect(english).toContain('src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-parties/global/default/little_legends_icon.svg"');
+    expect(english).toContain('src="/img/icons/tft-little-legends.svg"');
     expect(english).toContain("Tacticians</h1>");
     expect(english).toContain('data-little-legends-default-channel="pbe"');
-    expect(english).toContain('data-runtime-spin data-spinning="true" aria-live="polite" aria-busy="true"');
+    expect(english).toContain('data-runtime-spin data-spinning="false" aria-live="polite" aria-busy="false"');
     expect(english).toContain('class="ant-spin-container"><div data-little-legends-content>');
     expect(english).not.toContain("Loading Tacticians");
     expect(english).toContain("All rarities");
@@ -886,13 +886,13 @@ describe("static site build", () => {
     expect(chinese).toContain('href="/zh-cn/tft/companions/" aria-label="云顶之弈"');
     expect(chinese).toContain('云顶之弈</a></li><li class="cn-breadcrumb-separator');
     expect(chinese.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
-    expect(chinese).toContain('src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-parties/global/default/little_legends_icon.svg"');
+    expect(chinese).toContain('src="/img/icons/tft-little-legends.svg"');
     expect(chinese).toContain("小小英雄</h1>");
     expect(chinese).toContain("全部稀有度");
     expect(chinese).toContain("<span>稀有度</span>");
     expect(chinese).toContain("全部类别");
     expect(chinese).toContain("<span>类别</span>");
-    expect(chinese).toContain('data-runtime-spin data-spinning="true" aria-live="polite" aria-busy="true"');
+    expect(chinese).toContain('data-runtime-spin data-spinning="false" aria-live="polite" aria-busy="false"');
     expect(chinese).toContain('class="ant-spin-container"><div data-little-legends-content>');
     expect(chinese).not.toContain('正在加载小小英雄资料');
     expect(chinese).toContain("请启用 JavaScript 以浏览小小英雄列表。");

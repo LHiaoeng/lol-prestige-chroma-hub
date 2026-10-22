@@ -34,12 +34,13 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
   </header>
   <Divider />
   <div class="tft-little-legends-filter-skeleton" data-little-legends-filter-skeleton aria-hidden="true">
-    {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
+    {Array.from({ length: 6 }, () => <span class="runtime-skeleton-line"></span>)}
+    <span class="runtime-skeleton-line tft-little-legends-pbe-filter-skeleton"></span>
   </div>
   <div class="tft-little-legends-filters" data-little-legends-filters hidden>
     <label class="tft-little-legends-field">
       <span>{isZh ? '搜索小小英雄' : 'Search Tacticians'}</span>
-      <input class="cn-input" type="search" data-little-legends-search autocomplete="off" placeholder={isZh ? '名称或种类名称' : 'Name or species name'} />
+      <input class="cn-input" type="search" data-little-legends-search autocomplete="off" placeholder={isZh ? '中英文名称或种类名称' : 'Name or species name in either language'} />
     </label>
     <label class="tft-little-legends-field">
       <span>{isZh ? '类别' : 'Type'}</span>
@@ -54,12 +55,30 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
       <Select class="tft-little-legends-select" data-little-legends-rarity="" options={[{ value: '', label: isZh ? '全部稀有度' : 'All rarities' }]} />
     </label>
     <label class="tft-little-legends-field">
-      <span>{isZh ? '等级' : 'Level'}</span>
-      <Select class="tft-little-legends-select" data-little-legends-level="" options={[{ value: '', label: isZh ? '全部等级' : 'All levels' }]} />
+      <span>{isZh ? '星级' : 'Stars'}</span>
+      <Select class="tft-little-legends-select" data-little-legends-level="" options={[{ value: '', label: isZh ? '全部星级' : 'All stars' }]} />
+    </label>
+    <label class="tft-little-legends-field">
+      <span>{isZh ? '排序' : 'Sort'}</span>
+      <Select class="tft-little-legends-select" data-little-legends-sort="" showSearch options={[
+        { value: 'default', label: isZh ? '默认排序' : 'Default order' },
+        { value: 'rarity_desc', label: isZh ? '稀有度：高到低' : 'Rarity: high to low' },
+        { value: 'rarity_asc', label: isZh ? '稀有度：低到高' : 'Rarity: low to high' },
+        { value: 'type_desc', label: isZh ? '类别：高到低' : 'Type: high to low' },
+        { value: 'type_asc', label: isZh ? '类别：低到高' : 'Type: low to high' },
+        { value: 'name_asc', label: isZh ? '名称：升序' : 'Name: A to Z' },
+        { value: 'name_desc', label: isZh ? '名称：降序' : 'Name: Z to A' },
+        { value: 'stars_desc', label: isZh ? '星级：高到低' : 'Stars: high to low' },
+        { value: 'stars_asc', label: isZh ? '星级：低到高' : 'Stars: low to high' },
+      ]} />
+    </label>
+    <label class="tft-little-legends-pbe-setting" data-little-legends-pbe-setting>
+      <input type="checkbox" data-little-legends-pbe-only />
+      <span>{isZh ? 'PBE 新增' : 'PBE additions'}</span>
     </label>
   </div>
   <p class="tft-little-legends-status" data-little-legends-status role="status" aria-live="polite" aria-atomic="true"></p>
-  <Spin rootClass="tft-little-legends-spinner">
+  <Spin rootClass="tft-little-legends-spinner" spinning={false}>
     <div data-little-legends-content>
       <div data-little-legends-skeleton>
         <Skeleton layout="skin-grid" itemCount={6} />

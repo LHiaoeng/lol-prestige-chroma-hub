@@ -1,8 +1,15 @@
 import {
+  addTftCompanionSearchAliases,
   filterTftCompanions,
+  getMultiStarTftCompanionItemIds,
   isTftCompanionType,
   isTftCompanionRarity,
+  isTftCompanionSort,
+  markPbeTftCompanionAdditions,
+  TFT_COMPANION_RARITY_ORDER,
   TFT_COMPANION_BATCH_SIZE,
+  tftCompanionPageSize,
+  TFT_COMPANION_TYPE_ORDER,
   paginateTftCompanions,
   type TftCompanion,
   type TftCompanionRarity,
@@ -21,8 +28,10 @@ import type {
   RuntimeChannel,
 } from "../domain/communitydragon-runtime";
 import { setDomainIconTooltip } from "../components/domain-icons";
+import { createPopover } from "../components/popover";
 import { createTooltip } from "../components/tooltip";
 import { enhanceSelect, refreshSelect } from "../components/select";
+import { createIcon } from "../components/icons/create-icon";
 import {
   createCommunityDragonRuntime,
   type CommunityDragonRuntime,
@@ -45,6 +54,14 @@ const copy = {
     total: (count: number) => `共 ${count} 个小小英雄资料项`,
     results: (count: number) => `找到 ${count} 个结果`,
     missingImage: "图片暂不可用",
+    pbeOnlyHelp: "只显示相较正式服新增的小小英雄。",
+    pbeNew: "PBE 新增小小英雄",
+    details: "小小英雄详情",
+    name: "名称",
+    category: "类别",
+    species: "种类",
+    starLevel: "星级",
+    rarity: "稀有度",
   },
   default: {
     empty: "No Tacticians are available in this data channel.",
@@ -53,6 +70,14 @@ const copy = {
     total: (count: number) => `${count} Tactician cosmetics in this data channel`,
     results: (count: number) => `Found ${count} matches`,
     missingImage: "Artwork unavailable",
+    pbeOnlyHelp: "Show only Tacticians newly added on PBE compared with live.",
+    pbeNew: "PBE addition",
+    details: "Tactician details",
+    name: "Name",
+    category: "Category",
+    species: "Species",
+    starLevel: "Stars",
+    rarity: "Rarity",
   },
 } as const;
 
@@ -112,8 +137,22 @@ export function tftCompanionTypeLabel(
   return companionTypeLabels[locale][companionType];
 }
 
+export function tftCompanionDisplayName(
+  item: Pick<TftCompanion, "name" | "level">,
+  hasMultipleStarLevels: boolean,
+  locale: CommunityDragonLocale,
+): string {
+  if (!hasMultipleStarLevels) return item.name;
+  if (locale === "zh_cn") return `${item.name} ${item.level}星`;
+  return `${item.name} ${item.level} ${item.level === 1 ? "star" : "stars"}`;
+}
+
 type TftLittleLegendState = LittleLegendUrlState;
 type TftLittleLegendError = ReturnType<typeof asCommunityDragonError>;
+interface TftCompanionLoadResult {
+  readonly items: readonly TftCompanion[];
+  readonly canComparePbe: boolean;
+}
 
 function element<T extends HTMLElement>(
   root: HTMLElement,
@@ -130,7 +169,7 @@ export function initTftLittleLegends(
   history: RuntimeChannelHistory = browserHistory(),
 ): RuntimeChannelLifecycle<
   TftLittleLegendState,
-  readonly TftCompanion[],
+  TftCompanionLoadResult,
   TftLittleLegendError
 > {
   const locale = root.dataset.littleLegendsLocale as CommunityDragonLocale;
@@ -159,7 +198,32 @@ export function initTftLittleLegends(
     "[data-little-legends-rarity]",
   );
   const level = element<HTMLSelectElement>(root, "[data-little-legends-level]");
-  [companionType, species, rarity, level].forEach(enhanceSelect);
+  const sort = element<HTMLSelectElement>(root, "[data-little-legends-sort]");
+  const pbeOnly = element<HTMLInputElement>(
+    root,
+    "[data-little-legends-pbe-only]",
+  );
+  const pbeSetting = element<HTMLElement>(
+    root,
+    "[data-little-legends-pbe-setting]",
+  );
+  const pbeSettingParent = pbeSetting.parentElement;
+  const pbeSettingNextSibling = pbeSetting.nextSibling;
+  const pbeSettingTooltip = createTooltip(pbeSetting, text.pbeOnlyHelp);
+  pbeSettingTooltip.classList.add("tft-little-legends-pbe-tooltip");
+  pbeSettingTooltip.tabIndex = -1;
+  const pbeSettingTooltipId =
+    pbeSettingTooltip.getAttribute("aria-describedby");
+  if (pbeSettingTooltipId)
+    pbeOnly.setAttribute("aria-describedby", pbeSettingTooltipId);
+  if (pbeSettingParent)
+    pbeSettingParent.insertBefore(pbeSettingTooltip, pbeSettingNextSibling);
+  const popoverCleanups: (() => void)[] = [];
+  const clearPopovers = () => {
+    for (const cleanup of popoverCleanups) cleanup();
+    popoverCleanups.length = 0;
+  };
+  [companionType, species, rarity, level, sort].forEach(enhanceSelect);
   const status = element<HTMLElement>(root, "[data-little-legends-status]");
   const spinner = element<HTMLElement>(root, "[data-runtime-spin]");
   const content = element<HTMLElement>(root, "[data-little-legends-content]");
@@ -198,8 +262,11 @@ export function initTftLittleLegends(
   );
   let state = readLittleLegendUrlState(history.url);
   let items: readonly TftCompanion[] = [];
+  let multiStarItemIds: ReadonlySet<number> = new Set();
+  let canComparePbe = false;
   let matches: readonly TftCompanion[] = [];
   let shownCount = 0;
+  let batchSize = TFT_COMPANION_BATCH_SIZE;
   let errorMessage: HTMLElement | undefined;
   let pendingChannel: RuntimeChannel | undefined;
 
@@ -209,7 +276,16 @@ export function initTftLittleLegends(
     species.disabled = disabled;
     rarity.disabled = disabled;
     level.disabled = disabled;
+    sort.disabled = disabled;
+    pbeOnly.disabled = disabled;
     loadMore.disabled = disabled;
+  };
+
+  const getBatchSize = () => {
+    const columns = getComputedStyle(grid).gridTemplateColumns
+      .trim()
+      .split(/\s+/).length;
+    return tftCompanionPageSize(columns);
   };
 
   const syncControls = () => {
@@ -219,7 +295,9 @@ export function initTftLittleLegends(
       state.speciesId === undefined ? "" : String(state.speciesId);
     rarity.value = state.TFTRarity ?? "";
     level.value = state.level === undefined ? "" : String(state.level);
-    [companionType, species, rarity, level].forEach(refreshSelect);
+    pbeOnly.checked = state.onlyPbeAdditions;
+    sort.value = state.sort;
+    [companionType, species, rarity, level, sort].forEach(refreshSelect);
     root
       .querySelectorAll<HTMLButtonElement>("[data-runtime-channel]")
       .forEach((button) => {
@@ -269,13 +347,9 @@ export function initTftLittleLegends(
     }
     addSelectOptions(
       companionType,
-      [...companionTypes]
-        .sort((left, right) =>
-          tftCompanionTypeLabel(left, locale).localeCompare(
-            tftCompanionTypeLabel(right, locale),
-            locale === "zh_cn" ? "zh-CN" : "en",
-          ),
-        )
+      TFT_COMPANION_TYPE_ORDER.filter((value) =>
+        companionTypes.has(value),
+      )
         .map((value) => [value, tftCompanionTypeLabel(value, locale)]),
     );
     addSelectOptions(
@@ -288,8 +362,9 @@ export function initTftLittleLegends(
     );
     addSelectOptions(
       rarity,
-      [...rarities]
-        .sort()
+      TFT_COMPANION_RARITY_ORDER.filter((value) =>
+        rarities.has(value),
+      )
         .map((value) => [value, tftCompanionRarityLabel(value, locale)]),
     );
     addSelectOptions(
@@ -301,13 +376,31 @@ export function initTftLittleLegends(
   };
 
   const appendCard = (item: TftCompanion) => {
+    const displayName = tftCompanionDisplayName(
+      item,
+      multiStarItemIds.has(item.itemId),
+      locale,
+    );
+    const rarityLabel = tftCompanionRarityLabel(item.TFTRarity, locale);
     const article = root.ownerDocument.createElement("article");
     article.className = "runtime-card tft-little-legends-card";
     const media = root.ownerDocument.createElement("div");
     media.className = "tft-little-legends-card-media";
+    const preview = root.ownerDocument.createElement("button");
+    preview.className = "runtime-media-preview-trigger tft-little-legends-card-preview";
+    preview.type = "button";
+    preview.dataset.mediaPreviewTrigger = "";
+    preview.dataset.previewKind = "image";
+    preview.dataset.previewSrc = item.imageUrl;
+    preview.setAttribute(
+      "aria-label",
+      locale === "zh_cn"
+        ? `查看${displayName}大图`
+        : `Open full-size image: ${displayName}`,
+    );
     const image = root.ownerDocument.createElement("img");
     image.src = item.imageUrl;
-    image.alt = item.name;
+    image.alt = displayName;
     image.loading = "lazy";
     image.decoding = "async";
     const fallback = root.ownerDocument.createElement("span");
@@ -317,17 +410,60 @@ export function initTftLittleLegends(
     image.addEventListener(
       "error",
       () => {
-        image.hidden = true;
+        preview.hidden = true;
         fallback.hidden = false;
       },
       { once: true },
     );
-    media.append(image, fallback);
+    const previewCover = root.ownerDocument.createElement("span");
+    previewCover.className = "tft-little-legends-preview-cover";
+    previewCover.setAttribute("aria-hidden", "true");
+    previewCover.append(createIcon("EyeOutlined"));
+    preview.append(image, previewCover);
+    media.append(preview, fallback);
+    if (state.channel === "pbe" && item.isPbeAddition) {
+      const marker = root.ownerDocument.createElement("span");
+      marker.textContent = "PBE";
+      marker.setAttribute("aria-hidden", "true");
+      const tooltip = createTooltip(marker, text.pbeNew);
+      tooltip.classList.add("tft-little-legends-pbe-marker");
+      tooltip.setAttribute("aria-label", text.pbeNew);
+      media.append(tooltip);
+    }
+    const actions = root.ownerDocument.createElement("div");
+    actions.className = "tft-little-legends-card-actions";
+    const detailsButton = root.ownerDocument.createElement("button");
+    detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-little-legends-info-button";
+    detailsButton.type = "button";
+    detailsButton.setAttribute("aria-label", text.details);
+    const detailsIcon = createIcon("InfoCircleOutlined");
+    detailsIcon.setAttribute("width", "14");
+    detailsIcon.setAttribute("height", "14");
+    detailsButton.append(detailsIcon);
+    const popoverDetails = root.ownerDocument.createElement("dl");
+    popoverDetails.className = "tft-little-legends-card-popover";
+    const appendDetail = (label: string, value: string) => {
+      const row = root.ownerDocument.createElement("div");
+      row.className = "tft-little-legends-card-detail";
+      const term = root.ownerDocument.createElement("dt");
+      term.textContent = label;
+      const description = root.ownerDocument.createElement("dd");
+      description.textContent = value;
+      row.append(term, description);
+      popoverDetails.append(row);
+    };
+    appendDetail(text.name, displayName);
+    appendDetail(text.category, tftCompanionTypeLabel(item.companionType, locale));
+    appendDetail(text.species, item.speciesName);
+    appendDetail(text.starLevel, String(item.level));
+    appendDetail(text.rarity, rarityLabel);
+    popoverCleanups.push(createPopover(detailsButton, text.details, popoverDetails));
+    actions.append(detailsButton);
+    media.append(actions);
     const details = root.ownerDocument.createElement("div");
     details.className = "tft-little-legends-card-details";
     const title = root.ownerDocument.createElement("h2");
     title.className = "tft-little-legends-card-title";
-    const rarityLabel = tftCompanionRarityLabel(item.TFTRarity, locale);
     const rarityIcon = root.ownerDocument.createElement("img");
     rarityIcon.className = "tft-little-legends-card-rarity-icon";
     rarityIcon.src = tftCompanionRarityIconUrl(item.TFTRarity, state.channel);
@@ -338,33 +474,45 @@ export function initTftLittleLegends(
     rarityTooltip.setAttribute("aria-label", rarityLabel);
     const titleText = root.ownerDocument.createElement("span");
     titleText.className = "tft-little-legends-card-title-text";
-    titleText.textContent = item.name;
-    const titleTooltipLabel = `${rarityLabel} ${item.name}`;
+    titleText.textContent = displayName;
+    const titleTooltipLabel = `${rarityLabel} ${displayName}`;
     const titleTooltip = createTooltip(titleText, titleTooltipLabel);
     titleTooltip.classList.add("tft-little-legends-card-title-tooltip");
     titleTooltip.setAttribute("aria-label", titleTooltipLabel);
     title.append(rarityTooltip, titleTooltip);
-    const companionType = root.ownerDocument.createElement("p");
-    companionType.textContent = tftCompanionTypeLabel(item.companionType, locale);
-    const speciesName = root.ownerDocument.createElement("p");
-    speciesName.textContent = item.speciesName;
-    const metadata = root.ownerDocument.createElement("p");
-    metadata.textContent =
-      locale === "zh_cn"
-        ? `等级 ${item.level} · 稀有度：${rarityLabel}`
-        : `Level ${item.level} · Rarity: ${rarityLabel}`;
-    details.append(title, companionType, speciesName, metadata);
+    details.append(title);
     article.append(media, details);
     grid.append(article);
   };
 
   const renderMatches = (reset: boolean) => {
-    matches = filterTftCompanions(items, state, locale);
-    if (reset) shownCount = Math.min(matches.length, TFT_COMPANION_BATCH_SIZE);
-    const pageCount = Math.ceil(shownCount / TFT_COMPANION_BATCH_SIZE);
+    matches = filterTftCompanions(
+      items,
+      {
+        ...state,
+        onlyPbeAdditions:
+          state.channel === "pbe" && canComparePbe && state.onlyPbeAdditions,
+      },
+      locale,
+    );
+    const nextBatchSize = getBatchSize();
+    if (reset) {
+      batchSize = nextBatchSize;
+      shownCount = Math.min(matches.length, batchSize);
+    } else if (batchSize !== nextBatchSize) {
+      const pageCount = Math.ceil(shownCount / batchSize);
+      const allMatchesShown = shownCount >= matches.length;
+      batchSize = nextBatchSize;
+      shownCount = allMatchesShown
+        ? matches.length
+        : Math.min(matches.length, pageCount * batchSize);
+    }
+    const pageCount = Math.ceil(shownCount / batchSize);
+    clearPopovers();
     grid.replaceChildren();
     for (let page = 0; page < pageCount; page += 1) {
-      for (const item of paginateTftCompanions(matches, page)) appendCard(item);
+      for (const item of paginateTftCompanions(matches, page, batchSize))
+        appendCard(item);
     }
     resultCount.textContent = text.results(matches.length);
     loadMoreFooter.hidden = shownCount >= matches.length;
@@ -385,11 +533,26 @@ export function initTftLittleLegends(
     }
   };
 
+  window.addEventListener("resize", () => {
+    if (
+      !results.hidden &&
+      matches.length > 0 &&
+      getBatchSize() !== batchSize
+    )
+      renderMatches(false);
+  });
+
   const updateFilters = (
     patch: Partial<
       Pick<
         TftLittleLegendState,
-        "search" | "companionType" | "speciesId" | "TFTRarity" | "level"
+        | "search"
+        | "companionType"
+        | "speciesId"
+        | "TFTRarity"
+        | "level"
+        | "sort"
+        | "onlyPbeAdditions"
       >
     >,
   ) => {
@@ -408,12 +571,40 @@ export function initTftLittleLegends(
       const target = readLittleLegendUrlState(url);
       return { status: "valid", channel: target.channel, target };
     },
-    load(target, signal) {
-      return runtime.listTftCompanions({
-        locale,
-        channel: target.channel,
-        signal,
-      });
+    async load(target, signal): Promise<TftCompanionLoadResult> {
+      const aliasLocale = locale === "zh_cn" ? "default" : "zh_cn";
+      const [selectedItems, aliasItems, liveItems] = await Promise.all([
+        runtime.listTftCompanions({ locale, channel: target.channel, signal }),
+        runtime
+          .listTftCompanions({
+            locale: aliasLocale,
+            channel: target.channel,
+            signal,
+          })
+          .catch((error: unknown) => {
+            if (signal.aborted) throw error;
+            return undefined;
+          }),
+        target.channel === "pbe"
+          ? runtime
+              .listTftCompanions({ locale, channel: "latest", signal })
+              .catch((error: unknown) => {
+                if (signal.aborted) throw error;
+                return undefined;
+              })
+          : Promise.resolve(undefined),
+      ]);
+      const searchableItems = addTftCompanionSearchAliases(
+        selectedItems,
+        aliasItems ?? [],
+      );
+      return {
+        items:
+          target.channel === "pbe" && liveItems
+            ? markPbeTftCompanionAdditions(searchableItems, liveItems)
+            : searchableItems,
+        canComparePbe: target.channel === "pbe" && liveItems !== undefined,
+      };
     },
     normalizeError: (error) => asCommunityDragonError(error, locale),
     isAborted: (error) => error.code === "aborted",
@@ -422,7 +613,7 @@ export function initTftLittleLegends(
         pendingChannel = context.channel;
         errorMessage?.remove();
         errorMessage = undefined;
-        setSpinning(true);
+        setSpinning(preserveContent);
         root.setAttribute("aria-busy", "true");
         setControlsDisabled(true);
         status.textContent = "";
@@ -440,7 +631,9 @@ export function initTftLittleLegends(
         errorMessage?.remove();
         errorMessage = undefined;
         setSpinning(false);
-        items = result;
+        items = result.items;
+        multiStarItemIds = getMultiStarTftCompanionItemIds(items);
+        canComparePbe = result.canComparePbe;
         const invalid = [...context.target.invalid];
         const selectedCompanionType =
           context.target.companionType !== undefined &&
@@ -495,6 +688,7 @@ export function initTftLittleLegends(
         count.textContent = text.total(items.length);
         renderOptions();
         syncControls();
+        pbeSettingTooltip.hidden = !canComparePbe || context.channel !== "pbe";
         filterSkeleton.hidden = true;
         filters.hidden = items.length === 0;
         content.hidden = true;
@@ -575,11 +769,14 @@ export function initTftLittleLegends(
   level.addEventListener("change", () =>
     updateFilters({ level: level.value ? Number(level.value) : undefined }),
   );
+  sort.addEventListener("change", () => {
+    if (isTftCompanionSort(sort.value)) updateFilters({ sort: sort.value });
+  });
+  pbeOnly.addEventListener("change", () =>
+    updateFilters({ onlyPbeAdditions: pbeOnly.checked }),
+  );
   loadMore.addEventListener("click", () => {
-    shownCount = Math.min(
-      matches.length,
-      shownCount + TFT_COMPANION_BATCH_SIZE,
-    );
+    shownCount = Math.min(matches.length, shownCount + batchSize);
     renderMatches(false);
   });
   root

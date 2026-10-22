@@ -5,16 +5,35 @@ import {
 } from "./communitydragon-url";
 import type { CommunityDragonLocale } from "./communitydragon-runtime";
 
-const TFT_COMPANION_TYPES = ["kLittleLegend", "kChibi", "kStyle2"] as const;
-const TFT_COMPANION_RARITIES = [
-  "kStandard",
-  "kLegendary",
-  "kMythic",
-  "kPrestige",
+export const TFT_COMPANION_TYPE_ORDER = [
+  "kStyle2",
+  "kChibi",
+  "kLittleLegend",
 ] as const;
+export const TFT_COMPANION_RARITY_ORDER = [
+  "kPrestige",
+  "kMythic",
+  "kLegendary",
+  "kStandard",
+] as const;
+export const TFT_COMPANION_SORTS = [
+  "default",
+  "rarity_desc",
+  "rarity_asc",
+  "type_desc",
+  "type_asc",
+  "name_asc",
+  "name_desc",
+  "stars_desc",
+  "stars_asc",
+] as const;
+
+const TFT_COMPANION_TYPES = TFT_COMPANION_TYPE_ORDER;
+const TFT_COMPANION_RARITIES = TFT_COMPANION_RARITY_ORDER;
 
 export type TftCompanionType = (typeof TFT_COMPANION_TYPES)[number];
 export type TftCompanionRarity = (typeof TFT_COMPANION_RARITIES)[number];
+export type TftCompanionSort = (typeof TFT_COMPANION_SORTS)[number];
 
 export function isTftCompanionType(value: string): value is TftCompanionType {
   return (TFT_COMPANION_TYPES as readonly string[]).includes(value);
@@ -26,10 +45,16 @@ export function isTftCompanionRarity(
   return (TFT_COMPANION_RARITIES as readonly string[]).includes(value);
 }
 
+export function isTftCompanionSort(value: string): value is TftCompanionSort {
+  return (TFT_COMPANION_SORTS as readonly string[]).includes(value);
+}
+
 export interface TftCompanion {
   readonly itemId: number;
+  readonly isPbeAddition?: boolean;
   readonly companionType: TftCompanionType;
   readonly name: string;
+  readonly searchAliases?: readonly string[];
   readonly speciesId: number;
   readonly speciesName: string;
   readonly level: number;
@@ -39,13 +64,77 @@ export interface TftCompanion {
 
 export interface TftCompanionFilters {
   readonly search?: string;
+  readonly onlyPbeAdditions?: boolean;
   readonly companionType?: TftCompanionType;
   readonly speciesId?: number;
   readonly TFTRarity?: TftCompanionRarity;
   readonly level?: number;
+  readonly sort?: TftCompanionSort;
 }
 
 export const TFT_COMPANION_BATCH_SIZE = 50;
+
+export function tftCompanionPageSize(columns: number): number {
+  if (!Number.isSafeInteger(columns) || columns < 1)
+    throw new RangeError("TFT companion column count must be a positive integer");
+  return Math.max(
+    columns,
+    Math.floor(TFT_COMPANION_BATCH_SIZE / columns) * columns,
+  );
+}
+
+export function getMultiStarTftCompanionItemIds(
+  items: readonly TftCompanion[],
+): ReadonlySet<number> {
+  const groupKey = (item: TftCompanion) =>
+    `${item.companionType}:${item.speciesId}`;
+  const levelsByGroup = new Map<string, Set<number>>();
+  for (const item of items) {
+    const key = groupKey(item);
+    const levels = levelsByGroup.get(key) ?? new Set<number>();
+    levels.add(item.level);
+    levelsByGroup.set(key, levels);
+  }
+  const multiStarGroups = new Set(
+    [...levelsByGroup]
+      .filter(([, levels]) => levels.size > 1)
+      .map(([key]) => key),
+  );
+  return new Set(
+    items
+      .filter((item) => multiStarGroups.has(groupKey(item)))
+      .map(({ itemId }) => itemId),
+  );
+}
+
+export function markPbeTftCompanionAdditions(
+  pbeItems: readonly TftCompanion[],
+  liveItems: readonly TftCompanion[],
+): readonly TftCompanion[] {
+  const liveItemIds = new Set(liveItems.map(({ itemId }) => itemId));
+  return pbeItems.map((item) =>
+    liveItemIds.has(item.itemId) ? item : { ...item, isPbeAddition: true },
+  );
+}
+
+export function addTftCompanionSearchAliases(
+  items: readonly TftCompanion[],
+  localizedItems: readonly TftCompanion[],
+): readonly TftCompanion[] {
+  const namesByItemId = new Map(
+    localizedItems.map(({ itemId, name }) => [itemId, name]),
+  );
+  const speciesNamesById = new Map(
+    localizedItems.map(({ speciesId, speciesName }) => [speciesId, speciesName]),
+  );
+  return items.map((item) => {
+    const searchAliases = [
+      namesByItemId.get(item.itemId),
+      speciesNamesById.get(item.speciesId),
+    ].filter((name): name is string => name !== undefined);
+    return searchAliases.length ? { ...item, searchAliases } : item;
+  });
+}
 
 const positiveSafeInteger = z
   .number()
@@ -74,6 +163,16 @@ function compareTftCompanions(
   right: TftCompanion,
   locale: CommunityDragonLocale,
 ): number {
+  const rarityOrder =
+    TFT_COMPANION_RARITY_ORDER.indexOf(left.TFTRarity) -
+    TFT_COMPANION_RARITY_ORDER.indexOf(right.TFTRarity);
+  if (rarityOrder) return rarityOrder;
+
+  const typeOrder =
+    TFT_COMPANION_TYPE_ORDER.indexOf(left.companionType) -
+    TFT_COMPANION_TYPE_ORDER.indexOf(right.companionType);
+  if (typeOrder) return typeOrder;
+
   return (
     left.name.localeCompare(right.name, locale === "zh_cn" ? "zh-CN" : "en") ||
     left.level - right.level ||
@@ -81,12 +180,69 @@ function compareTftCompanions(
   );
 }
 
+function compareBySort(
+  left: TftCompanion,
+  right: TftCompanion,
+  locale: CommunityDragonLocale,
+  sort: TftCompanionSort,
+): number {
+  const pbeOrder =
+    Number(right.isPbeAddition === true) - Number(left.isPbeAddition === true);
+  if (pbeOrder) return pbeOrder;
+
+  let primary = 0;
+  switch (sort) {
+    case "rarity_desc":
+      primary =
+        TFT_COMPANION_RARITY_ORDER.indexOf(left.TFTRarity) -
+        TFT_COMPANION_RARITY_ORDER.indexOf(right.TFTRarity);
+      break;
+    case "rarity_asc":
+      primary =
+        TFT_COMPANION_RARITY_ORDER.indexOf(right.TFTRarity) -
+        TFT_COMPANION_RARITY_ORDER.indexOf(left.TFTRarity);
+      break;
+    case "type_desc":
+      primary =
+        TFT_COMPANION_TYPE_ORDER.indexOf(left.companionType) -
+        TFT_COMPANION_TYPE_ORDER.indexOf(right.companionType);
+      break;
+    case "type_asc":
+      primary =
+        TFT_COMPANION_TYPE_ORDER.indexOf(right.companionType) -
+        TFT_COMPANION_TYPE_ORDER.indexOf(left.companionType);
+      break;
+    case "name_asc":
+      primary = left.name.localeCompare(
+        right.name,
+        locale === "zh_cn" ? "zh-CN" : "en",
+      );
+      break;
+    case "name_desc":
+      primary = right.name.localeCompare(
+        left.name,
+        locale === "zh_cn" ? "zh-CN" : "en",
+      );
+      break;
+    case "stars_desc":
+      primary = right.level - left.level;
+      break;
+    case "stars_asc":
+      primary = left.level - right.level;
+      break;
+    case "default":
+      break;
+  }
+  return primary || compareTftCompanions(left, right, locale);
+}
+
 export function sortTftCompanions(
   items: readonly TftCompanion[],
   locale: CommunityDragonLocale,
+  sort: TftCompanionSort = "default",
 ): readonly TftCompanion[] {
   return [...items].sort((left, right) =>
-    compareTftCompanions(left, right, locale),
+    compareBySort(left, right, locale, sort),
   );
 }
 
@@ -100,6 +256,7 @@ export function filterTftCompanions(
   return sortTftCompanions(
     items.filter(
       (item) =>
+        (!filters.onlyPbeAdditions || item.isPbeAddition === true) &&
         (filters.companionType === undefined ||
           item.companionType === filters.companionType) &&
         (filters.speciesId === undefined ||
@@ -108,23 +265,31 @@ export function filterTftCompanions(
           item.TFTRarity === filters.TFTRarity) &&
         (filters.level === undefined || item.level === filters.level) &&
         (!query ||
-          item.name.toLocaleLowerCase(language).includes(query) ||
-          item.speciesName.toLocaleLowerCase(language).includes(query)),
+          [item.name, item.speciesName, ...(item.searchAliases ?? [])].some(
+            (name) => name.toLocaleLowerCase(language).includes(query),
+          )),
     ),
     locale,
+    filters.sort,
   );
 }
 
 export function paginateTftCompanions(
   items: readonly TftCompanion[],
   pageIndex: number,
+  pageSize = TFT_COMPANION_BATCH_SIZE,
 ): readonly TftCompanion[] {
-  if (!Number.isSafeInteger(pageIndex) || pageIndex < 0)
+  if (
+    !Number.isSafeInteger(pageIndex) ||
+    pageIndex < 0 ||
+    !Number.isSafeInteger(pageSize) ||
+    pageSize < 1
+  )
     throw new RangeError(
-      "TFT companion page index must be a non-negative safe integer",
+      "TFT companion pagination requires a non-negative page index and positive page size",
     );
-  const start = pageIndex * TFT_COMPANION_BATCH_SIZE;
-  return items.slice(start, start + TFT_COMPANION_BATCH_SIZE);
+  const start = pageIndex * pageSize;
+  return items.slice(start, start + pageSize);
 }
 
 export function projectTftCompanions(
