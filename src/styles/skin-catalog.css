@@ -118,15 +118,13 @@
 .skin-catalog-timeline-skeleton li { position: relative; display: grid; min-width: 0; padding: 0 0 calc(var(--space-3) + var(--space-1)) var(--skin-catalog-timeline-track-width); }
 .skin-catalog-timeline-skeleton li::before { position: absolute; top: calc(var(--skin-catalog-timeline-dot-size) + var(--skin-catalog-timeline-dot-offset)); right: auto; bottom: calc(0px - var(--skin-catalog-timeline-dot-offset)); left: 0; width: 0; border-left: var(--line-width-bold) solid var(--line-subtle); content: ""; transform: translateX(-50%); }
 .skin-catalog-timeline-skeleton li::after { position: absolute; top: var(--skin-catalog-timeline-dot-offset); left: 0; box-sizing: border-box; width: var(--skin-catalog-timeline-dot-size); height: var(--skin-catalog-timeline-dot-size); border: var(--line-width-bold) solid var(--line); border-radius: 50%; background: var(--panel); content: ""; transform: translateX(-50%); }
-.skin-catalog-timeline-skeleton-title { position: absolute; top: calc((var(--line-height-headline-md) - var(--line-height-body)) / 2); right: calc(100% + var(--space-3) + var(--skin-catalog-timeline-dot-size) / 2); width: 6rem; height: var(--line-height-body); border-radius: var(--radius-control); background: var(--panel2); }
 .skin-catalog-timeline-skeleton-heading { display: flex; min-width: 0; justify-content: flex-start; gap: var(--space-3); }
 .skin-catalog-timeline-skeleton-heading > span { width: min(180px, 100%); height: var(--line-height-headline-md); border-radius: var(--radius-control); background: var(--panel2); }
 .skin-catalog-timeline-skeleton-content { display: grid; min-width: 0; gap: var(--space-2); }
 .skin-catalog-timeline-skeleton li > div { padding: 0; background: transparent; }
 .skin-catalog-timeline-skeleton li > div.skin-catalog-grid span { aspect-ratio: 11 / 20; border-radius: var(--radius-control); background: var(--panel2); }
 @media (max-width: 1479px) {
-  .skin-catalog-timeline-label, .skin-catalog-timeline-skeleton-title { position: static; width: auto; text-align: start; }
-  .skin-catalog-timeline-skeleton-title { width: min(6rem, 100%); }
+  .skin-catalog-timeline-label { position: static; width: auto; text-align: start; }
 }
 @media (max-width: 559px) {
   .skin-catalog-timeline-heading { align-items: start; }

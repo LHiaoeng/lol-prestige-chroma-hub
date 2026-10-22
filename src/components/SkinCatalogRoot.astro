@@ -91,7 +91,7 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
       {Array.from({ length: 6 }, () => <div class="skin-catalog-skeleton-card"><span></span><span></span></div>)}
     </div>
     <ol class="skin-catalog-timeline-skeleton" aria-hidden="true" hidden>
-      {Array.from({ length: 4 }, () => <li><span class="skin-catalog-timeline-skeleton-title"></span><div class="skin-catalog-timeline-skeleton-content"><div class="skin-catalog-timeline-skeleton-heading"><span></span></div><div class="skin-catalog-grid">{Array.from({ length: 6 }, () => <span></span>)}</div></div></li>)}
+      {Array.from({ length: 4 }, () => <li><div class="skin-catalog-timeline-skeleton-content"><div class="skin-catalog-timeline-skeleton-heading"><span></span></div><div class="skin-catalog-grid">{Array.from({ length: 6 }, () => <span></span>)}</div></div></li>)}
     </ol>
   </div>
   <template data-catalog-empty-template><Empty description="" /></template>
