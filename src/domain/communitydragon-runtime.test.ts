@@ -427,6 +427,35 @@ describe("CommunityDragon runtime reference", () => {
     expect(selectLoadScreenBorders(undefined)).toEqual([]);
   });
 
+  it("keeps each quest skin stage's border when its ID matches the parent skin", () => {
+    const root = "/lol-game-data/assets/ASSETS/Characters/Tristana/Skins";
+    const border = (skin: number, variant: string) => ({
+      borders: {
+        layer0: [{ layer: 0, priority: 0, borderPath: `${root}/Skin${skin}/UI/Border_${variant}.png` }],
+      },
+    });
+    const raw = {
+      ...champion("zh_cn"),
+      id: 18,
+      skins: [{
+        id: 18079,
+        name: "殿堂传奇 崔丝塔娜",
+        loadScreenPath: `${root}/Skin79/Load.jpg`,
+        skinAugments: border(79, "Starter"),
+        questSkinInfo: { tiers: [
+          { id: 18079, stage: 1, name: "殿堂传奇 崔丝塔娜", loadScreenPath: `${root}/Skin79/Load.jpg`, skinAugments: border(79, "Starter") },
+          { id: 18080, stage: 2, name: "联盟不朽 崔丝塔娜", loadScreenPath: `${root}/Skin80/Load.jpg`, skinAugments: border(80, "Premium") },
+        ] },
+      }],
+    };
+    const options = { locale: "zh_cn" as const, channel: "latest" as const, championId: 18 };
+
+    const first = parseRuntimeEntity("skin", 18079, raw, options) as RuntimeSkin;
+    const second = parseRuntimeEntity("skin", 18080, raw, options) as RuntimeSkin;
+    expect(first.media.loadScreenBorders?.[0]?.url).toContain("/skin79/ui/border_starter.png");
+    expect(second.media.loadScreenBorders?.[0]?.url).toContain("/skin80/ui/border_premium.png");
+  });
+
   it("labels border variants, groups options by layer, and resolves the border module", () => {
     expect(
       borderVariantLabel("Season2025EOS_Victorious_Border_Challenger.png", "default"),

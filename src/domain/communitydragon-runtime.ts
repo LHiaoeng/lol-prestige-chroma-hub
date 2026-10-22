@@ -358,6 +358,22 @@ const skinEmblemSchema = z
       .optional(),
   })
   .passthrough();
+const loadScreenBorderSchema = z
+  .object({
+    contentId: z.string().nullable().optional(),
+    layer: z.number().int().nullable().optional(),
+    priority: z.number().int().nullable().optional(),
+    borderPath: z.string().nullable().optional(),
+  })
+  .passthrough();
+const skinAugmentsSchema = z
+  .object({
+    borders: z
+      .record(z.string(), z.array(loadScreenBorderSchema))
+      .nullable()
+      .optional(),
+  })
+  .passthrough();
 const skinStageSchema = z
   .object({
     id: z.number().int().nullable().optional(),
@@ -384,25 +400,10 @@ const skinStageSchema = z
       .optional(),
     universeIds: z.array(idSchema).nullable().optional(),
     chromas: z.array(chromaSchema).nullable().optional(),
+    skinAugments: skinAugmentsSchema.nullable().optional(),
     historicalVersions: z.unknown().optional(),
     history: z.unknown().optional(),
     changes: z.unknown().optional(),
-  })
-  .passthrough();
-const loadScreenBorderSchema = z
-  .object({
-    contentId: z.string().nullable().optional(),
-    layer: z.number().int().nullable().optional(),
-    priority: z.number().int().nullable().optional(),
-    borderPath: z.string().nullable().optional(),
-  })
-  .passthrough();
-const skinAugmentsSchema = z
-  .object({
-    borders: z
-      .record(z.string(), z.array(loadScreenBorderSchema))
-      .nullable()
-      .optional(),
   })
   .passthrough();
 const skinSchema = z
@@ -921,7 +922,7 @@ function normalizeStage(
     raritySpecified: hasExplicitRarity(raw, locale),
     skinlineIds: raw.skinLines ? positiveIds(raw.skinLines) : undefined,
     universeIds: raw.universeIds ?? undefined,
-    media: normalizeMedia(raw, channel),
+    media: normalizeMedia(raw, channel, normalizeLoadScreenBorders(raw.skinAugments, channel)),
     chromaImageUrl: asset(text(raw.chromaPath), channel),
     historicalArt: normalizeHistoricalArt(raw, channel),
     chromas: (raw.chromas ?? []).map((chroma) =>
