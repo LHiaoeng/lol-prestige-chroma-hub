@@ -24,6 +24,7 @@ interface Props extends Omit<HTMLAttributes<"select">, "size" | "value" | "aria-
   showSearch?: boolean;
   allowClear?: boolean;
   prefix?: string;
+  popupMatchSelectWidth?: boolean;
   size?: "small" | "middle" | "large";
   class?: string;
 }
@@ -38,6 +39,7 @@ const {
   showSearch = false,
   allowClear = false,
   prefix,
+  popupMatchSelectWidth = true,
   size = "middle",
   ...attributes
 } = Astro.props;
@@ -52,6 +54,7 @@ const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in
   data-select-show-search={showSearch ? "" : undefined}
   data-select-allow-clear={allowClear ? "" : undefined}
   data-select-prefix={prefix}
+  data-select-popup-match-width={popupMatchSelectWidth ? undefined : "false"}
   data-select-placeholder={placeholder}
   {name}
   aria-label={ariaLabel}

@@ -147,6 +147,8 @@ export function enhanceSelect(source: HTMLSelectElement): void {
 
   const popup = document.createElement("div");
   popup.className = "ant-select-dropdown";
+  const matchPopupWidth = source.dataset.selectPopupMatchWidth !== "false";
+  popup.classList.toggle("ant-select-dropdown-content-width", !matchPopupWidth);
   popup.hidden = true;
   const list = document.createElement("div");
   list.className = "ant-select-dropdown-list";
@@ -197,13 +199,16 @@ export function enhanceSelect(source: HTMLSelectElement): void {
     const view = document.defaultView;
     if (!view) return;
     const maxHeight = Math.min(264, view.innerHeight - 16);
+    popup.style.position = "fixed";
+    popup.style.width = matchPopupWidth ? `${rect.width}px` : "max-content";
+    popup.style.minWidth = `${rect.width}px`;
+    popup.style.maxWidth = `${Math.max(0, view.innerWidth - 16)}px`;
+    popup.style.maxHeight = `${maxHeight}px`;
     const below = view.innerHeight - rect.bottom - 8;
     const above = rect.top - 8;
     const openAbove = below < Math.min(120, popup.scrollHeight) && above > below;
-    popup.style.position = "fixed";
-    popup.style.left = `${Math.max(8, Math.min(rect.left, view.innerWidth - rect.width - 8))}px`;
-    popup.style.width = `${rect.width}px`;
-    popup.style.maxHeight = `${maxHeight}px`;
+    const popupWidth = matchPopupWidth ? rect.width : popup.getBoundingClientRect().width;
+    popup.style.left = `${Math.max(8, Math.min(rect.left, view.innerWidth - popupWidth - 8))}px`;
     popup.style.top = openAbove ? "auto" : `${rect.bottom + 4}px`;
     popup.style.bottom = openAbove ? `${view.innerHeight - rect.top + 4}px` : "auto";
     popup.classList.toggle("ant-select-dropdown-placement-topLeft", openAbove);

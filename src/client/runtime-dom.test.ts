@@ -9,7 +9,7 @@ import {
   appendPbeSkinCard,
   createRuntimePbeRenderer,
 } from "./runtime-reference-pbe-renderer";
-import { appendMediaCarousel } from "./runtime-reference-view-shared";
+import { appendBorderModule, appendMediaCarousel } from "./runtime-reference-view-shared";
 import type { RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
 
 function dataProperty(attribute: string): string {
@@ -315,12 +315,53 @@ describe("runtime DOM boundaries", () => {
     const source = borderSelect?.querySelector<HTMLSelectElement>("select");
     expect(borderSelect?.parentElement).toBe(group);
     expect(source?.dataset.selectPrefix).toBe("Borders");
-    expect(source?.value).toBe("other-media-0");
+    expect(source?.dataset.selectPopupMatchWidth).toBe("false");
+    expect(source?.value).toBe("");
     expect(Array.from(source?.querySelectorAll("option") ?? [], (option) => option.textContent)).toEqual([
       "Bordered loading screen",
     ]);
+    if (source) source.value = source.querySelector("option")?.value ?? "";
     source?.dispatchEvent(new Event("change"));
     expect(borderSelect?.className).toContain("ant-radio-button-wrapper-checked");
+  });
+  it("previews each border over loading art while downloading its original image", async () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    const windowOpen = vi.fn();
+    vi.stubGlobal("window", { open: windowOpen });
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    const slides = appendBorderModule({
+      loadScreenUrl: "https://example.test/load.jpg",
+      loadScreenBorders: [
+        { layer: 0, priority: 0, url: "https://example.test/border-base.png" },
+        { layer: 0, priority: 1, url: "https://example.test/border-top.png" },
+        { layer: 1, priority: 0, url: "https://example.test/border-signature.png" },
+      ],
+    }, "default", "Test skin");
+    expect(slides).toHaveLength(3);
+    const frame = slides[0]?.content.querySelector(".runtime-loadscreen-frame");
+    const art = frame?.querySelector<HTMLImageElement>(".runtime-loadscreen-art");
+    const layers = frame?.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border") ?? [];
+    expect(frame?.children[0]).toBe(art);
+    expect(art?.src).toBe("https://example.test/load.jpg");
+    expect(Array.from(layers, (layer) => layer.src)).toEqual([
+      "https://example.test/border-base.png",
+    ]);
+    expect(slides.map((slide) => slide.content.querySelector<HTMLElement>(".runtime-border-preview-trigger")?.dataset.previewSrc)).toEqual([
+      "https://example.test/border-base.png",
+      "https://example.test/border-top.png",
+      "https://example.test/border-signature.png",
+    ]);
+    await slides[1]?.download();
+    expect(windowOpen).toHaveBeenCalledWith(
+      "https://example.test/border-top.png", "_blank", "noopener,noreferrer",
+    );
+    art?.dispatchEvent(new Event("error"));
+    expect(art?.hidden).toBe(true);
+    expect(slides[0]?.content.querySelector(".runtime-border-load-error")?.textContent).toBe(
+      "Loading screen failed; showing transparent border only",
+    );
+    expect(slides[0]?.downloadAvailable?.()).toBe(true);
   });
   it("shows only the PBE summary after a successful comparison", async () => {
     vi.stubGlobal("document", new TestDocument());
@@ -1321,6 +1362,7 @@ describe("runtime DOM boundaries", () => {
         origin: "https://chromaart.lol",
         pathname: "/skins/detail/" },
     });
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
     const root = new TestElement("div");
     const status = new TestElement("p");
     status.dataset.runtimeStatus = "";
@@ -1402,7 +1444,7 @@ describe("runtime DOM boundaries", () => {
       5,
     );
     expect(mediaSection?.querySelectorAll("[data-media-preview-trigger]"),
-    ).toHaveLength(7);
+    ).toHaveLength(9);
     expect(mediaSection?.querySelector(".runtime-loadscreen-frame"),
     ).not.toBeNull();
     expect(
@@ -1414,6 +1456,7 @@ describe("runtime DOM boundaries", () => {
     const borderSection = content.querySelector<HTMLElement>(
       '[data-border-preview="border"]',
     );
+    expect(content.querySelectorAll('[data-border-preview="border"]')).toHaveLength(3);
     const borderLayers = borderSection?.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border",
     );
     const vintagePreviewTrigger = [
@@ -1425,8 +1468,7 @@ describe("runtime DOM boundaries", () => {
       vintagePreviewTrigger?.querySelector<HTMLImageElement>("img")?.src,
     ).toBe("https://example.test/load-vintage.jpg");
     expect([...(borderLayers ?? [])].map((image) => image.src)).toEqual([
-      "https://example.test/border-top.png",
-      "https://example.test/border-signature.png",
+      "https://example.test/border-base.png",
     ]);
     expect(
       [...(borderLayers ?? [])].every((image) => image.getAttribute("aria-hidden") === "true",
@@ -1435,9 +1477,14 @@ describe("runtime DOM boundaries", () => {
     expect(
       borderSection?.querySelectorAll(".runtime-border-choice"),
     ).toHaveLength(0);
-    expect(borderSection?.querySelector('[data-preview-key="border-image"]'),
+    expect(borderSection?.querySelector('[data-preview-key="border-image-0-0"]'),
     ).not.toBeNull();
-    expect(borderSection?.querySelector(".runtime-loadscreen-art")).toBeNull();
+    expect(borderSection?.querySelector<HTMLImageElement>(".runtime-loadscreen-art")?.src).toBe(
+      "https://example.test/load.jpg",
+    );
+    expect(borderSection?.querySelector(".runtime-loadscreen-frame")?.children[0]?.className).toBe(
+      "runtime-loadscreen-art",
+    );
     expect(borderSection?.querySelector("[data-download-kind]")).toBeNull();
     expect(borderSection?.querySelector(".runtime-border-composite-download"),
     ).toBeNull();
@@ -1468,10 +1515,14 @@ describe("runtime DOM boundaries", () => {
     };
     expect(borderSelect()?.parentElement?.className).toContain("ant-radio-group-button");
     expect(borderSource()?.getAttribute("aria-label")).toBe("Borders");
-    expect(borderSource()?.value).toBe("other-media-0");
+    const borderedKey = borderItems()[0]?.value ?? "";
+    const borderKey = borderItems()[1]?.value ?? "";
+    expect(borderSource()?.value).toBe("");
     expect(Array.from(borderItems(), (option) => option.textContent)).toEqual([
       "Bordered loading screen",
-      "Transparent border image",
+      "Transparent border · Layer 1 · Border-base",
+      "Transparent border · Layer 1 · Border-top",
+      "Transparent border · Layer 2 · Signature",
     ]);
     const carouselOptions = carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input",
       ) ?? [];
@@ -1483,8 +1534,8 @@ describe("runtime DOM boundaries", () => {
       "other-media-1",
     ]);
     expect(
-      carouselSlides).toHaveLength(6);
-    expect(carouselSlides[4]?.getAttribute("aria-hidden")).toBe("false");
+      carouselSlides).toHaveLength(8);
+    expect(carouselSlides[0]?.getAttribute("aria-hidden")).toBe("false");
     const lastViewedTrigger = [
       ...(carouselSlides[1]?.querySelectorAll<HTMLElement>("[data-media-preview-trigger]",
       ) ?? []),
@@ -1511,50 +1562,34 @@ describe("runtime DOM boundaries", () => {
         detail: borderedLoadscreenTrigger,
       }),
     );
-    expect(borderSource()?.value).toBe("other-media-0");
+    expect(borderSource()?.value).toBe(borderedKey);
     const borderPreviewTrigger = [
       ...(carouselSlides[5]?.querySelectorAll<HTMLElement>(
         "[data-media-preview-trigger]",
       ) ?? []),
-    ].find((trigger) => trigger.dataset.previewKey === "border-image");
+    ].find((trigger) => trigger.dataset.previewKey === borderKey);
     carousel?.dispatchEvent(
       new CustomEvent("media-preview-close", { detail: borderPreviewTrigger }),
     );
-    expect(borderSource()?.value).toBe("border-image");
+    expect(borderSource()?.value).toBe(borderKey);
     expect(borderSelect()?.className).toContain("ant-radio-button-wrapper-checked");
     carouselControls?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input")[0]?.click();
     expect(borderSelect()?.className).not.toContain("ant-radio-button-wrapper-checked");
-    expect(borderSource()?.value).toBe("border-image");
+    expect(borderSource()?.value).toBe("");
     expect(carouselSlides[0]?.getAttribute("aria-hidden")).toBe("false");
-    chooseBorder("border-image");
+    expect(carouselControls?.querySelectorAll(".runtime-carousel-border-select")).toHaveLength(1);
+    chooseBorder(borderKey);
     expect(carouselSlides[5]?.getAttribute("aria-hidden")).toBe("false");
     expect(
       carouselControls
         ?.querySelector(".runtime-media-carousel-divider")?.getAttribute("aria-orientation"),
     ).toBe("vertical");
-    const layerSelect = () => carouselControls?.querySelectorAll<HTMLElement>(
-      ".runtime-carousel-border-select",
-    )[1];
-    const layerSource = () => layerSelect()?.querySelector<HTMLSelectElement>("select");
-    const layerItems = () => layerSource()?.querySelectorAll<HTMLOptionElement>("option") ?? [];
-    const chooseLayer = (value: string) => {
-      const source = layerSource();
-      if (!source) return;
-      source.value = value;
-      source.dispatchEvent(new Event("change"));
-    };
-    expect(layerSelect()?.hidden).toBe(false);
-    expect(layerSource()?.getAttribute("aria-label")).toBe("Layer 1 border");
-    expect(Array.from(layerItems(), (option) => option.textContent)).toEqual([
-      "Border-base",
-      "Border-top",
-    ]);
-    chooseLayer("https://example.test/border-base.png");
-    expect(layerSource()?.value).toBe("https://example.test/border-base.png");
-    expect(
-      [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
-    ).toBe("https://example.test/border-base.png");
-    expect(borderSource()?.value).toBe("border-image");
+    expect(borderSource()?.value).toBe(borderKey);
+    chooseBorder(borderItems()[2]?.value ?? "");
+    expect(carouselSlides[6]?.getAttribute("aria-hidden")).toBe("false");
+    chooseBorder(borderItems()[3]?.value ?? "");
+    expect(carouselSlides[7]?.getAttribute("aria-hidden")).toBe("false");
+    chooseBorder(borderKey);
     carouselControls
       ?.querySelector<HTMLButtonElement>(".runtime-media-carousel-download")
       ?.click();
@@ -1565,7 +1600,7 @@ describe("runtime DOM boundaries", () => {
         "noopener,noreferrer",
       ),
     );
-    chooseBorder("other-media-0");
+    chooseBorder(borderedKey);
     expect(carouselSlides[4]?.getAttribute("aria-hidden")).toBe("false");
     expect(carouselSlides[5]?.getAttribute("aria-hidden")).toBe("true");
     carouselSlides[4]?.dispatchEvent(new Event("error"));
@@ -1575,8 +1610,8 @@ describe("runtime DOM boundaries", () => {
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
     ).toBe(true);
-    expect(borderSource()?.value).toBe("other-media-0");
-    expect(carousel?.querySelectorAll(".ant-carousel-slide")).toHaveLength(6);
+    expect(borderSource()?.value).toBe(borderedKey);
+    expect(carousel?.querySelectorAll(".ant-carousel-slide")).toHaveLength(8);
     const borderPreviewError = borderSection?.querySelector<HTMLElement>(
       ".runtime-border-load-error",
     );
@@ -1588,15 +1623,10 @@ describe("runtime DOM boundaries", () => {
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
     ).toBe(true);
-    chooseBorder("border-image");
-    chooseLayer("https://example.test/border-top.png");
-    expect(layerSource()?.value).toBe("https://example.test/border-top.png");
-    expect(
-      [...(borderLayers ?? [])].find((image) => image.dataset.layer === "0")?.src,
-    ).toBe("https://example.test/border-top.png");
+    chooseBorder(borderKey);
     expect(
       carouselControls?.querySelector(".runtime-media-carousel-download")?.disabled,
-    ).toBe(false);
+    ).toBe(true);
     expect(mediaSection?.querySelector("video")?.src).toBe(
       "https://example.test/animated.webm",
     );

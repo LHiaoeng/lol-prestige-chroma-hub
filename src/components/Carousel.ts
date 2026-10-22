@@ -8,18 +8,9 @@ export interface CarouselSelectOption {
   readonly value: string;
 }
 
-export interface CarouselBorderVariantMenu {
-  readonly label: string;
-  readonly value: () => string;
-  readonly options: readonly CarouselSelectOption[];
-  readonly onChange: (value: string) => void;
-}
-
 export interface CarouselBorderMenu {
   readonly label: string;
   readonly options: readonly CarouselSelectOption[];
-  readonly variantSlideKey?: string;
-  readonly variants?: readonly CarouselBorderVariantMenu[];
 }
 
 export interface CarouselSlide {
@@ -52,7 +43,6 @@ interface CarouselSelectControl {
 function createCarouselSelect(
   prefix: string,
   options: readonly CarouselSelectOption[],
-  value: string,
   onChange: (value: string) => void,
 ): CarouselSelectControl {
   const wrapper = document.createElement("span");
@@ -61,6 +51,7 @@ function createCarouselSelect(
   source.className = "ant-select-source";
   source.dataset.selectSize = "middle";
   source.dataset.selectPrefix = prefix;
+  source.dataset.selectPopupMatchWidth = "false";
   source.setAttribute("aria-label", prefix);
   options.forEach(({ label, value: optionValue }) => {
     const option = document.createElement("option");
@@ -68,7 +59,7 @@ function createCarouselSelect(
     option.textContent = label;
     source.appendChild(option);
   });
-  source.value = value;
+  source.selectedIndex = -1;
   wrapper.appendChild(source);
   enhanceSelect(source);
   source.addEventListener("change", () => onChange(source.value));
@@ -103,10 +94,9 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   controls.className = "runtime-media-carousel-controls";
   const borderOptions = options.borderMenu?.options.filter(({ value }) => slides.some((slide) => slide.key === value)) ?? [];
   const borderSlideKeys = new Set(borderOptions.map(({ value }) => value));
-  let selectedBorderKey = borderOptions[0]?.value;
+  let borderSelectionActive = false;
   let radioGroup: HTMLFieldSetElement | undefined;
   let borderSelect: CarouselSelectControl | undefined;
-  let variantSelects: { control: CarouselSelectControl; variant: CarouselBorderVariantMenu }[] = [];
   const divider = createDivider({ type: "vertical", className: "runtime-media-carousel-divider" });
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   icon.setAttribute("viewBox", "0 0 16 16");
@@ -142,28 +132,22 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     const activeIndex = Math.max(0, slides.findIndex(({ key }) => key === selectedKey));
     const selectedSlide = slides.find(({ key }) => key === selectedKey);
     downloadButton.disabled = failedSlides.has(selectedKey) || selectedSlide?.downloadAvailable?.() === false;
+    const borderSelected = borderSelectionActive && borderSlideKeys.has(selectedKey);
     if (borderSelect) {
-      if (borderSlideKeys.has(selectedKey)) selectedBorderKey = selectedKey;
-      if (selectedBorderKey && borderSelect.source.value !== selectedBorderKey) {
-        borderSelect.source.value = selectedBorderKey;
+      const value = borderSelected ? selectedKey : "";
+      if (borderSelect.source.value !== value) {
+        borderSelect.source.value = value;
+        if (!value) borderSelect.source.selectedIndex = -1;
         refreshSelect(borderSelect.source);
       }
-      borderSelect.wrapper.classList.toggle("ant-radio-button-wrapper-checked", borderSlideKeys.has(selectedKey));
+      borderSelect.wrapper.classList.toggle("ant-radio-button-wrapper-checked", borderSelected);
     }
-    if (borderSlideKeys.has(selectedKey)) {
+    if (borderSelected) {
       radioGroup?.querySelectorAll<HTMLInputElement>(".ant-radio-button-input").forEach((input) => {
         input.checked = false;
         input.parentElement?.classList.remove("ant-radio-button-wrapper-checked");
       });
     }
-    variantSelects.forEach(({ control, variant }) => {
-      control.wrapper.hidden = selectedKey !== options.borderMenu?.variantSlideKey;
-      const value = variant.value();
-      if (value && control.source.value !== value) {
-        control.source.value = value;
-        refreshSelect(control.source);
-      }
-    });
     track.style.transform = `translateX(-${activeIndex * 100}%)`;
     slides.forEach(({ content }, index) => {
       content.setAttribute("aria-hidden", String(index !== activeIndex));
@@ -204,29 +188,20 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
       value: selectedKey,
       ariaLabel: options.locale === "zh_cn" ? "选择媒体" : "Choose media",
       onChange: (value) => {
+        borderSelectionActive = false;
         selectedKey = value;
         update();
       },
     });
     controlNodes.push(radioGroup);
     if (!borderSelect && options.borderMenu && borderOptions.length) {
-      borderSelect = createCarouselSelect(options.borderMenu.label, borderOptions, selectedBorderKey ?? "", (value) => {
-        selectedBorderKey = value;
+      borderSelect = createCarouselSelect(options.borderMenu.label, borderOptions, (value) => {
+        borderSelectionActive = true;
         selectedKey = value;
         update();
       });
     }
     if (borderSelect) radioGroup.appendChild(borderSelect.wrapper);
-    if (!variantSelects.length) {
-      variantSelects = (options.borderMenu?.variants ?? []).map((variant) => ({
-        control: createCarouselSelect(variant.label, variant.options, variant.value(), (value) => {
-          variant.onChange(value);
-          update();
-        }),
-        variant,
-      }));
-    }
-    variantSelects.forEach(({ control }) => radioGroup?.appendChild(control.wrapper));
     controls.replaceChildren(...controlNodes, divider, downloadButton);
   };
 
@@ -246,15 +221,16 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     track.appendChild(content);
 
     content.addEventListener("error", () => {
-      if (key === "border-image" || content.querySelector('[data-preview-key="loadScreenVintageUrl"]')) {
-        if (key !== "border-image") failedSlides.add(key);
+      const transparentBorder = content.dataset.borderPreview === "border";
+      if (transparentBorder || content.querySelector('[data-preview-key="loadScreenVintageUrl"]')) {
+        if (!transparentBorder) failedSlides.add(key);
         const error = content.querySelector<HTMLElement>(".runtime-border-load-error")
           ?? document.createElement("p");
-        error.className = key === "border-image"
+        error.className = transparentBorder
           ? "runtime-border-load-error"
           : "runtime-media-load-error";
         error.setAttribute("role", "status");
-        error.textContent = key === "border-image"
+        error.textContent = transparentBorder
           ? options.locale === "zh_cn" ? "透明边框预览加载失败" : "Transparent border preview failed to load"
           : options.locale === "zh_cn" ? "带边框载入图加载失败" : "Bordered loading screen failed to load";
         error.hidden = false;
@@ -296,7 +272,11 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     if (!slide) return;
     const label = slide.onPreviewSelect?.(trigger.dataset.previewKey ?? "");
     if (label !== undefined) slide.label = label;
-    if (selectedKey === slide.key && label === undefined) return;
+    borderSelectionActive = borderSlideKeys.has(slide.key);
+    if (selectedKey === slide.key && label === undefined) {
+      update();
+      return;
+    }
     selectedKey = slide.key;
     renderControls();
     update();

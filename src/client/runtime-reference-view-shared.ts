@@ -17,11 +17,10 @@ import { createDomainHeading } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
 import {
   createCarousel,
-  type CarouselBorderVariantMenu,
   type CarouselSelectOption,
   type CarouselSlide,
 } from "../components/Carousel";
-import { downloadMediaFile, saveBlob } from "./media-download";
+import { downloadMediaFile } from "./media-download";
 import type { RuntimePage } from "./runtime-reference";
 import type { RuntimeControllerLike } from "./runtime-reference-view";
 
@@ -484,11 +483,9 @@ export function appendMediaCarousel(
       }];
     });
   slides.push(...otherMediaSlides);
-  const borderModule = appendBorderModule(media, locale, altBase);
-  if (borderModule) {
-    slides.push(borderModule.slide);
-    borderOptions.push({ label: borderModule.slide.label, value: borderModule.slide.key });
-  }
+  const borderSlides = appendBorderModule(media, locale, altBase);
+  slides.push(...borderSlides);
+  borderOptions.push(...borderSlides.map((slide) => ({ label: slide.label, value: slide.key })));
   if (!slides.length) return 0;
   const carousel = createCarousel({
     slides,
@@ -498,8 +495,6 @@ export function appendMediaCarousel(
       ? {
         label: locale === "zh_cn" ? "边框" : "Borders",
         options: borderOptions,
-        variantSlideKey: borderModule?.slide.key,
-        variants: borderModule?.variants,
       }
       : undefined,
     onEmpty: () => appendMissingField(parent, locale, "artwork"),
@@ -511,181 +506,87 @@ export function appendMediaCarousel(
   return slides.length;
 }
 
-interface BorderCarouselModule {
-  readonly slide: CarouselSlide;
-  readonly variants: readonly CarouselBorderVariantMenu[];
-}
-
-/** Add the transparent border image as its own carousel slide and layer selectors. */
+/** Create one gallery item per transparent border asset. */
 export function appendBorderModule(
   media: RuntimeMedia,
   locale: CommunityDragonLocale,
   altBase: string,
-): BorderCarouselModule | undefined {
+): readonly CarouselSlide[] {
   const groups = listBorderGroups(media.loadScreenBorders);
-  if (!groups.length) return undefined;
+  const count = groups.reduce((total, group) => total + group.options.length, 0);
   const zh = locale === "zh_cn";
-  const label = zh ? "透明边框图" : "Transparent border image";
-  const selectedBorders = new Map(
-    groups.flatMap((group) => {
-      const option = group.options.at(-1);
-      return option ? [[group.layer, option] as const] : [];
-    }),
-  );
-
-  const section = document.createElement("section");
-  section.className = "runtime-skin-borders runtime-skin-borders--carousel";
-  section.dataset.borderPreview = "border";
-  const frame = document.createElement("div");
-  frame.className = "runtime-loadscreen-frame";
-  frame.setAttribute("role", "img");
-  frame.setAttribute("aria-label", label);
-  const trigger = document.createElement("button");
-  trigger.type = "button";
-  trigger.className = "runtime-media-preview-trigger runtime-border-preview-trigger";
-  trigger.dataset.mediaPreviewTrigger = "";
-  trigger.dataset.previewKey = "border-image";
-  trigger.dataset.previewKind = "image";
-  trigger.dataset.previewFilename = `${altBase} · ${label}`;
-  trigger.setAttribute("aria-label", `${altBase} · ${label}`);
-  const previewError = document.createElement("span");
-  previewError.className = "runtime-border-load-error";
-  previewError.setAttribute("role", "status");
-  previewError.textContent = zh ? "透明边框预览加载失败" : "Transparent border preview failed to load";
-  previewError.hidden = true;
-  const failedLayers = new Set<number>();
-  const layers = groups.flatMap((group) => {
-    const option = selectedBorders.get(group.layer);
-    if (!option) return [];
-    const layer = document.createElement("img");
-    layer.className = "runtime-loadscreen-border";
-    layer.dataset.layer = String(group.layer);
-    layer.alt = "";
-    layer.setAttribute("aria-hidden", "true");
-    layer.loading = "lazy";
-    layer.decoding = "async";
-    layer.src = option.url;
-    layer.addEventListener("error", () => {
-      failedLayers.add(group.layer);
+  return groups.flatMap((group) => group.options.map((option) => {
+    const layer = zh ? `第 ${group.layer + 1} 层` : `Layer ${group.layer + 1}`;
+    const variant = borderVariantLabel(option.url, locale);
+    const label = count === 1
+      ? (zh ? "透明边框图" : "Transparent border image")
+      : (zh ? `透明边框 · ${layer} · ${variant}` : `Transparent border · ${layer} · ${variant}`);
+    const filename = `${altBase} · ${label}`;
+    const key = `border-image-${group.layer}-${option.priority}`;
+    const section = document.createElement("section");
+    section.className = "runtime-skin-borders runtime-skin-borders--carousel";
+    section.dataset.borderPreview = "border";
+    const frame = document.createElement("div");
+    frame.className = "runtime-loadscreen-frame";
+    frame.setAttribute("role", "img");
+    frame.setAttribute("aria-label", media.loadScreenUrl
+      ? (zh ? "载入图叠加透明边框" : "Loading screen with transparent border")
+      : label);
+    const error = document.createElement("span");
+    error.className = "runtime-border-load-error";
+    error.setAttribute("role", "status");
+    error.textContent = zh ? "透明边框预览加载失败" : "Transparent border preview failed to load";
+    error.hidden = true;
+    if (media.loadScreenUrl) {
+      const art = document.createElement("img");
+      art.className = "runtime-loadscreen-art";
+      art.src = media.loadScreenUrl;
+      art.alt = filename;
+      art.setAttribute("aria-hidden", "true");
+      art.loading = "lazy";
+      art.decoding = "async";
+      art.addEventListener("error", () => {
+        art.hidden = true;
+        error.textContent = zh ? "载入图加载失败，仅显示透明边框" : "Loading screen failed; showing transparent border only";
+        error.hidden = false;
+      });
+      frame.appendChild(art);
+    }
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "runtime-media-preview-trigger runtime-border-preview-trigger";
+    trigger.dataset.mediaPreviewTrigger = "";
+    trigger.dataset.previewKey = key;
+    trigger.dataset.previewKind = "image";
+    trigger.dataset.previewSrc = option.url;
+    trigger.dataset.previewFilename = filename;
+    trigger.setAttribute("aria-label", filename);
+    const border = document.createElement("img");
+    border.className = "runtime-loadscreen-border";
+    border.dataset.layer = String(group.layer);
+    border.src = option.url;
+    border.alt = filename;
+    border.setAttribute("aria-hidden", "true");
+    border.loading = "lazy";
+    border.decoding = "async";
+    let failed = false;
+    border.addEventListener("error", () => {
+      failed = true;
       trigger.disabled = true;
-      previewError.hidden = false;
+      error.hidden = false;
       section.dispatchEvent(new Event("carousel-slide-availability-change"));
     });
-    frame.appendChild(layer);
-    return [layer];
-  });
-  trigger.appendChild(frame);
-  section.appendChild(trigger);
-  section.appendChild(previewError);
-
-  const slide: CarouselSlide = {
-    key: "border-image",
-    label,
-    content: section,
-    downloadAvailable: () => failedLayers.size === 0,
-    download: () => downloadBorderLayers(frame),
-  };
-
-  let previewRevision = 0;
-  const updatePreview = (
-    trigger: HTMLButtonElement,
-    layers: readonly HTMLImageElement[],
-    revision: number,
-  ): void => {
-    trigger.disabled = true;
-    void compositePreviewUrl(layers).then((src) => {
-      if (revision !== previewRevision || !trigger.isConnected) return;
-      trigger.dataset.previewSrc = src;
-      trigger.disabled = false;
-      previewError.hidden = true;
-    }).catch(() => {
-      if (revision === previewRevision) {
-        trigger.disabled = true;
-        previewError.hidden = false;
-      }
-    });
-  };
-  function updatePreviewSources(): void {
-    previewRevision += 1;
-    updatePreview(trigger, layers, previewRevision);
-  }
-
-  const variants = groups.flatMap<CarouselBorderVariantMenu>((group) => {
-    const layerLabel = zh ? `第 ${group.layer + 1} 层边框` : `Layer ${group.layer + 1} border`;
-    return group.options.length > 1 ? [{
-      label: layerLabel,
-      value: () => selectedBorders.get(group.layer)?.url ?? "",
-      options: group.options.map((option) => ({
-        label: borderVariantLabel(option.url, locale),
-        value: option.url,
-      })),
-      onChange: (value) => {
-        const option = group.options.find(({ url }) => url === value);
-        if (!option) return;
-        selectedBorders.set(group.layer, option);
-        failedLayers.delete(group.layer);
-        const layer = layers.find(({ dataset }) => dataset.layer === String(group.layer));
-        if (layer) layer.src = option.url;
-        section.dispatchEvent(new Event("carousel-slide-availability-change"));
-        updatePreviewSources();
-      },
-    }] : [];
-  });
-  updatePreviewSources();
-  return { slide, variants };
-}
-
-function loadCrossOriginImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error(`Image load failed: ${src}`));
-    image.src = src;
-  });
-}
-
-async function compositeCanvas(
-  borderUrls: readonly string[],
-): Promise<HTMLCanvasElement> {
-  const images = await Promise.all(borderUrls.map(loadCrossOriginImage));
-  const base = images[0];
-  if (!base) throw new Error("No image layers to composite");
-  const canvas = document.createElement("canvas");
-  canvas.width = base.naturalWidth;
-  canvas.height = base.naturalHeight;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Canvas 2D context unavailable");
-  images.forEach((border) => context.drawImage(border, 0, 0, canvas.width, canvas.height));
-  return canvas;
-}
-
-async function compositePreviewUrl(
-  layers: readonly HTMLImageElement[],
-): Promise<string> {
-  const borderUrls = [...layers]
-    .sort((a, b) => Number(a.dataset.layer) - Number(b.dataset.layer))
-    .map(({ src }) => src);
-  const canvas = await compositeCanvas(borderUrls);
-  return canvas.toDataURL("image/png", 0.92);
-}
-
-/** Download all selected transparent border layers as one PNG. */
-async function downloadBorderLayers(frame: HTMLElement): Promise<void> {
-  const layers = Array.from(
-    frame.querySelectorAll<HTMLImageElement>(".runtime-loadscreen-border"),
-  ).sort((a, b) => Number(a.dataset.layer) - Number(b.dataset.layer));
-  if (!layers.length) return;
-
-  try {
-    const canvas = await compositeCanvas(layers.map(({ src }) => src));
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
-    if (!blob) throw new Error("Border image export failed");
-    const stem = layers[0].src.split("/").pop()?.replace(/\.[a-z0-9]+$/i, "") ?? "border";
-    saveBlob(URL.createObjectURL(blob), `${stem}_border.png`);
-  } catch {
-    window.open(layers[0].src, "_blank", "noopener,noreferrer");
-  }
+    frame.appendChild(border);
+    trigger.appendChild(frame);
+    section.append(trigger, error);
+    return {
+      key,
+      label,
+      content: section,
+      downloadAvailable: () => !failed,
+      download: () => downloadMediaFile(option.url, filename),
+    };
+  }));
 }
 
 export function appendHistoricalArtwork(
