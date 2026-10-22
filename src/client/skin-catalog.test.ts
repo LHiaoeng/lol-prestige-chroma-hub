@@ -284,9 +284,12 @@ function fixture(
     removeEventListener() {},
   });
   vi.stubGlobal("getComputedStyle", () => ({ getPropertyValue: () => String(columns) }));
-  const runtime = { listSkinCatalog: list } as unknown as CommunityDragonRuntime;
+  const listEntities = vi.fn(async (kind: string) => kind === "skinlines"
+    ? [{ kind: "skinline" as const, id: 10, name: "Series Alpha", universeIds: [20] }, { kind: "skinline" as const, id: 20, name: "Series Zed", universeIds: [20] }]
+    : [{ kind: "universe" as const, id: 20, name: "Universe Gamma", skinlineIds: [10, 20] }]);
+  const runtime = { listSkinCatalog: list, list: listEntities } as unknown as CommunityDragonRuntime;
   const controller = initSkinCatalog(root as unknown as HTMLElement, runtime, h);
-  return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, classicOnly, sort, viewSwitch, showFramedScreens, framedCount, showEmblems, onlyPbeAdditions, count, pbe, latest, status, content, results, grid, timeline, loadMoreFooter, loadMore, h, list, controller };
+  return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, classicOnly, sort, viewSwitch, showFramedScreens, framedCount, showEmblems, onlyPbeAdditions, count, pbe, latest, status, content, results, grid, timeline, loadMoreFooter, loadMore, h, list, listEntities, controller };
 }
 
 afterEach(() => vi.unstubAllGlobals());
@@ -302,7 +305,7 @@ describe("skin catalog browser behavior", () => {
     expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-grid");
     const modes = page.viewSwitch.querySelectorAll("input");
     expect(modes.map((mode) => [mode.value, mode.checked])).toEqual([
-      ["cards", true], ["timeline", false],
+      ["cards", true], ["timeline", false], ["skinline", false], ["universe", false],
     ]);
     expect(page.content.querySelector(".skin-catalog-timeline-skeleton")).toBeNull();
 
@@ -351,6 +354,53 @@ describe("skin catalog browser behavior", () => {
     expect(nodes[0].className).toContain("skin-catalog-timeline-node--finish");
     expect(nodes[1].className).toContain("skin-catalog-timeline-node--rail-process");
     expect(nodes[2].className).toContain("skin-catalog-timeline-node--process");
+  });
+
+  it("shows grouped skin cards in skinline and universe timeline modes", async () => {
+    const seriesSkins = [
+      { ...skin(101, 1), name: "Shared Skin", skinlineIds: [10, 20] },
+      { ...skin(201, 2), skinlineIds: [10] },
+    ];
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=skinline&channel=latest&sort=release_asc",
+      vi.fn(async () => ({ skins: seriesSkins, champions })),
+    );
+    await vi.waitFor(() => expect(page.timeline.querySelectorAll(".skin-catalog-timeline-node")[0]
+      ?.querySelector(".skin-catalog-timeline-date-heading")?.textContent).toBe("Series Alpha"));
+    expect(page.h.url.searchParams.get("view")).toBe("skinline");
+    expect(page.h.url.searchParams.has("sort")).toBe(false);
+    expect(page.viewSwitch.querySelectorAll("input").map(({ value, checked }) => [value, checked])).toEqual([
+      ["cards", false], ["timeline", false], ["skinline", true], ["universe", false],
+    ]);
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-node").map((node) =>
+      node.querySelector(".skin-catalog-timeline-date-heading")?.textContent)).toEqual(["Series Alpha", "Series Zed"]);
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(3);
+    expect(page.timeline.querySelectorAll(".skin-catalog-card")).toHaveLength(3);
+    expect(page.count.textContent).toContain("2 / 2");
+
+    const universeMode = page.viewSwitch.querySelectorAll("input")[3];
+    universeMode.checked = true;
+    universeMode.fire("change");
+    await vi.waitFor(() => expect(page.timeline.querySelector(".skin-catalog-timeline-date-heading")?.textContent)
+      .toBe("Universe Gamma"));
+    expect(page.h.url.searchParams.get("view")).toBe("universe");
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(2);
+    expect(page.timeline.querySelectorAll(".skin-catalog-card")).toHaveLength(2);
+    expect(page.listEntities.mock.calls.map(([kind]) => kind)).toEqual(["skinlines", "universes"]);
+  });
+
+  it("falls back to relation IDs if the skinline directory cannot load", async () => {
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=skinline&channel=latest",
+      vi.fn(async () => ({ skins: [{ ...skin(301, 1), skinlineIds: [10] }], champions })),
+      6,
+      "zh_cn",
+    );
+    page.listEntities.mockRejectedValue(new Error("offline"));
+    await vi.waitFor(() => expect(page.timeline.querySelector(".skin-catalog-timeline-date-heading")?.textContent)
+      .toBe("系列 #10"));
+    expect(page.timeline.querySelectorAll(".skin-catalog-timeline-entry")).toHaveLength(1);
+    expect(page.count.textContent).toContain("1 / 1");
   });
 
   it("shows undated skins before dated skins and classic appearances in the Chinese timeline", async () => {
@@ -555,7 +605,7 @@ describe("skin catalog browser behavior", () => {
     page.rarities.querySelector('[data-catalog-rarity="key:kMythic"]')!.click();
     expect(page.count.textContent).toContain("2 / 3");
     expect(page.h.url.searchParams.getAll("rarity")).toEqual(["key:kEpic", "key:kMythic"]);
-    page.h.pop("https://chromaart.lol/skins/?q=Zed");
+    page.h.pop("https://chromaart.lol/skins/?q=Zed&view=cards");
     await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 3"));
     expect(page.search.value).toBe("Zed");
     expect(page.grid.querySelectorAll(".skin-catalog-card")).toHaveLength(1);
@@ -570,7 +620,7 @@ describe("skin catalog browser behavior", () => {
     await vi.waitFor(() => expect(page.h.url.searchParams.get("sort")).toBe("release_asc"));
     expect(page.grid.querySelectorAll(".skin-catalog-card-title-name").map((item) => item.textContent))
       .toEqual(["Skin 101", "Skin 102", "Skin 201"]);
-    page.h.pop("https://chromaart.lol/skins/?sort=release_desc");
+    page.h.pop("https://chromaart.lol/skins/?sort=release_desc&view=cards");
     await vi.waitFor(() => expect(page.sort.value).toBe("release_desc"));
     expect(page.grid.querySelectorAll(".skin-catalog-card-title-name").map((item) => item.textContent))
       .toEqual(["Skin 201", "Skin 102", "Skin 101"]);

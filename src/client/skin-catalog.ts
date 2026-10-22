@@ -3,6 +3,7 @@ import {
   filterSkinCatalogItems,
   formatSkinCatalogUrl,
   getSkinCatalogTimelinePageEnd,
+  groupSkinCatalogItemsByEntity,
   groupSkinCatalogTimelineItems,
   projectSkinCatalogItems,
   readSkinCatalogUrlState,
@@ -11,12 +12,15 @@ import {
   type SkinCatalogReleaseDate,
   type SkinCatalogSort,
   type SkinCatalogTimelineGroup,
+  type SkinCatalogView,
   UNMARKED_RARITY,
 } from "../domain/skin-catalog";
 import {
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeRarity,
+  type RuntimeSkinline,
+  type RuntimeUniverse,
   resolveBorderModule,
 } from "../domain/communitydragon-runtime";
 import { runtimeSkinRarityRank, type RuntimeSkinReferenceItem } from "../domain/skin-reference-projection";
@@ -38,6 +42,7 @@ type CatalogLoadResult = { items: readonly RuntimeSkinReferenceItem[]; pbeNewSki
 type SkinCatalogArtworkMode = { plainUrl: string; framedUrl: string; borderUrls: readonly string[] };
 const CATALOG_PAGE_SIZE = 50;
 const isReleaseSort = (sort: SkinCatalogSort) => sort === "release_desc" || sort === "release_asc";
+const isRelationView = (view: SkinCatalogView) => view === "skinline" || view === "universe";
 
 const zh = {
   loading: "正在加载完整皮肤目录…",
@@ -55,6 +60,8 @@ const zh = {
   pbeHelp: "只显示相较正式服新增的 PBE 皮肤。",
   cardsHelp: "以卡片网格浏览皮肤。",
   timelineHelp: "按发布时间以时间轴浏览皮肤。",
+  skinlineHelp: "按皮肤系列以时间轴浏览皮肤。",
+  universeHelp: "按宇宙以时间轴浏览皮肤。",
   hideBorder: "切换到无边框载入图",
   showBorder: "切换到带边框载入图",
   borderToggle: "切换载入图边框",
@@ -63,6 +70,9 @@ const zh = {
   missing: "暂无原画",
   cards: "卡片",
   timeline: "时间轴",
+  skinline: "皮肤系列",
+  universe: "宇宙",
+  entityFallback: (kind: "skinline" | "universe", id: number) => `${kind === "skinline" ? "系列" : "宇宙"} #${id}`,
   timelineReleaseSource: (source: "china" | "global" | "wiki") => source === "china" ? "国服" : "直营服参考日期",
   timelinePbe: "PBE 新增",
   timelineUnknown: "日期待确认",
@@ -84,6 +94,8 @@ const en = {
   pbeHelp: "Show only skins newly added on PBE compared with live.",
   cardsHelp: "Browse skins in a card grid.",
   timelineHelp: "Browse skins by release date on a timeline.",
+  skinlineHelp: "Browse skins by skinline on a timeline.",
+  universeHelp: "Browse skins by universe on a timeline.",
   hideBorder: "Switch to the plain loading screen",
   showBorder: "Switch to the framed loading screen",
   borderToggle: "Toggle loading-screen border",
@@ -92,6 +104,9 @@ const en = {
   missing: "Artwork unavailable",
   cards: "Cards",
   timeline: "Timeline",
+  skinline: "Skinlines",
+  universe: "Universes",
+  entityFallback: (kind: "skinline" | "universe", id: number) => `${kind === "skinline" ? "Skinline" : "Universe"} #${id}`,
   timelineReleaseSource: () => "League of Legends Wiki",
   timelinePbe: "PBE additions",
   timelineUnknown: "Date to be confirmed",
@@ -187,6 +202,8 @@ export function initSkinCatalog(
   let committedChannel: RuntimeChannel | undefined;
   let filtered: readonly RuntimeSkinReferenceItem[] = [];
   let timelineGroups: readonly SkinCatalogTimelineGroup[] = [];
+  const entityCache = new Map<string, readonly (RuntimeSkinline | RuntimeUniverse)[]>();
+  const pendingEntityNames = new Set<string>();
   let shownCount = 0;
   let shownGroupCount = 0;
   let pendingChannel: RuntimeChannel | undefined;
@@ -203,10 +220,16 @@ export function initSkinCatalog(
     options: [
       { label: copy.cards, value: "cards", controls: "skin-catalog-grid", tooltip: () => copy.cardsHelp },
       { label: copy.timeline, value: "timeline", controls: "skin-catalog-timeline", tooltip: () => copy.timelineHelp },
+      { label: copy.skinline, value: "skinline", controls: "skin-catalog-timeline", tooltip: () => copy.skinlineHelp },
+      { label: copy.universe, value: "universe", controls: "skin-catalog-timeline", tooltip: () => copy.universeHelp },
     ],
     onChange(value) {
-      const view = value === "timeline" ? "timeline" : "cards";
-      update({ ...state, view, sort: view === "timeline" && !isReleaseSort(state.sort) ? "release_desc" : state.sort });
+      const view: SkinCatalogView = value === "timeline" || value === "skinline" || value === "universe" ? value : "cards";
+      update({
+        ...state,
+        view,
+        sort: isRelationView(view) || (view === "timeline" && !isReleaseSort(state.sort)) ? "release_desc" : state.sort,
+      });
       results.scrollIntoView?.({ block: "start" });
     },
   }));
@@ -555,6 +578,8 @@ export function initSkinCatalog(
         date.textContent = copy.timelineUnknown;
         label.textContent = copy.timelineClassic;
         dateHeading.append(date);
+      } else if (group.kind === "skinline" || group.kind === "universe") {
+        dateHeading.textContent = group.name ?? copy.entityFallback(group.kind, group.id);
       } else {
         dateHeading.textContent = copy.timelinePbe;
       }
@@ -572,7 +597,7 @@ export function initSkinCatalog(
     }
   };
   const appendNextPage = (focusFirst = false) => {
-    if (state.view === "timeline") {
+    if (state.view !== "cards") {
       const end = getSkinCatalogTimelinePageEnd(timelineGroups, shownGroupCount, CATALOG_PAGE_SIZE);
       const nextGroups = timelineGroups.slice(shownGroupCount, end);
       appendTimelineGroups(nextGroups);
@@ -609,14 +634,43 @@ export function initSkinCatalog(
       releaseDates,
       pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
     });
-    timelineGroups = groupSkinCatalogTimelineItems(filtered, {
-      locale,
-      channel: state.channel,
-      sort: isReleaseSort(state.sort) ? state.sort : "release_desc",
-      releaseDates,
-      pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
-    });
-    count.textContent = copy.count(filtered.length, items.length);
+    if (state.view === "timeline") {
+      timelineGroups = groupSkinCatalogTimelineItems(filtered, {
+        locale,
+        channel: state.channel,
+        sort: isReleaseSort(state.sort) ? state.sort : "release_desc",
+        releaseDates,
+        pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
+      });
+    } else if (state.view !== "cards") {
+      const view = state.view;
+      const channel = state.channel;
+      const cacheKey = `${channel}:${view}`;
+      timelineGroups = groupSkinCatalogItemsByEntity(filtered, view, locale, entityCache.get(cacheKey));
+      if (!entityCache.has(cacheKey) && !pendingEntityNames.has(cacheKey)) {
+        pendingEntityNames.add(cacheKey);
+        void runtime.list(view === "skinline" ? "skinlines" : "universes", {
+          locale,
+          channel,
+        }).then((entities) => {
+          entityCache.set(cacheKey, entities.filter(
+            (entity): entity is RuntimeSkinline | RuntimeUniverse => entity.kind === view,
+          ));
+        }).catch(() => {
+          entityCache.set(cacheKey, []);
+        }).finally(() => {
+          pendingEntityNames.delete(cacheKey);
+          if (committedChannel === channel && state.view === view)
+            refresh();
+        });
+      }
+    } else {
+      timelineGroups = [];
+    }
+    const shownItemCount = state.view === "cards" || state.view === "timeline"
+      ? filtered.length
+      : new Set(timelineGroups.flatMap((group) => group.items.map((item) => item.stableKey))).size;
+    count.textContent = copy.count(shownItemCount, items.length);
     syncFramedSetting();
     clearPopovers();
     grid.replaceChildren();
@@ -625,14 +679,14 @@ export function initSkinCatalog(
     shownCount = 0;
     shownGroupCount = 0;
     loadMoreFooter.hidden = true;
-    if (!items.length || !filtered.length) {
+    if (!items.length || (state.view === "cards" ? !filtered.length : !timelineGroups.length)) {
       results.hidden = true;
       showMessage(items.length ? copy.noMatches : copy.empty, "empty");
     } else {
       content.hidden = true;
       results.hidden = false;
-      grid.hidden = state.view === "timeline";
-      timeline.hidden = state.view !== "timeline";
+      grid.hidden = state.view !== "cards";
+      timeline.hidden = state.view === "cards";
       appendNextPage();
     }
   };
@@ -673,9 +727,11 @@ export function initSkinCatalog(
     search.value = state.search;
     sort.value = state.sort;
     refreshSelect(sort);
-    loadMore.setAttribute("aria-controls", state.view === "timeline" ? "skin-catalog-timeline" : "skin-catalog-grid");
+    loadMore.setAttribute("aria-controls", state.view === "cards" ? "skin-catalog-grid" : "skin-catalog-timeline");
     sort.querySelectorAll<HTMLOptionElement>('option[value="asc"], option[value="desc"]')
-      .forEach((option) => { option.hidden = state.view === "timeline"; });
+      .forEach((option) => { option.hidden = state.view !== "cards"; });
+    sort.querySelectorAll<HTMLOptionElement>('option[value="release_asc"]')
+      .forEach((option) => { option.hidden = isRelationView(state.view); });
     viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
       input.checked = input.value === state.view;
       input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle(
@@ -793,7 +849,7 @@ export function initSkinCatalog(
         if (!preserve) {
           results.hidden = true;
           timelineSkeleton.hidden = false;
-          content.replaceChildren(state.view === "timeline" ? timelineSkeleton : loadingSkeleton);
+          content.replaceChildren(state.view === "cards" ? loadingSkeleton : timelineSkeleton);
         }
       },
       render(result, context) {

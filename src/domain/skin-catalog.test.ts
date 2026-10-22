@@ -5,6 +5,7 @@ import {
   filterSkinCatalogItems,
   formatSkinCatalogUrl,
   getSkinCatalogTimelinePageEnd,
+  groupSkinCatalogItemsByEntity,
   groupSkinCatalogTimelineItems,
   projectSkinCatalogItems,
   readSkinCatalogUrlState,
@@ -238,6 +239,29 @@ describe("skin catalog domain", () => {
     expect(getSkinCatalogTimelinePageEnd(groups, 2)).toBe(3);
   });
 
+  it("groups skins by every linked skinline or universe and sorts groups by localized name", () => {
+    const linked = [
+      { ...items[0], id: 3001, skinId: 3001, stableKey: "1:3001", name: "Multi", skinlineIds: [2, 1, 2], universeIds: [20, 10] },
+      { ...items[1], id: 3002, skinId: 3002, stableKey: "2:3002", name: "Other", skinlineIds: [2], universeIds: [] },
+    ];
+    const skinlines = groupSkinCatalogItemsByEntity(linked, "skinline", "default", [
+      { kind: "skinline", id: 1, name: "Starlight", universeIds: [] },
+      { kind: "skinline", id: 2, name: "Arcade", universeIds: [] },
+    ]);
+    expect(skinlines.map(({ id, name, items: groupItems }) => [id, name, groupItems.map(({ stableKey }) => stableKey)])).toEqual([
+      [2, "Arcade", ["1:3001", "2:3002"]],
+      [1, "Starlight", ["1:3001"]],
+    ]);
+    expect(groupSkinCatalogItemsByEntity(linked, "universe", "default", [
+      { kind: "universe", id: 10, name: "A Universe", skinlineIds: [1] },
+      { kind: "universe", id: 20, name: "Z Universe", skinlineIds: [2] },
+    ])
+      .map(({ id, items: groupItems }) => [id, groupItems.map(({ stableKey }) => stableKey)])).toEqual([
+        [10, ["1:3001"]],
+        [20, ["1:3001", "2:3002"]],
+    ]);
+  });
+
   it("validates and round-trips shareable catalog conditions", () => {
     const url = new URL(
       "https://example.test/skins/?q=%20Blue%20&rarity=key:kEpic&rarity=unmarked&classicOnly=1&sort=desc&channel=latest&view=cards",
@@ -282,5 +306,12 @@ describe("skin catalog domain", () => {
     expect(readSkinCatalogUrlState(new URL("https://example.test/skins/?view=bad&pbeOnly=yes"))).toMatchObject({
       view: "timeline", onlyPbeAdditions: false, invalid: ["pbeOnly"],
     });
+    for (const view of ["skinline", "universe"] as const) {
+      const relationState = readSkinCatalogUrlState(new URL(`https://example.test/skins/?view=${view}&sort=release_asc`));
+      expect(relationState).toMatchObject({ view, sort: "release_desc" });
+      const normalized = formatSkinCatalogUrl(url, relationState);
+      expect(normalized.searchParams.has("sort")).toBe(false);
+      expect(readSkinCatalogUrlState(normalized)).toMatchObject({ view });
+    }
   });
 });

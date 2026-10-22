@@ -1,7 +1,9 @@
 import type {
   CommunityDragonLocale,
   RuntimeChampionSummary,
+  RuntimeSkinline,
   RuntimeSkin,
+  RuntimeUniverse,
 } from "./communitydragon-runtime";
 import { readRuntimeUrlState } from "./runtime-url-state";
 import {
@@ -12,7 +14,7 @@ import {
 import type { RuntimeChannel } from "./communitydragon-runtime";
 
 export type SkinCatalogSort = "asc" | "desc" | "release_desc" | "release_asc";
-export type SkinCatalogView = "cards" | "timeline";
+export type SkinCatalogView = "cards" | "timeline" | "skinline" | "universe";
 export type SkinCatalogReleaseDate = {
   readonly globalReleaseDate: string | null;
   readonly chinaReleaseDate: string | null;
@@ -23,7 +25,15 @@ export const UNMARKED_RARITY = "unmarked";
 
 export type SkinCatalogTimelineGroup =
   | { readonly kind: "pbe" | "unknown" | "classic"; readonly items: readonly RuntimeSkinReferenceItem[] }
-  | { readonly kind: "date"; readonly date: string; readonly items: readonly RuntimeSkinReferenceItem[] };
+  | { readonly kind: "date"; readonly date: string; readonly items: readonly RuntimeSkinReferenceItem[] }
+  | SkinCatalogEntityGroup;
+
+export interface SkinCatalogEntityGroup {
+  readonly kind: "skinline" | "universe";
+  readonly id: number;
+  readonly name?: string;
+  readonly items: readonly RuntimeSkinReferenceItem[];
+}
 
 export interface SkinCatalogFilters {
   readonly locale: CommunityDragonLocale;
@@ -138,6 +148,47 @@ export function getSkinCatalogTimelinePageEnd(
   return end;
 }
 
+export function groupSkinCatalogItemsByEntity(
+  items: readonly RuntimeSkinReferenceItem[],
+  kind: SkinCatalogEntityGroup["kind"],
+  locale: CommunityDragonLocale,
+  entities: readonly (RuntimeSkinline | RuntimeUniverse)[] = [],
+): readonly SkinCatalogEntityGroup[] {
+  const groups = new Map<number, RuntimeSkinReferenceItem[]>();
+  const entityById = new Map(entities.filter((entity) => entity.kind === kind).map((entity) => [entity.id, entity]));
+  const universesBySkinline = new Map<number, number[]>();
+  if (kind === "universe") {
+    for (const entity of entityById.values()) {
+      if (entity.kind !== "universe") continue;
+      for (const skinlineId of entity.skinlineIds) {
+        const universeIds = universesBySkinline.get(skinlineId) ?? [];
+        universeIds.push(entity.id);
+        universesBySkinline.set(skinlineId, universeIds);
+      }
+    }
+  }
+  for (const item of items) {
+    const ids = new Set(kind === "skinline" ? item.skinlineIds : item.universeIds);
+    if (kind === "universe") {
+      for (const skinlineId of item.skinlineIds) {
+        for (const universeId of universesBySkinline.get(skinlineId) ?? []) {
+          if (!item.universeIds.length || item.universeIds.includes(universeId)) ids.add(universeId);
+        }
+      }
+    }
+    for (const id of ids) {
+      const group = groups.get(id) ?? [];
+      group.push(item);
+      groups.set(id, group);
+    }
+  }
+  return [...groups]
+    .map(([id, groupItems]) => ({ kind, id, name: entityById.get(id)?.name, items: groupItems }))
+    .sort((left, right) =>
+      (left.name ?? "").localeCompare(right.name ?? "", locale === "zh_cn" ? "zh-CN" : "en") || left.id - right.id,
+    );
+}
+
 export function projectSkinCatalogItems(
   skins: readonly RuntimeSkin[],
   champions: readonly RuntimeChampionSummary[],
@@ -219,7 +270,10 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
   const rawSort = url.searchParams.get("sort");
   const rawClassicOnly = url.searchParams.get("classicOnly");
   const rawPbeOnly = url.searchParams.get("pbeOnly");
-  const view = url.searchParams.get("view") === "cards" ? "cards" : "timeline";
+  const rawView = url.searchParams.get("view");
+  const view = rawView === "cards" || rawView === "skinline" || rawView === "universe"
+    ? rawView
+    : "timeline";
   const rawRarities = url.searchParams.getAll("rarity");
   const invalid: SkinCatalogUrlState["invalid"][number][] = [];
   if (runtime.invalid.includes("channel")) invalid.push("channel");
@@ -235,7 +289,7 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
     rarities: [...new Set(rawRarities.filter((value) => rarityParameter.test(value)))],
     classicOnly: rawClassicOnly === "1",
     onlyPbeAdditions: rawPbeOnly === "1",
-    sort: view === "timeline" && (rawSort === "asc" || rawSort === "desc")
+    sort: (view === "skinline" || view === "universe") || (view !== "cards" && (rawSort === "asc" || rawSort === "desc"))
       ? "release_desc"
       : rawSort === "asc" || rawSort === "desc" || rawSort === "release_asc" ? rawSort : "release_desc",
     view,
@@ -260,7 +314,7 @@ export function formatSkinCatalogUrl(
   if (state.classicOnly) next.searchParams.set("classicOnly", "1");
   if (state.onlyPbeAdditions) next.searchParams.set("pbeOnly", "1");
   if (state.sort !== "release_desc") next.searchParams.set("sort", state.sort);
-  if (state.view === "cards") next.searchParams.set("view", "cards");
+  if (state.view !== "timeline") next.searchParams.set("view", state.view);
   if (state.channel === "latest" || state.channelExplicit)
     next.searchParams.set("channel", state.channel);
   return next;
