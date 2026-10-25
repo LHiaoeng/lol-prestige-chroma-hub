@@ -1314,6 +1314,19 @@ describe("CommunityDragon runtime reference", () => {
     );
   });
 
+  it("loads and caches localized TFT arenas by channel", async () => {
+    const fetcher = vi.fn(async (_input: string) => jsonResponse([{
+      itemId: 1, groupId: 0, name: "Base", groupName: "Base",
+      TFTRarity: "kStandard", loadoutsIcon: "/lol-game-data/assets/ASSETS/Arena/Icon.png",
+    }]));
+    const runtime = createCommunityDragonRuntime(fetcher);
+    const arenas = await runtime.listTftArenas({ locale: "zh_cn", channel: "pbe" });
+    expect(arenas).toEqual([expect.objectContaining({ itemId: 1, groupId: 0, name: "Base" })]);
+    await runtime.listTftArenas({ locale: "zh_cn", channel: "pbe" });
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(fetcher.mock.calls[0]?.[0]).toBe("https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/zh_cn/v1/tftmapskins.json");
+  });
+
   it("rejects an invalid TFT companion source record through the runtime error boundary", async () => {
     const runtime = createCommunityDragonRuntime(
       vi.fn(async (_input: string) =>
