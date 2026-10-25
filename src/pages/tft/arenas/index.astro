@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TftArenasRoot from '../../../components/TftArenasRoot.astro';
+import { resolveLocale, type Locale } from '../../../i18n/config';
+import { createTftArenasSeo } from '../../../seo/tft-arenas-seo';
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const seo = createTftArenasSeo(locale);
+---
+
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+  <TftArenasRoot {locale} />
+</BaseLayout>

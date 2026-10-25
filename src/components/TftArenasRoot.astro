@@ -1,0 +1,22 @@
+---
+import { localizedPath, type Locale } from '../i18n/config';
+import Breadcrumb from './Breadcrumb.astro';
+import DomainIcon from './DomainIcon.astro';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isZh = locale === 'zh-cn';
+const title = isZh ? '棋盘' : 'Arenas';
+---
+
+<Breadcrumb {locale} items={[
+  { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+  { title: isZh ? '云顶之弈' : 'Teamfight Tactics', href: 'https://teamfighttactics.leagueoflegends.com/en-us/index/', icon: 'teamfight-tactics' },
+  { title },
+]} />
+<section class="runtime-page runtime-page--compact-list-header" aria-labelledby="tft-arenas-title">
+  <header>
+    <h1 id="tft-arenas-title"><DomainIcon name="teamfight-tactics" />{title}</h1>
+  </header>
+  <noscript><p>{isZh ? '请启用 JavaScript 以浏览棋盘目录。' : 'Enable JavaScript to browse Arenas.'}</p></noscript>
+</section>
