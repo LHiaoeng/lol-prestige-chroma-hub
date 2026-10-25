@@ -268,8 +268,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tft-little-legends-card-title-tooltip:focus-visible,
-.tft-cosmetic-rarity-tooltip:focus-visible {
+.tft-little-legends-card-title-tooltip:focus-visible {
   border-radius: var(--radius-control);
   outline: 2px solid var(--gold);
   outline-offset: 2px;

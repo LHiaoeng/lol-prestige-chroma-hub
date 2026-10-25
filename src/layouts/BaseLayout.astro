@@ -7,7 +7,6 @@ import MediaViewer from '../components/MediaViewer.astro';
 import AdSlot from '../components/AdSlot.astro';
 import DomainIcon from '../components/DomainIcon.astro';
 import DownOutlined from '../components/icons/DownOutlined.astro';
-import TranslationOutlined from '../components/icons/TranslationOutlined.astro';
 import Dropdown from '../components/Dropdown.astro';
 import ButtonLink from '../components/ButtonLink.astro';
 import { headerNavigationState } from '../components/header-navigation';
@@ -103,7 +102,7 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
           </Dropdown>
         </div>
         <ButtonLink class="header-action header-blog-link" href={localizedPath(locale, '/blog/')} aria-current={headerNavigation.current('/blog/')}>{isZh ? '博客' : 'Blog'}</ButtonLink>
-        {canonical && <ButtonLink class="header-action language-toggle" iconOnly href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><TranslationOutlined class="language-toggle-icon" width="14" height="14" /></ButtonLink>}
+        {canonical && <ButtonLink class="header-action language-toggle" iconOnly href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></ButtonLink>}
       </div>
     </header>
     <main><slot /></main>
@@ -142,8 +141,11 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
       .site-header .ant-dropdown-menu a { justify-content:flex-start; gap:var(--space-2); white-space:nowrap; }
       .site-header .ant-dropdown-menu .browse-nav-icon { width:12px; height:12px; margin-inline:1px; flex:none; color:inherit; }
       .header-blog-link { flex-shrink:0; }
-      .language-toggle { flex-shrink:0; }
-      .language-toggle-icon { width:14px; height:14px; }
+      .language-toggle { position:relative; width:var(--control-height); min-width:var(--control-height); height:var(--control-height); flex-shrink:0; }
+      .language-toggle-mark { position:relative; width:32px; height:32px; }
+      .language-toggle-current, .language-toggle-next { position:absolute; border:1px solid var(--line); font-size:16.8px; line-height:16.8px; white-space:nowrap; }
+      .language-toggle-current { z-index:1; top:7px; left:7px; border-color:var(--gold); background:var(--gold); color:var(--on-gold); font-weight:400; transform:scale(.7); transform-origin:top left; }
+      .language-toggle-next { top:15px; left:16px; background:transparent; color:var(--muted); transform:scale(.5); transform-origin:top left; }
       @media (max-width: 767px) {
         .header-controls { gap: var(--space-1); }
         .browse-menu-label-wide { display:none; }

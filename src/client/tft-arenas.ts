@@ -16,6 +16,7 @@ import {
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import type { CommunityDragonLocale, RuntimeChannel } from "../domain/communitydragon-runtime";
 import { setDomainIconTooltip } from "../components/domain-icons";
+import { tftCosmeticRarityIconUrl, tftCosmeticRarityLabel } from "../components/tft-cosmetic-rarity";
 import { createPopover } from "../components/popover";
 import { createTooltip } from "../components/tooltip";
 import { enhanceSelect, refreshSelect } from "../components/select";
@@ -24,7 +25,6 @@ import { createCommunityDragonRuntime, type CommunityDragonRuntime } from "./com
 import { asCommunityDragonError, runtimeFailureMessage } from "./communitydragon-errors";
 import { RuntimeChannelLifecycle, type RuntimeChannelHistory } from "./runtime-channel-lifecycle";
 import { browserHistory } from "./runtime-reference-view";
-import { tftCompanionRarityIconUrl, tftCompanionRarityLabel } from "./tft-little-legends";
 
 const copy = {
   zh_cn: {
@@ -163,11 +163,11 @@ export function initTftArenas(
       rarities.add(item.TFTRarity);
     }
     addSelectOptions(group, [...groups].sort((a, b) => a[1].localeCompare(b[1], locale === "zh_cn" ? "zh-CN" : "en")).map(([id, name]) => [String(id), name]));
-    addSelectOptions(rarity, TFT_ARENA_RARITY_ORDER.filter((tier) => rarities.has(tier)).map((tier) => [tier, tftCompanionRarityLabel(tier, locale)]));
+    addSelectOptions(rarity, TFT_ARENA_RARITY_ORDER.filter((tier) => rarities.has(tier)).map((tier) => [tier, tftCosmeticRarityLabel(tier, locale)]));
   };
   const appendCard = (item: TftArena) => {
     const doc = root.ownerDocument;
-    const rarityLabel = tftCompanionRarityLabel(item.TFTRarity, locale);
+    const rarityLabel = tftCosmeticRarityLabel(item.TFTRarity, locale);
     const article = doc.createElement("article");
     article.className = "runtime-card tft-arenas-card";
     const media = doc.createElement("div");
@@ -233,7 +233,7 @@ export function initTftArenas(
     body.append(heading, tier);
     const rarityIcon = doc.createElement("img");
     rarityIcon.className = "tft-cosmetic-rarity-icon";
-    rarityIcon.src = tftCompanionRarityIconUrl(item.TFTRarity, state.channel);
+    rarityIcon.src = tftCosmeticRarityIconUrl(item.TFTRarity, state.channel);
     rarityIcon.alt = "";
     rarityIcon.setAttribute("aria-hidden", "true");
     const rarityTooltip = createTooltip(rarityIcon, rarityLabel);

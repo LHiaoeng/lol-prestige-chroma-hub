@@ -19,15 +19,13 @@ import {
   readLittleLegendUrlState,
   type LittleLegendUrlState,
 } from "../domain/little-legends-url";
-import {
-  communityDragonAssetUrl,
-  communityDragonChannelLabel,
-} from "../domain/communitydragon-url";
+import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import type {
   CommunityDragonLocale,
   RuntimeChannel,
 } from "../domain/communitydragon-runtime";
 import { setDomainIconTooltip } from "../components/domain-icons";
+import { tftCosmeticRarityIconUrl, tftCosmeticRarityLabel } from "../components/tft-cosmetic-rarity";
 import { createPopover } from "../components/popover";
 import { createRadioButtonGroup } from "../components/RadioButtonGroup";
 import { createTooltip } from "../components/tooltip";
@@ -88,28 +86,6 @@ const copy = {
   },
 } as const;
 
-const rarityLabels = {
-  zh_cn: {
-    kStandard: "经典",
-    kLegendary: "传说",
-    kMythic: "神话",
-    kPrestige: "至臻",
-  },
-  default: {
-    kStandard: "Standard",
-    kLegendary: "Legendary",
-    kMythic: "Mythic",
-    kPrestige: "Prestige",
-  },
-} as const;
-
-const rarityIconPaths: Record<TftCompanionRarity, string> = {
-  kStandard: "game/assets/ux/tft/outofgame/raritygems/tft_standardgem_top.png",
-  kLegendary: "game/assets/ux/tft/outofgame/raritygems/tft_legendarygem_top.png",
-  kMythic: "game/assets/ux/tft/outofgame/raritygems/tft_mythicgem_top.png",
-  kPrestige: "game/assets/ux/tft/outofgame/raritygems/tft_prestigegem_top.png",
-};
-
 const companionTypeLabels = {
   zh_cn: {
     kLittleLegend: "小小英雄",
@@ -122,20 +98,6 @@ const companionTypeLabels = {
     kStyle2: "Unbound",
   },
 } as const;
-
-export function tftCompanionRarityLabel(
-  rarity: TftCompanionRarity,
-  locale: CommunityDragonLocale,
-): string {
-  return rarityLabels[locale][rarity];
-}
-
-export function tftCompanionRarityIconUrl(
-  rarity: TftCompanionRarity,
-  channel: RuntimeChannel,
-): string {
-  return communityDragonAssetUrl(rarityIconPaths[rarity], channel);
-}
 
 export function tftCompanionTypeLabel(
   companionType: TftCompanion["companionType"],
@@ -381,7 +343,7 @@ export function initTftLittleLegends(
       TFT_COMPANION_RARITY_ORDER.filter((value) =>
         rarities.has(value),
       )
-        .map((value) => [value, tftCompanionRarityLabel(value, locale)]),
+        .map((value) => [value, tftCosmeticRarityLabel(value, locale)]),
     );
     addSelectOptions(
       level,
@@ -401,7 +363,7 @@ export function initTftLittleLegends(
       multiStarItemIds.has(item.itemId),
       locale,
     );
-    const rarityLabel = tftCompanionRarityLabel(item.TFTRarity, locale);
+    const rarityLabel = tftCosmeticRarityLabel(item.TFTRarity, locale);
     const article = root.ownerDocument.createElement("article");
     article.className = "runtime-card tft-little-legends-card";
     const media = root.ownerDocument.createElement("div");
@@ -486,7 +448,7 @@ export function initTftLittleLegends(
     title.className = "tft-little-legends-card-title";
     const rarityIcon = root.ownerDocument.createElement("img");
     rarityIcon.className = "tft-cosmetic-rarity-icon";
-    rarityIcon.src = tftCompanionRarityIconUrl(item.TFTRarity, state.channel);
+    rarityIcon.src = tftCosmeticRarityIconUrl(item.TFTRarity, state.channel);
     rarityIcon.alt = "";
     rarityIcon.setAttribute("aria-hidden", "true");
     const rarityTooltip = createTooltip(rarityIcon, rarityLabel);
