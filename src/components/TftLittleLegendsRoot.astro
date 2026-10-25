@@ -60,7 +60,7 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
     </label>
     <label class="tft-little-legends-field">
       <span>{isZh ? '排序' : 'Sort'}</span>
-      <Select class="tft-little-legends-select" data-little-legends-sort="" showSearch options={[
+      <Select class="tft-little-legends-select" data-little-legends-sort="" allowClear={false} showSearch options={[
         { value: 'default', label: isZh ? '默认排序' : 'Default order' },
         { value: 'rarity_desc', label: isZh ? '稀有度：高到低' : 'Rarity: high to low' },
         { value: 'rarity_asc', label: isZh ? '稀有度：低到高' : 'Rarity: low to high' },

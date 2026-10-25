@@ -244,7 +244,10 @@ export function enhanceSelect(source: HTMLSelectElement): void {
     input.tabIndex = source.disabled ? -1 : 0;
     input.disabled = source.disabled;
     if (source.disabled) controller.close();
-    if (clearButton) clearButton.tabIndex = selected && selected.value !== "" && !source.disabled ? 0 : -1;
+    if (clearButton) {
+      clearButton.hidden = !hasValue || source.disabled;
+      clearButton.tabIndex = clearButton.hidden ? -1 : 0;
+    }
     if (source.disabled) input.setAttribute("aria-disabled", "true");
     else input.removeAttribute("aria-disabled");
     input.setAttribute("aria-label", selectLabel(source));

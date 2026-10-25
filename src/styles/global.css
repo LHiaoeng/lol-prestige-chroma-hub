@@ -133,13 +133,15 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .ant-select-clear svg,.ant-select-item-option-state svg{width:12px;height:12px}
 .ant-select-open .ant-select-suffix svg{transform:rotate(180deg)}
 .ant-select-suffix>:not(:last-child){margin-inline-end:8px}
-.ant-select-clear{position:absolute;top:50%;inset-inline-end:11px;z-index:1;display:inline-block;width:12px;height:12px;margin-top:-6px;padding:0;border:0;background:transparent;color:var(--tertiary);font:inherit;font-size:12px;font-style:normal;line-height:0;text-align:center;text-transform:none;appearance:none;opacity:0;transform:translateZ(0);transition:color .2s ease,opacity .2s ease;pointer-events:none;cursor:pointer}
-.ant-select-allow-clear:hover .ant-select-clear,.ant-select-allow-clear:focus-within .ant-select-clear{opacity:1;pointer-events:auto}
-.ant-select-allow-clear:hover .ant-select-suffix:not(:last-child):not(:focus-within),.ant-select-allow-clear:focus-within .ant-select-suffix:not(:last-child):not(:focus-within){opacity:0;pointer-events:none}
-.ant-select-clear:hover,.ant-select-clear:focus-visible{color:var(--text)}
-.ant-select-clear:focus-visible{border-radius:var(--radius-tag);outline:2px solid var(--gold);outline-offset:-1px;opacity:1;pointer-events:auto}
-.ant-select-sm{--select-height:var(--control-height-sm);padding-inline:3px;border-radius:4px}
-.ant-select-sm .ant-select-clear{inset-inline-end:3px}
+.ant-select-clear{position:absolute;top:50%;inset-inline-start:auto;inset-inline-end:11px;z-index:1;display:inline-block;width:12px;height:12px;min-height:0;margin-top:-6px;padding:0;border:0;background:transparent;color:var(--disabled);font-family:inherit;font-size:12px;font-style:normal;line-height:1;text-align:center;text-transform:none;appearance:none;opacity:0;transform:translateZ(0);transition:color var(--motion-mid) ease,opacity var(--motion-mid) ease;cursor:pointer;text-rendering:auto}
+.ant-select-clear[hidden]{display:none!important}
+.ant-select-clear::before{display:block}
+.ant-select-allow-clear:hover .ant-select-clear,.ant-select-allow-clear:focus-within .ant-select-clear{opacity:1}
+.ant-select-allow-clear.ant-select-has-value:not(.ant-select-disabled):hover .ant-select-suffix:not(:last-child):not(:focus-within),.ant-select-allow-clear.ant-select-has-value:not(.ant-select-disabled):focus-within .ant-select-suffix:not(:last-child):not(:focus-within){opacity:0;pointer-events:none}
+.ant-select-clear:hover,.ant-select-clear:focus-visible{color:var(--tertiary)}
+.ant-select-clear:focus-visible{border-radius:var(--radius-tag);outline:2px solid var(--gold);outline-offset:-1px}
+.ant-select-sm{--select-height:var(--control-height-sm);padding-inline:7px;border-radius:4px}
+.ant-select-sm .ant-select-clear{inset-inline-end:7px}
 .ant-select-lg{--select-height:var(--control-height-lg);--select-font-height:var(--line-height-title);border-radius:var(--radius-card);font-size:var(--font-size-title);line-height:var(--line-height-title)}
 .ant-select-disabled{border-color:var(--line-subtle);background:var(--tag-bg);color:var(--disabled);cursor:not-allowed}
 .ant-select-disabled .ant-select-input{cursor:not-allowed}
@@ -169,7 +171,7 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .ant-select-dropdown-placement-topLeft{animation-name:ant-select-slide-down}
 @keyframes ant-select-slide-up{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ant-select-slide-down{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
-@media(hover:none){.ant-select-allow-clear .ant-select-clear{opacity:1;pointer-events:auto}}
+@media(hover:none){.ant-select-allow-clear .ant-select-clear{opacity:1}}
 @media(prefers-reduced-motion:reduce){.ant-select,.ant-select-content-value,.ant-select-suffix,.ant-select-suffix svg,.ant-select-clear,.ant-select-item-option{transition:none}.ant-select-dropdown{animation:none}}
 .detail{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:40px;align-items:center}
 .detail-image{border:1px solid var(--line);box-shadow:var(--shadow-card)}
