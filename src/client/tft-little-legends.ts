@@ -485,12 +485,12 @@ export function initTftLittleLegends(
     const title = root.ownerDocument.createElement(grouped ? "h3" : "h2");
     title.className = "tft-little-legends-card-title";
     const rarityIcon = root.ownerDocument.createElement("img");
-    rarityIcon.className = "tft-little-legends-card-rarity-icon";
+    rarityIcon.className = "tft-cosmetic-rarity-icon";
     rarityIcon.src = tftCompanionRarityIconUrl(item.TFTRarity, state.channel);
     rarityIcon.alt = "";
     rarityIcon.setAttribute("aria-hidden", "true");
     const rarityTooltip = createTooltip(rarityIcon, rarityLabel);
-    rarityTooltip.classList.add("tft-little-legends-card-rarity-tooltip");
+    rarityTooltip.classList.add("tft-cosmetic-rarity-tooltip");
     rarityTooltip.setAttribute("aria-label", rarityLabel);
     const titleText = root.ownerDocument.createElement("span");
     titleText.className = "tft-little-legends-card-title-text";

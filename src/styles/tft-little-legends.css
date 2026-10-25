@@ -252,23 +252,6 @@
   margin: 0;
   font-size: var(--font-size-title);
 }
-.tft-little-legends-card-rarity-tooltip.ant-tooltip-trigger {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  z-index: 5;
-  display: grid;
-  inline-size: min(35%, 80px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  place-items: center;
-}
-.runtime-card .tft-little-legends-card-rarity-icon {
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  object-fit: contain;
-}
 .tft-little-legends-card-title-tooltip.ant-tooltip-trigger {
   display: block;
   min-width: 0;
@@ -286,7 +269,7 @@
   white-space: nowrap;
 }
 .tft-little-legends-card-title-tooltip:focus-visible,
-.tft-little-legends-card-rarity-tooltip:focus-visible {
+.tft-cosmetic-rarity-tooltip:focus-visible {
   border-radius: var(--radius-control);
   outline: 2px solid var(--gold);
   outline-offset: 2px;

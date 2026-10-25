@@ -154,7 +154,7 @@ function fixture(
   vi.stubGlobal("getComputedStyle", () => ({ gridTemplateColumns: Array(columns).fill("180px").join(" ") }));
   const runtime = { listTftArenas: list } as CommunityDragonRuntime;
   const lifecycle = initTftArenas(root as unknown as HTMLElement, runtime, h);
-  return { root, h, lifecycle, search, pbe, latest, status, grid, count, resultCount, loadMore, loadMoreFooter, pbeOnly, pbeSetting, aliasNotice, aliasRetry, compareNotice, compareRetry, filters, filterSkeleton };
+  return { root, h, lifecycle, search, pbe, latest, status, grid, count, resultCount, loadMore, loadMoreFooter, pbeOnly, pbeSetting, aliasNotice, aliasRetry, compareNotice, compareRetry, filters, filterSkeleton, rarity };
 }
 
 afterEach(() => vi.unstubAllGlobals());
@@ -164,6 +164,7 @@ describe("TFT Arenas browser behavior", () => {
     const rows = Array.from({ length: 55 }, (_, index) => arena(index + 1));
     const page = fixture(async () => rows, "https://chromaart.lol/tft/arenas/?channel=latest", 2);
     await vi.waitFor(() => expect(page.count.textContent).toBe("55 Arenas in this data channel"));
+    expect(page.rarity.children.map((option) => option.textContent)).toContain("Standard");
     expect(page.grid.children).toHaveLength(50);
     expect(page.loadMoreFooter.hidden).toBe(false);
     page.loadMore.click();
