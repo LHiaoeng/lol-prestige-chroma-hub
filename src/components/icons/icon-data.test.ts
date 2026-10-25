@@ -7,6 +7,7 @@ describe('iconData', () => {
     expect(icon).toMatchObject({ viewBox: '64 64 896 896', custom: false });
     expect(icon.body).toContain('<path');
     expect(icon.body).toContain('d="');
+    expect(iconData('TranslationOutlined')).toMatchObject({ viewBox: '64 64 896 896', custom: false });
   });
 
   it('keeps domain and project-only glyphs in the shared registry', () => {

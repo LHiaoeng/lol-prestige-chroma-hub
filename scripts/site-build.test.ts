@@ -862,7 +862,8 @@ describe("static site build", () => {
     expect(english).toContain('<meta name="description" content="Browse Teamfight Tactics Tacticians across Little Legends, Chibis, and Unbound by type, species, rarity, and level.">');
     expect(english).toContain('<link rel="canonical" href="https://chromaart.lol/tft/companions/">');
     expect(english).toContain('<link rel="alternate" hreflang="zh-CN" href="https://chromaart.lol/zh-cn/tft/companions/">');
-    expect(english).toContain('href="/tft/companions/" aria-label="Teamfight Tactics"');
+    expect(english).toContain('href="/tft/companions/">Tacticians</a>');
+    expect(english).toContain('href="/tft/arenas/">Arenas</a>');
     expect(english).toContain('href="https://teamfighttactics.leagueoflegends.com/en-us/index/"');
     expect(english).toContain('Teamfight Tactics</a></li><li class="cn-breadcrumb-separator');
     expect(english.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
@@ -883,7 +884,8 @@ describe("static site build", () => {
     expect(chinese).toContain('<meta name="description" content="浏览云顶之弈小小英雄资料，涵盖小小英雄、英雄级小小英雄和不朽弈士形象，并按类别、种类、稀有度和等级查找。">');
     expect(chinese).toContain('<link rel="canonical" href="https://chromaart.lol/zh-cn/tft/companions/">');
     expect(chinese).toContain('<link rel="alternate" hreflang="en" href="https://chromaart.lol/tft/companions/">');
-    expect(chinese).toContain('href="/zh-cn/tft/companions/" aria-label="云顶之弈"');
+    expect(chinese).toContain('href="/zh-cn/tft/companions/">小小英雄</a>');
+    expect(chinese).toContain('href="/zh-cn/tft/arenas/">棋盘</a>');
     expect(chinese).toContain('云顶之弈</a></li><li class="cn-breadcrumb-separator');
     expect(chinese.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
     expect(chinese).toContain('src="/img/icons/tft-little-legends.svg"');

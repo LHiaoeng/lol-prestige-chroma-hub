@@ -1,0 +1,72 @@
+---
+import { localizedPath, type Locale } from '../i18n/config';
+import Breadcrumb from './Breadcrumb.astro';
+import DomainIcon from './DomainIcon.astro';
+import Alert from './Alert.astro';
+import Divider from './Divider.astro';
+import Empty from './Empty.astro';
+import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+import Select from './Select.astro';
+import Skeleton from './Skeleton.astro';
+import Spin from './Spin.astro';
+import '../styles/tft-arenas.css';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isZh = locale === 'zh-cn';
+const title = isZh ? '棋盘' : 'Arenas';
+---
+
+<Breadcrumb {locale} items={[
+  { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+  { title: isZh ? '云顶之弈' : 'Teamfight Tactics', href: 'https://teamfighttactics.leagueoflegends.com/en-us/index/', icon: 'teamfight-tactics' },
+  { title },
+]} />
+<section class="runtime-page runtime-page--compact-list-header tft-arenas" data-tft-arenas data-arenas-locale={isZh ? 'zh_cn' : 'default'} aria-labelledby="tft-arenas-title">
+  <header>
+    <h1 id="tft-arenas-title"><DomainIcon name="teamfight-tactics" />{title}</h1>
+    <div class="runtime-source runtime-channel-row tft-arenas-summary" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+      <RuntimeChannelSwitcher {locale} />
+      <Divider type="vertical" />
+      <span class="runtime-list-count" data-arenas-count></span>
+    </div>
+  </header>
+  <Divider />
+  <div class="tft-arenas-filter-skeleton" data-arenas-filter-skeleton aria-hidden="true">
+    {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
+  </div>
+  <div class="tft-arenas-filters" data-arenas-filters hidden>
+    <label class="tft-arenas-field"><span>{isZh ? '搜索棋盘' : 'Search Arenas'}</span><input class="cn-input" type="search" data-arenas-search autocomplete="off" placeholder={isZh ? '中英文名称或分组名称' : 'Name or group in either language'} /></label>
+    <label class="tft-arenas-field"><span>{isZh ? '分组' : 'Group'}</span><Select data-arenas-group="" showSearch options={[{ value: '', label: isZh ? '全部分组' : 'All groups' }]} /></label>
+    <label class="tft-arenas-field"><span>{isZh ? '等级' : 'Tier'}</span><Select data-arenas-rarity="" options={[{ value: '', label: isZh ? '全部等级' : 'All tiers' }]} /></label>
+    <label class="tft-arenas-field"><span>{isZh ? '排序' : 'Sort'}</span><Select data-arenas-sort="" allowClear={false} options={[
+      { value: 'default', label: isZh ? 'ID 降序' : 'ID descending' },
+      { value: 'id_asc', label: isZh ? 'ID 升序' : 'ID ascending' },
+      { value: 'rarity_desc', label: isZh ? '等级：高到低' : 'Tier: high to low' },
+      { value: 'rarity_asc', label: isZh ? '等级：低到高' : 'Tier: low to high' },
+      { value: 'name_asc', label: isZh ? '名称：升序' : 'Name: A to Z' },
+      { value: 'name_desc', label: isZh ? '名称：降序' : 'Name: Z to A' },
+    ]} /></label>
+    <label class="tft-arenas-pbe-setting" data-arenas-pbe-setting hidden><input type="checkbox" data-arenas-pbe-only /><span>{isZh ? 'PBE 新增' : 'PBE additions'}</span></label>
+  </div>
+  <p class="tft-arenas-status" data-arenas-status role="status" aria-live="polite" aria-atomic="true"></p>
+  <div class="tft-arenas-aux" data-arenas-alias-notice role="status" hidden><span>{isZh ? '另一语言资料暂不可用；跨语言搜索已暂停。' : 'Other-language data is unavailable; cross-language search is paused.'}</span><button class="ant-btn" type="button" data-arenas-alias-retry>{isZh ? '重试语言资料' : 'Retry language data'}</button></div>
+  <div class="tft-arenas-aux" data-arenas-compare-notice role="status" hidden><span>{isZh ? '正式服对照暂不可用；PBE 新增标记已暂停。' : 'Live comparison is unavailable; PBE addition markers are paused.'}</span><button class="ant-btn" type="button" data-arenas-compare-retry>{isZh ? '重试正式服对照' : 'Retry live comparison'}</button></div>
+  <Spin rootClass="tft-arenas-spinner" spinning={false}>
+    <div data-arenas-content><div data-arenas-skeleton><Skeleton layout="skin-grid" itemCount={6} /></div></div>
+    <div data-arenas-results role="region" aria-label={isZh ? '棋盘列表' : 'Arenas list'} hidden>
+      <p class="runtime-list-count" data-arenas-result-count role="status" aria-live="polite"></p>
+      <div class="tft-arenas-grid" id="tft-arenas-grid" data-arenas-grid></div>
+      <div class="tft-arenas-load-more-footer" data-arenas-load-more-footer hidden><button class="ant-btn" type="button" data-arenas-load-more aria-controls="tft-arenas-grid">{isZh ? '加载更多' : 'Load more'}</button></div>
+    </div>
+  </Spin>
+  <template data-arenas-empty-template><Empty description="" /></template>
+  <template data-arenas-error-template><div class="tft-arenas-error"><Alert type="error" title={isZh ? '无法加载棋盘资料' : 'Unable to load Arenas'}><span slot="description" data-arenas-error-message></span></Alert><button class="ant-btn" type="button" data-arenas-retry>{isZh ? '重试' : 'Retry'}</button></div></template>
+  <noscript><p>{isZh ? '请启用 JavaScript 以浏览棋盘目录。' : 'Enable JavaScript to browse Arenas.'}</p></noscript>
+</section>
+
+<script>
+  import { initTftArenas } from '../client/tft-arenas';
+  const root = document.querySelector<HTMLElement>('[data-tft-arenas]');
+  if (root) initTftArenas(root);
+</script>

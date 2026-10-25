@@ -4,6 +4,8 @@
 
 复刻或调整 Antdv Next 组件时，执行 [上游组件复刻规范](antdv-next-component-replication.md)。
 
+站点 Header 使用 [Dropdown](../src/components/Dropdown.astro) 搭配文字变体 Button 作为“英雄联盟”触发器；“云顶之弈”、博客和语言切换使用链接变体 Button。外观参照固定版本的 [Button](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/button/style/variant.ts) 与 [Dropdown](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：32px 控件、15px Button 横向内边距、4px 图文间距、8px 弹层圆角、4px 菜单内边距、5px 12px 菜单项内边距，并覆盖悬停、按下、选中和焦点状态。通用箭头与语言图标使用上游 Ant Design SVG；站点专属图标保留原有图形，并按 Button 与 Dropdown 图标尺寸对齐。下拉触发采用点击，菜单支持方向键、Home/End、Escape 和失焦关闭；当前路由使用 `aria-current`。
+
 ## 1. 单一事实来源：Design Tokens
 
 | 层次 | 事实来源 | 职责 |

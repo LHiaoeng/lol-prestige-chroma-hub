@@ -314,6 +314,8 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 小小英雄 | `companions.json` | 小小英雄资料集；`companionType` 标识具体类别 |
 | 稀有度分类 | `tftdisplaytags.json` | `TFTRarityDisplayTag` 提供分类名称、类型和宝石图标路径 |
 
+棋盘目录按页面语言读取 `tftmapskins.json` 的 `default` 或 `zh_cn` 视图，并按 `pbe`／`latest` 通道拼接同通道的 `loadoutsIcon` 图片。条目按 `itemId` 保留，`groupId` 标识分组，显示等级使用 `TFTRarity`；不要改用来源 `rarity` 或 `IsWIP` 推断等级和 PBE 新增。
+
 `companions.json` 中的伙伴形象在本项目统称为“小小英雄”，不按 `companionType` 排除；该字段用于区分具体类别。当前 `latest` 与 `pbe` 的 `zh_cn` 数据中有以下三种值。国服类别名参考[腾讯国服公告](https://lol.qq.com/news/detail.shtml?docid=8273734045633503022)，Riot 英文类别名参考[外观等级调整公告](https://teamfighttactics.leagueoflegends.com/en-sg/news/game-updates/simplifying-cosmetics-tiering/)：
 
 | `companionType` | 国服类别名（`zh_cn`） | Riot 英文类别名 | 国服数据示例 |

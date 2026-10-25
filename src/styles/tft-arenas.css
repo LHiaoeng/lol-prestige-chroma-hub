@@ -1,0 +1,46 @@
+.tft-arenas > .ant-divider-horizontal { margin: var(--space-4) 0; }
+.tft-arenas > header h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); }
+.tft-arenas-summary { margin-top: var(--space-2) !important; }
+.tft-arenas-filter-skeleton, .tft-arenas-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.tft-arenas-filter-skeleton[hidden], .tft-arenas-filters[hidden], .tft-arenas-load-more-footer[hidden] { display: none; }
+.tft-arenas-filter-skeleton > .runtime-skeleton-line { width: 100%; height: var(--control-height); }
+.tft-arenas-field { display: grid; min-width: 0; gap: var(--space-1); color: var(--muted); font-size: var(--font-size-body); }
+.tft-arenas-field .cn-input, .tft-arenas-field .ant-select { min-width: 0; }
+.tft-arenas-pbe-setting { display: inline-flex; align-items: center; align-self: end; gap: var(--space-2); min-height: var(--control-height); color: var(--text); cursor: pointer; }
+.tft-arenas-pbe-setting input { width: 16px; height: 16px; margin: 0; accent-color: var(--gold); }
+.tft-arenas-status { margin: 0 0 var(--space-3); color: var(--muted); }
+.tft-arenas-status:empty { display: none; }
+.tft-arenas-aux { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); color: var(--muted); }
+.tft-arenas-aux[hidden], .tft-arenas-pbe-setting[hidden] { display: none; }
+.ant-spin.tft-arenas-spinner > .ant-spin-section { position: sticky; top: 50vh; left: auto; z-index: 11; width: max-content; margin: 0 auto -20px; transform: translateY(-50%); }
+.tft-arenas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: var(--space-4) var(--space-3); }
+.tft-arenas-load-more-footer { display: flex; justify-content: center; margin-top: var(--space-3); }
+.tft-arenas-error { display: grid; justify-items: start; gap: var(--space-3); }
+.runtime-card.tft-arenas-card { position: relative; overflow: visible; min-width: 0; min-height: 0; padding: 0; }
+.tft-arenas-card-media { position: relative; display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0; background: var(--panel2); }
+.tft-arenas-card-preview { position: relative; display: block; grid-area: 1 / 1; width: 100%; height: 100%; overflow: hidden; }
+.tft-arenas-card-preview img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.tft-arenas-preview-cover { position: absolute; inset: 0; display: grid; place-items: center; background: rgb(0 0 0 / 30%); color: #fff; opacity: 0; transition: opacity var(--motion-slow) ease; }
+.tft-arenas-preview-cover svg { width: 32px; height: 32px; }
+.tft-arenas-card-media:hover .tft-arenas-preview-cover, .tft-arenas-card-preview:focus-visible .tft-arenas-preview-cover { opacity: 1; }
+.tft-arenas-image-fallback { grid-area: 1 / 1; padding: var(--space-3); text-align: center; color: var(--muted); }
+.tft-arenas-image-fallback[hidden], .tft-arenas-card-preview[hidden] { display: none; }
+.tft-arenas-pbe-marker { position: absolute; top: var(--space-2); left: var(--space-2); padding: 2px var(--space-2); border: 1px solid var(--gold); border-radius: var(--radius-tag); background: var(--panel); color: var(--gold); font-size: var(--font-size-small); }
+.tft-arenas-info-button { position: absolute; right: var(--space-2); bottom: var(--space-2); z-index: 1; }
+.tft-arenas-card-body { display: grid; gap: var(--space-1); min-width: 0; padding: var(--space-2) var(--space-3); }
+.tft-arenas-card-body h2 { min-width: 0; margin: 0; overflow-wrap: anywhere; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); }
+.tft-arenas-card-tier { color: var(--muted); }
+.tft-arenas-card-popover { display: grid; gap: var(--space-2); min-width: 0; margin: 0; }
+.tft-arenas-card-popover > div { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2); }
+.tft-arenas-card-popover dt { color: var(--muted); }
+.tft-arenas-card-popover dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+  .tft-arenas-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+  .tft-arenas-card-body { padding: var(--space-2); }
+}
+@media (prefers-reduced-motion: reduce) { .tft-arenas-preview-cover { transition: none; } }

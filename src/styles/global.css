@@ -362,7 +362,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   max-width: calc(100vw - (var(--page-gutter) * 2));
   background: transparent;
   transform-origin: top left;
-  animation: ant-dropdown-appear var(--motion-fast) ease-out;
+  animation: ant-dropdown-appear var(--motion-mid) cubic-bezier(.23, 1, .32, 1);
 }
 .ant-dropdown-popup[hidden] { display: none; }
 .ant-dropdown-placement-bottomRight .ant-dropdown-popup { right: 0; left: auto; transform-origin: top right; }
@@ -387,7 +387,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   min-height: 32px;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: var(--space-2);
   padding: 5px 12px;
   border: 0;
   border-radius: var(--radius-tag);
@@ -401,6 +401,8 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   transition: background-color var(--motion-mid), color var(--motion-mid);
 }
 .ant-dropdown-menu a { color: inherit; text-decoration: none; }
+.ant-dropdown-menu a[aria-current] { color: var(--gold); background: var(--selected-bg); }
+.ant-dropdown-menu a[aria-current]:is(:hover, :focus-visible) { background: var(--selected-hover-bg); }
 .ant-dropdown-menu a.runtime-summary-action { justify-content: flex-start; gap: var(--space-2); }
 .runtime-summary-action-label { min-width: 0; flex: 1; overflow-wrap: anywhere; }
 .runtime-summary-action-icon { display: block; width: 18px; height: 18px; flex: none; }
@@ -426,7 +428,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-dropdown-menu button[aria-checked="true"] > span:last-child { visibility: visible; }
 .ant-dropdown-menu button:focus-visible,
 .ant-dropdown-menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
-@keyframes ant-dropdown-appear { from { opacity: 0; transform: scale(.96) translateY(-2px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes ant-dropdown-appear { from { opacity: 0; transform: scaleY(.8); } to { opacity: 1; transform: scaleY(1); } }
 @media(prefers-reduced-motion:reduce){.ant-dropdown-popup{animation:none}}
 .runtime-channel-static { padding: 0 10px; color: var(--muted); }
 .runtime-reference-root {
@@ -1232,6 +1234,12 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (hover:hover) and (pointer:fine) { .ant-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); } }
 .ant-btn:disabled { color: var(--disabled); cursor: not-allowed; }
+.ant-btn:is(.ant-btn-variant-text, .ant-btn-variant-link) { height: var(--control-height); gap: var(--space-1); padding: 0 15px; border-color: transparent; background: transparent; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); font-weight: 400; white-space: nowrap; text-decoration: none; user-select: none; touch-action: manipulation; transition: color var(--motion-mid) ease, background-color var(--motion-mid) ease; }
+.ant-btn:is(.ant-btn-variant-text, .ant-btn-variant-link).ant-btn-icon-only { padding: 0; }
+.ant-btn.ant-btn-variant-link:hover { border-color: transparent; background: transparent; color: var(--gold-hover); }
+.ant-btn.ant-btn-variant-link:active { color: var(--gold-active); }
+.ant-btn.ant-btn-variant-text:hover { border-color: transparent; background: var(--fill); color: var(--text); }
+.ant-btn.ant-btn-variant-text:active { background: var(--hover-bg); color: var(--text); }
 .ant-radio-group-small .ant-radio-button-wrapper,
 .ant-radio-group-small .ant-radio-button-label { min-height: var(--control-height-sm); font-size: var(--font-size-body); }
 .ant-radio-group-small .ant-radio-button-label { padding-inline: 7px; }
