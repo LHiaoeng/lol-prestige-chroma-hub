@@ -4,13 +4,8 @@ import {
   type CommunityDragonChannel,
   type CommunityDragonLocalizationView,
 } from "./communitydragon-url";
+import { TFT_COSMETIC_TIER_ORDER, type TftCosmeticTier } from "./tft-cosmetic-tier";
 
-export const TFT_ARENA_RARITY_ORDER = [
-  "kPrestige",
-  "kMythic",
-  "kLegendary",
-  "kStandard",
-] as const;
 export const TFT_ARENA_SORTS = [
   "default",
   "id_asc",
@@ -20,7 +15,6 @@ export const TFT_ARENA_SORTS = [
   "name_desc",
 ] as const;
 
-export type TftArenaRarity = (typeof TFT_ARENA_RARITY_ORDER)[number];
 export type TftArenaSort = (typeof TFT_ARENA_SORTS)[number];
 
 export interface TftArena {
@@ -30,7 +24,7 @@ export interface TftArena {
   readonly name: string;
   readonly groupName: string;
   readonly description?: string;
-  readonly TFTRarity: TftArenaRarity;
+  readonly TFTRarity: TftCosmeticTier;
   readonly imageUrl: string;
   readonly searchAliases?: readonly string[];
 }
@@ -38,17 +32,13 @@ export interface TftArena {
 export interface TftArenaFilters {
   readonly search?: string;
   readonly groupId?: number;
-  readonly TFTRarity?: TftArenaRarity;
+  readonly TFTRarity?: TftCosmeticTier;
   readonly onlyPbeAdditions?: boolean;
   readonly sort?: TftArenaSort;
 }
 
 export function isTftArenaSort(value: string): value is TftArenaSort {
   return (TFT_ARENA_SORTS as readonly string[]).includes(value);
-}
-
-export function isTftArenaRarity(value: string): value is TftArenaRarity {
-  return (TFT_ARENA_RARITY_ORDER as readonly string[]).includes(value);
 }
 
 const positiveSafeInteger = z
@@ -68,7 +58,7 @@ const tftArenaSchema = z.object({
   name: nonBlankText,
   groupName: nonBlankText,
   description: z.string().optional(),
-  TFTRarity: z.enum(TFT_ARENA_RARITY_ORDER),
+  TFTRarity: z.enum(TFT_COSMETIC_TIER_ORDER),
   loadoutsIcon: nonBlankText,
 });
 
@@ -161,13 +151,13 @@ function compareTftArenas(
       break;
     case "rarity_desc":
       primary =
-        TFT_ARENA_RARITY_ORDER.indexOf(left.TFTRarity) -
-        TFT_ARENA_RARITY_ORDER.indexOf(right.TFTRarity);
+        TFT_COSMETIC_TIER_ORDER.indexOf(left.TFTRarity) -
+        TFT_COSMETIC_TIER_ORDER.indexOf(right.TFTRarity);
       break;
     case "rarity_asc":
       primary =
-        TFT_ARENA_RARITY_ORDER.indexOf(right.TFTRarity) -
-        TFT_ARENA_RARITY_ORDER.indexOf(left.TFTRarity);
+        TFT_COSMETIC_TIER_ORDER.indexOf(right.TFTRarity) -
+        TFT_COSMETIC_TIER_ORDER.indexOf(left.TFTRarity);
       break;
     case "name_asc":
       primary = left.name.localeCompare(

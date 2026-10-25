@@ -312,7 +312,7 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 棋盘 | `tftmapskins.json` | 云顶棋盘目录 |
 | 传送门 | `tftzoomskins.json` | 云顶传送门目录 |
 | 小小英雄 | `companions.json` | 小小英雄资料集；`companionType` 标识具体类别 |
-| 稀有度分类 | `tftdisplaytags.json` | `TFTRarityDisplayTag` 提供分类名称、类型和宝石图标路径 |
+| 稀有度等级 | `tftdisplaytags.json` | `TFTRarityDisplayTag` 提供等级名称、类型和宝石图标路径 |
 
 棋盘目录按页面语言读取 `tftmapskins.json` 的 `default` 或 `zh_cn` 视图，并按 `pbe`／`latest` 通道拼接同通道的 `loadoutsIcon` 图片。条目按 `itemId` 保留，`groupId` 标识分组，显示等级使用 `TFTRarity`；不要改用来源 `rarity` 或 `IsWIP` 推断等级和 PBE 新增。
 
@@ -351,7 +351,7 @@ https://raw.communitydragon.org/{version}/cdragon/
 
 #### 云顶图标资源获取
 
-云顶图标按用途从 JSON 字段或客户端静态目录获取：单个小小英雄读取 `companions.json` 的 `loadoutsIcon`；稀有度图标读取 `tftdisplaytags.json` 的图标字段；统称和界面分类图标使用下方列出的已核验 RAW 相对路径。JSON 提供的路径按[通用路径转换规则](#14-路径转换规则)解析，静态目录则拼接目标版本与相对路径。JSON 和图标必须使用同一版本，不根据 ID、名称或相似文件名猜路径。
+云顶图标按用途从 JSON 字段或客户端静态目录获取：单个小小英雄读取 `companions.json` 的 `loadoutsIcon`；稀有度图标见[稀有度等级](#33-稀有度等级)；统称和界面分类图标使用下方列出的已核验 RAW 相对路径。JSON 提供的路径按[通用路径转换规则](#14-路径转换规则)解析，静态目录则拼接目标版本与相对路径。JSON 和图标必须使用同一版本，不根据 ID、名称或相似文件名猜路径。
 
 ##### 小小英雄统称图标
 
@@ -373,11 +373,11 @@ https://raw.communitydragon.org/{version}/cdragon/
 
 英雄联盟和通用客户端的相近目录见[英雄联盟稀有度与相近名称资源目录](#英雄联盟稀有度与相近名称资源目录)。上表仅核对了 `latest`，未确认 PBE 是否同步；TFT 专属 `raritygems/` 已确认 `latest` 与 PBE 均有，使用其他目录时仍需按目标版本确认文件存在。
 
-##### TFT 稀有度分类图标
+### 3.3 稀有度等级
 
-TFT 的 `tftdisplaytags.json` 中，`TFTRarityDisplayTag` 项用 `rarityType` 标识分类，用 `name` 提供当前本地化视图名称，并提供 `icon`、`iconHover`、`iconTop`、`iconTopHover`、`iconBottom`、`iconBottomHover` 等图片路径。小小英雄 `companions.json` 的 `TFTRarity` 与 `rarityType` 对应；不要把 `level` 当作稀有度。
+TFT 的 `tftdisplaytags.json` 中，`TFTRarityDisplayTag` 项用 `rarityType` 标识稀有度等级，用 `name` 提供当前本地化视图名称，并提供 `icon`、`iconHover`、`iconTop`、`iconTopHover`、`iconBottom`、`iconBottomHover` 等图片路径。小小英雄 `companions.json` 的 `TFTRarity` 与 `rarityType` 对应；不要把 `level` 当作稀有度。
 
-`tftdisplaytags.json` 的 `name` 会随本地化视图变化。当前 `zh_cn` 名称与 `default` 视图英文名称、主图字段如下；Riot 英文等级用名也见[官方公告](https://teamfighttactics.leagueoflegends.com/en-sg/news/game-updates/simplifying-cosmetics-tiering/)：
+`tftdisplaytags.json` 的 `name` 会随本地化视图变化。当前 `zh_cn` 名称与 `default` 视图英文名称、主图字段如下；等级调整另见[腾讯国服公告](https://lol.qq.com/news/detail.shtml?docid=8273734045633503022)和[Riot 英文公告](https://teamfighttactics.leagueoflegends.com/en-sg/news/game-updates/simplifying-cosmetics-tiering/)：
 
 | `rarityType` | 国服名称（`zh_cn`） | 英文名称（`default` 视图） | `icon` 文件名 |
 | --- | --- | --- | --- |
@@ -402,7 +402,7 @@ https://raw.communitydragon.org/{version}/game/assets/ux/tft/outofgame/raritygem
 
 名称读取所选视图（如 `zh_cn`），图标媒体按 JSON 路径转换；版本必须与 JSON 一致。实际使用时优先转换 JSON 返回的完整字段路径，不硬编码类别和文件名。
 
-### 3.3 云顶资源的版本与语言规则
+### 3.4 云顶资源的版本与语言规则
 
 - 运行时只使用 `pbe` 或显式指定的 `latest`，JSON 与媒体必须使用同一版本。
 - 当前云顶资源目录主要位于 `global/default`；如果目标 JSON 明确返回其他区域路径，保留 JSON 中的真实路径。
@@ -411,7 +411,7 @@ https://raw.communitydragon.org/{version}/game/assets/ux/tft/outofgame/raritygem
 - 云顶资源可能随版本新增、删除或更换目录；优先以目标版本 JSON 和目录列表为准。
 - 资源列表和详情应使用数字 ID 或 JSON 提供的稳定身份字段，不根据名称或图片文件名推导身份。
 
-### 3.4 云顶运行时读取规则
+### 3.5 云顶运行时读取规则
 
 - 云顶资源属于运行时资料时，遵循通用的加载、取消、缓存、失败和重试规则。
 - 某一类资源失败时，只显示该资源区的失败状态，不影响其他已加载资源。
@@ -419,7 +419,7 @@ https://raw.communitydragon.org/{version}/game/assets/ux/tft/outofgame/raritygem
 - 小小英雄资料按 `itemId` 保持独立；`companionType` 区分类别，`speciesId`、`TFTRarity` 与 `level` 保持各自含义，不相互推断，也不据此推断持有、在售状态或发布日期。
 - 构建流程不依赖云顶 CommunityDragon 在线可用性；需要固定内容时，应先生成并提交经过校验的仓库快照。
 
-### 3.5 云顶示例
+### 3.6 云顶示例
 
 ```text
 JSON：

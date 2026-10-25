@@ -3,29 +3,27 @@ import {
   filterTftCompanions,
   getMultiStarTftCompanionItemIds,
   isTftCompanionType,
-  isTftCompanionRarity,
   isTftCompanionSort,
   markPbeTftCompanionAdditions,
-  TFT_COMPANION_RARITY_ORDER,
   TFT_COMPANION_BATCH_SIZE,
   tftCompanionPageSize,
   TFT_COMPANION_TYPE_ORDER,
   paginateTftCompanions,
   type TftCompanion,
-  type TftCompanionRarity,
-} from "../domain/little-legends";
+} from "../domain/tft-companions";
+import { isTftCosmeticTier, TFT_COSMETIC_TIER_ORDER, type TftCosmeticTier } from "../domain/tft-cosmetic-tier";
 import {
-  formatLittleLegendUrl,
-  readLittleLegendUrlState,
-  type LittleLegendUrlState,
-} from "../domain/little-legends-url";
+  formatTftCompanionUrl,
+  readTftCompanionUrlState,
+  type TftCompanionUrlState,
+} from "../domain/tft-companions-url";
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import type {
   CommunityDragonLocale,
   RuntimeChannel,
 } from "../domain/communitydragon-runtime";
 import { setDomainIconTooltip } from "../components/domain-icons";
-import { tftCosmeticRarityIconUrl, tftCosmeticRarityLabel } from "../components/tft-cosmetic-rarity";
+import { tftCosmeticTierIconUrl, tftCosmeticTierLabel } from "../components/tft-cosmetic-tier";
 import { createPopover } from "../components/popover";
 import { createRadioButtonGroup } from "../components/RadioButtonGroup";
 import { createTooltip } from "../components/tooltip";
@@ -116,9 +114,9 @@ export function tftCompanionDisplayName(
   return `${item.name} ${item.level} ${item.level === 1 ? "star" : "stars"}`;
 }
 
-type TftLittleLegendState = LittleLegendUrlState;
-type TftLittleLegendView = "cards" | "species";
-type TftLittleLegendError = ReturnType<typeof asCommunityDragonError>;
+type TftCompanionState = TftCompanionUrlState;
+type TftCompanionView = "cards" | "species";
+type TftCompanionError = ReturnType<typeof asCommunityDragonError>;
 interface TftCompanionLoadResult {
   readonly items: readonly TftCompanion[];
   readonly canComparePbe: boolean;
@@ -133,54 +131,54 @@ function element<T extends HTMLElement>(
   return match;
 }
 
-export function initTftLittleLegends(
+export function initTftCompanions(
   root: HTMLElement,
   runtime: CommunityDragonRuntime = createCommunityDragonRuntime(),
   history: RuntimeChannelHistory = browserHistory(),
 ): RuntimeChannelLifecycle<
-  TftLittleLegendState,
+  TftCompanionState,
   TftCompanionLoadResult,
-  TftLittleLegendError
+  TftCompanionError
 > {
-  const locale = root.dataset.littleLegendsLocale as CommunityDragonLocale;
+  const locale = root.dataset.tftCompanionsLocale as CommunityDragonLocale;
   if (locale !== "default" && locale !== "zh_cn")
     throw new Error("Little Legends locale is invalid");
   const text = copy[locale];
-  const filters = element<HTMLElement>(root, "[data-little-legends-filters]");
+  const filters = element<HTMLElement>(root, "[data-tft-companions-filters]");
   const filterSkeleton = element<HTMLElement>(
     root,
-    "[data-little-legends-filter-skeleton]",
+    "[data-tft-companions-filter-skeleton]",
   );
   const search = element<HTMLInputElement>(
     root,
-    "[data-little-legends-search]",
+    "[data-tft-companions-search]",
   );
   const species = element<HTMLSelectElement>(
     root,
-    "[data-little-legends-species]",
+    "[data-tft-companions-species]",
   );
   const companionType = element<HTMLSelectElement>(
     root,
-    "[data-little-legends-type]",
+    "[data-tft-companions-type]",
   );
   const rarity = element<HTMLSelectElement>(
     root,
-    "[data-little-legends-rarity]",
+    "[data-tft-companions-rarity]",
   );
-  const level = element<HTMLSelectElement>(root, "[data-little-legends-level]");
-  const sort = element<HTMLSelectElement>(root, "[data-little-legends-sort]");
+  const level = element<HTMLSelectElement>(root, "[data-tft-companions-level]");
+  const sort = element<HTMLSelectElement>(root, "[data-tft-companions-sort]");
   const pbeOnly = element<HTMLInputElement>(
     root,
-    "[data-little-legends-pbe-only]",
+    "[data-tft-companions-pbe-only]",
   );
   const pbeSetting = element<HTMLElement>(
     root,
-    "[data-little-legends-pbe-setting]",
+    "[data-tft-companions-pbe-setting]",
   );
   const pbeSettingParent = pbeSetting.parentElement;
   const pbeSettingNextSibling = pbeSetting.nextSibling;
   const pbeSettingTooltip = createTooltip(pbeSetting, text.pbeOnlyHelp);
-  pbeSettingTooltip.classList.add("tft-little-legends-pbe-tooltip");
+  pbeSettingTooltip.classList.add("tft-companions-pbe-tooltip");
   pbeSettingTooltip.tabIndex = -1;
   const pbeSettingTooltipId =
     pbeSettingTooltip.getAttribute("aria-describedby");
@@ -194,28 +192,28 @@ export function initTftLittleLegends(
     popoverCleanups.length = 0;
   };
   [companionType, species, rarity, level, sort].forEach(enhanceSelect);
-  const status = element<HTMLElement>(root, "[data-little-legends-status]");
+  const status = element<HTMLElement>(root, "[data-tft-companions-status]");
   const spinner = element<HTMLElement>(root, "[data-runtime-spin]");
-  const content = element<HTMLElement>(root, "[data-little-legends-content]");
+  const content = element<HTMLElement>(root, "[data-tft-companions-content]");
   const loadingSkeleton = content.firstElementChild?.cloneNode(true);
-  const results = element<HTMLElement>(root, "[data-little-legends-results]");
-  const grid = element<HTMLElement>(root, "[data-little-legends-grid]");
-  const count = element<HTMLElement>(root, "[data-little-legends-count]");
+  const results = element<HTMLElement>(root, "[data-tft-companions-results]");
+  const grid = element<HTMLElement>(root, "[data-tft-companions-grid]");
+  const count = element<HTMLElement>(root, "[data-tft-companions-count]");
   const resultCount = element<HTMLElement>(
     root,
-    "[data-little-legends-result-count]",
+    "[data-tft-companions-result-count]",
   );
   const viewSwitcher = element<HTMLElement>(
     root,
-    "[data-little-legends-view-switch]",
+    "[data-tft-companions-view-switch]",
   );
   const loadMoreFooter = element<HTMLElement>(
     root,
-    "[data-little-legends-load-more-footer]",
+    "[data-tft-companions-load-more-footer]",
   );
   const loadMore = element<HTMLButtonElement>(
     root,
-    "[data-little-legends-load-more]",
+    "[data-tft-companions-load-more]",
   );
   const setSpinning = (spinning: boolean) => {
     spinner.dataset.spinning = String(spinning);
@@ -224,22 +222,22 @@ export function initTftLittleLegends(
   };
   const emptyTemplate = element<HTMLTemplateElement>(
     root,
-    "[data-little-legends-empty-template]",
+    "[data-tft-companions-empty-template]",
   );
   const errorTemplate = element<HTMLTemplateElement>(
     root,
-    "[data-little-legends-error-template]",
+    "[data-tft-companions-error-template]",
   );
   const channelLabel = element<HTMLElement>(
     root,
     "[data-runtime-channel-label]",
   );
-  let state = readLittleLegendUrlState(history.url);
+  let state = readTftCompanionUrlState(history.url);
   let items: readonly TftCompanion[] = [];
   let multiStarItemIds: ReadonlySet<number> = new Set();
   let canComparePbe = false;
   let matches: readonly TftCompanion[] = [];
-  let view: TftLittleLegendView = "cards";
+  let view: TftCompanionView = "cards";
   let shownCount = 0;
   let batchSize = TFT_COMPANION_BATCH_SIZE;
   let errorMessage: HTMLElement | undefined;
@@ -315,7 +313,7 @@ export function initTftLittleLegends(
   const renderOptions = () => {
     const companionTypes = new Set<TftCompanion["companionType"]>();
     const speciesNames = new Map<number, string>();
-    const rarities = new Set<TftCompanionRarity>();
+    const rarities = new Set<TftCosmeticTier>();
     const levels = new Set<number>();
     for (const item of items) {
       companionTypes.add(item.companionType);
@@ -340,10 +338,10 @@ export function initTftLittleLegends(
     );
     addSelectOptions(
       rarity,
-      TFT_COMPANION_RARITY_ORDER.filter((value) =>
+      TFT_COSMETIC_TIER_ORDER.filter((value) =>
         rarities.has(value),
       )
-        .map((value) => [value, tftCosmeticRarityLabel(value, locale)]),
+        .map((value) => [value, tftCosmeticTierLabel(value, locale)]),
     );
     addSelectOptions(
       level,
@@ -363,13 +361,13 @@ export function initTftLittleLegends(
       multiStarItemIds.has(item.itemId),
       locale,
     );
-    const rarityLabel = tftCosmeticRarityLabel(item.TFTRarity, locale);
+    const rarityLabel = tftCosmeticTierLabel(item.TFTRarity, locale);
     const article = root.ownerDocument.createElement("article");
-    article.className = "runtime-card tft-little-legends-card";
+    article.className = "runtime-card tft-companions-card";
     const media = root.ownerDocument.createElement("div");
-    media.className = "tft-little-legends-card-media";
+    media.className = "tft-companions-card-media";
     const preview = root.ownerDocument.createElement("button");
-    preview.className = "runtime-media-preview-trigger tft-little-legends-card-preview";
+    preview.className = "runtime-media-preview-trigger tft-companions-card-preview";
     preview.type = "button";
     preview.dataset.mediaPreviewTrigger = "";
     preview.dataset.previewKind = "image";
@@ -386,7 +384,7 @@ export function initTftLittleLegends(
     image.loading = "lazy";
     image.decoding = "async";
     const fallback = root.ownerDocument.createElement("span");
-    fallback.className = "tft-little-legends-card-image-fallback";
+    fallback.className = "tft-companions-card-image-fallback";
     fallback.textContent = text.missingImage;
     fallback.hidden = true;
     image.addEventListener(
@@ -398,7 +396,7 @@ export function initTftLittleLegends(
       { once: true },
     );
     const previewCover = root.ownerDocument.createElement("span");
-    previewCover.className = "tft-little-legends-preview-cover";
+    previewCover.className = "tft-companions-preview-cover";
     previewCover.setAttribute("aria-hidden", "true");
     previewCover.append(createIcon("EyeOutlined"));
     preview.append(image, previewCover);
@@ -408,14 +406,14 @@ export function initTftLittleLegends(
       marker.textContent = "PBE";
       marker.setAttribute("aria-hidden", "true");
       const tooltip = createTooltip(marker, text.pbeNew);
-      tooltip.classList.add("tft-little-legends-pbe-marker");
+      tooltip.classList.add("tft-companions-pbe-marker");
       tooltip.setAttribute("aria-label", text.pbeNew);
       media.append(tooltip);
     }
     const actions = root.ownerDocument.createElement("div");
-    actions.className = "tft-little-legends-card-actions";
+    actions.className = "tft-companions-card-actions";
     const detailsButton = root.ownerDocument.createElement("button");
-    detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-little-legends-info-button";
+    detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-companions-info-button";
     detailsButton.type = "button";
     detailsButton.setAttribute("aria-label", text.details);
     const detailsIcon = createIcon("InfoCircleOutlined");
@@ -423,10 +421,10 @@ export function initTftLittleLegends(
     detailsIcon.setAttribute("height", "14");
     detailsButton.append(detailsIcon);
     const popoverDetails = root.ownerDocument.createElement("dl");
-    popoverDetails.className = "tft-little-legends-card-popover";
+    popoverDetails.className = "tft-companions-card-popover";
     const appendDetail = (label: string, value: string) => {
       const row = root.ownerDocument.createElement("div");
-      row.className = "tft-little-legends-card-detail";
+      row.className = "tft-companions-card-detail";
       const term = root.ownerDocument.createElement("dt");
       term.textContent = label;
       const description = root.ownerDocument.createElement("dd");
@@ -443,23 +441,23 @@ export function initTftLittleLegends(
     actions.append(detailsButton);
     media.append(actions);
     const details = root.ownerDocument.createElement("div");
-    details.className = "tft-little-legends-card-details";
+    details.className = "tft-companions-card-details";
     const title = root.ownerDocument.createElement(grouped ? "h3" : "h2");
-    title.className = "tft-little-legends-card-title";
+    title.className = "tft-companions-card-title";
     const rarityIcon = root.ownerDocument.createElement("img");
-    rarityIcon.className = "tft-cosmetic-rarity-icon";
-    rarityIcon.src = tftCosmeticRarityIconUrl(item.TFTRarity, state.channel);
+    rarityIcon.className = "tft-cosmetic-tier-icon";
+    rarityIcon.src = tftCosmeticTierIconUrl(item.TFTRarity, state.channel);
     rarityIcon.alt = "";
     rarityIcon.setAttribute("aria-hidden", "true");
     const rarityTooltip = createTooltip(rarityIcon, rarityLabel);
-    rarityTooltip.classList.add("tft-cosmetic-rarity-tooltip");
+    rarityTooltip.classList.add("tft-cosmetic-tier-tooltip");
     rarityTooltip.setAttribute("aria-label", rarityLabel);
     const titleText = root.ownerDocument.createElement("span");
-    titleText.className = "tft-little-legends-card-title-text";
+    titleText.className = "tft-companions-card-title-text";
     titleText.textContent = displayName;
     const titleTooltipLabel = displayName;
     const titleTooltip = createTooltip(titleText, titleTooltipLabel);
-    titleTooltip.classList.add("tft-little-legends-card-title-tooltip");
+    titleTooltip.classList.add("tft-companions-card-title-tooltip");
     titleTooltip.setAttribute("aria-label", titleTooltipLabel);
     title.append(titleTooltip);
     details.append(title);
@@ -513,13 +511,13 @@ export function initTftLittleLegends(
         if (remaining <= 0) break;
         const visibleItems = group.items.slice(0, remaining);
         const section = root.ownerDocument.createElement("section");
-        section.className = "tft-little-legends-species-group";
+        section.className = "tft-companions-species-group";
         const heading = root.ownerDocument.createElement("h2");
-        heading.id = `tft-little-legends-species-${speciesId}`;
+        heading.id = `tft-companions-species-${speciesId}`;
         heading.textContent = group.name;
         section.setAttribute("aria-labelledby", heading.id);
         const groupGrid = root.ownerDocument.createElement("div");
-        groupGrid.className = "tft-little-legends-grid";
+        groupGrid.className = "tft-companions-grid";
         section.append(heading, groupGrid);
         grid.append(section);
         visibleItems.forEach((item) => appendCard(item, groupGrid, true));
@@ -548,20 +546,20 @@ export function initTftLittleLegends(
   viewSwitcher.replaceChildren(
     createRadioButtonGroup({
       buttonStyle: "solid",
-      name: "tft-little-legends-view",
-      idPrefix: "tft-little-legends-view",
+      name: "tft-companions-view",
+      idPrefix: "tft-companions-view",
       value: "cards",
       ariaLabel: text.displayMode,
       options: [
         {
           label: text.cards,
           value: "cards",
-          controls: "little-legends-grid",
+          controls: "tft-companions-grid",
         },
         {
           label: text.groupBySpecies,
           value: "species",
-          controls: "little-legends-grid",
+          controls: "tft-companions-grid",
         },
       ],
       onChange(value) {
@@ -583,7 +581,7 @@ export function initTftLittleLegends(
   const updateFilters = (
     patch: Partial<
       Pick<
-        TftLittleLegendState,
+        TftCompanionState,
         | "search"
         | "companionType"
         | "speciesId"
@@ -595,9 +593,9 @@ export function initTftLittleLegends(
     >,
   ) => {
     state = { ...state, ...patch, invalid: [] };
-    const url = formatLittleLegendUrl(history.url, state);
+    const url = formatTftCompanionUrl(history.url, state);
     if (url.href !== history.url.href) history.push(url);
-    state = readLittleLegendUrlState(url);
+    state = readTftCompanionUrlState(url);
     syncControls();
     renderMatches(true);
     status.textContent = "";
@@ -606,7 +604,7 @@ export function initTftLittleLegends(
   const lifecycle = new RuntimeChannelLifecycle({
     history,
     parse(url) {
-      const target = readLittleLegendUrlState(url);
+      const target = readTftCompanionUrlState(url);
       return { status: "valid", channel: target.channel, target };
     },
     async load(target, signal): Promise<TftCompanionLoadResult> {
@@ -737,7 +735,7 @@ export function initTftLittleLegends(
         renderMatches(true);
       },
       committed(context) {
-        const canonical = formatLittleLegendUrl(context.url, state);
+        const canonical = formatTftCompanionUrl(context.url, state);
         if (canonical.href !== context.url.href) history.replace(canonical);
       },
       invalid(message) {
@@ -757,10 +755,10 @@ export function initTftLittleLegends(
           true,
         ) as DocumentFragment;
         const message = fragment.querySelector<HTMLElement>(
-          "[data-little-legends-error-message]",
+          "[data-tft-companions-error-message]",
         );
         const button = fragment.querySelector<HTMLButtonElement>(
-          "[data-little-legends-retry]",
+          "[data-tft-companions-retry]",
         );
         const wrapper = fragment.firstElementChild as HTMLElement | null;
         if (!message || !button || !wrapper)
@@ -799,7 +797,7 @@ export function initTftLittleLegends(
   rarity.addEventListener("change", () =>
     updateFilters({
       TFTRarity:
-        rarity.value && isTftCompanionRarity(rarity.value)
+        rarity.value && isTftCosmeticTier(rarity.value)
           ? rarity.value
           : undefined,
     }),
@@ -828,7 +826,7 @@ export function initTftLittleLegends(
         )
           return;
         void lifecycle.navigate(
-          formatLittleLegendUrl(history.url, {
+          formatTftCompanionUrl(history.url, {
             ...state,
             channel,
             channelExplicit: true,

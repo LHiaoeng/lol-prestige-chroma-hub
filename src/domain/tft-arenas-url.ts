@@ -1,10 +1,9 @@
 import type { RuntimeChannel } from "./communitydragon-runtime";
 import {
-  isTftArenaRarity,
   isTftArenaSort,
-  type TftArenaRarity,
   type TftArenaSort,
 } from "./tft-arenas";
+import { isTftCosmeticTier, type TftCosmeticTier } from "./tft-cosmetic-tier";
 
 export type TftArenaUrlParameter =
   | "q"
@@ -17,7 +16,7 @@ export type TftArenaUrlParameter =
 export interface TftArenaUrlState {
   readonly search: string;
   readonly groupId?: number;
-  readonly TFTRarity?: TftArenaRarity;
+  readonly TFTRarity?: TftCosmeticTier;
   readonly sort: TftArenaSort;
   readonly onlyPbeAdditions: boolean;
   readonly channel: RuntimeChannel;
@@ -39,7 +38,7 @@ export function readTftArenaUrlState(url: URL): TftArenaUrlState {
   const channels = url.searchParams.getAll("channel");
   const groupId = groups.length === 1 && /^(?:0|[1-9]\d*)$/.test(groups[0])
     ? Number(groups[0]) : undefined;
-  const TFTRarity = rarities.length === 1 && isTftArenaRarity(rarities[0])
+  const TFTRarity = rarities.length === 1 && isTftCosmeticTier(rarities[0])
     ? rarities[0] : undefined;
   const sort = sorts.length === 1 && isTftArenaSort(sorts[0])
     ? sorts[0] : "default";
@@ -71,7 +70,7 @@ export function formatTftArenaUrl(url: URL, state: TftArenaUrlStateInput): URL {
   if (query) next.searchParams.set("q", query);
   if (Number.isSafeInteger(state.groupId) && (state.groupId ?? -1) >= 0)
     next.searchParams.set("groupId", String(state.groupId));
-  if (state.TFTRarity && isTftArenaRarity(state.TFTRarity))
+  if (state.TFTRarity && isTftCosmeticTier(state.TFTRarity))
     next.searchParams.set("TFTRarity", state.TFTRarity);
   if (state.sort && state.sort !== "default" && isTftArenaSort(state.sort))
     next.searchParams.set("sort", state.sort);

@@ -1,14 +1,13 @@
 import type { RuntimeChannel } from "./communitydragon-runtime";
 import {
   isTftCompanionType,
-  isTftCompanionRarity,
   isTftCompanionSort,
   type TftCompanionType,
-  type TftCompanionRarity,
   type TftCompanionSort,
-} from "./little-legends";
+} from "./tft-companions";
+import { isTftCosmeticTier, type TftCosmeticTier } from "./tft-cosmetic-tier";
 
-export type LittleLegendUrlParameter =
+export type TftCompanionUrlParameter =
   | "q"
   | "companionType"
   | "speciesId"
@@ -18,21 +17,21 @@ export type LittleLegendUrlParameter =
   | "pbeOnly"
   | "channel";
 
-export interface LittleLegendUrlState {
+export interface TftCompanionUrlState {
   readonly search: string;
   readonly companionType?: TftCompanionType;
   readonly speciesId?: number;
-  readonly TFTRarity?: TftCompanionRarity;
+  readonly TFTRarity?: TftCosmeticTier;
   readonly level?: number;
   readonly sort: TftCompanionSort;
   readonly onlyPbeAdditions: boolean;
   readonly channel: RuntimeChannel;
   readonly channelExplicit: boolean;
-  readonly invalid: readonly LittleLegendUrlParameter[];
+  readonly invalid: readonly TftCompanionUrlParameter[];
 }
 
-export type LittleLegendUrlStateInput = Pick<
-  LittleLegendUrlState,
+export type TftCompanionUrlStateInput = Pick<
+  TftCompanionUrlState,
   | "search"
   | "companionType"
   | "speciesId"
@@ -41,7 +40,7 @@ export type LittleLegendUrlStateInput = Pick<
   | "onlyPbeAdditions"
   | "channel"
 > &
-  Partial<Pick<LittleLegendUrlState, "channelExplicit" | "sort">>;
+  Partial<Pick<TftCompanionUrlState, "channelExplicit" | "sort">>;
 
 const positiveInteger = /^[1-9]\d*$/;
 const nonNegativeInteger = /^(?:0|[1-9]\d*)$/;
@@ -59,7 +58,7 @@ function readPositiveInteger(
     : { invalid: true };
 }
 
-export function readLittleLegendUrlState(url: URL): LittleLegendUrlState {
+export function readTftCompanionUrlState(url: URL): TftCompanionUrlState {
   const speciesId = readPositiveInteger(url, "speciesId");
   const level = readPositiveInteger(url, "level");
   const rawSearch = url.searchParams.getAll("q");
@@ -69,7 +68,7 @@ export function readLittleLegendUrlState(url: URL): LittleLegendUrlState {
   const rawChannel = url.searchParams.getAll("channel");
   const rawPbeOnly = url.searchParams.getAll("pbeOnly");
   const rarity =
-    rawRarity.length === 1 && isTftCompanionRarity(rawRarity[0])
+    rawRarity.length === 1 && isTftCosmeticTier(rawRarity[0])
       ? rawRarity[0]
       : undefined;
   const sort =
@@ -87,7 +86,7 @@ export function readLittleLegendUrlState(url: URL): LittleLegendUrlState {
           (rawChannel[0] === "pbe" || rawChannel[0] === "latest")
         ? rawChannel[0]
         : "pbe";
-  const invalid: LittleLegendUrlParameter[] = [];
+  const invalid: TftCompanionUrlParameter[] = [];
   if (rawSearch.length > 1) invalid.push("q");
   if (rawCompanionType.length > 0 && companionType === undefined)
     invalid.push("companionType");
@@ -121,9 +120,9 @@ export function readLittleLegendUrlState(url: URL): LittleLegendUrlState {
   };
 }
 
-export function formatLittleLegendUrl(
+export function formatTftCompanionUrl(
   url: URL,
-  state: LittleLegendUrlStateInput,
+  state: TftCompanionUrlStateInput,
 ): URL {
   const next = new URL(url);
   next.search = "";
@@ -133,7 +132,7 @@ export function formatLittleLegendUrl(
     next.searchParams.set("companionType", state.companionType);
   if (Number.isSafeInteger(state.speciesId) && (state.speciesId ?? -1) >= 0)
     next.searchParams.set("speciesId", String(state.speciesId));
-  if (state.TFTRarity && isTftCompanionRarity(state.TFTRarity))
+  if (state.TFTRarity && isTftCosmeticTier(state.TFTRarity))
     next.searchParams.set("TFTRarity", state.TFTRarity);
   if (Number.isSafeInteger(state.level) && (state.level ?? 0) > 0)
     next.searchParams.set("level", String(state.level));

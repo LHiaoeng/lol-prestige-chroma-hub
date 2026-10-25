@@ -23,7 +23,7 @@ import {
 import {
   projectTftCompanions,
   type TftCompanion,
-} from "../domain/little-legends";
+} from "../domain/tft-companions";
 import { projectTftArenas, type TftArena } from "../domain/tft-arenas";
 import {
   CommunityDragonRuntimeError,

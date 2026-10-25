@@ -1,12 +1,11 @@
 import {
   addTftArenaSearchAliases,
   filterTftArenas,
-  isTftArenaRarity,
   isTftArenaSort,
   markPbeTftArenaAdditions,
-  TFT_ARENA_RARITY_ORDER,
   type TftArena,
 } from "../domain/tft-arenas";
+import { isTftCosmeticTier, TFT_COSMETIC_TIER_ORDER } from "../domain/tft-cosmetic-tier";
 import { arenaPageSize, arenaVisibleCount } from "../domain/tft-arenas-page";
 import {
   formatTftArenaUrl,
@@ -16,7 +15,7 @@ import {
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import type { CommunityDragonLocale, RuntimeChannel } from "../domain/communitydragon-runtime";
 import { setDomainIconTooltip } from "../components/domain-icons";
-import { tftCosmeticRarityIconUrl, tftCosmeticRarityLabel } from "../components/tft-cosmetic-rarity";
+import { tftCosmeticTierIconUrl, tftCosmeticTierLabel } from "../components/tft-cosmetic-tier";
 import { createPopover } from "../components/popover";
 import { createTooltip } from "../components/tooltip";
 import { enhanceSelect, refreshSelect } from "../components/select";
@@ -163,11 +162,11 @@ export function initTftArenas(
       rarities.add(item.TFTRarity);
     }
     addSelectOptions(group, [...groups].sort((a, b) => a[1].localeCompare(b[1], locale === "zh_cn" ? "zh-CN" : "en")).map(([id, name]) => [String(id), name]));
-    addSelectOptions(rarity, TFT_ARENA_RARITY_ORDER.filter((tier) => rarities.has(tier)).map((tier) => [tier, tftCosmeticRarityLabel(tier, locale)]));
+    addSelectOptions(rarity, TFT_COSMETIC_TIER_ORDER.filter((tier) => rarities.has(tier)).map((tier) => [tier, tftCosmeticTierLabel(tier, locale)]));
   };
   const appendCard = (item: TftArena) => {
     const doc = root.ownerDocument;
-    const rarityLabel = tftCosmeticRarityLabel(item.TFTRarity, locale);
+    const rarityLabel = tftCosmeticTierLabel(item.TFTRarity, locale);
     const article = doc.createElement("article");
     article.className = "runtime-card tft-arenas-card";
     const media = doc.createElement("div");
@@ -232,12 +231,12 @@ export function initTftArenas(
     tier.textContent = rarityLabel;
     body.append(heading, tier);
     const rarityIcon = doc.createElement("img");
-    rarityIcon.className = "tft-cosmetic-rarity-icon";
-    rarityIcon.src = tftCosmeticRarityIconUrl(item.TFTRarity, state.channel);
+    rarityIcon.className = "tft-cosmetic-tier-icon";
+    rarityIcon.src = tftCosmeticTierIconUrl(item.TFTRarity, state.channel);
     rarityIcon.alt = "";
     rarityIcon.setAttribute("aria-hidden", "true");
     const rarityTooltip = createTooltip(rarityIcon, rarityLabel);
-    rarityTooltip.classList.add("tft-cosmetic-rarity-tooltip");
+    rarityTooltip.classList.add("tft-cosmetic-tier-tooltip");
     rarityTooltip.setAttribute("aria-label", rarityLabel);
     article.append(media, rarityTooltip, body);
     grid.append(article);
@@ -389,7 +388,7 @@ export function initTftArenas(
   });
   search.addEventListener("input", () => updateFilters({ search: search.value }));
   group.addEventListener("change", () => updateFilters({ groupId: group.value ? Number(group.value) : undefined }));
-  rarity.addEventListener("change", () => updateFilters({ TFTRarity: rarity.value && isTftArenaRarity(rarity.value) ? rarity.value : undefined }));
+  rarity.addEventListener("change", () => updateFilters({ TFTRarity: rarity.value && isTftCosmeticTier(rarity.value) ? rarity.value : undefined }));
   sort.addEventListener("change", () => { if (isTftArenaSort(sort.value)) updateFilters({ sort: sort.value }); });
   pbeOnly.addEventListener("change", () => updateFilters({ onlyPbeAdditions: pbeOnly.checked }));
   loadMore.addEventListener("click", () => {

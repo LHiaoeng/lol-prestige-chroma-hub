@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { createTftLittleLegendsSeo } from './tft-little-legends-seo';
+import { createTftCompanionsSeo } from './tft-companions-seo';
 
 describe('TFT Little Legends SEO', () => {
   it('publishes localized metadata and the Home-to-TFT-to-Little-Legends breadcrumb', () => {
-    const english = createTftLittleLegendsSeo('en');
-    const chinese = createTftLittleLegendsSeo('zh-cn');
+    const english = createTftCompanionsSeo('en');
+    const chinese = createTftCompanionsSeo('zh-cn');
 
     expect(english).toMatchObject({
       title: 'Teamfight Tactics Tacticians | LoL Chroma Art',

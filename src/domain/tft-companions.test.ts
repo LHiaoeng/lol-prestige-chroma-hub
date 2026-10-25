@@ -9,7 +9,7 @@ import {
   projectTftCompanions,
   sortTftCompanions,
   tftCompanionPageSize,
-} from "./little-legends";
+} from "./tft-companions";
 
 describe("TFT companion projection", () => {
   it("marks all levels only when the same category and species has multiple levels", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { TFT_COMPANION_TYPE_ORDER } from "../domain/little-legends";
-import { tftCompanionDisplayName, tftCompanionTypeLabel } from "./tft-little-legends";
+import { TFT_COMPANION_TYPE_ORDER } from "../domain/tft-companions";
+import { tftCompanionDisplayName, tftCompanionTypeLabel } from "./tft-companions";
 
 describe("TFT companion labels", () => {
   it("appends a star suffix only when the companion has multiple star levels", () => {

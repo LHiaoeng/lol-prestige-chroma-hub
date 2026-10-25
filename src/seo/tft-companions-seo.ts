@@ -1,7 +1,7 @@
 import { localeConfig, localizedPath, type Locale } from '../i18n/config';
 import { SITE } from './site';
 
-export function createTftLittleLegendsSeo(locale: Locale) {
+export function createTftCompanionsSeo(locale: Locale) {
   const tftHome = 'https://teamfighttactics.leagueoflegends.com/en-us/index/';
   const isZh = locale === 'zh-cn';
   const name = isZh ? '云顶之弈小小英雄' : 'Teamfight Tactics Tacticians';

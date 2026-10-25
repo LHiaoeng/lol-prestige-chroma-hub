@@ -1,52 +1,52 @@
-.tft-little-legends > .ant-divider-horizontal {
+.tft-companions > .ant-divider-horizontal {
   margin: var(--space-4) 0;
 }
-.tft-little-legends > header h1 {
+.tft-companions > header h1 {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   margin: 0;
   color: var(--gold);
 }
-.tft-little-legends > header h1 .little-legends-icon {
+.tft-companions > header h1 .tft-companions-icon {
   inline-size: 1.25em;
   block-size: 1em;
   flex: none;
 }
-.tft-little-legends-summary {
+.tft-companions-summary {
   margin-top: var(--space-2) !important;
 }
-.tft-little-legends-filter-skeleton,
-.tft-little-legends-filters {
+.tft-companions-filter-skeleton,
+.tft-companions-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
-.tft-little-legends-filter-skeleton > .runtime-skeleton-line {
+.tft-companions-filter-skeleton > .runtime-skeleton-line {
   width: 100%;
   height: var(--control-height);
 }
-.tft-little-legends-filter-skeleton > .tft-little-legends-pbe-filter-skeleton {
+.tft-companions-filter-skeleton > .tft-companions-pbe-filter-skeleton {
   width: min(100%, 132px);
 }
-.tft-little-legends-field {
+.tft-companions-field {
   display: grid;
   min-width: 0;
   gap: var(--space-1);
   color: var(--muted);
   font-size: var(--font-size-body);
 }
-.tft-little-legends-field .cn-input,
-.tft-little-legends-field .ant-select {
+.tft-companions-field .cn-input,
+.tft-companions-field .ant-select {
   min-width: 0;
 }
-.tft-little-legends-pbe-tooltip.ant-tooltip-trigger {
+.tft-companions-pbe-tooltip.ant-tooltip-trigger {
   display: inline-flex;
   align-items: center;
   align-self: end;
 }
-.tft-little-legends-pbe-setting {
+.tft-companions-pbe-setting {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -54,20 +54,20 @@
   color: var(--text);
   cursor: pointer;
 }
-.tft-little-legends-pbe-setting input {
+.tft-companions-pbe-setting input {
   width: 16px;
   height: 16px;
   margin: 0;
   accent-color: var(--gold);
 }
-.tft-little-legends-status {
+.tft-companions-status {
   margin: 0 0 var(--space-3);
   color: var(--muted);
 }
-.tft-little-legends-status:empty {
+.tft-companions-status:empty {
   display: none;
 }
-.ant-spin.tft-little-legends-spinner > .ant-spin-section {
+.ant-spin.tft-companions-spinner > .ant-spin-section {
   position: sticky;
   top: 50vh;
   left: auto;
@@ -76,13 +76,13 @@
   margin: 0 auto -20px;
   transform: translateY(-50%);
 }
-.tft-little-legends-grid {
+.tft-companions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
   column-gap: var(--space-3);
   row-gap: var(--space-4);
 }
-.tft-little-legends-results-toolbar {
+.tft-companions-results-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -90,48 +90,48 @@
   gap: var(--space-3);
   margin-bottom: var(--space-3);
 }
-.tft-little-legends-results-toolbar .runtime-list-count {
+.tft-companions-results-toolbar .runtime-list-count {
   margin: 0;
 }
-.tft-little-legends-view-switch {
+.tft-companions-view-switch {
   display: flex;
   min-width: 0;
 }
-.tft-little-legends-view-switch .ant-radio-group {
+.tft-companions-view-switch .ant-radio-group {
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
-.tft-little-legends-species-group {
+.tft-companions-species-group {
   display: grid;
   grid-column: 1 / -1;
   gap: var(--space-3);
   min-width: 0;
 }
-.tft-little-legends-species-group > h2 {
+.tft-companions-species-group > h2 {
   margin: 0;
   color: var(--gold);
   font-size: var(--font-size-headline-sm);
   line-height: var(--line-height-headline-sm);
 }
-.tft-little-legends-load-more-footer {
+.tft-companions-load-more-footer {
   display: flex;
   justify-content: center;
   margin-top: var(--space-3);
 }
-.tft-little-legends-error {
+.tft-companions-error {
   display: grid;
   justify-items: start;
   gap: var(--space-3);
 }
-.runtime-card.tft-little-legends-card {
+.runtime-card.tft-companions-card {
   position: relative;
   overflow: visible;
   min-height: 0;
   padding: 0;
 }
-.tft-little-legends-card-media {
+.tft-companions-card-media {
   position: relative;
   display: grid;
   aspect-ratio: 1;
@@ -140,7 +140,7 @@
   border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
   background: var(--panel2);
 }
-.tft-little-legends-card-preview {
+.tft-companions-card-preview {
   position: relative;
   display: block;
   grid-area: 1 / 1;
@@ -148,7 +148,7 @@
   height: 100%;
   overflow: hidden;
 }
-.tft-little-legends-preview-cover {
+.tft-companions-preview-cover {
   position: absolute;
   inset: 0;
   display: grid;
@@ -158,15 +158,15 @@
   opacity: 0;
   transition: opacity var(--motion-slow) ease;
 }
-.tft-little-legends-preview-cover svg {
+.tft-companions-preview-cover svg {
   width: 32px;
   height: 32px;
 }
-.tft-little-legends-card-media:hover .tft-little-legends-preview-cover,
-.tft-little-legends-card-preview:focus-visible .tft-little-legends-preview-cover {
+.tft-companions-card-media:hover .tft-companions-preview-cover,
+.tft-companions-card-preview:focus-visible .tft-companions-preview-cover {
   opacity: 1;
 }
-.tft-little-legends-card-actions {
+.tft-companions-card-actions {
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
@@ -176,37 +176,37 @@
   gap: var(--space-1);
   transition: opacity var(--motion-fast);
 }
-.tft-little-legends-card-actions .project-icon {
+.tft-companions-card-actions .project-icon {
   width: 14px;
   height: 14px;
 }
-.tft-little-legends-info-button:focus-visible {
+.tft-companions-info-button:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
-.tft-little-legends-card-popover {
+.tft-companions-card-popover {
   display: grid;
   min-width: 220px;
   max-width: calc(100vw - 48px);
   gap: var(--space-2);
   margin: 0;
 }
-.tft-little-legends-card-detail {
+.tft-companions-card-detail {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
   align-items: center;
   gap: var(--space-3);
 }
-.tft-little-legends-card-detail dt {
+.tft-companions-card-detail dt {
   color: var(--muted);
 }
-.tft-little-legends-card-detail dd {
+.tft-companions-card-detail dd {
   min-width: 0;
   margin: 0;
   color: var(--text);
   overflow-wrap: anywhere;
 }
-.tft-little-legends-pbe-marker.ant-tooltip-trigger {
+.tft-companions-pbe-marker.ant-tooltip-trigger {
   position: absolute;
   top: var(--space-2);
   left: var(--space-2);
@@ -223,28 +223,28 @@
   font-weight: 600;
   line-height: var(--line-height-small);
 }
-.tft-little-legends-pbe-marker-label {
+.tft-companions-pbe-marker-label {
   font: inherit;
 }
-.tft-little-legends-card-media img {
+.tft-companions-card-media img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.tft-little-legends-card-image-fallback {
+.tft-companions-card-image-fallback {
   grid-area: 1 / 1;
   padding: var(--space-3);
   color: var(--muted);
   text-align: center;
 }
-.tft-little-legends-card-details {
+.tft-companions-card-details {
   min-width: 0;
   padding: var(--space-3);
   overflow-wrap: anywhere;
 }
-.tft-little-legends-card-details h2,
-.tft-little-legends-card-details h3 {
+.tft-companions-card-details h2,
+.tft-companions-card-details h3 {
   display: flex;
   min-width: 0;
   align-items: center;
@@ -252,7 +252,7 @@
   margin: 0;
   font-size: var(--font-size-title);
 }
-.tft-little-legends-card-title-tooltip.ant-tooltip-trigger {
+.tft-companions-card-title-tooltip.ant-tooltip-trigger {
   display: block;
   min-width: 0;
   flex: 1 1 auto;
@@ -260,7 +260,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tft-little-legends-card-title-text {
+.tft-companions-card-title-text {
   display: block;
   min-width: 0;
   flex: 1 1 auto;
@@ -268,26 +268,26 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tft-little-legends-card-title-tooltip:focus-visible {
+.tft-companions-card-title-tooltip:focus-visible {
   border-radius: var(--radius-control);
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
-.tft-little-legends [hidden] {
+.tft-companions [hidden] {
   display: none !important;
 }
 @media (max-width: 767px) {
-  .tft-little-legends-grid {
+  .tft-companions-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (hover: hover) and (pointer: fine) {
-  .tft-little-legends-card-actions {
+  .tft-companions-card-actions {
     opacity: 0;
     pointer-events: none;
   }
-  .tft-little-legends-card:hover .tft-little-legends-card-actions,
-  .tft-little-legends-card:focus-within .tft-little-legends-card-actions {
+  .tft-companions-card:hover .tft-companions-card-actions,
+  .tft-companions-card:focus-within .tft-companions-card-actions {
     opacity: 1;
     pointer-events: auto;
   }

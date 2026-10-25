@@ -1,0 +1,3 @@
+.tft-cosmetic-tier-tooltip.ant-tooltip-trigger { position: absolute; top: 0; left: 50%; z-index: 5; display: grid; inline-size: min(35%, 80px); aspect-ratio: 1; transform: translate(-50%, -50%); place-items: center; }
+.runtime-card .tft-cosmetic-tier-icon { width: 100%; height: 100%; background: transparent; object-fit: contain; transform: scale(1.05); }
+.tft-cosmetic-tier-tooltip:focus-visible { border-radius: var(--radius-control); outline: 2px solid var(--gold); outline-offset: 2px; }

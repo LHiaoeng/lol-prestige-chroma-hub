@@ -4,17 +4,12 @@ import {
   type CommunityDragonChannel,
 } from "./communitydragon-url";
 import type { CommunityDragonLocale } from "./communitydragon-runtime";
+import { TFT_COSMETIC_TIER_ORDER, type TftCosmeticTier } from "./tft-cosmetic-tier";
 
 export const TFT_COMPANION_TYPE_ORDER = [
   "kStyle2",
   "kChibi",
   "kLittleLegend",
-] as const;
-export const TFT_COMPANION_RARITY_ORDER = [
-  "kPrestige",
-  "kMythic",
-  "kLegendary",
-  "kStandard",
 ] as const;
 export const TFT_COMPANION_SORTS = [
   "default",
@@ -29,20 +24,12 @@ export const TFT_COMPANION_SORTS = [
 ] as const;
 
 const TFT_COMPANION_TYPES = TFT_COMPANION_TYPE_ORDER;
-const TFT_COMPANION_RARITIES = TFT_COMPANION_RARITY_ORDER;
 
 export type TftCompanionType = (typeof TFT_COMPANION_TYPES)[number];
-export type TftCompanionRarity = (typeof TFT_COMPANION_RARITIES)[number];
 export type TftCompanionSort = (typeof TFT_COMPANION_SORTS)[number];
 
 export function isTftCompanionType(value: string): value is TftCompanionType {
   return (TFT_COMPANION_TYPES as readonly string[]).includes(value);
-}
-
-export function isTftCompanionRarity(
-  value: string,
-): value is TftCompanionRarity {
-  return (TFT_COMPANION_RARITIES as readonly string[]).includes(value);
 }
 
 export function isTftCompanionSort(value: string): value is TftCompanionSort {
@@ -58,7 +45,7 @@ export interface TftCompanion {
   readonly speciesId: number;
   readonly speciesName: string;
   readonly level: number;
-  readonly TFTRarity: TftCompanionRarity;
+  readonly TFTRarity: TftCosmeticTier;
   readonly imageUrl: string;
 }
 
@@ -67,7 +54,7 @@ export interface TftCompanionFilters {
   readonly onlyPbeAdditions?: boolean;
   readonly companionType?: TftCompanionType;
   readonly speciesId?: number;
-  readonly TFTRarity?: TftCompanionRarity;
+  readonly TFTRarity?: TftCosmeticTier;
   readonly level?: number;
   readonly sort?: TftCompanionSort;
 }
@@ -154,7 +141,7 @@ const tftCompanionSchema = z.object({
   speciesId: nonNegativeSafeInteger,
   speciesName: nonBlankText,
   level: positiveSafeInteger,
-  TFTRarity: z.enum(TFT_COMPANION_RARITIES),
+  TFTRarity: z.enum(TFT_COSMETIC_TIER_ORDER),
   loadoutsIcon: nonBlankText,
 });
 
@@ -164,8 +151,8 @@ function compareTftCompanions(
   locale: CommunityDragonLocale,
 ): number {
   const rarityOrder =
-    TFT_COMPANION_RARITY_ORDER.indexOf(left.TFTRarity) -
-    TFT_COMPANION_RARITY_ORDER.indexOf(right.TFTRarity);
+    TFT_COSMETIC_TIER_ORDER.indexOf(left.TFTRarity) -
+    TFT_COSMETIC_TIER_ORDER.indexOf(right.TFTRarity);
   if (rarityOrder) return rarityOrder;
 
   const typeOrder =
@@ -194,13 +181,13 @@ function compareBySort(
   switch (sort) {
     case "rarity_desc":
       primary =
-        TFT_COMPANION_RARITY_ORDER.indexOf(left.TFTRarity) -
-        TFT_COMPANION_RARITY_ORDER.indexOf(right.TFTRarity);
+        TFT_COSMETIC_TIER_ORDER.indexOf(left.TFTRarity) -
+        TFT_COSMETIC_TIER_ORDER.indexOf(right.TFTRarity);
       break;
     case "rarity_asc":
       primary =
-        TFT_COMPANION_RARITY_ORDER.indexOf(right.TFTRarity) -
-        TFT_COMPANION_RARITY_ORDER.indexOf(left.TFTRarity);
+        TFT_COSMETIC_TIER_ORDER.indexOf(right.TFTRarity) -
+        TFT_COSMETIC_TIER_ORDER.indexOf(left.TFTRarity);
       break;
     case "type_desc":
       primary =

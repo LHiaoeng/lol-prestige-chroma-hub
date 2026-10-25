@@ -5,7 +5,7 @@ import { matchesSelectSearch, nextEnabledIndex } from "./select";
 const selectComponent = readFileSync(new URL("./Select.astro", import.meta.url), "utf8");
 const filterComponent = readFileSync(new URL("./Filters.astro", import.meta.url), "utf8");
 const skinCatalogComponent = readFileSync(new URL("./SkinCatalogRoot.astro", import.meta.url), "utf8");
-const littleLegendsComponent = readFileSync(new URL("./TftLittleLegendsRoot.astro", import.meta.url), "utf8");
+const companionsComponent = readFileSync(new URL("./TftCompanionsRoot.astro", import.meta.url), "utf8");
 const selectStyles = readFileSync(new URL("../styles/global.css", import.meta.url), "utf8");
 const selectLogic = readFileSync(new URL("./select.ts", import.meta.url), "utf8");
 
@@ -18,7 +18,7 @@ describe("Select component contract", () => {
   it("keeps required sort selects non-clearable", () => {
     expect(filterComponent).toContain('<Select name="sort" allowClear={false}');
     expect(skinCatalogComponent).toMatch(/data-catalog-sort=""[\s\S]*?allowClear=\{false\}/);
-    expect(littleLegendsComponent).toContain('data-little-legends-sort="" allowClear={false}');
+    expect(companionsComponent).toContain('data-tft-companions-sort="" allowClear={false}');
   });
 
   it("maps the upstream clear affordance to the site tokens", () => {
