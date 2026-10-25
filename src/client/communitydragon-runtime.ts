@@ -24,6 +24,7 @@ import {
   projectTftCompanions,
   type TftCompanion,
 } from "../domain/little-legends";
+import { projectTftArenas, type TftArena } from "../domain/tft-arenas";
 import {
   CommunityDragonRuntimeError,
   normalizeRuntimeOptions,
@@ -66,6 +67,7 @@ export interface RuntimeRequestOptions {
 }
 
 export interface CommunityDragonRuntime {
+  listTftArenas(options: RuntimeRequestOptions): Promise<readonly TftArena[]>;
   listTftCompanions(
     options: RuntimeRequestOptions,
   ): Promise<readonly TftCompanion[]>;
@@ -273,6 +275,13 @@ export function createCommunityDragonRuntime(
     return request(key, url, options, (value) =>
       projectTftCompanions(value, options.locale, options.channel),
     );
+  }
+
+  function listTftArenas(input: RuntimeRequestOptions): Promise<readonly TftArena[]> {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl("tftmapskins.json", options.locale, options.channel);
+    const key = `${options.channel}:${options.locale}:tft-arenas`;
+    return request(key, url, options, (value) => projectTftArenas(value, options.channel));
   }
 
   function get(
@@ -637,6 +646,7 @@ export function createCommunityDragonRuntime(
   }
 
   return {
+    listTftArenas,
     listTftCompanions,
     listSkinCatalog,
     list,
