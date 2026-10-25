@@ -7,6 +7,10 @@ import MediaViewer from '../components/MediaViewer.astro';
 import AdSlot from '../components/AdSlot.astro';
 import DomainIcon from '../components/DomainIcon.astro';
 import DownOutlined from '../components/icons/DownOutlined.astro';
+import TranslationOutlined from '../components/icons/TranslationOutlined.astro';
+import Dropdown from '../components/Dropdown.astro';
+import ButtonLink from '../components/ButtonLink.astro';
+import { headerNavigationState } from '../components/header-navigation';
 import { safeJsonLd } from '../domain/chroma';
 import type { AdPlacement } from '../domain/ad-policy';
 import { alternateUrls, localeConfig, localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -38,6 +42,7 @@ const otherLocale: Locale = isZh ? 'en' : 'zh-cn';
 const languageHref = localizedPath(otherLocale, `${Astro.url.pathname}${Astro.url.search}`);
 const socialImage = new URL(image, SITE.origin).toString();
 const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
+const headerNavigation = headerNavigationState(Astro.url.pathname);
 ---
 <!doctype html>
 <html lang={currentLocale.htmlLang} data-language={isZh ? 'zh' : 'en'} data-language-ready>
@@ -72,26 +77,26 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
     <header class="site-header">
       <a class="brand" href={localizedPath(locale, '/')} aria-label={isZh ? 'LoL Chroma Art 首页' : 'LoL Chroma Art home'}><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
-        <div class="browse-menu">
-          <button type="button" class="header-action browse-menu-toggle" aria-label={isZh ? '英雄联盟' : 'League of Legends'} aria-expanded="false" aria-controls="browse-nav">
-            <img class="browse-league-icon" src="/img/icons/league-of-legends.svg" alt="" width="18" height="18" />
-            {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
-            <DownOutlined class="browse-menu-chevron" width="16" height="16" />
-          </button>
-          <nav id="browse-nav" class="browse-nav" aria-label={isZh ? '英雄联盟' : 'League of Legends'}>
-            <a href={localizedPath(locale, '/pbe-additions/')}><DomainIcon name="pbe-additions" class="browse-nav-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a>
-            <a href={localizedPath(locale, '/champions/')}><DomainIcon name="champions" class="browse-nav-icon" />{isZh ? '英雄' : 'Champions'}</a>
-            <a href={localizedPath(locale, '/skins/')}><DomainIcon name="skins" class="browse-nav-icon" />{isZh ? '皮肤' : 'Skins'}</a>
-            <a href={localizedPath(locale, '/skinlines/')}><DomainIcon name="skinlines" class="browse-nav-icon" />{isZh ? '系列' : 'Skinlines'}</a>
-            <a href={localizedPath(locale, '/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a>
-          </nav>
+        <div class:list={['header-browse', { 'header-browse--current': headerNavigation.browsePath }]}>
+          <Dropdown id="browse-nav" triggerLabel={isZh ? '英雄联盟' : 'League of Legends'} triggerVariant="text">
+            <span slot="trigger" class="header-browse-trigger">
+              <img class="browse-league-icon" src="/img/icons/league-of-legends.svg" alt="" width="14" height="14" />
+              {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
+              <DownOutlined class="browse-menu-chevron" width="12" height="12" />
+            </span>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/pbe-additions/')} aria-current={headerNavigation.current('/pbe-additions/')}><DomainIcon name="pbe-additions" class="browse-nav-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/champions/')} aria-current={headerNavigation.current('/champions/')}><DomainIcon name="champions" class="browse-nav-icon" />{isZh ? '英雄' : 'Champions'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skins/')} aria-current={headerNavigation.current('/skins/')}><DomainIcon name="skins" class="browse-nav-icon" />{isZh ? '皮肤' : 'Skins'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skinlines/')} aria-current={headerNavigation.current('/skinlines/')}><DomainIcon name="skinlines" class="browse-nav-icon" />{isZh ? '系列' : 'Skinlines'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/universes/')} aria-current={headerNavigation.current('/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a></li>
+          </Dropdown>
         </div>
-        <a class="header-action tft-nav-link" href={localizedPath(locale, '/tft/companions/')} aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'}>
+        <ButtonLink class="header-action tft-nav-link" href={localizedPath(locale, '/tft/companions/')} aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'} aria-current={headerNavigation.current('/tft/companions/', '/tft/')}>
           <DomainIcon name="teamfight-tactics" class="tft-nav-icon" />
           {isZh ? <span>云顶之弈</span> : <><span class="tft-nav-label-wide">Teamfight Tactics</span><span class="tft-nav-label-short" aria-hidden="true">TFT</span></>}
-        </a>
-        <a class="header-action header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
-        {canonical && <a class="header-action language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
+        </ButtonLink>
+        <ButtonLink class="header-action header-blog-link" href={localizedPath(locale, '/blog/')} aria-current={headerNavigation.current('/blog/')}>{isZh ? '博客' : 'Blog'}</ButtonLink>
+        {canonical && <ButtonLink class="header-action language-toggle" iconOnly href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><TranslationOutlined class="language-toggle-icon" width="14" height="14" /></ButtonLink>}
       </div>
     </header>
     <main><slot /></main>
@@ -106,30 +111,6 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       bindImageFallbacks();
       bindHeaderGlass();
       bindTypographyParagraphs();
-      const browseMenu = document.querySelector<HTMLElement>('.browse-menu');
-      const browseToggle = document.querySelector<HTMLButtonElement>('.browse-menu-toggle');
-      if (browseMenu && browseToggle) {
-        browseToggle.addEventListener('click', () => {
-          const open = browseMenu.classList.toggle('is-open');
-          browseToggle.setAttribute('aria-expanded', String(open));
-        });
-        document.addEventListener('click', (e) => {
-          if (browseMenu.classList.contains('is-open') && !browseMenu.contains(e.target as Node)) {
-            browseMenu.classList.remove('is-open');
-            browseToggle.setAttribute('aria-expanded', 'false');
-          }
-        });
-        browseMenu.querySelectorAll('.browse-nav a').forEach((link) => link.addEventListener('click', () => {
-          browseMenu.classList.remove('is-open');
-          browseToggle.setAttribute('aria-expanded', 'false');
-        }));
-        browseMenu.addEventListener('keydown', (e) => {
-          if (e.key !== 'Escape' || !browseMenu.classList.contains('is-open')) return;
-          browseMenu.classList.remove('is-open');
-          browseToggle.setAttribute('aria-expanded', 'false');
-          browseToggle.focus();
-        });
-      }
     </script>
     <style is:global>
       html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }
@@ -137,34 +118,25 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .brand { display: flex; align-items: center; gap: var(--space-2); }
       .brand img { display: block; width: 32px; height: 32px; flex: none; }
       .brand > .brand-text { color: var(--text); }
-      .site-header .brand-text, .site-header .browse-nav a, .site-header .header-action { text-shadow: 0 1px 7px #000000d9; }
+      .site-header .brand-text { text-shadow: 0 1px 7px #000000d9; }
       .header-controls { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
-      .browse-menu { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
-      .header-action { display:inline-flex; align-items:center; justify-content:center; min-height:var(--control-height); padding:0 var(--space-2); border:1px solid transparent; border-radius:var(--radius-control); background:transparent; color:var(--text); font-size:var(--font-size-body); line-height:var(--line-height-body); font-weight:400; white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
-      .header-action:hover, .browse-menu.is-open > .browse-menu-toggle { color:var(--gold-hover); background:var(--hover-bg); }
-      .header-action:active { color:var(--gold-active); background:var(--hover-bg); }
-      .header-action:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-      .browse-menu > .browse-menu-toggle { gap:var(--space-1); cursor:pointer; }
-      .browse-league-icon { display:block; width:18px; height:18px; flex:none; }
+      .header-browse { display:flex; align-items:center; flex:0 0 auto; }
+      .site-header .header-action[aria-current], .site-header .header-browse--current .ant-dropdown-trigger { color:var(--gold); }
+      .site-header .header-action[aria-current]:hover, .site-header .header-browse--current .ant-dropdown-trigger:hover { color:var(--gold-hover); }
+      .site-header .header-browse .ant-dropdown-open .ant-dropdown-trigger { background:var(--fill); }
+      .site-header .header-browse-trigger { display:inline-flex; align-items:center; gap:var(--space-1); }
+      .browse-league-icon { display:block; width:14px; height:14px; flex:none; }
       .browse-menu-label-short { display:none; }
       .tft-nav-link { gap:var(--space-1); }
-      .tft-nav-icon { width:16px; height:16px; flex:none; }
+      .tft-nav-icon { width:14px; height:14px; flex:none; }
       .tft-nav-label-short { display:none; }
-      .browse-menu-chevron { width:16px; height:16px; flex:none; transition:transform var(--motion-fast) ease; }
-      .browse-menu.is-open .browse-menu-chevron { transform:rotate(180deg); }
-      .browse-menu > .browse-nav { display:none; position:absolute; top:calc(100% + 6px); left:0; flex-direction:column; min-width:160px; padding:5px 0; background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius-card); box-shadow:var(--shadow-popup); z-index:30; }
-      .browse-menu.is-open > .browse-nav { display:flex; }
-      .browse-nav a { display:inline-flex; align-items:center; width:calc(100% - 8px); min-height:max(40px, var(--control-height)); margin:4px; justify-content:flex-start; gap:10px; padding:0 16px; border-radius:var(--radius-control); color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
-      .browse-nav a .browse-nav-icon { width:14px; height:14px; flex:none; color:inherit; }
-      .browse-nav a:hover { color:var(--gold-hover); background:var(--hover-bg); }
-      .browse-nav a:active { color:var(--gold-active); }
-      .browse-nav a:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+      .browse-menu-chevron { width:12px; height:12px; flex:none; transition:transform var(--motion-mid) ease; }
+      .header-browse .ant-dropdown-open .browse-menu-chevron { transform:rotate(180deg); }
+      .site-header .ant-dropdown-menu a { justify-content:flex-start; gap:var(--space-2); white-space:nowrap; }
+      .site-header .ant-dropdown-menu .browse-nav-icon { width:12px; height:12px; margin-inline:1px; flex:none; color:inherit; }
       .header-blog-link { flex-shrink:0; }
-      .language-toggle { position:relative; width:var(--control-height); min-width:var(--control-height); height:var(--control-height); padding:0; flex-shrink:0; }
-      .language-toggle-mark { position: relative; width: 32px; height: 32px; }
-      .language-toggle-current, .language-toggle-next { position: absolute; border: 1px solid var(--line); font-size: 16.8px; line-height: 16.8px; white-space: nowrap; }
-      .language-toggle-current { z-index: 1; top: 7px; left: 7px; border-color: var(--gold); background: var(--gold); color: var(--on-gold); font-weight: 400; transform: scale(.7); transform-origin: top left; }
-      .language-toggle-next { top: 15px; left: 16px; background: transparent; color: var(--muted); transform: scale(.5); transform-origin: top left; }
+      .language-toggle { flex-shrink:0; }
+      .language-toggle-icon { width:14px; height:14px; }
       @media (max-width: 767px) {
         .header-controls { gap: var(--space-1); }
         .browse-menu-label-wide { display:none; }
@@ -176,15 +148,16 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
         .header-controls { flex: 0 0 auto; }
       }
       @media (max-width: 479px) {
-        .browse-menu > .browse-nav { left:auto; right:0; }
+        .header-browse .ant-dropdown-popup { left:auto; right:0; }
       }
       @media (max-width: 420px) {
         .brand { flex:0 0 32px; margin-right:0; }
         .brand > .brand-text { display:none; }
         .header-controls { gap:var(--space-1); }
-        .browse-menu > .browse-menu-toggle { gap:0; padding-inline:8px; }
-        .browse-menu > .browse-menu-toggle > span, .tft-nav-link > span { display:none; }
-        .tft-nav-link { gap:0; padding-inline:8px; }
+        .site-header .header-browse-trigger { gap:0; }
+        .header-browse-trigger > span, .tft-nav-link > span { display:none; }
+        .site-header .header-browse .ant-dropdown-trigger { padding-inline:8px; }
+        .site-header .tft-nav-link { width:var(--control-height); min-width:var(--control-height); gap:0; padding:0; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       footer a:hover { color:var(--gold-hover); }
