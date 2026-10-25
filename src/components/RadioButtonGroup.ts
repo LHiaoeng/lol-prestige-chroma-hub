@@ -15,6 +15,7 @@ export type RadioButtonGroupSize = "small" | "medium" | "large";
 export interface RadioButtonGroupOptions {
   readonly options: readonly RadioButtonOption[];
   readonly size?: RadioButtonGroupSize;
+  readonly buttonStyle?: "outline" | "solid";
   readonly name: string;
   readonly idPrefix: string;
   readonly value: string;
@@ -24,13 +25,14 @@ export interface RadioButtonGroupOptions {
 
 /**
  * Local DOM adaptation of Antdv Next's Radio.Group button variant.
- * @see https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/radio/radioButton.tsx
+ * @see https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/radio/group.tsx
  */
 export function createRadioButtonGroup(
   options: RadioButtonGroupOptions,
-): HTMLFieldSetElement {
-  const group = document.createElement("fieldset");
-  group.className = "ant-radio-group ant-radio-group-solid ant-radio-group-button";
+): HTMLDivElement {
+  const group = document.createElement("div");
+  group.className = `ant-radio-group ant-radio-group-${options.buttonStyle ?? "outline"} ant-radio-group-button`;
+  group.setAttribute("role", "radiogroup");
   if (options.size === "small" || options.size === "large") group.classList.add(`ant-radio-group-${options.size}`);
   group.setAttribute("aria-label", options.ariaLabel);
   let selectedValue = options.value;

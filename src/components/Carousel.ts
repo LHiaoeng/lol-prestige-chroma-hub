@@ -96,7 +96,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
   const borderOptions = options.borderMenu?.options.filter(({ value }) => slides.some((slide) => slide.key === value)) ?? [];
   const borderSlideKeys = new Set(borderOptions.map(({ value }) => value));
   let borderSelectionActive = false;
-  let radioGroup: HTMLFieldSetElement | undefined;
+  let radioGroup: HTMLDivElement | undefined;
   let borderSelect: CarouselSelectControl | undefined;
   const divider = createDivider({ type: "vertical", className: "runtime-media-carousel-divider" });
   const icon = createIcon("DownloadOutlined");
@@ -160,6 +160,7 @@ export function createCarousel(options: CarouselOptions): HTMLDivElement | undef
     const controlNodes: HTMLElement[] = [];
     const radioSlides = slides.filter(({ key }) => !borderSlideKeys.has(key));
     radioGroup = createRadioButtonGroup({
+      buttonStyle: "solid",
       size: "medium",
       options: radioSlides.map((slide) => ({
         label: slide.label,

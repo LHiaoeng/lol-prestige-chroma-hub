@@ -90,8 +90,15 @@
 @media (max-width: 767px) { .skin-catalog { --catalog-columns: 3; padding-bottom: 72px; } .skin-catalog-toolbar { align-items: center; } }
 @media (max-width: 559px) { .skin-catalog { --catalog-columns: 2; } .skin-catalog-card-title { font-size: var(--font-size-small); line-height: var(--line-height-small); } .skin-catalog-card > .skin-catalog-rarity-tooltip { bottom: -10px; width: 20px; height: 20px; } .skin-catalog-card-rarity { width: 20px; height: 20px; } }
 @media (prefers-reduced-motion: reduce) { .skin-catalog-results:not([hidden]) { animation: none; } }
-.skin-catalog-view-switch { display: flex; min-width: 0; }
-.skin-catalog-view-switch .ant-radio-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.skin-catalog-view-switch { display: flex; min-width: 0; max-width: 100%; overflow-x: auto; }
+.skin-catalog-view-switch .ant-radio-group { width: max-content; min-width: 0; max-width: none; margin: 0; padding: 0; border: 0; flex-wrap: nowrap; }
+.skin-catalog-toolbar .ant-radio-button-label { color: inherit; }
+.skin-catalog-view-switch .ant-radio-button-wrapper { box-sizing: border-box; height: var(--control-height); min-height: 0; color: var(--text); }
+.skin-catalog-view-switch .ant-radio-button-label { height: 100%; min-height: 0; }
+.skin-catalog-view-switch .ant-radio-button-wrapper-checked { background: var(--panel); color: var(--gold); border-color: var(--gold); }
+.skin-catalog-view-switch .ant-radio-button-wrapper-disabled, .skin-catalog-view-switch .ant-radio-button-wrapper-disabled:hover { background: var(--panel); color: var(--disabled); border-color: var(--line); cursor: not-allowed; }
+@media (hover:hover) and (pointer:fine) { .skin-catalog-view-switch .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover { color: var(--gold-hover); border-color: var(--gold-hover); } }
+.skin-catalog-view-switch .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active { color: var(--gold-active); border-color: var(--gold-active); }
 .skin-catalog-results { scroll-margin-top: var(--space-4); }
 .skin-catalog-timeline { min-width: 0; }
 .skin-catalog-timeline-list, .skin-catalog-timeline-entries, .skin-catalog-timeline-skeleton { min-width: 0; margin: 0; padding: 0; list-style: none; }

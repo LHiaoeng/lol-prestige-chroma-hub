@@ -301,8 +301,11 @@ describe("skin catalog browser behavior", () => {
       champions,
     }));
     const page = fixture("https://chromaart.lol/skins/?sort=desc&view=cards", list);
+    expect(page.viewSwitch.querySelector(".ant-radio-button-wrapper-disabled")).not.toBeNull();
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     expect(page.loadMore.getAttribute("aria-controls")).toBe("skin-catalog-grid");
+    expect(page.viewSwitch.querySelector(".ant-radio-group-outline")?.getAttribute("role")).toBe("radiogroup");
+    expect(page.viewSwitch.querySelector(".ant-radio-button-wrapper-disabled")).toBeNull();
     const modes = page.viewSwitch.querySelectorAll("input");
     expect(modes.map((mode) => [mode.value, mode.checked])).toEqual([
       ["cards", true], ["timeline", false], ["champion", false], ["skinline", false], ["universe", false],
