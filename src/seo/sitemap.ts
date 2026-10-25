@@ -54,6 +54,7 @@ export function renderSitemap(): string {
     "/universes/",
     "/pbe-additions/",
     "/tft/companions/",
+    "/tft/arenas/",
   ];
   const fixed = SITE_LOCALES.flatMap((locale) => [
     ...crawlablePaths.map((pathname) => page(pathname, locale)),
