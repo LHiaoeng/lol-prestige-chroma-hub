@@ -86,17 +86,17 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
             <a href={localizedPath(locale, '/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a>
           </nav>
         </div>
-        <details class="browse-menu tft-browse-menu">
-          <summary class="header-action browse-menu-toggle tft-nav-link" aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'}>
+        <div class="browse-menu tft-browse-menu">
+          <button type="button" class="header-action browse-menu-toggle tft-nav-link" aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'} aria-expanded="false" aria-controls="tft-browse-nav">
             <DomainIcon name="teamfight-tactics" class="tft-nav-icon" />
             {isZh ? <span>云顶之弈</span> : <><span class="tft-nav-label-wide">Teamfight Tactics</span><span class="tft-nav-label-short" aria-hidden="true">TFT</span></>}
             <DownOutlined class="browse-menu-chevron" width="16" height="16" />
-          </summary>
+          </button>
           <nav id="tft-browse-nav" class="browse-nav" aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'}>
             <a href={localizedPath(locale, '/tft/companions/')}>{isZh ? '小小英雄' : 'Tacticians'}</a>
             <a href={localizedPath(locale, '/tft/arenas/')}>{isZh ? '棋盘' : 'Arenas'}</a>
           </nav>
-        </details>
+        </div>
         <a class="header-action header-blog-link" href={localizedPath(locale, '/blog/')}>{isZh ? '博客' : 'Blog'}</a>
         {canonical && <a class="header-action language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
       </div>
@@ -113,9 +113,9 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       bindImageFallbacks();
       bindHeaderGlass();
       bindTypographyParagraphs();
-      const browseMenu = document.querySelector<HTMLElement>('.browse-menu');
-      const browseToggle = document.querySelector<HTMLButtonElement>('.browse-menu-toggle');
-      if (browseMenu && browseToggle) {
+      document.querySelectorAll<HTMLElement>('.browse-menu').forEach((browseMenu) => {
+        const browseToggle = browseMenu.querySelector<HTMLButtonElement>('.browse-menu-toggle');
+        if (!browseToggle) return;
         browseToggle.addEventListener('click', () => {
           const open = browseMenu.classList.toggle('is-open');
           browseToggle.setAttribute('aria-expanded', String(open));
@@ -136,7 +136,7 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
           browseToggle.setAttribute('aria-expanded', 'false');
           browseToggle.focus();
         });
-      }
+      });
     </script>
     <style is:global>
       html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }
@@ -148,21 +148,19 @@ const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
       .header-controls { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
       .browse-menu { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
       .header-action { display:inline-flex; align-items:center; justify-content:center; min-height:var(--control-height); padding:0 var(--space-2); border:1px solid transparent; border-radius:var(--radius-control); background:transparent; color:var(--text); font-size:var(--font-size-body); line-height:var(--line-height-body); font-weight:400; white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
-      .header-action:hover, .browse-menu.is-open > .browse-menu-toggle, .tft-browse-menu[open] > .browse-menu-toggle { color:var(--gold-hover); background:var(--hover-bg); }
+      .header-action:hover, .browse-menu.is-open > .browse-menu-toggle { color:var(--gold-hover); background:var(--hover-bg); }
       .header-action:active { color:var(--gold-active); background:var(--hover-bg); }
       .header-action:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
       .browse-menu > .browse-menu-toggle { gap:var(--space-1); cursor:pointer; }
-      .browse-menu > summary.browse-menu-toggle { list-style:none; }
-      .browse-menu > summary.browse-menu-toggle::-webkit-details-marker { display:none; }
       .browse-league-icon { display:block; width:18px; height:18px; flex:none; }
       .browse-menu-label-short { display:none; }
       .tft-nav-link { gap:var(--space-1); }
       .tft-nav-icon { width:16px; height:16px; flex:none; }
       .tft-nav-label-short { display:none; }
       .browse-menu-chevron { width:16px; height:16px; flex:none; transition:transform var(--motion-fast) ease; }
-      .browse-menu.is-open .browse-menu-chevron, .tft-browse-menu[open] .browse-menu-chevron { transform:rotate(180deg); }
+      .browse-menu.is-open .browse-menu-chevron { transform:rotate(180deg); }
       .browse-menu > .browse-nav { display:none; position:absolute; top:calc(100% + 6px); left:0; flex-direction:column; min-width:160px; padding:5px 0; background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius-card); box-shadow:var(--shadow-popup); z-index:30; }
-      .browse-menu.is-open > .browse-nav, .tft-browse-menu[open] > .browse-nav { display:flex; }
+      .browse-menu.is-open > .browse-nav { display:flex; }
       .browse-nav a { display:inline-flex; align-items:center; width:calc(100% - 8px); min-height:max(40px, var(--control-height)); margin:4px; justify-content:flex-start; gap:10px; padding:0 16px; border-radius:var(--radius-control); color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); white-space:nowrap; transition:color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
       .browse-nav a .browse-nav-icon { width:14px; height:14px; flex:none; color:inherit; }
       .browse-nav a:hover { color:var(--gold-hover); background:var(--hover-bg); }
