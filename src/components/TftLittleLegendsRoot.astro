@@ -85,7 +85,10 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
       </div>
     </div>
     <div class="tft-little-legends-results" data-little-legends-results role="region" aria-label={isZh ? '小小英雄列表' : 'Tacticians list'} hidden>
-      <p class="runtime-list-count" data-little-legends-result-count role="status" aria-live="polite"></p>
+      <div class="tft-little-legends-results-toolbar">
+        <p class="runtime-list-count" data-little-legends-result-count role="status" aria-live="polite"></p>
+        <div class="tft-little-legends-view-switch" data-little-legends-view-switch></div>
+      </div>
       <div class="tft-little-legends-grid" id="little-legends-grid" data-little-legends-grid></div>
       <div class="tft-little-legends-load-more-footer" data-little-legends-load-more-footer hidden>
         <button class="ant-btn" type="button" data-little-legends-load-more aria-controls="little-legends-grid">{isZh ? '加载更多' : 'Load more'}</button>

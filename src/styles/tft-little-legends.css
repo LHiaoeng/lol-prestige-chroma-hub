@@ -82,6 +82,39 @@
   column-gap: var(--space-3);
   row-gap: var(--space-4);
 }
+.tft-little-legends-results-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.tft-little-legends-results-toolbar .runtime-list-count {
+  margin: 0;
+}
+.tft-little-legends-view-switch {
+  display: flex;
+  min-width: 0;
+}
+.tft-little-legends-view-switch .ant-radio-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.tft-little-legends-species-group {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.tft-little-legends-species-group > h2 {
+  margin: 0;
+  color: var(--gold);
+  font-size: var(--font-size-headline-sm);
+  line-height: var(--line-height-headline-sm);
+}
 .tft-little-legends-load-more-footer {
   display: flex;
   justify-content: center;
@@ -92,7 +125,9 @@
   justify-items: start;
   gap: var(--space-3);
 }
-.tft-little-legends-card {
+.runtime-card.tft-little-legends-card {
+  position: relative;
+  overflow: visible;
   min-height: 0;
   padding: 0;
 }
@@ -102,6 +137,7 @@
   aspect-ratio: 1;
   place-items: center;
   overflow: hidden;
+  border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
   background: var(--panel2);
 }
 .tft-little-legends-card-preview {
@@ -207,7 +243,8 @@
   padding: var(--space-3);
   overflow-wrap: anywhere;
 }
-.tft-little-legends-card-details h2 {
+.tft-little-legends-card-details h2,
+.tft-little-legends-card-details h3 {
   display: flex;
   min-width: 0;
   align-items: center;
@@ -216,14 +253,20 @@
   font-size: var(--font-size-title);
 }
 .tft-little-legends-card-rarity-tooltip.ant-tooltip-trigger {
-  inline-size: 1em;
-  block-size: 1em;
-  font-size: inherit;
-  flex: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 5;
+  display: grid;
+  inline-size: min(35%, 80px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  place-items: center;
 }
 .runtime-card .tft-little-legends-card-rarity-icon {
-  width: 1em;
-  height: 1em;
+  width: 100%;
+  height: 100%;
+  background: transparent;
   object-fit: contain;
 }
 .tft-little-legends-card-title-tooltip.ant-tooltip-trigger {
@@ -250,6 +293,11 @@
 }
 .tft-little-legends [hidden] {
   display: none !important;
+}
+@media (max-width: 767px) {
+  .tft-little-legends-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .tft-little-legends-card-actions {

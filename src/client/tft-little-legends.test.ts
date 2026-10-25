@@ -54,16 +54,16 @@ describe("TFT companion labels", () => {
 
   it("uses the documented rarity gem for each rarity and data channel", () => {
     expect(tftCompanionRarityIconUrl("kStandard", "pbe")).toBe(
-      "https://raw.communitydragon.org/pbe/game/assets/ux/tft/outofgame/raritygems/tft_standardgem_retier.png",
+      "https://raw.communitydragon.org/pbe/game/assets/ux/tft/outofgame/raritygems/tft_standardgem_top.png",
     );
     expect(tftCompanionRarityIconUrl("kLegendary", "latest")).toBe(
-      "https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/raritygems/tft_legendarygem_retier.png",
+      "https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/raritygems/tft_legendarygem_top.png",
     );
     expect(tftCompanionRarityIconUrl("kMythic", "latest")).toBe(
-      "https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/raritygems/tft_mythicgem_retier.png",
+      "https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/raritygems/tft_mythicgem_top.png",
     );
     expect(tftCompanionRarityIconUrl("kPrestige", "pbe")).toBe(
-      "https://raw.communitydragon.org/pbe/game/assets/ux/tft/outofgame/raritygems/tft_prestigegem_retier.png",
+      "https://raw.communitydragon.org/pbe/game/assets/ux/tft/outofgame/raritygems/tft_prestigegem_top.png",
     );
   });
 });

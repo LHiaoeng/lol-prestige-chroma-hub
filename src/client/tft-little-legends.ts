@@ -29,6 +29,7 @@ import type {
 } from "../domain/communitydragon-runtime";
 import { setDomainIconTooltip } from "../components/domain-icons";
 import { createPopover } from "../components/popover";
+import { createRadioButtonGroup } from "../components/RadioButtonGroup";
 import { createTooltip } from "../components/tooltip";
 import { enhanceSelect, refreshSelect } from "../components/select";
 import { createIcon } from "../components/icons/create-icon";
@@ -56,6 +57,9 @@ const copy = {
     missingImage: "图片暂不可用",
     pbeOnlyHelp: "只显示相较正式服新增的小小英雄。",
     pbeNew: "PBE 新增小小英雄",
+    displayMode: "显示方式",
+    cards: "卡片",
+    groupBySpecies: "按种类分组",
     details: "小小英雄详情",
     name: "名称",
     category: "类别",
@@ -72,6 +76,9 @@ const copy = {
     missingImage: "Artwork unavailable",
     pbeOnlyHelp: "Show only Tacticians newly added on PBE compared with live.",
     pbeNew: "PBE addition",
+    displayMode: "Display mode",
+    cards: "Cards",
+    groupBySpecies: "By species",
     details: "Tactician details",
     name: "Name",
     category: "Category",
@@ -97,10 +104,10 @@ const rarityLabels = {
 } as const;
 
 const rarityIconPaths: Record<TftCompanionRarity, string> = {
-  kStandard: "game/assets/ux/tft/outofgame/raritygems/tft_standardgem_retier.png",
-  kLegendary: "game/assets/ux/tft/outofgame/raritygems/tft_legendarygem_retier.png",
-  kMythic: "game/assets/ux/tft/outofgame/raritygems/tft_mythicgem_retier.png",
-  kPrestige: "game/assets/ux/tft/outofgame/raritygems/tft_prestigegem_retier.png",
+  kStandard: "game/assets/ux/tft/outofgame/raritygems/tft_standardgem_top.png",
+  kLegendary: "game/assets/ux/tft/outofgame/raritygems/tft_legendarygem_top.png",
+  kMythic: "game/assets/ux/tft/outofgame/raritygems/tft_mythicgem_top.png",
+  kPrestige: "game/assets/ux/tft/outofgame/raritygems/tft_prestigegem_top.png",
 };
 
 const companionTypeLabels = {
@@ -148,6 +155,7 @@ export function tftCompanionDisplayName(
 }
 
 type TftLittleLegendState = LittleLegendUrlState;
+type TftLittleLegendView = "cards" | "species";
 type TftLittleLegendError = ReturnType<typeof asCommunityDragonError>;
 interface TftCompanionLoadResult {
   readonly items: readonly TftCompanion[];
@@ -235,6 +243,10 @@ export function initTftLittleLegends(
     root,
     "[data-little-legends-result-count]",
   );
+  const viewSwitcher = element<HTMLElement>(
+    root,
+    "[data-little-legends-view-switch]",
+  );
   const loadMoreFooter = element<HTMLElement>(
     root,
     "[data-little-legends-load-more-footer]",
@@ -265,6 +277,7 @@ export function initTftLittleLegends(
   let multiStarItemIds: ReadonlySet<number> = new Set();
   let canComparePbe = false;
   let matches: readonly TftCompanion[] = [];
+  let view: TftLittleLegendView = "cards";
   let shownCount = 0;
   let batchSize = TFT_COMPANION_BATCH_SIZE;
   let errorMessage: HTMLElement | undefined;
@@ -279,6 +292,9 @@ export function initTftLittleLegends(
     sort.disabled = disabled;
     pbeOnly.disabled = disabled;
     loadMore.disabled = disabled;
+    viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
+      input.disabled = disabled;
+    });
   };
 
   const getBatchSize = () => {
@@ -375,7 +391,11 @@ export function initTftLittleLegends(
     );
   };
 
-  const appendCard = (item: TftCompanion) => {
+  const appendCard = (
+    item: TftCompanion,
+    target: HTMLElement = grid,
+    grouped = false,
+  ) => {
     const displayName = tftCompanionDisplayName(
       item,
       multiStarItemIds.has(item.itemId),
@@ -462,7 +482,7 @@ export function initTftLittleLegends(
     media.append(actions);
     const details = root.ownerDocument.createElement("div");
     details.className = "tft-little-legends-card-details";
-    const title = root.ownerDocument.createElement("h2");
+    const title = root.ownerDocument.createElement(grouped ? "h3" : "h2");
     title.className = "tft-little-legends-card-title";
     const rarityIcon = root.ownerDocument.createElement("img");
     rarityIcon.className = "tft-little-legends-card-rarity-icon";
@@ -479,10 +499,10 @@ export function initTftLittleLegends(
     const titleTooltip = createTooltip(titleText, titleTooltipLabel);
     titleTooltip.classList.add("tft-little-legends-card-title-tooltip");
     titleTooltip.setAttribute("aria-label", titleTooltipLabel);
-    title.append(rarityTooltip, titleTooltip);
+    title.append(titleTooltip);
     details.append(title);
-    article.append(media, details);
-    grid.append(article);
+    article.append(media, rarityTooltip, details);
+    target.append(article);
   };
 
   const renderMatches = (reset: boolean) => {
@@ -495,6 +515,7 @@ export function initTftLittleLegends(
       },
       locale,
     );
+    viewSwitcher.hidden = matches.length === 0;
     const nextBatchSize = getBatchSize();
     if (reset) {
       batchSize = nextBatchSize;
@@ -507,12 +528,41 @@ export function initTftLittleLegends(
         ? matches.length
         : Math.min(matches.length, pageCount * batchSize);
     }
-    const pageCount = Math.ceil(shownCount / batchSize);
     clearPopovers();
     grid.replaceChildren();
-    for (let page = 0; page < pageCount; page += 1) {
-      for (const item of paginateTftCompanions(matches, page, batchSize))
-        appendCard(item);
+    if (view === "cards") {
+      const pageCount = Math.ceil(shownCount / batchSize);
+      for (let page = 0; page < pageCount; page += 1) {
+        for (const item of paginateTftCompanions(matches, page, batchSize))
+          appendCard(item);
+      }
+    } else {
+      const groups = new Map<number, { name: string; items: TftCompanion[] }>();
+      for (const item of matches) {
+        const group = groups.get(item.speciesId) ?? {
+          name: item.speciesName,
+          items: [],
+        };
+        group.items.push(item);
+        groups.set(item.speciesId, group);
+      }
+      let remaining = shownCount;
+      for (const [speciesId, group] of groups) {
+        if (remaining <= 0) break;
+        const visibleItems = group.items.slice(0, remaining);
+        const section = root.ownerDocument.createElement("section");
+        section.className = "tft-little-legends-species-group";
+        const heading = root.ownerDocument.createElement("h2");
+        heading.id = `tft-little-legends-species-${speciesId}`;
+        heading.textContent = group.name;
+        section.setAttribute("aria-labelledby", heading.id);
+        const groupGrid = root.ownerDocument.createElement("div");
+        groupGrid.className = "tft-little-legends-grid";
+        section.append(heading, groupGrid);
+        grid.append(section);
+        visibleItems.forEach((item) => appendCard(item, groupGrid, true));
+        remaining -= visibleItems.length;
+      }
     }
     resultCount.textContent = text.results(matches.length);
     loadMoreFooter.hidden = shownCount >= matches.length;
@@ -532,6 +582,31 @@ export function initTftLittleLegends(
       grid.append(fragment);
     }
   };
+
+  viewSwitcher.replaceChildren(
+    createRadioButtonGroup({
+      name: "tft-little-legends-view",
+      idPrefix: "tft-little-legends-view",
+      value: "cards",
+      ariaLabel: text.displayMode,
+      options: [
+        {
+          label: text.cards,
+          value: "cards",
+          controls: "little-legends-grid",
+        },
+        {
+          label: text.groupBySpecies,
+          value: "species",
+          controls: "little-legends-grid",
+        },
+      ],
+      onChange(value) {
+        view = value === "species" ? "species" : "cards";
+        renderMatches(true);
+      },
+    }),
+  );
 
   window.addEventListener("resize", () => {
     if (
