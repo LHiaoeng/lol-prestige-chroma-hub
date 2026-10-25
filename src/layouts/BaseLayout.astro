@@ -91,10 +91,17 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/universes/')} aria-current={headerNavigation.current('/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a></li>
           </Dropdown>
         </div>
-        <ButtonLink class="header-action tft-nav-link" href={localizedPath(locale, '/tft/companions/')} aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'} aria-current={headerNavigation.current('/tft/companions/', '/tft/')}>
-          <DomainIcon name="teamfight-tactics" class="tft-nav-icon" />
-          {isZh ? <span>云顶之弈</span> : <><span class="tft-nav-label-wide">Teamfight Tactics</span><span class="tft-nav-label-short" aria-hidden="true">TFT</span></>}
-        </ButtonLink>
+        <div class:list={['header-browse', 'header-browse--tft', { 'header-browse--current': headerNavigation.current('/tft/companions/', '/tft/') }]}>
+          <Dropdown id="tft-browse-nav" triggerLabel={isZh ? '云顶之弈' : 'Teamfight Tactics'} triggerVariant="text">
+            <span slot="trigger" class="header-browse-trigger tft-nav-link">
+              <DomainIcon name="teamfight-tactics" class="tft-nav-icon" />
+              {isZh ? <span>云顶之弈</span> : <><span class="tft-nav-label-wide">Teamfight Tactics</span><span class="tft-nav-label-short" aria-hidden="true">TFT</span></>}
+              <DownOutlined class="browse-menu-chevron" width="12" height="12" />
+            </span>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/companions/')} aria-current={headerNavigation.current('/tft/companions/', '/tft/')}>{isZh ? '小小英雄' : 'Tacticians'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/arenas/')} aria-current={headerNavigation.current('/tft/arenas/', '/tft/')}>{isZh ? '棋盘' : 'Arenas'}</a></li>
+          </Dropdown>
+        </div>
         <ButtonLink class="header-action header-blog-link" href={localizedPath(locale, '/blog/')} aria-current={headerNavigation.current('/blog/')}>{isZh ? '博客' : 'Blog'}</ButtonLink>
         {canonical && <ButtonLink class="header-action language-toggle" iconOnly href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><TranslationOutlined class="language-toggle-icon" width="14" height="14" /></ButtonLink>}
       </div>
@@ -157,7 +164,7 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
         .site-header .header-browse-trigger { gap:0; }
         .header-browse-trigger > span, .tft-nav-link > span { display:none; }
         .site-header .header-browse .ant-dropdown-trigger { padding-inline:8px; }
-        .site-header .tft-nav-link { width:var(--control-height); min-width:var(--control-height); gap:0; padding:0; }
+        .site-header .header-browse--tft .ant-dropdown-trigger { width:var(--control-height); min-width:var(--control-height); padding:0; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       footer a:hover { color:var(--gold-hover); }
