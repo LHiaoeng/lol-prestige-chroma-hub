@@ -2,6 +2,8 @@
 
 本文供修改本站前端的 Agent 和开发者使用，只规定视觉规则的来源、落地方式、检查与维护流程。页面行为、数据、双语和 SEO 的细节见文末入口；仓库边界与版本控制遵循 [AGENTS.md](../AGENTS.md)。本站保留 Astro 静态架构、单一暗色金色主题和原画视觉焦点，不为借鉴 Antdv Next 而引入 Vue 或主题运行时。
 
+复刻或调整 Antdv Next 组件时，执行 [上游组件复刻规范](antdv-next-component-replication.md)。
+
 ## 1. 单一事实来源：Design Tokens
 
 | 层次 | 事实来源 | 职责 |
@@ -13,9 +15,9 @@
 
 修改视觉规则时，先核对 `DESIGN.md` 与 Token，再更新共享组件和所有消费者。本文件不复制 Token 数值。独立控件触控目标、原画展示等例外须符合 `DESIGN.md`，不能靠页面私有颜色或字号建立另一套主题。
 
-Select 的输入框、弹层、选中与悬停项统一使用暗色语义 Token；下拉列表保留可见的细滚动条，滑块随暗色文本层级显示，悬停时增强对比。长选项可按上游 `popupMatchSelectWidth={false}` 让弹层至少与控件同宽并随内容展开；视口不足时选项换行。与上游单选默认值一致，搜索须由 `showSearch` 显式开启；首页英雄、版本、分类，小小英雄类别、种类及宇宙系列等选项较多的筛选已开启。开启后默认按选项标签进行不区分大小写的包含匹配，`optionFilterProp="value"` 可改为匹配选项值，`filterOption={false}` 关闭本地过滤；搜索输入在原生 `<select>` 上派发带查询字符串 `detail` 的冒泡 `search` 事件，供远程搜索监听，行为对照 [固定版本 Antdv Next Select 搜索示例](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/select/demo/search.vue)。无脚本时仍保留原生选择框。
+Select 的输入框、弹层、选中与悬停项统一使用暗色语义 Token；下拉列表保留可见的细滚动条，滑块随暗色文本层级显示，悬停时增强对比。长选项可按上游 `popupMatchSelectWidth={false}` 让弹层至少与控件同宽并随内容展开；视口不足时选项换行。本站默认启用清空，`allowClear={false}` 可关闭；有非空选中值时提供可键盘访问的清除按钮，桌面端悬停或聚焦时显示，触控设备上保持可见，清除后在原生 `<select>` 上派发冒泡 `change` 事件。排序控件要求始终有有效值，因此单独关闭清空。按钮形态、键盘焦点与触控显示对照 [固定版本 Antdv Next Select 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/select/style/index.ts)。与上游单选默认值一致，搜索须由 `showSearch` 显式开启；首页英雄、版本、分类，小小英雄类别、种类及宇宙系列等选项较多的筛选已开启。开启后默认按选项标签进行不区分大小写的包含匹配，`optionFilterProp="value"` 可改为匹配选项值，`filterOption={false}` 关闭本地过滤；搜索输入在原生 `<select>` 上派发带查询字符串 `detail` 的冒泡 `search` 事件，供远程搜索监听，行为对照 [固定版本 Antdv Next Select 搜索示例](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/select/demo/search.vue)。无脚本时仍保留原生选择框。
 
-Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/tree/main/packages/antdv-next/src/dropdown/style)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。触控输入不改变菜单项的默认尺寸。
+Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。触控输入不改变菜单项的默认尺寸。
 边框菜单的触发箭头使用独立 SVG 图标节点，在按钮的 flex 布局中垂直居中；不以文字字形充当箭头。
 
 目录数据、语言路由和 SEO 各有自己的事实来源，分别查 [领域模型](../src/domain/)、[国际化配置](../src/i18n/config.ts) 和 [SEO 模块](../src/seo/)；视觉治理不覆盖这些规则。
@@ -36,7 +38,7 @@ Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next
 
 新增或重做页面时，按 [页面模板契约](page-templates.md) 选类型并核对骨架；页面布局或响应式改动按其中的 [响应式适配](page-templates.md#响应式适配) 验收。复用 `BaseLayout` 和现有页面组件。
 
-需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。媒体预览以 [Image 组件](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/index.tsx)、[PreviewGroup](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/PreviewGroup.tsx) 和 [预览样式](https://github.com/antdv-next/antdv-next/blob/main/packages/antdv-next/src/image/style/index.ts) 为行为与结构依据；本站使用原生 dialog 和 DOM 脚本适配 Astro，图片与视频共用视口内等比最大展示、缩放、拖动、旋转、双轴翻转、重置、当前媒体原文件下载及分组切换；工具栏位置保持一致，视频播放、进度和音量控件独立于画面变换层并固定在工具栏上方。打开预览继承视频的进度、音量和播放状态，切换时暂停并记录视频，关闭时同步进度并恢复页面视频进入预览前的播放状态。画面区域承担滚轮/双指缩放和放大后的拖动；播放控件的键盘与指针操作不触发画面变换或媒体切换。媒体加载、失败、重试、焦点返回及滚动锁定由共享预览器统一处理。
+需要复刻 Antdv Next 控件的外观或交互时，查看 [Antdv Next 源码仓库](https://github.com/antdv-next/antdv-next) 中对应的组件、样式和主题实现；按 [DESIGN.md](../DESIGN.md) 记录的上游版本核对源码，再映射到本站 Token 与 Astro 组件。媒体预览以 [Image 组件](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/image/index.tsx)、[PreviewGroup](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/image/PreviewGroup.tsx) 和 [预览样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/image/style/index.ts) 为行为与结构依据；本站使用原生 dialog 和 DOM 脚本适配 Astro，图片与视频共用视口内等比最大展示、缩放、拖动、旋转、双轴翻转、重置、当前媒体原文件下载及分组切换；工具栏位置保持一致，视频播放、进度和音量控件独立于画面变换层并固定在工具栏上方。打开预览继承视频的进度、音量和播放状态，切换时暂停并记录视频，关闭时同步进度并恢复页面视频进入预览前的播放状态。画面区域承担滚轮/双指缩放和放大后的拖动；播放控件的键盘与指针操作不触发画面变换或媒体切换。媒体加载、失败、重试、焦点返回及滚动锁定由共享预览器统一处理。
 
 媒体下载支持 `downloadMediaFile(url, filename?)`；静态 `ImageViewer` 通过 `downloadFilename` 属性、动态触发器通过 `data-preview-filename` 传入文件名。未传时使用当前媒体名称，无名称时沿用资源文件名；皮肤轮播与预览使用相同的实体名称和媒体类别。可传基础文件名或含媒体扩展名的完整文件名，优先保留源地址中的扩展名，缺失时保留传入文件名的扩展名。共享下载方法按 [Windows 文件命名规则](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file) 处理非法字符、控制字符、保留设备名及首尾点和空白；保留中文并进行 Unicode 规范化，名称按 Unicode 码点截到最多 240 个 UTF-8 字节且保留扩展名。保存目录、完整路径限制及重名处理由浏览器和操作系统负责。
 

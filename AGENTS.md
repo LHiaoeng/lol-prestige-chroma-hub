@@ -50,7 +50,7 @@
 
 ### Frontend governance
 
-前端视觉、组件、页面布局或响应式改动：先读根目录 `DESIGN.md` 和 `docs/frontend-design.md`；新增页面、修改页面布局或响应式时再读 `docs/page-templates.md`，落实页面骨架与响应式验收。对齐上游时按 `DESIGN.md` 固定的提交查源码，不把本地依赖或打包产物当成规范来源。定位受影响的组件、静态与动态消费者，并在完成前检查适用状态和真实页面；字体或排版改动至少核对桌面与手机宽度下的中英文页面。纯数据或文案任务按需读取。
+前端视觉、组件、页面布局或响应式改动：先读根目录 `DESIGN.md` 和 `docs/frontend-design.md`；新增页面、修改页面布局或响应式时再读 `docs/page-templates.md`，落实页面骨架与响应式验收。复刻或调整 Antdv Next 组件时必须执行 `docs/antdv-next-component-replication.md` 的源码比对与验收流程。定位受影响的组件、静态与动态消费者，并在完成前检查适用状态和真实页面；字体或排版改动至少核对桌面与手机宽度下的中英文页面。纯数据或文案任务按需读取。
 
 ### Issue tracker
 
