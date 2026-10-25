@@ -495,7 +495,7 @@ export function initTftLittleLegends(
     const titleText = root.ownerDocument.createElement("span");
     titleText.className = "tft-little-legends-card-title-text";
     titleText.textContent = displayName;
-    const titleTooltipLabel = `${rarityLabel} ${displayName}`;
+    const titleTooltipLabel = displayName;
     const titleTooltip = createTooltip(titleText, titleTooltipLabel);
     titleTooltip.classList.add("tft-little-legends-card-title-tooltip");
     titleTooltip.setAttribute("aria-label", titleTooltipLabel);
