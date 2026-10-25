@@ -585,6 +585,7 @@ export function initTftLittleLegends(
 
   viewSwitcher.replaceChildren(
     createRadioButtonGroup({
+      buttonStyle: "solid",
       name: "tft-little-legends-view",
       idPrefix: "tft-little-legends-view",
       value: "cards",

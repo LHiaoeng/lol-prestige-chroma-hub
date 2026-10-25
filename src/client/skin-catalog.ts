@@ -238,6 +238,7 @@ export function initSkinCatalog(
   viewSwitcher.replaceChildren(createRadioButtonGroup({
     name: "skin-catalog-view",
     idPrefix: "skin-catalog-view",
+    buttonStyle: "outline",
     value: state.view,
     ariaLabel: locale === "zh_cn" ? "目录显示方式" : "Catalog display mode",
     options: [
@@ -296,7 +297,10 @@ export function initSkinCatalog(
     showFramedScreens.disabled = disabled;
     if (showEmblems) showEmblems.disabled = disabled;
     if (onlyPbeAdditions) onlyPbeAdditions.disabled = disabled;
-    viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => { input.disabled = disabled; });
+    viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
+      input.disabled = disabled;
+      input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle("ant-radio-button-wrapper-disabled", disabled);
+    });
     root.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-trigger], [data-runtime-channel], [data-catalog-rarity]")
       .forEach((button) => { button.disabled = disabled; });
   };

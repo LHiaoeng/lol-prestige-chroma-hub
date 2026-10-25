@@ -4,6 +4,8 @@
 
 复刻或调整 Antdv Next 组件时，执行 [上游组件复刻规范](antdv-next-component-replication.md)。
 
+皮肤目录的五项视图切换使用 [Radio.Group 配合 Radio.Button](https://www.antdv-next.com/components/radio-cn#radio-demo-radiobutton)的默认描边变体；选中态保持容器背景并使用主色文字和边框，32px 默认高度与 15px 横向内边距对照 [固定版本 Radio 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/radio/style/index.ts)。本地 [RadioButtonGroup](../src/components/RadioButtonGroup.ts) 以带 `radiogroup` 语义的 `<div>` 实现上游 Radio.Group，默认描边式；皮肤媒体和小小英雄视图显式使用实色变体。皮肤目录加载时同步禁用按钮外观，窄屏横向滚动以保留完整分组。本站用共享 Tooltip 承载各视图说明，按钮 DOM 因此多一层提示包装；按钮组仍只让首尾项具有外侧圆角，相邻边框重叠 1px。
+
 站点 Header 使用 [Dropdown](../src/components/Dropdown.astro) 搭配文字变体 Button 作为“英雄联盟”触发器；“云顶之弈”、博客和语言切换使用链接变体 Button。外观参照固定版本的 [Button](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/button/style/variant.ts) 与 [Dropdown](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：32px 控件、15px Button 横向内边距、4px 图文间距、8px 弹层圆角、4px 菜单内边距、5px 12px 菜单项内边距，并覆盖悬停、按下、选中和焦点状态。通用箭头与语言图标使用上游 Ant Design SVG；站点专属图标保留原有图形，并按 Button 与 Dropdown 图标尺寸对齐。下拉触发采用点击，菜单支持方向键、Home/End、Escape 和失焦关闭；当前路由使用 `aria-current`。
 
 ## 1. 单一事实来源：Design Tokens
