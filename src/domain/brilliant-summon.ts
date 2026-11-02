@@ -95,4 +95,19 @@ export const brilliantSummonSessions: readonly BrilliantSummonSession[] = [
     ],
     drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
   },
+  {
+    sessionId: '202623',
+    eventUrl: 'https://lol.qq.com/act/a202610300080tendraws38/index.html',
+    articleSlug: 'prestige-chroma-summon-2026-23',
+    windowStart: '2026-11-02',
+    windowEnd: '2026-11-29',
+    rewardHeroId: '39',
+    rewardSkinNameEn: 'Porcelain Irelia',
+    rewardChromaNameEn: 'Porcelain Irelia (Ruby)',
+    rewards: [
+      { heroId: '39', skinNameEn: 'Porcelain Irelia', chromaNameEn: 'Porcelain Irelia (Ruby)' },
+      { heroId: '893', skinNameEn: 'Arcana Aurora', chromaNameEn: 'Arcana Aurora (Pearl)' },
+    ],
+    drawCosts: [1200, 1800, 2400, 3000, 3600, 4200, 4800, 6000, 12000, 18000],
+  },
 ];

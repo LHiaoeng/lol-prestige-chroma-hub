@@ -1,0 +1,391 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { brilliantSummonSessions } from '../../domain/brilliant-summon';
+import { imageUrl } from '../../domain/chroma';
+import type { Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'prestige-chroma-summon-2026-23');
+if (!article) throw new Error('Prestige chroma summon 2026-23 article metadata is missing');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+// Each summon's point cost; the tenth draw costs 15x the first.
+const currentSummonSession = brilliantSummonSessions.find((session) => session.sessionId === '202623');
+if (!currentSummonSession?.drawCosts) throw new Error('Current Brilliant Prestige Chroma Summoning costs are missing');
+const eventStart = currentSummonSession.windowStart;
+const eventEnd = currentSummonSession.windowEnd;
+const eventUrl = currentSummonSession.eventUrl;
+const newsUrl = 'https://lol.qq.com/news/detail.shtml?docid=2754627270845064301';
+const drawCosts = currentSummonSession.drawCosts;
+const totalCost = drawCosts.reduce((sum, cost) => sum + cost, 0);
+
+// Session 202623 prize chromas — "青花瓷 艾瑞莉娅 牡丹" and "慧理之贤 阿萝拉 均衡"
+const grandPrize = catalog.find((item) => item.heroId === '39' && item.skinNameEn === 'Porcelain Irelia' && item.nameEn === 'Porcelain Irelia (Ruby)');
+if (!grandPrize) throw new Error('Porcelain Irelia (Ruby) grand-prize chroma is missing from catalog');
+const firstPrize = catalog.find((item) => item.heroId === '893' && item.skinNameEn === 'Arcana Aurora' && item.nameEn === 'Arcana Aurora (Pearl)');
+if (!firstPrize) throw new Error('Arcana Aurora (Pearl) first-prize chroma is missing from catalog');
+const grandPrizeUrl = localizedPath(locale, `/chromas/${grandPrize.slug}/`);
+const firstPrizeUrl = localizedPath(locale, `/chromas/${firstPrize.slug}/`);
+const prestigeSkinUrl = `${localizedPath(locale, '/skins/detail/')}?id=69038&champion=69`;
+
+function filterChromas(heroId: string, skinNameEn: string): Chroma[] {
+  return catalog.filter((c) => c.heroId === heroId && c.skinNameEn === skinNameEn);
+}
+
+// Past sessions for the "Past sessions" section — exclude current, sort desc by sessionId
+const currentSessionId = '202623';
+const pastSessions = brilliantSummonSessions
+  .filter((s) => s.sessionId !== currentSessionId)
+  .sort((a, b) => b.sessionId.localeCompare(a.sessionId))
+  .map((s) => {
+    const chroma = catalog.find(
+      (item) => item.heroId === s.rewardHeroId && item.skinNameEn === s.rewardSkinNameEn && item.nameEn === s.rewardChromaNameEn,
+    );
+    if (!chroma) throw new Error(`Past summon session ${s.sessionId} reward chroma is missing from catalog`);
+    return { session: s, chroma };
+  });
+
+const faqEntries = isZh ? [
+  { question: '活动里的臻彩需要原皮肤吗？', answer: '需要。臻彩依附于原皮肤才能使用，本期两款臻彩分别对应青花瓷 艾瑞莉娅与慧理之贤 阿萝拉。公告说明本期臻彩的原皮肤均可在限定皮肤奖池自选或游戏商城解锁，可以根据自己的拥有情况决定是否参与，详见我们的臻彩专题。' },
+  { question: '十次召唤全部抽完要花多少钱？', answer: `首次 1,200 点券（12 元），此后逐次递增，第十次需要 18,000 点券，十次合计 ${totalCost.toLocaleString('en-US')} 点券（570 元）。每次抽出的奖品会从奖池移除，剩余奖励的概率等比例提升。` },
+  { question: '开启召唤后还能调整自选奖池吗？', answer: '首次开启夺宝前可以自由调整自选奖池；开启一轮召唤后，还可以再调整一次；一旦抽出奖品，奖池锁定。开始前请确认绑定大区，单个 QQ 仅限 1 个大区参与，开始后无法切换。' },
+  { question: '除臻彩外还有哪些奖励？', answer: '奖池共 10 个奖品：神话精萃 ×10 与 ×20、圣堂花火 ×2 与 ×4、自选限定皮肤以及 3 个随机皮肤奖位。随机皮肤各占 21%，优先产出绑定大区未解锁的皮肤。特等奖还可改选至臻 剪纸仙灵 卡西奥佩娅。' },
+] : [
+  { question: 'Do the event chromas require the base skins?', answer: 'Yes. A prestige chroma only works with its base skin — this session pairs Porcelain Irelia and Arcana Aurora. Per the announcement, both base skins can be picked from the limited-skin self-select pool or unlocked in the game store, so weigh what you own before participating. Our prestige chroma guide covers the details.' },
+  { question: 'How much does a complete 10-summon run cost?', answer: `The first summon costs 1,200 points (12 RMB) and prices climb to 18,000 points for the tenth — ${totalCost.toLocaleString('en-US')} points (570 RMB) for all ten. Every drawn item leaves the pool, so odds of the remaining types rise proportionally.` },
+  { question: 'Can I change the self-select pool after I start?', answer: 'Yes — once. Before your first summon you can adjust the pool freely; after opening a round, one more adjustment is allowed. Once a prize is drawn, the pool locks. Confirm your bound region before you start: each QQ account participates in one region only, and it cannot be switched afterwards.' },
+  { question: 'What falls into the lower prize tiers?', answer: 'The 10-item pool also holds Mythic Essence (×10 and ×20), Holy Temple Fire (×2 and ×4), a self-select limited skin slot, and three random-skin slots at 21% each. The grand prize can alternatively be taken as the Prestige Paper Serpent Cassiopeia skin.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: isZh ? article.titleZh : article.titleEn,
+    description, image: article.coverUrl, datePublished: article.publishedAt,
+    dateModified: article.publishedAt, mainEntityOfPage: canonical,
+    inLanguage: isZh ? 'zh-CN' : 'en', articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList',
+    name: isZh ? '第 202623 期璀璨臻彩召唤奖池臻彩' : 'Session 202623 Brilliant Prestige Chroma Summoning prize chromas',
+    numberOfItems: 2,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, item: { '@type': 'CreativeWork', name: isZh ? grandPrize.nameZh : grandPrize.nameEn, url: new URL(grandPrizeUrl, SITE.origin).toString(), image: imageUrl(grandPrize.images.large) } },
+      { '@type': 'ListItem', position: 2, item: { '@type': 'CreativeWork', name: isZh ? firstPrize.nameZh : firstPrize.nameEn, url: new URL(firstPrizeUrl, SITE.origin).toString(), image: imageUrl(firstPrize.images.large) } },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <Breadcrumb article {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '璀璨臻彩召唤' : 'Prestige Chroma Summoning' },
+  ]} />
+
+  {!isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL PRESTIGE CHROMA EVENT</p>
+      <h1>{article.titleEn}</h1>
+      <p class="article-deck">A new Brilliant Prestige Chroma Summoning session runs {eventStart.replace(/-/g, '/')} &ndash; {eventEnd.replace(/-/g, '/')} on the Chinese server. <a href={grandPrizeUrl}>Porcelain Irelia (Ruby)</a> and <a href={firstPrizeUrl}>Arcana Aurora (Pearl)</a> headline the self-select prize pools, the <a href={prestigeSkinUrl}>Prestige Paper Serpent Cassiopeia</a> skin joins the grand-prize tier, and the first summon costs 12 RMB.</p>
+      <p class="article-meta"><span>By LoL Chroma Art Editorial Team</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'en')}</time><span>·</span><span>{article.readingMinutes} min read</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>Porcelain Irelia (Ruby) prestige chroma splash art.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Two prestige chromas and a prestige skin in the pools</h2>
+      <p>This session's self-select tiers feature two <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chromas</a>, and the grand-prize tier adds a limited-time prestige-skin option. For the cross-session rules and a participation checklist, see our <a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>complete Brilliant Prestige Chroma Summoning guide</a>.</p>
+      <BlogChromaGrid>
+        <BlogPrestigeChromaCard chroma={grandPrize} labelEn="Porcelain Irelia (Ruby)" labelZh="青花瓷 艾瑞莉娅 牡丹" {locale} />
+        <BlogPrestigeChromaCard chroma={firstPrize} labelEn="Arcana Aurora (Pearl)" labelZh="慧理之贤 阿萝拉 均衡" {locale} />
+      </BlogChromaGrid>
+      <p>The grand-prize tier pairs a self-select prestige chroma — Porcelain Irelia (Ruby) — with the <a href={prestigeSkinUrl}>Prestige Paper Serpent Cassiopeia</a> skin at 0.5% initial odds. The first-prize tier holds a self-select prestige chroma at 1%. Both chromas come with dedicated splash art, not regular recolour chromas; our <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma guide</a> explains the difference.</p>
+    </section>
+
+    <section>
+      <h2>Porcelain Irelia (Ruby)</h2>
+      <p>The grand prize belongs to the Porcelain series, a Lunar New Year line that reimagines champions as guardians of Zodiac Relics — powerful porcelain artifacts that unlock immense power. Ruby — "牡丹" in Chinese — sits alongside several other prestige chromas on the Porcelain Irelia skin:</p>
+      <BlogChromaGrid>
+        {filterChromas('39', 'Porcelain Irelia').map((chroma) => (
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>Ruby is the only one of the Porcelain Irelia prestige chromas in this session's prize pool.</p>
+    </section>
+
+    <section>
+      <h2>Arcana Aurora (Pearl)</h2>
+      <p>The first prize comes from the Arcana series, which casts champions as Archetypes — living patterns that shape reality itself. Pearl — "均衡" in Chinese — is one of several prestige chromas on the Arcana Aurora skin:</p>
+      <BlogChromaGrid>
+        {filterChromas('893', 'Arcana Aurora').map((chroma) => (
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>Pearl is the only Arcana Aurora prestige chroma in this session's pool.</p>
+    </section>
+
+    <section>
+      <h2>Summon prices and odds</h2>
+      <p>The first summon costs 1,200 points (12 RMB). Every drawn item leaves the pool, and each additional summon costs more points:</p>
+      <table class="event-table">
+        <thead><tr><th>Summon</th><th class="num">Point cost</th></tr></thead>
+        <tbody>
+          {drawCosts.map((cost, index) => (
+            <tr><td>#{index + 1}</td><td class="num">{cost.toLocaleString('en-US')}</td></tr>
+          ))}
+          <tr><td><strong>All ten</strong></td><td class="num"><strong>{totalCost.toLocaleString('en-US')}</strong></td></tr>
+        </tbody>
+      </table>
+      <p>The pool holds 10 items with these initial odds, per the official page:</p>
+      <table class="event-table">
+        <thead><tr><th>Tier</th><th>Item</th><th class="num">Initial odds</th></tr></thead>
+        <tbody>
+          <tr><td>Third</td><td>Random skin ×1 (three pool slots)</td><td class="num">21.0% each</td></tr>
+          <tr><td>Third</td><td>Mythic Essence ×10</td><td class="num">16.0%</td></tr>
+          <tr><td>Third</td><td>Holy Temple Fire ×2</td><td class="num">5.0%</td></tr>
+          <tr><td>Second</td><td>Mythic Essence ×20</td><td class="num">8.5%</td></tr>
+          <tr><td>Second</td><td>Self-select limited skin</td><td class="num">3.0%</td></tr>
+          <tr><td>Second</td><td>Holy Temple Fire ×4</td><td class="num">3.0%</td></tr>
+          <tr><td>First</td><td>Self-select prestige chroma</td><td class="num">1.0%</td></tr>
+          <tr><td>Grand</td><td>Self-select prestige chroma or prestige skin</td><td class="num">0.5%</td></tr>
+        </tbody>
+      </table>
+      <p>Odds rise proportionally as items leave the pool. No item can drop twice in one run.</p>
+    </section>
+
+    <section>
+      <h2>Participation rules worth knowing</h2>
+      <ul>
+        <li>One run per QQ account across all channels, in one bound region — rewards go to that region, so confirm it before your first summon.</li>
+        <li>Each summon bundles a 1-day Rose Warden ward skin purchase; unused points stay spendable elsewhere.</li>
+        <li>Holy Temple Fire is delivered to the Loot tab of your bound region.</li>
+        <li>Random skin chests prioritise skins you have not unlocked in your bound region; if you own every skin in the random pool, the skin can instead be sent to a region that does not own it — claim items promptly.</li>
+        <li>The self-select pool can be rearranged freely before the first summon, adjusted once after, and locks once a prize is drawn from it.</li>
+      </ul>
+    </section>
+
+    <section class="summon-sessions">
+      <h2>Past sessions</h2>
+      <p>The previous run, <a href={localizedPath(locale, '/blog/prestige-chroma-summon-2026-22/')}>session 202622</a>, features Spirit Blossom Zyra (Tanzanite) in the grand-prize tier and closed on November 15:</p>
+      <div class="summon-table-wrapper">
+        <table class="summon-table">
+          <thead><tr><th>Session</th><th>Event window</th><th>Grand-prize chroma</th><th>Article</th></tr></thead>
+          <tbody>
+            {pastSessions.map(({ session, chroma }) => {
+              const chromaUrl = localizedPath(locale, `/chromas/${chroma.slug}/`);
+              const articleUrl = localizedPath(locale, `/blog/${session.articleSlug}/`);
+              return <tr>
+                <td class="summon-col-session">{session.sessionId}</td>
+                <td class="summon-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td><a href={chromaUrl}>{chroma.nameEn}</a></td>
+                <td class="summon-col-link"><a href={articleUrl}>Read</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Prestige chromas need the base skin</h2>
+      <p>Both event chromas attach to existing skins — Porcelain Irelia and Arcana Aurora. A chroma cannot be used until its base skin is unlocked. The announcement notes that both base skins can be picked from the limited-skin self-select pool or unlocked in the game store, so weigh what you own before spending.</p>
+    </section>
+
+    <aside class="official-sources" aria-label="Official sources">
+      <strong>Official sources</strong>
+      <ul>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">Official announcement: new Brilliant Prestige Chroma Summoning session</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">Brilliant Prestige Chroma Summoning event page</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {faqEntries.map((entry) => (
+        <details>
+          <summary>{entry.question}</summary>
+          <p>{entry.answer}</p>
+        </details>
+      ))}
+    </section>
+  </article>}
+
+  {isZh && <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">LOL 臻彩活动</p>
+      <h1>{article.titleZh}</h1>
+      <p class="article-deck">11 月 2 日至 11 月 29 日，璀璨臻彩召唤第 202623 期上线国服。特等奖自选<a href={grandPrizeUrl}>青花瓷 艾瑞莉娅 牡丹</a>或<a href={prestigeSkinUrl}>至臻 剪纸仙灵 卡西奥佩娅</a>，一等奖自选<a href={firstPrizeUrl}>慧理之贤 阿萝拉 均衡</a>，首次召唤 12 元，单个 QQ 限抽十次。</p>
+      <p class="article-meta"><span>LoL Chroma Art 编辑团队</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, 'zh')}</time><span>·</span><span>阅读约 {article.readingMinutes} 分钟</span></p>
+    </header>
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={article.coverAltZh} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1788" height="880" loading="eager" decoding="async" />
+      <figcaption>青花瓷 艾瑞莉娅 牡丹臻彩原画。</figcaption>
+    </figure>
+
+    <section>
+      <h2>奖池里的两款臻彩与一款至臻皮肤</h2>
+      <p>本期自选奖池的两个顶层奖位各有一款<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>坐镇，特等奖池还限时加入了至臻皮肤选项。想了解跨期规则和完整参与清单，可以阅读<a href={localizedPath(locale, '/blog/brilliant-prestige-chroma-summoning-guide/')}>璀璨臻彩召唤完全指南</a>：</p>
+      <BlogChromaGrid>
+        <BlogPrestigeChromaCard chroma={grandPrize} labelEn="Porcelain Irelia (Ruby)" labelZh="青花瓷 艾瑞莉娅 牡丹" {locale} />
+        <BlogPrestigeChromaCard chroma={firstPrize} labelEn="Arcana Aurora (Pearl)" labelZh="慧理之贤 阿萝拉 均衡" {locale} />
+      </BlogChromaGrid>
+      <p>特等奖池为自选臻彩或至臻皮肤，初始概率 0.5%，主推青花瓷 艾瑞莉娅 牡丹，也可改选<a href={prestigeSkinUrl}>至臻 剪纸仙灵 卡西奥佩娅</a>；一等奖池为自选臻彩，初始概率 1%，主推慧理之贤 阿萝拉 均衡。两款臻彩都拥有专属原画，不是普通换色炫彩，不了解的话可以先看我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
+    </section>
+
+    <section>
+      <h2>青花瓷 艾瑞莉娅 牡丹</h2>
+      <p>特等奖来自青花瓷系列，主题是十二生肖圣物在现代边缘茁壮成长的世界，守护者们保护着释放巨大力量的瓷器神器。牡丹是青花瓷 艾瑞莉娅皮肤家族的一款臻彩：</p>
+      <BlogChromaGrid>
+        {filterChromas('39', 'Porcelain Irelia').map((chroma) => (
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>青花瓷 艾瑞莉娅有多个臻彩，本期奖池只包含牡丹。</p>
+    </section>
+
+    <section>
+      <h2>慧理之贤 阿萝拉 均衡</h2>
+      <p>一等奖来自命运之子系列，把英雄塑造为在命运位面之上勾勒现实愿景的「原型」——自我塑造现实的鲜活图案。均衡是慧理之贤 阿萝拉皮肤家族的一款臻彩：</p>
+      <BlogChromaGrid>
+        {filterChromas('893', 'Arcana Aurora').map((chroma) => (
+          <BlogPrestigeChromaCard chroma={chroma} {locale} />
+        ))}
+      </BlogChromaGrid>
+      <p>慧理之贤 阿萝拉有多个臻彩，本期奖池只包含均衡。</p>
+    </section>
+
+    <section>
+      <h2>召唤价格与概率</h2>
+      <p>首次召唤 1,200 点券（12 元），此后每次价格递增，抽出的奖品会从奖池移除：</p>
+      <table class="event-table">
+        <thead><tr><th>召唤次数</th><th class="num">点券</th></tr></thead>
+        <tbody>
+          {drawCosts.map((cost, index) => (
+            <tr><td>第 {index + 1} 次</td><td class="num">{cost.toLocaleString('en-US')}</td></tr>
+          ))}
+          <tr><td><strong>十次合计</strong></td><td class="num"><strong>{totalCost.toLocaleString('en-US')}</strong></td></tr>
+        </tbody>
+      </table>
+      <p>官方页面公布的奖池共 10 个奖品，初始概率如下：</p>
+      <table class="event-table">
+        <thead><tr><th>奖项</th><th>奖品</th><th class="num">初始概率</th></tr></thead>
+        <tbody>
+          <tr><td>三等奖</td><td>随机皮肤 ×1（三个奖位）</td><td class="num">各 21.0%</td></tr>
+          <tr><td>三等奖</td><td>神话精萃 ×10</td><td class="num">16.0%</td></tr>
+          <tr><td>三等奖</td><td>圣堂花火 ×2</td><td class="num">5.0%</td></tr>
+          <tr><td>二等奖</td><td>神话精萃 ×20</td><td class="num">8.5%</td></tr>
+          <tr><td>二等奖</td><td>自选限定皮肤</td><td class="num">3.0%</td></tr>
+          <tr><td>二等奖</td><td>圣堂花火 ×4</td><td class="num">3.0%</td></tr>
+          <tr><td>一等奖</td><td>自选臻彩</td><td class="num">1.0%</td></tr>
+          <tr><td>特等奖</td><td>自选臻彩或至臻皮肤</td><td class="num">0.5%</td></tr>
+        </tbody>
+      </table>
+      <p>随着奖品被抽出，剩余奖励的概率等比例提升；同一轮内奖品不会重复获得。</p>
+    </section>
+
+    <section>
+      <h2>参与规则要点</h2>
+      <ul>
+        <li>单个 QQ 全渠道仅可参与 1 次，且仅限 1 个大区；产出道具优先发放至当前绑定大区，开始前请确认大区。</li>
+        <li>每次召唤以点券购买 1 天期限玫瑰守卫皮肤并额外获赠召唤机会，未消耗的点券仍可用于其他内容。</li>
+        <li>圣堂花火发放至绑定大区的「战利品」页签。</li>
+        <li>随机皮肤优先产出绑定大区未解锁的皮肤；若奖池内皮肤已全部解锁，可改发放至未拥有的大区，请及时领取道具。</li>
+        <li>首次开启夺宝前可自由调整自选奖池，开启一轮召唤后还能再调整一次；一旦抽出奖品，奖池锁定。</li>
+      </ul>
+    </section>
+
+    <section class="summon-sessions">
+      <h2>往期活动</h2>
+      <p>上一期<a href={localizedPath(locale, '/blog/prestige-chroma-summon-2026-22/')}>第 202622 期</a>于 11 月 15 日结束，特等奖主推灵魂莲华 婕拉 星回：</p>
+      <div class="summon-table-wrapper">
+        <table class="summon-table">
+          <thead><tr><th>期号</th><th>活动时间</th><th>特等奖臻彩</th><th>文章</th></tr></thead>
+          <tbody>
+            {pastSessions.map(({ session, chroma }) => {
+              const chromaUrl = localizedPath(locale, `/chromas/${chroma.slug}/`);
+              const articleUrl = localizedPath(locale, `/blog/${session.articleSlug}/`);
+              return <tr>
+                <td class="summon-col-session">{session.sessionId}</td>
+                <td class="summon-col-window">{session.windowStart.replace(/-/g, '/')}–{session.windowEnd.replace(/-/g, '/')}</td>
+                <td><a href={chromaUrl}>{chroma.nameZh}</a></td>
+                <td class="summon-col-link"><a href={articleUrl}>查看</a></td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>臻彩需要原皮肤</h2>
+      <p>两款臻彩分别依附于青花瓷 艾瑞莉娅与慧理之贤 阿萝拉。没有原皮肤，臻彩就无法使用——公告说明本期臻彩的原皮肤均可在限定皮肤奖池自选或游戏商城解锁，决定投入之前，先确认自己是否拥有对应原皮肤。</p>
+    </section>
+
+    <aside class="official-sources" aria-label="官方来源">
+      <strong>官方来源</strong>
+      <ul>
+        <li><a class="official-source-link" href={newsUrl} target="_blank" rel="noreferrer">官网公告：璀璨臻彩召唤活动上新</a></li>
+        <li><a class="official-source-link" href={eventUrl} target="_blank" rel="noreferrer">璀璨臻彩召唤活动页</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>常见问题解答</h2>
+      {faqEntries.map((entry) => (
+        <details>
+          <summary>{entry.question}</summary>
+          <p>{entry.answer}</p>
+        </details>
+      ))}
+    </section>
+  </article>}
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style is:global>
+    .event-table td.num,.event-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+    .summon-sessions{margin-top:32px}
+    .summon-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .summon-col-session{width:112px;color:var(--gold);font-family:var(--font-ui);font-weight:600;white-space:nowrap}
+    .summon-col-window{width:160px;color:var(--muted);font-size:var(--font-size-body);white-space:nowrap;font-variant-numeric:tabular-nums}
+    .summon-col-link{width:64px;text-align:right}
+    .summon-col-link a{font-size:var(--font-size-body)}
+
+    @media(max-width:767px){.summon-col-session{width:100px}.summon-col-window{width:auto;white-space:normal}}
+</style>
+</BaseLayout>

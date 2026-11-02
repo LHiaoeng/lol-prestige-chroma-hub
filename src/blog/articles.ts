@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'prestige-chroma-summon-2026-23',
+    href: '/blog/prestige-chroma-summon-2026-23/',
+    titleEn: 'Brilliant Prestige Chroma Summoning — Session 202623',
+    titleZh: '璀璨臻彩召唤 — 第 202623 期',
+    summaryEn: 'The Brilliant Prestige Chroma Summoning event runs November 2 – 29, 2026 on the Chinese server. Porcelain Irelia (Ruby) and Arcana Aurora (Pearl) headline the self-select prize pools, the Prestige Paper Serpent Cassiopeia skin joins the grand-prize tier, and the first summon costs 12 RMB.',
+    summaryZh: '2026 年 11 月 2 日至 11 月 29 日，璀璨臻彩召唤第 202623 期上线：特等奖自选青花瓷 艾瑞莉娅 牡丹，一等奖自选慧理之贤 阿萝拉 均衡，至臻 剪纸仙灵 卡西奥佩娅限时加入特等奖池，首次召唤 12 元。',
+    publishedAt: '2026-11-02',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/b1a7fa6f-d9d8-47b6-b463-09c87b23d169/site3.jpg',
+    coverAltEn: 'Porcelain Irelia (Ruby) prestige chroma splash art — Brilliant Prestige Chroma Summoning Session 202623 grand prize',
+    coverAltZh: '青花瓷 艾瑞莉娅 牡丹臻彩原画 — 璀璨臻彩召唤第 202623 期特等奖',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=2754627270845064301',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'prestige-chroma-summon-2026-22',
     href: '/blog/prestige-chroma-summon-2026-22/',
     titleEn: 'Brilliant Prestige Chroma Summoning — Session 202622',
