@@ -1,3 +1,4 @@
+import { spawn } from 'node:child_process';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -472,6 +473,26 @@ async function fetchJson(url: string, fetcher: typeof fetch): Promise<unknown> {
   return JSON.parse(await fetchText(url, fetcher)) as unknown;
 }
 
+// Cloudflare 对 Wiki raw 入口启用了 TLS 指纹 + UA 联合挑战（响应头 `Cf-Mitigated: challenge`）。
+// Node.js fetch 底层走 undici，无论填入什么 UA 都会被识别并返回 HTTP 403。
+// Windows 上 PowerShell `Invoke-WebRequest` 走 schannel，当 UA 设为 `curl/<version>` 或
+// `WikimediaBot/1.0` 时可以稳定拿到 200 结果。脚本在 Node fetch 403 后自动尝试这个回退；
+// 非 Windows 环境或回退也失败时返回 null，由上层记录 unavailableSources。
+async function fetchWikiViaPowerShell(url: string): Promise<string | null> {
+  if (process.platform !== 'win32') return null;
+  const psCode = `$ProgressPreference='SilentlyContinue'; try { $r = Invoke-WebRequest -UseBasicParsing -TimeoutSec 30 -UserAgent 'curl/8.11.0' '${url}'; if ($r.StatusCode -eq 200) { Write-Output $r.Content } else { process.exit(2) } } catch { process.exit(1) }`;
+  return await new Promise<string | null>((resolve) => {
+    const proc = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', psCode], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const chunks: Buffer[] = [];
+    proc.stdout.on('data', (chunk: Buffer) => chunks.push(chunk));
+    proc.on('error', () => resolve(null));
+    proc.on('close', (code) => {
+      if (code === 0 && chunks.length) resolve(Buffer.concat(chunks).toString('utf8'));
+      else resolve(null);
+    });
+  });
+}
+
 async function atomicJson(path: string, value: unknown): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   const temporary = `${path}.${process.pid}.tmp`;
@@ -499,10 +520,19 @@ export async function updateSkinReleaseDates(options: { root: string; apply?: bo
     result = buildOfflineSnapshot(previous, chinaDates, versions, today);
   } else {
     const fetcher = options.fetcher ?? fetch;
-    const wiki = options.wikiSource ? readFile(resolve(options.wikiSource), 'utf8') : fetchText(WIKI_URL, fetcher, WIKI_HEADERS).catch((error: unknown) => {
-      if (error instanceof HttpStatusError && error.status === 403) return null;
-      throw error;
-    });
+    const wiki = (async () => {
+      if (options.wikiSource) return readFile(resolve(options.wikiSource), 'utf8');
+      try {
+        return await fetchText(WIKI_URL, fetcher, WIKI_HEADERS);
+      } catch (error) {
+        if (error instanceof HttpStatusError && error.status === 403) {
+          const viaPs = await fetchWikiViaPowerShell(WIKI_URL);
+          if (viaPs !== null) return viaPs;
+          return null;
+        }
+        throw error;
+      }
+    })();
     const [wikiSource, cdSkins, cdChineseSkins, cdChampions, cdChineseChampions] = await Promise.all([wiki, fetchJson(SKINS_URL, fetcher), fetchJson(ZH_SKINS_URL, fetcher), fetchJson(CHAMPIONS_URL, fetcher), fetchJson(ZH_CHAMPIONS_URL, fetcher)]);
     if (wikiSource === null && previousText === null) throw new Error('League Wiki HTTP 403 and no saved release snapshot to preserve');
     result = buildReleaseSnapshot({ wikiTable: wikiSource === null ? null : parseLuaTable(wikiSource), cdSkins, cdChineseSkins, cdChampions, cdChineseChampions, previous, today });

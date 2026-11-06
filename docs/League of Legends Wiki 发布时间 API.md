@@ -10,7 +10,25 @@
 
 ## Wiki 源码入口
 
-2026-10-22 实测：`api.php`、普通模块页及部分 raw 请求返回带有“Please wait”的 HTTP 403；更换 User-Agent 或重试不能稳定恢复。导入程序先尝试[模块 raw 源码](https://wiki.leagueoflegends.com/en-us/Module:SkinData/data?action=raw)，该入口曾返回完整 Lua 表，但也可能遇到相同的 403。此时程序仍读取 CommunityDragon，保留已有日期，让新增记录的直营服日期保持 `null`，并在报告的 `unavailableSources` 中标明来源不可用；若本地尚无日期快照则直接报错。若从 Wiki 页面取得当前模块源码并保存为本地 Lua 文件，可运行 `pnpm skin-dates:update --wiki-source <path>` 完成日期核对；预览和 `--apply` 须使用同一份文件。
+入口复核时间：2026-11-06。`api.php`、普通模块页及 raw 请求统一返回带有 “Please wait” 的 HTTP 403；更换 User-Agent 或重试不能恢复，也不是速率限制——响应头 `Cf-Mitigated: challenge` 确认是 Cloudflare Bot Management 触发的 TLS 指纹 + UA 联合挑战。实测：
+
+| 客户端 | UA | 结果 |
+| --- | --- | --- |
+| Node.js `fetch()`（undici） | 任意 | ❌ 403 |
+| 独立 `curl.exe` | 任意 | ❌ 403 |
+| PowerShell `Invoke-WebRequest`（schannel） | `curl/8.11.0` 或 `WikimediaBot/1.0` | ✅ 200 |
+| PowerShell `Invoke-WebRequest` | `Mozilla/... Chrome/130` | ❌ 403 |
+
+拦截不只看 `User-Agent`，还校验 TLS 握手（JA3/JA4 指纹）、HTTP/2 SETTINGS、ALPN 等传输层特征。只有走 Windows schannel 的客户端、且 UA 形如轻量 HTTP 工具时能稳定通过。导入程序已在 Node fetch 403 后自动回退到 PowerShell：
+
+```powershell
+# 手动下载 Lua（脚本自动做这一步，这里只作参照）
+Invoke-WebRequest -Uri "https://wiki.leagueoflegends.com/en-us/Module:SkinData/data?action=raw" `
+  -UserAgent "curl/8.11.0" -UseBasicParsing -OutFile .tmp\SkinData.lua
+pnpm skin-dates:update --wiki-source .tmp\SkinData.lua --apply
+```
+
+非 Windows 环境下 PowerShell 回退不会触发，此时程序仍读取 CommunityDragon，保留已有日期，让新增记录的直营服日期保持 `null`，并在报告的 `unavailableSources` 中标明来源不可用；若本地尚无日期快照则直接报错。Action API（`api.php`）同样受 Cloudflare 挑战影响，不再作全量导入路径；单条查询仅作历史参考。
 
 以下 MediaWiki Action API 请求在 2026-10-16 曾返回 JSON，目前只作历史参考；URL 中的 `text` 是经过 URL 编码的 Wiki 模板语法。
 

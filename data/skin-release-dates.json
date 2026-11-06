@@ -4452,6 +4452,26 @@
       "chinaReleaseVersion": "25.13"
     },
     {
+      "championId": 28,
+      "skinId": 28065,
+      "skinName": "K/DA FIRESTARTER Evelynn",
+      "skinNameZh": "K/DA 生来惹火 伊芙琳",
+      "globalReleaseDate": "2026-11-04",
+      "chinaReleaseDate": "2026-11-05",
+      "globalReleaseVersion": "26.22",
+      "chinaReleaseVersion": "26.22"
+    },
+    {
+      "championId": 28,
+      "skinId": 28066,
+      "skinName": "K/DA Hitmaker Evelynn",
+      "skinNameZh": "K/DA 金曲制作人 伊芙琳",
+      "globalReleaseDate": "2026-11-04",
+      "chinaReleaseDate": "2026-11-05",
+      "globalReleaseVersion": "26.22",
+      "chinaReleaseVersion": "26.22"
+    },
+    {
       "championId": 29,
       "skinId": 29000,
       "skinName": "the Plague Rat Twitch",
@@ -11043,6 +11063,16 @@
     },
     {
       "championId": 84,
+      "skinId": 84102,
+      "skinName": "K/DA FIRESTARTER Ignition Akali",
+      "skinNameZh": "K/DA 生来惹火 焰火杀缭乱 阿卡丽",
+      "globalReleaseDate": "2026-11-04",
+      "chinaReleaseDate": "2026-11-05",
+      "globalReleaseVersion": "26.22",
+      "chinaReleaseVersion": "26.22"
+    },
+    {
+      "championId": 84,
       "skinId": 84103,
       "skinName": "True Damage Know My Name Akali",
       "skinNameZh": "真实伤害 以我之名 阿卡丽",
@@ -12910,6 +12940,16 @@
       "chinaReleaseDate": "2025-07-31",
       "globalReleaseVersion": "25.15",
       "chinaReleaseVersion": "25.15"
+    },
+    {
+      "championId": 103,
+      "skinId": 103097,
+      "skinName": "K/DA FIRESTARTER Ahri",
+      "skinNameZh": "K/DA 生来惹火 阿狸",
+      "globalReleaseDate": "2026-11-04",
+      "chinaReleaseDate": "2026-11-05",
+      "globalReleaseVersion": "26.22",
+      "chinaReleaseVersion": "26.22"
     },
     {
       "championId": 104,
@@ -16050,6 +16090,16 @@
       "chinaReleaseDate": "2025-06-12",
       "globalReleaseVersion": "25.12",
       "chinaReleaseVersion": "25.12"
+    },
+    {
+      "championId": 145,
+      "skinId": 145083,
+      "skinName": "K/DA FIRESTARTER Kai'Sa",
+      "skinNameZh": "K/DA 生来惹火 卡莎",
+      "globalReleaseDate": "2026-11-04",
+      "chinaReleaseDate": "2026-11-05",
+      "globalReleaseVersion": "26.22",
+      "chinaReleaseVersion": "26.22"
     },
     {
       "championId": 147,
