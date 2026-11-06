@@ -137,6 +137,22 @@ describe("static site build", () => {
     ).toBe(true);
     expect(
       existsSync(
+        join(dist, "blog", "patch-26-22-prestige-chromas", "index.html"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dist,
+          "zh-cn",
+          "blog",
+          "patch-26-22-prestige-chromas",
+          "index.html",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
         join(dist, "blog", "lucky-gate-summon-202620", "index.html"),
       ),
     ).toBe(true);
@@ -951,11 +967,9 @@ describe("static site build", () => {
     expect(home).toContain(`Blog <span class="heading-count"`);
     expect(home).toContain(`>(${blogArticles.length} articles)</span>`);
     expect(home).toContain('href="/blog/"');
-    expect(home).toContain(
-      'href="/blog/prestige-chroma-summon-2026-22/"',
-    );
-    expect(home).toContain('href="/blog/lucky-gate-summon-202620/"');
-    expect(home).toContain('href="/blog/joy-club-peak-gala-202609/"');
+    expect(home).toContain('href="/blog/joy-club-peak-gala-202610/"');
+    expect(home).toContain('href="/blog/patch-26-22-prestige-chromas/"');
+    expect(home).toContain('href="/blog/prestige-chroma-summon-2026-23/"');
     expect(home).not.toContain(
       'href="/blog/lucky-gate-summon-october-2026/"',
     );
@@ -989,13 +1003,13 @@ describe("static site build", () => {
     expect(chineseHome).toContain(`>（共 ${blogArticles.length} 篇）</span>`);
     expect(chineseHome).toContain('href="/zh-cn/blog/"');
     expect(chineseHome).toContain(
-      'href="/zh-cn/blog/prestige-chroma-summon-2026-22/"',
+      'href="/zh-cn/blog/joy-club-peak-gala-202610/"',
     );
     expect(chineseHome).toContain(
-      'href="/zh-cn/blog/lucky-gate-summon-202620/"',
+      'href="/zh-cn/blog/patch-26-22-prestige-chromas/"',
     );
     expect(chineseHome).toContain(
-      'href="/zh-cn/blog/joy-club-peak-gala-202609/"',
+      'href="/zh-cn/blog/prestige-chroma-summon-2026-23/"',
     );
     expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/lucky-gate-summon-october-2026/"',

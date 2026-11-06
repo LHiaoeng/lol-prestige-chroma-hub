@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'patch-26-22-prestige-chromas',
+    href: '/blog/patch-26-22-prestige-chromas/',
+    titleEn: 'LoL Patch 26.22: 7 New Prestige Chromas',
+    titleZh: '《英雄联盟》26.22 版本：7 款新增臻彩原画',
+    summaryEn: 'Patch 26.22 adds seven prestige chromas: three Diamond tier Spirit Blossom Springs entries (Yunara in Sapphire and Obsidian, Sett in Pearl) plus four Rose Quartz entries for Battle Academia Briar, Eternal Aspect Leona and Diana, and Snow Moon Morgana.',
+    summaryZh: '26.22 版本新增 7 款臻彩：莲华温泉系列三款钻石臻彩（芸阿娜 雪落、芸阿娜 月升、瑟提 朝花），以及战斗学院 贝蕾亚 独角兽、永恒星灵 蕾欧娜 斜阳、永恒星灵 黛安娜 晦月与净雪之月 莫甘娜 风花四款粉晶配色臻彩。',
+    publishedAt: '2026-11-05',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/a15526cb-f504-4310-92fb-6b12fa0f4aaf/site3.jpg',
+    coverAltEn: 'Spirit Blossom Springs Yunara (Sapphire) prestige chroma splash art — LoL Patch 26.22',
+    coverAltZh: '莲华温泉 芸阿娜 雪落臻彩原画 — 26.22 版本新增臻彩',
+    sourceUrl: 'https://lol.qq.com/gicp/news/410/37101296.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'prestige-chroma-summon-2026-23',
     href: '/blog/prestige-chroma-summon-2026-23/',
     titleEn: 'Brilliant Prestige Chroma Summoning — Session 202623',

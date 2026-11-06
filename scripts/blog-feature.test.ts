@@ -50,6 +50,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
       'src/pages/blog/patch-26-18-prestige-chromas.astro',
       'src/pages/blog/patch-26-19-prestige-chromas.astro',
+      'src/pages/blog/patch-26-22-prestige-chromas.astro',
       'src/pages/blog/prestige-chroma-summon-august-2026.astro',
       'src/pages/blog/prestige-chroma-summon-september-2026.astro',
       'src/pages/blog/splendid-treasure-august-2026.astro',
@@ -169,6 +170,7 @@ describe('blog feature contract', () => {
       'src/pages/blog/patch-26-17-prestige-chromas.astro',
       'src/pages/blog/patch-26-18-prestige-chromas.astro',
       'src/pages/blog/patch-26-19-prestige-chromas.astro',
+      'src/pages/blog/patch-26-22-prestige-chromas.astro',
       'src/pages/blog/challenger-mayhem-jax-prestige-chroma.astro',
       'src/pages/blog/lucky-gate-porcelain-charm-202608.astro',
       'src/pages/blog/lucky-gate-ocean-song-202609.astro',
@@ -641,6 +643,40 @@ describe('blog feature contract', () => {
       '26.19 臻彩原画一览',
     ]) expect(page).toContain(heading);
     expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.19')");
+  });
+
+  it('renders a complete localized patch 26.22 prestige chromas article', () => {
+    const page = source('src/pages/blog/patch-26-22-prestige-chromas.astro');
+    expect(page).toContain("'@type': 'BlogPosting'");
+    expect(page).toContain("'@type': 'BreadcrumbList'");
+    expect(page).toContain("'@type': 'ItemList'");
+    expect(page).toContain("'@type': 'FAQPage'");
+    expect(page).toContain("inLanguage: isZh ? 'zh-CN' : 'en'");
+    expect(page).toContain('ogType="article"');
+    expect(page.match(/<article class="blog-article"/g)).toHaveLength(1);
+    expect(page).toContain("formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')");
+    expect(page).toContain("href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/patch-26-19-prestige-chromas/')}");
+    expect(page).toContain("href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}");
+    expect(page).toContain('class="official-source-link"');
+    expect(page).toContain('target="_blank" rel="noreferrer"');
+    expect(page).toContain('https://lol.qq.com/gicp/news/410/37101296.html');
+    expect(page).toContain("import BlogChromaGrid from '../../components/BlogChromaGrid.astro'");
+    expect(page).toContain("import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro'");
+    expect(page).toContain('sourceImageUrl');
+    expect(page).not.toContain('ChromaColorCircle');
+    expect(page.match(/class="article-hero"/g)).toHaveLength(1);
+    expect(page.match(/<details>/g)).toHaveLength(1);
+    expect(page).toContain('faqEntries.map');
+    for (const heading of [
+      'Spirit Blossom Springs: three Diamond prestige chromas',
+      'Four Rose Quartz entries across three skinlines',
+      'Patch 26.22 prestige chroma gallery',
+      '莲华温泉系列三款钻石臻彩',
+      '三个皮肤系列共享粉晶配色',
+      '26.22 臻彩原画一览',
+    ]) expect(page).toContain(heading);
+    expect(page).toContain("const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.22')");
   });
 
   it('renders the July 2026 Joy Club Peak Gala article in both languages', () => {

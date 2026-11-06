@@ -1,0 +1,139 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'patch-26-22-prestige-chromas');
+if (!article) throw new Error('Patch 26.22 prestige chroma article metadata is missing');
+const sourceUrl = 'https://lol.qq.com/gicp/news/410/37101296.html';
+const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.22');
+if (patchChromas.length === 0) throw new Error('No prestige chromas found for Patch 26.22');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const faqEntries = isZh ? [
+  { question: '26.22 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：莲华温泉系列三款钻石臻彩——芸阿娜 雪落、芸阿娜 月升、瑟提 朝花；战斗学院 贝蕾亚 独角兽、永恒星灵 蕾欧娜 斜阳、永恒星灵 黛安娜 晦月、净雪之月 莫甘娜 风花四款粉晶配色臻彩，其中莫甘娜风花属于钻石臻彩分类，其余三款为臻彩分类。七款都是已有皮肤炫彩升级后获得专属原画，不是新皮肤。` },
+  { question: '这七款臻彩怎么获得？', answer: `26.22 版本公告没有公布这七款臻彩的具体获取方式与开放时间，请以官方后续活动或商城公告为准。臻彩依附于炫彩所属皮肤，使用前需要先拥有对应的皮肤，详见<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">什么是臻彩</a>。` },
+  { question: '这一批和 26.19 版本的臻彩有什么共同点？', answer: `两批都没有来自全新皮肤的臻彩，都是给已上线皮肤的炫彩补上专属原画：26.19 版本的六款覆盖踏雪寻梅与熊猫娃娃拉克丝，26.22 这批覆盖莲华温泉、战斗学院、永恒星灵与净雪之月，详见<a href="${localizedPath(locale, '/blog/patch-26-19-prestige-chromas/')}">26.19 版本臻彩文章</a>。` },
+] : [
+  { question: 'Which prestige chromas are in LoL Patch 26.22?', answer: `${patchChromas.length} in total: three Diamond tier Spirit Blossom Springs entries — Yunara (Sapphire), Yunara (Obsidian), and Sett (Pearl) — plus four Rose Quartz entries for Battle Academia Briar, Eternal Aspect Leona, Eternal Aspect Diana, and Snow Moon Morgana. Morgana&rsquo;s entry is Diamond tier, while the other three Rose Quartz entries are standard prestige chroma tier. All seven upgrade chromas from existing skins with dedicated splash art, not new skins.` },
+  { question: 'How do I get these seven prestige chromas?', answer: `The Patch 26.22 announcement does not specify acquisition methods or dates, so wait for official event or shop announcements. Every prestige chroma is attached to an existing skin and requires owning that base skin first &mdash; see our <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chroma guide</a> for details.` },
+  { question: 'How does this batch compare to Patch 26.19?', answer: `Both batches contain no chromas from brand-new skins &mdash; they upgrade existing chromas with dedicated splash art. Patch 26.19 covered six entries for Petals of Spring and Panda Pal Lux, while the 26.22 batch spans Spirit Blossom Springs, Battle Academia, Eternal Aspects, and Snow Moon; details in our <a href="${localizedPath(locale, '/blog/patch-26-19-prestige-chromas/')}">Patch 26.19 article</a>.` },
+];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(patchChromas[0].images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '英雄联盟26.22, 臻彩, 臻彩原画, 莲华温泉, 芸阿娜, 瑟提, 贝蕾亚, 蕾欧娜, 黛安娜, 莫甘娜, 钻石臻彩, 粉晶' : 'LoL Patch 26.22, prestige chromas, chroma splash art, Spirit Blossom Springs, Yunara, Sett, Briar, Leona, Diana, Morgana, Diamond Prestige Chroma, Rose Quartz',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: isZh ? '26.22 版本臻彩原画列表' : 'LoL Patch 26.22 Prestige Chroma List',
+    numberOfItems: patchChromas.length,
+    itemListElement: patchChromas.map((chroma, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: {
+        '@type': 'CreativeWork', name: isZh ? chroma.nameZh : chroma.nameEn,
+        url: new URL(localizedPath(locale, `/chromas/${chroma.slug}/`), SITE.origin).toString(),
+        image: imageUrl(chroma.images.large),
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <Breadcrumb article {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '26.22 版本臻彩' : 'Patch 26.22 Prestige Chromas' },
+  ]} />
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '26.22 版本 · 臻彩原画' : 'PATCH 26.22 · PRESTIGE CHROMA ART'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? `26.22 这一批一共 ${patchChromas.length} 款：莲华温泉系列一次给出三款钻石臻彩，另外四款为战斗学院、永恒星灵与净雪之月三个系列的粉晶配色。七款全部来自已上线皮肤的炫彩升级，为本批新增专属原画。` : `Patch 26.22 adds ${patchChromas.length} entries: three Diamond tier Spirit Blossom Springs chromas, plus four Rose Quartz entries across the Battle Academia, Eternal Aspects, and Snow Moon skinlines. All seven upgrade chromas from existing skins with dedicated splash art.`}</p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={localizedPath(locale, `/chromas/${patchChromas[0].slug}/`)} aria-label={isZh ? `查看 ${patchChromas[0].nameZh} 详情` : `View ${patchChromas[0].nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(patchChromas[0].images.medium)} data-fallback={sourceImageUrl('medium', patchChromas[0].instanceId)} />
+          <img src={imageUrl(patchChromas[0].images.large)} data-fallback={sourceImageUrl('large', patchChromas[0].instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${patchChromas[0].nameZh}臻彩原画` : `${patchChromas[0].nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? patchChromas[0].nameZh : patchChromas[0].nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '26.22 版本概览' : 'Patch 26.22 overview'}</h2>
+      {isZh ? <><p>国服于 11 月 5 日凌晨 1 点起全区停机，更新 26.22 版本。本次进入臻彩体系的 {patchChromas.length} 款条目全部来自已上线皮肤的炫彩升级，没有全新皮肤——这一点与<a href={localizedPath(locale, '/blog/patch-26-19-prestige-chromas/')}>26.19 版本的六款臻彩</a>一致。其中四款属于钻石臻彩分类，三款属于臻彩分类。</p><p>本站所说的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩</a>是国服定义的炫彩类型，依附于已有皮肤并拥有独立原画，不是通常所说的至臻皮肤；版本号记录的是条目进入臻彩体系的「所属版本」，不代表当前仍可获取。</p></> : <><p>The China Server deployed Patch 26.22 with maintenance starting at 1:00 AM on November 5. All {patchChromas.length} entries joining the prestige system upgrade chromas from existing skins &mdash; none come from new skins, matching <a href={localizedPath(locale, '/blog/patch-26-19-prestige-chromas/')}>Patch 26.19&rsquo;s six entries</a>. Four are Diamond tier and three are standard prestige chroma tier.</p><p>On this site, a <a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>prestige chroma</a> is a China Server chroma type attached to an existing skin with its own splash art, not a traditional Prestige Skin. The patch field records when each entry joined the prestige system; it does not mean the chroma remains obtainable in that patch.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '莲华温泉系列三款钻石臻彩' : 'Spirit Blossom Springs: three Diamond prestige chromas'}</h2>
+      {isZh ? <><p>莲华温泉系列一次上线三款钻石臻彩：<strong>芸阿娜 雪落</strong>、<strong>芸阿娜 月升</strong>与<strong>瑟提 朝花</strong>。芸阿娜的莲华温泉皮肤一次入账两款钻石臻彩，上一批一次出两款钻石臻彩的还是 26.19 版本的熊猫娃娃 拉克丝，她在<a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>臻彩数量排行榜</a>上的数字当时因此增加两款。</p><p>瑟提的朝花为珍珠白配色，与芸阿娜的雪落、月升共同扩充莲华温泉系列的臻彩阵容；三款的获取方式官方尚未公布，等待后续活动或商城消息。</p></> : <><p>The Spirit Blossom Springs skinline receives three Diamond tier entries at once: <strong>Spirit Blossom Springs Yunara (Sapphire)</strong>, <strong>Spirit Blossom Springs Yunara (Obsidian)</strong>, and <strong>Spirit Blossom Springs Sett (Pearl)</strong>. Yunara&rsquo;s Springs skin gains two Diamond chromas in a single patch &mdash; the previous two-at-once Diamond batch was Panda Pal Lux in Patch 26.19, which pushed her tally up by two on the <a href={localizedPath(locale, '/blog/champion-most-prestige-chromas/')}>prestige chroma leaderboard</a>.</p><p>Sett&rsquo;s Pearl entry joins Yunara&rsquo;s Sapphire and Obsidian colourways to expand the Springs lineup; acquisition details for all three have not been announced yet.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '三个皮肤系列共享粉晶配色' : 'Four Rose Quartz entries across three skinlines'}</h2>
+      {isZh ? <><p>另外四款臻彩共享同一种粉晶配色：<strong>战斗学院 贝蕾亚 独角兽</strong>、<strong>永恒星灵 蕾欧娜 斜阳</strong>、<strong>永恒星灵 黛安娜 晦月</strong>与<strong>净雪之月 莫甘娜 风花</strong>，分属战斗学院、永恒星灵与净雪之月三个皮肤系列。分类上，莫甘娜风花属于钻石臻彩，贝蕾亚、蕾欧娜与黛安娜三款为臻彩。</p><p>永恒星灵系列一次为蕾欧娜与黛安娜各补一款配色，加上独立登场的贝蕾亚与莫甘娜，说明粉晶配色已成为多系列并行的常规选项。</p></> : <><p>The remaining four entries share the same Rose Quartz colourway: <strong>Battle Academia Briar (Rose Quartz)</strong>, <strong>Eternal Aspect Leona (Rose Quartz)</strong>, <strong>Eternal Aspect Diana (Rose Quartz)</strong>, and <strong>Snow Moon Morgana (Rose Quartz)</strong>, spanning the Battle Academia, Eternal Aspects, and Snow Moon skinlines. Morgana&rsquo;s entry is classified as Diamond tier, while Briar, Leona, and Diana are standard prestige chroma tier.</p><p>With Eternal Aspects gaining one colourway each for Leona and Diana alongside standalone additions for Briar and Morgana, Rose Quartz keeps serving as a shared option across multiple skinlines.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '26.22 臻彩原画一览' : 'Patch 26.22 prestige chroma gallery'}</h2>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。这次扩充让芸阿娜一次入账两款钻石臻彩，也给三个系列各添一款粉晶配色。' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page. This batch gives Yunara two Diamond entries at once and adds one Rose Quartz colourway to each of the three other skinlines.'}</p>
+      <BlogChromaGrid>
+        {patchChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '官方来源' : 'Official source'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '《英雄联盟》26.22 版本更新公告（2026 年 11 月 5 日停机更新）' : 'League of Legends China Server Patch 26.22 notes (November 5, 2026 maintenance)'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+</BaseLayout>
