@@ -8,7 +8,7 @@ describe('blog article metadata', () => {
   });
 
   it('returns non-circular adjacent articles in newest-first order', () => {
-    expect(blogArticlesNewestFirst[0].slug).toBe('prestige-chroma-summon-2026-23');
+    expect(blogArticlesNewestFirst[0].slug).toBe('joy-club-peak-gala-202610');
     expect(adjacentBlogArticles(blogArticlesNewestFirst[0].slug)).toEqual({
       newer: undefined,
       older: blogArticlesNewestFirst[1],
@@ -29,8 +29,8 @@ describe('blog article metadata', () => {
     expect(september.older?.slug).toBe('lucky-gate-ocean-song-202609');
   });
 
-  it('publishes thirty-four bilingual articles with unique canonical routes', () => {
-    expect(blogArticles).toHaveLength(34);
+  it('publishes thirty-five bilingual articles with unique canonical routes', () => {
+    expect(blogArticles).toHaveLength(35);
     expect(blogArticles[0]).toMatchObject({
       slug: 'prestige-chroma-summon-2026-23',
       href: '/blog/prestige-chroma-summon-2026-23/',

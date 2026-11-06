@@ -66,4 +66,14 @@ export const joyClubPeakGalaSessions: readonly JoyClubPeakGalaSession[] = [
     rewardSkinNameEn: 'Petals of Spring Yasuo',
     rewardChromaNameEn: 'Petals of Spring Yasuo (Sapphire)',
   },
+  {
+    sessionId: '202610',
+    eventUrl: 'https://act.xinyue.qq.com/act/joyclubgala202611/index.html',
+    articleSlug: 'joy-club-peak-gala-202610',
+    windowStart: '2026-11-01',
+    windowEnd: '2026-11-30',
+    rewardHeroId: '126',
+    rewardSkinNameEn: 'Petals of Spring Jayce',
+    rewardChromaNameEn: 'Petals of Spring Jayce (Sapphire)',
+  },
 ];

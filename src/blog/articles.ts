@@ -588,6 +588,22 @@ export const blogArticles: readonly BlogArticle[] = [
     adEligible: true,
     category: 'guide',
   },
+  {
+    slug: 'joy-club-peak-gala-202610',
+    href: '/blog/joy-club-peak-gala-202610/',
+    titleEn: 'Joy Club Peak Gala — Session 202610',
+    titleZh: '心悦巅峰盛典 — 第 202610 期',
+    summaryEn: 'The Joy Club Peak Gala session 202610 runs November 1–30, 2026 on the Chinese LoL server. Spend 500,000 peak value to qualify and claim Petals of Spring Jayce (Sapphire) — a Lunar Revel prestige chroma of the Petals of Spring Jayce skin, exclusive to Peak Gala for 3 months.',
+    summaryZh: '心悦巅峰盛典第 202610 期于 2026 年 11 月 1 日至 30 日开放统计。巅峰值满 50 万即可入席，结算后前往活动页选择大区领取本期专属臻彩「踏雪寻梅 杰斯 玉立冰洁」，享 3 个月独享期。',
+    publishedAt: '2026-11-06',
+    readingMinutes: 4,
+    coverUrl: 'https://img.chromaart.lol/chromas/c7a94df9-a46b-4ca9-8681-cc8a60944130/site3.jpg',
+    coverAltEn: 'Petals of Spring Jayce (Sapphire) prestige chroma splash art — Joy Club Peak Gala session 202610 reward',
+    coverAltZh: '踏雪寻梅 杰斯 玉立冰洁臻彩原画 — 心悦巅峰盛典第 202610 期奖励',
+    sourceUrl: 'https://act.xinyue.qq.com/act/joyclubgala202611/index.html',
+    adEligible: true,
+    category: 'news',
+  },
 ] as const;
 
 /** Blog display order, derived from publication dates without mutating the metadata source. */
