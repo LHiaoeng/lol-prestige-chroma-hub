@@ -28,6 +28,8 @@ Invoke-WebRequest -Uri "https://wiki.leagueoflegends.com/en-us/Module:SkinData/d
 pnpm skin-dates:update --wiki-source .tmp\SkinData.lua --apply
 ```
 
+`--apply` 成功后脚本会自动删除 `.tmp/skin-release-report.json` 和 `.tmp/skin-release-candidate.json`；手工下载的 Lua、输入数组和公告页面等临时文件也应在任务结束时一并删除。
+
 非 Windows 环境下 PowerShell 回退不会触发，此时程序仍读取 CommunityDragon，保留已有日期，让新增记录的直营服日期保持 `null`，并在报告的 `unavailableSources` 中标明来源不可用；若本地尚无日期快照则直接报错。Action API（`api.php`）同样受 Cloudflare 挑战影响，不再作全量导入路径；单条查询仅作历史参考。
 
 以下 MediaWiki Action API 请求在 2026-10-16 曾返回 JSON，目前只作历史参考；URL 中的 `text` 是经过 URL 编码的 Wiki 模板语法。

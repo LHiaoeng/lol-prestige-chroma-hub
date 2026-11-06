@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -500,7 +500,7 @@ async function atomicJson(path: string, value: unknown): Promise<void> {
   await rename(temporary, path);
 }
 
-export async function updateSkinReleaseDates(options: { root: string; apply?: boolean; chinaInput?: string; versionInput?: string; wikiSource?: string; fetcher?: typeof fetch; today?: string }): Promise<UpdateReport> {
+export async function updateSkinReleaseDates(options: { root: string; apply?: boolean; chinaInput?: string; versionInput?: string; wikiSource?: string; fetcher?: typeof fetch; wikiFallback?: () => Promise<string | null>; today?: string }): Promise<UpdateReport> {
   const root = resolve(options.root);
   const oldPath = resolve(root, OUTPUT);
   let previousText: string | null;
@@ -526,7 +526,7 @@ export async function updateSkinReleaseDates(options: { root: string; apply?: bo
         return await fetchText(WIKI_URL, fetcher, WIKI_HEADERS);
       } catch (error) {
         if (error instanceof HttpStatusError && error.status === 403) {
-          const viaPs = await fetchWikiViaPowerShell(WIKI_URL);
+          const viaPs = options.wikiFallback ? await options.wikiFallback() : await fetchWikiViaPowerShell(WIKI_URL);
           if (viaPs !== null) return viaPs;
           return null;
         }
@@ -553,6 +553,10 @@ export async function updateSkinReleaseDates(options: { root: string; apply?: bo
     await atomicJson(resolve(root, CANDIDATE), snapshot);
   }
   if (options.apply && previousText !== candidateText) await atomicJson(oldPath, snapshot);
+  if (options.apply) {
+    await rm(resolve(root, REPORT), { force: true });
+    await rm(resolve(root, CANDIDATE), { force: true });
+  }
   return report;
 }
 
@@ -567,7 +571,8 @@ async function cli(): Promise<void> {
   if (inputIndex >= 0 && !chinaInput || versionIndex >= 0 && !versionInput || wikiSourceIndex >= 0 && !wikiSource || wikiSource && (chinaInput || versionInput)) throw new Error('Usage: pnpm skin-dates:update [--apply] [--china-input path.json] [--version-input path.json] [--wiki-source module.lua]');
   const report = await updateSkinReleaseDates({ root: process.cwd(), apply: args.includes('--apply'), chinaInput, versionInput, wikiSource });
   for (const source of report.unavailableSources) console.warn(`${source}: existing global dates were kept; new global dates remain null. Use --wiki-source with a current raw module when available.`);
-  console.log(JSON.stringify({ applied: args.includes('--apply'), reportPath: REPORT, counts: Object.fromEntries(Object.entries(report).map(([key, items]) => [key, items.length])) }, null, 2));
+  const applied = args.includes('--apply');
+  console.log(JSON.stringify({ applied, reportPath: applied ? null : REPORT, temporaryFilesCleaned: applied, counts: Object.fromEntries(Object.entries(report).map(([key, items]) => [key, items.length])) }, null, 2));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) cli().catch((error) => { console.error(error); process.exitCode = 1; });

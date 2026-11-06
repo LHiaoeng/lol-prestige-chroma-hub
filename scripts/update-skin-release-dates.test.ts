@@ -108,6 +108,26 @@ describe('skin release update', () => {
     }
   });
 
+  it('cleans up generated temp files after apply but keeps them after preview', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'skin-release-cleanup-test-'));
+    const saved = build().snapshot;
+    const inputPath = join(root, 'china.json');
+    try {
+      await mkdir(join(root, 'data'));
+      await writeFile(join(root, 'data/skin-release-dates.json'), `${JSON.stringify(saved)}\n`);
+      await writeFile(inputPath, JSON.stringify([{ skinId: 1001, releaseDate: '2026-01-02' }]));
+      const fetcher = (() => { throw new Error('China-only update must not fetch remote sources'); }) as typeof fetch;
+      await updateSkinReleaseDates({ root, chinaInput: inputPath, fetcher, today: '2026-01-02' });
+      expect(await readFile(join(root, '.tmp/skin-release-report.json'), 'utf8')).toContain('chinaDatesFilled');
+      expect(await readFile(join(root, '.tmp/skin-release-candidate.json'), 'utf8')).toContain('skinId');
+      await updateSkinReleaseDates({ root, chinaInput: inputPath, fetcher, today: '2026-01-02', apply: true });
+      await expect(readFile(join(root, '.tmp/skin-release-report.json'))).rejects.toThrow();
+      await expect(readFile(join(root, '.tmp/skin-release-candidate.json'))).rejects.toThrow();
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('adds version inputs offline without fetching sources', async () => {
     const root = await mkdtemp(join(tmpdir(), 'skin-release-version-test-'));
     const saved = build().snapshot;
@@ -208,10 +228,10 @@ describe('skin release update', () => {
       return new Response(JSON.stringify(value));
     }) as typeof fetch;
     try {
-      await expect(updateSkinReleaseDates({ root, fetcher, today: '2026-01-02' })).rejects.toThrow(/no saved release snapshot/);
+      await expect(updateSkinReleaseDates({ root, fetcher, wikiFallback: async () => null, today: '2026-01-02' })).rejects.toThrow(/no saved release snapshot/);
       await mkdir(join(root, 'data'));
       await writeFile(join(root, 'data/skin-release-dates.json'), JSON.stringify(previous));
-      const report = await updateSkinReleaseDates({ root, fetcher, today: '2026-01-02' });
+      const report = await updateSkinReleaseDates({ root, fetcher, wikiFallback: async () => null, today: '2026-01-02' });
       const candidate = JSON.parse(await readFile(join(root, '.tmp/skin-release-candidate.json'), 'utf8'));
       expect(report.unavailableSources).toEqual(['League Wiki HTTP 403']);
       expect(report.cdWithoutWiki).toEqual([]);
