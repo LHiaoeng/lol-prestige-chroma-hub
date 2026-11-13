@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { blogArticles } from '../src/blog/articles';
 import { canDisplayAds } from '../src/domain/ad-policy';
 
-export const GOOGLE_TAG_SCRIPT = 'https://www.googletagmanager.com/gtm.js?id=GTM-N5VQH5TV';
+export const GOOGLE_TAG_SCRIPT = 'https://www.googletagmanager.com/gtm.js?id=GTM-N2XNGMV2';
 export const GOOGLE_TAG_INIT = "gtag('js', new Date());";
 
 function countOccurrences(haystack: string, needle: string): number {

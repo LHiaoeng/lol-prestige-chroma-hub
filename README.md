@@ -99,7 +99,7 @@ pnpm release:build
 
 不要接受把 package script `build` 自动识别为发布构建的结果。Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致，否则 Workers Build 会失败。项目是纯静态部署，不需要添加 Secrets、环境变量或运行时 bindings。
 
-英文隐私说明位于 `/privacy/`，简体中文位于 `/zh-cn/privacy/`，涵盖静态语言 URL、Cloudflare 托管信息、全站 Google 代码（`GTM-N5VQH5TV`）以及预计接入的 Google AdSense。正式启用广告时，还需根据投放地区在 AdSense 中配置适用的同意管理平台（CMP）。国际化维护规则见 [国际化与多语言 SEO](docs/国际化与多语言SEO.md)。
+英文隐私说明位于 `/privacy/`，简体中文位于 `/zh-cn/privacy/`，涵盖静态语言 URL、Cloudflare 托管信息、全站 Google 代码（`GTM-N2XNGMV2`）以及预计接入的 Google AdSense。正式启用广告时，还需根据投放地区在 AdSense 中配置适用的同意管理平台（CMP）。国际化维护规则见 [国际化与多语言 SEO](docs/国际化与多语言SEO.md)。
 
 全站 Google 代码只在 [`src/layouts/BaseLayout.astro`](src/layouts/BaseLayout.astro) 的 `<head>` 起始处注入一次，英文页、中文页与 404 页共用同一布局，不要在页面或组件里重复添加。`scripts/audit-build.ts` 在发布构建中校验每个 HTML 恰好包含一份且位于 `<head>` 内；调整容器 ID 或注入位置时需同步该审计及其测试。
 
