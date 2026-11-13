@@ -8,7 +8,7 @@ interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const title = isZh ? '隐私说明 | LoL Chroma Art' : 'Privacy Policy | LoL Chroma Art';
-const description = isZh ? '了解 LoL Chroma Art 的静态托管、第三方链接与广告相关信息。' : 'Learn how LoL Chroma Art handles hosting data, third-party links, and advertising information.';
+const description = isZh ? '了解 LoL Chroma Art 的静态托管、第三方链接、访问衡量与广告相关信息。' : 'Learn how LoL Chroma Art handles hosting data, third-party links, measurement, and advertising information.';
 const canonical = new URL(localizedPath(locale, '/privacy/'), SITE.origin).toString();
 const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description, url: canonical, inLanguage: isZh ? 'zh-CN' : 'en' };
 ---
@@ -19,13 +19,19 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
   ]} />
   {!isZh && <article class="privacy-page">
     <h1>Privacy Policy</h1>
-    <p class="effective-date">Effective: July 19, 2026</p>
+    <p class="effective-date">Effective: November 13, 2026</p>
     <p>LoL Chroma Art is a static, read-only League of Legends art archive. You can browse it without creating an account or directly providing personal information.</p>
 
     <section>
       <h2>Information used by this site</h2>
       <p>English and Simplified Chinese are published at separate URLs. Choosing a language follows an ordinary page link; LoL Chroma Art does not send a language preference to a database.</p>
       <p>The site and its images are delivered through Cloudflare services. Like most hosting and security providers, Cloudflare may automatically process technical information such as your IP address, request time, requested URL, browser or device information, and security signals to deliver the site, prevent abuse, and maintain service reliability.</p>
+    </section>
+
+    <section>
+      <h2>Google tag and measurement</h2>
+      <p>LoL Chroma Art loads one Google tag (Google Tag Manager container <code>GTM-N5VQH5TV</code>) in the <code>&lt;head&gt;</code> of every page. Google may set or read cookies and process technical information such as the page URL, browser or device information, and IP address to measure visits to this and other websites.</p>
+      <p>You can limit this measurement through your browser's cookie settings, <a href="https://adssettings.google.com/" target="_blank" rel="noreferrer">Google's Ads Settings</a>, or the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noreferrer">Google Analytics opt-out browser add-on</a>. See <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noreferrer">how Google uses information from partner sites</a>.</p>
     </section>
 
     <section>
@@ -53,20 +59,26 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>Your choices and contact</h2>
-      <p>You can manage advertising preferences through the links above. For privacy questions or requests, contact <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>.</p>
+      <p>You can manage advertising and measurement preferences through the links above. For privacy questions or requests, contact <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>.</p>
       <p>This policy may be updated when the site's services or legal requirements change. Material revisions will be reflected by the effective date shown above.</p>
     </section>
   </article>}
 
   {isZh && <article class="privacy-page">
     <h1>隐私说明</h1>
-    <p class="effective-date">生效日期：2026 年 7 月 19 日</p>
+    <p class="effective-date">生效日期：2026 年 11 月 13 日</p>
     <p>LoL Chroma Art 是一个静态、只读的《英雄联盟》原画图鉴。你无需创建账户，也无需直接提供个人信息即可浏览本站。</p>
 
     <section>
       <h2>本站使用的信息</h2>
       <p>英文和简体中文发布在不同网址。选择语言时只会打开普通页面链接；LoL Chroma Art 不会把语言偏好发送到数据库。</p>
       <p>本站及其图片通过 Cloudflare 服务提供。与多数托管和安全服务商一样，Cloudflare 可能自动处理 IP 地址、请求时间、访问网址、浏览器或设备信息以及安全信号等技术信息，用于提供网站、防止滥用并维持服务可靠性。</p>
+    </section>
+
+    <section>
+      <h2>Google 代码与访问衡量</h2>
+      <p>LoL Chroma Art 在每个网页的 <code>&lt;head&gt;</code> 中加载一份 Google 代码（Google 代码管理工具容器 <code>GTM-N5VQH5TV</code>）。Google 可能设置或读取 Cookie，并处理访问网址、浏览器或设备信息、IP 地址等技术信息，用于衡量本站及其他网站的访问情况。</p>
+      <p>你可以通过浏览器的 Cookie 设置、<a href="https://adssettings.google.com/" target="_blank" rel="noreferrer">Google 广告设置</a>或 <a href="https://tools.google.com/dlpage/gaoptout?hl=zh-CN" target="_blank" rel="noreferrer">Google Analytics 停用浏览器插件</a>限制此类衡量，并查看 <a href="https://policies.google.com/technologies/partner-sites?hl=zh-CN" target="_blank" rel="noreferrer">Google 如何使用合作伙伴网站提供的信息</a>。</p>
     </section>
 
     <section>
@@ -94,7 +106,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'WebPage', name: tit
 
     <section>
       <h2>你的选择与联系我们</h2>
-      <p>你可以通过上述链接管理广告偏好。如有隐私问题或请求，请发送邮件至 <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>。</p>
+      <p>你可以通过上述链接管理广告与访问衡量偏好。如有隐私问题或请求，请发送邮件至 <a href="mailto:lolchromaart@outlook.com">lolchromaart@outlook.com</a>。</p>
       <p>当本站使用的服务或适用要求发生变化时，本说明可能更新；重要修订将通过上方的生效日期体现。</p>
     </section>
   </article>}

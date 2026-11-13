@@ -4,6 +4,24 @@ import { pathToFileURL } from 'node:url';
 import { blogArticles } from '../src/blog/articles';
 import { canDisplayAds } from '../src/domain/ad-policy';
 
+export const GOOGLE_TAG_SCRIPT = 'https://www.googletagmanager.com/gtm.js?id=GTM-N5VQH5TV';
+export const GOOGLE_TAG_INIT = "gtag('js', new Date());";
+
+function countOccurrences(haystack: string, needle: string): number {
+  return haystack.split(needle).length - 1;
+}
+
+function assertGoogleTag(file: string, html: string): void {
+  if (countOccurrences(html, GOOGLE_TAG_SCRIPT) !== 1 || countOccurrences(html, GOOGLE_TAG_INIT) !== 1) {
+    throw new Error(`Google tag must appear exactly once: ${file}`);
+  }
+  const headEnd = html.indexOf('</head>');
+  const head = headEnd >= 0 ? html.slice(0, headEnd) : '';
+  if (!head.includes(GOOGLE_TAG_SCRIPT) || !head.includes(GOOGLE_TAG_INIT)) {
+    throw new Error(`Google tag must be placed in <head>: ${file}`);
+  }
+}
+
 export function isSensitiveDeploymentArtifact(file: string): boolean {
   return /\.map$/i.test(file)
     || /(^|\/)prestige-chromas\.json$/i.test(file)
@@ -70,6 +88,7 @@ export function auditBuild(root: string): string[] {
   }
   for (const file of files.filter((entry) => entry.endsWith('.html'))) {
     const html = readFileSync(join(root, file), 'utf8');
+    assertGoogleTag(file, html);
     for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
       if (!/^\/(?:zh-cn\/)?(?:champions|skins|skinlines|universes)(?:\/|$)/.test(href)) continue;
       const pathname = new URL(href, 'https://audit.invalid').pathname;

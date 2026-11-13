@@ -68,6 +68,13 @@ describe("static site build", () => {
     expect(home).toContain('"@type":"CollectionPage"');
     expect(home).toContain('data-ad-boundary="catalog-index"');
     expect(home).toContain("pagead2.googlesyndication.com");
+    expect(
+      home.match(/googletagmanager\.com\/gtm\.js\?id=GTM-N5VQH5TV/g),
+    ).toHaveLength(1);
+    expect(home.match(/gtag\('js', new Date\(\)\);/g)).toHaveLength(1);
+    expect(
+      home.indexOf("googletagmanager.com/gtm.js?id=GTM-N5VQH5TV"),
+    ).toBeLessThan(home.indexOf("</head>"));
     expect(existsSync(join(dist, "blog", "index.html"))).toBe(true);
     expect(
       existsSync(join(dist, "blog", "kaisa-prestige-chroma", "index.html")),
@@ -1381,6 +1388,8 @@ describe("static site build", () => {
     );
     expect(privacy).toContain("<title>Privacy Policy | LoL Chroma Art</title>");
     expect(privacy).toContain("Google AdSense");
+    expect(privacy).toContain("Google tag and measurement");
+    expect(privacy).toContain("GTM-N5VQH5TV");
     expect(privacy).toContain("adssettings.google.com");
     expect(privacy).toContain("companions.json");
     expect(privacy).toContain("all three companion categories");
@@ -1390,6 +1399,8 @@ describe("static site build", () => {
       "<title>隐私说明 | LoL Chroma Art</title>",
     );
     expect(chinesePrivacy).toContain("Google AdSense");
+    expect(chinesePrivacy).toContain("Google 代码与访问衡量");
+    expect(chinesePrivacy).toContain("GTM-N5VQH5TV");
     expect(chinesePrivacy).toContain("companions.json");
     expect(chinesePrivacy).toContain("英雄级小小英雄和不朽弈士形象");
     expect(chinesePrivacy).toContain("直接读取");
@@ -1451,6 +1462,9 @@ describe("static site build", () => {
 
   it("keeps the 404 page out of the localized canonical index", () => {
     const notFound = readFileSync(join(dist, "404.html"), "utf8");
+    expect(notFound).toContain(
+      "googletagmanager.com/gtm.js?id=GTM-N5VQH5TV",
+    );
     expect(notFound).toContain(
       '<meta name="robots" content="noindex, nofollow">',
     );

@@ -15,7 +15,7 @@
 
 - `astro.config.mjs`：Astro i18n 路由注册；
 - `src/i18n/config.ts`：locale 元数据、路径转换与 alternate URL；
-- `src/layouts/BaseLayout.astro`：`lang`、canonical、hreflang、Open Graph 与全局语言导航；
+- `src/layouts/BaseLayout.astro`：`lang`、canonical、hreflang、Open Graph、全站唯一的 Google 代码与全局语言导航；
 - `src/pages/zh-cn/`：简体中文静态路由 wrapper；
 - `src/seo/chroma-seo.ts`：详情页本地化 SEO；
 - `src/seo/sitemap.ts`：双语固定资料页和博客文章 URL、图片与 XHTML alternate；不输出图鉴详情页。
