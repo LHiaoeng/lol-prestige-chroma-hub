@@ -1,15 +1,19 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AD_SCRIPT_URLS } from '../src/domain/ad-policy';
 import { auditBuild, GOOGLE_TAG_INIT, GOOGLE_TAG_SCRIPT } from './audit-build';
 
 const roots: string[] = [];
-afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
+beforeEach(() => vi.stubEnv('AD_PROVIDER', 'adsterra'));
+afterEach(() => {
+  roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true }));
+  vi.unstubAllEnvs();
+});
 
 const googleTagHead = `<head><script async src="${GOOGLE_TAG_SCRIPT}"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}${GOOGLE_TAG_INIT}</script></head>`;
-const page = (body = '') => `<html>${googleTagHead}<body>${body}</body></html>`;
+const page = (body = '', adsDisabled = false) => `<html${adsDisabled ? ' data-ads-disabled' : ''}>${googleTagHead}<body>${body}</body></html>`;
 const adSlot = (provider: 'adsterra' | 'adsense' = 'adsterra', placement = 'page', attributes = '') =>
   `<aside data-ad-boundary="${placement}" data-ad-provider="${provider}" data-ad-script="${AD_SCRIPT_URLS[provider]}" data-ad-init="${provider === 'adsterra' ? 'iframe-srcdoc' : 'adsbygoogle'}"${attributes}></aside>`;
 
@@ -71,6 +75,29 @@ describe('build audit', () => {
   it('audits the mutually exclusive provider selections and global off switch', () => {
     expect(() => auditBuild(createBuild('adsense'), 'adsense')).not.toThrow();
     expect(() => auditBuild(createBuild('none'), 'none')).not.toThrow();
+  });
+
+  it.each(['adsterra', 'adsense', 'none'] as const)('uses the selected %s build configuration', (provider) => {
+    vi.stubEnv('AD_PROVIDER', provider);
+    expect(() => auditBuild(createBuild(provider))).not.toThrow();
+  });
+
+  it('allows a new bilingual page to explicitly disable ads without registering its route', () => {
+    const root = createBuild();
+    for (const prefix of ['', 'zh-cn/']) {
+      mkdirSync(join(root, prefix, 'contact'), { recursive: true });
+      writeFileSync(join(root, prefix, 'contact', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/${prefix}contact/">`, true));
+    }
+    expect(() => auditBuild(root)).not.toThrow();
+
+    writeFileSync(join(root, 'contact', 'index.html'), page('<link rel="canonical" href="https://chromaart.lol/contact/">'));
+    expect(() => auditBuild(root)).toThrow(/exactly one adsterra/i);
+  });
+
+  it('rejects advertising on a page that explicitly disabled it', () => {
+    const root = createBuild();
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${adSlot()}`, true));
+    expect(() => auditBuild(root)).toThrow(/source is out of scope/i);
   });
 
   it('rejects an ad platform request when advertising is disabled', () => {

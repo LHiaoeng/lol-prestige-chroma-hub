@@ -101,6 +101,8 @@ pnpm release:build
 
 英文隐私说明位于 `/privacy/`，简体中文位于 `/zh-cn/privacy/`，涵盖静态语言 URL、Cloudflare 托管信息、全站 Google 代码（`GTM-N2XNGMV2`）以及当前构建所选广告平台。广告平台选择变更时，隐私披露与投放同步更新。`AD_PROVIDER` 仅接受 `adsterra`、`adsense`、`none`，默认 `adsterra`；选择 `adsense` 时还需配置有效的数字广告单元 ID `ADSENSE_AD_SLOT`。国际化维护规则见 [国际化与多语言 SEO](docs/国际化与多语言SEO.md)。
 
+新增普通页面无需声明广告位即可展示广告；需要免广告的页面向 `BaseLayout` 传入 `ads={false}`，布局会输出 `data-ads-disabled` 标记供产物审计识别，无需再登记路由。构建测试隔离外部广告配置，并验证 Adsterra、AdSense 和关闭广告三种产物，平台开关不会改变测试夹具的预期。
+
 全站 Google 代码只在 [`src/layouts/BaseLayout.astro`](src/layouts/BaseLayout.astro) 的 `<head>` 起始处注入一次，英文页、中文页与 404 页共用同一布局，不要在页面或组件里重复添加。`scripts/audit-build.ts` 在发布构建中校验每个 HTML 恰好包含一份且位于 `<head>` 内；调整容器 ID 或注入位置时需同步该审计及其测试。
 
 生产域名只把 `chromaart.lol` 绑定为 Worker Custom Domain；`www.chromaart.lol` 使用代理的占位 DNS 记录和 Redirect Rule 301 到根域名，`img.chromaart.lol` 继续使用现有 R2 Custom Domain。详细步骤见 [Cloudflare 部署手册](docs/chromaart.lol-Cloudflare部署手册.md)。

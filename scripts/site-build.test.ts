@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { auditBuild, isSensitiveDeploymentArtifact } from "./audit-build";
@@ -20,8 +20,38 @@ describe("static site build", () => {
         join(root, "node_modules", "astro", "bin", "astro.mjs"),
         "build",
       ],
-      { cwd: root, stdio: "pipe" },
+      { cwd: root, stdio: "pipe", env: { ...process.env, AD_PROVIDER: "adsterra" } },
     );
+  }, 180_000);
+
+  it.each(["adsense", "none"] as const)("builds and audits the %s configuration independently of the test environment", (provider) => {
+    const output = mkdtempSync(join(root, ".astro", "ad-provider-build-"));
+    try {
+      execFileSync(process.execPath, [
+        "--require", join(root, "scripts", "block-communitydragon-fetch.cjs"),
+        join(root, "node_modules", "astro", "bin", "astro.mjs"),
+        "build", "--outDir", output,
+      ], {
+        cwd: root,
+        stdio: "pipe",
+        env: { ...process.env, AD_PROVIDER: provider, ADSENSE_AD_SLOT: "12345" },
+      });
+      expect(() => auditBuild(output, provider)).not.toThrow();
+      const home = readFileSync(join(output, "index.html"), "utf8");
+      const privacy = readFileSync(join(output, "privacy", "index.html"), "utf8");
+      if (provider === "none") {
+        expect(home).not.toContain("data-ad-boundary=");
+        expect(privacy).toContain("Advertising is currently disabled");
+      } else {
+        expect(home).toContain('data-ad-provider="adsense"');
+        expect(home).toContain('data-ad-slot="12345"');
+        expect(home).not.toContain('data-ad-provider="adsterra"');
+        expect(privacy).toContain("Google AdSense currently provides display ads");
+      }
+      expect(privacy).toMatch(/<html\b[^>]*\sdata-ads-disabled(?:=""|\s|>)/);
+    } finally {
+      rmSync(output, { recursive: true, force: true });
+    }
   }, 180_000);
 
   it("emits the public routes and SEO metadata", () => {
@@ -653,7 +683,7 @@ describe("static site build", () => {
   });
 
   it("audits the generated IA links and sitemap uniqueness", () => {
-    expect(() => auditBuild(dist)).not.toThrow();
+    expect(() => auditBuild(dist, "adsterra")).not.toThrow();
     const sitemap = readFileSync(join(dist, "sitemap.xml"), "utf8");
     const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
       (match) => match[1],

@@ -75,7 +75,8 @@ export function auditBuild(root: string, adProvider: AdProvider = resolveAdProvi
 
     if (pathname) {
       const route = pathname.replace(/^\/zh-cn(?=\/)/, '') || '/';
-      const expectedAd = adProvider !== 'none' && !AD_FREE_PATHS.has(route);
+      const explicitlyAdFree = /<html\b[^>]*\sdata-ads-disabled(?:=""|\s|>)/.test(html);
+      const expectedAd = adProvider !== 'none' && !AD_FREE_PATHS.has(route) && !explicitlyAdFree;
       if (expectedAd && (adBoundaries.length !== 1 || adProviders[0] !== adProvider)) {
         throw new Error(`Page must contain exactly one ${adProvider} advertising slot: ${file}`);
       }
