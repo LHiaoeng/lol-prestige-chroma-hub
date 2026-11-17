@@ -84,11 +84,6 @@ export function browserHistory(): RuntimeHistory {
 
 export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeView {
   const { source } = options;
-  const updateRuntimeAd = (ready: boolean) => {
-    if (ready) options.root.setAttribute("data-runtime-ad-ready", "");
-    else options.root.removeAttribute("data-runtime-ad-ready");
-    options.root.dispatchEvent(new CustomEvent(ready ? "runtime-reference-ad-ready" : "runtime-reference-ad-unavailable", { bubbles: true }));
-  };
   const status =
     options.root.querySelector<HTMLElement>("[data-runtime-status]") ??
     textNode("p", "");
@@ -276,7 +271,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       }
 
       const target = context.target;
-      if (target.mode === "detail" && state.core.value.mode === "detail") updateRuntimeAd(true);
       if (target.mode === "list" && target.page === "universes") {
         const slot = state.slots["list-skinlines"];
         if (slot?.status === "loading") listRenderer.listRelationsLoading();
@@ -329,7 +323,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
     },
     loading(preserve, context) {
       preservingContent = preserve;
-      if (!preserve && options.root.dataset.runtimeMode === "detail") updateRuntimeAd(false);
       options.root.setAttribute("aria-busy", "true");
       if (!preserve) pageShell?.setAttribute("data-runtime-loading", "");
       if (!preserve && context && typeof context === "object" && context.target.mode === "pbe") {
@@ -371,7 +364,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       if (template && !preserve) content.replaceChildren(template.content.cloneNode(true));
     },
     invalid(message, channel) {
-      updateRuntimeAd(false);
       setRuntimeNoindex(true);
       detailRenderer.showDetailSummaryFailure();
       entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");
@@ -401,7 +393,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       content.replaceChildren(fragment);
     },
     failure(error, retry) {
-      if (!preservingContent && options.root.dataset.runtimeMode === "detail") updateRuntimeAd(false);
       if (!preservingContent) detailRenderer.showDetailSummaryFailure();
       if (!preservingContent) pbeSummary?.setAttribute("hidden", "");
       entityHeaderSkeleton?.removeAttribute("data-runtime-exiting");

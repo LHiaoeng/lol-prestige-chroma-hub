@@ -8,6 +8,6 @@ const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Loc
 const isZh = locale === 'zh-cn';
 const seo = createEntitySeo('skinlines/detail', undefined, isZh ? '皮肤系列详情' : 'Skinline detail', isZh ? '在浏览器中读取指定皮肤系列、所属宇宙和系列皮肤。' : 'Read a selected skinline, its universe connections, and associated skins in the browser.', locale);
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale} deferAds>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
   <RuntimeReferenceRoot page="skinlines" mode="detail" {locale} label={isZh ? '皮肤系列' : 'Skinlines'} heading={isZh ? '皮肤系列详情' : 'Skinline detail'} lede={isZh ? '查看简体中文皮肤系列、所属宇宙和系列皮肤。' : 'View the English skinline, its universe, and associated skins.'} />
 </BaseLayout>

@@ -15,7 +15,7 @@ afterEach(() => {
 const googleTagHead = `<head><script async src="${GOOGLE_TAG_SCRIPT}"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}${GOOGLE_TAG_INIT}</script></head>`;
 const page = (body = '', adsDisabled = false) => `<html${adsDisabled ? ' data-ads-disabled' : ''}>${googleTagHead}<body>${body}</body></html>`;
 const adSlot = (provider: 'adsterra' | 'adsense' = 'adsterra', placement = 'page', attributes = '') =>
-  `<aside data-ad-boundary="${placement}" data-ad-provider="${provider}" data-ad-script="${AD_SCRIPT_URLS[provider]}" data-ad-init="${provider === 'adsterra' ? 'iframe-srcdoc' : 'adsbygoogle'}"${attributes}></aside>`;
+  `<aside data-ad-boundary="${placement}" data-ad-provider="${provider}" data-ad-script="${AD_SCRIPT_URLS[provider]}" data-ad-init="${provider === 'adsterra' ? 'inline-script' : 'adsbygoogle'}"${attributes}></aside>`;
 
 describe('build audit', () => {
   const createBuild = (provider: 'adsterra' | 'adsense' | 'none' = 'adsterra') => {
@@ -119,6 +119,20 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).toThrow(/source or initializer/i);
   });
 
+  it('rejects the old wrapped initializer and runtime-delayed advertising', () => {
+    const root = createBuild();
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${adSlot().replace('inline-script', 'iframe-srcdoc')}`));
+    expect(() => auditBuild(root)).toThrow(/source or initializer/i);
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${adSlot('adsterra', 'page', ' data-ad-deferred=""')}`));
+    expect(() => auditBuild(root)).toThrow(/load with the page/i);
+  });
+
+  it('does not count JavaScript selectors as advertising markup', () => {
+    const root = createBuild();
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${adSlot()}<script>const selector = '[data-ad-provider="adsense"]';</script>`));
+    expect(() => auditBuild(root)).not.toThrow();
+  });
+
   it('rejects catalog details in the sitemap', () => {
     const root = createBuild();
     writeFileSync(join(root, 'sitemap.xml'), '<urlset><url><loc>https://chromaart.lol/chromas/sample/</loc></url></urlset>');
@@ -152,11 +166,11 @@ describe('build audit', () => {
     mkdirSync(join(root, 'zh-cn', 'champions', 'detail'), { recursive: true });
     writeFileSync(
       join(root, 'champions', 'detail', 'index.html'),
-      page(`<link rel="canonical" href="https://chromaart.lol/champions/detail/">${adSlot('adsterra', 'page', ' data-ad-deferred=""')}`),
+      page(`<link rel="canonical" href="https://chromaart.lol/champions/detail/">${adSlot()}`),
     );
     writeFileSync(
       join(root, 'zh-cn', 'champions', 'detail', 'index.html'),
-      page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">${adSlot('adsterra', 'page', ' data-ad-deferred=""')}`),
+      page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">${adSlot()}`),
     );
 
     expect(() => auditBuild(root)).not.toThrow();

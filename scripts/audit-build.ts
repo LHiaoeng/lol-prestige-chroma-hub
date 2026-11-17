@@ -57,15 +57,16 @@ export function auditBuild(root: string, adProvider: AdProvider = resolveAdProvi
   for (const file of files.filter((entry) => entry.endsWith('.html'))) {
     const html = readFileSync(join(root, file), 'utf8');
     if (!html.trim()) throw new Error(`Blank HTML document detected: ${file}`);
-    const canonical = html.match(/<link rel="canonical" href="(https:\/\/chromaart\.lol[^"#]*)"/)?.[1];
+    const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    const canonical = markup.match(/<link rel="canonical" href="(https:\/\/chromaart\.lol[^"#]*)"/)?.[1];
     const pathname = canonical ? new URL(canonical).pathname : undefined;
-    const adBoundaries = [...html.matchAll(/data-ad-boundary="([^"]+)"/g)].map((match) => match[1]);
-    const adProviders = [...html.matchAll(/data-ad-provider="([^"]+)"/g)].map((match) => match[1]);
-    const adScripts = [...html.matchAll(/data-ad-script="([^"]+)"/g)].map((match) => match[1]);
-    const adInitializers = [...html.matchAll(/data-ad-init="([^"]+)"/g)].map((match) => match[1]);
+    const adBoundaries = [...markup.matchAll(/data-ad-boundary="([^"]+)"/g)].map((match) => match[1]);
+    const adProviders = [...markup.matchAll(/data-ad-provider="([^"]+)"/g)].map((match) => match[1]);
+    const adScripts = [...markup.matchAll(/data-ad-script="([^"]+)"/g)].map((match) => match[1]);
+    const adInitializers = [...markup.matchAll(/data-ad-init="([^"]+)"/g)].map((match) => match[1]);
     const pageAdSources = Object.values(AD_SCRIPT_URLS).filter((source) => html.includes(source));
     if (file === '404.html') {
-      if (/data-ad-/.test(html) || pageAdSources.length) throw new Error('Advertising is not allowed on the 404 page');
+      if (/data-ad-/.test(markup) || pageAdSources.length) throw new Error('Advertising is not allowed on the 404 page');
       continue;
     }
     if (adBoundaries.length !== adProviders.length) throw new Error(`Advertising boundary/provider mismatch: ${file}`);
@@ -75,7 +76,7 @@ export function auditBuild(root: string, adProvider: AdProvider = resolveAdProvi
 
     if (pathname) {
       const route = pathname.replace(/^\/zh-cn(?=\/)/, '') || '/';
-      const explicitlyAdFree = /<html\b[^>]*\sdata-ads-disabled(?:=""|\s|>)/.test(html);
+      const explicitlyAdFree = /<html\b[^>]*\sdata-ads-disabled(?:=""|\s|>)/.test(markup);
       const expectedAd = adProvider !== 'none' && !AD_FREE_PATHS.has(route) && !explicitlyAdFree;
       if (expectedAd && (adBoundaries.length !== 1 || adProviders[0] !== adProvider)) {
         throw new Error(`Page must contain exactly one ${adProvider} advertising slot: ${file}`);
@@ -84,18 +85,18 @@ export function auditBuild(root: string, adProvider: AdProvider = resolveAdProvi
       const hasOnlySelectedSource = expectedSource
         ? pageAdSources.length === 1 && pageAdSources[0] === expectedSource
         : pageAdSources.length === 0;
+      const expectedInitializer = adProvider === 'adsterra' ? 'inline-script' : 'adsbygoogle';
       if (expectedAd && (!hasOnlySelectedSource
         || adScripts[0] !== expectedSource
-        || adInitializers[0] !== (adProvider === 'adsterra' ? 'iframe-srcdoc' : 'adsbygoogle'))) {
+        || adInitializers[0] !== expectedInitializer)) {
         throw new Error(`Advertising source or initializer does not match ${adProvider}: ${file}`);
       }
       if (!expectedAd && (adBoundaries.length || pageAdSources.length)) throw new Error(`Advertising boundary or source is out of scope: ${file}`);
       if (adProvider === 'adsense' && expectedAd && !html.includes('data-ad-slot=')) {
         throw new Error(`AdSense slot has no ad unit ID: ${file}`);
       }
-      const runtimeDetail = /^\/(?:champions|skins|skinlines|universes)\/detail\/$/.test(route);
-      if (expectedAd && runtimeDetail && !/data-ad-deferred(?:=""|\s|>)/.test(html)) {
-        throw new Error(`Runtime detail ad is not deferred until content loads: ${file}`);
+      if (expectedAd && /data-ad-deferred(?:=""|\s|>)/.test(markup)) {
+        throw new Error(`Advertising must load with the page, not wait for runtime content: ${file}`);
       }
     }
 

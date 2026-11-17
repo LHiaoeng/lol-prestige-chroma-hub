@@ -24,6 +24,24 @@ describe("static site build", () => {
     );
   }, 180_000);
 
+  it('embeds the original synchronous Adsterra code directly on static and runtime detail pages', () => {
+    for (const prefix of ['', 'zh-cn/']) {
+      for (const route of ['', 'champions/detail/', 'skins/detail/', 'skinlines/detail/', 'universes/detail/']) {
+        const html = readFileSync(join(dist, prefix, route, 'index.html'), 'utf8');
+        const slot = html.match(/<aside\b[^>]*data-ad-provider="adsterra"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? '';
+        const scripts = [...slot.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)];
+        expect(scripts).toHaveLength(2);
+        expect(scripts[0][2]).toContain('var atOptions = ');
+        expect(scripts[0][2]).toContain('"key":"77357bee0c4371d3773095ac4d08de0b"');
+        expect(scripts[0][2]).toContain('"format":"iframe","height":250,"width":300');
+        expect(scripts[1][1]).toContain('src="https://bauval.org/22/77357bee0c4371d3773095ac4d08de0b"');
+        expect(scripts[1][1]).not.toMatch(/async|defer|type=/);
+        expect(slot).not.toMatch(/srcdoc|sandbox|<iframe\b/);
+        expect(html).not.toContain('data-ad-deferred');
+      }
+    }
+  });
+
   it.each(["adsense", "none"] as const)("builds and audits the %s configuration independently of the test environment", (provider) => {
     const output = mkdtempSync(join(root, ".astro", "ad-provider-build-"));
     try {

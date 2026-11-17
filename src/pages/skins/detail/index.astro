@@ -16,6 +16,6 @@ const seo = createEntitySeo(
   locale,
 );
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale} deferAds>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} noindex {locale}>
   <RuntimeReferenceRoot page="skins" mode="detail" {locale} label={isZh ? '皮肤' : 'Skins'} heading={isZh ? '皮肤详情' : 'Skin detail'} lede={isZh ? '查看简体中文皮肤资料。' : 'View the English skin reference.'} />
 </BaseLayout>

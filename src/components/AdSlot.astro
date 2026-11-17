@@ -1,28 +1,30 @@
 ---
-import { AD_SCRIPT_URLS, ADSENSE_CLIENT_ID, type AdPlacement, type AdProvider } from '../domain/ad-policy';
+import { AD_SCRIPT_URLS, ADSTERRA_KEY, ADSENSE_CLIENT_ID, type AdPlacement, type AdProvider } from '../domain/ad-policy';
 
 interface Props {
   placement: AdPlacement;
   provider: Exclude<AdProvider, 'none'>;
   adsenseSlot?: string;
   locale: 'en' | 'zh-cn';
-  deferred?: boolean;
 }
 
-const { placement, provider, adsenseSlot, locale, deferred = false } = Astro.props;
+const { placement, provider, adsenseSlot, locale } = Astro.props;
 const isZh = locale === 'zh-cn';
+const adsterraOptions = JSON.stringify({ key: ADSTERRA_KEY, format: 'iframe', height: 250, width: 300, params: {} });
 ---
 <aside
   class="ad-boundary"
   data-ad-boundary={placement}
   data-ad-provider={provider}
   data-ad-script={provider === 'adsterra' ? AD_SCRIPT_URLS.adsterra : AD_SCRIPT_URLS.adsense}
-  data-ad-init={provider === 'adsterra' ? 'iframe-srcdoc' : 'adsbygoogle'}
-  data-ad-deferred={deferred ? '' : undefined}
+  data-ad-init={provider === 'adsterra' ? 'inline-script' : 'adsbygoogle'}
   aria-label={isZh ? '广告' : 'Advertisement'}
-  hidden={deferred}
 >
   <span class="ad-label">{isZh ? '广告' : 'Advertisement'}</span>
+  {provider === 'adsterra' && <>
+    <script is:inline set:html={`var atOptions = ${adsterraOptions};`} />
+    <script is:inline src={AD_SCRIPT_URLS.adsterra}></script>
+  </>}
   {provider === 'adsense' && <template data-adsense-template>
     <ins class="adsbygoogle" data-adsense-unit data-ad-client={ADSENSE_CLIENT_ID} data-ad-slot={adsenseSlot} style="display:inline-block;width:300px;height:250px"></ins>
   </template>}
@@ -35,6 +37,8 @@ const isZh = locale === 'zh-cn';
 
 <style is:global>
   .ad-boundary {
+    position: relative;
+    z-index: 1;
     display: grid;
     width: min(300px, calc(100vw - 20px));
     min-height: 274px;
@@ -42,7 +46,6 @@ const isZh = locale === 'zh-cn';
     justify-items: center;
     align-content: start;
   }
-  .ad-boundary[hidden] { display: none; }
   .ad-label { display: block; margin-bottom: var(--space-2); color: var(--tertiary); font-size: var(--font-size-small); line-height: var(--line-height-small); }
   .ad-boundary iframe, .ad-boundary [data-adsense-unit] { display: block; width: 300px; max-width: 100%; height: 250px; border: 0; }
 </style>

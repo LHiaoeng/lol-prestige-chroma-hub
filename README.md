@@ -12,7 +12,7 @@
 
 英文博客位于 `/blog/`，简体中文博客位于 `/zh-cn/blog/`；两种语言使用相同文章 slug。文章正文直接由共享 Astro 页面维护，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章由已提交的 `data/champion-coverage.snapshot.json` 生成完整静态正文；浏览器打开页面后可以显式刷新辅助数据，失败时保留快照。普通构建不在线更新快照，维护者使用 `pnpm coverage:snapshot` 在核对两个区域数据视图、来源 URL、抓取时间和内容版本后更新它。公开页面不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
-图鉴首页、中英文博客列表与文章、臻彩详情以及英雄、皮肤、皮肤系列和宇宙详情默认展示一个广告位；后者仅在主资料成功加载后请求广告。广告默认使用 Adsterra，通过构建变量 `AD_PROVIDER` 切换为 AdSense 或关闭（`none`）；任一页面只加载所选平台，广告请求失败时不自动切换。新页面默认启用广告，隐私、关于、404、PBE 新增、英雄/皮肤/系列/宇宙目录和 TFT 目录页面显式关闭。所有中英文臻彩详情仍标记为 `noindex` 并从 `sitemap.xml` 排除；动态实体详情也由客户端标记 `noindex`，旧实体 URL 不提供兼容页。
+图鉴首页、中英文博客列表与文章、臻彩详情以及英雄、皮肤、皮肤系列和宇宙详情默认展示一个广告位，均随页面直接加载，不等待运行时资料成功。Adsterra 按官方方式先设置 `atOptions`，再在 body 广告位加载同步脚本，不额外包裹 iframe、`srcdoc` 或 sandbox。广告默认使用 Adsterra，通过构建变量 `AD_PROVIDER` 切换为 AdSense 或关闭（`none`）；任一页面只加载所选平台，广告请求失败时不自动切换。新页面默认启用广告，隐私、关于、404、PBE 新增、英雄/皮肤/系列/宇宙目录和 TFT 目录页面显式关闭。所有中英文臻彩详情仍标记为 `noindex` 并从 `sitemap.xml` 排除；动态实体详情也由客户端标记 `noindex`，旧实体 URL 不提供兼容页。
 
 运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 和 `/pbe-additions/` 五个双语目录/比较壳，以及独立的英雄、皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。静态臻彩详情还会渐进加载可失败的英雄、所属皮肤和炫彩补充资料。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效；`id`、`champion`、`stage`、`channel` 的读取、校验、筛选和格式化集中在 `src/domain/runtime-url-state.ts`，DOM 链接更新由独立 adapter 负责，转发时保留显式 PBE 意图并删除目标页面不允许的参数。两类浏览器入口共享取消、迟到响应保护、成功后提交 URL、保留旧内容和失败重试的通道生命周期。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 

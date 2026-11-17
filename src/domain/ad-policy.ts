@@ -25,7 +25,3 @@ export function resolveAdSenseSlot(value: string | undefined): string {
   }
   return value;
 }
-
-export function shouldInitializeAd(provider: AdProvider, deferred: boolean, ready: boolean, attempted: boolean): boolean {
-  return provider !== 'none' && !attempted && (!deferred || ready);
-}
