@@ -14,6 +14,6 @@ const seo = createEntitySeo(
   locale,
 );
 ---
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale} ads={false}>
   <RuntimeReferenceRoot page="pbe-additions" mode="pbe" {locale} label={isZh ? 'PBE 新增' : 'PBE additions'} heading={isZh ? 'PBE 新增' : 'PBE additions'} />
 </BaseLayout>

@@ -32,7 +32,7 @@ const jsonLd = {
   isPartOf: { '@type': 'WebSite', name: SITE.name, url: homeUrl },
 };
 ---
-<BaseLayout {title} {description} {canonical} {jsonLd} {locale}>
+<BaseLayout {title} {description} {canonical} {jsonLd} {locale} ads={false}>
   <Breadcrumb {locale} items={[
     { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
     { title: isZh ? '关于' : 'About' },

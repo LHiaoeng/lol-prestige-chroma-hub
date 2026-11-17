@@ -12,7 +12,7 @@
 
 英文博客位于 `/blog/`，简体中文博客位于 `/zh-cn/blog/`；两种语言使用相同文章 slug。文章正文直接由共享 Astro 页面维护，列表元数据集中在 `src/blog/articles.ts`。英雄覆盖率文章由已提交的 `data/champion-coverage.snapshot.json` 生成完整静态正文；浏览器打开页面后可以显式刷新辅助数据，失败时保留快照。普通构建不在线更新快照，维护者使用 `pnpm coverage:snapshot` 在核对两个区域数据视图、来源 URL、抓取时间和内容版本后更新它。公开页面不公开 `data/prestige-chromas.json`，也不增加站点运行时内容接口。需要本地维护或便于迁移的文章素材放入 `public/images/blog/<article>/`。
 
-图鉴首页和中英文博客列表、文章页保留广告位；所有中英文臻彩详情页均标记为 `noindex`，并从 `sitemap.xml` 排除。英雄、皮肤、皮肤系列和宇宙保留双语静态目录壳，皮肤详情仍是独立详情壳；这些运行时资料页通过浏览器直接读取当前本地化视图和数据通道的 CommunityDragon 资料，动态详情由客户端标记 `noindex`，旧实体 URL 不提供兼容页。臻彩详情页仍保持完整静态正文，浏览器只渐进补充对应英雄和炫彩所属皮肤资料。详情页不加载广告脚本，博客页面通过显式广告边界统一加载广告；隐私页、关于页和其他资料页不承载广告。
+图鉴首页、中英文博客列表与文章、臻彩详情以及英雄、皮肤、皮肤系列和宇宙详情默认展示一个广告位；后者仅在主资料成功加载后请求广告。广告默认使用 Adsterra，通过构建变量 `AD_PROVIDER` 切换为 AdSense 或关闭（`none`）；任一页面只加载所选平台，广告请求失败时不自动切换。新页面默认启用广告，隐私、关于、404、PBE 新增、英雄/皮肤/系列/宇宙目录和 TFT 目录页面显式关闭。所有中英文臻彩详情仍标记为 `noindex` 并从 `sitemap.xml` 排除；动态实体详情也由客户端标记 `noindex`，旧实体 URL 不提供兼容页。
 
 运行时资料入口包括 `/champions/`、`/skins/`、`/skinlines/`、`/universes/` 和 `/pbe-additions/` 五个双语目录/比较壳，以及独立的英雄、皮肤、系列和宇宙详情壳；英雄详情使用 `/champions/detail/?id={championId}`，皮肤详情使用 `/skins/detail/?id={skinId}&champion={championId}`，系列和宇宙详情分别使用 `/skinlines/detail/?id={skinlineId}` 与 `/universes/detail/?id={universeId}`。静态臻彩详情还会渐进加载可失败的英雄、所属皮肤和炫彩补充资料。默认通道是 `pbe`，显式 `channel=pbe` 与 `channel=latest` 都有效；`id`、`champion`、`stage`、`channel` 的读取、校验、筛选和格式化集中在 `src/domain/runtime-url-state.ts`，DOM 链接更新由独立 adapter 负责，转发时保留显式 PBE 意图并删除目标页面不允许的参数。两类浏览器入口共享取消、迟到响应保护、成功后提交 URL、保留旧内容和失败重试的通道生命周期。`data/prestige-chromas.json` 仍是中国服臻彩编辑型目录，不决定 CommunityDragon 实体是否存在。
 
@@ -97,9 +97,9 @@ pnpm release:build
 - Build command：`pnpm release:build`
 - Deploy command：`pnpm exec wrangler deploy`
 
-不要接受把 package script `build` 自动识别为发布构建的结果。Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致，否则 Workers Build 会失败。项目是纯静态部署，不需要添加 Secrets、环境变量或运行时 bindings。
+不要接受把 package script `build` 自动识别为发布构建的结果。Worker 名称必须与 `wrangler.jsonc` 中的 `lol-prestige-chroma-hub` 一致，否则 Workers Build 会失败。项目是纯静态部署，不需要 Secrets 或运行时 bindings；广告平台只读取下方所述的构建时变量。
 
-英文隐私说明位于 `/privacy/`，简体中文位于 `/zh-cn/privacy/`，涵盖静态语言 URL、Cloudflare 托管信息、全站 Google 代码（`GTM-N2XNGMV2`）以及预计接入的 Google AdSense。正式启用广告时，还需根据投放地区在 AdSense 中配置适用的同意管理平台（CMP）。国际化维护规则见 [国际化与多语言 SEO](docs/国际化与多语言SEO.md)。
+英文隐私说明位于 `/privacy/`，简体中文位于 `/zh-cn/privacy/`，涵盖静态语言 URL、Cloudflare 托管信息、全站 Google 代码（`GTM-N2XNGMV2`）以及当前构建所选广告平台。广告平台选择变更时，隐私披露与投放同步更新。`AD_PROVIDER` 仅接受 `adsterra`、`adsense`、`none`，默认 `adsterra`；选择 `adsense` 时还需配置有效的数字广告单元 ID `ADSENSE_AD_SLOT`。国际化维护规则见 [国际化与多语言 SEO](docs/国际化与多语言SEO.md)。
 
 全站 Google 代码只在 [`src/layouts/BaseLayout.astro`](src/layouts/BaseLayout.astro) 的 `<head>` 起始处注入一次，英文页、中文页与 404 页共用同一布局，不要在页面或组件里重复添加。`scripts/audit-build.ts` 在发布构建中校验每个 HTML 恰好包含一份且位于 `<head>` 内；调整容器 ID 或注入位置时需同步该审计及其测试。
 

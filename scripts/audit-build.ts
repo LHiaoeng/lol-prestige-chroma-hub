@@ -1,8 +1,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { blogArticles } from '../src/blog/articles';
-import { canDisplayAds } from '../src/domain/ad-policy';
+import { AD_SCRIPT_URLS, resolveAdProvider, type AdProvider } from '../src/domain/ad-policy';
 
 export const GOOGLE_TAG_SCRIPT = 'https://www.googletagmanager.com/gtm.js?id=GTM-N2XNGMV2';
 export const GOOGLE_TAG_INIT = "gtag('js', new Date());";
@@ -30,7 +29,13 @@ export function isSensitiveDeploymentArtifact(file: string): boolean {
     || /\.sql(?:\.(?:gz|br|zip))?$/i.test(file);
 }
 
-export function auditBuild(root: string): string[] {
+const AD_FREE_PATHS = new Set([
+  '/about/', '/privacy/', '/editorial-policy/',
+  '/champions/', '/skins/', '/skinlines/', '/universes/', '/pbe-additions/',
+  '/tft/companions/', '/tft/arenas/',
+]);
+
+export function auditBuild(root: string, adProvider: AdProvider = resolveAdProvider(process.env.AD_PROVIDER)): string[] {
   const files: string[] = [];
   const visit = (directory: string) => {
     for (const entry of readdirSync(directory)) {
@@ -49,34 +54,48 @@ export function auditBuild(root: string): string[] {
   if (jsonArtifacts.length) throw new Error(`JSON source artifacts must not be published: ${jsonArtifacts.join(', ')}`);
   if (!files.includes('index.html') || !files.includes('zh-cn/index.html') || !files.includes('404.html')) throw new Error('Required static pages are missing');
   const fileSet = new Set(files);
-  const adEligibleSlugs = new Set(blogArticles.filter((article) => article.adEligible).map((article) => article.slug));
-  for (const file of files.filter((entry) => entry.endsWith('.html') && entry !== '404.html')) {
+  for (const file of files.filter((entry) => entry.endsWith('.html'))) {
     const html = readFileSync(join(root, file), 'utf8');
     if (!html.trim()) throw new Error(`Blank HTML document detected: ${file}`);
     const canonical = html.match(/<link rel="canonical" href="(https:\/\/chromaart\.lol[^"#]*)"/)?.[1];
     const pathname = canonical ? new URL(canonical).pathname : undefined;
-    const detailPath = pathname && /^\/(?:zh-cn\/)?chromas\/[^/]+\/$/.test(pathname);
     const adBoundaries = [...html.matchAll(/data-ad-boundary="([^"]+)"/g)].map((match) => match[1]);
-    const hasAdScript = html.includes('pagead2.googlesyndication.com') || html.includes('adsbygoogle');
-
-    if (detailPath && (adBoundaries.length || hasAdScript)) {
-      throw new Error(`Catalog detail contains advertising: ${file}`);
+    const adProviders = [...html.matchAll(/data-ad-provider="([^"]+)"/g)].map((match) => match[1]);
+    const adScripts = [...html.matchAll(/data-ad-script="([^"]+)"/g)].map((match) => match[1]);
+    const adInitializers = [...html.matchAll(/data-ad-init="([^"]+)"/g)].map((match) => match[1]);
+    const pageAdSources = Object.values(AD_SCRIPT_URLS).filter((source) => html.includes(source));
+    if (file === '404.html') {
+      if (/data-ad-/.test(html) || pageAdSources.length) throw new Error('Advertising is not allowed on the 404 page');
+      continue;
     }
+    if (adBoundaries.length !== adProviders.length) throw new Error(`Advertising boundary/provider mismatch: ${file}`);
+    if (adBoundaries.length !== adScripts.length || adBoundaries.length !== adInitializers.length) throw new Error(`Advertising source/initializer mismatch: ${file}`);
+    if (adBoundaries.length > 1) throw new Error(`Multiple advertising slots on one page: ${file}`);
+    if (adBoundaries.length && !pathname) throw new Error(`Advertising markup has no canonical page: ${file}`);
 
-    if (adBoundaries.length || hasAdScript) {
-      if (!pathname) throw new Error(`Advertising markup has no canonical page: ${file}`);
-      for (const placement of adBoundaries) {
-        const catalogIndex = placement === 'catalog-index'
-          && canDisplayAds('catalog-index')
-          && (pathname === '/' || pathname === '/zh-cn/');
-        const blogIndex = pathname === '/blog/' || pathname === '/zh-cn/blog/';
-        const articleMatch = pathname.match(/^\/(?:zh-cn\/)?blog\/([^/]+)\/$/);
-        const editorialArticle = placement === 'editorial-article'
-          && canDisplayAds('editorial-article', blogIndex || Boolean(articleMatch && adEligibleSlugs.has(articleMatch[1])))
-          && (blogIndex || Boolean(articleMatch));
-        if (!catalogIndex && !editorialArticle) throw new Error(`Advertising boundary is out of scope: ${file}`);
+    if (pathname) {
+      const route = pathname.replace(/^\/zh-cn(?=\/)/, '') || '/';
+      const expectedAd = adProvider !== 'none' && !AD_FREE_PATHS.has(route);
+      if (expectedAd && (adBoundaries.length !== 1 || adProviders[0] !== adProvider)) {
+        throw new Error(`Page must contain exactly one ${adProvider} advertising slot: ${file}`);
       }
-      if (!adBoundaries.length) throw new Error(`Advertising script has no explicit boundary: ${file}`);
+      const expectedSource = adProvider === 'none' ? undefined : AD_SCRIPT_URLS[adProvider];
+      const hasOnlySelectedSource = expectedSource
+        ? pageAdSources.length === 1 && pageAdSources[0] === expectedSource
+        : pageAdSources.length === 0;
+      if (expectedAd && (!hasOnlySelectedSource
+        || adScripts[0] !== expectedSource
+        || adInitializers[0] !== (adProvider === 'adsterra' ? 'iframe-srcdoc' : 'adsbygoogle'))) {
+        throw new Error(`Advertising source or initializer does not match ${adProvider}: ${file}`);
+      }
+      if (!expectedAd && (adBoundaries.length || pageAdSources.length)) throw new Error(`Advertising boundary or source is out of scope: ${file}`);
+      if (adProvider === 'adsense' && expectedAd && !html.includes('data-ad-slot=')) {
+        throw new Error(`AdSense slot has no ad unit ID: ${file}`);
+      }
+      const runtimeDetail = /^\/(?:champions|skins|skinlines|universes)\/detail\/$/.test(route);
+      if (expectedAd && runtimeDetail && !/data-ad-deferred(?:=""|\s|>)/.test(html)) {
+        throw new Error(`Runtime detail ad is not deferred until content loads: ${file}`);
+      }
     }
 
     if (!canonical) continue;

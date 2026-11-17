@@ -2,6 +2,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { AD_SCRIPT_URLS } from '../src/domain/ad-policy';
 import { auditBuild, GOOGLE_TAG_INIT, GOOGLE_TAG_SCRIPT } from './audit-build';
 
 const roots: string[] = [];
@@ -9,15 +10,18 @@ afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true
 
 const googleTagHead = `<head><script async src="${GOOGLE_TAG_SCRIPT}"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}${GOOGLE_TAG_INIT}</script></head>`;
 const page = (body = '') => `<html>${googleTagHead}<body>${body}</body></html>`;
+const adSlot = (provider: 'adsterra' | 'adsense' = 'adsterra', placement = 'page', attributes = '') =>
+  `<aside data-ad-boundary="${placement}" data-ad-provider="${provider}" data-ad-script="${AD_SCRIPT_URLS[provider]}" data-ad-init="${provider === 'adsterra' ? 'iframe-srcdoc' : 'adsbygoogle'}"${attributes}></aside>`;
 
 describe('build audit', () => {
-  const createBuild = () => {
+  const createBuild = (provider: 'adsterra' | 'adsense' | 'none' = 'adsterra') => {
     const root = mkdtempSync(join(tmpdir(), 'audit-'));
     roots.push(root);
-    writeFileSync(join(root, 'index.html'), page());
+    const ad = provider === 'none' ? '' : adSlot(provider, 'page', provider === 'adsense' ? ' data-ad-slot="12345"' : '');
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${ad}`));
     writeFileSync(join(root, '404.html'), page());
     mkdirSync(join(root, 'zh-cn'));
-    writeFileSync(join(root, 'zh-cn', 'index.html'), page());
+    writeFileSync(join(root, 'zh-cn', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/">${ad}`));
     mkdirSync(join(root, '_astro'));
     writeFileSync(join(root, '_astro', 'page.D4gH3x.js'), 'console.log("static")');
     return root;
@@ -31,7 +35,7 @@ describe('build audit', () => {
   it('rejects an English canonical page without its Simplified Chinese counterpart', () => {
     const root = createBuild();
     mkdirSync(join(root, 'blog'));
-    writeFileSync(join(root, 'blog', 'index.html'), page('<link rel="canonical" href="https://chromaart.lol/blog/">'));
+    writeFileSync(join(root, 'blog', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/blog/">${adSlot()}`));
     expect(() => auditBuild(root)).toThrow(/Simplified Chinese counterpart/i);
   });
 
@@ -42,11 +46,50 @@ describe('build audit', () => {
     expect(() => auditBuild(root)).toThrow(/blank html/i);
   });
 
-  it('rejects advertising markup on a catalog detail', () => {
+  it('allows advertising on a catalog detail', () => {
     const root = createBuild();
     mkdirSync(join(root, 'chromas', 'sample'), { recursive: true });
-    writeFileSync(join(root, 'chromas', 'sample', 'index.html'), page('<link rel="canonical" href="https://chromaart.lol/chromas/sample/"><aside data-ad-boundary="catalog-index"></aside>'));
-    expect(() => auditBuild(root)).toThrow(/advertising/i);
+    writeFileSync(join(root, 'chromas', 'sample', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/chromas/sample/">${adSlot()}`));
+    mkdirSync(join(root, 'zh-cn', 'chromas', 'sample'), { recursive: true });
+    writeFileSync(join(root, 'zh-cn', 'chromas', 'sample', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/sample/">${adSlot()}`));
+    expect(() => auditBuild(root)).not.toThrow();
+  });
+
+  it('defaults new pages to ads and allows only explicit existing exclusions', () => {
+    const root = createBuild();
+    mkdirSync(join(root, 'new-page'), { recursive: true });
+    writeFileSync(join(root, 'new-page', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/new-page/">${adSlot()}`));
+    mkdirSync(join(root, 'zh-cn', 'new-page'), { recursive: true });
+    writeFileSync(join(root, 'zh-cn', 'new-page', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/new-page/">${adSlot()}`));
+    mkdirSync(join(root, 'privacy'), { recursive: true });
+    writeFileSync(join(root, 'privacy', 'index.html'), page('<link rel="canonical" href="https://chromaart.lol/privacy/">'));
+    mkdirSync(join(root, 'zh-cn', 'privacy'), { recursive: true });
+    writeFileSync(join(root, 'zh-cn', 'privacy', 'index.html'), page('<link rel="canonical" href="https://chromaart.lol/zh-cn/privacy/">'));
+    expect(() => auditBuild(root)).not.toThrow();
+  });
+
+  it('audits the mutually exclusive provider selections and global off switch', () => {
+    expect(() => auditBuild(createBuild('adsense'), 'adsense')).not.toThrow();
+    expect(() => auditBuild(createBuild('none'), 'none')).not.toThrow();
+  });
+
+  it('rejects an ad platform request when advertising is disabled', () => {
+    const root = createBuild('none');
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/"><script src="${AD_SCRIPT_URLS.adsterra}"></script>`));
+    expect(() => auditBuild(root, 'none')).toThrow(/source is out of scope/i);
+  });
+
+  it('rejects advertising on the 404 page', () => {
+    const root = createBuild();
+    writeFileSync(join(root, '404.html'), page(adSlot()));
+    expect(() => auditBuild(root)).toThrow(/404 page/i);
+  });
+
+  it('rejects a provider slot that points to the other platform source', () => {
+    const root = createBuild();
+    const wrongSource = adSlot().replace(AD_SCRIPT_URLS.adsterra, AD_SCRIPT_URLS.adsense);
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${wrongSource}`));
+    expect(() => auditBuild(root)).toThrow(/source or initializer/i);
   });
 
   it('rejects catalog details in the sitemap', () => {
@@ -60,7 +103,7 @@ describe('build audit', () => {
     mkdirSync(join(root, 'blog', 'what-is-league-of-legends'), { recursive: true });
     mkdirSync(join(root, 'zh-cn', 'blog', 'what-is-league-of-legends'), { recursive: true });
     mkdirSync(join(root, 'zh-cn', 'blog'), { recursive: true });
-    const adMarkup = '<script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><aside data-ad-boundary="editorial-article"></aside>';
+    const adMarkup = adSlot('adsterra', 'editorial-article');
     writeFileSync(join(root, 'blog', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/blog/">${adMarkup}`));
     writeFileSync(join(root, 'zh-cn', 'blog', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/blog/">${adMarkup}`));
     writeFileSync(join(root, 'blog', 'what-is-league-of-legends', 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/blog/what-is-league-of-legends/">${adMarkup}`));
@@ -72,7 +115,7 @@ describe('build audit', () => {
     const root = createBuild();
     mkdirSync(join(root, 'skins', 'parent'), { recursive: true });
     writeFileSync(join(root, 'skins', 'parent', 'index.html'), page('<section id="stage-3"></section>'));
-    writeFileSync(join(root, 'index.html'), page('<a href="/skins/parent/#stage-3">Stage 3</a>'));
+    writeFileSync(join(root, 'index.html'), page(`<link rel="canonical" href="https://chromaart.lol/">${adSlot()}<a href="/skins/parent/#stage-3">Stage 3</a>`));
     expect(() => auditBuild(root)).toThrow(/runtime entity/i);
   });
 
@@ -82,11 +125,11 @@ describe('build audit', () => {
     mkdirSync(join(root, 'zh-cn', 'champions', 'detail'), { recursive: true });
     writeFileSync(
       join(root, 'champions', 'detail', 'index.html'),
-      page('<link rel="canonical" href="https://chromaart.lol/champions/detail/">'),
+      page(`<link rel="canonical" href="https://chromaart.lol/champions/detail/">${adSlot('adsterra', 'page', ' data-ad-deferred=""')}`),
     );
     writeFileSync(
       join(root, 'zh-cn', 'champions', 'detail', 'index.html'),
-      page('<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">'),
+      page(`<link rel="canonical" href="https://chromaart.lol/zh-cn/champions/detail/">${adSlot('adsterra', 'page', ' data-ad-deferred=""')}`),
     );
 
     expect(() => auditBuild(root)).not.toThrow();

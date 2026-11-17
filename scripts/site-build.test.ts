@@ -67,7 +67,7 @@ describe("static site build", () => {
     expect(home).toContain('"@type":"WebSite"');
     expect(home).toContain('"@type":"CollectionPage"');
     expect(home).toContain('data-ad-boundary="catalog-index"');
-    expect(home).toContain("pagead2.googlesyndication.com");
+    expect(home).toContain('data-ad-provider="adsterra"');
     expect(
       home.match(/googletagmanager\.com\/gtm\.js\?id=GTM-N2XNGMV2/g),
     ).toHaveLength(1);
@@ -466,9 +466,9 @@ describe("static site build", () => {
     );
     expect(article).toContain('"@type":"BlogPosting"');
     expect(article).toContain('data-ad-boundary="editorial-article"');
-    expect(article).toContain("pagead2.googlesyndication.com");
+    expect(article).toContain('data-ad-provider="adsterra"');
     expect(eventArticle).toContain('data-ad-boundary="editorial-article"');
-    expect(eventArticle).toContain("pagead2.googlesyndication.com");
+    expect(eventArticle).toContain('data-ad-provider="adsterra"');
     expect(petalsArticle).toContain(
       '<link rel="canonical" href="https://chromaart.lol/blog/lucky-gate-petals-of-spring-chromas-202607/">',
     );
@@ -478,7 +478,7 @@ describe("static site build", () => {
     expect(petalsArticle).toContain("Petals of Spring Lillia (Emerald)");
     expect(petalsArticle).toContain("15850902128487429757");
     expect(blog).toContain('data-ad-boundary="editorial-article"');
-    expect(blog).toContain("pagead2.googlesyndication.com");
+    expect(blog).toContain('data-ad-provider="adsterra"');
     expect(article).not.toContain("召唤师峡谷与水晶枢纽");
     expect(prestigeArticle).toContain(
       '<link rel="canonical" href="https://chromaart.lol/blog/what-are-prestige-chromas/">',
@@ -615,8 +615,8 @@ describe("static site build", () => {
     expect(detail).not.toContain(
       '<meta name="robots" content="noindex, nofollow">',
     );
-    expect(detail).not.toContain("data-ad-boundary=");
-    expect(detail).not.toContain("pagead2.googlesyndication.com");
+    expect(detail).toContain('data-ad-boundary="page"');
+    expect(detail).toContain('data-ad-provider="adsterra"');
     expect(detail).toContain(`href="/champions/detail/?id=${sample.heroId}"`);
     expect(detail).not.toMatch(/href="\/champions\/[a-z0-9-]+\/"/);
   });
@@ -1092,6 +1092,7 @@ describe("static site build", () => {
     );
     expect(chineseHome).toContain("英雄联盟中国大陆服");
     expect(chineseHome).toContain('data-ad-boundary="catalog-index"');
+    expect(chineseHome).toContain('data-ad-provider="adsterra"');
     expect(chineseHome).not.toContain('data-language-content="en"');
     expect(chineseDetail).toContain(
       `<link rel="canonical" href="https://chromaart.lol/zh-cn/chromas/${sample.slug}/">`,
@@ -1102,7 +1103,8 @@ describe("static site build", () => {
     expect(chineseDetail).not.toContain(
       '<meta name="robots" content="noindex, nofollow">',
     );
-    expect(chineseDetail).not.toContain("data-ad-boundary=");
+    expect(chineseDetail).toContain('data-ad-boundary="page"');
+    expect(chineseDetail).toContain('data-ad-provider="adsterra"');
     expect(chineseEditorial).toContain('data-ad-boundary="editorial-article"');
     expect(chineseBlog).toContain('data-ad-boundary="editorial-article"');
     expect(chineseDetail).toContain(`href="/zh-cn/chromas/`);
@@ -1380,14 +1382,17 @@ describe("static site build", () => {
     );
   });
 
-  it("publishes separate localized privacy policies for future Google AdSense use", () => {
+  it("publishes separate localized privacy policies for the selected ad provider", () => {
     const privacy = readFileSync(join(dist, "privacy", "index.html"), "utf8");
     const chinesePrivacy = readFileSync(
       join(dist, "zh-cn", "privacy", "index.html"),
       "utf8",
     );
     expect(privacy).toContain("<title>Privacy Policy | LoL Chroma Art</title>");
+    expect(privacy).toContain("Adsterra currently provides display ads");
+    expect(privacy).toContain("Google's information about partner sites");
     expect(privacy).toContain("Google AdSense");
+    expect(privacy).toContain('href="https://adsterra.com/privacy-policy/"');
     expect(privacy).toContain("Google tag and measurement");
     expect(privacy).toContain("GTM-N2XNGMV2");
     expect(privacy).toContain("adssettings.google.com");
@@ -1398,7 +1403,9 @@ describe("static site build", () => {
     expect(chinesePrivacy).toContain(
       "<title>隐私说明 | LoL Chroma Art</title>",
     );
-    expect(chinesePrivacy).toContain("Google AdSense");
+    expect(chinesePrivacy).toContain("Adsterra 和 Google AdSense");
+    expect(chinesePrivacy).toContain("当前由 Adsterra 在启用广告的页面展示广告");
+    expect(chinesePrivacy).toContain('href="https://adsterra.com/privacy-policy/"');
     expect(chinesePrivacy).toContain("Google 代码与访问衡量");
     expect(chinesePrivacy).toContain("GTM-N2XNGMV2");
     expect(chinesePrivacy).toContain("companions.json");

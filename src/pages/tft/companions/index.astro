@@ -8,6 +8,6 @@ const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Loc
 const seo = createTftCompanionsSeo(locale);
 ---
 
-<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale}>
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale} ads={false}>
   <TftCompanionsRoot {locale} />
 </BaseLayout>
