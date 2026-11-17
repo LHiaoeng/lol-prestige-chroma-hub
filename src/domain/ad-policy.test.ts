@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { resolveAdProvider, resolveAdSenseSlot } from './ad-policy';
 
 describe('advertising configuration', () => {
-  it('defaults to Adsterra and only accepts a single known provider', () => {
-    expect(resolveAdProvider(undefined)).toBe('adsterra');
+  it('defaults to disabled advertising and only accepts a single known provider', () => {
+    expect(resolveAdProvider(undefined)).toBe('none');
+    expect(resolveAdProvider('adsterra')).toBe('adsterra');
     expect(resolveAdProvider('adsense')).toBe('adsense');
     expect(resolveAdProvider('none')).toBe('none');
     expect(() => resolveAdProvider('both')).toThrow(/Invalid AD_PROVIDER/);

@@ -12,7 +12,7 @@ export const AD_PLACEMENTS = ['catalog-index', 'editorial-article', 'page'] as c
 export type AdPlacement = typeof AD_PLACEMENTS[number];
 
 export function resolveAdProvider(value: string | undefined): AdProvider {
-  const provider = value ?? 'adsterra';
+  const provider = value ?? 'none';
   if (!AD_PROVIDERS.includes(provider as AdProvider)) {
     throw new Error(`Invalid AD_PROVIDER: ${provider}`);
   }
