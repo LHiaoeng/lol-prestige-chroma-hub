@@ -11,6 +11,8 @@ describe('iconData', () => {
 
   it('keeps domain and project-only glyphs in the shared registry', () => {
     expect(iconData('skins')).toMatchObject({ viewBox: '0 0 24 24', custom: true });
+    expect(iconData('tft-companions').body).toContain('fill-rule="evenodd"');
+    expect(iconData('tft-arenas').body).toContain('scale(.85714)');
     expect(iconData('summary-actions').body).toContain('stroke-width="1.8"');
   });
 });

@@ -97,7 +97,7 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
         <div><dt class="sr-only">{isZh ? '游戏版本' : 'Patch'}</dt><dd><Divider type="vertical" /><span class="detail-summary-item"><DomainIcon name="game-version" tooltipDetail={chroma.gameVer} {locale} /><a class="runtime-entity-relation-link" href={patchNotesUrl(chroma.gameVer)} target="_blank" rel="noopener noreferrer" aria-label={isZh ? `查看 ${chroma.gameVer} 版本公告` : `View patch ${chroma.gameVer} notes`}>{chroma.gameVer}</a></span></dd></div>
         <div><dt class="sr-only">{isZh ? '更多' : 'More'}</dt><dd><Divider type="vertical" /><div class="runtime-skin-actions-summary">
           <Dropdown id="chroma-actions-menu" placement="bottomRight">
-            <span slot="trigger"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="runtime-channel-chevron" /></span>
+            <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="runtime-channel-chevron" /></button>
             {prestigeChromaActions.map((action) => <li role="none"><a role="menuitem" data-ant-dropdown-item href={action.href} target="_blank" rel="noopener noreferrer" aria-label={isZh ? action.labelZh : action.labelEn}>{isZh ? action.labelZh : action.labelEn}</a></li>)}
           </Dropdown>
         </div></dd></div>

@@ -6,7 +6,7 @@
 
 皮肤目录的五项视图切换使用 [Radio.Group 配合 Radio.Button](https://www.antdv-next.com/components/radio-cn#radio-demo-radiobutton)的默认描边变体；选中态保持容器背景并使用主色文字和边框，32px 默认高度与 15px 横向内边距对照 [固定版本 Radio 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/radio/style/index.ts)。本地 [RadioButtonGroup](../src/components/RadioButtonGroup.ts) 以带 `radiogroup` 语义的 `<div>` 实现上游 Radio.Group，默认描边式；皮肤媒体和小小英雄视图显式使用实色变体。皮肤目录加载时同步禁用按钮外观，窄屏横向滚动以保留完整分组。本站用共享 Tooltip 承载各视图说明，按钮 DOM 因此多一层提示包装；按钮组仍只让首尾项具有外侧圆角，相邻边框重叠 1px。
 
-站点 Header 使用 [Dropdown](../src/components/Dropdown.astro) 搭配文字变体 Button 作为“英雄联盟”触发器；“云顶之弈”、博客和语言切换使用链接变体 Button。外观参照固定版本的 [Button](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/button/style/variant.ts) 与 [Dropdown](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：32px 控件、15px Button 横向内边距、4px 图文间距、8px 弹层圆角、4px 菜单内边距、5px 12px 菜单项内边距，并覆盖悬停、按下、选中和焦点状态。通用箭头与语言图标使用上游 Ant Design SVG；站点专属图标保留原有图形，并按 Button 与 Dropdown 图标尺寸对齐。下拉触发采用点击，菜单支持方向键、Home/End、Escape 和失焦关闭；当前路由使用 `aria-current`。
+站点 Header 的“英雄联盟”和“云顶之弈”使用 [Dropdown](../src/components/Dropdown.astro)，触发器使用共享 Button 文字变体，菜单及触发器状态由共享组件样式负责；博客和语言切换使用链接变体 Button。外观参照固定版本的 [Button](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/button/style/variant.ts) 与 [Dropdown](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：32px 控件、15px Button 横向内边距、4px 图文间距、8px 弹层圆角、4px 菜单内边距、5px 12px 菜单项内边距，并覆盖悬停、按下、选中和焦点状态。两个菜单的选项均采用上游支持的图标菜单项结构；站点专属图标保留原有图形。手机宽度可隐藏长标签以保持导航可达。下拉触发采用点击，菜单支持方向键、Home/End、Escape 和失焦关闭；当前路由只在菜单项使用 `aria-current`。
 
 ## 1. 单一事实来源：Design Tokens
 
@@ -21,7 +21,7 @@
 
 Select 的输入框、弹层、选中与悬停项统一使用暗色语义 Token；下拉列表保留可见的细滚动条，滑块随暗色文本层级显示，悬停时增强对比。长选项可按上游 `popupMatchSelectWidth={false}` 让弹层至少与控件同宽并随内容展开；视口不足时选项换行。本站默认启用清空，`allowClear={false}` 可关闭；有非空选中值时提供可键盘访问的清除按钮，桌面端悬停或聚焦时显示，触控设备上保持可见，清除后在原生 `<select>` 上派发冒泡 `change` 事件。排序控件要求始终有有效值，因此单独关闭清空。按钮形态、键盘焦点与触控显示对照 [固定版本 Antdv Next Select 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/select/style/index.ts)。与上游单选默认值一致，搜索须由 `showSearch` 显式开启；首页英雄、版本、分类，小小英雄类别、种类及宇宙系列等选项较多的筛选已开启。开启后默认按选项标签进行不区分大小写的包含匹配，`optionFilterProp="value"` 可改为匹配选项值，`filterOption={false}` 关闭本地过滤；搜索输入在原生 `<select>` 上派发带查询字符串 `detail` 的冒泡 `search` 事件，供远程搜索监听，行为对照 [固定版本 Antdv Next Select 搜索示例](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/select/demo/search.vue)。无脚本时仍保留原生选择框。
 
-Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。触控输入不改变菜单项的默认尺寸。
+Dropdown 对照 [Antdv Next Dropdown 样式源码](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)：弹层本身透明，菜单承载 elevated 背景、4px 内边距、8px 圆角与阴影；菜单项使用 5px 12px 内边距，并覆盖悬停、选中、禁用和危险状态。触控输入不改变菜单项的默认尺寸。本站实际支持范围与上游差异见 [Dropdown 对照](../src/components/dropdown.md)。
 边框菜单的触发箭头使用独立 SVG 图标节点，在按钮的 flex 布局中垂直居中；不以文字字形充当箭头。
 
 目录数据、语言路由和 SEO 各有自己的事实来源，分别查 [领域模型](../src/domain/)、[国际化配置](../src/i18n/config.ts) 和 [SEO 模块](../src/seo/)；视觉治理不覆盖这些规则。

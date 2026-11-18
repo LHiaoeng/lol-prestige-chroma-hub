@@ -7,13 +7,26 @@ describe('headerNavigationState', () => {
     expect(headerNavigationState('/zh-cn/champions/ahri/').browsePath).toBe('/champions/');
     expect(headerNavigationState('/zh-cn/champions/ahri/').current('/champions/')).toBe('location');
     expect(headerNavigationState('/zh-cn/blog/guide/').current('/blog/')).toBe('location');
-    expect(headerNavigationState('/tft/companions/').current('/tft/companions/', '/tft/')).toBe('page');
+    expect(headerNavigationState('/tft/companions/').current('/tft/companions/')).toBe('page');
     expect(headerNavigationState('/zh-cn/champions/').current('/champions/')).toBe('page');
   });
 
   it('does not select unrelated or similarly prefixed routes', () => {
     expect(headerNavigationState('/skinlines-extra/').browsePath).toBeUndefined();
     expect(headerNavigationState('/').current('/blog/')).toBeUndefined();
-    expect(headerNavigationState('/about/').current('/tft/companions/', '/tft/')).toBeUndefined();
+    expect(headerNavigationState('/about/').current('/tft/companions/')).toBeUndefined();
+  });
+
+  it('highlights only the matching Teamfight Tactics option', () => {
+    for (const pathname of ['/tft/companions/', '/zh-cn/tft/companions/']) {
+      const navigation = headerNavigationState(pathname);
+      expect(navigation.current('/tft/companions/')).toBe('page');
+      expect(navigation.current('/tft/arenas/')).toBeUndefined();
+    }
+    for (const pathname of ['/tft/arenas/', '/zh-cn/tft/arenas/']) {
+      const navigation = headerNavigationState(pathname);
+      expect(navigation.current('/tft/arenas/')).toBe('page');
+      expect(navigation.current('/tft/companions/')).toBeUndefined();
+    }
   });
 });

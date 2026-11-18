@@ -86,29 +86,29 @@ gtag('js', new Date());
     <header class="site-header">
       <a class="brand" href={localizedPath(locale, '/')} aria-label={isZh ? 'LoL Chroma Art 首页' : 'LoL Chroma Art home'}><img src="/logo.svg" alt="" width="32" height="32" /><span class="brand-text"><span>LoL CHROMA</span> ART</span></a>
       <div class="header-controls">
-        <div class:list={['header-browse', { 'header-browse--current': headerNavigation.browsePath }]}>
-          <Dropdown id="browse-nav" triggerLabel={isZh ? '英雄联盟' : 'League of Legends'} triggerVariant="text">
-            <span slot="trigger" class="header-browse-trigger">
-              <img class="browse-league-icon" src="/img/icons/league-of-legends.svg" alt="" width="14" height="14" />
+        <div class="header-browse">
+          <Dropdown id="browse-nav">
+            <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text" aria-label={isZh ? '英雄联盟' : 'League of Legends'}>
+              <img src="/img/icons/league-of-legends.svg" alt="" width="14" height="14" />
               {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
-              <DownOutlined class="browse-menu-chevron" width="12" height="12" />
-            </span>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/pbe-additions/')} aria-current={headerNavigation.current('/pbe-additions/')}><DomainIcon name="pbe-additions" class="browse-nav-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/champions/')} aria-current={headerNavigation.current('/champions/')}><DomainIcon name="champions" class="browse-nav-icon" />{isZh ? '英雄' : 'Champions'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skins/')} aria-current={headerNavigation.current('/skins/')}><DomainIcon name="skins" class="browse-nav-icon" />{isZh ? '皮肤' : 'Skins'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skinlines/')} aria-current={headerNavigation.current('/skinlines/')}><DomainIcon name="skinlines" class="browse-nav-icon" />{isZh ? '系列' : 'Skinlines'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/universes/')} aria-current={headerNavigation.current('/universes/')}><DomainIcon name="universes" class="browse-nav-icon" />{isZh ? '宇宙' : 'Universes'}</a></li>
+              <DownOutlined class="ant-dropdown-down-icon" />
+            </button>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/pbe-additions/')} aria-current={headerNavigation.current('/pbe-additions/')}><DomainIcon name="pbe-additions" class="ant-dropdown-menu-item-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/champions/')} aria-current={headerNavigation.current('/champions/')}><DomainIcon name="champions" class="ant-dropdown-menu-item-icon" />{isZh ? '英雄' : 'Champions'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skins/')} aria-current={headerNavigation.current('/skins/')}><DomainIcon name="skins" class="ant-dropdown-menu-item-icon" />{isZh ? '皮肤' : 'Skins'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skinlines/')} aria-current={headerNavigation.current('/skinlines/')}><DomainIcon name="skinlines" class="ant-dropdown-menu-item-icon" />{isZh ? '系列' : 'Skinlines'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/universes/')} aria-current={headerNavigation.current('/universes/')}><DomainIcon name="universes" class="ant-dropdown-menu-item-icon" />{isZh ? '宇宙' : 'Universes'}</a></li>
           </Dropdown>
         </div>
-        <div class:list={['header-browse', 'header-browse--tft', { 'header-browse--current': headerNavigation.current('/tft/companions/', '/tft/') }]}>
-          <Dropdown id="tft-browse-nav" triggerLabel={isZh ? '云顶之弈' : 'Teamfight Tactics'} triggerVariant="text">
-            <span slot="trigger" class="header-browse-trigger tft-nav-link">
-              <DomainIcon name="teamfight-tactics" class="tft-nav-icon" />
+        <div class="header-browse">
+          <Dropdown id="tft-browse-nav">
+            <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text" aria-label={isZh ? '云顶之弈' : 'Teamfight Tactics'}>
+              <DomainIcon name="teamfight-tactics" />
               {isZh ? <span>云顶之弈</span> : <><span class="tft-nav-label-wide">Teamfight Tactics</span><span class="tft-nav-label-short" aria-hidden="true">TFT</span></>}
-              <DownOutlined class="browse-menu-chevron" width="12" height="12" />
-            </span>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/companions/')} aria-current={headerNavigation.current('/tft/companions/', '/tft/')}>{isZh ? '小小英雄' : 'Tacticians'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/arenas/')} aria-current={headerNavigation.current('/tft/arenas/', '/tft/')}>{isZh ? '棋盘' : 'Arenas'}</a></li>
+              <DownOutlined class="ant-dropdown-down-icon" />
+            </button>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/companions/')} aria-current={headerNavigation.current('/tft/companions/')}><DomainIcon name="tft-companions" class="ant-dropdown-menu-item-icon" />{isZh ? '小小英雄' : 'Tacticians'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/arenas/')} aria-current={headerNavigation.current('/tft/arenas/')}><DomainIcon name="tft-arenas" class="ant-dropdown-menu-item-icon" />{isZh ? '棋盘' : 'Arenas'}</a></li>
           </Dropdown>
         </div>
         <ButtonLink class="header-action header-blog-link" href={localizedPath(locale, '/blog/')} aria-current={headerNavigation.current('/blog/')}>{isZh ? '博客' : 'Blog'}</ButtonLink>
@@ -137,19 +137,10 @@ gtag('js', new Date());
       .site-header .brand-text { text-shadow: 0 1px 7px #000000d9; }
       .header-controls { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
       .header-browse { display:flex; align-items:center; flex:0 0 auto; }
-      .site-header .header-action[aria-current], .site-header .header-browse--current .ant-dropdown-trigger { color:var(--gold); }
-      .site-header .header-action[aria-current]:hover, .site-header .header-browse--current .ant-dropdown-trigger:hover { color:var(--gold-hover); }
-      .site-header .header-browse .ant-dropdown-open .ant-dropdown-trigger { background:var(--fill); }
-      .site-header .header-browse-trigger { display:inline-flex; align-items:center; gap:var(--space-1); }
-      .browse-league-icon { display:block; width:14px; height:14px; flex:none; }
+      .site-header .header-action[aria-current] { color:var(--gold); }
+      .site-header .header-action[aria-current]:hover { color:var(--gold-hover); }
       .browse-menu-label-short { display:none; }
-      .tft-nav-link { gap:var(--space-1); }
-      .tft-nav-icon { width:14px; height:14px; flex:none; }
       .tft-nav-label-short { display:none; }
-      .browse-menu-chevron { width:12px; height:12px; flex:none; transition:transform var(--motion-mid) ease; }
-      .header-browse .ant-dropdown-open .browse-menu-chevron { transform:rotate(180deg); }
-      .site-header .ant-dropdown-menu a { justify-content:flex-start; gap:var(--space-2); white-space:nowrap; }
-      .site-header .ant-dropdown-menu .browse-nav-icon { width:12px; height:12px; margin-inline:1px; flex:none; color:inherit; }
       .header-blog-link { flex-shrink:0; }
       .language-toggle { position:relative; width:var(--control-height); min-width:var(--control-height); height:var(--control-height); flex-shrink:0; }
       .language-toggle-mark { position:relative; width:32px; height:32px; }
@@ -166,17 +157,11 @@ gtag('js', new Date());
         .brand-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
         .header-controls { flex: 0 0 auto; }
       }
-      @media (max-width: 479px) {
-        .header-browse .ant-dropdown-popup { left:auto; right:0; }
-      }
       @media (max-width: 420px) {
         .brand { flex:0 0 32px; margin-right:0; }
         .brand > .brand-text { display:none; }
         .header-controls { gap:var(--space-1); }
-        .site-header .header-browse-trigger { gap:0; }
-        .header-browse-trigger > span, .tft-nav-link > span { display:none; }
-        .site-header .header-browse .ant-dropdown-trigger { padding-inline:8px; }
-        .site-header .header-browse--tft .ant-dropdown-trigger { width:var(--control-height); min-width:var(--control-height); padding:0; }
+        .header-browse .ant-btn > span { display:none; }
       }
       footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
       footer a:hover { color:var(--gold-hover); }

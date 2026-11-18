@@ -3,19 +3,32 @@ const dropdownTriggerSelector = "[data-ant-dropdown-trigger]";
 const menuItemSelector = "[data-ant-dropdown-item]";
 const boundDocuments = new WeakSet<Document>();
 
+export function dropdownPopupLayout(
+  trigger: Pick<DOMRect, "left" | "right" | "top" | "bottom">,
+  popup: Pick<DOMRect, "width" | "height">,
+  viewport: { width: number; height: number },
+  alignRight: boolean,
+): { edge: number; openUp: boolean; maxHeight: number } {
+  const edge = alignRight
+    ? Math.max(popup.width + 8, Math.min(trigger.right, viewport.width - 8))
+    : Math.max(8, Math.min(trigger.left, viewport.width - popup.width - 8));
+  const below = viewport.height - trigger.bottom - 12;
+  const above = trigger.top - 12;
+  const openUp = popup.height > below && above > below;
+  return { edge, openUp, maxHeight: Math.max(0, Math.min(viewport.height - 100, openUp ? above : below)) };
+}
+
 /** DOM counterpart of Dropdown.astro for controls rendered after page load. */
-export function createDropdown(id: string, triggerContent: HTMLElement, items: readonly HTMLLIElement[]): HTMLDivElement {
+export function createDropdown(id: string, trigger: HTMLButtonElement, items: readonly HTMLLIElement[]): HTMLDivElement {
   const dropdown = document.createElement("div");
   dropdown.className = "ant-dropdown ant-dropdown-placement-bottomLeft";
   dropdown.dataset.antDropdown = "";
-  const trigger = document.createElement("button");
-  trigger.className = "ant-dropdown-trigger";
+  trigger.classList.add("ant-dropdown-trigger");
   trigger.type = "button";
   trigger.dataset.antDropdownTrigger = "";
   trigger.setAttribute("aria-haspopup", "menu");
   trigger.setAttribute("aria-expanded", "false");
   trigger.setAttribute("aria-controls", id);
-  trigger.append(triggerContent);
   const popup = document.createElement("div");
   popup.className = "ant-dropdown-popup";
   popup.dataset.antDropdownPopup = "";
@@ -33,7 +46,7 @@ export function createDropdown(id: string, triggerContent: HTMLElement, items: r
 
 function menuItems(menu: HTMLElement): HTMLElement[] {
   return [...menu.querySelectorAll<HTMLElement>(menuItemSelector)]
-    .filter((item) => item.closest("ul") === menu && !item.hasAttribute("disabled"));
+    .filter((item) => item.closest("ul") === menu && !item.matches(':disabled, [aria-disabled="true"]'));
 }
 
 function close(dropdown: HTMLElement, restoreFocus = false): void {
@@ -43,6 +56,7 @@ function close(dropdown: HTMLElement, restoreFocus = false): void {
   popup.hidden = true;
   trigger.setAttribute("aria-expanded", "false");
   dropdown.classList.remove("ant-dropdown-open");
+  popup.classList.remove("ant-dropdown-popup-above");
   if (restoreFocus) trigger.focus();
 }
 
@@ -62,21 +76,26 @@ function open(dropdown: HTMLElement): void {
 function positionPopup(dropdown: HTMLElement): void {
   const trigger = dropdown.querySelector<HTMLButtonElement>(dropdownTriggerSelector);
   const popup = dropdown.querySelector<HTMLElement>("[data-ant-dropdown-popup]");
-  if (!trigger || !popup || !Number.isFinite(window.innerWidth)) return;
+  const menu = popup?.querySelector<HTMLElement>(".ant-dropdown-menu");
+  if (!trigger || !popup || !menu) return;
+  menu.style.maxHeight = "";
   const triggerRect = trigger.getBoundingClientRect();
   const popupRect = popup.getBoundingClientRect();
   const dropdownRect = dropdown.getBoundingClientRect();
-  if (dropdown.classList.contains("ant-dropdown-placement-bottomRight")) {
-    const right = Math.max(popupRect.width + 8, Math.min(dropdownRect.right, window.innerWidth - 8));
+  const alignRight = dropdown.classList.contains("ant-dropdown-placement-bottomRight");
+  const { edge, openUp, maxHeight } = dropdownPopupLayout(triggerRect, popupRect, {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }, alignRight);
+  if (alignRight) {
     popup.style.left = "auto";
-    popup.style.right = `${dropdownRect.right - right}px`;
+    popup.style.right = `${dropdownRect.right - edge}px`;
   } else {
-    const left = Math.max(8, Math.min(dropdownRect.left, window.innerWidth - popupRect.width - 8));
-    popup.style.left = `${left - dropdownRect.left}px`;
+    popup.style.left = `${edge - dropdownRect.left}px`;
     popup.style.right = "auto";
   }
-  const openUp = triggerRect.bottom + popupRect.height > window.innerHeight - 8
-    && triggerRect.top > popupRect.height;
+  menu.style.maxHeight = `${maxHeight}px`;
+  popup.classList.toggle("ant-dropdown-popup-above", openUp);
   popup.style.top = openUp ? "auto" : "calc(100% + 4px)";
   popup.style.bottom = openUp ? "calc(100% + 4px)" : "auto";
 }
@@ -89,6 +108,16 @@ function closeOutside(target: EventTarget | null): void {
 
 /** Bind the Antdv Next-style click, touch, and keyboard behavior once per document. */
 export function bindDropdownInteractions(): void {
+  document.querySelectorAll<HTMLElement>(dropdownSelector).forEach((dropdown) => {
+    const trigger = dropdown.querySelector<HTMLButtonElement>(":scope > button");
+    const menu = dropdown.querySelector<HTMLElement>(".ant-dropdown-menu");
+    if (!trigger || !menu) return;
+    trigger.classList.add("ant-dropdown-trigger");
+    trigger.dataset.antDropdownTrigger = "";
+    trigger.setAttribute("aria-haspopup", "menu");
+    trigger.setAttribute("aria-controls", menu.id);
+    if (!trigger.hasAttribute("aria-expanded")) trigger.setAttribute("aria-expanded", "false");
+  });
   if (boundDocuments.has(document)) return;
   boundDocuments.add(document);
 
@@ -105,6 +134,10 @@ export function bindDropdownInteractions(): void {
     }
     const item = target.closest<HTMLElement>(menuItemSelector);
     if (item) {
+      if (item.matches(':disabled, [aria-disabled="true"]')) {
+        event.preventDefault();
+        return;
+      }
       const dropdown = item.closest<HTMLElement>(dropdownSelector);
       if (dropdown) close(dropdown, true);
       return;
@@ -114,6 +147,13 @@ export function bindDropdownInteractions(): void {
 
   document.addEventListener("pointerdown", (event) => closeOutside(event.target));
   document.addEventListener("focusin", (event) => closeOutside(event.target));
+  const repositionOpenDropdowns = () => {
+    document.querySelectorAll<HTMLElement>(`${dropdownSelector}.ant-dropdown-open`).forEach(positionPopup);
+  };
+  window.addEventListener("resize", repositionOpenDropdowns);
+  document.addEventListener("scroll", (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest("[data-ant-dropdown-popup]")) repositionOpenDropdowns();
+  }, true);
   document.addEventListener("keydown", (event) => {
     const target = event.target as Element | null;
     if (!target?.closest) return;

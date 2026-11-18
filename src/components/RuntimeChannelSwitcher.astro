@@ -17,12 +17,12 @@ const latestLabel = communityDragonChannelLabel('latest', runtimeLocale);
 ---
 
 <Dropdown id="runtime-channel-menu">
-  <span slot="trigger">
+  <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text">
     <DomainIcon name="reference" class="runtime-channel-icon" tooltipDetail={pbeLabel} {locale} />
     <span class="sr-only">{isZh ? '资料版本' : 'Reference data'}</span>
     <span aria-live="polite" data-runtime-channel-label>{pbeLabel}</span>
     <DownOutlined class="runtime-channel-chevron" />
-  </span>
+  </button>
   <li role="none"><button type="button" role="menuitemradio" aria-checked="true" data-ant-dropdown-item data-runtime-channel="pbe"><span>{pbeLabel}</span><span aria-hidden="true">✓</span></button></li>
   <li role="none"><button type="button" role="menuitemradio" aria-checked="false" data-ant-dropdown-item data-runtime-channel="latest"><span>{latestLabel}</span><span aria-hidden="true">✓</span></button></li>
 </Dropdown>

@@ -10,6 +10,8 @@ const DOMAIN_ICON_LABELS: Record<DomainIconName, { readonly zh: string; readonly
   "game-version": { zh: "游戏版本", en: "Patch" },
   "pbe-additions": { zh: "PBE 新增内容", en: "PBE additions" },
   "teamfight-tactics": { zh: "云顶之弈", en: "Teamfight Tactics" },
+  "tft-companions": { zh: "小小英雄", en: "Tacticians" },
+  "tft-arenas": { zh: "棋盘", en: "Arenas" },
   champions: { zh: "英雄", en: "Champion" },
   skins: { zh: "皮肤", en: "Skin" },
   rarity: { zh: "稀有度", en: "Rarity" },

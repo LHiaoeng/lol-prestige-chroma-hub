@@ -53,13 +53,13 @@ const isZh = locale === 'zh-cn';
   {kind === 'skin' && <div class="runtime-skin-actions-summary" data-runtime-skin-actions-summary hidden>
     <Divider type="vertical" />
     <Dropdown id="runtime-skin-actions-menu" placement="bottomRight">
-      <span slot="trigger"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="runtime-channel-chevron" /></span>
+      <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="runtime-channel-chevron" /></button>
     </Dropdown>
   </div>}
   {(kind === 'champion' || kind === 'skinline' || kind === 'universe') && <div class="runtime-skin-actions-summary" data-runtime-entity-actions-summary hidden>
     <Divider type="vertical" />
     <Dropdown id="runtime-entity-actions-menu" placement="bottomRight">
-      <span slot="trigger"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="runtime-channel-chevron" /></span>
+      <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="runtime-channel-chevron" /></button>
     </Dropdown>
   </div>}
   <span class="runtime-skeleton-line runtime-summary-row-skeleton" data-runtime-summary-skeleton aria-hidden="true"></span>

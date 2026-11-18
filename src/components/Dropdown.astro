@@ -2,17 +2,13 @@
 interface Props {
   id: string;
   placement?: 'bottomLeft' | 'bottomRight';
-  triggerLabel?: string;
-  triggerVariant?: 'text';
 }
 
-const { id, placement = 'bottomLeft', triggerLabel, triggerVariant } = Astro.props;
+const { id, placement = 'bottomLeft' } = Astro.props;
 ---
 
 <div class:list={['ant-dropdown', `ant-dropdown-placement-${placement}`]} data-ant-dropdown>
-  <button class:list={['ant-dropdown-trigger', { 'ant-btn': triggerVariant === 'text', 'ant-btn-variant-text': triggerVariant === 'text' }]} type="button" aria-label={triggerLabel} aria-haspopup="menu" aria-expanded="false" aria-controls={id} data-ant-dropdown-trigger>
-    <slot name="trigger" />
-  </button>
+  <slot name="trigger" />
   <div class="ant-dropdown-popup" data-ant-dropdown-popup hidden>
     <ul class="ant-dropdown-menu" id={id} role="menu">
       <slot />
