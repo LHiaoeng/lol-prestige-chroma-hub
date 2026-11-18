@@ -1024,7 +1024,10 @@ describe("static site build", () => {
     expect(home).toContain('href="/blog/"');
     expect(home).toContain('href="/blog/joy-club-peak-gala-202610/"');
     expect(home).toContain('href="/blog/patch-26-22-prestige-chromas/"');
-    expect(home).toContain('href="/blog/prestige-chroma-summon-2026-23/"');
+    expect(home).toContain('href="/blog/worlds-2026-blg-champion-memes/"');
+    expect(home).not.toContain(
+      'href="/blog/prestige-chroma-summon-2026-23/"',
+    );
     expect(home).not.toContain(
       'href="/blog/lucky-gate-summon-october-2026/"',
     );
@@ -1064,6 +1067,9 @@ describe("static site build", () => {
       'href="/zh-cn/blog/patch-26-22-prestige-chromas/"',
     );
     expect(chineseHome).toContain(
+      'href="/zh-cn/blog/worlds-2026-blg-champion-memes/"',
+    );
+    expect(chineseHome).not.toContain(
       'href="/zh-cn/blog/prestige-chroma-summon-2026-23/"',
     );
     expect(chineseHome).not.toContain(

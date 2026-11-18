@@ -1,0 +1,469 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'worlds-2026-blg-champion-memes');
+if (!article) throw new Error('Worlds 2026 meme roundup article metadata is missing');
+
+const sourceUrl = 'https://lol.qq.com/news/detail.shtml?docid=2933519305216867218';
+const resultUrl = 'https://lol.qq.com/news/detail.shtml?docid=2073746607360656592';
+const celebrationUrl = 'https://lol.qq.com/act/a20261115champion/preview.html?exchangeType=1&autoRefreshCookie=1&page=1&qd=true&zmGameId=lol';
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+interface Meme {
+  key: string;
+  src: string;
+  width: number;
+  height: number;
+  altEn: string;
+  altZh: string;
+  captionEn: string;
+  captionZh: string;
+}
+
+const memes: readonly Meme[] = [
+  {
+    key: 't1-14-0-lpl',
+    src: '/img/blog/worlds-2026-t1-14-0-lpl.jpg',
+    width: 960,
+    height: 1203,
+    altEn: 'Faker pointing at the camera in front of a chart of T1 and SKT results against LPL teams at Worlds from 2013 to 2025, headlined T1 14-0 LPL and with the 2023 BLG 3-2 T1 row enlarged',
+    altZh: 'Faker 指向镜头，背景是 2013 至 2025 年 T1 与 SKT 对 LPL 队伍的系列赛战绩表，标题为 T1 14-0 LPL，其中 2023 年「BLG 3-2 T1」一行被放大',
+    captionEn: "The poster sets out to prove T1 are 14-0 against the LPL, then enlarges the 2023 &ldquo;BLG 3-2 T1&rdquo; row right in the middle — the one loss, framed as the centrepiece. It was meant as a warning before the final, but the final was BLG vs GEN, so the 14-0 argument never got tested.",
+    captionZh: '海报想立「T1 对 LPL 14-0」的牌坊，偏偏把 2023 年「BLG 3-2 T1」那一行放大摆在中间。唯一一次输成了整张图的注脚，而 2026 年决赛是 BLG 打 GEN，这笔账也没机会当场算。',
+  },
+  {
+    key: 'faker-transformers',
+    src: '/img/blog/worlds-2026-faker-transformers.jpg',
+    width: 1084,
+    height: 1449,
+    altEn: "Faker staring at the camera above the caption 'you guys again?', with four Transformers-style robots tagged BLG, WBG, TES and IG and parody nicknames",
+    altZh: 'Faker 注视镜头，配文「哥几个又来了？」，下方四台变形金刚风格机器人分别贴着 BLG、WBG、TES、iG 队标，各配调侃绰号',
+    captionEn: '&ldquo;You guys again?&rdquo; with four Transformers is aimed at the annual script: the LPL builds a superteam to knock T1 out, loses, and rebuilds with new parts. The TES robot is already labelled &ldquo;Lightning Top King&rdquo; — the nickname that took over in October.',
+    captionZh: '「哥几个又来了？」配四台变形金刚，戳的是每年固定的剧本：LPL 拼一艘银河战舰去撞 T1，撞完换批零件再来。TES 那台直接叫「闪电陀螺王」，10 月才满天飞的外号，这里已经先挂上了。',
+  },
+  {
+    key: 'knight-ends-dynasty',
+    src: '/img/blog/worlds-2026-knight-ends-dynasty.jpg',
+    width: 1280,
+    height: 1502,
+    altEn: "Knight lifting the Summoner's Cup with large Chinese text reading 'ending the dynasty'",
+    altZh: 'Knight 举起召唤师奖杯，画面配大字「终结王朝」',
+    captionEn: '&ldquo;Ending the dynasty&rdquo; is not hype. From SKT in 2013 onward, 13 straight world titles went to Korean mid laners; Knight is the first Chinese mid to take one, which is why the caption can say it.',
+    captionZh: '「终结王朝」不是夸张。从 SKT 在 2013 年夺冠起，冠军中单连续 13 届是韩国人；Knight 是第一个中国中单，这一冠顺手把这串纪录掐断，图才敢这么写。',
+  },
+  {
+    key: 'lck-mids-silenced',
+    src: '/img/blog/worlds-2026-lck-mids-silenced.jpg',
+    width: 839,
+    height: 1024,
+    altEn: 'Four LCK mid laners in HLE, GEN, T1 and KT jerseys in a row: Zeka and Faker shush, Bdd stares, Chovy raises the GEN crest, with a crossed-armed Knight below',
+    altZh: '身穿 HLE、GEN、T1 与 KT 队服的四名 LCK 中单排成一列：Zeka 与 Faker 比「嘘」，Bdd 板着脸，Chovy 举起 GEN 队标，画面下方是抱臂的 Knight',
+    captionEn: 'BLG had already sent HLE, T1 and KT home, so the edit lines up the mids it beat, adds Chovy still raising the GEN crest, and puts a crossed-armed Knight underneath — one team left for the clean sweep.',
+    captionZh: 'BLG 一路送走 HLE、T1、KT，图就把被打下去的中单摆成一排，再留 Chovy 举着 GEN 队标站在队尾——一穿四只差他。Knight 抱臂在下面，像是等着点名。',
+  },
+  {
+    key: 'lpl-band-masks',
+    src: '/img/blog/worlds-2026-lpl-band-masks.jpg',
+    width: 2271,
+    height: 1278,
+    altEn: 'Four people in black posed like a band, their masks carrying LPL team logos (including IG and BLG) and the Rolling Stones lips, one holding a guitar',
+    altZh: '四个穿黑衣的人摆出乐队合影的姿势，面具上贴着 LPL 队标（含 iG、BLG）与滚石乐队的嘴唇标志，其中一人拿着吉他',
+    captionEn: 'The band bit started with TES: Bilibili edits cut TOP into a boy band and handed them songs, and Ning\'s &ldquo;TOP is just a band&rdquo; sealed it. This group shot pastes LPL logos onto the masks beside the Rolling Stones tongue — a band poster for the whole region.',
+    captionZh: '乐队梗最早是 TES 的：B 站把滔搏剪成男团、给他们配歌，Ning 一句「滔搏就是个乐队」把它钉死。这张合影把 LPL 队标贴在面具上，再配滚石乐队的舌头，等于给整个赛区发了张乐队海报。',
+  },
+  {
+    key: 'lpl-team-coins',
+    src: '/img/blog/worlds-2026-lpl-team-coins.jpg',
+    width: 1260,
+    height: 1025,
+    altEn: 'Four metallic spinning tops on a hexagon board marked with the IG, AL, BLG and TES logos',
+    altZh: '六边形棋盘上的四枚金属陀螺，分别印有 iG、AL、BLG 与 TES 的队标',
+    captionEn: "The spinning top was TES's nickname first, helped along by the song &ldquo;Sudden Top&rdquo;, used for a team getting spun in circles. On October 24 all four LPL teams lost their Swiss opener — IG to GEN, TES to HLE, BLG to MKOI, AL to KC — the region's first 0-4 start, and &ldquo;four teams spun at once&rdquo; was the line that stuck.",
+    captionZh: '陀螺本来是 TES 的外号，配上《突然的陀螺》那首歌，专指被打得团团转。10 月 24 日瑞士轮首日，iG 负 GEN、TES 负 HLE、BLG 负 MKOI、AL 负 KC，LPL 第一次在世界赛首轮 0-4，于是「四个队一起被抽陀螺」成了当晚最顺口的一句。',
+  },
+  {
+    key: 'top-four-sign',
+    src: '/img/blog/worlds-2026-top-four-sign.jpg',
+    width: 636,
+    height: 804,
+    altEn: "A street sign reading 'I miss you at the Top Four' with LPL squad photos below",
+    altZh: '写有「我在四强很想你」的路牌，下方拼着 LPL 选手合影',
+    captionEn: 'The prop is the &ldquo;I miss you in [city]&rdquo; tourist sign that went viral in 2022. Its esports version dates to 2023, when &ldquo;LNG, I miss you at the Top Four&rdquo; turned into a jinx after T1 ran through the LPL. This year, with two LPL teams in the semis again, the sign came back — squad photos stacked underneath.',
+    captionZh: '牌子的原型是 2022 年火起来的「我在XX很想你」网红路牌。电竞版最早出现在 S13，那句「LNG 我在四强很想你」随着 T1 一穿三成了反向 flag；这届八强后 LPL 又有两队进四强，牌子被翻出来重贴，各队合影摞在下面。',
+  },
+  {
+    key: 'tom-lpl-orchestra',
+    src: '/img/blog/worlds-2026-tom-lpl-orchestra.jpg',
+    width: 1260,
+    height: 940,
+    altEn: 'Tom the cat from Tom and Jerry playing a trumpet, with AL, BLG, TES and IG icons on the keys',
+    altZh: '《猫和老鼠》的汤姆猫在吹小号，按键上分布着 AL、BLG、TES 与 iG 的图标',
+    captionEn: 'In late September Miller sorted the four teams out — AL all teamplay, BLG all drama, TES all music, IG all climbing — and Ning followed with &ldquo;TOP is just a band, they only need to drop a song&rdquo;. Tom playing trumpet and cello at once is that band: four teams, one mess. After the 0-4 start the joke stopped being affectionate.',
+    captionZh: '米勒 9 月底给四队各定了性：AL 偏团队、BLG 偏短剧、TES 偏音乐、IG 偏登山；Ning 紧跟着一句「滔搏就是个乐队，出个歌就行了」。汤姆猫一只手按小号、一只手拉琴弓，就是这支乐队：四支队，一团乱。首轮 0-4 之后，笑点从「会玩」变成了「就这」。',
+  },
+  {
+    key: 'champion-pool-stage',
+    src: '/img/blog/worlds-2026-champion-pool-stage.jpg',
+    width: 796,
+    height: 860,
+    altEn: "An audience photo of the venue screen headed Champion Pool in Summer 2026: Zeus has a full grid of League of Legends champions while 369's side lists the VALORANT agents Clove, Reyna and Iso",
+    altZh: '现场观众拍摄的舞台大屏，标题为 CHAMPION POOL IN SUMMER 2026：Zeus 一侧铺满《英雄联盟》英雄，369 一侧却是《无畏契约》特工暮蝶、芮娜与壹决',
+    captionEn: "369 spent his half-year away streaming VALORANT, and chat called it his &ldquo;VALORANT enlightenment&rdquo;. The broadcast leaned in rather than dodging: before TES vs HLE it ran this comparison, 19 League champions for Zeus against three VALORANT agents for 369. The joke is the game, not the count — Clove is a smoke agent, and 369 had been teased for not knowing how to smoke.",
+    captionZh: '369 休息那半年直播打瓦，被水友叫「瓦场悟道」。官方没躲，反而在 TES 对 HLE 赛前照着梗做了这张对比：Zeus 一边 19 个《英雄联盟》英雄，369 一边三个《无畏契约》特工。笑点在项目不在数量，暮蝶还是个封烟位——而 369 恰好被吐槽过不会封烟。',
+  },
+  {
+    key: 'blg-panda-guitar',
+    src: '/img/blog/worlds-2026-blg-panda-guitar.jpg',
+    width: 1080,
+    height: 1068,
+    altEn: 'AL mascot emblem redrawn: a panda in a red straw hat with a sword on its back, holding a red electric guitar',
+    altZh: 'AL 队标「熊猫大侠」的重绘版：红斗笠、背后一把剑的熊猫，手持红色电吉他',
+    captionEn: 'AL\'s crest is already a panda in a straw hat with a sword on its back; the edit only hands it a red guitar and slots AL into the region-wide band. It worked as a celebration while AL held the LPL title; after the first seed went winless at Worlds, the same image turned into mockery.',
+    captionZh: 'AL 的队标本来就是戴斗笠、背剑的熊猫大侠，这张只给它塞了把电吉他，正好接上「全员乐队」。AL 拿 LPL 冠军时它还能当庆祝图；一号种子在世界赛一个小局没赢之后，同一张图就只剩嘲讽。',
+  },
+  {
+    key: 'player-genderbend',
+    src: '/img/blog/worlds-2026-player-genderbend.jpg',
+    width: 1279,
+    height: 2274,
+    altEn: 'Two smiling players above, the one on the right in a TES jersey, with two AI gender-swapped portraits below',
+    altZh: '上方是两名微笑的选手，右边那位穿 TES 队服，下方是两张 AI 性别转换图',
+    captionEn: '&ldquo;Settle who\'s better, and settle the sexes&rdquo; echoes Xiang Yu\'s challenge to Liu Bang during the Chu–Han feud, where 雌雄 meant victory, not gender. The AI edits added a second reading: the winner keeps the original photo, the loser gets the gender swap. Knight\'s and Chovy\'s old shots are stacked here, the right one still in a TES-era jersey, with both female versions waiting below.',
+    captionZh: '「一决雌雄」是楚汉相争时项羽对刘邦放的那句话，雌雄原本指胜负。这轮 AI 二创又按字面加了一层：赢家留原图，输家换成女版。这张把 Knight 和 Chovy 的旧照拼在一起，右边那位还穿着 TES 时期的队服，下面两张女版等着分胜负。',
+  },
+  {
+    key: 'bin-daxiaojie-title',
+    src: '/img/blog/worlds-2026-bin-daxiaojie-title.jpg',
+    width: 854,
+    height: 471,
+    altEn: 'An AI short-drama still: Zeus in an HLE jersey at a PC, a long-haired gender-swapped Bin standing beside him, subtitle reading "Why did you take my title today"',
+    altZh: 'AI 短剧截图：穿 HLE 队服的 Zeus 坐在电脑前，黑长发的性转 Bin 站在一旁，字幕为「你今天为什么拿走属于我的冠军」',
+    captionEn: 'The first AI short landed the day after the 2026 MSI final, where BLG lost 2-3 to HLE and Zeus took FMVP. Its title was &ldquo;Bin: Zeus, why did you steal my MSI title?&rdquo; — Bin rewritten as a long-haired girl who walks up to Zeus\'s desk and treats the final he just lost as a personal quarrel.',
+    captionZh: '2026 MSI 决赛 BLG 2-3 输给 HLE，Zeus 拿了 FMVP，第二天就出现第一条 AI 短剧，标题是《Bin：Zeus，你为什么偷我的 MSI 冠军》。黑长直的 Bin 走到 Zeus 的电脑旁，把刚输掉的决赛当成私人恩怨来问。',
+  },
+  {
+    key: 'bin-daxiaojie-hug',
+    src: '/img/blog/worlds-2026-bin-daxiaojie-hug.jpg',
+    width: 854,
+    height: 473,
+    altEn: 'An AI short-drama still: Zeus comforting a long-haired gender-swapped Bin, subtitle reading "So our Miss Bin is not angry anymore, right?"',
+    altZh: 'AI 短剧截图：Zeus 搂着黑长发的性转 Bin，字幕为「那现在我们 Bin 大小姐应该不生气了吧」',
+    captionEn: 'The comfort shot is where the nickname stuck: &ldquo;So our Miss Bin is not angry anymore, right?&rdquo; The name came from a lip-reading video — &ldquo;he knows he can\'t win, the young lady is unhappy&rdquo; — which turned Bin\'s sulking and comms silence into a rich-girl persona. When HLE were knocked out of EWC by T1, Doran was written into the plot, and the shorts became a series.',
+    captionZh: '哄人的这一帧把称呼钉死了：「那现在我们 Bin 大小姐应该不生气了吧」。「大小姐」最早来自一条唇语解读视频——「发现赢不了了，大小姐不高兴了」，Bin 场上的红温和闭麦被夸张成大小姐脾气。之后 HLE 在 EWC 八强输给 T1，Doran 也被写进剧情，短剧变成了连载。',
+  },
+  {
+    key: 'bin-harem',
+    src: '/img/blog/worlds-2026-bin-harem.jpg',
+    width: 960,
+    height: 720,
+    altEn: 'Bin in a BLG jersey sits in the centre with four AI gender-swapped women around him — T1, DK and HLE jerseys among them — while a flying-squirrel charm and a red-skinned Ornn charm perch above his head',
+    altZh: 'Bin 穿 BLG 队服坐在中间，四名 AI 性转女性围着他，其中可见 T1、DK、HLE 队服，头顶挂着大飞鼠与红皮奥恩的挂件',
+    captionEn: 'The gender-swap edits went all the way: Bin sits in the middle in his BLG jersey while four AI female versions of other players crowd around him, T1, DK and HLE jerseys still on, with the flying squirrel and a gender-swapped Ornn hanging above his head. The internet\'s verdict was one line — too unhinged.',
+    captionZh: '性转二创最后索性把人凑成一桌：Bin 坐中间，四名选手的 AI 女版围着他，T1、DK、HLE 的队服还穿在身上，头顶再挂上大飞鼠和性转奥恩。网友看完的评价只有一句——太过变态。',
+  },
+  {
+    key: 'flying-squirrel',
+    src: '/img/blog/worlds-2026-flying-squirrel.webp',
+    width: 240,
+    height: 320,
+    altEn: 'A 3D flying squirrel with a black bowl cut and round glasses standing on a railing at night, swinging a glowing green rod',
+    altZh: '夜景里站在栏杆上的 3D 飞鼠，黑锅盖头、圆框眼镜，手里挥着一根发着绿光的长杆',
+    captionEn: 'The flying squirrel is an abstract stand-in for Faker — bowl cut, round glasses, round face — and its name comes from the &ldquo;Da Fei&rdquo; nickname. It drifts through fan edits all year, floods timelines once Worlds starts, and came back in force after BLG beat T1 3-1 in the semifinal.',
+    captionZh: '大飞鼠是 Faker 的抽象分身：锅盖头、黑框眼镜、圆脸，名字从「大飞」这个外号长出来。它平时散在各种二创里，世界赛一到就集中刷屏；半决赛 BLG 3-1 送走 T1 之后，弹幕又刷了一遍。',
+  },
+  {
+    key: 'theshy-ornn',
+    src: '/img/blog/worlds-2026-theshy-ornn.webp',
+    width: 360,
+    height: 480,
+    altEn: 'Two figures running toward the camera on a street: a person in a giant flying-squirrel head in front, and an Ornn costume with red skin, black horns and a dark cloak behind',
+    altZh: '街上两个身影朝镜头跑：前面是戴巨大飞鼠头套的人，后面是红皮肤、黑角、披黑斗篷的奥恩扮装',
+    captionEn: 'Ornn has been TheShy\'s signature since the 2018 title run, when his &ldquo;here comes the ram&rdquo; call became a highlight. On October 29, in IG\'s qualifying series against LYON, he planted himself in front of the enemy team in game one and tanked five players for close to a minute with barely a dent in his health bar; IG won 2-1 and reached the top eight for the first time in 2,565 days. The GIF turns Ornn into a red-skinned demon sprinting down a street, with the flying-squirrel head running ahead of it.',
+    captionZh: '奥恩是 TheShy 的老招牌，S8 起「羊来」就是他叫的。10 月 29 日 iG 对 LYON 的晋级战，首局他一个人顶在团战前排，被五个人围着打近一分钟血条几乎没掉，iG 2-1 赢下，时隔 2565 天重回八强。这个 GIF 把奥恩做成街上狂奔的红皮恶魔，前头还跑着一颗大飞鼠的头。',
+  },
+];
+
+const meme = (key: string): Meme => {
+  const item = memes.find((entry) => entry.key === key);
+  if (!item) throw new Error(`Missing meme image: ${key}`);
+  return item;
+};
+
+const faqEntries = isZh ? [
+  {
+    question: '2026 全球总决赛冠军是谁？',
+    answer: 'BLG 在 2026 年 11 月 15 日以 3-1 击败 GEN，夺得队史首座全球总决赛冠军，这也是 LPL 第四座召唤师奖杯。官方夺冠庆典从 11 月 15 日开放至 12 月 20 日，详见<a href="' + celebrationUrl + '" target="_blank" rel="noreferrer">官方庆典页</a>与<a href="' + sourceUrl + '" target="_blank" rel="noreferrer">英雄联盟官方公告</a>。',
+  },
+  {
+    question: '为什么说 Knight 终结了韩国中单的纪录？',
+    answer: '自 SKT 在 2013 年夺冠起，冠军中单连续 13 届由韩国选手包揽。Knight 随 BLG 夺冠后成为首位中国冠军中单，赛后梗图把这件事概括为「终结王朝」。同期版本资讯见<a href="' + localizedPath(locale, '/blog/patch-26-22-prestige-chromas/') + '">26.22 版本新增臻彩</a>。',
+  },
+  {
+    question: '这些梗图是官方发布的吗？',
+    answer: '本文图片多为网络流传的现场照片或粉丝二创，作者与原始出处难以确认，也不代表官方立场。英雄池那张的对比图确实由官方英文流在 TES 对阵 HLE 赛前发布，但把它继续加工成梗的是社区，照片本身也来自观众看台。想先了解赛事与游戏基础，可阅读<a href="' + localizedPath(locale, '/blog/what-is-league-of-legends/') + '">《英雄联盟》入门</a>；想了解本站常写的臻彩，可阅读<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">什么是臻彩</a>。',
+  },
+] : [
+  {
+    question: 'Who won the 2026 World Championship?',
+    answer: 'BLG beat GEN 3-1 on November 15, 2026 to win the organization\'s first World Championship and the LPL\'s fourth Summoner\'s Cup. The official celebration event runs from November 15 to December 20 — see the <a href="' + celebrationUrl + '" target="_blank" rel="noreferrer">event page</a> and the <a href="' + sourceUrl + '" target="_blank" rel="noreferrer">official League of Legends announcement</a>.',
+  },
+  {
+    question: 'Why does Knight\'s title matter?',
+    answer: 'Since SKT won in 2013, 13 straight World Championships went to Korean mid laners. Knight is the first Chinese mid laner to win the title, and post-final memes framed it as &ldquo;ending the dynasty&rdquo;. For the same week\'s patch, see <a href="' + localizedPath(locale, '/blog/patch-26-22-prestige-chromas/') + '">Patch 26.22\'s seven prestige chromas</a>.',
+  },
+  {
+    question: 'Are these memes official?',
+    answer: 'Mostly no. Most images here are crowd photos or fan edits circulating online, with creators and sources that are difficult to confirm, and they do not represent an official position. The champion-pool comparison was indeed posted by the official English broadcast before TES vs HLE, but the meme treatment came from the community, and the photo itself was taken from the stands. For game and tournament basics, read our <a href="' + localizedPath(locale, '/blog/what-is-league-of-legends/') + '">League of Legends introduction</a>; for the site\'s usual subject, read <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">what prestige chromas are</a>.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: new URL(article.coverUrl, SITE.origin).toString(), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟赛事' : 'League of Legends Esports',
+    keywords: isZh ? '2026全球总决赛, 英雄联盟, BLG, GEN, Knight, 世界赛梗图, LPL, 召唤师奖杯' : '2026 World Championship, League of Legends, BLG, GEN, Knight, Worlds memes, LPL, Summoner\'s Cup',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <Breadcrumb article {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '2026 世界赛梗图' : '2026 Worlds Memes' },
+  ]} />
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '全球总决赛 2026 · 梗图盘点' : 'WORLDS 2026 · MEME ROUNDUP'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? 'BLG 3-1 击败 GEN，拿下队史首座全球总决赛冠军，也为 LPL 带回第四座召唤师奖杯。以下 16 张图片（含两张动图）来自网络流传的现场照片、官方画面与粉丝二创，记录了这届世界赛的情绪起落——以及被决赛结果反转的那些玩笑。' : 'BLG beat GEN 3-1 to win the organization\'s first World Championship and bring the LPL its fourth Summoner\'s Cup. The 16 images below — two of them animated — are crowd photos, official graphics and fan-made memes that circulated during the tournament.'}</p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={isZh ? article.coverAltZh : article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1600" height="900" loading="eager" decoding="async" />
+      <figcaption>{isZh ? 'BLG 夺冠官方海报。图片来源：' : 'Official BLG championship poster. Image: '}<a href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '腾讯《英雄联盟》官方' : 'League of Legends China official'}</a>{isZh ? '。' : '.'}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '冠军、比分与一项长期纪录' : 'The result, and a streak that ended'}</h2>
+      {isZh ? <>
+        <p>11 月 15 日，BLG 在 2026 全球总决赛决赛以 3-1 击败 GEN。这是 BLG 队史首座召唤师奖杯，也是 LPL 继 2018、2019、2021 年之后的第四冠。官方夺冠庆典从 11 月 15 日开放至 12 月 20 日，具体规则以<a href={celebrationUrl} target="_blank" rel="noreferrer">官方庆典页</a>为准。</p>
+        <p>比分之外，这届决赛还结束了一项长期纪录：自 SKT 在 2013 年夺冠起，冠军中单连续 13 届由韩国选手包揽，Knight 成为首位中国冠军中单。这也是赛后梗图最集中的主题。</p>
+        <p>如果你对「全球总决赛」「赛区」这些概念还不熟，可以先读<a href={localizedPath(locale, '/blog/what-is-league-of-legends/')}>《英雄联盟》入门</a>，再回来看这些图会更容易理解。</p>
+        <p>下面的图按赛事节点排：首轮全败与「全员乐队」、369 的瓦场悟道、iG 的八强门票、淘汰赛的四强名单与 T1 旧账、决赛前的一穿四、AI 性转的脉络、决赛夺冠。</p>
+      </> : <>
+        <p>On November 15, BLG beat GEN 3-1 in the 2026 World Championship final. It is the organization's first Summoner's Cup and the LPL's fourth title after 2018, 2019 and 2021. The official celebration event runs from November 15 to December 20; check the <a href={celebrationUrl} target="_blank" rel="noreferrer">official event page</a> for the exact rules.</p>
+        <p>The final also ended a long streak: since SKT won in 2013, 13 straight World Championships went to Korean mid laners, and Knight is the first Chinese mid laner to win the title. That fact became the centre of the post-final edits.</p>
+        <p>If terms like &ldquo;Worlds&rdquo; and &ldquo;regional seed&rdquo; are new to you, start with our <a href={localizedPath(locale, '/blog/what-is-league-of-legends/')}>League of Legends introduction</a> before coming back to the images.</p>
+        <p>The images run in order: the 0-4 opening and the whole-region band joke, 369's VALORANT enlightenment, IG's top-eight ticket, the top four and the T1 receipts, the pre-final run one team short of a clean sweep, the AI gender-swap lineage, then the final.</p>
+      </>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '首轮全败：梗从 TES 扩到全赛区' : 'A 0-4 opening: the joke spreads from TES to the region'}</h2>
+      {isZh ? <>
+        <p>乐队梗不是世界赛才有的，源头在 TES。B 站一直有拿滔搏做乐队、做男团的二创，把队员剪成一支乐队，久了「滔搏是个乐队」就成了固定说法。</p>
+        <p>9 月 27 日米勒点评四支队伍：AL 偏团队、BLG 偏短剧、TES 偏音乐、IG 偏登山。两天后 Ning 在直播里接了句「滔搏就是个乐队，出个歌就行了」。B 站的说法被搬进解说和直播间，汤姆猫那张图随后出现：四队队标贴在小号按键上，一只手按键、一只手拉琴弓，身后还蹲着大提琴。</p>
+        <p>真正让这几张图变成「全员乐队」的，是瑞士轮首日的 0-4：iG 0-1 GEN、TES 0-1 HLE、BLG 0-1 MKOI、AL 0-1 KC。LPL 第一次在世界赛首轮全败，AL 还是一号种子，随后大场 0-3、小场 0-4 出局，成了 LPL 首支世界赛全程零胜的一号种子。</p>
+        <p>梗于是从 TES 一家扩到整个赛区。面具那张把四张脸凑成乐队合影；熊猫那张直接把 AL 的队标「熊猫大侠」重画，斗笠和背上的剑都留着，手上塞了把红吉他。一号种子带头组乐队，这才是图里扎人的地方。</p>
+        <p>陀螺也是同一晚的产物——iG、AL、BLG、TES 各占棋盘一格，全被抽着转。</p>
+      </> : <>
+        <p>The band joke did not start at Worlds. Its source is TES: Bilibili creators had long been editing Top Esports into a band or an idol group, and &ldquo;Top Esports is a band&rdquo; became a running line.</p>
+        <p>On September 27, Miler sorted the four teams out — AL as teamplay, BLG as a short drama, TES as music, IG as mountain climbing. Two days later Ning added on stream that &ldquo;Top Esports is just a band, put out a song and be done with it.&rdquo; That carried the Bilibili joke into caster and stream vocabulary, and the Tom image followed: four team logos on the trumpet keys, one paw on the valves, one on a bow, a cello behind him.</p>
+        <p>What turned these images into a joke about the whole region was the 0-4 on the Swiss stage's first day: IG 0-1 GEN, TES 0-1 HLE, BLG 0-1 MKOI, AL 0-1 KC. The LPL had never lost every opening match at Worlds, and AL, the first seed, went out 0-3 in series and 0-4 in games — the first LPL first seed to leave without a single win.</p>
+        <p>So the joke spread from TES to the region. The masked photo lines four faces up like a band promo; the panda redraws AL's &ldquo;Panda Swordsman&rdquo; with the hat, the sword and a red guitar. The first seed leading the band is the part that stings.</p>
+        <p>The spinning tops came out of the same night — IG, AL, BLG and TES, one per square, all spun at once.</p>
+      </>}
+      <div class="meme-grid">
+        {['tom-lpl-orchestra', 'lpl-band-masks', 'blg-panda-guitar', 'lpl-team-coins'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? '369 与「瓦场悟道」' : '369 and the &ldquo;VALORANT enlightenment&rdquo;'}</h2>
+      {isZh ? <>
+        <p>369 能出现在这届世界赛，本身就是个意外。3 月底 TES 在 EWC 预选赛输给 AL 之后，他因为状态问题宣布暂别赛场，这一歇就是半年。那段时间他基本待在家里直播，离开召唤师峡谷的日子都给了《无畏契约》。</p>
+        <p>10 月 6 日，TES 上单 ZUIAN 签证受阻，队伍临时把他叫了回来，他才重新披挂出征 S16。用他自己的话说，打瓦时是新手心态，回到赛场也用同样的心态重新感受《英雄联盟》。</p>
+        <p>「瓦场悟道」本来是水友拿这段休息期开的玩笑，到了世界赛，官方自己接了。瑞士轮 TES 对 HLE 的赛前——就是首轮 0-4 里 TES 输掉的那场——英文流放出一张「CHAMPION POOL IN SUMMER 2026」的对比图：Zeus 一侧是密密麻麻的《英雄联盟》英雄，369 一侧只有三张《无畏契约》特工头像，暮蝶、芮娜、壹决。这不是导播切错画面，是官方照着梗做的图。</p>
+        <p>梗还能叠一层：暮蝶是《无畏契约》里的封烟位，369 又正好因为不会封烟被吐槽过；刘青松一句「见过烟位吗」，把话递给了只在召唤师峡谷对过线的 Zeus。</p>
+        <p>复出后的表现也对得起这个梗。TES 击败 G2 进八强，决胜局他的鳄鱼打出统治级表现；八强 1-3 不敌 iG 出局，但 TES 赢下的五个小局里，他拿了四次 MVP。所以这张「英雄池」图既是调侃，也是他这半年最意外的注脚。</p>
+      </> : <>
+        <p>369 being at this Worlds at all was an accident. At the end of March, after TES lost to AL in the EWC qualifier, he stepped away from competition citing his form, and the break lasted half a year. He spent most of it streaming from home, and the time away from Summoner's Rift went to VALORANT.</p>
+        <p>On October 6, TES top laner ZUIAN ran into visa problems, and the team called him back on short notice to play S16. In his own words, he played VALORANT as a beginner and came back to League the same way — relearning the game rather than defending his old spot.</p>
+        <p>&ldquo;Enlightenment on the VALORANT battlefield&rdquo; began as a chat joke about that break. At Worlds the broadcast picked it up itself: before TES vs HLE in the Swiss stage — the match TES lost on that 0-4 opening day — the English feed posted a &ldquo;CHAMPION POOL IN SUMMER 2026&rdquo; comparison, with Zeus's dense grid of League champions on one side and three VALORANT agents on 369's side — Clove, Reyna and Iso. It was not a production mistake; the broadcast made the joke on purpose.</p>
+        <p>The bit lands twice over: Clove is VALORANT's smoke agent, and 369 had been teased for not knowing how to smoke; Crisp's &ldquo;ever seen a smoke player?&rdquo; handed the punchline to Zeus.</p>
+        <p>The comeback held up, too. TES beat G2 to reach the quarterfinals, with 369's Renekton taking over the deciding game. They then lost 1-3 to IG in the quarterfinals, but he took four MVPs across the five games TES won at Worlds. The champion-pool graphic is a jab and, at the same time, the strangest footnote to his half-year away.</p>
+      </>}
+      <div class="meme-grid meme-grid--single">
+        {['champion-pool-stage'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? 'iG 的八强门票：TheShy 的奥恩' : "IG's top-eight ticket: TheShy's Ornn"}</h2>
+      {isZh ? <>
+        <p>10 月 29 日，iG 在瑞士轮 2-1 击败 LYON，时隔 2565 天重回八强。首局最出圈的是 TheShy 的奥恩：三路开局都不顺，他一个人顶在团战前排，被五个人围着打了近一分钟，血条几乎没掉，巢虫和小龙也靠他抢下。解说席当场喊出「奥恩无敌了」。</p>
+        <p>奥恩本来就是 TheShy 的招牌，S8 夺冠那年他的「羊来」就是名场面。这次晋级战之后，二创把奥恩做成在街上狂奔的红皮恶魔，前头还跑着一颗大飞鼠的头——今年世界赛最出圈的两个形象，被塞进了同一条街。</p>
+      </> : <>
+        <p>On October 29, IG beat LYON 2-1 in the Swiss stage to reach the top eight for the first time in 2,565 days. The clip that went around came from game one: with all three lanes behind early, TheShy's Ornn planted himself in front of the enemy team, got surrounded by five and kept tanking for close to a minute with barely a dent in his health bar, while IG picked up the grubs and drakes. The casters called it on the spot — &ldquo;Ornn is unkillable.&rdquo;</p>
+        <p>Ornn was already TheShy's signature; his &ldquo;here comes the ram&rdquo; call was a highlight of the 2018 title run. After the qualifier, fan edits turned Ornn into a red-skinned demon sprinting down a street, with the flying-squirrel head running ahead of it — putting the tournament's two most-shared mascots on the same sidewalk.</p>
+      </>}
+      <div class="meme-grid meme-grid--single">
+        {['theshy-ornn'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? '淘汰赛：T1 的旧账，四强中韩各两席' : 'Knockouts: T1 receipts, and two LPL teams in the top four'}</h2>
+      {isZh ? <>
+        <p>T1 没走到 2026 年的决赛，但淘汰赛开始前，两张围绕 T1 的图又开始传。一张是「T1 14-0 LPL」的战绩海报：2013 到 2025 年 T1 与 SKT 对 LPL 的系列赛排成一列，底部写 14 个系列赛、41-10 的小局。最值得看的是表里 2023 年那行「BLG 3-2 T1」被单独放大——唯一一次 LPL 赢下的系列赛，成了海报自己的漏洞。</p>
+        <p>另一张是 Faker 配「哥几个又来了？」，下面四台变形金刚风格的机器人分别贴着 BLG、WBG、TES、iG 的队标，各配一个调侃绰号，TES 那台直接叫「闪电陀螺王」——9 月才成形的乐队梗，到 10 月已经长出了陀螺的分支。</p>
+        <p>淘汰赛期间还多了一只大飞鼠：锅盖头、黑框眼镜、圆脸的 3D 飞鼠，是 Faker 的抽象分身，名字从「大飞」这个外号长出来。它平时散在各种二创里，世界赛一到就集中刷屏；半决赛 BLG 3-1 送走 T1 之后，弹幕又刷了一遍。</p>
+        <p>「我在四强很想你」是另一路，梗比这届世界赛老得多。2023 年 LPL 四队全进八强，JDG、BLG、WBG 先占三席，只要 LNG 赢下 T1 就能包揽四强，全网刷起「LNG 我在四强很想你」；结果 T1 3-0 送走 LNG，又连过 JDG、WBG 夺冠，这句话从此成了反向 flag。S16 LPL 又有三队进八强，TES 与 iG 内战保底一席，iG、BLG 最后都进了四强，牌子被翻出来重贴：各队合影摞在牌下。只是半决赛 iG 0-3 输给 GEN，四强里只剩 BLG 继续往前。</p>
+      </> : <>
+        <p>T1 did not reach the 2026 final, but before the knockouts two T1 images began circulating again. One is the &ldquo;T1 14-0 LPL&rdquo; record poster: series between T1/SKT and LPL teams from 2013 to 2025, with 14 series and 41-10 in games at the bottom. The detail worth noticing is the 2023 row &ldquo;BLG 3-2 T1&rdquo;, enlarged on its own — the only LPL series win is blown up in the middle of a poster arguing 14-0.</p>
+        <p>The other puts &ldquo;You guys again?&rdquo; next to Faker, with four Transformers-style robots tagged BLG, WBG, TES and IG, each with a mocking nickname; the TES one is literally called &ldquo;Lightning Top King&rdquo;. The band joke from September had grown a spinning-top branch by October.</p>
+        <p>A flying squirrel joined the lineup during the knockouts: a 3D squirrel with a bowl cut, round glasses and a round face, an abstract stand-in for Faker whose name comes from the &ldquo;Da Fei&rdquo; nickname. It drifts through fan edits all year, floods timelines once Worlds starts, and came back in force after BLG beat T1 3-1 in the semifinal.</p>
+        <p>&ldquo;I miss you at the Top Four&rdquo; has a longer history than this Worlds. In 2023 all four LPL teams reached the quarterfinals; with JDG, BLG and WBG already in the semis, one LNG win over T1 would have made the top four all-LPL, and &ldquo;LNG, I miss you at the Top Four&rdquo; went viral. T1 swept LNG, then beat JDG and WBG on the way to the title, turning the phrase into a jinx. In 2026 three LPL teams reached the quarters again, the TES–IG draw guaranteed one semifinalist, and IG and BLG both got there, so the sign came back: squad photos stacked underneath. Then IG lost 0-3 to GEN, leaving BLG as the only LPL team still alive.</p>
+      </>}
+      <div class="meme-grid">
+        {['t1-14-0-lpl', 'faker-transformers', 'flying-squirrel', 'top-four-sign'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? '决赛前：一穿四只差 GEN' : 'Before the final: one LCK team away from a clean sweep'}</h2>
+      {isZh ? <>
+        <p>决赛前这张图在替 BLG 清算 LCK。BLG 进决赛之前已经连着淘汰 HLE、T1、KT，所谓「一穿四」只差最后一步，也就是 GEN。图里四名 LCK 中单排成一列：Zeka 和 Faker 比「嘘」，Bdd 板着脸，只有 Chovy 把 GEN 的队标举在胸前——三个人已经被送走，剩他一个还站着。</p>
+      </> : <>
+        <p>The pre-final edit settles accounts for BLG. Before reaching the final, BLG had already knocked out HLE, T1 and KT, with only GEN left for a clean sweep of the region's top teams. Four LCK mids line up in the graphic: Zeka and Faker shush, Bdd stares, and only Chovy holds the GEN crest — three already sent home, one still standing.</p>
+      </>}
+      <div class="meme-grid meme-grid--single">
+        {['lck-mids-silenced'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? 'AI 性转：从 Bin 大小姐到左手右手' : 'AI gender swaps: from Miss Bin to Left Hand and Right Hand'}</h2>
+      {isZh ? <>
+        <p>这套「一决雌雄」不是世界赛才有的。2026 MSI 决赛 BLG 2-3 输给 HLE，Zeus 拿下 FMVP，Bin 赛前「世一上」的话被翻出来对比；决赛第二天，B 站出现第一条 AI 短剧，标题就叫《Bin：Zeus，你为什么偷我的 MSI 冠军》。黑长直的 Bin 被写成上门赌气的大小姐，最后被 Zeus 抱住哄好。</p>
+        <p>「大小姐」这个叫法，最早出自一条唇语解读视频——「发现赢不了了，大小姐不高兴了」，Bin 场上的红温、闭麦被夸张成大小姐脾气。EWC 八强 HLE 爆冷输给 T1 之后，Doran 也被拉进剧情，三个人演成连载；Bin 在 7 月 21 日宣布暂离赛场，二创还在更新。</p>
+        <p>到世界赛决赛前，主角换成 Knight 和 Chovy。社区叫他们左手和右手，AI 把两张旧照换成女版，配上「既分高下，也决雌雄」——雌雄在这里既是胜负也是性别。跟官方没有关系，剧本、换脸、配音都是网友自己做的。</p>
+      </> : <>
+        <p>The gender-swap shorts did not start at Worlds. BLG lost the 2026 MSI final 2-3 to HLE, Zeus took FMVP, and Bin's pre-event &ldquo;best top laner&rdquo; line was pulled back out for comparison; the day after the final, Bilibili had its first AI short, titled &ldquo;Bin: Zeus, why did you steal my MSI title?&rdquo; Bin was rewritten as a long-haired girl who storms up to Zeus's desk, and the scene ends with her being hugged and comforted.</p>
+        <p>The name came from a lip-reading video — &ldquo;he knows he can't win, the young lady is unhappy&rdquo; — which turned Bin's on-stage temper and comms silence into a rich-girl persona. After HLE were knocked out of EWC by T1, Doran was written into the plot, and the shorts became a series; Bin announced a break from play on July 21 and the edits kept coming.</p>
+        <p>By the Worlds final the leads were Knight and Chovy — the community's Left Hand and Right Hand. AI turned both old photos into female versions and captioned it &ldquo;settle who's better, and settle the sexes&rdquo;, where 雌雄 means both winning and gender. None of it is official: script, faces and voice work are all fan-made.</p>
+      </>}
+      <div class="meme-grid">
+        {['bin-daxiaojie-title', 'bin-daxiaojie-hug', 'player-genderbend', 'bin-harem'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? '决赛：BLG 3-1 GEN，Knight 终结王朝' : 'The final: BLG 3-1 GEN, Knight ends the dynasty'}</h2>
+      {isZh ? <>
+        <p>决赛 BLG 3-1 拿下 GEN，奖杯落地的同时，那张「终结王朝」也被顶上来了：BLG 夺得 S16 全球总决赛冠军，Knight 成为 S3 以来首位中国冠军中单，打破韩国中单十三连冠的纪录。</p>
+        <p>赛事期间国服更新到 26.22 版本，新增 7 款臻彩，可在<a href={localizedPath(locale, '/blog/patch-26-22-prestige-chromas/')}>26.22 版本臻彩文章</a>查看原画与版本说明。</p>
+      </> : <>
+        <p>BLG closed out GEN 3-1, and the &ldquo;ending the dynasty&rdquo; edit arrived with the trophy: BLG won the S16 World Championship, and Knight became the first Chinese mid laner since S3 to take the title, breaking a run of 13 straight Korean mid champions.</p>
+        <p>The China Server was on Patch 26.22 during the event, which added seven prestige chromas; see the <a href={localizedPath(locale, '/blog/patch-26-22-prestige-chromas/')}>Patch 26.22 prestige chroma article</a> for the artwork and patch details.</p>
+      </>}
+      <div class="meme-grid meme-grid--single">
+        {['knight-ends-dynasty'].map((key) => (
+          <figure class="meme-card">
+            <img src={meme(key).src} alt={isZh ? meme(key).altZh : meme(key).altEn} data-alt-en={meme(key).altEn} data-alt-zh={meme(key).altZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width={meme(key).width} height={meme(key).height} loading="lazy" decoding="async" />
+            <figcaption>{isZh ? meme(key).captionZh : meme(key).captionEn}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '官方来源' : 'Official sources'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '英雄联盟官方：乘风而上，今朝为冠，恭喜 BLG 勇夺 2026 全球总决赛冠军（2026 年 11 月 15 日 07:51）' : 'League of Legends China: BLG win the 2026 World Championship (November 15, 2026, 07:51)'}</a></li>
+        <li><a class="official-source-link" href={resultUrl} target="_blank" rel="noreferrer">{isZh ? '英雄联盟赛事官方：恭喜 BLG 勇夺 2026 英雄联盟全球总决赛冠军（2026 年 11 月 15 日 08:03）' : 'League of Legends Esports China: BLG win the 2026 World Championship (November 15, 2026, 08:03)'}</a></li>
+        <li><a class="official-source-link" href={celebrationUrl} target="_blank" rel="noreferrer">{isZh ? '2026 全球总决赛夺冠庆典活动页（2026 年 11 月 15 日至 12 月 20 日）' : '2026 World Championship celebration event (November 15 – December 20, 2026)'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style>
+    .meme-grid { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: var(--space-3) 0 0; }
+    .meme-grid .meme-card { margin: 0; }
+    .meme-grid img { display: block; width: 100%; height: auto; border-radius: var(--radius-card); }
+    @media (max-width: 767px) { .meme-grid { grid-template-columns: 1fr; } }
+    .meme-grid--single { grid-template-columns: minmax(0, 340px); justify-content: center; }
+  </style>
+</BaseLayout>

@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'worlds-2026-blg-champion-memes',
+    href: '/blog/worlds-2026-blg-champion-memes/',
+    titleEn: "2026 World Championship: BLG's First Title and Some Memes",
+    titleZh: '2026 全球总决赛：BLG 首冠和一些梗图',
+    summaryEn: "BLG beat GEN 3-1 on November 15, 2026 to claim the organization's first World Championship and the LPL's fourth Summoner's Cup. These 16 images, two of them animated, follow the tournament from pre-final T1 posters to post-final celebration edits; Knight also became the first Chinese mid laner to win Worlds.",
+    summaryZh: '2026 年 11 月 15 日，BLG 以 3-1 击败 GEN，夺得队史首座全球总决赛冠军，也是 LPL 第四座召唤师奖杯。本文收录 16 张网络流传的粉丝二创（含两张动图），从赛前流传的 T1 海报到赛后庆祝改图，回看这届世界赛的情绪起落；Knight 也成为首位中国冠军中单。',
+    publishedAt: '2026-11-15',
+    readingMinutes: 7,
+    coverUrl: '/img/blog/worlds-2026-blg-champion-cover.jpg',
+    coverAltEn: "BLG players in white jerseys in front of the Summoner's Cup with a CHAMPIONS backdrop after winning the 2026 World Championship",
+    coverAltZh: 'BLG 五名选手身穿白色队服站在召唤师奖杯前，背景为 CHAMPIONS 字样',
+    sourceUrl: 'https://lol.qq.com/news/detail.shtml?docid=2933519305216867218',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'patch-26-22-prestige-chromas',
     href: '/blog/patch-26-22-prestige-chromas/',
     titleEn: 'LoL Patch 26.22: 7 New Prestige Chromas',
