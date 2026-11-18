@@ -27,6 +27,7 @@ import SearchOutlined from '@ant-design/icons-svg/lib/asn/SearchOutlined';
 import SoundOutlined from '@ant-design/icons-svg/lib/asn/SoundOutlined';
 import SwapOutlined from '@ant-design/icons-svg/lib/asn/SwapOutlined';
 import UpOutlined from '@ant-design/icons-svg/lib/asn/UpOutlined';
+import VerticalAlignTopOutlined from '@ant-design/icons-svg/lib/asn/VerticalAlignTopOutlined';
 import VideoCameraOutlined from '@ant-design/icons-svg/lib/asn/VideoCameraOutlined';
 import XOutlined from '@ant-design/icons-svg/lib/asn/XOutlined';
 import ZoomInOutlined from '@ant-design/icons-svg/lib/asn/ZoomInOutlined';
@@ -64,6 +65,7 @@ const ANT_ICONS = {
   SoundOutlined,
   SwapOutlined,
   UpOutlined,
+  VerticalAlignTopOutlined,
   VideoCameraOutlined,
   XOutlined,
   ZoomInOutlined,

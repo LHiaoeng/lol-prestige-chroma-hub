@@ -1,56 +1,39 @@
 ---
-import UpOutlined from './icons/UpOutlined.astro';
+import Icon from './icons/Icon.astro';
 import { resolveLocale } from '../i18n/config';
 const isZh = resolveLocale(Astro.currentLocale) === 'zh-cn';
 ---
 <button
-  class="back-to-top"
+  class="ant-btn ant-btn-lg ant-btn-icon-only ant-float-btn"
   type="button"
   data-back-to-top
   aria-label={isZh ? '返回顶部' : 'Back to top'}
-  aria-hidden="true"
-  tabindex="-1"
+  inert
 >
-  <UpOutlined />
+  <span class="ant-float-btn-icon"><Icon name="VerticalAlignTopOutlined" /></span>
 </button>
 
 <script>
-  import { bindBackToTop } from '../client/back-to-top';
+  import { bindBackToTop } from './back-to-top';
   bindBackToTop();
 </script>
 
 <style>
-  .back-to-top {
+  .ant-float-btn {
     position: fixed;
     z-index: 9;
-    right: max(20px, env(safe-area-inset-right));
-    bottom: max(20px, env(safe-area-inset-bottom));
-    display: grid;
-    width: var(--control-height);
-    height: var(--control-height);
-    padding: 0;
-    place-items: center;
-    border: 1px solid var(--gold);
+    inset-inline-end: max(var(--space-4), env(safe-area-inset-right));
+    bottom: var(--float-button-bottom);
     border-radius: 50%;
-    background: var(--gold);
     box-shadow: var(--shadow-popup);
-    color: var(--on-gold);
-    cursor: pointer;
+    touch-action: manipulation;
+    transition: opacity var(--motion-mid) linear, visibility var(--motion-mid), color var(--motion-mid) ease, border-color var(--motion-mid) ease;
+  }
+  .ant-float-btn[inert] {
     opacity: 0;
-    pointer-events: none;
-    transform: translateY(12px);
-    transition: opacity var(--motion-mid) ease, transform var(--motion-mid) ease, background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
+    visibility: hidden;
   }
-  .back-to-top[data-visible] { opacity: 1; pointer-events: auto; transform: none; }
-  .back-to-top:hover { background: var(--gold-hover); border-color: var(--gold-hover); }
-  .back-to-top:active { background: var(--gold-active); border-color: var(--gold-active); }
-  .back-to-top:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-  .back-to-top svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  @media (max-width: 767px), (any-pointer: coarse) {
-    .back-to-top { width: var(--control-height); height: var(--control-height); }
-  }
-  @media (max-width: 767px) {
-    .back-to-top { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
-  }
-  @media (prefers-reduced-motion: reduce) { .back-to-top { transition: none; } }
+  .ant-float-btn:hover { border-color: var(--gold-hover); color: var(--gold-hover); }
+  .ant-float-btn:active { border-color: var(--gold-active); color: var(--gold-active); }
+  .ant-float-btn-icon { font-size: calc(var(--font-size-small) * 1.5); line-height: 1; }
 </style>

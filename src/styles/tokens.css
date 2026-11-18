@@ -64,6 +64,7 @@
   --space-3: 16px;
   --space-4: 24px;
   --space-5: 32px;
+  --float-button-bottom: max(calc(var(--space-5) + var(--space-3)), env(safe-area-inset-bottom));
   --control-height-xs: 16px;
   --control-height-sm: 24px;
   --control-height: 32px;
