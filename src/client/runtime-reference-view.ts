@@ -249,10 +249,23 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       }
       if (state.core.status !== "ready" || !state.context) return;
       const { context } = state;
+      const { target } = context;
+      const summarySlots = target.mode !== "detail" ? [] as const
+        : target.kind === "skin" ? ["relation-skinlines", "relation-universes"] as const
+        : target.kind === "skinline" ? ["relation-universes", "skinline-skins"] as const
+        : target.kind === "universe" ? ["universe-skins"] as const
+        : [] as const;
+      const summaryLoading = summarySlots.some((key) => !state.slots[key] || state.slots[key].status === "loading");
+      const firstSkinRender = target.mode === "detail" && target.kind === "skin" && pageShell?.hasAttribute("data-runtime-loading");
+      if (firstSkinRender && summaryLoading) return;
+      const skeletonMediaTop = firstSkinRender && !context.url.hash
+        ? content.querySelector(".runtime-skin-media-skeleton")?.getBoundingClientRect().top
+        : undefined;
+
       options.root.removeAttribute("aria-busy");
       pageShell?.removeAttribute("data-runtime-loading");
       if (entityHeaderSkeleton) {
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+        if (options.page === "skins" || window.matchMedia("(prefers-reduced-motion: reduce)").matches)
           entityHeaderSkeleton.setAttribute("hidden", "");
         else entityHeaderSkeleton.setAttribute("data-runtime-exiting", "");
       }
@@ -260,7 +273,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       clearRuntimeAlert();
       if (renderedContext !== context) {
         renderedContext = context;
-        const target = context.target;
         if (state.core.value.mode === "pbe")
           pbeRenderer.render(state.core.value.items);
         else if (target.mode === "list" && state.core.value.mode === "list")
@@ -270,7 +282,6 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
         showFallbackNotice(context);
       }
 
-      const target = context.target;
       if (target.mode === "list" && target.page === "universes") {
         const slot = state.slots["list-skinlines"];
         if (slot?.status === "loading") listRenderer.listRelationsLoading();
@@ -304,17 +315,17 @@ export function createDomRuntimeView(options: DomRuntimeViewOptions): RuntimeVie
       else if (universeSkins?.status === "failed")
         detailRenderer.showUniverseSkinsFailure(universeSkins.error, universeSkins.retry);
       detailRenderer.renderRelations(state, entity, target);
-      const summarySlots = target.kind === "skin"
-        ? ["relation-skinlines", "relation-universes"] as const
-        : target.kind === "skinline"
-          ? ["relation-universes", "skinline-skins"] as const
-          : target.kind === "universe"
-            ? ["universe-skins"] as const
-            : [];
-      entityChannelSource?.toggleAttribute(
-        "data-runtime-summary-loading",
-        summarySlots.some((key) => !state.slots[key] || state.slots[key].status === "loading"),
-      );
+      entityChannelSource?.toggleAttribute("data-runtime-summary-loading", summaryLoading);
+      if (skeletonMediaTop !== undefined) {
+        const media = content.querySelector<HTMLElement>(".runtime-skin-media");
+        if (media?.parentElement) {
+          const offset = skeletonMediaTop - media.getBoundingClientRect().top;
+          if (Math.abs(offset) >= 1) {
+            media.parentElement.style.setProperty("--runtime-skin-reveal-offset", `${offset}px`);
+            media.parentElement.classList.add("runtime-detail--skin-reveal");
+          }
+        }
+      }
     },
     committed(channel, url) {
       updateChannel(channel);

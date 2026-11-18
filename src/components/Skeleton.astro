@@ -30,7 +30,7 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
         </div>
         <div class="runtime-media-carousel-controls-skeleton">
           <div class="runtime-media-carousel-options-skeleton">
-            {Array.from({ length: 2 }, () => <span class="runtime-skeleton-line"></span>)}
+            {Array.from({ length: 4 }, () => <span class="runtime-skeleton-line"></span>)}
           </div>
           <span class="runtime-media-carousel-divider-skeleton"></span>
           <span class="runtime-skeleton-line runtime-media-carousel-download-skeleton"></span>
@@ -43,14 +43,11 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
         <span class="runtime-skeleton-line runtime-skeleton-line--group-title"></span>
         <span class="runtime-skeleton-line runtime-skin-chroma-count-skeleton"></span>
       </div>
-      <div class="runtime-skeleton-grid runtime-skeleton-grid--skins">
-        {Array.from({ length: itemCount }, () => <div class="runtime-skeleton-card runtime-skeleton-card--skin">
-          <div class="runtime-skeleton-media"></div>
-          <div class="runtime-skeleton-meta">
+      <div class="runtime-chroma-grid runtime-skin-chroma-grid-skeleton">
+        {Array.from({ length: itemCount }, () => <div class="runtime-chroma-card">
+          <div class="runtime-chroma-media runtime-skeleton-media"></div>
+          <div class="runtime-chroma-meta">
             <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
-            <div class="runtime-skeleton-color-row">
-              {Array.from({ length: 3 }, () => <span class="runtime-skeleton-media"></span>)}
-            </div>
           </div>
         </div>)}
       </div>

@@ -3,6 +3,7 @@ import {
   createDomRuntimeView as createRuntimeDomView,
   shouldHandleRuntimeNavigation,
   type RuntimeHistory,
+  type RuntimePageState,
 } from "./runtime-reference";
 import {
   appendPbeChromaCard,
@@ -302,6 +303,66 @@ function createDomRuntimeView(
 afterEach(() => vi.unstubAllGlobals());
 
 describe("runtime DOM boundaries", () => {
+  it("replaces the skin skeleton only once the first summary is ready", () => {
+    const document = new TestDocument();
+    vi.stubGlobal("document", document);
+    const url = new URL("https://chromaart.lol/skins/detail/?id=103001&champion=103");
+    vi.stubGlobal("window", { location: url, addEventListener: vi.fn() });
+    const shell = document.createElement("section");
+    shell.dataset.runtimePageShell = "";
+    shell.dataset.runtimeLoading = "";
+    const skeletonHeader = document.createElement("div");
+    skeletonHeader.dataset.runtimeEntityHeaderSkeleton = "";
+    const root = document.createElement("div");
+    root.setAttribute("aria-busy", "true");
+    const content = document.createElement("div");
+    content.dataset.runtimeContent = "";
+    const skeleton = document.createElement("div");
+    content.append(skeleton);
+    root.append(content);
+    shell.append(root);
+    document.body.append(skeletonHeader, shell);
+
+    const view = createDomRuntimeView({
+      root: root as unknown as HTMLElement,
+      source: document.createElement("div") as unknown as HTMLElement,
+      locale: "default",
+      page: "skins",
+      getController: () => ({ navigate: vi.fn() }),
+      history: history(url.href),
+    });
+    const state: RuntimePageState = {
+      context: {
+        channel: "pbe",
+        target: { mode: "detail", page: "skins", kind: "skin", id: 103001, championId: 103, channel: "pbe" },
+        url,
+        signal: new AbortController().signal,
+        isCurrent: () => true,
+      },
+      core: {
+        status: "ready",
+        value: { mode: "detail", item: {
+          kind: "skin", id: 103001, championId: 103, name: "Dynasty Ahri",
+          isBase: false, skinlineIds: [], media: {}, stages: [], chromas: [],
+        } },
+      },
+      slots: { "relation-skinlines": { status: "empty", value: [] }, "relation-universes": { status: "loading" } },
+    };
+
+    view.render(state);
+    expect(content.children).toEqual([skeleton]);
+    expect(root.getAttribute("aria-busy")).toBe("true");
+    expect(skeletonHeader.hasAttribute("hidden")).toBe(false);
+
+    view.render({ ...state, slots: {
+      ...state.slots, "relation-universes": { status: "empty", value: [] },
+    } });
+    expect(content.querySelector(".runtime-detail-title")?.textContent).toBe("Dynasty Ahri");
+    expect(root.hasAttribute("aria-busy")).toBe(false);
+    expect(skeletonHeader.hasAttribute("hidden")).toBe(true);
+    expect(skeletonHeader.hasAttribute("data-runtime-exiting")).toBe(false);
+  });
+
   it("keeps the border select in the radio group when it is the only media control", () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);

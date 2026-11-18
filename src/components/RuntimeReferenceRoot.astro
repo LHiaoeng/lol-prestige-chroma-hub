@@ -65,7 +65,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
   <img data-runtime-reference-backdrop-image data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
 </div>}
 <Breadcrumb {locale} items={breadcrumbItems} />
-{showEntityDetailSummary && <div class="runtime-entity-detail-summary" data-runtime-entity-detail-summary>
+{showEntityDetailSummary && <div class:list={['runtime-entity-detail-summary', { 'runtime-entity-detail-summary--skin': page === 'skins' }]} data-runtime-entity-detail-summary>
   <div class="runtime-entity-detail-header-skeleton" data-runtime-entity-header-skeleton aria-hidden="true">
     <div class="runtime-entity-title-skeleton">
       <span class="runtime-skeleton-media runtime-entity-title-icon-skeleton"></span>
