@@ -1044,6 +1044,22 @@ describe("static site build", () => {
     expect(about).not.toContain("Players should prepare");
   });
 
+  it("keeps the Worlds and prestige chroma articles focused on their own topics", () => {
+    const worldsSlug = "worlds-2026-blg-champion-memes";
+    const patchSlug = "patch-26-22-prestige-chromas";
+    for (const prefix of ["", "zh-cn"]) {
+      const worlds = readFileSync(join(dist, prefix, "blog", worldsSlug, "index.html"), "utf8");
+      const patch = readFileSync(join(dist, prefix, "blog", patchSlug, "index.html"), "utf8");
+      const worldsBody = worlds.match(/<article\b[\s\S]*?<\/article>/)?.[0] ?? "";
+      const patchBody = patch.match(/<article\b[\s\S]*?<\/article>/)?.[0] ?? "";
+      expect(worldsBody).toContain("/blog/what-is-league-of-legends/");
+      expect(worldsBody).not.toContain(`/blog/${patchSlug}/`);
+      expect(worldsBody).not.toContain("/blog/what-are-prestige-chromas/");
+      expect(patchBody).toContain("/blog/what-are-prestige-chromas/");
+      expect(patchBody).not.toContain(`/blog/${worldsSlug}/`);
+    }
+  });
+
   it("surfaces the latest blog articles on the homepage", () => {
     const home = readFileSync(join(dist, "index.html"), "utf8");
     const chineseHome = readFileSync(join(dist, "zh-cn", "index.html"), "utf8");

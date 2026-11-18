@@ -1,6 +1,6 @@
 # 站内内链地图
 
-本文件记录博客文章之间的内链关系。新增文章时更新此文件。
+本文件记录实际新增的文章内链关系，现有矩阵和日志以历史臻彩文章为主，不是所有文章的推荐清单。相关性优先于数量；非臻彩主题无需链接臻彩文章，也无需为凑回链改旧文。
 
 ## 当前内链矩阵
 
@@ -116,25 +116,9 @@
 <p>详见我们的<a href={localizedPath(locale, '/blog/what-are-prestige-chromas/')}>臻彩专题</a>。</p>
 ```
 
-## 新文章内链模板
+## 非臻彩文章示例
 
-新增文章时，复制以下模板并填写：
-
-```markdown
-### 新文章内链计划
-
-**文章 slug**: your-new-slug
-**文章类型**: [入门 / 英雄专题 / 数据分析 / 版本更新 / 概念解释]
-
-**出站链接（正文中至少 2 条）**:
-1. → [slug] 锚文字 EN: "..." / ZH: "..."  位置: [段落描述]
-2. → [slug] 锚文字 EN: "..." / ZH: "..."  位置: [段落描述]
-3. → [slug] 锚文字 EN: "..." / ZH: "..."  位置: [FAQ]
-
-**需要回改的已有文章（至少 2 篇）**:
-1. [slug] 插入位置: [段落描述]  锚文字 EN: "..." / ZH: "..."
-2. [slug] 插入位置: [段落描述]  锚文字 EN: "..." / ZH: "..."
-```
+云顶棋盘活动可以链接[棋盘目录](/tft/arenas/)或同系列往期活动。端游赛事文章只有在解释同一赛事、战队或纪录时才引用相关旧文；没有合适的目标就不加。正文与 FAQ 适用同一准则。
 
 ## 更新日志
 
@@ -163,4 +147,4 @@
 - 2026-11-06: 新增 `joy-club-peak-gala-202610`（第 202610 期心悦巅峰盛典活动资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、joy-club-peak-gala-202609（正文，上一期+往期活动表格）、patch-26-19-prestige-chromas（正文，奖励臻彩所属版本批次）与 full-gift-reward-prestige-chroma-202608（正文，并行的另一消费活动）；从 joy-club-peak-gala-202609（什么是心悦巅峰盛典段落，中英各一条下一期预告）与 patch-26-19-prestige-chromas（踏雪寻梅四款新配色段落，中英各一条获取出处）回链本页
 - 2026-10-16: 新增 `prestige-chroma-summon-2026-22`（璀璨臻彩召唤第 202622 期资讯），正文链向 what-are-prestige-chromas（正文两处+FAQ）、brilliant-prestige-chroma-summoning-guide（正文）与 prestige-chroma-summon-2026-21（往期活动段落+往期活动表格）；从 brilliant-prestige-chroma-summoning-guide（当前期指针、示例正文与历史表格，中英各多条）与 prestige-chroma-summon-2026-21（往期活动段落，中英各一条新一期预告）回链本页
 - 2026-11-06: 新增 `patch-26-22-prestige-chromas`（26.22 版本臻彩资讯），正文链向 what-are-prestige-chromas（正文+FAQ）、patch-26-19-prestige-chromas（正文，上一批次）与 champion-most-prestige-chromas（正文，排行榜影响）；从 patch-26-19-prestige-chromas（26.22 版本概览段落，中英各一条最新批次指引）与 what-are-prestige-chromas（设计理念段落，中英各一条）回链本页
-- 2026-11-15: 新增 `worlds-2026-blg-champion-memes`（BLG 2026 全球总决赛夺冠与 16 张图片、含 2 张动图的粉丝二创盘点），正文链向 what-is-league-of-legends（冠军与纪录段落）与 patch-26-22-prestige-chromas（官方画面与粉丝二创段落），FAQ 另链 what-is-league-of-legends、what-are-prestige-chromas 与 patch-26-22-prestige-chromas；从 patch-26-22-prestige-chromas（26.22 版本概览段落，中英各一条）与 what-is-league-of-legends（持续进化的游戏段落，中英各一条）回链本页
+- 2026-11-15: 新增 `worlds-2026-blg-champion-memes`（BLG 2026 全球总决赛夺冠与粉丝二创盘点）。现保留正文到 `what-is-league-of-legends` 的赛事入门链接，以及该文「持续进化的游戏」段落的双语回链；赛事稿与臻彩稿不做正文互链。

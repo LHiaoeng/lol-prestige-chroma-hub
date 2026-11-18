@@ -208,11 +208,11 @@ const faqEntries = isZh ? [
   },
   {
     question: '为什么说 Knight 终结了韩国中单的纪录？',
-    answer: '自 SKT 在 2013 年夺冠起，冠军中单连续 13 届由韩国选手包揽。Knight 随 BLG 夺冠后成为首位中国冠军中单，赛后梗图把这件事概括为「终结王朝」。同期版本资讯见<a href="' + localizedPath(locale, '/blog/patch-26-22-prestige-chromas/') + '">26.22 版本新增臻彩</a>。',
+    answer: '自 SKT 在 2013 年夺冠起，冠军中单连续 13 届由韩国选手包揽。Knight 随 BLG 夺冠后成为首位中国冠军中单，赛后梗图把这件事概括为「终结王朝」。',
   },
   {
     question: '这些梗图是官方发布的吗？',
-    answer: '本文图片多为网络流传的现场照片或粉丝二创，作者与原始出处难以确认，也不代表官方立场。英雄池那张的对比图确实由官方英文流在 TES 对阵 HLE 赛前发布，但把它继续加工成梗的是社区，照片本身也来自观众看台。想先了解赛事与游戏基础，可阅读<a href="' + localizedPath(locale, '/blog/what-is-league-of-legends/') + '">《英雄联盟》入门</a>；想了解本站常写的臻彩，可阅读<a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">什么是臻彩</a>。',
+    answer: '本文图片多为网络流传的现场照片或粉丝二创，作者与原始出处难以确认，也不代表官方立场。英雄池那张的对比图确实由官方英文流在 TES 对阵 HLE 赛前发布，但把它继续加工成梗的是社区，照片本身也来自观众看台。',
   },
 ] : [
   {
@@ -221,11 +221,11 @@ const faqEntries = isZh ? [
   },
   {
     question: 'Why does Knight\'s title matter?',
-    answer: 'Since SKT won in 2013, 13 straight World Championships went to Korean mid laners. Knight is the first Chinese mid laner to win the title, and post-final memes framed it as &ldquo;ending the dynasty&rdquo;. For the same week\'s patch, see <a href="' + localizedPath(locale, '/blog/patch-26-22-prestige-chromas/') + '">Patch 26.22\'s seven prestige chromas</a>.',
+    answer: 'Since SKT won in 2013, 13 straight World Championships went to Korean mid laners. Knight is the first Chinese mid laner to win the title, and post-final memes framed it as &ldquo;ending the dynasty&rdquo;.',
   },
   {
     question: 'Are these memes official?',
-    answer: 'Mostly no. Most images here are crowd photos or fan edits circulating online, with creators and sources that are difficult to confirm, and they do not represent an official position. The champion-pool comparison was indeed posted by the official English broadcast before TES vs HLE, but the meme treatment came from the community, and the photo itself was taken from the stands. For game and tournament basics, read our <a href="' + localizedPath(locale, '/blog/what-is-league-of-legends/') + '">League of Legends introduction</a>; for the site\'s usual subject, read <a href="' + localizedPath(locale, '/blog/what-are-prestige-chromas/') + '">what prestige chromas are</a>.',
+    answer: 'Mostly no. Most images here are crowd photos or fan edits circulating online, with creators and sources that are difficult to confirm, and they do not represent an official position. The champion-pool comparison was indeed posted by the official English broadcast before TES vs HLE, but the meme treatment came from the community, and the photo itself was taken from the stands.',
   },
 ];
 
@@ -427,10 +427,8 @@ const jsonLd = [
       <h2>{isZh ? '决赛：BLG 3-1 GEN，Knight 终结王朝' : 'The final: BLG 3-1 GEN, Knight ends the dynasty'}</h2>
       {isZh ? <>
         <p>决赛 BLG 3-1 拿下 GEN，奖杯落地的同时，那张「终结王朝」也被顶上来了：BLG 夺得 S16 全球总决赛冠军，Knight 成为 S3 以来首位中国冠军中单，打破韩国中单十三连冠的纪录。</p>
-        <p>赛事期间国服更新到 26.22 版本，新增 7 款臻彩，可在<a href={localizedPath(locale, '/blog/patch-26-22-prestige-chromas/')}>26.22 版本臻彩文章</a>查看原画与版本说明。</p>
       </> : <>
         <p>BLG closed out GEN 3-1, and the &ldquo;ending the dynasty&rdquo; edit arrived with the trophy: BLG won the S16 World Championship, and Knight became the first Chinese mid laner since S3 to take the title, breaking a run of 13 straight Korean mid champions.</p>
-        <p>The China Server was on Patch 26.22 during the event, which added seven prestige chromas; see the <a href={localizedPath(locale, '/blog/patch-26-22-prestige-chromas/')}>Patch 26.22 prestige chroma article</a> for the artwork and patch details.</p>
       </>}
       <div class="meme-grid meme-grid--single">
         {['knight-ends-dynasty'].map((key) => (
