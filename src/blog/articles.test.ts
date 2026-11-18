@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { adjacentBlogArticles, articleHref, blogArticles, blogArticlesNewestFirst, formatBlogDate } from './articles';
+import { adjacentBlogArticles, articleHref, blogArticles, blogArticlesNewestFirst, blogCategoryLabels, formatBlogDate } from './articles';
 
 describe('blog article metadata', () => {
+  it('labels editorial categories in both languages', () => {
+    expect(blogCategoryLabels).toEqual({
+      news: { zh: '资讯', en: 'NEWS' },
+      guide: { zh: '指南', en: 'GUIDE' },
+      analysis: { zh: '分析', en: 'ANALYSIS' },
+      spotlight: { zh: '专题', en: 'SPOTLIGHT' },
+    });
+  });
+
   it('formats ISO publication dates consistently in both languages', () => {
     expect(formatBlogDate('2026-07-20', 'en')).toBe('July 20, 2026');
     expect(formatBlogDate('2026-07-20', 'zh')).toBe('2026年7月20日');

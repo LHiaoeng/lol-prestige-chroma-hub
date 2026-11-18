@@ -1,6 +1,8 @@
 # LoL Chroma Art
 
-面向海外用户、以英文为默认语言的《英雄联盟》国服臻彩原画图鉴，定位语为 **China-Exclusive Chroma Splash Art Archive**。这里的“中国服专属”限定的是中国大陆服为臻彩单独提供的臻彩原画，不表示对应炫彩一定仅限中国大陆服。英文使用现有无前缀 URL，简体中文使用 `/zh-cn/` 独立静态 URL。Astro 在构建时读取 `data/prestige-chromas.json`，生成双语静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
+LoL Chroma Art 是《英雄联盟》《云顶之弈》和《英雄联盟手游》的内容聚合站，整理可查的游戏资料、值得关注的版本与活动，以及编辑文章。国服臻彩原画图鉴是本站的核心板块之一；“中国服专属”描述的是原画，不表示对应炫彩一定仅限中国大陆服。
+
+英文是默认语言，使用无前缀 URL；简体中文使用 `/zh-cn/` 独立静态 URL。Astro 在构建时读取 `data/prestige-chromas.json`，生成双语静态首页、详情页、博客和 SEO 文件，再由 Cloudflare Worker 仅托管 `dist/` 静态资产。站点没有运行时数据库或数据接口。
 
 臻彩原画（Prestige Chroma Splash Art）是国服将炫彩升级为臻彩后单独提供的原画；炫彩本身并不天然拥有独立原画。站内将“臻彩”译作 `Prestige Chroma`，但不将其描述为传统 `Prestige Skin`。
 

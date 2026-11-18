@@ -16,8 +16,8 @@ const isZh = locale === 'zh-cn';
 const firstChroma = catalog.reduce((lowest, item) => item.rank < lowest.rank ? item : lowest);
 const jadeSwordChroma = catalog.find((item) => item.nameZh === '玉剑传说 无极 白虎');
 
-const title = isZh ? '关于 LoL Chroma Art — 独立臻彩原画图鉴 | LoL Chroma Art' : 'About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art';
-const description = isZh ? 'LoL Chroma Art 是由 LoL Chroma Art 编辑团队维护的独立爱好者图鉴，收录《英雄联盟》中国服臻彩专属原画。了解建站缘起、收录范围、编辑原则、资料来源与纠错流程。' : 'LoL Chroma Art is an independent fan archive maintained by the LoL Chroma Art Editorial Team, cataloging China-Exclusive Prestige Chroma splash arts for League of Legends. Learn about our editorial principles, sources, and correction process.';
+const title = isZh ? '关于 LoL Chroma Art' : 'About LoL Chroma Art';
+const description = isZh ? 'LoL Chroma Art 整理《英雄联盟》《云顶之弈》和《英雄联盟手游》的游戏资料、版本与活动内容。了解臻彩原画图鉴、收录范围和编辑原则。' : 'LoL Chroma Art covers League of Legends, Teamfight Tactics, and League of Legends: Wild Rift through game references and coverage of patches and events. Learn about our Prestige Chroma Splash Art Archive and editorial principles.';
 const canonical = new URL(localizedPath(locale, '/about/'), SITE.origin).toString();
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const jsonLd = {
@@ -39,14 +39,14 @@ const jsonLd = {
   ]} />
   {!isZh && <article class="about-page">
     <h1>About LoL Chroma Art</h1>
-    <p>LoL Chroma Art is an independent fan archive cataloging standalone Prestige Chroma splash arts from the League of Legends China Server. It is maintained by the LoL Chroma Art Editorial Team — independent fans, not Riot Games or Tencent.</p>
+    <p>LoL Chroma Art brings together game references and articles about League of Legends, Teamfight Tactics, and League of Legends: Wild Rift. The Prestige Chroma Splash Art Archive is one of our core collections. The site is maintained by the LoL Chroma Art Editorial Team — independent fans, not Riot Games or Tencent.</p>
     <p class="editorial-meta"><span>Maintained by the LoL Chroma Art Editorial Team</span><span>Last reviewed: August 25, 2026</span></p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     </figure>
 
     <section>
-      <h2>Why this archive exists</h2>
+      <h2>How the site began</h2>
       <p>A chroma splash art is a unique splash artwork created for a specific chroma. Most chromas reuse their base skin's splash art and do not have one of their own. The China Server, operated by Tencent, produces dedicated splash arts for selected prestige chromas that are not available on the Global Server — these are the artworks this archive collects.</p>
       <p>{CHINA_EXCLUSIVE_DEFINITION.en}</p>
       <p>The archive launched in July 2026 to give players a single place to browse, identify, and compare every China-Exclusive chroma splash art. Each entry records the chroma name, base skin, patch, category, and artwork — verified against first-party sources before publication.</p>
@@ -56,7 +56,8 @@ const jsonLd = {
     </section>
 
     <section>
-      <h2>What the archive covers</h2>
+      <h2>What we cover</h2>
+      <p>We organize reference entries by game. Even when two games share a skin name or splash art, each game has its own entry. We cover selected patches and events rather than tracking every announcement, and articles may discuss more than one game.</p>
       <p>LoL Chroma Art uses <em>Prestige Chroma</em> as the English label for the Chinese 臻彩 category. A Prestige Chroma is still a chroma of an existing skin, not a traditional Prestige Skin. The catalog may also include chroma splash arts from other categories, and focuses on identifying each chroma, its base skin, patch, category, and unique artwork.</p>
       <p>The archive records the patch associated with each entry and adds new chroma splash arts when verified source data becomes available. A patch or event date records when a source associated an item with that release — it does not promise that the item is currently obtainable. For current purchase requirements, players should consult the active Chinese server event or store information.</p>
     </section>
@@ -119,7 +120,7 @@ const jsonLd = {
 
   {isZh && <article class="about-page">
     <h1>关于 LoL Chroma Art</h1>
-    <p>LoL Chroma Art 是独立的爱好者图鉴，收录《英雄联盟》中国服（China Server）为臻彩单独提供的专属原画。由 LoL Chroma Art 编辑团队维护——我们是独立爱好者，不是 Riot Games 或腾讯。</p>
+    <p>LoL Chroma Art 聚合《英雄联盟》《云顶之弈》和《英雄联盟手游》的游戏资料与文章，臻彩原画图鉴是本站的核心板块之一。本站由 LoL Chroma Art 编辑团队维护，我们是独立爱好者，不是 Riot Games 或腾讯。</p>
     <p class="editorial-meta"><span>维护主体：LoL Chroma Art 编辑团队</span><span>最近核验：2026 年 8 月 25 日</span></p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
@@ -127,7 +128,7 @@ const jsonLd = {
 
     <section>
       <h2>建站缘起</h2>
-      <p>炫彩原画是为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。由腾讯运营的中国服会为部分臻彩提供 Global Server 上看不到的专属原画——这些就是本站收录的内容。</p>
+      <p>炫彩原画是为特定炫彩单独创作的原画；炫彩并不天然拥有独立原画。由腾讯运营的《英雄联盟》中国服会为部分臻彩提供直营服没有的专属原画，这些原画是本站建立图鉴的起点。</p>
       <p>{CHINA_EXCLUSIVE_DEFINITION.zh}</p>
       <p>图鉴于 2026 年 7 月上线，目标是让玩家在一个地方浏览、识别和比较每一张中国服专属臻彩原画。每条记录包含炫彩名称、基础皮肤、版本、分类和原画——发布前均与第一方来源核对。</p>
       {jadeSwordChroma && <figure class="about-art">
@@ -137,6 +138,7 @@ const jsonLd = {
 
     <section>
       <h2>收录范围</h2>
+      <p>目录条目按游戏分别记录，即使不同游戏有同名皮肤或共用原画，也不会合为一条。本站选取值得关注的版本与活动，不追踪每条公告；文章可以同时讨论多款游戏。</p>
       <p>本站将"臻彩"译作 <em>Prestige Chroma</em>。臻彩仍是现有皮肤的炫彩，并非传统至臻皮肤；本站也可能收录其他分类的炫彩原画，重点记录炫彩名称、基础皮肤、版本、分类和独立原画。</p>
       <p>图鉴记录每条藏品对应的游戏版本，并在获得可靠数据后更新。版本或活动日期表示资料将条目与该次发布关联，并不保证当前仍可获取；当前获取条件应以中国服正在进行的活动或商城信息为准。</p>
     </section>

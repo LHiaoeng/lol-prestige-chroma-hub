@@ -102,13 +102,13 @@ describe("static site build", () => {
     expect(home).not.toContain("/api/chromas");
     expect(home).not.toContain("prestige-chromas.json");
     expect(home).toContain(
-      "<title>LoL Prestige Chromas &amp; PBE Additions | LoL Chroma Art</title>",
+      "<title>League of Legends, Teamfight Tactics &amp; Wild Rift Content Hub | LoL Chroma Art</title>",
     );
     expect(home).toContain(
       '<meta property="og:site_name" content="LoL Chroma Art">',
     );
     expect(home).toContain(
-      '<meta name="twitter:title" content="LoL Prestige Chromas &amp; PBE Additions | LoL Chroma Art">',
+      '<meta name="twitter:title" content="League of Legends, Teamfight Tactics &amp; Wild Rift Content Hub | LoL Chroma Art">',
     );
     expect(home).toContain("League of Legends");
     expect(home).toContain("China-server prestige chroma splash arts");
@@ -972,6 +972,30 @@ describe("static site build", () => {
     expect(chinese).toContain('"@type":"BreadcrumbList"');
   });
 
+  it("describes the three-game blog in both languages and on paginated pages", () => {
+    const locales = [
+      { prefix: "", name: "Game News &amp; Guides", page: "Page 2", games: "League of Legends, Teamfight Tactics, and Wild Rift" },
+      { prefix: "zh-cn", name: "游戏资讯与指南", page: "第 2 页", games: "《英雄联盟》《云顶之弈》与《英雄联盟手游》" },
+    ];
+    for (const { prefix, name, page, games } of locales) {
+      const index = readFileSync(join(dist, prefix, "blog", "index.html"), "utf8");
+      const pageTwo = readFileSync(join(dist, prefix, "blog", "page", "2", "index.html"), "utf8");
+      expect(index).toContain(`<title>${name} | LoL Chroma Art</title>`);
+      expect(pageTwo).toContain(`<title>${name} — ${page} | LoL Chroma Art</title>`);
+      for (const html of [index, pageTwo]) {
+        expect(html).toContain(`${name}</h1>`);
+        expect(html).toMatch(new RegExp(`<meta name="description" content="[^"]*${games}`));
+      }
+    }
+  });
+
+  it("identifies the blog as fan-run without implying official affiliation", () => {
+    const english = readFileSync(join(dist, "blog", "index.html"), "utf8");
+    const chinese = readFileSync(join(dist, "zh-cn", "blog", "index.html"), "utf8");
+    expect(english).toContain("LoL Chroma Art is an independent fan-run site and is not affiliated with or endorsed by Riot Games or Tencent.");
+    expect(chinese).toContain("LoL Chroma Art 由爱好者独立维护，与 Riot Games 或腾讯不存在关联，也未获得其认可。");
+  });
+
   it("uses factual informational SEO copy", () => {
     const home = readFileSync(join(dist, "index.html"), "utf8");
     const chineseHome = readFileSync(join(dist, "zh-cn", "index.html"), "utf8");
@@ -980,14 +1004,17 @@ describe("static site build", () => {
       join(dist, "zh-cn", "about", "index.html"),
       "utf8",
     );
-    expect(home).toContain("Artwork exclusivity does not imply chroma exclusivity.");
+    expect(home).toContain("China-server prestige chroma splash arts");
+    expect(home).not.toContain('"alternateName":"China-Exclusive Chroma Splash Art Archive"');
     expect(home).not.toContain(
       "“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。",
     );
-    expect(chineseHome).toContain("中国大陆服特有的是臻彩原画，不代表臻彩仅限国服。");
+    expect(chineseHome).toContain("<title>英雄联盟、云顶之弈与英雄联盟手游内容聚合站 | LoL Chroma Art</title>");
+    expect(chineseHome).toContain("浏览国服臻彩原画、皮肤目录和云顶之弈外观");
     expect(about).toContain(
-      "<title>About LoL Chroma Art — Independent Chroma Splash Art Archive | LoL Chroma Art</title>",
+      "<title>About LoL Chroma Art</title>",
     );
+    expect(about).toContain("League of Legends, Teamfight Tactics, and League of Legends: Wild Rift");
     expect(about).toContain(
       "“China Exclusive” describes the standalone Prestige Chroma splash art provided on the League of Legends China Server—not necessarily the regional availability of the chroma itself.",
     );
@@ -995,8 +1022,9 @@ describe("static site build", () => {
       "“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。",
     );
     expect(chineseAbout).toContain(
-      "<title>关于 LoL Chroma Art — 独立臻彩原画图鉴 | LoL Chroma Art</title>",
+      "<title>关于 LoL Chroma Art</title>",
     );
+    expect(chineseAbout).toContain("《英雄联盟》《云顶之弈》和《英雄联盟手游》");
     expect(chineseAbout).toContain(
       "“中国服专属”指中国大陆服为臻彩单独提供的臻彩原画，并不表示对应炫彩一定仅限中国大陆服。",
     );
@@ -1144,7 +1172,7 @@ describe("static site build", () => {
     expect(chineseHome).toContain(
       '<link rel="canonical" href="https://chromaart.lol/zh-cn/">',
     );
-    expect(chineseHome).toContain("英雄联盟中国大陆服");
+    expect(chineseHome).toContain("英雄联盟、云顶之弈与英雄联盟手游内容聚合站");
     expect(chineseHome).toContain('data-ad-boundary="catalog-index"');
     expect(chineseHome).toContain('data-ad-provider="adsterra"');
     expect(chineseHome).not.toContain('data-language-content="en"');

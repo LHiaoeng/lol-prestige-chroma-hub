@@ -4,9 +4,9 @@ export type BlogCategory = 'news' | 'guide' | 'analysis' | 'spotlight';
 
 export const blogCategoryLabels: Record<BlogCategory, { zh: string; en: string }> = {
   news: { zh: '资讯', en: 'NEWS' },
-  guide: { zh: '科普', en: 'GUIDE' },
-  analysis: { zh: '数据', en: 'DATA' },
-  spotlight: { zh: '图鉴', en: 'SPOTLIGHT' },
+  guide: { zh: '指南', en: 'GUIDE' },
+  analysis: { zh: '分析', en: 'ANALYSIS' },
+  spotlight: { zh: '专题', en: 'SPOTLIGHT' },
 };
 
 export interface BlogArticle {

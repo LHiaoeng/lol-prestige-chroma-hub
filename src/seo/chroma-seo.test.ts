@@ -10,20 +10,22 @@ describe('site SEO', () => {
     expect(SITE).toMatchObject({
       name: 'LoL Chroma Art',
       origin: 'https://chromaart.lol',
-      tagline: 'China-Exclusive Chroma Splash Art Archive',
+      tagline: {
+        en: 'League of Legends, Teamfight Tactics & Wild Rift Content Hub',
+        'zh-cn': '英雄联盟、云顶之弈与英雄联盟手游内容聚合站',
+      },
     });
-    expect(HOME_SEO.title).toBe('LoL Prestige Chromas & PBE Additions | LoL Chroma Art');
-    expect(HOME_SEO.description).toContain('Browse China-server prestige chroma splash arts and League of Legends PBE additions');
-    expect(HOME_SEO.description).toContain('champions, skinlines, and universes');
-    expect(HOME_SEO.description).toContain('Artwork exclusivity does not imply chroma exclusivity');
+    expect(HOME_SEO.title).toBe('League of Legends, Teamfight Tactics & Wild Rift Content Hub | LoL Chroma Art');
+    expect(HOME_SEO.description).toContain('China-server prestige chroma splash arts');
+    expect(HOME_SEO.description).toContain('PBE additions, patches, and events');
     expect(HOME_SEO.jsonLd).toEqual(expect.arrayContaining([
       expect.objectContaining({
         '@type': 'WebSite',
         name: 'LoL Chroma Art',
-        alternateName: 'China-Exclusive Chroma Splash Art Archive',
       }),
       expect.objectContaining({ '@type': 'CollectionPage' }),
     ]));
+    expect(HOME_SEO.jsonLd.find((item) => item['@type'] === 'WebSite')).not.toHaveProperty('alternateName');
   });
 
   it('defines China Exclusive as an artwork property, not a chroma availability claim', () => {

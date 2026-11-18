@@ -1,6 +1,6 @@
 ---
 name: blog-article
-description: 为博客系统新增中英双语文章。涵盖元数据注册、Astro 页面编写、SEO 结构化数据、测试更新与构建验证。当用户要求新增博客文章、博文或 blog post 时使用。
+description: 为《英雄联盟》《云顶之弈》或《英雄联盟手游》新增中英双语博客文章，涵盖元数据、Astro 页面、SEO、测试与构建验证。用户要求新增博文或改写新闻为站内文章时使用。
 ---
 
 # 新增博客文章
@@ -9,8 +9,8 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 
 ## 触发与前置
 
-- **最高优先级**：先读取 `GLOSSARY.md`，确认“臻彩”“璀璨臻彩”“华彩秘宝”“至臻皮肤”等领域术语和 `_Avoid_` 表述；所有后续写作与数据核对都以它为准。
-- 用户要求新增博客、博文、新闻改写或文章页面时触发。
+- 先读取 [术语表](../../../GLOSSARY.md) 的「内容聚合」「游戏归属」「文章类型」，再查本文涉及的术语与 `_Avoid_`。博客有选择地报道三款游戏的版本、活动、指南和专题；臻彩原画是核心主题之一，不是每篇文章的前提。
+- 分别确定文章涉及的游戏和编辑类型。跨游戏文章可同时讨论多款游戏；标题、正文和来源须明确每条事实所属的游戏，不能因皮肤同名或共用原画就混用资料。新闻与活动核对对应游戏的官方来源。
 - 提供 `lol.qq.com` 新闻链接时，先使用 `league-of-legends-cn-official-news` 或 `lol-news-detail` skill 获取标题、发布时间、正文和图片；不得凭链接猜正文。
 - 撰写「璀璨臻彩召唤」（Brilliant Prestige Chroma Summoning，官方活动类型标识 `tendraws`）活动文章时，先使用 `tendraws-activity-list` skill 核对当期活动目录 ID、期号、完整活动链接、导航缩略图 URL、开放时间与奖池概率，并获取往期活动链接；不要凭记忆或 URL 规律猜测期号与链接。
 - 撰写「幸运之门召唤」（Lucky Gate Summoning，官方活动 URL 标识 `prizewheel`）活动文章时，先使用 `lucky-gate-activity-list` skill 核对当期活动目录 ID、期号、完整活动链接、导航缩略图 URL 与开放时间，并获取往期活动链接；不要凭记忆或 URL 规律猜测期号与链接。
@@ -26,7 +26,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 2. `src/pages/blog/{slug}.astro`，同时渲染英文和中文内容块，并向 `BaseLayout` 传入 `image`、`ogType="article"`、`publishedTime`、`modifiedTime`、`jsonLd`；`BaseLayout` 据此自动输出 canonical、hreflang(en/zh-CN/x-default)、Open Graph、`article:published_time` / `article:modified_time`、Twitter summary_large_image 和 JSON-LD `<script>`。文章自己在 `jsonLd` 数组里放 `BlogPosting`、`BreadcrumbList`、`FAQPage` 和视文章类型追加的 `ItemList`/`HowTo`/`WebPage`。只要页面有 FAQ 段落就必须带 `FAQPage`；FAQ 问答统一为双语 `faqEntries` 数组，同一份数据既渲染正文 `<details>` 也驱动 `FAQPage.mainEntity`，避免手写两套。
 3. `src/pages/zh-cn/blog/{slug}.astro` 只做包装：`import Article` 与 `<Article locale="zh-cn" />`。
 4. `scripts/blog-feature.test.ts` 的页面契约和 `scripts/site-build.test.ts` 的路由/产物回归；必要时更新 `src/blog/articles.test.ts` 的数量与排序断言。
-5. 至少两条正文内链、FAQ 中一条基础文章内链，并在 `references/internal-links.md` 和至少两篇相关旧文中回链新文章。
+5. 有相关旧文时，正文至少加入两条相关内链、FAQ 加入一条基础文章内链，并从至少两篇相关旧文回链；同游戏或同主题旧文不足时，仅加入实际相关的链接。把新增关系记入 `references/internal-links.md`。
 
 条件交付：
 
@@ -37,7 +37,7 @@ description: 为博客系统新增中英双语文章。涵盖元数据注册、A
 
 ## 元数据与页面结构
 
-元数据至少包含：`slug`、`href`、`titleEn`、`titleZh`、`summaryEn`、`summaryZh`、`publishedAt`、`readingMinutes`、`coverUrl`、`coverAltEn`、`coverAltZh`。标题和摘要要能独立说明文章价值，不把英文翻译腔带入中文。
+元数据至少包含：`slug`、`href`、`titleEn`、`titleZh`、`summaryEn`、`summaryZh`、`publishedAt`、`readingMinutes`、`coverUrl`、`coverAltEn`、`coverAltZh`、`category`。按编辑用途选择现有类型：资讯 `news`、指南 `guide`、分析 `analysis`、专题 `spotlight`；游戏名不填入 `category`，不为单篇文章新增游戏字段或筛选。标题和摘要要能独立说明文章价值，不把英文翻译腔带入中文。
 
 页面 frontmatter 通常需要：
 
@@ -64,6 +64,7 @@ import { SITE } from '../../seo/site';
 ## 内容组件与样式边界
 
 - 目录臻彩原画的大图说明可沿用文章自己的 `showcase`/`figure`，但目录卡片网格必须使用 `BlogChromaGrid` + `BlogPrestigeChromaCard`，接口和示例见 `references/chroma-grid.md`。
+- 臻彩组件、目录数据和召唤活动流程仅用于对应的端游臻彩内容；其他游戏文章使用与主题匹配的资料和组件。
 - 不在文章页面复制臻彩卡片 HTML、颜色圆点、图片回退、详情链接或 `.chroma-grid`/`.chroma-card-*` CSS。共享组件统一处理 3/6 列、移动端两列、`padding: 0`、颜色圆点、catalog 图片回退、双语 alt、详情链接与未收录奖励的占位卡。
 - 文章页面只维护文章壳层、表格、FAQ、官方来源和该文章独有的布局。通用列表规则不得重新给 `.chroma-grid` 添加左内边距；共享网格使用更高优先级的 `padding: 0`。
 - `BlogPrestigeChromaCard` 的 `chroma` 缺省时必须同时提供 `labelEn` 与 `labelZh`，用于公告提到但尚未进入目录的奖励；不要伪造详情链接。

@@ -1,4 +1,4 @@
 interface:
   display_name: "博客文章"
-  short_description: "新增符合项目规范的中英双语博客文章"
-  default_prompt: "Use $blog-article to add a bilingual blog article following this project's SEO and testing requirements."
+  short_description: "为英雄联盟、云顶之弈或英雄联盟手游新增双语博文"
+  default_prompt: "Use $blog-article to add a bilingual article about League of Legends, Teamfight Tactics, or Wild Rift."

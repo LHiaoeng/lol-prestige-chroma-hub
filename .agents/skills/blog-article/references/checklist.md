@@ -4,6 +4,7 @@
 
 - [ ] `src/blog/articles.ts` 在头部新增条目，slug 全小写连字符，href 为 `/blog/{slug}/`
 - [ ] 中英文标题、摘要、封面 alt、阅读时长已填写；`publishedAt` 为完整 ISO 时间
+- [ ] `category` 按文章类型填写；标题、正文和来源明确对应游戏，跨游戏内容分别核对
 - [ ] `src/pages/blog/{slug}.astro` 与 `src/pages/zh-cn/blog/{slug}.astro` 均已创建
 - [ ] 中文页只有 Article 导入和 `<Article locale="zh-cn" />`
 - [ ] 文章元数据按发布时间从新到旧排列
@@ -19,7 +20,7 @@
 - [ ] 首图 eager，其余图片 lazy；图片有 `alt`、`data-alt-en`、`data-alt-zh`、`data-fallback`、`data-placeholder`、宽高
 - [ ] 外部链接使用 `target="_blank" rel="noreferrer"`
 
-## 臻彩展示组件
+## 臻彩展示组件（仅含目录臻彩卡片时）
 
 - [ ] 目录卡片网格使用 `BlogChromaGrid` + `BlogPrestigeChromaCard`，没有手写重复卡片 HTML
 - [ ] 活动专属名称/碎片数通过 `labelEn` 与 `labelZh` 传入，而不是在卡片中复制图片、颜色圆点或链接代码
@@ -33,13 +34,13 @@
 - [ ] 官网新闻/活动只写公告确认的事实；概率、结束时间、可用性等不确定信息已明确标注并链接官方页
 - [ ] 常青指南才登记 `src/blog/evergreen-guides.ts`；新闻/活动文章不强行加入维护数据
 - [ ] 常青指南渲染 `ArticleMaintenance`，双语可见作者、来源、最后核验日期、纠错入口和两条相关指南
-- [ ] 至少两条文章内链、一条 FAQ 基础文章内链；至少两篇旧文已回链新文；内链矩阵已更新
+- [ ] 按主流程检查同游戏或同主题内链与回链；只记录实际相关的链接，新增关系已记入内链矩阵
 
 ## 测试与验证
 
 - [ ] `src/blog/articles.test.ts` 的数量/顺序断言已更新（如受影响）
 - [ ] `scripts/blog-feature.test.ts` 覆盖页面结构、共享臻彩组件和官方来源（如适用）
-- [ ] `scripts/site-build.test.ts` 覆盖新英文/中文路由和共享网格 padding 回归
+- [ ] `scripts/site-build.test.ts` 覆盖新英文/中文路由；使用共享臻彩网格时检查 padding 回归
 - [ ] `pnpm typecheck`
 - [ ] `pnpm test`
 - [ ] `pnpm release:build`
