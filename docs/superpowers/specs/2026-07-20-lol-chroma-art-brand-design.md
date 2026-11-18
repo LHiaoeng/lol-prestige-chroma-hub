@@ -1,5 +1,7 @@
 # LoL Chroma Art 品牌与搜索实体消歧设计
 
+> 历史记录：本文的整站定位语、收录范围和站点别名已被取代。现行范围见 [README](../../../README.md)，首页 SEO 口径见 [国际化与多语言 SEO](../../国际化与多语言SEO.md)。
+
 ## 目标
 
 将站点品牌从 `CHROMA ART` 更新为 `LoL Chroma Art`，在保留 `https://chromaart.lol` 域名、暗色数字画廊视觉和现有目录定位的前提下，与 `chromaart.com` 的艺术教育品牌形成清晰区分。

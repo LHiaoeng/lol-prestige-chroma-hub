@@ -1,5 +1,7 @@
 # LoL Chroma Art Brand Implementation Plan
 
+> Historical plan: the site positioning and site alias in this plan have been superseded. See the [README](../../../README.md) and [current SEO guidance](../../国际化与多语言SEO.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rebrand the public site as `LoL Chroma Art` and align SEO, visible copy, terminology, tests, and authoritative documentation with the approved China-exclusive chroma splash-art positioning.

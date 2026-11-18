@@ -1471,6 +1471,8 @@ describe("static site build", () => {
       "utf8",
     );
     expect(privacy).toContain("<title>Privacy Policy | LoL Chroma Art</title>");
+    expect(privacy).toContain("LoL Chroma Art is a static, read-only site for game content.");
+    expect(chinesePrivacy).toContain("LoL Chroma Art 是一个静态、只读的游戏内容站。");
     expect(privacy).toContain("Adsterra currently provides display ads");
     expect(privacy).toContain("Google's information about partner sites");
     expect(privacy).toContain("Google AdSense");
@@ -1559,8 +1561,9 @@ describe("static site build", () => {
     );
     expect(notFound).not.toContain('rel="canonical"');
     expect(notFound).not.toContain("hreflang=");
-    expect(notFound).toContain('href="/"');
-    expect(notFound).toContain('href="/zh-cn/"');
+    expect(notFound).toContain('Page not found / <span lang="zh-CN">页面未找到</span>');
+    expect(notFound).toContain('href="/">Back to English home</a>');
+    expect(notFound).toContain('href="/zh-cn/" lang="zh-CN">返回中文首页</a>');
   });
 
   it("emits one image sitemap entry per canonical catalog page", () => {

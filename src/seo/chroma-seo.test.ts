@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { catalog } from '../data/catalog';
 import { chromaImageAlt, createChromaSeo } from './chroma-seo';
+import { createHomeSeo } from './home-seo';
 import * as siteSeo from './site';
 
-const { HOME_SEO, SITE } = siteSeo;
+const { SITE } = siteSeo;
 
 describe('site SEO', () => {
   it('defines the agreed home intent', () => {
@@ -15,17 +16,29 @@ describe('site SEO', () => {
         'zh-cn': '英雄联盟、云顶之弈与英雄联盟手游内容聚合站',
       },
     });
-    expect(HOME_SEO.title).toBe('League of Legends, Teamfight Tactics & Wild Rift Content Hub | LoL Chroma Art');
-    expect(HOME_SEO.description).toContain('China-server prestige chroma splash arts');
-    expect(HOME_SEO.description).toContain('PBE additions, patches, and events');
-    expect(HOME_SEO.jsonLd).toEqual(expect.arrayContaining([
+    const home = createHomeSeo('en');
+    expect(home.title).toBe('League of Legends, Teamfight Tactics & Wild Rift Content Hub | LoL Chroma Art');
+    expect(home.description).toContain('China-server prestige chroma splash arts');
+    expect(home.description).toContain('PBE additions, patches, and events');
+    expect(home.jsonLd).toEqual(expect.arrayContaining([
       expect.objectContaining({
         '@type': 'WebSite',
         name: 'LoL Chroma Art',
       }),
       expect.objectContaining({ '@type': 'CollectionPage' }),
     ]));
-    expect(HOME_SEO.jsonLd.find((item) => item['@type'] === 'WebSite')).not.toHaveProperty('alternateName');
+    expect(home.jsonLd.find((item) => item['@type'] === 'WebSite')).not.toHaveProperty('alternateName');
+  });
+
+  it.each([
+    ['en', 'en', 'https://chromaart.lol/'],
+    ['zh-cn', 'zh-CN', 'https://chromaart.lol/zh-cn/'],
+  ] as const)('keeps the %s home entities in the current locale', (locale, inLanguage, canonical) => {
+    const home = createHomeSeo(locale);
+    expect(home.canonical).toBe(canonical);
+    const [website, collection] = home.jsonLd;
+    expect(website).toMatchObject({ url: canonical, inLanguage });
+    expect(collection).toMatchObject({ url: canonical, inLanguage, isPartOf: { '@id': website['@id'] } });
   });
 
   it('defines China Exclusive as an artwork property, not a chroma availability claim', () => {

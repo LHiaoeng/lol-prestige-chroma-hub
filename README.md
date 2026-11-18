@@ -38,7 +38,7 @@ pnpm install
 pnpm data:validate
 ```
 
-`data/prestige-chromas.json` 是唯一目录数据源。首次没有数据时它是空数组；不要把完整 JSON 放入 `public/`。
+`data/prestige-chromas.json` 是臻彩原画目录的唯一数据源。首次没有数据时它是空数组；不要把完整 JSON 放入 `public/`。
 
 ### 开发模式（推荐日常使用）
 

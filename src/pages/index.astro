@@ -7,24 +7,15 @@ import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
-import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
-import { HOME_SEO, SITE } from '../seo/site';
+import { resolveLocale, type Locale } from '../i18n/config';
+import { createHomeSeo } from '../seo/home-seo';
+import { SITE } from '../seo/site';
 
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
-const isZh = locale === 'zh-cn';
-const tagline = SITE.tagline[locale];
-const title = isZh ? `${tagline} | ${SITE.name}` : HOME_SEO.title;
-const description = isZh
-  ? '浏览国服臻彩原画、皮肤目录和云顶之弈外观，查看 PBE 新增、版本动态与活动文章。'
-  : HOME_SEO.description;
-const canonical = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const { tagline, title, description, canonical, jsonLd } = createHomeSeo(locale);
 const backgroundChroma = selectFeaturedChroma(catalog);
 const socialImage = backgroundChroma ? imageUrl(backgroundChroma.images.large) : SITE.defaultImage;
-const jsonLd = isZh ? [
-  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: canonical, inLanguage: 'zh-CN' },
-  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: tagline, description, url: canonical, inLanguage: 'zh-CN' },
-] : HOME_SEO.jsonLd;
 ---
 
 <BaseLayout {title} {description} {canonical} image={socialImage} {jsonLd} {locale} adPlacement="catalog-index">
