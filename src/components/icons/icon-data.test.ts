@@ -15,4 +15,12 @@ describe('iconData', () => {
     expect(iconData('tft-arenas').body).toContain('scale(.85714)');
     expect(iconData('summary-actions').body).toContain('stroke-width="1.8"');
   });
+
+  it('renders both header game marks on the shared monochrome SVG canvas', () => {
+    for (const name of ['league-of-legends', 'teamfight-tactics'] as const) {
+      const icon = iconData(name);
+      expect(icon.viewBox).toBe('0 0 24 24');
+      expect(icon.body).toContain('fill="currentColor"');
+    }
+  });
 });

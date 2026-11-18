@@ -301,7 +301,8 @@ export function initSkinCatalog(
       input.disabled = disabled;
       input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle("ant-radio-button-wrapper-disabled", disabled);
     });
-    root.querySelectorAll<HTMLButtonElement>("[data-ant-dropdown-trigger], [data-runtime-channel], [data-catalog-rarity]")
+    root.querySelector<HTMLElement>("[data-ant-dropdown-trigger]")?.setAttribute("aria-disabled", String(disabled));
+    root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel], [data-catalog-rarity]")
       .forEach((button) => { button.disabled = disabled; });
   };
   setControlsDisabled(true);

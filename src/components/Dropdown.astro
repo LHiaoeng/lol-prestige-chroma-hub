@@ -2,12 +2,13 @@
 interface Props {
   id: string;
   placement?: 'bottomLeft' | 'bottomRight';
+  trigger?: 'hover' | 'click';
 }
 
-const { id, placement = 'bottomLeft' } = Astro.props;
+const { id, placement = 'bottomLeft', trigger = 'hover' } = Astro.props;
 ---
 
-<div class:list={['ant-dropdown', `ant-dropdown-placement-${placement}`]} data-ant-dropdown>
+<div class:list={['ant-dropdown', `ant-dropdown-placement-${placement}`]} data-ant-dropdown={trigger}>
   <slot name="trigger" />
   <div class="ant-dropdown-popup" data-ant-dropdown-popup hidden>
     <ul class="ant-dropdown-menu" id={id} role="menu">

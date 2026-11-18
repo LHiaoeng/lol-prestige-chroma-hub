@@ -48,9 +48,11 @@
 
 ## Agent skills
 
-### Frontend governance
+### 前端任务
 
-前端视觉、组件、页面布局或响应式改动：先读根目录 `DESIGN.md` 和 `docs/frontend-design.md`；新增页面、修改页面布局或响应式时再读 `docs/page-templates.md`，落实页面骨架与响应式验收。复刻或调整 Antdv Next 组件时必须执行 `docs/antdv-next-component-replication.md` 的源码比对与验收流程。定位受影响的组件、静态与动态消费者，并在完成前检查适用状态和真实页面；字体或排版改动至少核对桌面与手机宽度下的中英文页面。纯数据或文案任务按需读取。
+- **组件契约**。新增或修改共享组件的 API、结构、默认样式、状态或交互时，动手前执行 [Antdv Next 组件复刻流程](docs/antdv-next-component-replication.md)。包括只改一个状态、图标或间距的任务。交付时列出上游源码依据、本站差异和实际验收结果。
+- **主题与视觉**。修改颜色、字体、尺寸、图标或动效时，先查 [DESIGN.md](DESIGN.md) 和 [前端规范](docs/frontend-design.md) 的相关段落。字体与排版至少检查中英文、桌面与手机。
+- **页面布局**。新增页面或修改布局、响应式时，按 [页面模板与验收](docs/page-templates.md) 检查实际页面。
 
 ### Issue tracker
 

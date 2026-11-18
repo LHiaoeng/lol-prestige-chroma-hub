@@ -328,15 +328,27 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   padding: 0 0 8px;
 }
 .ant-dropdown { position: relative; display: inline-block; }
+.ant-dropdown-text-trigger {
+  display: inline-flex;
+  min-height: var(--control-height-sm);
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  color: var(--gold);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ant-dropdown-text-trigger:hover { color: var(--gold-hover); }
+.ant-dropdown-text-trigger:active { color: var(--gold-active); }
+.ant-dropdown-text-trigger[aria-disabled="true"] { color: var(--disabled); cursor: not-allowed; }
 .ant-dropdown-trigger > img { display: block; flex: none; }
 .ant-dropdown-trigger > .domain-icon { width: 1em; height: 1em; color: inherit; flex: none; }
 .ant-dropdown-trigger .runtime-channel-icon { width: 1em; height: 1em; flex: 0 0 auto; }
 .ant-dropdown-trigger span:first-child { display: inline-flex; align-items: center; gap: 8px; }
 .ant-dropdown-trigger span:first-child > span:last-of-type { color: inherit; }
-.ant-dropdown-trigger .runtime-channel-chevron { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; transition: transform var(--motion-fast) ease; }
-.ant-dropdown-open .ant-dropdown-trigger .runtime-channel-chevron { transform: rotate(180deg); }
-.ant-dropdown-trigger .ant-dropdown-down-icon { display: block; width: var(--font-size-small); height: var(--font-size-small); flex: none; fill: currentColor; transition: transform var(--motion-mid) ease; }
-.ant-dropdown-open .ant-dropdown-down-icon { transform: rotate(180deg); }
+.ant-dropdown-down-icon { display: block; width: 1em; height: 1em; flex: none; fill: currentColor; }
 .ant-dropdown-popup {
   position: absolute;
   z-index: 1050;
@@ -351,6 +363,8 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 }
 .ant-dropdown-popup[hidden] { display: none; }
 .ant-dropdown-popup-above { transform-origin: bottom left; }
+.ant-dropdown[data-ant-dropdown="hover"] > .ant-dropdown-popup::before { content: ""; position: absolute; inset: -4px 0 auto; height: 4px; }
+.ant-dropdown[data-ant-dropdown="hover"] > .ant-dropdown-popup-above::before { inset: auto 0 -4px; }
 .ant-dropdown-placement-bottomRight .ant-dropdown-popup { right: 0; left: auto; transform-origin: top right; }
 .ant-dropdown-placement-bottomRight .ant-dropdown-popup-above { transform-origin: bottom right; }
 .ant-dropdown-menu {
@@ -395,23 +409,24 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .runtime-summary-action-icon { display: block; width: 18px; height: 18px; flex: none; }
 .runtime-summary-action-icon:last-child { width: 14px; height: 14px; margin-left: var(--space-2); }
 .runtime-media-carousel-download .project-icon { width: 16px; height: 16px; }
-.ant-dropdown-menu button:not(:disabled):not([aria-disabled="true"]):hover,
-.ant-dropdown-menu button:not(:disabled):not([aria-disabled="true"]):focus-visible,
-.ant-dropdown-menu a:not([aria-disabled="true"]):hover,
-.ant-dropdown-menu a:not([aria-disabled="true"]):focus-visible { background: var(--hover-bg); }
-.ant-dropdown-menu a[aria-current]:is(:hover, :focus-visible) { background: var(--selected-hover-bg); }
+.ant-dropdown-menu :is(button, a):not(:disabled):not([aria-disabled="true"]):is(:hover, :focus-visible) {
+  background: var(--hover-bg);
+  color: var(--gold-hover);
+}
 .ant-dropdown-menu button[aria-checked="true"] {
   background: var(--selected-bg);
   color: var(--gold);
   outline: none;
 }
-.ant-dropdown-menu button[aria-checked="true"]:hover,
-.ant-dropdown-menu button[aria-checked="true"]:focus-visible { background: var(--selected-hover-bg); }
+.ant-dropdown-menu :is(a[aria-current], button[aria-checked="true"]):not(:disabled):not([aria-disabled="true"]):is(:hover, :focus-visible) {
+  background: var(--selected-hover-bg);
+  color: var(--text);
+}
 .ant-dropdown-menu :is(button, a):disabled,
 .ant-dropdown-menu :is(button, a)[aria-disabled="true"] { color: var(--disabled); cursor: not-allowed; }
 .ant-dropdown-menu :is(button, a):is(:disabled, [aria-disabled="true"]):hover { background: transparent; }
-.ant-dropdown-menu :is(button, a).ant-dropdown-menu-item-danger { color: var(--danger); }
-.ant-dropdown-menu :is(button, a).ant-dropdown-menu-item-danger:not(:disabled):not([aria-disabled="true"]):hover { color: #fff; background: var(--danger); }
+.ant-dropdown-menu :is(button, a).ant-dropdown-menu-item-danger:not(:disabled):not([aria-disabled="true"]) { color: var(--danger); }
+.ant-dropdown-menu :is(button, a).ant-dropdown-menu-item-danger:not(:disabled):not([aria-disabled="true"]):is(:hover, :focus-visible) { color: #fff; background: var(--danger); }
 .ant-dropdown-menu button > span:last-child { visibility: hidden; }
 .ant-dropdown-menu button[aria-checked="true"] > span:last-child { visibility: visible; }
 .ant-dropdown-menu button:focus-visible,
@@ -1226,8 +1241,9 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-btn:is(.ant-btn-variant-text, .ant-btn-variant-link).ant-btn-icon-only { padding: 0; }
 .ant-btn.ant-btn-variant-link:hover { border-color: transparent; background: transparent; color: var(--gold-hover); }
 .ant-btn.ant-btn-variant-link:active { color: var(--gold-active); }
-.ant-btn.ant-btn-variant-text:hover { border-color: transparent; background: var(--fill); color: var(--text); }
-.ant-btn.ant-btn-variant-text:active { background: var(--hover-bg); color: var(--text); }
+.ant-btn.ant-btn-variant-text:is(:hover, :focus-visible) { border-color: transparent; background: var(--fill); color: var(--gold-hover); }
+.ant-btn.ant-btn-variant-text:active { background: var(--hover-bg); color: var(--gold); }
+.ant-btn.ant-btn-variant-text:is(:disabled, [aria-disabled="true"]) { border-color: transparent; background: transparent; color: var(--disabled); cursor: not-allowed; }
 .ant-radio-group-small .ant-radio-button-wrapper,
 .ant-radio-group-small .ant-radio-button-label { min-height: var(--control-height-sm); font-size: var(--font-size-body); }
 .ant-radio-group-small .ant-radio-button-label { padding-inline: 7px; }
@@ -1462,7 +1478,6 @@ h5.ant-typography-title-5 { font-size: var(--font-size-title); line-height: var(
   .runtime-source > button { padding-inline: 8px; }
   .runtime-channel-row { min-height: var(--control-height); }
   .runtime-chip.runtime-skinline-universe { min-height: var(--control-height); }
-  .runtime-source .ant-dropdown-trigger { min-height: var(--control-height); padding-inline: 4px; }
   .ant-dropdown-menu button,
   .ant-dropdown-menu a { padding-inline: 12px; }
   .runtime-card{

@@ -145,6 +145,9 @@ components:
     padding: 0 15px
   button-default-hover:
     textColor: '{colors.primary-hover}'
+  button-text-hover:
+    backgroundColor: '{colors.surface-container}'
+    textColor: '{colors.primary-hover}'
   input-field:
     backgroundColor: '{colors.surface}'
     textColor: '{colors.on-surface}'
@@ -197,7 +200,7 @@ components:
     padding: 6px 8px
   dropdown-item-hover:
     backgroundColor: '{colors.surface-hover}'
-    textColor: '{colors.on-surface}'
+    textColor: '{colors.primary-hover}'
   alert-success:
     backgroundColor: '{colors.success-bg}'
     textColor: '{colors.on-surface}'
@@ -300,7 +303,7 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 - Menu/Tabs：水平 Menu 用主色文字与 2px 底部指示条标记选中项，不使用选中背景色；Tabs 用主色文字和 2px 下划线。键盘焦点与当前位置分别可辨识。
 - Table/Tag：表头用弱填色和14px/600字体；Tag用独立暗色填色、12px文字、4px圆角。彩色 Tag 对应预设色系，关键信息不只靠颜色。
 - Alert/Badge：四类 Alert 用对应暗色背景和边框，正文保持主文本；状态点必须有文字或可访问名称。
-- Tooltip/Dropdown：Tooltip 使用 spotlight 表面与白字；Dropdown 按上游样式使用 elevated 菜单表面、4px 内边距和 8px 圆角，菜单项高 32px、内边距 5px 12px。条目悬停叠加 surface-hover，选中项使用主色与选中背景。浮层检查层级、键盘关闭与焦点返回，避开手机安全区。
+- Tooltip/Dropdown：Tooltip 使用 spotlight 表面与白字。Dropdown 按上游样式使用 elevated 菜单表面、4px 内边距和 8px 圆角，菜单项高 32px、内边距 5px 12px。普通项悬停或键盘聚焦使用 surface-hover 和 primary-hover。选中项使用主色与选中背景，悬停或聚焦时使用主文本色和选中悬停背景。浮层检查层级、键盘关闭与焦点返回，避开手机安全区。
 - Divider：内容区水平分隔和行内垂直分隔使用共享组件，线条使用 outline Token；带文字时文字与分隔线保持清晰间距。
 
 ## Do's and Don'ts
@@ -321,10 +324,10 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 
 品牌正式拼写为 `LoL Chroma Art`，SEO与正文均保持这一拼写。现有 Logo 中 `LoL CHROMA` 为金色，`ART` 为白色；占位图保留低对比水印，徽标约20%、字标约32%不透明度。广告品牌图保持5:1、600×120px且不超过150KB。
 
-Header 使用80%不透明的暗色玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的暗色表面。语言控件高度保持默认 32px，不随视口或触控类型放大。
+Header 使用80%不透明的暗色玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的暗色表面。右侧控件尺寸与组合见 [Header 用法](docs/frontend-design.md#组件用法)。
 
 博客使用响应式原画背景，767px以下读取中图；背景延伸到Header之后，使用svh适应移动浏览器栏。首页直接展开最新博客、工具导航和臻彩目录，不使用全屏 Hero。减少动态效果时关闭原画漂移和视差。返回顶部仍在滚动超过480px后显示，使用金色及深色图标，并适配安全区。
 
 英雄与皮肤资料保持可扫描的布局、明确的加载/缺失/失败/重试状态。英雄小头像与皮肤缩略图保持来源比例；手机皮肤卡片可保持两列，但长名称须可读。皮肤展签以名称和稀有度标识构成标题，长名称允许换行，背景故事与后续资料区对齐；完整原画与炫彩图片不因控件密度而被错误裁切。
 
-具体路由、双语、稀有度本地化、CommunityDragon通道、无脚本内容、图片回退和第三方入口契约见 [前端功能文档](docs/frontend-design.md)。目录唯一数据源、静态SEO及图片保存规则见 [项目指令](AGENTS.md)。本文件合并了旧视觉文档；旧 frontend-design skill 已移除。
+页面结构与响应式见 [页面模板](docs/page-templates.md)，数据与发布规则见 [项目指令](AGENTS.md)。

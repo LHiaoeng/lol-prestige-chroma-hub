@@ -1,7 +1,13 @@
 const dropdownSelector = "[data-ant-dropdown]";
+const hoverDropdownSelector = '[data-ant-dropdown="hover"]';
 const dropdownTriggerSelector = "[data-ant-dropdown-trigger]";
 const menuItemSelector = "[data-ant-dropdown-item]";
+const disabledSelector = ':disabled, [aria-disabled="true"]';
 const boundDocuments = new WeakSet<Document>();
+const hoverCloseTimers = new WeakMap<HTMLElement, number>();
+
+type DropdownTrigger = HTMLButtonElement | HTMLAnchorElement;
+type TriggerMode = "hover" | "click";
 
 export function dropdownPopupLayout(
   trigger: Pick<DOMRect, "left" | "right" | "top" | "bottom">,
@@ -19,16 +25,17 @@ export function dropdownPopupLayout(
 }
 
 /** DOM counterpart of Dropdown.astro for controls rendered after page load. */
-export function createDropdown(id: string, trigger: HTMLButtonElement, items: readonly HTMLLIElement[]): HTMLDivElement {
+export function createDropdown(
+  id: string,
+  trigger: DropdownTrigger,
+  items: readonly HTMLLIElement[],
+  mode: TriggerMode = "hover",
+): HTMLDivElement {
   const dropdown = document.createElement("div");
   dropdown.className = "ant-dropdown ant-dropdown-placement-bottomLeft";
-  dropdown.dataset.antDropdown = "";
-  trigger.classList.add("ant-dropdown-trigger");
-  trigger.type = "button";
-  trigger.dataset.antDropdownTrigger = "";
-  trigger.setAttribute("aria-haspopup", "menu");
-  trigger.setAttribute("aria-expanded", "false");
-  trigger.setAttribute("aria-controls", id);
+  dropdown.dataset.antDropdown = mode;
+  if (trigger instanceof HTMLButtonElement) trigger.type = "button";
+  prepareTrigger(trigger, id);
   const popup = document.createElement("div");
   popup.className = "ant-dropdown-popup";
   popup.dataset.antDropdownPopup = "";
@@ -44,13 +51,31 @@ export function createDropdown(id: string, trigger: HTMLButtonElement, items: re
   return dropdown;
 }
 
+function prepareTrigger(trigger: DropdownTrigger, menuId: string): void {
+  trigger.classList.add("ant-dropdown-trigger");
+  trigger.dataset.antDropdownTrigger = "";
+  trigger.setAttribute("aria-haspopup", "menu");
+  trigger.setAttribute("aria-controls", menuId);
+  if (!trigger.hasAttribute("aria-expanded")) trigger.setAttribute("aria-expanded", "false");
+  if (trigger instanceof HTMLAnchorElement) {
+    trigger.setAttribute("role", "button");
+    if (!trigger.hasAttribute("href") && !trigger.hasAttribute("tabindex")) trigger.tabIndex = 0;
+  }
+}
+
+function cancelHoverClose(dropdown: HTMLElement): void {
+  window.clearTimeout(hoverCloseTimers.get(dropdown));
+  hoverCloseTimers.delete(dropdown);
+}
+
 function menuItems(menu: HTMLElement): HTMLElement[] {
   return [...menu.querySelectorAll<HTMLElement>(menuItemSelector)]
-    .filter((item) => item.closest("ul") === menu && !item.matches(':disabled, [aria-disabled="true"]'));
+    .filter((item) => item.closest("ul") === menu && !item.matches(disabledSelector));
 }
 
 function close(dropdown: HTMLElement, restoreFocus = false): void {
-  const trigger = dropdown.querySelector<HTMLButtonElement>(dropdownTriggerSelector);
+  cancelHoverClose(dropdown);
+  const trigger = dropdown.querySelector<DropdownTrigger>(dropdownTriggerSelector);
   const popup = dropdown.querySelector<HTMLElement>("[data-ant-dropdown-popup]");
   if (!trigger || !popup) return;
   popup.hidden = true;
@@ -61,9 +86,10 @@ function close(dropdown: HTMLElement, restoreFocus = false): void {
 }
 
 function open(dropdown: HTMLElement): void {
-  const trigger = dropdown.querySelector<HTMLButtonElement>(dropdownTriggerSelector);
+  cancelHoverClose(dropdown);
+  const trigger = dropdown.querySelector<DropdownTrigger>(dropdownTriggerSelector);
   const popup = dropdown.querySelector<HTMLElement>("[data-ant-dropdown-popup]");
-  if (!trigger || !popup) return;
+  if (!trigger || !popup || trigger.matches(disabledSelector) || !popup.hidden) return;
   document.querySelectorAll<HTMLElement>(dropdownSelector).forEach((other) => {
     if (other !== dropdown && other.classList.contains("ant-dropdown-open")) close(other);
   });
@@ -74,7 +100,7 @@ function open(dropdown: HTMLElement): void {
 }
 
 function positionPopup(dropdown: HTMLElement): void {
-  const trigger = dropdown.querySelector<HTMLButtonElement>(dropdownTriggerSelector);
+  const trigger = dropdown.querySelector<DropdownTrigger>(dropdownTriggerSelector);
   const popup = dropdown.querySelector<HTMLElement>("[data-ant-dropdown-popup]");
   const menu = popup?.querySelector<HTMLElement>(".ant-dropdown-menu");
   if (!trigger || !popup || !menu) return;
@@ -106,35 +132,55 @@ function closeOutside(target: EventTarget | null): void {
   });
 }
 
-/** Bind the Antdv Next-style click, touch, and keyboard behavior once per document. */
+/** Bind pointer and keyboard behavior once per document, including for dynamically inserted menus. */
 export function bindDropdownInteractions(): void {
   document.querySelectorAll<HTMLElement>(dropdownSelector).forEach((dropdown) => {
-    const trigger = dropdown.querySelector<HTMLButtonElement>(":scope > button");
+    const trigger = dropdown.querySelector<DropdownTrigger>(":scope > :is(button, a)");
     const menu = dropdown.querySelector<HTMLElement>(".ant-dropdown-menu");
-    if (!trigger || !menu) return;
-    trigger.classList.add("ant-dropdown-trigger");
-    trigger.dataset.antDropdownTrigger = "";
-    trigger.setAttribute("aria-haspopup", "menu");
-    trigger.setAttribute("aria-controls", menu.id);
-    if (!trigger.hasAttribute("aria-expanded")) trigger.setAttribute("aria-expanded", "false");
+    if (trigger && menu) prepareTrigger(trigger, menu.id);
   });
   if (boundDocuments.has(document)) return;
   boundDocuments.add(document);
 
+  document.addEventListener("pointerover", (event) => {
+    if (event.pointerType !== "mouse" || !(event.target instanceof Element)) return;
+    const dropdown = event.target.closest<HTMLElement>(hoverDropdownSelector);
+    if (!dropdown) return;
+    cancelHoverClose(dropdown);
+    const trigger = event.target.closest<DropdownTrigger>(dropdownTriggerSelector);
+    if (trigger && !trigger.contains(event.relatedTarget as Node | null)) open(dropdown);
+  });
+  document.addEventListener("pointerout", (event) => {
+    if (event.pointerType !== "mouse" || !(event.target instanceof Element)) return;
+    const dropdown = event.target.closest<HTMLElement>(hoverDropdownSelector);
+    if (!dropdown?.classList.contains("ant-dropdown-open") || dropdown.contains(event.relatedTarget as Node | null)) return;
+    cancelHoverClose(dropdown);
+    hoverCloseTimers.set(dropdown, window.setTimeout(() => {
+      hoverCloseTimers.delete(dropdown);
+      if (!dropdown.querySelector("[data-ant-dropdown-popup]")?.contains(document.activeElement)) close(dropdown);
+    }, 150));
+  });
+
   document.addEventListener("click", (event) => {
     const target = event.target as Element | null;
     if (!target?.closest) return;
-    const trigger = target.closest<HTMLButtonElement>(dropdownTriggerSelector);
+    const trigger = target.closest<DropdownTrigger>(dropdownTriggerSelector);
     if (trigger) {
+      if (trigger instanceof HTMLAnchorElement) event.preventDefault();
+      if (trigger.matches(disabledSelector)) return;
       const dropdown = trigger.closest<HTMLElement>(dropdownSelector);
       if (!dropdown) return;
+      if (dropdown.matches(hoverDropdownSelector) && event instanceof PointerEvent && event.pointerType === "mouse") {
+        open(dropdown);
+        return;
+      }
       if (dropdown.classList.contains("ant-dropdown-open")) close(dropdown);
       else open(dropdown);
       return;
     }
     const item = target.closest<HTMLElement>(menuItemSelector);
     if (item) {
-      if (item.matches(':disabled, [aria-disabled="true"]')) {
+      if (item.matches(disabledSelector)) {
         event.preventDefault();
         return;
       }
@@ -157,10 +203,15 @@ export function bindDropdownInteractions(): void {
   document.addEventListener("keydown", (event) => {
     const target = event.target as Element | null;
     if (!target?.closest) return;
-    const trigger = target.closest<HTMLButtonElement>(dropdownTriggerSelector);
+    const trigger = target.closest<DropdownTrigger>(dropdownTriggerSelector);
+    if (trigger instanceof HTMLAnchorElement && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      if (!event.repeat) trigger.click();
+      return;
+    }
     if (trigger && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
       const dropdown = trigger.closest<HTMLElement>(dropdownSelector);
-      if (!dropdown) return;
+      if (!dropdown || trigger.matches(disabledSelector)) return;
       event.preventDefault();
       if (!dropdown.classList.contains("ant-dropdown-open")) open(dropdown);
       const popup = dropdown.querySelector<HTMLElement>("[data-ant-dropdown-popup]");
@@ -170,6 +221,11 @@ export function bindDropdownInteractions(): void {
       return;
     }
     const dropdown = target.closest<HTMLElement>(dropdownSelector);
+    if (event.key === "Escape" && !dropdown?.classList.contains("ant-dropdown-open")) {
+      const hovered = document.querySelector<HTMLElement>(`${hoverDropdownSelector}.ant-dropdown-open`);
+      if (hovered) close(hovered);
+      return;
+    }
     if (!dropdown?.classList.contains("ant-dropdown-open")) return;
 
     if (event.key === "Escape") {

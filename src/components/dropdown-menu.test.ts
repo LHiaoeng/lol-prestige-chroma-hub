@@ -2,10 +2,14 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { dropdownPopupLayout } from "./dropdown-menu";
 
+const textTrigger = '<a slot="trigger" role="button" tabindex="0" class="ant-dropdown-text-trigger"';
+
 it("uses the caller's trigger element", () => {
   const component = readFileSync(new URL("./Dropdown.astro", import.meta.url), "utf8");
   expect(component).toContain('<slot name="trigger" />');
   expect(component).not.toContain("triggerVariant");
+  expect(component).toContain("trigger = 'hover'");
+  expect(component).toContain("data-ant-dropdown={trigger}");
 });
 
 it("renders both header menus with icon-bearing menu items", () => {
@@ -13,12 +17,27 @@ it("renders both header menus with icon-bearing menu items", () => {
   for (const id of ["browse-nav", "tft-browse-nav"]) {
     const menu = layout.split(`<Dropdown id="${id}">`)[1]?.split("</Dropdown>")[0];
     expect(menu).toBeDefined();
+    expect(menu).toContain('<a slot="trigger" role="button" tabindex="0" class="ant-btn ant-btn-variant-text"');
     expect(menu?.match(/<li role="none">/g)?.length).toBe(menu?.match(/class="ant-dropdown-menu-item-icon"/g)?.length);
   }
   const tftMenu = layout.split('<Dropdown id="tft-browse-nav">')[1]?.split("</Dropdown>")[0];
   expect(tftMenu).not.toContain("', '/tft/')");
   expect(tftMenu).toContain('<DomainIcon name="tft-companions" class="ant-dropdown-menu-item-icon" />');
   expect(tftMenu).toContain('<DomainIcon name="tft-arenas" class="ant-dropdown-menu-item-icon" />');
+});
+
+it("uses default activation with the text trigger for version and detail action menus", () => {
+  for (const [path, menuCount] of [
+    ["./RuntimeChannelSwitcher.astro", 1],
+    ["./RuntimeDetailSummary.astro", 2],
+    ["../pages/chromas/[slug].astro", 1],
+  ] as const) {
+    const source = readFileSync(new URL(path, import.meta.url), "utf8");
+    const menus = source.match(/<Dropdown\b[^>]*>/g) ?? [];
+    expect(menus).toHaveLength(menuCount);
+    for (const menu of menus) expect(menu).not.toMatch(/\btrigger\s*=/);
+    expect(source.split(textTrigger)).toHaveLength(menuCount + 1);
+  }
 });
 
 describe("dropdownPopupLayout", () => {
