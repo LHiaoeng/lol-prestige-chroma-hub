@@ -55,6 +55,21 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'worlds-2026-blg-champion-skin-vote',
+    href: '/blog/worlds-2026-blg-champion-skin-vote/',
+    titleEn: "BLG Worlds 2026 Champion Skin Vote: Tracking the Races",
+    titleZh: 'BLG 2026 冠军皮肤投票追踪：五名选手，五个悬念',
+    summaryEn: "After beating GEN 3-1 to win the 2026 World Championship, all five BLG starters opened champion skin polls on Bilibili — and Finals MVP Knight gets an extra slot, bringing the total to six skins. Bin's Gwen leads Jax 52.9% to 41.4% with around 2.67 million voters; Viper's Ezreal is ahead of Cassiopeia 43.7% to 42.5%; all five polls stay open until 23:59 UTC+8 on November 30. We list every poll link, the full candidate pool, and how we would pick.",
+    summaryZh: 'BLG 3-1 击败 GEN 拿下 S16 冠军后，五名首发全部在 B 站发起了冠军皮肤投票，加上 FMVP 的额外名额，本届共六款皮肤待定。Bin 的格温以 52.9% 领先贾克斯 41.4%、约 267 万人参与；Viper 的伊泽瑞尔 43.7% 对蛇女 42.5%；五个投票都到 11 月 30 日 23:59 UTC+8 截止。本文给出五个投票动态链接、完整候选英雄列表，以及小编会怎么选。',
+    publishedAt: '2026-11-19',
+    readingMinutes: 8,
+    coverUrl: '/img/blog/worlds-2026-blg-champion-cover.jpg',
+    coverAltEn: "BLG players in white jerseys in front of the Summoner's Cup with a CHAMPIONS backdrop after winning the 2026 World Championship",
+    coverAltZh: 'BLG 五名选手身穿白色队服站在召唤师奖杯前，背景为 CHAMPIONS 字样',
+    adEligible: true,
+    category: 'analysis',
+  },
+  {
     slug: 'patch-26-23-prestige-chromas',
     href: '/blog/patch-26-23-prestige-chromas/',
     titleEn: 'LoL Patch 26.23: 11 New Prestige Chromas',

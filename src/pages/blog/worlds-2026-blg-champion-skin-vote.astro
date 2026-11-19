@@ -1,0 +1,499 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'worlds-2026-blg-champion-skin-vote');
+if (!article) throw new Error('BLG champion skin vote article metadata is missing');
+
+const binVote = 'https://www.bilibili.com/opus/1270729854844665860';
+const knightVote = 'https://www.bilibili.com/opus/1270777644904873990';
+const xunVote = 'https://www.bilibili.com/opus/1270866189988397088';
+const onVote = 'https://www.bilibili.com/opus/1271507471551168516';
+const viperVote = 'https://www.bilibili.com/opus/1271967874818244617';
+
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh
+  ? 'BLG 3-1 击败 GEN 夺得 S16 全球总决赛冠军，五名首发在 B 站发起冠军皮肤投票，FMVP Knight 额外获得一款。本文整理五个投票动态链接、世界赛候选英雄池与投票数据时间。'
+  : 'BLG won Worlds 2026 3-1 over GEN. All five starters ran champion skin polls; Finals MVP Knight gets an extra skin. Poll links, champion pools and data timestamps.';
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+
+interface Vote {
+  name: string;
+  nameZh: string;
+  launched: string;
+  deadline: string;
+  total: string;
+  data: { label: string; labelZh: string; pct: string }[];
+  note?: string;
+  noteZh?: string;
+  link: string;
+  linkLabel: string;
+  sourceUrl?: string;
+  sourceLabel?: string;
+  sourceLabelZh?: string;
+}
+
+const votes: readonly Vote[] = [
+  {
+    name: 'Bin',
+    nameZh: 'Bin（上单）',
+    launched: isZh ? '11 月 15 日 08:40' : 'Nov 15, 08:40',
+    deadline: isZh ? '11 月 30 日 23:59 UTC+8' : 'Nov 30, 23:59 UTC+8',
+    total: isZh ? '约 267.2 万人' : '~2.67 million',
+    data: [
+      { label: 'Gwen', labelZh: '格温', pct: '52.9%' },
+      { label: 'Jax', labelZh: '贾克斯', pct: '41.4%' },
+      { label: 'Camille', labelZh: '卡蜜尔', pct: '5.7%' },
+    ],
+    note: isZh
+      ? '首日贾克斯领先，48 小时后格温反超并一路扩大优势。Bin 在回国直播中说过不选鳄鱼，理由是「不好看」。'
+      : 'Jax led on day one; Gwen overtook him after 48 hours and kept widening the gap. Bin said on stream he would not pick Renekton because "it looks ugly."',
+    link: binVote,
+    linkLabel: isZh ? 'Bin 的投票动态' : "Bin's poll post",
+  },
+  {
+    name: 'Viper',
+    nameZh: 'Viper（下路）',
+    launched: isZh ? '11 月 18 日 16:44' : 'Nov 18, 16:44',
+    deadline: isZh ? '11 月 30 日 23:59 UTC+8' : 'Nov 30, 23:59 UTC+8',
+    total: isZh ? '约 47.3 万人' : '~473,000',
+    data: [
+      { label: 'Ezreal', labelZh: '伊泽瑞尔', pct: '43.7%' },
+      { label: 'Cassiopeia', labelZh: '卡西奥佩娅', pct: '42.5%' },
+      { label: 'Lucian', labelZh: '卢锡安', pct: '7.6%' },
+      { label: 'Ashe', labelZh: '艾希', pct: '6.2%' },
+    ],
+    note: isZh
+      ? '开票当天蛇女大幅领先，一天后伊泽瑞尔以 43.7% 反超，两者相差约 1.2 个百分点。Viper 本届世界赛四场伊泽瑞尔全胜。'
+      : 'Cassiopeia led heavily on launch day; Ezreal flipped to 43.7% a day later, a gap of about 1.2 points. Viper went 4-0 on Ezreal at Worlds.',
+    link: viperVote,
+    linkLabel: isZh ? 'Viper 的投票动态' : "Viper's poll post",
+  },
+  {
+    name: 'Knight',
+    nameZh: 'Knight（中单 · FMVP）',
+    launched: isZh ? '11 月 15 日 11:46' : 'Nov 15, 11:46',
+    deadline: isZh ? '11 月 30 日 23:59 UTC+8' : 'Nov 30, 23:59 UTC+8',
+    total: isZh ? '约 67.5 万人' : '~675,000',
+    data: [
+      { label: 'Orianna', labelZh: '奥莉安娜', pct: '36.7%' },
+      { label: 'Ahri', labelZh: '阿狸', pct: '25.9%' },
+      { label: 'Locke', labelZh: '洛克', pct: '23.0%' },
+      { label: 'Akali', labelZh: '阿卡丽', pct: '14.4%' },
+    ],
+    note: isZh
+      ? '投票结果不具约束力。据新浪新闻报道，Knight 在直播中表示阿狸基本确定，第二款更倾向洛克——他觉得发条「选就赢」但自己不喜欢，皮肤也已经很多。'
+      : 'The poll is not binding. Per Sina News, Knight said on stream that Ahri is essentially settled and he leans toward Locke for the second skin — he wins on Orianna but dislikes her, and she already has plenty of skins.',
+    link: knightVote,
+    linkLabel: isZh ? 'Knight 的投票动态' : "Knight's poll post",
+    sourceUrl: 'https://www.sina.cn/news/detail/5365977089049778.html',
+    sourceLabel: 'Sina News report',
+    sourceLabelZh: '新浪新闻报道',
+  },
+  {
+    name: 'Xun',
+    nameZh: 'Xun（打野）',
+    launched: isZh ? '11 月 15 日 17:29' : 'Nov 15, 17:29',
+    deadline: isZh ? '11 月 30 日 23:59 UTC+8' : 'Nov 30, 23:59 UTC+8',
+    total: isZh ? '约 30.7 万人' : '~307,000',
+    data: [
+      { label: 'Wukong', labelZh: '孙悟空', pct: '39.5%' },
+      { label: 'Qiyana', labelZh: '奇亚娜', pct: '31.3%' },
+      { label: 'Jarvan IV', labelZh: '皇子', pct: '14.3%' },
+      { label: 'Vi', labelZh: '蔚', pct: '9.6%' },
+      { label: 'Lee Sin', labelZh: '盲僧', pct: '5.3%' },
+    ],
+    note: isZh
+      ? '猴子从开票起就没让出过第一。蔚在 2024 年已有 Oner 的冠军皮肤，这次票数也垫在后段。'
+      : 'Wukong never surrendered first place. Vi already has Oner\'s 2024 Worlds skin and is near the bottom.',
+    link: xunVote,
+    linkLabel: isZh ? 'Xun 的投票动态' : "Xun's poll post",
+  },
+  {
+    name: 'On',
+    nameZh: 'On（辅助）',
+    launched: isZh ? '11 月 17 日 10:58' : 'Nov 17, 10:58',
+    deadline: isZh ? '11 月 30 日 23:59 UTC+8' : 'Nov 30, 23:59 UTC+8',
+    total: isZh ? '约 26.9 万人' : '~269,000',
+    data: [
+      { label: 'Neeko', labelZh: '妮蔻', pct: '68.6%' },
+      { label: 'Lulu', labelZh: '露露', pct: '31.4%' },
+    ],
+    note: isZh
+      ? '妮蔻大幅领先。决赛最后一把 On 的妮蔻多次多人大招开团，是投票之外更有说服力的拉票。'
+      : 'Neeko leads by a wide margin. Her multi-target ultimate engages in the final game were a stronger campaign than any poll.',
+    link: onVote,
+    linkLabel: isZh ? 'On 的投票动态' : "On's poll post",
+  },
+];
+
+interface Pool {
+  name: string;
+  roleZh: string;
+  role: string;
+  slots: number;
+  champions: { id: number; zh: string; en: string; voted?: boolean }[];
+}
+
+const championDetailHref = (id: number): string =>
+  `${localizedPath(locale, '/champions/detail/')}?id=${id}&channel=latest`;
+
+const pools: readonly Pool[] = [
+  {
+    name: 'Bin',
+    roleZh: '上单',
+    role: 'Top',
+    slots: 1,
+    champions: [
+      { id: 799, zh: '狼母', en: 'Ambessa' }, { id: 150, zh: '纳尔', en: 'Gnar' }, { id: 164, zh: '卡蜜尔', en: 'Camille', voted: true },
+      { id: 24, zh: '贾克斯', en: 'Jax', voted: true }, { id: 897, zh: '奎桑提', en: "K'Sante" }, { id: 2, zh: '奥拉夫', en: 'Olaf' },
+      { id: 58, zh: '鳄鱼', en: 'Renekton' }, { id: 887, zh: '格温', en: 'Gwen', voted: true },
+    ],
+  },
+  {
+    name: 'Xun',
+    roleZh: '打野',
+    role: 'Jungle',
+    slots: 1,
+    champions: [
+      { id: 59, zh: '皇子', en: 'Jarvan IV', voted: true }, { id: 64, zh: '盲僧', en: 'Lee Sin', voted: true }, { id: 57, zh: '茂凯', en: 'Maokai' },
+      { id: 950, zh: '纳亚菲利', en: 'Naafiri' }, { id: 80, zh: '潘森', en: 'Pantheon' }, { id: 246, zh: '奇亚娜', en: 'Qiyana', voted: true },
+      { id: 72, zh: '蝎子', en: 'Skarner' }, { id: 48, zh: '巨魔', en: 'Trundle' }, { id: 254, zh: '蔚', en: 'Vi', voted: true },
+      { id: 62, zh: '猴子', en: 'Wukong', voted: true }, { id: 56, zh: '梦魇', en: 'Nocturne' },
+    ],
+  },
+  {
+    name: 'Knight',
+    roleZh: '中单 · FMVP',
+    role: 'Mid · Finals MVP',
+    slots: 2,
+    champions: [
+      { id: 103, zh: '阿狸', en: 'Ahri', voted: true }, { id: 84, zh: '阿卡丽', en: 'Akali', voted: true }, { id: 3, zh: '加里奥', en: 'Galio' },
+      { id: 7, zh: '乐芙兰', en: 'LeBlanc' }, { id: 805, zh: '洛克', en: 'Locke', voted: true }, { id: 61, zh: '发条', en: 'Orianna', voted: true },
+      { id: 163, zh: '岩雀', en: 'Taliyah' }, { id: 112, zh: '维克托', en: 'Viktor' }, { id: 777, zh: '永恩', en: 'Yone' },
+      { id: 4, zh: '卡牌', en: 'Twisted Fate' }, { id: 69, zh: '蛇女', en: 'Cassiopeia' },
+    ],
+  },
+  {
+    name: 'Viper',
+    roleZh: '下路',
+    role: 'Bot',
+    slots: 1,
+    champions: [
+      { id: 22, zh: '艾希', en: 'Ashe', voted: true }, { id: 69, zh: '蛇女', en: 'Cassiopeia', voted: true }, { id: 42, zh: '飞机', en: 'Corki' },
+      { id: 81, zh: '伊泽瑞尔', en: 'Ezreal', voted: true }, { id: 202, zh: '烬', en: 'Jhin' }, { id: 145, zh: '卡莎', en: "Kai'Sa" },
+      { id: 429, zh: '卡莉丝塔', en: 'Kalista' }, { id: 236, zh: '卢锡安', en: 'Lucian', voted: true }, { id: 804, zh: '芸阿娜', en: 'Yunara' },
+      { id: 115, zh: '吉格斯', en: 'Ziggs' }, { id: 163, zh: '岩雀', en: 'Taliyah' },
+    ],
+  },
+  {
+    name: 'On',
+    roleZh: '辅助',
+    role: 'Support',
+    slots: 1,
+    champions: [
+      { id: 12, zh: '牛头', en: 'Alistar' }, { id: 89, zh: '蕾欧娜', en: 'Leona' }, { id: 117, zh: '露露', en: 'Lulu', voted: true },
+      { id: 902, zh: '米利欧', en: 'Milio' }, { id: 267, zh: '娜美', en: 'Nami' }, { id: 111, zh: '泰坦', en: 'Nautilus' },
+      { id: 888, zh: '烈娜塔', en: 'Renata Glasc' }, { id: 147, zh: '萨勒芬妮', en: 'Seraphine' }, { id: 518, zh: '妮蔻', en: 'Neeko', voted: true },
+      { id: 164, zh: '青钢影', en: 'Camille' },
+    ],
+  },
+];
+
+const faqEntries = isZh ? [
+  {
+    question: '投票结果能决定冠军皮肤吗？',
+    answer: '不能。选手投票只反映粉丝偏好，最终英雄由选手和 Riot Games 共同确认。本届实际已经出现分歧：Knight 的投票里奥莉安娜以 36.7% 领先，但据新浪新闻报道，他在直播中表示自己不喜欢发条，更想选洛克。',
+  },
+  {
+    question: '为什么 Knight 有两款冠军皮肤？',
+    answer: '他是 S16 决赛最有价值选手（FMVP）。冠军皮肤的基础名额是五名首发各一款，FMVP 额外再获得一款，因此 BLG 本届共六款皮肤。2024 年 T1 夺冠时 Faker 同样拿到两款。',
+  },
+  {
+    question: '冠军皮肤候选英雄有哪些？',
+    answer: '拳头游戏规定冠军皮肤只能选用本届世界赛实际出场过的英雄。按虎扑与梨视频统计，Bin 8 个、Xun 11 个、Knight 11 个、Viper 11 个、On 10 个；选手发起的投票只是其中一部分，正文可按选手查看完整名单。',
+  },
+  {
+    question: '投票链接在哪里？',
+    answer: '五个投票都以投票卡片的形式内嵌在选手本人的 B 站动态（opus）里，本文「投票追踪」和文末链接区给出了直达动态地址，点开后即可看到投票卡片。B 站没有可直接打开的独立投票页，参与投票通常需要在 App 内完成。参与人数、截止时间和比例均由 B 站投票页面数据计算，抓取时间为 2026-11-19 16:08 UTC+8。',
+  },
+  {
+    question: '冠军皮肤什么时候上架？',
+    answer: '按往届惯例，全球总决赛冠军皮肤通常在次年 4 至 5 月上线，制作周期约 4 至 6 个月。具体时间以 Riot Games 公布为准。',
+  },
+] : [
+  {
+    question: 'Do the poll results decide the skins?',
+    answer: 'No. The votes only reflect fan preference; the players and Riot Games confirm the champions. This cycle already shows the gap: Orianna won Knight\'s poll with 36.7%, yet per Sina News he said on stream that he dislikes her and prefers Locke.',
+  },
+  {
+    question: 'Why does Knight get two skins?',
+    answer: 'He was the Finals MVP of S16. The base allocation is one skin per starter, and the Finals MVP receives one extra, so BLG gets six skins. Faker also received two when T1 won in 2024.',
+  },
+  {
+    question: 'Which champions are eligible for the skins?',
+    answer: 'Riot limits Worlds skins to champions played during the event. Per Hupu and Litchi Video tallies: Bin 8, Xun 11, Knight 11, Viper 11 and On 10. Each fan poll covers only a subset; the article lists every pool by player.',
+  },
+  {
+    question: 'Where are the vote links?',
+    answer: 'Each poll is embedded as a vote card inside the player\'s own Bilibili opus post. The vote tracker and the link list at the end point straight to those posts; open one to see the vote card. Bilibili has no standalone public vote page, so casting a vote usually requires the app. Voter counts, deadlines and percentages all come from the Bilibili vote cards, captured at 2026-11-19 16:08 UTC+8.',
+  },
+  {
+    question: 'When do the skins release?',
+    answer: 'Following past precedent, Worlds champion skins usually launch in April or May of the following year after a four-to-six-month production cycle. Riot Games announces the final dates.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: { '@type': 'ImageObject', url: new URL(article.coverUrl, SITE.origin).toString(), width: 1600, height: 900 },
+    datePublished: article.publishedAt, dateModified: article.publishedAt, url: canonical,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical }, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟赛事' : 'League of Legends Esports',
+    keywords: isZh ? '2026全球总决赛, BLG, 冠军皮肤投票, FMVP, Bin, Knight, Viper, Xun, On, 格温, 洛克' : '2026 World Championship, BLG, champion skin vote, Finals MVP, Bin, Knight, Viper, Xun, On, Gwen, Locke',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: {
+      '@type': 'Organization', name: SITE.name, url: homeUrl,
+      logo: { '@type': 'ImageObject', url: new URL('/adsense-logo.png', SITE.origin).toString(), width: 600, height: 120 },
+    },
+    timeRequired: `PT${article.readingMinutes}M`,
+    isAccessibleForFree: true,
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <Breadcrumb article {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? 'BLG 冠军皮肤投票' : 'BLG Champion Skin Vote' },
+  ]} />
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '全球总决赛 2026 · 投票追踪' : 'WORLDS 2026 · VOTE TRACKER'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? 'BLG 3-1 击败 GEN 拿下 S16 冠军后，五名首发全部在 B 站发起了冠军皮肤投票，再加上 FMVP 的额外名额，本届一共有六款皮肤要定。Bin 的格温以 52.9% 领先贾克斯 41.4%、约 267 万人参与；Viper 的伊泽瑞尔 43.7% 对蛇女 42.5%，相差约 1.2 个百分点；五个投票都要到 11 月 30 日 23:59 UTC+8 才截止。本文给出五个投票动态的直达链接、完整的候选英雄列表，以及小编会怎么选。' : 'After BLG beat GEN 3-1 to win S16, all five starters opened champion skin polls on Bilibili — and with the Finals MVP\'s extra slot, six skins are on the table. Bin\'s Gwen leads Jax 52.9% to 41.4% with around 2.67 million voters; Viper\'s Ezreal is ahead of Cassiopeia 43.7% to 42.5%, a gap of about 1.2 points; all five polls stay open until 23:59 UTC+8 on November 30. Here are direct links to all five poll posts, the full candidate lists, and how we would pick.'}</p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <img src={article.coverUrl} alt={isZh ? article.coverAltZh : article.coverAltEn} data-alt-en={article.coverAltEn} data-alt-zh={article.coverAltZh} data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" width="1600" height="900" loading="eager" decoding="async" />
+      <figcaption>{isZh ? 'BLG 夺冠官方海报。图片来源：' : 'Official BLG championship poster. Image: '}<a href="https://lol.qq.com/news/detail.shtml?docid=2933519305216867218" target="_blank" rel="noreferrer">{isZh ? '腾讯《英雄联盟》官方' : 'League of Legends China official'}</a>{isZh ? '。' : '.'}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '背景：冠军皮肤第一次全员投票' : 'Context: The first full-team fan vote'}</h2>
+      {isZh ? <>
+        <p>冠军皮肤的流程一向是选手和拳头游戏内部沟通，粉丝等官宣。BLG 这次把第一步交给了粉丝：11 月 15 日夺冠当天，Bin 早上 8 点 40 先发投票，Knight 中午跟上，Xun 傍晚开启；11 月 17 日 On 发起，11 月 18 日下午 Viper 补齐最后一个。五人全部开启，在中国战队的世界赛冠军里是第一次。</p>
+        <p>投票没有约束力。选手和皮肤团队仍然有最终决定权，而本届已经出现明显分歧——Knight 的投票里奥莉安娜得票最高，他却在直播里说自己不喜欢这个英雄。</p>
+        <p>还有一个容易忽略的规则：决赛最有价值选手额外获得一款皮肤。Knight 是本届 FMVP，所以 BLG 不是五款而是六款。据<a href="https://www.sina.cn/news/detail/5365977089049778.html" target="_blank" rel="noreferrer">新浪新闻</a>报道，他在直播中表示阿狸基本确定，第二款更倾向洛克；辛德拉因为世界赛期间没有实际出场，不符合资格被排除。</p>
+      </> : <>
+        <p>Champion skins have always started as an internal conversation between players and Riot, with fans waiting for the reveal. BLG handed the first step to the community: on November 15, Bin posted his poll at 08:40, Knight followed at midday and Xun in the evening; On opened his on November 17, and Viper completed the set on the afternoon of November 18. It is the first time every starter from a Chinese Worlds winner has done this.</p>
+        <p>The polls are not binding. Players and the skin team keep the final call, and the gap has already shown: Orianna topped Knight's poll, yet he said on stream that he does not enjoy playing her.</p>
+        <p>One easily missed rule: the Finals MVP receives an extra skin. Knight won FMVP, so BLG gets six skins, not five. According to <a href="https://www.sina.cn/news/detail/5365977089049778.html" target="_blank" rel="noreferrer">Sina News</a>, he said on stream that Ahri is essentially settled and he leans toward Locke for the second; Syndra was ruled out because he never played her during the tournament.</p>
+      </>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '冠军皮肤候选英雄一览' : 'Champion candidates at a glance'}</h2>
+      <p>{isZh ? '冠军皮肤只能从本届世界赛实际出场过的英雄里选，下面这份名单才是官方允许的候选范围，选手发起的投票只是从中挑了一部分。加粗的是已进入投票的英雄，点击英雄名可打开站内英雄详情页。' : 'Worlds skins can only use champions played during the tournament, so this is the official candidate pool; each poll is a subset. Bold entries are on a poll — select a champion to open its page on this site.'}</p>
+      <div class="pool-list">
+        {pools.map((pool) => (
+          <div class="pool-card">
+            <div class="pool-head">
+              <h3>{pool.name}</h3>
+              <span>{isZh ? `${pool.roleZh} · ${pool.champions.length} 个可用 · ${pool.slots} 个名额` : `${pool.role} · ${pool.champions.length} eligible · ${pool.slots} slot${pool.slots > 1 ? 's' : ''}`}</span>
+            </div>
+            <p class="pool-chips">
+              {pool.champions.map((champion) => (
+                <a class={`pool-chip${champion.voted ? ' is-voted' : ''}`} href={championDetailHref(champion.id)}>{isZh ? champion.zh : champion.en}</a>
+              ))}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div class="data-note">{isZh ? <>来源：<a href="https://m.hupu.com/bbs/643944438.html" target="_blank" rel="noreferrer">虎扑流言板《BLG冠军皮肤可选择范围统计》</a>、<a href="https://www.sina.cn/news/detail/5365440217875443.html" target="_blank" rel="noreferrer">梨视频统计（新浪转载）</a>，两份名单口径一致；单局选用可核对<a href="https://m.weibo.cn/detail/5363284020825954" target="_blank" rel="noreferrer">英雄联盟赛事官方微博</a>。规则是拳头游戏规定冠军皮肤只能选用本届世界赛出场过的英雄。</> : <>Sources: <a href="https://m.hupu.com/bbs/643944438.html" target="_blank" rel="noreferrer">Hupu's eligible-pool tally</a> and <a href="https://www.sina.cn/news/detail/5365440217875443.html" target="_blank" rel="noreferrer">Litchi Video's identical list</a>; individual game picks can be checked against the <a href="https://m.weibo.cn/detail/5363284020825954" target="_blank" rel="noreferrer">official LoL Esports Weibo</a>. Riot's rule limits Worlds skins to champions played during the event.</>}</div>
+    </section>
+
+    <section>
+      <h2>{isZh ? '投票追踪' : 'Vote tracker'}</h2>
+      <p class="data-note">{isZh ? '数据获取时间：2026-11-19 16:08 UTC+8。参与人数、截止时间与各选项票数均取自 B 站投票页面，比例按选项票数计算并保留一位小数，之后仍会继续变化；五个投票均未结束，统一到 11 月 30 日 23:59 UTC+8 截止。' : 'Data captured at 2026-11-19 16:08 UTC+8. Voter counts, deadlines and option vote counts come from the Bilibili vote cards; percentages are calculated from those counts and shown to one decimal place, and will keep moving. All five polls close at 23:59 UTC+8 on November 30.'}</p>
+
+      <div class="vote-tracker">
+        {votes.map((vote) => (
+          <article class="vote-card">
+            <header class="vote-card-header">
+              <h3>{isZh ? vote.nameZh : vote.name}</h3>
+              <span class="vote-launched">{isZh ? '发起' : 'Posted'}: {vote.launched}</span>
+            </header>
+            <p class="vote-total">
+              <span class="vote-status">{isZh ? '进行中' : 'Live'}</span>
+              <span class="vote-total-count">{isZh ? '参与' : 'Votes'}: {vote.total}</span>
+              <span class="vote-deadline">{isZh ? `截至 ${vote.deadline}` : `Ends ${vote.deadline}`}</span>
+            </p>
+            <div class="vote-heroes">
+              {vote.data.map((item) => (
+                <div class="vote-bar-row">
+                  <div class="vote-bar-label"><strong>{isZh ? item.labelZh : item.label}</strong></div>
+                  <div class="vote-bar-track">
+                    <div class="vote-bar-fill" style={`width: ${item.pct}`}></div>
+                    <span class="vote-bar-pct">{item.pct}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {vote.note ? <p class="vote-note">{isZh ? vote.noteZh : vote.note}</p> : null}
+            <p class="vote-links">
+              <a class="vote-link" href={vote.link} target="_blank" rel="noreferrer">{isZh ? '打开投票动态：' : 'Open poll post: '}{vote.linkLabel} ↗</a>
+              {vote.sourceUrl ? <a class="vote-source" href={vote.sourceUrl} target="_blank" rel="noreferrer">{isZh ? vote.sourceLabelZh : vote.sourceLabel} ↗</a> : null}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{isZh ? '小编怎么选' : 'Our picks'}</h2>
+      {isZh ? <>
+        <p>以下是小编的个人倾向，不是官方立场，只从皮肤设计空间、英雄与选手的绑定程度、以及近几届冠军皮肤的分布出发。</p>
+      </> : <>
+        <p>These are the editor's personal picks, not an official position — judged on design potential, how tightly each champion is tied to the player, and how recent Worlds skins have been distributed.</p>
+      </>}
+
+      <div class="take-list">
+        <div class="take-item">
+          <h4>{isZh ? 'Bin：格温' : 'Bin: Gwen'}</h4>
+          {isZh ? <>
+            <p>贾克斯是 Bin 从 2020 年出道起的招牌，胜率最高，但皮肤系列已经排到了战斗学院、武神、神使、黎明使者。格温在决赛最后一局拿下 8-2-9，把冠军时刻和这个英雄绑在了一起；她从 2021 年上线至今没有世界赛皮肤，视觉上还能围绕剪刀、针线做一整套完整设计。</p>
+            <p>投票现在的走势也支持这个选择。卡蜜尔从第一天起就是第三名，选她反而更像意外。</p>
+          </> : <>
+            <p>Jax has been Bin's signature since his 2020 debut and holds his best win rate, but he already spans Battle Academia, Godking, Arcane and Dawnbringer. Gwen closed the final game at 8-2-9, tying the championship moment to her; she has had no Worlds skin since launching in 2021, and scissors, needles and thread give a designer a full visual system.</p>
+            <p>The current vote backs this up. Camille has been third since day one, so picking her would be the surprise.</p>
+          </>}
+        </div>
+
+        <div class="take-item">
+          <h4>{isZh ? 'Viper：伊泽瑞尔' : 'Viper: Ezreal'}</h4>
+          {isZh ? <>
+            <p>蛇女和「Viper」这个名字有天然联系，开票当天也因此大幅领先，但伊泽瑞尔才是这届世界赛真正决定比赛的那个选择：四场全胜，大招击杀 Gumayusi 的飞机直接把 BLG 推进决赛。现在伊泽瑞尔 43.7% 反超蛇女 42.5%，票数也补上了这个论点。</p>
+            <p>皮肤终究是选手自己的。若 Viper 更看重名字梗，选蛇女也说得通，这不会是一个错的选择。</p>
+          </> : <>
+            <p>Cassiopeia connects naturally to the "Viper" name and led heavily on launch day, but Ezreal is what actually decided games this Worlds: 4-0, including the ultimate that killed Gumayusi's Corki and pushed BLG into the final. Ezreal now leads 43.7% to 42.5%, and the vote has caught up to the argument.</p>
+            <p>The skin belongs to the player, though. If Viper prefers the name pun, Cassiopeia is a defensible pick, not a wrong one.</p>
+          </>}
+        </div>
+
+        <div class="take-item">
+          <h4>{isZh ? 'Knight：第二款选洛克' : 'Knight: Locke for the second skin'}</h4>
+          {isZh ? <>
+            <p>据<a href="https://www.sina.cn/news/detail/5365977089049778.html" target="_blank" rel="noreferrer">新浪新闻</a>报道，Knight 在直播中表示阿狸基本确定，所以真正的悬念是 FMVP 多出来的那一款。粉丝投票把奥莉安娜顶到 36.7%，但 Knight 在同一场直播里说得很直白：不喜欢这个英雄，只是「选就赢」，而且发条皮肤已经太多。</p>
+            <p>洛克是今年上线的德玛西亚刺客，也是 Knight 的绝活之一，还没有任何皮肤系列，设计上几乎是一张白纸。一个新英雄配一款冠军皮肤，比给已有十几款皮肤的发条再添一件更有记忆点。</p>
+          </> : <>
+            <p>Per <a href="https://www.sina.cn/news/detail/5365977089049778.html" target="_blank" rel="noreferrer">Sina News</a>, Knight said Ahri is essentially settled, so the real question is the Finals MVP's extra slot. Fans pushed Orianna to 36.7%, but in the same stream he was blunt: he does not like the champion, he just wins on her, and she already has plenty of skins.</p>
+            <p>Locke is this year's Demacian assassin and one of Knight's signature picks, with no skinline at all — essentially a blank canvas. A new champion getting a Worlds skin lands harder than another Orianna.</p>
+          </>}
+        </div>
+
+        <div class="take-item">
+          <h4>{isZh ? 'Xun：孙悟空' : 'Xun: Wukong'}</h4>
+          {isZh ? <>
+            <p>投票已经给出答案：猴子 39.5%，奇亚娜 31.3%，皇子 14.3%。蔚虽然有 9.6%，但 2024 年 Oner 已经拿过一款蔚的冠军皮肤，再选一次会撞车。孙悟空是 LPL 赛区的标志性英雄，配上 Xun 的第一次夺冠，情感分和设计空间都不缺。</p>
+          </> : <>
+            <p>The vote answered it: Wukong 39.5%, Qiyana 31.3%, Jarvan IV 14.3%. Vi sits at 9.6% and already has Oner's 2024 Worlds skin, so a repeat would collide. Wukong is an LPL icon, and pairing him with Xun's first title carries both sentiment and design room.</p>
+          </>}
+        </div>
+
+        <div class="take-item">
+          <h4>{isZh ? 'On：妮蔻' : 'On: Neeko'}</h4>
+          {isZh ? <>
+            <p>妮蔻以 68.6% 拿下投票，票数差距比其余四人都大。露露是稳定的保护型辅助，但冠军皮肤更看重「名场面」——On 在决赛用妮蔻开出的多人大招，正是那类会被反复剪进集锦的镜头。妮蔻本身也没有世界赛皮肤。</p>
+          </> : <>
+            <p>Neeko won 68.6% of the vote, a wider margin than any other race. Lulu is the steady enchanter, but champion skins lean on highlight moments — On's multi-target Neeko engages in the final are exactly the clips that get replayed. Neeko also has no Worlds skin.</p>
+          </>}
+        </div>
+      </div>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '五个投票原帖与相关链接' : 'The five vote posts and related links'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={binVote} target="_blank" rel="noreferrer">{isZh ? 'Bin 投票原帖：冠军皮肤选什么（贾克斯 / 卡蜜尔 / 格温）' : 'Bin\'s poll: which champion skin (Jax / Camille / Gwen)'}</a></li>
+        <li><a class="official-source-link" href={knightVote} target="_blank" rel="noreferrer">{isZh ? 'Knight 投票原帖：选什么皮肤（阿狸 / 阿卡丽 / 洛克 / 发条）' : 'Knight\'s poll: which skin (Ahri / Akali / Locke / Orianna)'}</a></li>
+        <li><a class="official-source-link" href={xunVote} target="_blank" rel="noreferrer">{isZh ? 'Xun 投票原帖：选啥皮肤（盲僧 / 奇亚娜 / 猴子 / 皇子 / 蔚）' : 'Xun\'s poll: which skin (Lee Sin / Qiyana / Wukong / Jarvan IV / Vi)'}</a></li>
+        <li><a class="official-source-link" href={onVote} target="_blank" rel="noreferrer">{isZh ? 'On 投票原帖：皮肤选什么（露露 / 妮蔻）' : 'On\'s poll: which skin (Lulu / Neeko)'}</a></li>
+        <li><a class="official-source-link" href={viperVote} target="_blank" rel="noreferrer">{isZh ? 'Viper 投票原帖：pick（伊泽瑞尔 / 卢锡安 / 蛇女 / 艾希）' : 'Viper\'s poll: pick (Ezreal / Lucian / Cassiopeia / Ashe)'}</a></li>
+        <li><a class="official-source-link" href="https://lol.qq.com/news/detail.shtml?docid=2933519305216867218" target="_blank" rel="noreferrer">{isZh ? '英雄联盟官方：BLG 勇夺 2026 全球总决赛冠军（11 月 15 日）' : 'League of Legends China: BLG win 2026 World Championship (Nov 15)'}</a></li>
+        <li><a class="official-source-link" href="https://www.sina.cn/news/detail/5365977089049778.html" target="_blank" rel="noreferrer">{isZh ? '新浪新闻：Knight 两款冠军皮肤，阿狸确定、倾向洛克（直播内容报道）' : 'Sina News: Knight\'s two skins — Ahri settled, Locke preferred (stream report)'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+  <style>
+    .data-note { color: var(--muted); font-size: 0.875rem; margin-bottom: var(--space-4); }
+    .pool-list { display: grid; gap: var(--space-4); margin: var(--space-3) 0 0; }
+    .pool-card { padding: var(--space-4); background: var(--panel2); border: 1px solid var(--line); border-radius: var(--radius-card); }
+    .pool-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .pool-head h3 { margin: 0; font-size: 1.0625rem; }
+    .pool-head span { font-size: 0.8rem; color: var(--muted); }
+    .pool-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+    .pool-chip { display: inline-block; padding: 2px 10px; border: 1px solid var(--gold-active); border-radius: 999px; font-size: 0.8rem; color: var(--gold); text-decoration: none; }
+    .pool-chip:hover, .pool-chip:focus-visible { color: var(--gold-hover); border-color: var(--gold-hover); }
+    .pool-chip.is-voted { background: var(--selected-bg); border-color: var(--gold); font-weight: 600; }
+    .vote-tracker { display: grid; gap: var(--space-4); }
+    .vote-card { border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-4); background: var(--panel2); }
+    .vote-card-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+    .vote-card-header h3 { margin: 0; font-size: 1.125rem; }
+    .vote-launched { font-size: 0.8rem; color: var(--muted); }
+    .vote-total { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 var(--space-3); font-size: 0.8rem; color: var(--muted); }
+    .vote-status { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.72rem; border: 1px solid currentColor; color: var(--gold); }
+    .vote-bar-row { margin-bottom: var(--space-2); }
+    .vote-bar-row:last-child { margin-bottom: 0; }
+    .vote-bar-label { font-size: 0.875rem; margin-bottom: 4px; }
+    .vote-bar-track { position: relative; height: 22px; background: var(--tag-bg); border-radius: 4px; overflow: hidden; display: flex; align-items: center; }
+    .vote-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold-active), var(--gold)); border-radius: 4px; transition: width 0.6s ease; min-width: 2px; }
+    .vote-bar-pct { position: absolute; right: 8px; font-size: 0.75rem; font-weight: 600; color: var(--text); }
+    .vote-note { font-size: 0.875rem; color: var(--muted); margin: var(--space-3) 0 0; }
+    .vote-links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: var(--space-3) 0 0; }
+    .vote-link, .vote-source { font-size: 0.85rem; color: var(--gold); }
+    .take-list { display: grid; gap: var(--space-4); margin-top: var(--space-3); }
+    .take-item { padding: var(--space-4); background: var(--panel2); border-left: 3px solid var(--gold); border-radius: 0 var(--radius-card) var(--radius-card) 0; }
+    .take-item h4 { margin: 0 0 var(--space-2); font-size: 1rem; }
+    @media (max-width: 767px) {
+      .vote-card-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</BaseLayout>
