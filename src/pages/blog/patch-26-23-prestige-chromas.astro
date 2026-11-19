@@ -1,0 +1,143 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import BlogAdjacentNavigation from '../../components/BlogAdjacentNavigation.astro';
+import BlogPrestigeChromaCard from '../../components/BlogPrestigeChromaCard.astro';
+import BlogChromaGrid from '../../components/BlogChromaGrid.astro';
+import { blogArticles, formatBlogDate } from '../../blog/articles';
+import { catalog } from '../../data/catalog';
+import { imageUrl, sourceImageUrl, type Chroma } from '../../domain/chroma';
+import { localizedPath, resolveLocale, type Locale } from '../../i18n/config';
+import { SITE } from '../../seo/site';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const article = blogArticles.find((entry) => entry.slug === 'patch-26-23-prestige-chromas');
+if (!article) throw new Error('Patch 26.23 prestige chroma article metadata is missing');
+const sourceUrl = 'https://lol.qq.com/gicp/news/410/37102797.html';
+const patchChromas: Chroma[] = catalog.filter((item) => item.gameVer === '26.23');
+if (patchChromas.length === 0) throw new Error('No prestige chromas found for Patch 26.23');
+const title = `${isZh ? article.titleZh : article.titleEn} | ${SITE.name}`;
+const description = isZh ? article.summaryZh : article.summaryEn;
+const canonical = new URL(localizedPath(locale, article.href), SITE.origin).toString();
+const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
+const blogUrl = new URL(localizedPath(locale, '/blog/'), SITE.origin).toString();
+const pearlCount = patchChromas.filter((c) => c.colors.includes('#ECF9F8')).length;
+const faqEntries = isZh ? [
+  { question: '26.23 版本有哪些新增臻彩？', answer: `共 ${patchChromas.length} 款：钻石臻彩三款——莲华温泉娑娜 朝花、莲华温泉娑娜 星回、青花瓷艾瑞莉娅 含苞；炫金臻彩两款——西部魔影伊芙琳 慷慨与西部魔影洛克 慷慨；臻彩六款——花仙子璐璐 桑绢、花仙子格温 桑绢、玉剑索拉卡 珠光、机神德莱厄斯 云霄、机神孙悟空 云霄、斗魂觉醒格温 灵之魂焰。七款共享珍珠白配色，为本批主色调。` },
+  { question: '这 11 款臻彩怎么获得？', answer: `26.23 版本公告没有公布这 11 款臻彩的具体获取方式与开放时间，请以官方后续活动或商城公告为准。臻彩依附于炫彩所属皮肤，使用前需要先拥有对应的皮肤，详见<a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">什么是臻彩</a>。` },
+] : [
+  { question: 'Which prestige chromas are in LoL Patch 26.23?', answer: `${patchChromas.length} in total: three Diamond Prestige Chroma &mdash; Spirit Blossom Springs Sona (Pearl), Spirit Blossom Springs Sona (Tanzanite), and Porcelain Irelia (Rose Quartz); two Golden Prestige Chroma &mdash; High Noon Evelynn (Catseye) and High Noon Locke (Catseye); plus six standard prestige chromas &mdash; Faerie Court Lulu (Pearl), Faerie Court Gwen (Pearl), Immortal Journey Soraka (Pearl), Mecha Kingdoms Darius (Pearl), Mecha Kingdoms Wukong (Pearl), and Soul Fighter Gwen (Sandstone). Seven entries share the Pearl colourway, the dominant colour of the batch.` },
+  { question: 'How do I get these eleven prestige chromas?', answer: `The Patch 26.23 announcement does not specify acquisition methods or dates for any of the ${patchChromas.length} entries, so wait for official event or shop announcements. Every prestige chroma is attached to an existing skin and requires owning that base skin first &mdash; see our <a href="${localizedPath(locale, '/blog/what-are-prestige-chromas/')}">prestige chroma guide</a> for details.` },
+];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: isZh ? article.titleZh : article.titleEn,
+    description, image: imageUrl(patchChromas[0].images.large), datePublished: article.publishedAt,
+    dateModified: article.publishedAt, url: canonical, mainEntityOfPage: canonical, inLanguage: isZh ? 'zh-CN' : 'en',
+    articleSection: isZh ? '英雄联盟臻彩' : 'League of Legends Prestige Chroma',
+    keywords: isZh ? '英雄联盟26.23, 臻彩, 臻彩原画, 莲华温泉娑娜, 青花瓷艾瑞莉娅, 西部魔影, 花仙子, 玉剑传说, 机神, 斗魂觉醒, 珍珠白' : 'LoL Patch 26.23, prestige chromas, chroma splash art, Spirit Blossom Springs Sona, Porcelain Irelia, High Noon, Faerie Court, Immortal Journey, Mecha Kingdoms, Soul Fighter, Pearl',
+    about: { '@type': 'VideoGame', name: 'League of Legends' },
+    isPartOf: { '@type': 'Blog', name: isZh ? 'LoL Chroma Art 博客' : 'LoL Chroma Art Blog', url: blogUrl },
+    author: { '@type': 'Organization', name: 'LoL Chroma Art Editorial Team', url: homeUrl },
+    publisher: { '@type': 'Organization', name: SITE.name, url: homeUrl },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: isZh ? '博客' : 'Blog', item: blogUrl },
+      { '@type': 'ListItem', position: 3, name: isZh ? article.titleZh : article.titleEn, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'ItemList', name: isZh ? '26.23 版本臻彩原画列表' : 'LoL Patch 26.23 Prestige Chroma List',
+    numberOfItems: patchChromas.length,
+    itemListElement: patchChromas.map((chroma, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: {
+        '@type': 'CreativeWork', name: isZh ? chroma.nameZh : chroma.nameEn,
+        url: new URL(localizedPath(locale, `/chromas/${chroma.slug}/`), SITE.origin).toString(),
+        image: imageUrl(chroma.images.large),
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqEntries.map((entry) => ({
+      '@type': 'Question', name: entry.question,
+      acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+    })),
+  },
+];
+---
+<BaseLayout {title} {description} {canonical} image={article.coverUrl} ogType="article" publishedTime={article.publishedAt} modifiedTime={article.publishedAt} {jsonLd} {locale} adPlacement="editorial-article">
+  <Breadcrumb article {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '博客' : 'Blog', href: localizedPath(locale, '/blog/') },
+    { title: isZh ? '26.23 版本臻彩' : 'Patch 26.23 Prestige Chromas' },
+  ]} />
+
+  <article class="blog-article">
+    <header class="article-header">
+      <p class="kicker">{isZh ? '26.23 版本 · 臻彩原画' : 'PATCH 26.23 · PRESTIGE CHROMA ART'}</p>
+      <h1>{isZh ? article.titleZh : article.titleEn}</h1>
+      <p class="article-deck">{isZh ? `26.23 版本新增 ${patchChromas.length} 款臻彩。${pearlCount} 款共享珍珠白配色，横跨五个皮肤系列；西部魔影伊芙琳与洛克两款进入炫金臻彩分类，另有青花瓷艾瑞莉娅 含苞与斗魂觉醒格温 灵之魂焰各持一种配色。` : `Patch 26.23 adds ${patchChromas.length} prestige chromas. ${pearlCount} share the Pearl colourway across five skinlines; two High Noon chromas enter the Golden Prestige Chroma tier, with Porcelain Irelia (Rose Quartz) and Soul Fighter Gwen (Sandstone) rounding out the set.`}</p>
+      <p class="article-meta"><span>{isZh ? 'LoL Chroma Art 编辑团队' : 'LoL Chroma Art Editorial Team'}</span><span>·</span><time datetime={article.publishedAt}>{formatBlogDate(article.publishedAt, isZh ? 'zh' : 'en')}</time><span>·</span><span>{isZh ? `阅读约 ${article.readingMinutes} 分钟` : `${article.readingMinutes} min read`}</span></p>
+    </header>
+
+    <figure class="article-hero">
+      <a href={localizedPath(locale, `/chromas/${patchChromas[0].slug}/`)} aria-label={isZh ? `查看 ${patchChromas[0].nameZh} 详情` : `View ${patchChromas[0].nameEn} details`}>
+        <picture>
+          <source media="(max-width: 767px)" srcset={imageUrl(patchChromas[0].images.medium)} data-fallback={sourceImageUrl('medium', patchChromas[0].instanceId)} />
+          <img src={imageUrl(patchChromas[0].images.large)} data-fallback={sourceImageUrl('large', patchChromas[0].instanceId)} data-placeholder="/placeholder.svg" alt={isZh ? `${patchChromas[0].nameZh}臻彩原画` : `${patchChromas[0].nameEn} prestige chroma splash art`} width="1920" height="1080" loading="eager" decoding="async" />
+        </picture>
+      </a>
+      <figcaption>{isZh ? patchChromas[0].nameZh : patchChromas[0].nameEn}</figcaption>
+    </figure>
+
+    <section>
+      <h2>{isZh ? '26.23 版本概览' : 'Patch 26.23 overview'}</h2>
+      {isZh ? <><p>国服于 11 月 19 日凌晨 1 点起全区停机，更新 26.23 版本。本次进入臻彩体系的 {patchChromas.length} 款条目全部来自已上线皮肤的炫彩升级，没有全新皮肤。分类上，三款钻石臻彩、两款炫金臻彩、六款臻彩。</p><p>珍珠白配色在本批出现了 {pearlCount} 次，横跨花仙子、玉剑传说、机神、莲华温泉四个皮肤系列，覆盖臻彩和钻石臻彩两个分类，是本批压倒性的主色调。</p></> : <><p>The China Server deployed Patch 26.23 with maintenance starting at 1:00 AM on November 19. All {patchChromas.length} entries joining the prestige system upgrade chromas from existing skins &mdash; none come from new skins. Three are Diamond Prestige Chroma tier, two are Golden Prestige Chroma tier, and six are standard prestige chroma tier.</p><p>The Pearl colourway appears {pearlCount} times across this batch, spanning Faerie Court, Immortal Journey, Mecha Kingdoms, and Spirit Blossom Springs, and covering both Diamond and standard prestige tiers &mdash; the clear dominant colour of the patch.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? `珍珠白七款：跨四个皮肤系列` : `Pearl across four skinlines`}</h2>
+      {isZh ? <><p>花仙子系列一次给出两款珍珠白臻彩——<strong>璐璐 桑绢</strong>与<strong>格温 桑绢</strong>。玉剑传说的<strong>索拉卡 珠光</strong>延续这一配色，机神系列则为<strong>德莱厄斯 云霄</strong>和<strong>孙悟空 云霄</strong>各补一款。</p><p>莲华温泉系列本次给出两款钻石臻彩，其中<strong>娑娜 朝花</strong>为珍珠白，<strong>娑娜 星回</strong>为坦桑石紫。</p></> : <><p>The Faerie Court skinline receives two Pearl entries at once &mdash; <strong>Faerie Court Lulu (Pearl)</strong> and <strong>Faerie Court Gwen (Pearl)</strong>. Immortal Journey adds <strong>Soraka (Pearl)</strong>, and Mecha Kingdoms gains one Pearl chroma each for <strong>Darius</strong> and <strong>Wukong</strong>.</p><p>Spirit Blossom Springs lands two Diamond Prestige Chroma entries this patch: <strong>Sona (Pearl)</strong> and <strong>Sona (Tanzanite)</strong>.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '西部魔影：两款炫金臻彩' : 'High Noon: two Golden Prestige Chroma entries'}</h2>
+      {isZh ? <><p>西部魔影系列本次同时为<strong>伊芙琳 慷慨</strong>与<strong>洛克 慷慨</strong>推出炫金臻彩，共享猫眼黄（#FFEE59）配色。炫金臻彩分类在臻彩体系中数量远少于钻石臻彩和臻彩，本次一次推出两款值得注意。</p></> : <><p>The High Noon skinline launches two Golden Prestige Chroma entries together: <strong>High Noon Evelynn (Catseye)</strong> and <strong>High Noon Locke (Catseye)</strong>, sharing the amber Catseye colour. The Golden tier is a smaller category than Diamond or standard prestige, so two at once is notable.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '两款各持一色：粉晶与沙岩' : 'Two standalone colourways: Rose Quartz and Sandstone'}</h2>
+      {isZh ? <><p><strong>青花瓷 艾瑞莉娅 含苞</strong>为钻石臻彩，延续青花瓷系列的粉晶配色传统。<strong>斗魂觉醒 格温 灵之魂焰</strong>配色为沙岩（#DED6B0）。</p></> : <><p><strong>Porcelain Irelia (Rose Quartz)</strong> is a Diamond Prestige Chroma entry continuing the Porcelain skinline&rsquo;s Rose Quartz tradition. <strong>Soul Fighter Gwen (Sandstone)</strong> rounds out the set with its own Sandstone colour.</p></>}
+    </section>
+
+    <section>
+      <h2>{isZh ? '26.23 臻彩原画一览' : 'Patch 26.23 prestige chroma gallery'}</h2>
+      <p>{isZh ? '卡片顺序与站内目录一致。图片下方的圆点是该款臻彩的主配色，点击原画即可进入对应详情页。' : 'The cards follow the same order as the main catalog. The circle on each image shows its recorded colour; select the artwork to open the matching detail page.'}</p>
+      <BlogChromaGrid>
+        {patchChromas.map((chroma) => <BlogPrestigeChromaCard chroma={chroma} {locale} />)}
+      </BlogChromaGrid>
+    </section>
+
+    <aside class="official-sources">
+      <strong>{isZh ? '官方来源' : 'Official source'}</strong>
+      <ul>
+        <li><a class="official-source-link" href={sourceUrl} target="_blank" rel="noreferrer">{isZh ? '《英雄联盟》26.23 版本更新公告（2026 年 11 月 18 日发布，11 月 19 日停机更新）' : 'League of Legends China Server Patch 26.23 notes (posted November 18, 2026; maintenance November 19)'}</a></li>
+      </ul>
+    </aside>
+
+    <section class="faq">
+      <h2>{isZh ? '常见问题' : 'FAQ'}</h2>
+      {faqEntries.map((entry) => <details><summary>{entry.question}</summary><p set:html={entry.answer}></p></details>)}
+    </section>
+  </article>
+
+  <BlogAdjacentNavigation currentSlug={article.slug} {locale} />
+
+</BaseLayout>

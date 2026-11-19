@@ -55,6 +55,22 @@ export function formatBlogDate(date: string, language: 'en' | 'zh'): string {
 
 export const blogArticles: readonly BlogArticle[] = [
   {
+    slug: 'patch-26-23-prestige-chromas',
+    href: '/blog/patch-26-23-prestige-chromas/',
+    titleEn: 'LoL Patch 26.23: 11 New Prestige Chromas',
+    titleZh: '《英雄联盟》26.23 版本：11 款新增臻彩原画',
+    summaryEn: 'Patch 26.23 adds 11 prestige chromas: seven Pearl entries across five skinlines (Faerie Court Lulu and Gwen, Immortal Journey Soraka, Mecha Kingdoms Darius and Wukong, Spirit Blossom Springs Sona), two Golden Prestige Chroma entries from High Noon (Evelynn and Locke), plus Porcelain Irelia (Rose Quartz) and Soul Fighter Gwen (Sandstone).',
+    summaryZh: '26.23 版本新增 11 款臻彩：七款珍珠白配色横跨五个皮肤系列（花仙子璐璐与格温、玉剑索拉卡、机神德莱厄斯与孙悟空、莲华温泉娑娜 朝花），西部魔影伊芙琳与洛克两款炫金臻彩，另有青花瓷艾瑞莉娅 含苞（粉晶）与斗魂觉醒格温 灵之魂焰（沙岩）。',
+    publishedAt: '2026-11-19',
+    readingMinutes: 5,
+    coverUrl: 'https://img.chromaart.lol/chromas/67ff0d89-d950-4000-980c-6c6a233ebce7/site3.jpg',
+    coverAltEn: 'Spirit Blossom Springs Sona (Pearl) prestige chroma splash art — LoL Patch 26.23',
+    coverAltZh: '莲华温泉 娑娜 朝花臻彩原画 — 26.23 版本新增臻彩',
+    sourceUrl: 'https://lol.qq.com/gicp/news/410/37102797.html',
+    adEligible: true,
+    category: 'news',
+  },
+  {
     slug: 'worlds-2026-blg-champion-memes',
     href: '/blog/worlds-2026-blg-champion-memes/',
     titleEn: "2026 World Championship: BLG's First Title and Some Memes",
