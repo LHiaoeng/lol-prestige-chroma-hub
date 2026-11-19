@@ -211,12 +211,11 @@ const tabId = (key: string) => encodeURIComponent(key);
 </script>
 
 <style>
-  .card { overflow: hidden; border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); color: var(--text); }
+  .card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--text); box-shadow: var(--shadow-card); }
   .card--borderless { border-color: transparent; }
   .card--tab-beam { overflow: visible; }
   .card--inner { background: var(--fill); }
   .card--hoverable { cursor: pointer; transition: border-color var(--motion-mid) ease, box-shadow var(--motion-mid) ease; }
-  .card--hoverable:hover { border-color: transparent; box-shadow: var(--shadow-card); }
   .card__header { border-bottom: 1px solid var(--line-subtle); }
   .card__header--beam { --border-beam-inset: -1px; --border-beam-size: 64px; position: relative; border-radius: var(--radius-card) var(--radius-card) 0 0; }
   .card__heading { display: flex; min-height: 56px; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-4); }
