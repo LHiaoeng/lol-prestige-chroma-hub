@@ -838,6 +838,19 @@ export function createRuntimeDetailRenderer(
         mediaSection.appendChild(mediaCarousel);
         article.appendChild(mediaSection);
 
+        // TODO: 临时视频预览测试模块，正式实现时替换为数据驱动
+        const videoSection = document.createElement("section");
+        videoSection.className = "runtime-skin-video";
+        videoSection.appendChild(createDomainHeading(
+          "media",
+          options.locale === "zh_cn" ? "视频预览" : "Video preview",
+        ));
+        const videoWrapper = document.createElement("div");
+        videoWrapper.className = "runtime-skin-video-wrapper";
+        videoWrapper.innerHTML = `<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=117633483541104&bvid=BV16tsk6nEuR&cid=43693443409&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>`;
+        videoSection.appendChild(videoWrapper);
+        article.appendChild(videoSection);
+
         const historicalArt = item.historicalArt ?? [];
         if (historicalArt.length) {
           const historySection = document.createElement("section");
