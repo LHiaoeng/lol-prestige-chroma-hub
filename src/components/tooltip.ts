@@ -1,21 +1,28 @@
 let tooltipId = 0;
 
-export function createTooltip(trigger: HTMLElement | SVGElement, content: string | HTMLElement): HTMLElement {
-  const wrapper = document.createElement("span");
+type TooltipTrigger = HTMLElement | SVGElement;
+
+function createTooltipElement(content: string | HTMLElement): HTMLSpanElement {
   const tooltip = document.createElement("span");
-  wrapper.className = "ant-tooltip-trigger";
-  wrapper.tabIndex = 0;
   tooltip.id = `ant-tooltip-${++tooltipId}`;
   tooltip.className = "ant-tooltip";
   tooltip.setAttribute("role", "tooltip");
   if (typeof content === "string") tooltip.textContent = content;
   else tooltip.appendChild(content);
-  wrapper.setAttribute("aria-describedby", tooltip.id);
-  wrapper.append(trigger, tooltip);
+  return tooltip;
+}
+
+function bindTooltipEvents(
+  trigger: TooltipTrigger,
+  focusTarget: TooltipTrigger,
+  tooltip: HTMLElement,
+  shouldOpen: () => boolean = () => true,
+  closeOnClick = true,
+): () => void {
   let closeTimer: number | undefined;
 
   const positionTooltip = () => {
-    const triggerRect = wrapper.getBoundingClientRect();
+    const triggerRect = trigger.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
     const center = triggerRect.left + triggerRect.width / 2;
     const left = Math.max(
@@ -47,7 +54,7 @@ export function createTooltip(trigger: HTMLElement | SVGElement, content: string
   const open = () => {
     window.clearTimeout(closeTimer);
     closeTimer = undefined;
-    if (!wrapper.isConnected || tooltip.classList.contains("is-open")) return;
+    if (!shouldOpen() || !trigger.isConnected || tooltip.classList.contains("is-open")) return;
     document.body.appendChild(tooltip);
     tooltip.classList.add("is-open");
     positionTooltip();
@@ -57,26 +64,86 @@ export function createTooltip(trigger: HTMLElement | SVGElement, content: string
   const closeSoon = () => {
     window.clearTimeout(closeTimer);
     closeTimer = window.setTimeout(() => {
-      if (document.activeElement !== wrapper) close();
+      if (document.activeElement !== focusTarget) close();
     }, 100);
   };
+  const focusout: EventListener = (event) => {
+    const focusEvent = event as FocusEvent;
+    if (
+      !(focusEvent.relatedTarget instanceof Node && focusTarget.contains(focusEvent.relatedTarget)) &&
+      !focusTarget.matches(":hover") &&
+      !tooltip.matches(":hover")
+    )
+      close();
+  };
+  const click = () => close();
 
-  wrapper.addEventListener("pointerenter", open);
-  wrapper.addEventListener("pointerleave", closeSoon);
+  trigger.addEventListener("pointerenter", open);
+  trigger.addEventListener("pointerleave", closeSoon);
+  focusTarget.addEventListener("focusin", open);
+  focusTarget.addEventListener("focusout", focusout);
   tooltip.addEventListener("pointerenter", () => {
     window.clearTimeout(closeTimer);
     closeTimer = undefined;
   });
   tooltip.addEventListener("pointerleave", closeSoon);
-  wrapper.addEventListener("focusin", open);
-  wrapper.addEventListener("focusout", (event) => {
-    if (
-      !(event.relatedTarget instanceof Node && wrapper.contains(event.relatedTarget)) &&
-      !wrapper.matches(":hover") &&
-      !tooltip.matches(":hover")
-    )
-      close();
-  });
-  wrapper.addEventListener("click", close);
+  if (closeOnClick) focusTarget.addEventListener("click", click);
+
+  return () => {
+    trigger.removeEventListener("pointerenter", open);
+    trigger.removeEventListener("pointerleave", closeSoon);
+    focusTarget.removeEventListener("focusin", open);
+    focusTarget.removeEventListener("focusout", focusout);
+    if (closeOnClick) focusTarget.removeEventListener("click", click);
+    close();
+  };
+}
+
+export interface BoundTooltip {
+  update(content: string): void;
+  destroy(): void;
+}
+
+export function bindTooltip(
+  trigger: TooltipTrigger,
+  content: string,
+  focusTarget: TooltipTrigger = trigger,
+): BoundTooltip {
+  const tooltip = createTooltipElement(content);
+  const originalDescription = focusTarget.getAttribute("aria-describedby");
+  focusTarget.setAttribute(
+    "aria-describedby",
+    [...new Set([...(originalDescription?.split(/\s+/) ?? []), tooltip.id].filter(Boolean))].join(" "),
+  );
+  const unbind = bindTooltipEvents(trigger, focusTarget, tooltip, () => true, false);
+
+  return {
+    update(nextContent) {
+      tooltip.textContent = nextContent;
+    },
+    destroy() {
+      unbind();
+      const remaining = (focusTarget.getAttribute("aria-describedby") ?? "")
+        .split(/\s+/)
+        .filter((id) => id && id !== tooltip.id);
+      if (remaining.length) focusTarget.setAttribute("aria-describedby", remaining.join(" "));
+      else focusTarget.removeAttribute("aria-describedby");
+    },
+  };
+}
+
+export function createTooltip(trigger: TooltipTrigger, content: string | HTMLElement): HTMLElement {
+  const wrapper = document.createElement("span");
+  const tooltip = createTooltipElement(content);
+  wrapper.className = "ant-tooltip-trigger";
+  wrapper.tabIndex = 0;
+  wrapper.setAttribute("aria-describedby", tooltip.id);
+  wrapper.append(trigger, tooltip);
+  bindTooltipEvents(
+    wrapper,
+    wrapper,
+    tooltip,
+    () => wrapper.dataset.overflowOnly !== "true" || wrapper.classList.contains("is-overflowing"),
+  );
   return wrapper;
 }

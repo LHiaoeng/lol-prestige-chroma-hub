@@ -911,20 +911,9 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   min-width: 0;
   gap: 8px;
 }
-.runtime-skin-reference-title > .runtime-skin-reference-name-tooltip {
-  display: block;
+.runtime-skin-reference-title > .runtime-skin-reference-name {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.runtime-skin-reference-title .runtime-skin-reference-name-tooltip > .runtime-skin-reference-name {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .runtime-skin-reference-title img {
   width: 18px;
@@ -1714,6 +1703,73 @@ h5.ant-typography-title-5 { font-size: var(--font-size-title); line-height: var(
   padding: 12px;
   overflow-wrap: anywhere;
 }
+
+/* Card title contract shared by static Astro cards and runtime-rendered cards. */
+:is(
+  .card__title,
+  .card-body h2,
+  .runtime-chroma-name,
+  .blog-chroma-card-name,
+  .runtime-skin-reference-name,
+  .skin-catalog-card-title-name,
+  .tft-companions-card-title-text,
+  .tft-arenas-card-body h2,
+  .runtime-pbe-card-name,
+  .runtime-champion-name,
+  .runtime-card-title,
+  .runtime-universe-title,
+  .guide-card h3,
+  .featured-post-copy h2,
+  .adjacent-card strong
+) {
+  min-width: 0;
+  color: var(--text) !important;
+  font-size: var(--font-size-body) !important;
+  font-weight: 600 !important;
+  line-height: var(--line-height-body) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-body h2,
+.runtime-chroma-name,
+.runtime-skin-reference-name,
+.skin-catalog-card-title-name,
+.tft-companions-card-title-text,
+.tft-arenas-card-body h2,
+.runtime-pbe-card-name,
+.runtime-champion-name,
+.runtime-card-title,
+.guide-card h3,
+.featured-post-copy h2,
+.adjacent-card strong {
+  display: block;
+}
+
+.card-body h2 { min-height: 0 !important; display: block !important; }
+.runtime-card-title { flex: 1; }
+:is(
+  .card__title,
+  .card-body h2,
+  .runtime-chroma-name,
+  .blog-chroma-card-name,
+  .runtime-skin-reference-name,
+  .skin-catalog-card-title-name,
+  .tft-companions-card-title-text,
+  .tft-arenas-card-body h2,
+  .runtime-pbe-card-name,
+  .runtime-champion-name,
+  .runtime-card-title,
+  .runtime-universe-title,
+  .guide-card h3,
+  .featured-post-copy h2,
+  .adjacent-card strong
+):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 .runtime-pbe-card-meta {
   justify-content: space-between;
   align-items: flex-start;

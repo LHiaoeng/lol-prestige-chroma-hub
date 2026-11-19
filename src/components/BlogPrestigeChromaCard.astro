@@ -36,7 +36,10 @@ const fallback = chroma ? sourceImageUrl('medium', chroma.instanceId) : undefine
       <div class="blog-chroma-card-img-wrap">
         <img src={image} data-placeholder="/placeholder.svg" data-alt-en={`${nameEn} prestige chroma splash art`} data-alt-zh={`${nameZh}臻彩原画`} alt={isZh ? `${nameZh}臻彩原画` : `${nameEn} prestige chroma splash art`} width="960" height="540" loading="lazy" decoding="async" />
       </div>
-      <span class="blog-chroma-card-name">{name}</span>
+      <details class="blog-chroma-card-full-name">
+        <summary class="blog-chroma-card-name">{name}</summary>
+        <span class="blog-chroma-card-full-name-text">{name}</span>
+      </details>
     </div>
   )}
 </li>
@@ -51,5 +54,8 @@ const fallback = chroma ? sourceImageUrl('medium', chroma.instanceId) : undefine
   .blog-chroma-grid .blog-chroma-card-img-wrap{position:relative;width:100%;padding:8px;overflow:hidden;background:var(--fill) url('/img/backgrounds/chroma-card-background.jpg') center/cover no-repeat}
   .blog-chroma-grid .blog-chroma-card-img-wrap img{display:block;width:100%;height:auto}
   .blog-chroma-grid .blog-chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid var(--line);border-radius:50%;background:var(--panel)}
-  .blog-chroma-grid .blog-chroma-card-name{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:var(--space-2);font-size:var(--font-size-small);font-weight:600;line-height:var(--line-height-small);color:var(--text);overflow-wrap:anywhere}
+  .blog-chroma-grid .blog-chroma-card-name{display:block;text-align:center;min-height:48px;padding:13px var(--space-2);font-size:var(--font-size-small);font-weight:600;line-height:var(--line-height-small);color:var(--text)}
+  .blog-chroma-grid .blog-chroma-card-name:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  .blog-chroma-grid .blog-chroma-card-full-name > summary{display:list-item;cursor:pointer;list-style-position:inside}
+  .blog-chroma-grid .blog-chroma-card-full-name-text{display:block;padding:0 var(--space-2) var(--space-2);color:var(--text);text-align:center;overflow-wrap:anywhere}
 </style>

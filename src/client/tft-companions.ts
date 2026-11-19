@@ -458,6 +458,7 @@ export function initTftCompanions(
     const titleTooltipLabel = displayName;
     const titleTooltip = createTooltip(titleText, titleTooltipLabel);
     titleTooltip.classList.add("tft-companions-card-title-tooltip");
+    titleTooltip.dataset.overflowOnly = "true";
     titleTooltip.setAttribute("aria-label", titleTooltipLabel);
     title.append(titleTooltip);
     details.append(title);

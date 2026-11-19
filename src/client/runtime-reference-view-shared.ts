@@ -91,7 +91,14 @@ export function linkWithNavigation(
   const link = document.createElement("a");
   link.className = className;
   link.href = `${url.pathname}${url.search}${url.hash}`;
-  link.textContent = label;
+  if (label && (className.includes("runtime-card-link") || className.includes("runtime-pbe-text-link"))) {
+    const title = document.createElement("span");
+    title.className = "runtime-card-title";
+    title.textContent = label;
+    link.appendChild(title);
+  } else {
+    link.textContent = label;
+  }
   link.addEventListener("click", (event) => {
     if (!shouldHandleRuntimeNavigation(url, window.location.pathname)) return;
     if (
@@ -214,9 +221,7 @@ export function appendSkinReferenceTitle(
 ): HTMLElement {
   const title = textNode("span", "", "runtime-skin-reference-title");
   const nameText = textNode("span", name, "runtime-skin-reference-name");
-  const nameTooltip = createTooltip(nameText, name);
-  nameTooltip.classList.add("runtime-skin-reference-name-tooltip");
-  title.appendChild(nameTooltip);
+  title.appendChild(nameText);
   if (rarity?.iconUrl) {
     const icon = document.createElement("img");
     icon.src = rarity.iconUrl;
