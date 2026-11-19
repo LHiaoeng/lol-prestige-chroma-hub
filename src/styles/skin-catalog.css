@@ -49,7 +49,6 @@
 .skin-catalog-load-more-footer { height: 32px; margin-top: 12px; line-height: 32px; text-align: center; }
 @keyframes skin-catalog-appear { from { opacity: 0; } to { opacity: 1; } }
 .skin-catalog-card { position: relative; display: block; min-width: 0; overflow: visible; border: 1px solid var(--line); background: var(--panel); color: var(--text); box-shadow: var(--shadow-card); }
-.skin-catalog-card:has(:focus-visible) { outline: 2px solid var(--gold); outline-offset: 2px; }
 .skin-catalog-card-media { position: relative; display: block; overflow: hidden; aspect-ratio: 11 / 20; background: var(--panel2); isolation: isolate; }
 .skin-catalog-card-media--missing { display: grid; place-items: center; padding: var(--space-4); color: var(--muted); text-align: center; }
 .skin-catalog-card-media::before { position: absolute; inset: -8px; z-index: -1; background-image: var(--catalog-backdrop); background-position: center; background-size: cover; content: ""; filter: blur(8px); opacity: .65; }
