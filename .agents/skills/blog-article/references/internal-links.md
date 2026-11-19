@@ -2,7 +2,7 @@
 
 本文件记录实际新增的文章内链关系，现有矩阵和日志以历史臻彩文章为主，不是所有文章的推荐清单。相关性优先于数量；非臻彩主题无需链接臻彩文章，也无需为凑回链改旧文。
 
-## 当前内链矩阵
+## 历史内链矩阵（当前关系以文章页面为准）
 
 行 = 来源页面，列 = 链向页面，✅ = 已有链接。
 
@@ -33,63 +33,6 @@
 新增页面 `prestige-chroma-summon-september-2026` 的关系：正文链向 `what-are-prestige-chromas`（正文两处+FAQ）、`prestige-chroma-summon-august-2026`（往期活动表格+正文）；`prestige-chroma-summon-august-2026`（关于璀璨臻彩召唤活动段落）与 `what-are-prestige-chromas`（官方获取来源）回链本页。
 
 2026-09-01: 新增 `full-gift-reward-prestige-chroma-202608`（满额礼赠活动资讯）。正文链向 `what-are-prestige-chromas`（正文+FAQ）与 `patch-26-15-prestige-chromas`（正文提及 1000 积分奖励出处）；`patch-26-15-prestige-chromas`（女帝菲奥娜段落）与 `joy-club-peak-gala-202607`（什么是心悦巅峰盛典段落）回链本页。
-
-## 入链统计
-
-| 页面 | 入链数 | 状态 |
-|---|---|---|
-| what-are-prestige-chromas | 8 | ✅ 枢纽 |
-| what-are-chroma-skins | 3 | ✅ 良好 |
-| champions-without-prestige-chroma | 1 | ⚠️ 偏少 |
-| what-is-league-of-legends | 0 | ❌ 孤岛 |
-| kaisa-prestige-chroma | 0 | ❌ 孤岛 |
-| champion-most-prestige-chromas | 2 | ✅ 良好 |
-| top-2-prestige-chroma-champions | 0 | ❌ 孤岛 |
-| prestige-chroma-summon-august-2026 | 4 | ✅ 良好 |
-| patch-26-15-prestige-chromas | 1 | ✅ 已连接 |
-| blue-porcelain-prestige-chromas | 3 | ✅ 良好 |
-| patch-26-16-prestige-chromas | 2 | ✅ 良好 |
-| challenger-mayhem-jax-prestige-chroma | 0 | ❌ 新孤岛 |
-| lucky-gate-porcelain-charm-202608 | 2 | ✅ 新页面 |
-| lucky-gate-petals-of-spring-chromas-202607 | 2 | ✅ 新页面 |
-| patch-26-17-prestige-chromas | 0 | ❌ 新孤岛（应用户要求不修改旧文回链） |
-| prestige-chroma-summon-september-2026 | 2 | ✅ 新页面 |
-| lucky-gate-summon-202620 | 2 | ✅ 新页面 |
-
-## 待补充内链
-
-按优先级排列：
-
-### P0 — 消除孤岛
-
-| 来源 | 链向 | 插入位置建议 |
-|---|---|---|
-| what-is-league-of-legends | what-are-chroma-skins | 介绍个性化/炫彩时 |
-| kaisa-prestige-chroma | champion-most | "卡莎在排行榜上的位置"段落 |
-| kaisa-prestige-chroma | patch-26-15 | "更多最新臻彩"段落 |
-| champion-most-prestige-chromas | kaisa-prestige-chroma | 排行榜中提及卡莎时 |
-| champion-most-prestige-chromas | patch-26-15 | "最新新增"段落 |
-| patch-26-15-prestige-chromas | champion-most | "对排行榜的影响"段落 |
-| patch-26-15-prestige-chromas | kaisa-prestige-chroma | 提到卡莎新臻彩时 |
-
-### P1 — 加强弱链
-
-| 来源 | 链向 | 插入位置建议 |
-|---|---|---|
-| what-are-chroma-skins | what-are-prestige-chromas | 购买方式段落后补充"臻彩是更高级的变体" |
-| what-are-chroma-skins | kaisa-prestige-chroma 或 champion-most | 结尾"看看具体例子" |
-| what-are-prestige-chromas | kaisa-prestige-chroma | 展示段落后"以卡莎为例" |
-| what-are-prestige-chromas | champion-most | 收藏系统段落"看看谁集得最多" |
-| champions-without-prestige-chroma | champion-most | "已有臻彩的英雄排行" |
-
-### P2 — 锦上添花
-
-| 来源 | 链向 | 插入位置建议 |
-|---|---|---|
-| what-are-prestige-chromas | patch-26-15 | "最新新增"段落 |
-| what-are-prestige-chromas | champions-without | "哪些英雄还没有"段落 |
-| champions-without-prestige-chroma | kaisa-prestige-chroma | "卡莎的臻彩原画" |
-| champions-without-prestige-chroma | patch-26-15 | "最新新增" |
 
 ## 内链写法参考
 

@@ -2,67 +2,38 @@
 
 ## 项目边界
 
-- Astro 静态站；构建时读取 `data/prestige-chromas.json`，无运行时数据库或数据 API。
-- 使用 Node.js 22+、pnpm、TypeScript strict、Zod 和 Vitest；部署目标为 Cloudflare Workers Static Assets。
-- 通用组件及其相关代码统一放 `src/components/`（含组件专属的纯逻辑辅助与相邻测试）；`src/domain/` 放领域模型与跨业务的纯业务逻辑，`src/client/` 仅放必要的浏览器交互，`src/seo/` 放 SEO 规则。
-- `data/prestige-chromas.json` 是臻彩原画目录的唯一数据源；完整 JSON 不得进入 `public/`。
-- 博客文章由多个文件组成（元数据 `src/blog/articles.ts`、Astro 页面 `src/pages/blog/`、中文路由 `src/pages/zh-cn/blog/`、封面图 `public/img/blog/`、测试），均为项目主要文件，默认加入版本控制。
+- Astro 静态站，使用 Node.js 22+、pnpm、TypeScript strict、Zod、Vitest，部署到 Cloudflare Workers Static Assets。本站无运行时数据库或自建数据 API；浏览器按相关 ADR 加载 CommunityDragon 辅助资料。
+- 臻彩原画目录在构建时只读 `data/prestige-chromas.json`，完整 JSON 不得进入 `public/`。正常更新整体替换，禁止手改生成字段。以 [Schema](src/domain/chroma.ts) 和[数据契约](docs/数据源与JSON结构.md)为准；字段变更同步类型、消费者、导入与校验脚本及测试。非法数据和路径必须报错。目录图片只存 `img.chromaart.lol` 对应的仓库相对路径。
+- 共享组件、专属辅助逻辑和相邻测试放 `src/components/`；领域模型与跨业务纯逻辑放 `src/domain/`；页面和组件组装展示，`src/client/` 仅放必要的浏览器交互，SEO 规则放 `src/seo/`。
 
-## 执行效率
+## 执行与验收
 
-- 需求明确时直接执行；仅在存在会改变结果的实质歧义时提问。
-- 单文件、文档、配置和小型修复不创建设计文档或实施计划，除非用户要求。
-- 只检查任务相关文件；优先用 `rg` 定位，不读取生成目录、大型数据文件或完整锁文件。
-- 不重复读取本轮已有信息，不复述需求或大段命令输出。
-- 默认由主代理完成。仅在检索、资料核对或失败分析可独立交付且值得并行时派 1 个子代理。只有用户明确要求双代理审查时才派 2 个。
-- 委派只传目标、必要的文件或来源和交付要求，优先用文件路径或引用代替完整对话。子代理只回传结论和证据，不再委派。主代理负责修改和最终验证；子代理不可用时由主代理接手。
-- 默认不使用联网搜索、浏览器或可视化；任务明确需要时除外。
-- 过程更新仅用于开始、阻塞或超过 60 秒的工作；最终回复通常不超过 5 条。
-
-## 开发与验证
-
-- 遵循邻近文件风格，不引入无关重构。
-- 领域规则优先写成可独立测试的纯函数；页面和组件只负责组装与展示。
-- 新增或修改行为时补充相邻的 `*.test.ts`；仅在需要浏览器状态或事件时新增客户端脚本。
-- 功能改动必须同步更新 README、`docs/` 或其他受影响的相关文档。
-- 面向用户的改动同时考虑中英文、移动端、无障碍与 SEO。
-- 验证范围与风险匹配：文档运行 `git diff --check`；代码先运行相关测试；数据变更运行 `pnpm data:validate`；发布改动运行 `pnpm release:build`。
-- 常用命令：`pnpm dev`、`pnpm test`、`pnpm typecheck`、`pnpm data:validate`、`pnpm release:build`。
-
-## 数据规则
-
-- JSON 契约以 `src/domain/chroma.ts` 和 `docs/数据源与JSON结构.md` 为准。
-- 修改字段时同步更新 Schema、类型、消费者、导入/校验脚本及测试。
-- 正常更新应完整替换 JSON，不手工维护生成字段。
-- 图片只保存 `img.chromaart.lol` 对应的仓库相对路径，不提交远程图片副本。
-- 数据与路径校验必须失败即报错，不用宽松默认值掩盖非法输入。
+- 需求明确就执行，仅就影响结果的歧义提问。用 `rg` 定位相关文件、按需读取；小型改动仅在用户要求时写计划或设计文档。联网、浏览器与可视化按任务需要使用。
+- 主代理修改并验证。可将独立检索、核对或失败分析交给一名子代理，仅显式要求双代理审查时用两名。委派只给目标、必要引用与交付要求，子代理返回证据和结论，不再委派；不可用时主代理接手。
+- 在开始、遇阻或工作超过 60 秒时简报。最终通常不超过五条。
+- 遵循邻近代码风格，避免无关重构。行为变更补相邻 `*.test.ts`，功能变更更新受影响文档。面向用户的改动覆盖中英文、移动端、无障碍与 SEO。
+- 文档运行 `git diff --check`；代码先跑相关测试；目录数据运行 `pnpm data:validate`；发布改动运行 `pnpm release:build`。测试、类型检查、数据校验与产物审计的失败均须处理。
 
 ## 版本控制与安全
 
-- 保留并避开用户已有或无关改动；禁止用破坏性 Git 命令覆盖它们。
-- 本次任务新增文件默认加入版本控制，用户明确要求排除时除外。
-- 提交保持单一目的，使用 Conventional Commits；提交信息使用简体中文，不得出现乱码或编码异常；未经要求不提交、不推送、不部署。
-- 提交前检查 `git diff` 与 `git status`，只暂存本次任务文件。
-- 不编辑或提交生成目录、密钥、凭据、私有数据、本机绝对路径或远程图片。
-- 不绕过失败的测试、类型检查、数据校验或产物审计。
-- 不擅自改变 Cloudflare Worker 名称、生产分支、域名或部署流程。
+- 保留已有改动，禁止破坏性 Git 覆盖。新增任务文件默认纳入版本控制。提交前检查 diff 和 status，只暂存本次文件；单一目的，Conventional Commits 配简体中文说明。
+- 未经要求不提交、推送或部署，不擅改 Worker 名称、生产分支、域名或部署流程。不编辑或提交生成目录、密钥、凭据、私有数据、本机绝对路径或远程图片副本；文章本地封面按博客技能处理。
+
+## 按任务读取
+
+- 新增或修改共享组件契约（含单一状态、图标或间距）前按[组件复刻规范](docs/antdv-next-component-replication.md)核对上游；交付源码依据、本站差异与实际验收结果。
+- 修改视觉或动效前查 [DESIGN.md](DESIGN.md) 和[前端规范](docs/frontend-design.md)相关段落；排版检查中英文桌面与手机。新增页面或调整布局、响应式按[页面模板](docs/page-templates.md)验收实页。
 
 ## Agent skills
 
-### 前端任务
-
-- **组件契约**。新增或修改共享组件的 API、结构、默认样式、状态或交互时，动手前执行 [Antdv Next 组件复刻流程](docs/antdv-next-component-replication.md)。包括只改一个状态、图标或间距的任务。交付时列出上游源码依据、本站差异和实际验收结果。
-- **主题与视觉**。修改颜色、字体、尺寸、图标或动效时，先查 [DESIGN.md](DESIGN.md) 和 [前端规范](docs/frontend-design.md) 的相关段落。字体与排版至少检查中英文、桌面与手机。
-- **页面布局**。新增页面或修改布局、响应式时，按 [页面模板与验收](docs/page-templates.md) 检查实际页面。
-
 ### Issue tracker
 
-Issue 与规格统一保存为仓库 `.scratch/` 下的本地 Markdown。详见 `docs/agents/issue-tracker.md`。
+规格与工单按[本地跟踪约定](docs/agents/issue-tracker.md)维护。
 
 ### Triage labels
 
-使用五个默认的分诊标签。详见 `docs/agents/triage-labels.md`。
+分诊使用[状态映射](docs/agents/triage-labels.md)。
 
 ### Domain docs
 
-本仓库采用单上下文领域文档布局。详见 `docs/agents/domain.md`。
+工程探索按[领域文档约定](docs/agents/domain.md)查术语与相关 ADR。

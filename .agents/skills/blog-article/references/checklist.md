@@ -12,21 +12,13 @@
 ## 页面与 SEO
 
 - [ ] 英文和中文均为独立完整内容，包含标题、导语和正文
-- [ ] 页面查找正确 article，设置 `title`、`description`、`canonical`、面包屑和 `BlogAdjacentNavigation`
+- [ ] BaseLayout 接收当前 locale，页面查找正确 article，设置 `title`、`description`、`canonical`、面包屑和 `BlogAdjacentNavigation`
 - [ ] BaseLayout props 已传 `image`、`ogType="article"`、`publishedTime`、`modifiedTime`、`jsonLd`，自动获得 canonical、hreflang(en/zh-CN/x-default)、Open Graph、article:published/modified_time、Twitter summary_large_image
 - [ ] JSON-LD 至少包含 `BlogPosting` 与 `BreadcrumbList`；`datePublished`、`dateModified` 与页面内容一致
 - [ ] 如有 FAQ，同一份本地化 `faqEntries` 驱动正文 `<details>` 和 `FAQPage`；无 FAQ 时不输出对应结构化数据
 - [ ] 可选追加 `ItemList`（臻彩奖励列表）、`HowTo`、`WebPage` 等业务结构化数据
 - [ ] 首图 eager，其余图片 lazy；图片有 `alt`、`data-alt-en`、`data-alt-zh`、`data-fallback`、`data-placeholder`、宽高
 - [ ] 外部链接使用 `target="_blank" rel="noreferrer"`
-
-## 臻彩展示组件（仅含目录臻彩卡片时）
-
-- [ ] 目录卡片网格使用 `BlogChromaGrid` + `BlogPrestigeChromaCard`，没有手写重复卡片 HTML
-- [ ] 活动专属名称/碎片数通过 `labelEn` 与 `labelZh` 传入，而不是在卡片中复制图片、颜色圆点或链接代码
-- [ ] 目录不存在的奖励没有详情链接，并同时提供双语标签，由共享组件渲染占位卡
-- [ ] 页面没有 `.chroma-grid`、`.chroma-card-*` 的重复 CSS；网格由组件统一处理 `padding: 0` 和移动端列数
-- [ ] `references/chroma-grid.md` 中的接口说明仍与组件实现一致
 
 ## 内容与领域
 
@@ -42,7 +34,4 @@
 - [ ] `scripts/blog-feature.test.ts` 覆盖页面结构、共享臻彩组件和官方来源（如适用）
 - [ ] `scripts/site-build.test.ts` 覆盖新英文/中文路由；使用共享臻彩网格时检查 padding 回归
 - [ ] 按改动运行相关测试，例如 `pnpm test src/blog/articles.test.ts scripts/blog-feature.test.ts`，并验证受影响的静态路由
-- [ ] `pnpm release:build`（发布前，包含全量测试、类型检查、数据校验、构建和产物审计）
-- [ ] `pnpm data:validate`（修改 catalog 数据时）
-- [ ] `git diff --check`
-- [ ] 修改技能后，使用系统 `skill-creator` 的 `quick_validate.py` 校验 `.agents/skills/blog-article`
+- [ ] 按[全局验收规则](../../../../AGENTS.md)完成对应检查。
