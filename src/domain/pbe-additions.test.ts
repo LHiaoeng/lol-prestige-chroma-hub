@@ -153,6 +153,128 @@ describe("PBE additions projection", () => {
     ]);
   });
 
+  it("groups new skins by skinline before the in-group ID order", () => {
+    const result = projectPbeAdditions({
+      pbe: collection({
+        skins: [
+          skin(103200, { skinlineIds: [20] }),
+          skin(103100, { skinlineIds: [10] }),
+          skin(103250, { skinlineIds: [] }),
+          skin(103150, { skinlineIds: [10] }),
+        ],
+      }),
+      latest: collection(),
+    });
+
+    expect(result.skins.map((item) => item.skinId)).toEqual([
+      103100,
+      103150,
+      103200,
+      103250,
+    ]);
+  });
+
+  it("groups by universe before skinline", () => {
+    const result = projectPbeAdditions({
+      pbe: collection({
+        skins: [
+          skin(103300, { skinlineIds: [10], universeIds: [300] }),
+          skin(103200, { skinlineIds: [20], universeIds: [200] }),
+          skin(103100, { skinlineIds: [10], universeIds: [200] }),
+        ],
+      }),
+      latest: collection(),
+    });
+
+    expect(result.skins.map((item) => item.skinId)).toEqual([
+      103100,
+      103200,
+      103300,
+    ]);
+  });
+
+  it("derives the universe group from skinlines when skins omit universes", () => {
+    const result = projectPbeAdditions(
+      {
+        pbe: collection({
+          skins: [
+            skin(103100, { skinlineIds: [10], universeIds: [] }),
+            skin(103500, { skinlineIds: [20], universeIds: [] }),
+            skin(103900, { skinlineIds: [30], universeIds: [] }),
+          ],
+        }),
+        latest: collection(),
+      },
+      new Map([
+        [10, [200]],
+        [20, [300]],
+        [30, [200]],
+      ]),
+    );
+
+    expect(result.skins.map((item) => item.skinId)).toEqual([
+      103100,
+      103900,
+      103500,
+    ]);
+    expect(result.skins.map((item) => item.universeIds)).toEqual([
+      [200],
+      [200],
+      [300],
+    ]);
+  });
+
+  it("groups by champion inside a skinline before the ID order", () => {
+    const result = projectPbeAdditions({
+      pbe: collection({
+        skins: [
+          skin(103200, {
+            championId: 104,
+            skinlineIds: [10],
+            universeIds: [200],
+          }),
+          skin(103900, {
+            championId: 103,
+            skinlineIds: [10],
+            universeIds: [200],
+          }),
+        ],
+      }),
+      latest: collection(),
+    });
+
+    expect(result.skins.map((item) => item.skinId)).toEqual([103900, 103200]);
+  });
+
+  it("groups new chromas by their owner skin's skinline", () => {
+    const result = projectPbeAdditions({
+      pbe: collection({
+        skins: [
+          skin(103300, {
+            skinlineIds: [30],
+            chromas: [{ id: 1033002 }, { id: 1033001 }],
+          }),
+          skin(103400, {
+            skinlineIds: [],
+            chromas: [{ id: 1034001 }],
+          }),
+          skin(103100, {
+            skinlineIds: [10],
+            chromas: [{ id: 1031001 }],
+          }),
+        ],
+      }),
+      latest: collection(),
+    });
+
+    expect(result.chromas.map((item) => item.id)).toEqual([
+      1031001,
+      1033001,
+      1033002,
+      1034001,
+    ]);
+  });
+
   it("compares top-level IDs, ignores field changes, and expands valid new stages", () => {
     const changedSkin = skin(103002, { name: "PBE name" });
     const newSkin = skin(103100, {
@@ -276,6 +398,8 @@ describe("PBE additions projection", () => {
         skinId: 103001,
         championId: 103,
         skinName: "Skin 103001",
+        skinlineIds: [7],
+        universeIds: [200],
       },
       {
         kind: "chroma",
@@ -286,6 +410,8 @@ describe("PBE additions projection", () => {
         skinId: 103003,
         championId: 103,
         skinName: "Ahri",
+        skinlineIds: [7],
+        universeIds: [200],
       },
     ]);
     expect(result.counts.chromas).toBe(2);

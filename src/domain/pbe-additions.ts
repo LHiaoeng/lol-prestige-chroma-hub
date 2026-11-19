@@ -51,6 +51,8 @@ export interface RuntimePbeChroma {
   readonly skinId: number;
   readonly championId: number;
   readonly skinName?: string;
+  readonly skinlineIds: readonly number[];
+  readonly universeIds: readonly number[];
 }
 
 export interface RuntimePbeAdditions {
@@ -161,19 +163,114 @@ export interface RuntimePbeSkinDiff {
   readonly count: number;
 }
 
+interface PbeGrouped {
+  readonly skinId: number;
+  readonly championId: number;
+  readonly skinlineIds: readonly number[];
+  readonly universeIds: readonly number[];
+}
+
+/** Universe IDs keyed by the skinline IDs listed in the universe records. */
+export type RuntimePbeSkinlineUniverseIndex = ReadonlyMap<
+  number,
+  readonly number[]
+>;
+
+/**
+ * Skin records are the primary universe source, but new PBE entries often omit
+ * that relation, so the skinline's universe is used as the fallback.
+ */
+function resolvePbeUniverseIds(
+  item: Pick<PbeGrouped, "skinlineIds" | "universeIds">,
+  skinlineUniverses: RuntimePbeSkinlineUniverseIndex,
+): readonly number[] {
+  if (item.universeIds.length > 0) return item.universeIds;
+  const universeIds = new Set<number>();
+  for (const skinlineId of item.skinlineIds) {
+    for (const universeId of skinlineUniverses.get(skinlineId) ?? [])
+      universeIds.add(universeId);
+  }
+  return [...universeIds];
+}
+
+/**
+ * The smallest valid ID acts as the grouping key, so an item that belongs to
+ * several relations stays next to its earliest declared family.
+ */
+function pbeGroupKey(ids: readonly number[]): number | undefined {
+  const valid = ids.filter((id) => Number.isSafeInteger(id) && id > 0);
+  return valid.length ? Math.min(...valid) : undefined;
+}
+
+/**
+ * Group PBE additions by universe, skinline, and champion, ordering the
+ * champion layer by champion ID and keeping the caller's ordering below it.
+ * Items without a relation follow the grouped items at that layer.
+ */
+function sortPbeItemsByUniverseAndSkinline<T extends PbeGrouped>(
+  items: readonly T[],
+  compareWithinGroup: (left: T, right: T) => number,
+): readonly T[] {
+  const universeSkinIds = new Map<number, number>();
+  const skinlineSkinIds = new Map<string, number>();
+  const relationKey = (universe: number | undefined, skinline: number | undefined) =>
+    `${universe ?? "-"}:${skinline ?? "-"}`;
+  for (const item of items) {
+    const universe = pbeGroupKey(item.universeIds);
+    const skinline = pbeGroupKey(item.skinlineIds);
+    if (universe !== undefined) {
+      const current = universeSkinIds.get(universe);
+      if (current === undefined || item.skinId < current)
+        universeSkinIds.set(universe, item.skinId);
+    }
+    const key = relationKey(universe, skinline);
+    const current = skinlineSkinIds.get(key);
+    if (current === undefined || item.skinId < current)
+      skinlineSkinIds.set(key, item.skinId);
+  }
+  const rank = (item: T): readonly number[] => {
+    const universe = pbeGroupKey(item.universeIds);
+    const skinline = pbeGroupKey(item.skinlineIds);
+    return [
+      universe === undefined ? 1 : 0,
+      universe === undefined ? item.skinId : universeSkinIds.get(universe) ?? item.skinId,
+      universe ?? 0,
+      skinline === undefined ? 1 : 0,
+      skinline === undefined
+        ? item.skinId
+        : skinlineSkinIds.get(relationKey(universe, skinline)) ?? item.skinId,
+      skinline ?? 0,
+      item.championId,
+    ];
+  };
+  return [...items].sort((left, right) => {
+    const leftRank = rank(left);
+    const rightRank = rank(right);
+    for (let index = 0; index < leftRank.length; index += 1) {
+      const diff = leftRank[index] - rightRank[index];
+      if (diff !== 0) return diff;
+    }
+    return compareWithinGroup(left, right);
+  });
+}
+
 export function projectPbeSkinDiff(
   pbe: readonly RuntimeSkin[],
   latest: readonly RuntimeSkin[],
   championNames: ReadonlyMap<number, string>,
+  skinlineUniverses: RuntimePbeSkinlineUniverseIndex = new Map(),
 ): RuntimePbeSkinDiff {
   const newSkins = additionsById(pbe, latest);
+  const items = projectSkinReferenceCollectionItems(newSkins).map((item) => ({
+    ...item,
+    championName: championNames.get(item.championId),
+    universeIds: resolvePbeUniverseIds(item, skinlineUniverses),
+  }));
   return {
-    items: projectSkinReferenceCollectionItems(newSkins)
-      .map((item) => ({
-        ...item,
-        championName: championNames.get(item.championId),
-      }))
-      .sort(compareRuntimeSkinReferenceItems),
+    items: sortPbeItemsByUniverseAndSkinline(
+      items,
+      compareRuntimeSkinReferenceItems,
+    ),
     count: newSkins.length,
   };
 }
@@ -218,13 +315,14 @@ export function projectPbeChromaDiff(
   pbe: readonly RuntimeSkin[],
   latest: readonly RuntimeSkin[],
   championNames: ReadonlyMap<number, string>,
+  skinlineUniverses: RuntimePbeSkinlineUniverseIndex = new Map(),
 ): readonly RuntimePbeChroma[] {
   // Chromas live inside skins.json, so the diff runs on the chroma ID set
   // across channels and keeps the owner skin for links and labels.
   const latestChromaIds = new Set(
     latest.flatMap((skin) => skin.chromas.map((chroma) => chroma.id)),
   );
-  return pbe
+  const items = pbe
     .flatMap((skin) =>
       skin.chromas.map((chroma) => ({
         kind: "chroma" as const,
@@ -235,16 +333,24 @@ export function projectPbeChromaDiff(
         skinId: skin.id,
         championId: skin.championId,
         skinName: skin.name ?? championNames.get(skin.championId),
+        skinlineIds: skin.skinlineIds,
+        universeIds: resolvePbeUniverseIds(
+          { skinlineIds: skin.skinlineIds, universeIds: skin.universeIds ?? [] },
+          skinlineUniverses,
+        ),
       })),
     )
-    .filter((chroma) => !latestChromaIds.has(chroma.id))
-    .sort((left, right) =>
+    .filter((chroma) => !latestChromaIds.has(chroma.id));
+  return sortPbeItemsByUniverseAndSkinline(
+    items,
+    (left, right) =>
       left.id - right.id || (left.name ?? "").localeCompare(right.name ?? ""),
-    );
+  );
 }
 
 export function projectPbeAdditions(
   input: RuntimePbeComparisonInput,
+  skinlineUniverses: RuntimePbeSkinlineUniverseIndex = new Map(),
 ): RuntimePbeAdditions {
   const champions = projectPbeIdDiff(
     input.pbe.champions,
@@ -255,6 +361,7 @@ export function projectPbeAdditions(
     input.pbe.skins,
     input.latest.skins,
     championNames,
+    skinlineUniverses,
   );
   const skinlines = projectPbeIdDiff(
     input.pbe.skinlines,
@@ -274,6 +381,7 @@ export function projectPbeAdditions(
     input.pbe.skins,
     input.latest.skins,
     championNames,
+    skinlineUniverses,
   );
   const borders = projectPbeIdDiff(input.pbe.borders, input.latest.borders);
   const wards = projectPbeIdDiff(input.pbe.wards, input.latest.wards);

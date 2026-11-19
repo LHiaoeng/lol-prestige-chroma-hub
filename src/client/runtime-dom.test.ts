@@ -640,6 +640,8 @@ describe("runtime DOM boundaries", () => {
       skinId: 1,
       championId: 2,
       skinName: "Parent skin",
+      skinlineIds: [],
+      universeIds: [],
     }, "zh_cn", { navigate: vi.fn() });
 
     expect(parent.querySelector(".runtime-skin-reference-card")).not.toBeNull();

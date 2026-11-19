@@ -492,6 +492,21 @@ export function createCommunityDragonRuntime(
     const loadChampionNames = () =>
       championList("pbe").then(projectPbeChampionNames);
 
+    // New PBE skin records usually omit universeIds, so the universe grouping
+    // is resolved from each universe's skinline list instead.
+    const loadSkinlineUniverses = () =>
+      universeList("pbe").then((universes) => {
+        const index = new Map<number, number[]>();
+        universes.forEach((universe) => {
+          universe.skinlineIds.forEach((skinlineId) => {
+            const existing = index.get(skinlineId);
+            if (existing) existing.push(universe.id);
+            else index.set(skinlineId, [universe.id]);
+          });
+        });
+        return index;
+      });
+
     const loadChampions = (): Promise<RuntimePbeModuleItems> =>
       Promise.all([championList("pbe"), championList("latest")]).then(
         ([pbe, latest]) => ({
@@ -505,9 +520,11 @@ export function createCommunityDragonRuntime(
         listSkinCollection(channelOptions("pbe")),
         listSkinCollection(channelOptions("latest")),
         loadChampionNames(),
-      ]).then(([pbe, latest, championNames]) => ({
+        loadSkinlineUniverses(),
+      ]).then(([pbe, latest, championNames, skinlineUniverses]) => ({
         kind: "skins" as const,
-        items: projectPbeSkinDiff(pbe, latest, championNames).items,
+        items: projectPbeSkinDiff(pbe, latest, championNames, skinlineUniverses)
+          .items,
       }));
 
     const loadSkinlines = (): Promise<RuntimePbeModuleItems> =>
@@ -552,9 +569,15 @@ export function createCommunityDragonRuntime(
         listSkinCollection(channelOptions("pbe")),
         listSkinCollection(channelOptions("latest")),
         loadChampionNames(),
-      ]).then(([pbe, latest, championNames]) => ({
+        loadSkinlineUniverses(),
+      ]).then(([pbe, latest, championNames, skinlineUniverses]) => ({
         kind: "chromas" as const,
-        items: projectPbeChromaDiff(pbe, latest, championNames),
+        items: projectPbeChromaDiff(
+          pbe,
+          latest,
+          championNames,
+          skinlineUniverses,
+        ),
       }));
 
     const loadBorders = (): Promise<RuntimePbeModuleItems> =>
