@@ -364,6 +364,18 @@ https://raw.communitydragon.org/{version}/cdragon/
 | TFT Tactician 内容类型图标 | [`game/assets/ux/tft/outofgame/contenttypeicons/`](https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/contenttypeicons/) | `tft_icon_tactician.png` | PNG 版本 |
 | Tactician 变形专用图标 | [`game/assets/ux/tft/outofgame/contenttypeicons/`](https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/contenttypeicons/) | `tft_icon_tactician_tranformation.png` | PNG 专用变体；文件名按 CD 原样保留 `tranformation` 拼写 |
 
+##### 云顶物品领域图标
+
+进攻特效、棋盘和传送门的类别图形与以下 CommunityDragon PNG 一一对应；已按小小英雄标题图标的金色与裁去留白方式，转制为站内 SVG。三个来源在 `latest` 和 PBE 均存在，但已核对的相关目录没有同图的原生 SVG，因此站内 SVG 是从 32×32 PNG 描摹而来，不应标作 CommunityDragon 原生 SVG。
+
+| 类别 | 来源目录（`latest`，点击访问） | 来源文件 | 站内 SVG |
+| --- | --- | --- | --- |
+| 传送门 | [`game/assets/ux/tft/outofgame/contenttypeicons/`](https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/contenttypeicons/) | `tft_icon_portal.png` | `public/img/icons/tft-portals.svg` |
+| 进攻特效 | 同上 | `tft_icon_boom.png` | `public/img/icons/tft-booms.svg` |
+| 棋盘 | 同上 | `tft_icon_arena.png` | `public/img/icons/tft-arenas.svg` |
+
+小小英雄仍使用上表的原生 `little_legends_icon.svg`；棋盘页面标题使用站内 `tft-arenas.svg`。`companion_icon.svg` 表示小小英雄蛋，`tft_icon_tactician.png` 表示 Tactician 内容类型，不代替全部云顶物品类别图标。各条目的 `loadoutsIcon` 是物品缩略图，也不代替类别图标。
+
 名称检索还会命中 TFT 伙伴数量奖励资源；它不是稀有度图标：
 
 | RAW 相对目录（点击访问） | 命中资源与用途 |

@@ -1,7 +1,7 @@
 ---
 import { localizedPath, type Locale } from '../i18n/config';
 import Breadcrumb from './Breadcrumb.astro';
-import DomainIcon from './DomainIcon.astro';
+import TftArenaIcon from './TftArenaIcon.astro';
 import Alert from './Alert.astro';
 import Divider from './Divider.astro';
 import Empty from './Empty.astro';
@@ -25,7 +25,7 @@ const title = isZh ? '棋盘' : 'Arenas';
 ]} />
 <section class="runtime-page runtime-page--compact-list-header tft-arenas" data-tft-arenas data-arenas-locale={isZh ? 'zh_cn' : 'default'} aria-labelledby="tft-arenas-title">
   <header>
-    <h1 id="tft-arenas-title"><DomainIcon name="teamfight-tactics" />{title}</h1>
+    <h1 id="tft-arenas-title"><TftArenaIcon />{title}</h1>
     <div class="runtime-source runtime-channel-row tft-arenas-summary" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
       <RuntimeChannelSwitcher {locale} />
       <Divider type="vertical" />
