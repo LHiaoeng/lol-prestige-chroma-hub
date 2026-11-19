@@ -399,7 +399,7 @@ describe("skin catalog browser behavior", () => {
   });
 
   it("groups skins by champion and persists the mode in the URL", async () => {
-    const page = fixture("https://chromaart.lol/skins/?view=cards&channel=latest&sort=release_asc");
+    const page = fixture("https://chromaart.lol/skins/?view=cards&channel=latest&sort=desc");
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     const championMode = page.viewSwitch.querySelectorAll("input")[2];
     championMode.checked = true;
@@ -420,7 +420,7 @@ describe("skin catalog browser behavior", () => {
 
   it("loads skinline and universe names on demand for search", async () => {
     const page = fixture(
-      "https://chromaart.lol/skins/?view=cards&channel=latest",
+      "https://chromaart.lol/skins/?view=cards&channel=latest&sort=desc",
       vi.fn(async () => ({
         skins: [{ ...skin(301, 1), skinlineIds: [10], universeIds: [20] }],
         champions,

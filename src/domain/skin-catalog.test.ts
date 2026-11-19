@@ -223,11 +223,47 @@ describe("skin catalog domain", () => {
     ]));
     const filters = { locale: "default" as const, search: "", rarities: [], classicOnly: false, sort: "release_desc" as const, channel: "latest" as const, releaseDates: dates, pbeNewSkinIds: new Set<number>() };
     expect(filterSkinCatalogItems(entries, filters).map(({ skinId }) => skinId))
-      .toEqual([10005, 10003, 10006, 10002, 10001, 10004]);
+      .toEqual([10005, 10001, 10003, 10006, 10002, 10004]);
     expect(groupSkinCatalogTimelineItems(entries, filters).map((group) => group.items.map(({ skinId }) => skinId)))
-      .toEqual([[10005], [10003, 10006, 10002, 10001, 10004]]);
+      .toEqual([[10005], [10001, 10003, 10006, 10002, 10004]]);
     expect(groupSkinCatalogTimelineItems(entries, { ...filters, releaseDates: new Map() })[0].items.map(({ skinId }) => skinId))
-      .toEqual([10003, 10006, 10002, 10001, 10005, 10004]);
+      .toEqual([10001, 10003, 10006, 10002, 10005, 10004]);
+  });
+
+  it("orders the same release date by universe, then skinline, then champion", () => {
+    const candidates = [
+      { ...skins[1], id: 1100, championId: 9, name: "Late Skin", skinlineIds: [30], stages: [] },
+      { ...skins[1], id: 1000, championId: 7, name: "Early Skin", skinlineIds: [10], stages: [] },
+      { ...skins[1], id: 1200, championId: 3, name: "Third Champion", skinlineIds: [20], stages: [] },
+      { ...skins[1], id: 1300, championId: 1, name: "First Champion", skinlineIds: [20], stages: [] },
+      { ...skins[1], id: 1400, championId: 8, name: "No Universe", skinlineIds: [], stages: [] },
+    ];
+    const entries = projectSkinCatalogItems(candidates, [
+      { kind: "champion", id: 1, name: "First" },
+      { kind: "champion", id: 3, name: "Third" },
+      { kind: "champion", id: 7, name: "Early" },
+      { kind: "champion", id: 8, name: "Loose" },
+      { kind: "champion", id: 9, name: "Late" },
+    ]);
+    const ownDates = new Map<number, SkinCatalogReleaseDate>(
+      candidates.map(({ id }) => [id, { globalReleaseDate: "2024-01-01", chinaReleaseDate: null }]),
+    );
+    const filtered = filterSkinCatalogItems(entries, {
+      locale: "default",
+      search: "",
+      rarities: [],
+      classicOnly: false,
+      sort: "release_desc",
+      channel: "latest",
+      releaseDates: ownDates,
+      pbeNewSkinIds: new Set<number>(),
+      universeSkinlineIds: new Map([
+        [10, [200]],
+        [20, [300]],
+        [30, [200]],
+      ]),
+    });
+    expect(filtered.map(({ skinId }) => skinId)).toEqual([1000, 1100, 1300, 1200, 1400]);
   });
 
   it("groups same-day skins and stages, with PBE and undated skins first and classics last", () => {
@@ -345,7 +381,10 @@ describe("skin catalog domain", () => {
         new URL("https://example.test/skins/?rarity=bad&sort=random&channel=no&classicOnly=true"),
       ).invalid,
     ).toEqual(["channel", "sort", "classicOnly", "rarity"]);
-    expect(readSkinCatalogUrlState(new URL("https://example.test/skins/"))).toMatchObject({ view: "timeline", classicOnly: false });
+    expect(readSkinCatalogUrlState(new URL("https://example.test/skins/"))).toMatchObject({
+      view: "timeline",
+      classicOnly: false,
+    });
     expect(readSkinCatalogUrlState(formatSkinCatalogUrl(url, { ...state, sort: "release_desc" })).sort).toBe("release_desc");
   });
 

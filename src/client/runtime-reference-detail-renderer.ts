@@ -232,10 +232,11 @@ export function createRuntimeDetailRenderer(
   skinNavigationNext?.addEventListener("click", () => { navigateSkin(1); });
   const renderSkinNavigation = (): void => {
     if (!skinNavigationGroup || !skinNavigationPrevious || !skinNavigationPreviousName || !skinNavigationNext || !skinNavigationNextName) return;
-    skinNavigationGroup.hidden = !skinNavigation;
-    if (!skinNavigation) return;
+    const navigation = skinNavigation;
+    skinNavigationGroup.hidden = !navigation;
+    if (!navigation) return;
     const updateControl = (delta: -1 | 1, button: HTMLButtonElement, name: HTMLElement, label: string): void => {
-      const { index, items } = skinNavigation;
+      const { index, items } = navigation;
       const target = items.length > 1 ? items[(index + delta + items.length) % items.length] : undefined;
       button.disabled = !target;
       button.setAttribute("aria-label", target ? `${label}: ${target.name}` : label);
@@ -539,7 +540,8 @@ export function createRuntimeDetailRenderer(
       const skinReleaseOrder = item.kind === "skin"
         ? item.championSkinReleaseOrder
         : undefined;
-      const skinReleaseIndex = skinReleaseOrder?.findIndex(({ id }) => id === (item.stageId ?? item.id)) ?? -1;
+      const currentSkinId = item.kind === "skin" ? item.stageId ?? item.id : item.id;
+      const skinReleaseIndex = skinReleaseOrder?.findIndex(({ id }) => id === currentSkinId) ?? -1;
       skinNavigation = item.kind === "skin" && skinReleaseOrder && skinReleaseIndex >= 0
         ? {
             championId: item.championId,
@@ -934,6 +936,7 @@ export function createRuntimeDetailRenderer(
             );
             chromaPopoverCleanups.push(createPopover(info, title, modelLink));
           }
+          card.dataset.chromaId = String(chroma.id);
           chromaGrid.appendChild(card);
         });
         chromas.addEventListener("media-preview-close", (event) => {
@@ -998,7 +1001,18 @@ export function createRuntimeDetailRenderer(
       }
       options.content.replaceChildren(article);
       if (window.location.hash === "#runtime-skin-chromas") {
-        article.querySelector<HTMLElement>(".runtime-skin-chromas")?.scrollIntoView({ block: "start" });
+        const chromaSection = article.querySelector<HTMLElement>(".runtime-skin-chromas");
+        chromaSection?.scrollIntoView({ block: "start" });
+        const chromaId = new URLSearchParams(window.location.search).get("chroma");
+        const target = chromaId
+          ? Array.from(
+              chromaSection?.querySelectorAll<HTMLElement>(".runtime-chroma-card") ?? [],
+            ).find((card) => card.dataset.chromaId === chromaId)
+          : undefined;
+        if (target) {
+          target.tabIndex = -1;
+          target.focus({ preventScroll: true });
+        }
       }
       bindTypographyParagraphs(article);
       options.status.textContent =

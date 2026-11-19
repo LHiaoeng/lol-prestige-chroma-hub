@@ -223,7 +223,8 @@ export function initSkinCatalog(
       entityCache.set(cacheKey, []);
     }).finally(() => {
       pendingEntityNames.delete(cacheKey);
-      if (committedChannel === channel && (state.view === view || state.search.trim()))
+      if (committedChannel === channel && (state.view === view || state.search.trim() ||
+        state.view === "timeline" || (state.view === "cards" && isReleaseSort(state.sort))))
         refresh();
     });
   };
@@ -664,6 +665,10 @@ export function initSkinCatalog(
     if (state.search.trim()) {
       ensureEntityNames("skinline", state.channel);
       ensureEntityNames("universe", state.channel);
+    } else if (state.view === "timeline" || (state.view === "cards" && isReleaseSort(state.sort))) {
+      // Release ordering needs the universe directory to resolve the universe
+      // layer, because CommunityDragon skin records omit universe IDs.
+      ensureEntityNames("universe", state.channel);
     }
     const entityNames = (view: "skinline" | "universe") =>
       new Map((entityCache.get(`${state.channel}:${view}`) ?? []).map(({ id, name }) => [id, name] as const));
@@ -691,6 +696,7 @@ export function initSkinCatalog(
         sort: isReleaseSort(state.sort) ? state.sort : "release_desc",
         releaseDates,
         pbeNewSkinIds: pbeNewSkinIds ?? new Set<number>(),
+        universeSkinlineIds,
       });
     } else if (state.view === "champion") {
       timelineGroups = groupSkinCatalogItemsByEntity(filtered, "champion", locale);

@@ -7,7 +7,7 @@ export interface TitleOptions {
 export interface ParagraphOptions {
   readonly text: string;
   readonly className?: string;
-  readonly locale: "zh_cn" | "en_us";
+  readonly locale: "zh_cn" | "en_us" | "default";
 }
 
 const titleTagByLevel = {
@@ -87,8 +87,8 @@ export function bindTypographyParagraphs(root: ParentNode = document): void {
         paragraph.dataset.expanded = String(expanded);
         toggle.setAttribute("aria-expanded", String(expanded));
         toggle.textContent = expanded
-          ? paragraph.dataset.collapseLabel
-          : paragraph.dataset.expandLabel;
+          ? paragraph.dataset.collapseLabel ?? ""
+          : paragraph.dataset.expandLabel ?? "";
         toggle.setAttribute("aria-label", toggle.textContent);
         ellipsis.hidden = expanded;
       });
@@ -106,7 +106,7 @@ export function bindTypographyParagraphs(root: ParentNode = document): void {
       ellipsis.hidden = !overflowing || expanded;
       toggle.setAttribute("aria-expanded", String(expanded && overflowing));
       toggle.textContent = overflowing
-        ? expanded ? paragraph.dataset.collapseLabel : paragraph.dataset.expandLabel
+        ? expanded ? paragraph.dataset.collapseLabel ?? "" : paragraph.dataset.expandLabel ?? ""
         : "";
       toggle.setAttribute("aria-label", toggle.textContent);
     } else {

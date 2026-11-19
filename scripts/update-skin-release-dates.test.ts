@@ -108,6 +108,27 @@ describe('skin release update', () => {
     }
   });
 
+  it('adds global dates offline only when the stored value is empty', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'skin-release-global-test-'));
+    const saved = build().snapshot;
+    const inputPath = join(root, 'global.json');
+    try {
+      await mkdir(join(root, 'data'));
+      await writeFile(join(root, 'data/skin-release-dates.json'), `${JSON.stringify(saved)}\n`);
+      await writeFile(inputPath, JSON.stringify([{ skinId: 1002, releaseDate: '2026-01-02' }, { skinId: 1001, releaseDate: '2026-01-02' }]));
+      const fetcher = (() => { throw new Error('Global date update must not fetch remote sources'); }) as typeof fetch;
+      const report = await updateSkinReleaseDates({ root, globalInput: inputPath, fetcher, today: '2026-01-02' });
+      expect(report.globalDatesFilled).toEqual([1002]);
+      expect(report.existingDateConflicts).toContainEqual({ skinId: 1001, server: 'global', storedDate: '2026-01-01', sourceDate: '2026-01-02' });
+      await updateSkinReleaseDates({ root, globalInput: inputPath, fetcher, today: '2026-01-02', apply: true });
+      const updated = JSON.parse(await readFile(join(root, 'data/skin-release-dates.json'), 'utf8'));
+      expect(updated.skins.find((skin: { skinId: number }) => skin.skinId === 1002).globalReleaseDate).toBe('2026-01-02');
+      expect(updated.skins.find((skin: { skinId: number }) => skin.skinId === 1001).globalReleaseDate).toBe('2026-01-01');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('cleans up generated temp files after apply but keeps them after preview', async () => {
     const root = await mkdtemp(join(tmpdir(), 'skin-release-cleanup-test-'));
     const saved = build().snapshot;

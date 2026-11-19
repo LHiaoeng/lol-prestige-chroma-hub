@@ -76,10 +76,10 @@ https://wiki.leagueoflegends.com/en-us/api.php?action=query&list=search&srsearch
 
 ## 维护链路
 
-目标数据源只收录 CommunityDragon `latest` 正式版中存在的正常英雄皮肤，并为每款皮肤分别保存直营服与国服的发布时间和版本号。Wiki 的 `release` 提供直营服日期；版本号优先采用对应地区官方版本公告中明确列出的首次推出皮肤，官方未覆盖时再搜索 Wiki 等来源并核对原文。国服公告正文的停机维护日期提供国服日期。来源没有明确值时保持空值。
+目标数据源只收录 CommunityDragon `latest` 正式版中存在的正常英雄皮肤，并为每款皮肤分别保存直营服与国服的发布时间和版本号。直营服日期优先取 Wiki 的 `release`；Wiki 无记录时，采用 Riot 官方补丁说明中明确列出的上线日期。版本号优先采用对应地区官方版本公告中明确列出的首次推出皮肤，官方未覆盖时再搜索 Wiki 等来源并核对原文。国服公告正文的停机维护日期提供国服日期。来源没有明确值时保持空值。
 
-1. 运行 `pnpm skin-dates:update` 预览，再追加 `--apply` 写入。预览在 `.tmp/` 生成报告和候选 JSON；只有重新读取后仍形成相同候选时，`--apply` 才会写入。常规更新读取 Wiki raw 模块与 CD `latest`；Wiki 返回 403 时仅用 CD 更新收录和名称，已有日期照旧。带 `--china-input` 的国服回填只读本地快照和输入。普通站点构建只读本地快照。
+1. 运行 `pnpm skin-dates:update` 预览，再追加 `--apply` 写入。预览在 `.tmp/` 生成报告和候选 JSON；只有重新读取后仍形成相同候选时，`--apply` 才会写入。常规更新读取 Wiki raw 模块与 CD `latest`；Wiki 返回 403 时仅用 CD 更新收录和名称，已有日期照旧。直营服日期回填用 `--global-input`，国服日期回填用 `--china-input`，两者都只读本地快照和输入。普通站点构建只读本地快照。
 2. Wiki 源码可用时解析 Lua 表，以 CD 的正式服数字皮肤 ID 为数据范围，用 ID 关联 Wiki 日期；Wiki 独有和缺少 ID 的记录只进入人工核对报告。解析和日期校验失败时保持旧快照。
-3. 与旧快照合并时只新增 CD 正式版皮肤、回填空的有效日期和版本号。已确认值保持原值；来源后续给出不同值时只报告差异。Wiki 标注的 Upcoming 或 Canceled 不阻止 CD 已收录皮肤回填日期。未来日期先报告，不作为已确认发布时间。日期通过 `--china-input <path>` 回填；版本通过 `--version-input <path>` 回填，数组每项按需包含 `globalReleaseVersion` 和/或 `chinaReleaseVersion`。两个字段均为来源原样字符串或 `null`。
+3. 与旧快照合并时只新增 CD 正式版皮肤、回填空的有效日期和版本号。已确认值保持原值；来源后续给出不同值时只报告差异。Wiki 标注的 Upcoming 或 Canceled 不阻止 CD 已收录皮肤回填日期。未来日期先报告，不作为已确认发布时间。直营服日期通过 `--global-input <path>` 回填，仅在 Wiki 无可用日期时补空值；国服日期通过 `--china-input <path>` 回填；版本通过 `--version-input <path>` 回填，数组每项按需包含 `globalReleaseVersion` 和/或 `chinaReleaseVersion`。字段均为来源原样字符串或 `null`。
 4. Wiki 中不在 CD `latest` 的记录不进入正式服数据源，并在报告中保留其来源状态；无法确定身份的记录不得用名称或顺序猜 ID。
 5. 生成新增、回填和冲突报告；全部校验通过后原子替换 JSON。页面按服务器分别使用对应的已确认日期。

@@ -103,15 +103,84 @@ function compareSeriesThenChampion(
     || compareRuntimeSkinReferenceItems(left, right);
 }
 
+function catalogUniverseIds(
+  item: RuntimeSkinReferenceItem,
+  universeSkinlineIds: ReadonlyMap<number, readonly number[]> | undefined,
+): readonly number[] {
+  if (item.universeIds.length) return item.universeIds;
+  return [...(universeSkinlineIds ?? [])]
+    .filter(([, skinlineIds]) => item.skinlineIds.some((id) => skinlineIds.includes(id)))
+    .map(([id]) => id);
+}
+
+/**
+ * Orders skins by universe, then skinline, then champion, then skin ID.
+ * Each group is ranked by its smallest skin ID; items without the relation
+ * follow the grouped items at that layer.
+ */
+function catalogSkinOrder(
+  items: readonly RuntimeSkinReferenceItem[],
+  universeSkinlineIds: ReadonlyMap<number, readonly number[]> | undefined,
+  locale: CommunityDragonLocale,
+): (left: RuntimeSkinReferenceItem, right: RuntimeSkinReferenceItem) => number {
+  const universesByItem = new Map<string, readonly number[]>();
+  const skinlinesByItem = new Map<string, readonly number[]>();
+  const universeSkin = new Map<number, number>();
+  const skinlineSkin = new Map<string, number>();
+  for (const item of items) {
+    const universes = [...catalogUniverseIds(item, universeSkinlineIds)].sort((left, right) => left - right);
+    const skinlines = [...item.skinlineIds].sort((left, right) => left - right);
+    universesByItem.set(item.stableKey, universes);
+    skinlinesByItem.set(item.stableKey, skinlines);
+    const universe = universes[0];
+    if (universe !== undefined)
+      universeSkin.set(universe, Math.min(universeSkin.get(universe) ?? item.skinId, item.skinId));
+    const skinline = skinlines[0];
+    if (skinline !== undefined) {
+      const key = `${universe ?? "none"}:${skinline}`;
+      skinlineSkin.set(key, Math.min(skinlineSkin.get(key) ?? item.skinId, item.skinId));
+    }
+  }
+  const rank = (item: RuntimeSkinReferenceItem) => {
+    const universe = universesByItem.get(item.stableKey)?.[0];
+    const skinline = skinlinesByItem.get(item.stableKey)?.[0];
+    return [
+      universe === undefined ? 1 : 0,
+      universe === undefined ? 0 : universeSkin.get(universe) ?? item.skinId,
+      universe ?? 0,
+      skinline === undefined ? 1 : 0,
+      skinline === undefined
+        ? 0
+        : skinlineSkin.get(`${universe ?? "none"}:${skinline}`) ?? item.skinId,
+      skinline ?? 0,
+    ] as const;
+  };
+  const ranks = new Map(items.map((item) => [item.stableKey, rank(item)] as const));
+  return (left, right) => {
+    const leftRank = ranks.get(left.stableKey);
+    const rightRank = ranks.get(right.stableKey);
+    if (leftRank && rightRank) {
+      for (let index = 0; index < leftRank.length; index += 1) {
+        const difference = leftRank[index]! - rightRank[index]!;
+        if (difference) return difference;
+      }
+    }
+    return compareSeriesThenChampion(left, right, locale);
+  };
+}
+
 export function groupSkinCatalogTimelineItems(
   items: readonly RuntimeSkinReferenceItem[],
-  { locale, channel, sort, releaseDates, pbeNewSkinIds }: Pick<SkinCatalogFilters, "locale" | "channel" | "sort" | "releaseDates" | "pbeNewSkinIds">,
+  { locale, channel, sort, releaseDates, pbeNewSkinIds, universeSkinlineIds }: Pick<
+    SkinCatalogFilters,
+    "locale" | "channel" | "sort" | "releaseDates" | "pbeNewSkinIds" | "universeSkinlineIds"
+  >,
 ): readonly SkinCatalogTimelineGroup[] {
   const pbe: RuntimeSkinReferenceItem[] = [];
   const unknown: RuntimeSkinReferenceItem[] = [];
   const classic: RuntimeSkinReferenceItem[] = [];
   const byDate = new Map<string, RuntimeSkinReferenceItem[]>();
-  for (const item of items.toSorted((left, right) => compareSeriesThenChampion(left, right, locale))) {
+  for (const item of items.toSorted(catalogSkinOrder(items, universeSkinlineIds, locale))) {
     if (channel === "pbe" && pbeNewSkinIds.has(item.skinId)) {
       pbe.push(item);
       continue;
@@ -264,11 +333,7 @@ export function filterSkinCatalogItems(
   const selected = new Set(rarities);
   const result = items.filter((item) => {
     const rarity = catalogRarityKey(item, locale) || UNMARKED_RARITY;
-    const universeIds = item.universeIds.length
-      ? item.universeIds
-      : [...(universeSkinlineIds ?? [])]
-          .filter(([, skinlineIds]) => item.skinlineIds.some((id) => skinlineIds.includes(id)))
-          .map(([id]) => id);
+    const universeIds = catalogUniverseIds(item, universeSkinlineIds);
     return (
       (selected.size === 0 || selected.has(rarity)) &&
       (!classicOnly || isClassicSkinName(item.name)) &&
@@ -290,8 +355,7 @@ export function filterSkinCatalogItems(
     const dateFor = (item: RuntimeSkinReferenceItem) => {
       return skinCatalogReleaseDate(item, locale, releaseDates)?.date;
     };
-    const tieBreak = (left: RuntimeSkinReferenceItem, right: RuntimeSkinReferenceItem) =>
-      compareSeriesThenChampion(left, right, locale);
+    const tieBreak = catalogSkinOrder(result, universeSkinlineIds, locale);
     return result.sort((left, right) => {
       const leftNew = channel === "pbe" && pbeNewSkinIds.has(left.skinId);
       const rightNew = channel === "pbe" && pbeNewSkinIds.has(right.skinId);
@@ -324,13 +388,19 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
   const rawClassicOnly = url.searchParams.get("classicOnly");
   const rawPbeOnly = url.searchParams.get("pbeOnly");
   const rawView = url.searchParams.get("view");
-  const view = rawView === "cards" || rawView === "champion" || rawView === "skinline" || rawView === "universe"
+  const view = rawView === "cards" || rawView === "timeline" || rawView === "champion" || rawView === "skinline" || rawView === "universe"
     ? rawView
     : "timeline";
   const rawRarities = url.searchParams.getAll("rarity");
   const invalid: SkinCatalogUrlState["invalid"][number][] = [];
   if (runtime.invalid.includes("channel")) invalid.push("channel");
-  if (rawSort !== null && rawSort !== "asc" && rawSort !== "desc" && rawSort !== "release_desc" && rawSort !== "release_asc")
+  if (
+    rawSort !== null &&
+    rawSort !== "asc" &&
+    rawSort !== "desc" &&
+    rawSort !== "release_desc" &&
+    rawSort !== "release_asc"
+  )
     invalid.push("sort");
   if (rawClassicOnly !== null && rawClassicOnly !== "1")
     invalid.push("classicOnly");
@@ -342,9 +412,12 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
     rarities: [...new Set(rawRarities.filter((value) => rarityParameter.test(value)))],
     classicOnly: rawClassicOnly === "1",
     onlyPbeAdditions: rawPbeOnly === "1",
-    sort: (view === "champion" || view === "skinline" || view === "universe") || (view !== "cards" && (rawSort === "asc" || rawSort === "desc"))
+    sort: (view === "champion" || view === "skinline" || view === "universe") ||
+      (view !== "cards" && (rawSort === "asc" || rawSort === "desc"))
       ? "release_desc"
-      : rawSort === "asc" || rawSort === "desc" || rawSort === "release_asc" ? rawSort : "release_desc",
+      : rawSort === "asc" || rawSort === "desc" || rawSort === "release_desc" || rawSort === "release_asc"
+        ? rawSort
+        : "release_desc",
     view,
     channel: runtime.channel ?? "pbe",
     channelExplicit: runtime.channelExplicit,

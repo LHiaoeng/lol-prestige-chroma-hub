@@ -47,6 +47,7 @@ export function appendPbeChromaCard(
     true,
   );
   skinUrl.hash = "runtime-skin-chromas";
+  skinUrl.searchParams.set("chroma", String(item.id));
   const link = linkWithNavigation(
     "",
     skinUrl,

@@ -5732,6 +5732,16 @@
       "chinaReleaseVersion": "26.5"
     },
     {
+      "championId": 37,
+      "skinId": 37077,
+      "skinName": "DJ Sona Ultimate Remix",
+      "skinNameZh": "DJ 娑娜 终极混音",
+      "globalReleaseDate": "2026-11-18",
+      "chinaReleaseDate": "2026-11-19",
+      "globalReleaseVersion": "26.23",
+      "chinaReleaseVersion": "26.23"
+    },
+    {
       "championId": 38,
       "skinId": 38000,
       "skinName": "the Void Walker Kassadin",
@@ -15812,6 +15822,16 @@
       "chinaReleaseVersion": "25.21"
     },
     {
+      "championId": 142,
+      "skinId": 142045,
+      "skinName": "Cafe Cuties Zoe",
+      "skinNameZh": "咖啡甜心 佐伊",
+      "globalReleaseDate": "2026-11-18",
+      "chinaReleaseDate": "2026-11-19",
+      "globalReleaseVersion": "26.23",
+      "chinaReleaseVersion": "26.23"
+    },
+    {
       "championId": 143,
       "skinId": 143000,
       "skinName": "Rise of the Thorns Zyra",
@@ -20180,6 +20200,16 @@
       "chinaReleaseDate": "2025-10-23",
       "globalReleaseVersion": "25.21",
       "chinaReleaseVersion": "25.21"
+    },
+    {
+      "championId": 518,
+      "skinId": 518050,
+      "skinName": "Cafe Cuties Neeko",
+      "skinNameZh": "咖啡甜心 妮蔻",
+      "globalReleaseDate": "2026-11-18",
+      "chinaReleaseDate": "2026-11-19",
+      "globalReleaseVersion": "26.23",
+      "chinaReleaseVersion": "26.23"
     },
     {
       "championId": 523,

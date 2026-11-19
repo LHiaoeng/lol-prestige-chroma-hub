@@ -42,7 +42,7 @@ interface WikiSkin {
   availability: string;
 }
 
-interface ChinaDateInput {
+interface DateInput {
   skinId: number;
   releaseDate: string;
 }
@@ -241,15 +241,15 @@ function previousSkins(value: unknown): { migrated: boolean; byId: Map<number, R
   return { migrated, byId };
 }
 
-function chinaInputs(value: unknown): Map<number, ChinaDateInput> {
+function dateInputs(value: unknown, server: 'Global' | 'China'): Map<number, DateInput> {
   if (value === undefined) return new Map();
-  if (!Array.isArray(value)) throw new Error('China date input must be an array');
-  const inputs = new Map<number, ChinaDateInput>();
+  if (!Array.isArray(value)) throw new Error(`${server} date input must be an array`);
+  const inputs = new Map<number, DateInput>();
   for (const raw of value) {
-    const item = object(raw, 'China date input');
-    const skinId = integer(item.skinId, 'China date skin ID');
-    const releaseDate = date(item.releaseDate, `China date for ${skinId}`);
-    if (inputs.has(skinId)) throw new Error(`Duplicate China date input ${skinId}`);
+    const item = object(raw, `${server} date input`);
+    const skinId = integer(item.skinId, `${server} date skin ID`);
+    const releaseDate = date(item.releaseDate, `${server} date for ${skinId}`);
+    if (inputs.has(skinId)) throw new Error(`Duplicate ${server} date input ${skinId}`);
     inputs.set(skinId, { skinId, releaseDate });
   }
   return inputs;
@@ -284,7 +284,7 @@ export function buildReleaseSnapshot(input: {
 }): { snapshot: ReleaseSnapshot; report: UpdateReport } {
   date(input.today, 'Today');
   const previous = previousSkins(input.previous);
-  const manual = chinaInputs(input.chinaDates);
+  const manual = dateInputs(input.chinaDates, 'China');
   const versions = versionInputs(input.versions);
   if (!Array.isArray(input.cdChampions)) throw new Error('CD champion summary must be an array');
   const championIds = new Set<number>();
@@ -396,20 +396,33 @@ export function buildReleaseSnapshot(input: {
   return { snapshot, report };
 }
 
-function buildOfflineSnapshot(previous: unknown, chinaDates: unknown, versionData: unknown, today: string): { snapshot: ReleaseSnapshot; report: UpdateReport } {
+function buildOfflineSnapshot(previous: unknown, globalDates: unknown, chinaDates: unknown, versionData: unknown, today: string): { snapshot: ReleaseSnapshot; report: UpdateReport } {
   date(today, 'Today');
   const saved = parseReleaseSnapshot(previous);
-  const inputs = chinaInputs(chinaDates);
+  const globals = dateInputs(globalDates, 'Global');
+  const inputs = dateInputs(chinaDates, 'China');
   const versions = versionInputs(versionData);
   const report = emptyReport();
   const skins = saved.skins.map((skin) => {
     if (skin.globalReleaseDate !== null && skin.globalReleaseDate > today || skin.chinaReleaseDate !== null && skin.chinaReleaseDate > today) {
       throw new Error(`Future existing date ${skin.skinId}`);
     }
+    const manualGlobal = globals.get(skin.skinId);
+    if (manualGlobal) globals.delete(skin.skinId);
     const manual = inputs.get(skin.skinId);
     if (manual) inputs.delete(skin.skinId);
     const versionInput = versions.get(skin.skinId);
     if (versionInput) versions.delete(skin.skinId);
+    let globalReleaseDate = skin.globalReleaseDate;
+    if (manualGlobal) {
+      if (manualGlobal.releaseDate > today) throw new Error(`Future global date ${skin.skinId}`);
+      if (globalReleaseDate !== null) {
+        if (globalReleaseDate !== manualGlobal.releaseDate) report.existingDateConflicts.push({ skinId: skin.skinId, server: 'global', storedDate: globalReleaseDate, sourceDate: manualGlobal.releaseDate });
+      } else {
+        report.globalDatesFilled.push(skin.skinId);
+        globalReleaseDate = manualGlobal.releaseDate;
+      }
+    }
     let chinaReleaseDate = skin.chinaReleaseDate;
     if (manual) {
       if (manual.releaseDate > today) throw new Error(`Future China date ${skin.skinId}`);
@@ -439,9 +452,10 @@ function buildOfflineSnapshot(previous: unknown, chinaDates: unknown, versionDat
         report.chinaVersionsFilled.push(skin.skinId);
       }
     }
-    return { ...skin, chinaReleaseDate, globalReleaseVersion, chinaReleaseVersion };
+    return { ...skin, globalReleaseDate, chinaReleaseDate, globalReleaseVersion, chinaReleaseVersion };
   });
   if (inputs.size) throw new Error(`China date input refers to unknown live skins: ${[...inputs.keys()].join(', ')}`);
+  if (globals.size) throw new Error(`Global date input refers to unknown live skins: ${[...globals.keys()].join(', ')}`);
   if (versions.size) throw new Error(`Version input refers to unknown live skins: ${[...versions.keys()].join(', ')}`);
   return { snapshot: parseReleaseSnapshot({ schemaVersion: 1, skins }), report };
 }
@@ -500,7 +514,7 @@ async function atomicJson(path: string, value: unknown): Promise<void> {
   await rename(temporary, path);
 }
 
-export async function updateSkinReleaseDates(options: { root: string; apply?: boolean; chinaInput?: string; versionInput?: string; wikiSource?: string; fetcher?: typeof fetch; wikiFallback?: () => Promise<string | null>; today?: string }): Promise<UpdateReport> {
+export async function updateSkinReleaseDates(options: { root: string; apply?: boolean; globalInput?: string; chinaInput?: string; versionInput?: string; wikiSource?: string; fetcher?: typeof fetch; wikiFallback?: () => Promise<string | null>; today?: string }): Promise<UpdateReport> {
   const root = resolve(options.root);
   const oldPath = resolve(root, OUTPUT);
   let previousText: string | null;
@@ -511,13 +525,14 @@ export async function updateSkinReleaseDates(options: { root: string; apply?: bo
     previousText = null;
   }
   const previous = previousText === null ? { schemaVersion: 1, skins: [] } : JSON.parse(previousText) as unknown;
+  const globalDates = options.globalInput ? JSON.parse(await readFile(resolve(options.globalInput), 'utf8')) as unknown : undefined;
   const chinaDates = options.chinaInput ? JSON.parse(await readFile(resolve(options.chinaInput), 'utf8')) as unknown : undefined;
   const versions = options.versionInput ? JSON.parse(await readFile(resolve(options.versionInput), 'utf8')) as unknown : undefined;
   const today = options.today ?? new Date().toISOString().slice(0, 10);
   let result: { snapshot: ReleaseSnapshot; report: UpdateReport };
-  if (options.chinaInput || options.versionInput) {
-    if (previousText === null) throw new Error(`Run the full update before adding China dates; missing ${OUTPUT}`);
-    result = buildOfflineSnapshot(previous, chinaDates, versions, today);
+  if (options.globalInput || options.chinaInput || options.versionInput) {
+    if (previousText === null) throw new Error(`Run the full update before adding dates; missing ${OUTPUT}`);
+    result = buildOfflineSnapshot(previous, globalDates, chinaDates, versions, today);
   } else {
     const fetcher = options.fetcher ?? fetch;
     const wiki = (async () => {
@@ -562,15 +577,17 @@ export async function updateSkinReleaseDates(options: { root: string; apply?: bo
 
 async function cli(): Promise<void> {
   const args = process.argv.slice(2);
+  const globalIndex = args.indexOf('--global-input');
+  const globalInput = globalIndex < 0 ? undefined : args[globalIndex + 1];
   const inputIndex = args.indexOf('--china-input');
   const chinaInput = inputIndex < 0 ? undefined : args[inputIndex + 1];
   const versionIndex = args.indexOf('--version-input');
   const versionInput = versionIndex < 0 ? undefined : args[versionIndex + 1];
   const wikiSourceIndex = args.indexOf('--wiki-source');
   const wikiSource = wikiSourceIndex < 0 ? undefined : args[wikiSourceIndex + 1];
-  if (inputIndex >= 0 && !chinaInput || versionIndex >= 0 && !versionInput || wikiSourceIndex >= 0 && !wikiSource || wikiSource && (chinaInput || versionInput)) throw new Error('Usage: pnpm skin-dates:update [--apply] [--china-input path.json] [--version-input path.json] [--wiki-source module.lua]');
-  const report = await updateSkinReleaseDates({ root: process.cwd(), apply: args.includes('--apply'), chinaInput, versionInput, wikiSource });
-  for (const source of report.unavailableSources) console.warn(`${source}: existing global dates were kept; new global dates remain null. Use --wiki-source with a current raw module when available.`);
+  if (globalIndex >= 0 && !globalInput || inputIndex >= 0 && !chinaInput || versionIndex >= 0 && !versionInput || wikiSourceIndex >= 0 && !wikiSource || wikiSource && (globalInput || chinaInput || versionInput)) throw new Error('Usage: pnpm skin-dates:update [--apply] [--global-input path.json] [--china-input path.json] [--version-input path.json] [--wiki-source module.lua]');
+  const report = await updateSkinReleaseDates({ root: process.cwd(), apply: args.includes('--apply'), globalInput, chinaInput, versionInput, wikiSource });
+  for (const source of report.unavailableSources) console.warn(`${source}: existing global dates were kept; new global dates remain null. Use --wiki-source with a current raw module, or --global-input with official announcement dates.`);
   const applied = args.includes('--apply');
   console.log(JSON.stringify({ applied, reportPath: applied ? null : REPORT, temporaryFilesCleaned: applied, counts: Object.fromEntries(Object.entries(report).map(([key, items]) => [key, items.length])) }, null, 2));
 }

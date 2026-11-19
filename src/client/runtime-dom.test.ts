@@ -31,8 +31,8 @@ class TestElement {
     return this.ownTextContent + this.children.map((child) => child.textContent).join("");
   }
   set textContent(value: string) {
+    this.clearChildren();
     this.ownTextContent = value;
-    this.replaceChildren();
   }
   value = "";
   type = "";
@@ -111,6 +111,8 @@ class TestElement {
     this.ownerDocument.activeElement = this;
   }
 
+  scrollIntoView(): void {}
+
   contains(target: TestElement): boolean {
     return this === target || this.children.some((child) => child.contains(target));
   }
@@ -160,11 +162,16 @@ class TestElement {
   }
 
   replaceChildren(...children: TestElement[]): void {
+    this.clearChildren();
+    this.ownTextContent = "";
+    this.append(...children);
+  }
+
+  private clearChildren(): void {
     this.children.forEach((child) => {
       child.parentElement = null;
     });
     this.children.length = 0;
-    this.append(...children);
   }
 
   remove(): void {
@@ -655,6 +662,7 @@ describe("runtime DOM boundaries", () => {
     expect(chromaHref).toContain("id=1");
     expect(chromaHref).toContain("champion=2");
     expect(chromaHref).toContain("channel=pbe");
+    expect(chromaHref).toContain("chroma=3");
   });
 
   it("keeps the loaded detail visible while confirming a channel switch", () => {
@@ -1740,6 +1748,8 @@ describe("runtime DOM boundaries", () => {
       location: {
         origin: "https://chromaart.lol",
         pathname: "/skins/detail/",
+        hash: "#runtime-skin-chromas",
+        search: "?id=103001&chroma=103051",
       },
     });
     const root = new TestElement("div");
@@ -1816,6 +1826,8 @@ describe("runtime DOM boundaries", () => {
     expect(summaryCount.textContent).toBe("2 chromas");
     expect(content.querySelectorAll(".runtime-chroma-card")).toHaveLength(3);
     const chromaCards = content.querySelectorAll<HTMLElement>(".runtime-chroma-card");
+    expect(chromaCards[1]?.dataset.chromaId).toBe("103051");
+    expect(document.activeElement).toBe(chromaCards[1]);
     const prestigeCard = chromaCards[1];
     expect(chromaCards[0]?.querySelector(".runtime-chroma-info-button")).toBeNull();
     expect(prestigeCard?.querySelector(".runtime-chroma-info-button")?.getAttribute("aria-label")).toBe("Chroma Details");
@@ -1879,6 +1891,7 @@ describe("runtime DOM boundaries", () => {
     expect(externalLinks).toHaveLength(3);
     expect(actionsSummary.hidden).toBe(false);
     expect(externalLinks.map((link) => link.getAttribute("role"))).toEqual([
+      "menuitem",
       "menuitem",
       "menuitem",
     ]);
