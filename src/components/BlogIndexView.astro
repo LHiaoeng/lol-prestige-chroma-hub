@@ -136,11 +136,9 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
     .read-more { color:var(--gold); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
     .featured-post-link:focus-visible { outline:2px solid var(--gold); outline-offset:-4px; }
     .featured-post-link:active { background:var(--fill); }
-    @media (hover:hover) and (pointer:fine) { .featured-post:hover { background:var(--panel2); } }
     .blog-index > :global(.cn-pagination) { margin-top:48px; }
     .featured-post-link:active .featured-post-art img { transform:scale(1.01); }
     .featured-post-link:active .read-more { color:var(--gold-active); }
-    @media (hover:hover) and (pointer:fine) { .featured-post-link:hover .featured-post-art img { transform:scale(1.025); } .featured-post-link:hover .read-more { color:var(--gold-hover); } }
     @media (min-width: 1280px) { .featured-post-link { grid-template-columns:minmax(0,1.3fr) minmax(320px,1fr); } }
     @media (max-width: 1023px) { .featured-post-link { grid-template-columns:minmax(0,1fr) minmax(280px,1fr); min-height:340px; } }
     @media (max-width: 767px) {

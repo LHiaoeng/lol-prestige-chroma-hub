@@ -50,10 +50,12 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .filters button:active:not(:disabled),.button:active:not([aria-disabled="true"]){background:var(--gold-active);border-color:var(--gold-active)}
 .filters .ghost:active:not(:disabled){background:var(--hover-bg);color:var(--gold-active)}
 .chroma-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.blog-article ul.chroma-grid{padding-left:0}
-.chroma-card,.runtime-card,.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-card);overflow:hidden;transition:border-color var(--motion-fast) ease,box-shadow var(--motion-mid) ease}
+.chroma-card,.blog-chroma-card,.runtime-card,.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-card);overflow:hidden;transition:border-color var(--motion-mid) ease,box-shadow var(--motion-mid) ease}
+.chroma-card,.blog-chroma-card,.runtime-card,.runtime-skin-reference-card,.runtime-pbe-card,.skin-catalog-card,.guide-card,article.runtime-chroma-card{cursor:pointer}
 :is(.chroma-card,.runtime-card:not(.runtime-champion-card),.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card):focus-within{border-color:var(--gold);outline:2px solid var(--gold);outline-offset:2px}
 :is(.chroma-card,.runtime-card:not(.runtime-champion-card),.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card):active{border-color:var(--gold-active)}
-@media(hover:hover) and (pointer:fine){:is(.chroma-card,.runtime-card:not(.runtime-champion-card),.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card):hover{border-color:var(--gold-hover);box-shadow:var(--shadow-card)}}
+@media(hover:hover) and (pointer:fine){:is(.chroma-card,.blog-chroma-card,.runtime-card,.runtime-skin-reference-card,.runtime-pbe-card,.skin-catalog-card,.guide-card,article.runtime-chroma-card):hover{border-color:transparent;box-shadow:var(--shadow-card)}}
+:is(.skin-catalog-card,.guide-card){cursor:pointer;transition:border-color var(--motion-mid) ease,box-shadow var(--motion-mid) ease}
 .card-image,.detail-image{aspect-ratio:16/9;padding:8px;background:var(--panel2) url('/img/backgrounds/chroma-card-background.jpg') center/cover no-repeat;overflow:hidden;position:relative}
 .card-image img,.detail-image img{display:block;width:100%;height:100%;object-fit:cover}
 .new-badge{position:absolute;top:12px;right:12px;padding:0 7px;border:1px solid var(--gold);border-radius:var(--radius-tag);background:var(--gold);color:var(--on-gold);font-size:var(--font-size-small);font-weight:400;line-height:var(--line-height-small)}
@@ -784,10 +786,6 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   background: transparent;
   overflow: visible;
 }
-.runtime-card.runtime-champion-card:hover,
-.runtime-card.runtime-champion-card:focus-within {
-  border-color: transparent;
-}
 .runtime-card-link.runtime-champion-link {
   display: grid;
   grid-template-columns: 80px minmax(0, 1fr);
@@ -825,7 +823,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-tree-switcher-noop { flex: 0 0 24px; }
 .ant-tree-icon { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 6px; fill: none; stroke: currentColor; stroke-width: 1.3; }
 .ant-tree-title { display: block; min-width: 0; padding: 4px; color: var(--muted); line-height: var(--line-height-body); overflow-wrap: anywhere; }
-.ant-tree-title:hover, .ant-tree-title:focus-visible { color: var(--gold); }
+.ant-tree-title:not(.runtime-universe-title):hover, .ant-tree-title:focus-visible { color: var(--gold); }
 .ant-tree-child-tree { margin: 0 0 0 12px; padding: 0 0 0 12px; list-style: none; }
 .ant-tree-child-tree[hidden] { display: none; }
 .ant-tree-child-tree > .ant-tree-node + .ant-tree-node { margin-top: 2px; }
@@ -848,7 +846,6 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   font-size:var(--font-size-small);
   font-style: normal;
 }
-.runtime-card-link.runtime-champion-link:hover,
 .runtime-card-link.runtime-champion-link:focus-visible {
   border-radius:var(--radius-control);
   background: color-mix(in srgb, var(--panel2) 78%, transparent);

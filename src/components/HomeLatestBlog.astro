@@ -29,8 +29,7 @@ const blogCountLabel = isZh ? `（共 ${blogArticlesNewestFirst.length} 篇）` 
   .heading-count { font-size:var(--font-size-small); font-weight:600; color: var(--muted); }
   .see-all { flex: none; color: var(--gold); font-weight:600; }
   .guide-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .guide-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); transition: border-color var(--motion-fast) ease; }
-  .guide-card:hover { border-color: var(--gold); }
+  .guide-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); }
   .guide-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .guide-category { color: var(--gold); font-size:var(--font-size-small); font-weight:600; letter-spacing: .18em; text-transform: uppercase; }
   .guide-card p, .guide-card h3 { margin: 0; }

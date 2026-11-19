@@ -41,7 +41,7 @@ const {
   bordered,
   type,
   loading = false,
-  hoverable = false,
+  hoverable = true,
   tabList = [],
   tabBorderBeam,
   activeTabKey,
@@ -215,8 +215,8 @@ const tabId = (key: string) => encodeURIComponent(key);
   .card--borderless { border-color: transparent; }
   .card--tab-beam { overflow: visible; }
   .card--inner { background: var(--fill); }
-  .card--hoverable { transition: transform var(--motion-mid) ease, box-shadow var(--motion-mid) ease; }
-  .card--hoverable:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .card--hoverable { cursor: pointer; transition: border-color var(--motion-mid) ease, box-shadow var(--motion-mid) ease; }
+  .card--hoverable:hover { border-color: transparent; box-shadow: var(--shadow-card); }
   .card__header { border-bottom: 1px solid var(--line-subtle); }
   .card__header--beam { --border-beam-inset: -1px; --border-beam-size: 64px; position: relative; border-radius: var(--radius-card) var(--radius-card) 0 0; }
   .card__heading { display: flex; min-height: 56px; align-items: center; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-4); }
