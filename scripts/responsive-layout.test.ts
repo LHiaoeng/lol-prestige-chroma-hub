@@ -145,7 +145,7 @@ describe('responsive layout contract', () => {
     expect(home).not.toContain('class="hero-section"');
     expect(home).toContain('<HomeChromaCatalog {locale} />');
     expect(catalog).toContain('repeat(auto-fill, minmax(180px, 1fr))');
-    expect(catalog).toContain('grid-template-columns: 96px minmax(0, 1fr)');
+    expect(catalog).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))');
     expect(latest).not.toContain('-webkit-line-clamp');
   });
 });

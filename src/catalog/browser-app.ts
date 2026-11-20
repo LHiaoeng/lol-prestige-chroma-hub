@@ -131,6 +131,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     const query = parseCatalogQuery(params);
     matches = queryCatalog(items, { ...query, page: 1, pageSize: Math.max(items.length, 1) }).items;
     list.replaceChildren();
+    delete list.dataset.staticBatch;
     visible = 0;
     appendBatch();
     announce();

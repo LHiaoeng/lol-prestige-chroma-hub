@@ -157,6 +157,7 @@ function fixture(search = '', pathname = '/prestige-chromas/', columns = 5, tota
     form.append(control);
   }
   const list = new TestElement('div', document); list.dataset.chromaList = '';
+  list.dataset.staticBatch = '';
   const status = new TestElement('div', document); status.dataset.status = ''; status.hidden = true;
   const count = new TestElement('p', document); count.dataset.resultCount = '';
   const toggle = new TestElement('a', document); toggle.className = 'language-toggle';
@@ -223,6 +224,7 @@ describe('catalog browser adapter', () => {
     initializeCatalogBrowser(page.environment);
 
     expect(page.list.children).toHaveLength(20);
+    expect(page.list.dataset.staticBatch).toBeUndefined();
     expect(page.count.textContent).toBe('共 53 款臻彩');
     const first = page.list.children[0];
     page.list.bottom = 900;

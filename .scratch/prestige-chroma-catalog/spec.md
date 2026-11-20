@@ -68,3 +68,4 @@ status: needs-info
 - 已运行全套测试及 `pnpm release:build`。独立的基点副本复现了 16 项旧断言失败，本次修正首页背景断言后仍有 15 项，集中在 `scripts/blog-feature.test.ts`、`scripts/responsive-layout.test.ts` 和 `scripts/site-build.test.ts`。涉及旧媒体结构、导航、目录入口、博客标题与最新文章列表等断言。
 - 发布测试额外遇到一次 Windows 文件占用导致的临时产物清理失败，单独重试 AdSense 构建审计测试通过。
 - 上游依据、本站差异和组件验证记录见 [臻彩原画列表组件说明](../../src/components/prestige-chroma-catalog.md)。
+- 复核修正五列下的静态首批。Chrome 已在中英文实页验证关闭脚本时五列显示 20 张，启用脚本后首批仍为 20 张，滚动后追加至 40 张。

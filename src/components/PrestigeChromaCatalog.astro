@@ -37,7 +37,7 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   </Alert>
   <Filters {catalog} {locale} />
   <p class="status" data-status role="status" aria-live="polite" hidden></p>
-  <div class="chroma-grid" data-chroma-list>
+  <div class="chroma-grid" data-chroma-list data-static-batch>
     {catalog.slice(0, 24).map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
   </div>
   <template data-chroma-card-template>
@@ -62,6 +62,7 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
 </script>
 
 <style is:global>
+  .prestige-chroma-catalog { container: prestige-chroma-catalog / inline-size; }
   .prestige-chroma-catalog h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); }
   .prestige-chroma-catalog h1 svg { width: 1em; height: 1em; flex: none; }
   .prestige-chroma-catalog > .alert { margin-block: var(--space-3); }
@@ -76,6 +77,10 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   .prestige-chroma-catalog [data-result-count] { margin: var(--space-2) 0 0; }
   .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .prestige-chroma-catalog .card-body { padding: 12px; }
+  /* Five tracks of 180px plus 12px gaps fit from 948px up to the sixth track at 1140px. */
+  @container prestige-chroma-catalog (948px <= width < 1140px) {
+    .prestige-chroma-catalog [data-static-batch] > .chroma-card:nth-child(n + 21) { display: none; }
+  }
   @media (max-width: 767px) {
     .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
   }
