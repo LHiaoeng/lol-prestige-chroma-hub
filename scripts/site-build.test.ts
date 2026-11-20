@@ -597,10 +597,18 @@ describe("static site build", () => {
         previousHeading = heading!.index!;
       }
       const tft = home.match(/<section\b[^>]*aria-labelledby="home-tft-title"[^>]*>([\s\S]*?)<\/section>/)?.[1];
-      expect(tft).toContain(`href="${route('tft/companions/')}"`);
-      expect(tft).toContain(`href="${route('tft/arenas/')}"`);
-      expect(tft).toContain(prefix ? '小小英雄' : 'Tacticians');
-      expect(tft).toContain(prefix ? '棋盘' : 'Arenas');
+      const tftCards = [...(tft ?? '').matchAll(/<a class="home-tft-card card--hoverable"[^>]*>([\s\S]*?)<\/a>/g)];
+      expect(tftCards).toHaveLength(2);
+      for (const [card, path, title, caption, cover] of [
+        [tftCards[0][0], 'tft/companions/', prefix ? '小小英雄' : 'Tacticians', prefix ? '小小阿狸' : 'Chibi Ahri', 'companions/tooltip_chibiahri_base_classic_tier1.png'],
+        [tftCards[1][0], 'tft/arenas/', prefix ? '棋盘' : 'Arenas', prefix ? 'K/DA练习室' : 'K/DA Practice Room', 'tftmapskins/square_battlefield_lg_backstage_day.png'],
+      ]) {
+        expect(card).toContain(`href="${route(path)}"`);
+        expect(card).toContain(title);
+        expect(card).toContain(caption);
+        expect(card).toContain(`src="https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/${cover}"`);
+        expect(card).toMatch(/<img\b[^>]*alt=""[^>]*loading="lazy"[^>]*data-fallback="\/placeholder.svg"/);
+      }
       expect(home).not.toContain('class="card__title"');
       expect(nav).not.toContain('help-link');
       expect(home).not.toContain('id="prestige-chroma-explanation"');
