@@ -12,6 +12,7 @@ import DownloadOutlined from '@ant-design/icons-svg/lib/asn/DownloadOutlined';
 import ExclamationCircleFilled from '@ant-design/icons-svg/lib/asn/ExclamationCircleFilled';
 import ExportOutlined from '@ant-design/icons-svg/lib/asn/ExportOutlined';
 import EyeOutlined from '@ant-design/icons-svg/lib/asn/EyeOutlined';
+import FileTextOutlined from '@ant-design/icons-svg/lib/asn/FileTextOutlined';
 import HomeOutlined from '@ant-design/icons-svg/lib/asn/HomeOutlined';
 import InfoCircleFilled from '@ant-design/icons-svg/lib/asn/InfoCircleFilled';
 import InfoCircleOutlined from '@ant-design/icons-svg/lib/asn/InfoCircleOutlined';
@@ -50,6 +51,7 @@ const ANT_ICONS = {
   ExclamationCircleFilled,
   ExportOutlined,
   EyeOutlined,
+  FileTextOutlined,
   HomeOutlined,
   InfoCircleFilled,
   InfoCircleOutlined,

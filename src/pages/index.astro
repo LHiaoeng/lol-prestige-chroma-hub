@@ -3,16 +3,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeLatestBlog from '../components/HomeLatestBlog.astro';
 import HomeToolNavigation from '../components/HomeToolNavigation.astro';
 import HomeChromaCatalog from '../components/HomeChromaCatalog.astro';
+import Card from '../components/Card.astro';
+import DomainIcon from '../components/DomainIcon.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
 import { selectFeaturedChroma } from '../domain/featured-chroma';
-import { resolveLocale, type Locale } from '../i18n/config';
+import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import { createHomeSeo } from '../seo/home-seo';
 import { SITE } from '../seo/site';
 
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
 const { tagline, title, description, canonical, jsonLd } = createHomeSeo(locale);
 const backgroundChroma = selectFeaturedChroma(catalog);
 const socialImage = backgroundChroma ? imageUrl(backgroundChroma.images.large) : SITE.defaultImage;
@@ -34,10 +37,25 @@ const socialImage = backgroundChroma ? imageUrl(backgroundChroma.images.large) :
       <HomeToolNavigation {locale}>
         <HomeChromaCatalog {locale} />
       </HomeToolNavigation>
+      <section class="home-tft" aria-labelledby="home-tft-title">
+        <div class="section-heading">
+          <h2 id="home-tft-title"><DomainIcon name="teamfight-tactics" /> {isZh ? '云顶之弈' : 'Teamfight Tactics'}</h2>
+        </div>
+        <Card>
+          <ul class="home-tft-links">
+            <li><a href={localizedPath(locale, '/tft/companions/')}><DomainIcon name="tft-companions" /> {isZh ? '小小英雄' : 'Tacticians'}</a></li>
+            <li><a href={localizedPath(locale, '/tft/arenas/')}><DomainIcon name="tft-arenas" /> {isZh ? '棋盘' : 'Arenas'}</a></li>
+          </ul>
+        </Card>
+      </section>
     </div>
   </div>
 </BaseLayout>
 <style>
   .home-page { position:relative; isolation:isolate; background:var(--bg); }
   .home-content { position:relative; z-index:1; }
+  .home-content :global(.section-heading h2) { display: flex; align-items: center; gap: var(--space-2); color: var(--gold); }
+  .home-tft { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin-inline: auto; padding-bottom: 40px; }
+  .home-tft-links { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  .home-tft-links a { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 32px; }
 </style>

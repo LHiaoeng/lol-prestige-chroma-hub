@@ -583,9 +583,24 @@ describe("static site build", () => {
         previous = position;
       }
       expect(nav).toContain('aria-current="page"');
-      expect(home).toMatch(
-        new RegExp(`<h2 id="home-tools-title"[^>]*>${prefix ? '英雄联盟' : 'League of Legends'}</h2>`),
-      );
+      const headings = [
+        ['latest-title', prefix ? '博客' : 'Blog'],
+        ['home-tools-title', prefix ? '英雄联盟' : 'League of Legends'],
+        ['home-tft-title', prefix ? '云顶之弈' : 'Teamfight Tactics'],
+      ];
+      let previousHeading = -1;
+      for (const [id, label] of headings) {
+        const heading = home.match(new RegExp(`<h2 id="${id}"[^>]*>([\\s\\S]*?)</h2>`));
+        expect(heading?.index).toBeGreaterThan(previousHeading);
+        expect(heading?.[1]).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+        expect(heading?.[1]).toContain(label);
+        previousHeading = heading!.index!;
+      }
+      const tft = home.match(/<section\b[^>]*aria-labelledby="home-tft-title"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+      expect(tft).toContain(`href="${route('tft/companions/')}"`);
+      expect(tft).toContain(`href="${route('tft/arenas/')}"`);
+      expect(tft).toContain(prefix ? '小小英雄' : 'Tacticians');
+      expect(tft).toContain(prefix ? '棋盘' : 'Arenas');
       expect(home).not.toContain('class="card__title"');
       expect(nav).not.toContain('help-link');
       expect(home).not.toContain('id="prestige-chroma-explanation"');

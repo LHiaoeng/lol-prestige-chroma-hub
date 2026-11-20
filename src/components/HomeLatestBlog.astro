@@ -1,6 +1,7 @@
 ---
 import { articleHref, blogArticlesNewestFirst, blogCategoryLabels, formatBlogDate } from '../blog/articles';
 import { localizedPath, type Locale } from '../i18n/config';
+import Icon from './icons/Icon.astro';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -11,7 +12,7 @@ const blogCountLabel = isZh ? `（共 ${blogArticlesNewestFirst.length} 篇）` 
 ---
 <section class="latest-section" aria-labelledby="latest-title">
   <div class="section-heading">
-    <div><h2 id="latest-title">{blogHeading} <span class="heading-count">{blogCountLabel}</span></h2></div>
+    <div><h2 id="latest-title"><Icon name="FileTextOutlined" /> <span>{blogHeading} <span class="heading-count">{blogCountLabel}</span></span></h2></div>
     <a class="see-all" href={localizedPath(locale, '/blog/')}>{isZh ? '查看全部 →' : 'View all →'}</a>
   </div>
   <div class="guide-list">
@@ -38,7 +39,10 @@ const blogCountLabel = isZh ? `（共 ${blogArticlesNewestFirst.length} 篇）` 
     .latest-section { padding-top: 24px; padding-bottom: 32px; }
     .latest-section :global(.section-heading) { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .latest-section :global(.section-heading > div) { min-width: 0; }
-    .guide-list { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 12px; margin-inline: -2px; scroll-snap-type: x proximity; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
-    .guide-card { flex: 0 0 min(84%, 360px); scroll-snap-align: start; }
+    .guide-list { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+    .guide-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-2); padding: var(--space-3); }
+    .guide-category { letter-spacing: normal; }
+    .guide-card h3 { grid-column: 1 / -1; white-space: normal; }
+    .guide-card time { grid-area: 1 / 2; margin-top: 0; text-align: end; }
   }
 </style>

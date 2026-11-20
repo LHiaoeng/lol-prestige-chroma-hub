@@ -196,9 +196,10 @@ describe('blog feature contract', () => {
   it('links the blog from the header and footer on every page', () => {
     const layout = source('src/layouts/BaseLayout.astro');
     expect(layout.match(/localizedPath\(locale, '\/blog\/'\)/g)).toHaveLength(2);
-    expect(layout).toContain('class="header-blog-link"');
+    expect(layout).toMatch(/<a\b[^>]*class="[^"]*\bheader-blog-link\b[^"]*"[^>]*>\s*<Icon name="FileTextOutlined" \/>/);
+    expect(source('src/components/HomeLatestBlog.astro')).toContain('<Icon name="FileTextOutlined" />');
     expect(layout).toContain("isZh ? '博客' : 'Blog'");
-    expect(layout).toContain('min-height: var(--touch-target)');
+    expect(layout).toContain('.header-controls .ant-btn { min-height:var(--control-height-sm);');
     expect(layout).toContain("ogType?: 'website' | 'article'");
     expect(layout).toContain('const socialImage = new URL(image, SITE.origin).toString()');
     expect(layout).toContain('property="article:published_time"');

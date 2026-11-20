@@ -2,6 +2,7 @@
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import Card from './Card.astro';
 import DomainIcon from './DomainIcon.astro';
+import Icon from './icons/Icon.astro';
 
 interface Props {
   locale?: Locale;
@@ -21,7 +22,7 @@ const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.h
 ---
 
 <section class="home-tool-navigation" aria-labelledby="home-tools-title">
-  <div class="section-heading"><h2 id="home-tools-title">{isZh ? '英雄联盟' : 'League of Legends'}</h2></div>
+  <div class="section-heading"><h2 id="home-tools-title"><Icon name="league-of-legends" /> {isZh ? '英雄联盟' : 'League of Legends'}</h2></div>
   <Card
     tabList={items}
     tabBorderBeam={[
