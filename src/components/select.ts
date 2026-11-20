@@ -74,7 +74,10 @@ function bindDocument(document: Document): void {
   });
 }
 
-export function enhanceSelect(source: HTMLSelectElement): void {
+export function enhanceSelect(
+  source: HTMLSelectElement,
+  optionIcon?: (option: HTMLOptionElement) => HTMLElement | undefined,
+): void {
   const document = source.ownerDocument;
   const view = document.defaultView;
   if (controllers.has(source) || !view) return;
@@ -236,7 +239,11 @@ export function enhanceSelect(source: HTMLSelectElement): void {
     const hasValue = !!selected && selected.value !== "";
     const hasLabel = !!selected && (hasValue || !placeholder);
     label.replaceChildren();
-    if (hasLabel) label.textContent = optionLabel(selected);
+    if (hasLabel) {
+      const icon = optionIcon?.(selected);
+      if (icon) label.append(icon);
+      label.append(optionLabel(selected));
+    }
     placeholderNode.hidden = hasLabel;
     trigger.classList.toggle("ant-select-content-has-value", hasLabel);
     root.classList.toggle("ant-select-has-value", hasValue);
@@ -270,7 +277,9 @@ export function enhanceSelect(source: HTMLSelectElement): void {
       if (option.selected) item.classList.add("ant-select-item-option-selected");
       const content = document.createElement("span");
       content.className = "ant-select-item-option-content";
-      content.textContent = optionLabel(option);
+      const icon = optionIcon?.(option);
+      if (icon) content.append(icon);
+      content.append(optionLabel(option));
       const state = document.createElement("span");
       state.className = "ant-select-item-option-state";
       state.appendChild(createIcon("CheckOutlined", document));
@@ -431,5 +440,5 @@ export function refreshSelect(source: HTMLSelectElement): void {
 }
 
 export function enhanceSelects(root: ParentNode): void {
-  root.querySelectorAll<HTMLSelectElement>(sourceSelector).forEach(enhanceSelect);
+  root.querySelectorAll<HTMLSelectElement>(sourceSelector).forEach((select) => enhanceSelect(select));
 }

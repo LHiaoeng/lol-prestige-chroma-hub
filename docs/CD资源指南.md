@@ -263,6 +263,53 @@ CommunityDragon 的通用 JSON 资源路径说明将 `/lol-game-data/assets/<pat
 | 通用客户端稀有度边框副本 | [`plugins/rcp-fe-lol-static-assets/global/default/images/rarity/gem-borders/`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/rarity/gem-borders/) | 上述边框的同内容副本 |
 | 英雄联盟 Hall of Legends（名称检索误命中） | [`plugins/rcp-be-lol-game-data/global/default/assets/halloflegends/`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/halloflegends/) | `hol_bxp.svg`；不是稀有度图标 |
 
+#### 客户端图标资源
+
+##### 货币图标
+
+PBE 客户端货币资源位于 [`plugins/rcp-fe-lol-static-assets/global/default/currency/`](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/currency/)。目录下的 [`icons/`](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/currency/icons/) 收录货币图标，[`tokens/`](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/currency/tokens/) 收录代币素材。
+
+##### 英雄联盟分路 SVG
+
+以下五枚 SVG 来自 Riot 客户端的静态资源，由 CommunityDragon 提供。这里的分路指对局位置。战士、坦克、法师等六种英雄职业使用收藏模块的另一套图集。
+
+| 分路 | PBE 资源路径 |
+| --- | --- |
+| 上路 | [position-top.svg](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-top.svg) |
+| 打野 | [position-jungle.svg](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-jungle.svg) |
+| 中路 | [position-middle.svg](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-middle.svg) |
+| 下路 | [position-bottom.svg](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-bottom.svg) |
+| 辅助 | [position-utility.svg](https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-utility.svg) |
+
+##### 战利品分类栏
+
+战利品分类栏按类别从 [`rcp-fe-lol-loot/global/default/assets/category_icons/`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/) 加载 PNG。客户端的 `getCategoryIconPath` 将类别名转为小写文件名。 [战利品模块源码](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/rcp-fe-lol-loot.js)
+
+| 分类 | 正式服资源 |
+| --- | --- |
+| 全部 | [`all.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/all.png) |
+| 宝箱 | [`chest.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/chest.png) |
+| 英雄 | [`champion.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/champion.png) |
+| 皮肤 | [`skin.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/skin.png) |
+| 小小英雄 | [`companion.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/companion.png) |
+| 永恒星碑 | [`eternals.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/eternals.png) |
+| 表情 | [`emote.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/emote.png) |
+| 守卫皮肤 | [`wardskin.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/wardskin.png) |
+| 召唤师图标 | [`summonericon.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/summonericon.png) |
+| 传送门宝箱 | [`portal_chest.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/portal_chest.png) |
+
+##### 皮肤预览栏
+
+图标位于 [`rcp-fe-lol-static-assets/global/default/images/skin-viewer/`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/)。在客户端样式中，皮肤系列对应 `.skinline .icon`，任务皮肤形态对应 `.quest-forms .icon`，显示或隐藏界面对应 `.toggle-ui .icon`。 [收藏模块样式](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.css)
+
+| 用途 | 正式服资源 |
+| --- | --- |
+| 炫彩（彩色圆环） | [`icon-chroma-default.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/icon-chroma-default.png) |
+| 皮肤系列（双面具） | [`icon-themes-default.svg`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/icon-themes-default.svg) |
+| 普通任务皮肤形态（`.quest-forms .icon`；本站复用三面具作为皮肤宇宙图标） | [`icon-three-masks-default.svg`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/icon-three-masks-default.svg) |
+| 分档皮肤形态（单面具带进阶标记，`.quest-forms .icon.tiered`，例如联盟不朽 阿狸） | [`tiered/evolution-icon.svg`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/tiered/evolution-icon.svg) |
+| 显示或隐藏界面（眼睛） | [`magnifier.svg`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/magnifier.svg) |
+
 ### 2.4 运行时读取规则
 
 - 英文页面使用 `default`，中文页面使用 `zh_cn`；运行时默认通道为 `pbe`。

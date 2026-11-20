@@ -781,6 +781,18 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
   gap: 16px;
 }
 .runtime-champion-grid { --runtime-card-width: 180px; }
+.runtime-champion-role-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-inline-end: var(--space-1);
+  vertical-align: middle;
+  background: url("https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/role-filter-disabled.png") no-repeat;
+  background-size: 180px 20px;
+}
+.runtime-champion-role-icon--selected {
+  background-image: url("https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/role-filter-enabled.png");
+}
 .runtime-page--universe-list .runtime-grid { --runtime-card-width: 250px; }
 .runtime-grid > .ant-empty { grid-column: 1 / -1; }
 .runtime-card.runtime-champion-card {

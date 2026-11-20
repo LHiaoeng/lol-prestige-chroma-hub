@@ -6,6 +6,10 @@
 
 - 使用语义 Token 表达主题色、字号、间距、圆角和动效。布局和媒体比例由调用方决定。只有浏览器状态或事件需要客户端脚本。
 - 通用图标使用 [命名 Astro 组件](../src/components/icons/) 或客户端 [createIcon](../src/components/icons/create-icon.ts)。颜色继承 `currentColor`。装饰图标对辅助技术隐藏，纯图标控件由调用方提供双语名称。领域图标的名称和 Tooltip 统一在 [domain-icons.ts](../src/components/domain-icons.ts) 维护。
+- 英雄和皮肤分别取自 [本站标志](../public/logo.svg) 的底层头盔和上层面具。两条原始路径分别等比映射到共享的 24 单位画布，均使用 `currentColor` 填色。
+- 皮肤宇宙使用基于 Riot 三面具的本站小尺寸变体，保留中央面具，收窄两侧面具，使可见高度接近皮肤系列双面具。路径直接使用调整后的坐标，沿用共享的 1em × 1em 外框。 [客户端 SVG](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/icon-three-masks-default.svg)
+- 皮肤系列复用 Riot 客户端皮肤预览栏的双面具路径。放大和居中直接写入路径坐标，保留原始长宽比。图标使用按可见轮廓宽度裁切的正方形画布，在共享的 1em × 1em 外框内等比显示，填色继承 `currentColor`。 [客户端 SVG](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/icon-themes-default.svg)
+- 英雄职业筛选使用 Riot 客户端收藏模块的两张职业图集。按客户端样式的坐标呈现六个职业，选中时显示高亮版。共享 Select 允许选项和选中值在文字前显示装饰图标，中文和英文职业名称仍作为可访问标签。[客户端职业图集样式](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.css) · [Antdv Next Select](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/select/index.tsx)
 - 回归检查以 [AGENTS.md](../AGENTS.md) 为准。当前项目使用相关测试和真实页面检查验证视觉改动。
 
 ## 组件用法

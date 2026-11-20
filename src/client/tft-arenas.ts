@@ -98,7 +98,7 @@ export function initTftArenas(
   const emptyTemplate = element<HTMLTemplateElement>(root, "[data-arenas-empty-template]");
   const errorTemplate = element<HTMLTemplateElement>(root, "[data-arenas-error-template]");
   const channelLabel = element<HTMLElement>(root, "[data-runtime-channel-label]");
-  [group, rarity, sort].forEach(enhanceSelect);
+  [group, rarity, sort].forEach((select) => enhanceSelect(select));
 
   let state = readTftArenaUrlState(history.url);
   let baseItems: readonly TftArena[] = [];

@@ -26,6 +26,15 @@ import { createDomainIcon } from "../components/domain-icons";
 import { enhanceSelect } from "../components/select";
 import { bindDebouncedSearch } from "./search-input";
 
+const roleIconOffsets = new Map([
+  ["fighter", 0],
+  ["tank", -32],
+  ["mage", -64],
+  ["assassin", -96],
+  ["support", -128],
+  ["marksman", -160],
+]);
+
 export interface RuntimeListRendererOptions {
   readonly content: HTMLElement;
   readonly status: HTMLElement;
@@ -125,7 +134,16 @@ export function createRuntimeListRenderer(
           textNode("span", options.locale === "zh_cn" ? "职业" : "Role"),
           select,
         );
-        enhanceSelect(select);
+        enhanceSelect(select, (option) => {
+          const offset = roleIconOffsets.get(option.value);
+          if (offset === undefined) return;
+          const icon = document.createElement("span");
+          icon.className = "runtime-champion-role-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.style.backgroundPosition = `${offset}px 0`;
+          icon.classList.toggle("runtime-champion-role-icon--selected", option.selected);
+          return icon;
+        });
         toolbar.append(roleLabelElement);
       }
       const sort = document.createElement("select");

@@ -192,7 +192,7 @@ export function initTftCompanions(
     for (const cleanup of popoverCleanups) cleanup();
     popoverCleanups.length = 0;
   };
-  [companionType, species, rarity, level, sort].forEach(enhanceSelect);
+  [companionType, species, rarity, level, sort].forEach((select) => enhanceSelect(select));
   const status = element<HTMLElement>(root, "[data-tft-companions-status]");
   const spinner = element<HTMLElement>(root, "[data-runtime-spin]");
   const content = element<HTMLElement>(root, "[data-tft-companions-content]");

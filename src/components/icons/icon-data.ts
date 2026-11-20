@@ -97,7 +97,10 @@ function renderNode(node: AbstractNode): string {
 
 export function iconData(name: IconName): { body: string; viewBox: string; custom: boolean } {
   if (name in CUSTOM_ICONS) {
-    return { body: CUSTOM_ICONS[name as keyof typeof CUSTOM_ICONS], viewBox: '0 0 24 24', custom: true };
+    const glyph = CUSTOM_ICONS[name as keyof typeof CUSTOM_ICONS];
+    return typeof glyph === 'string'
+      ? { body: glyph, viewBox: '0 0 24 24', custom: true }
+      : { ...glyph, custom: true };
   }
   // Astro's server build exposes these CommonJS files through an extra default export.
   const imported = ANT_ICONS[name as keyof typeof ANT_ICONS] as IconDefinition | { default: IconDefinition };
