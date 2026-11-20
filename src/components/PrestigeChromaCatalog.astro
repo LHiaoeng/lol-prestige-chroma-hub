@@ -1,0 +1,64 @@
+---
+import Breadcrumb from './Breadcrumb.astro';
+import Divider from './Divider.astro';
+import DomainIcon from './DomainIcon.astro';
+import Filters from './Filters.astro';
+import PrestigeChromaCard from './PrestigeChromaCard.astro';
+import { toBrowserCatalog } from '../catalog/browser-catalog';
+import { catalog } from '../data/catalog';
+import { safeJsonLd } from '../domain/chroma';
+import { localizedPath, type Locale } from '../i18n/config';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isZh = locale === 'zh-cn';
+const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
+---
+
+<Breadcrumb {locale} items={[
+  { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+  { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
+  { title: heading },
+]} />
+<section class="catalog-section prestige-chroma-catalog" aria-labelledby="prestige-chromas-title">
+  <header>
+    <h1 id="prestige-chromas-title"><DomainIcon name="prestige-chromas" />{heading}</h1>
+    <p data-result-count>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</p>
+    <Divider />
+  </header>
+  <Filters {catalog} {locale} />
+  <p class="status" data-status role="status" aria-live="polite" hidden></p>
+  <div class="chroma-grid" data-chroma-list>
+    {catalog.slice(0, 24).map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
+  </div>
+  <template data-chroma-card-template>
+    <article class="chroma-card">
+      <a href="/">
+        <div class="card-image">
+          <img src="/placeholder.svg" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt="" width="960" height="540" loading="lazy" decoding="async" />
+          <img class="category-icon" src="/placeholder.svg" alt="" aria-hidden="true" />
+          <span class="new-badge">{isZh ? '新增' : 'NEW'}</span>
+        </div>
+        <div class="card-body">
+          <h2></h2>
+          <div class="card-tags"><span class="version-tag"></span></div>
+        </div>
+      </a>
+    </article>
+  </template>
+  <script is:inline id="catalog-data" type="application/json" set:html={safeJsonLd(toBrowserCatalog(catalog))}></script>
+</section>
+<script>
+  import '../catalog/browser-app';
+</script>
+
+<style>
+  .prestige-chroma-catalog h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); }
+  .prestige-chroma-catalog h1 :global(svg) { width: 1em; height: 1em; flex: none; }
+  [data-result-count] { margin: var(--space-2) 0 0; }
+  .prestige-chroma-catalog :global(.chroma-grid) { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .prestige-chroma-catalog :global(.card-body) { padding: 12px; }
+  @media (max-width: 767px) {
+    .prestige-chroma-catalog :global(.chroma-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+  }
+</style>

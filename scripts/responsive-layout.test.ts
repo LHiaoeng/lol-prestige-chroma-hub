@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('responsive layout contract', () => {
-  it('keeps homepage filters visible on desktop and collapsible on mobile', () => {
+  it('keeps catalog filters visible on desktop and collapsible on mobile', () => {
     const filters = source('src/components/Filters.astro');
     expect(filters).toContain('<details class="filter-disclosure" open>');
     expect(filters).toContain("toggleAttribute('open', desktop.matches)");
@@ -140,7 +140,7 @@ describe('responsive layout contract', () => {
     const home = source('src/pages/index.astro');
     const catalog = source('src/components/HomeChromaCatalog.astro');
     const latest = source('src/components/HomeLatestBlog.astro');
-    expect(home).toContain('<div class="home-backdrop">');
+    expect(home).toContain('page-backdrop--home home-backdrop');
     expect(home).toContain('<ResponsiveHeroBackdrop');
     expect(home).not.toContain('class="hero-section"');
     expect(home).toContain('<HomeChromaCatalog {locale} />');

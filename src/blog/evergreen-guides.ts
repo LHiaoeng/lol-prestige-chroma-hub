@@ -79,7 +79,7 @@ export const evergreenGuideMaintenance = {
     ],
     related: [
       guide('/blog/what-are-chroma-skins/', 'Chroma fundamentals', '炫彩基础介绍'),
-      guide('/blog/kaisa-prestige-chroma/', 'Kai\u2019Sa Prestige Chroma gallery', '卡莎臻彩原画图鉴'),
+      guide('/blog/kaisa-prestige-chroma/', 'Kai\u2019Sa Prestige Chroma gallery', '卡莎臻彩原画'),
     ],
   },
   'kaisa-prestige-chroma': {
@@ -94,7 +94,7 @@ export const evergreenGuideMaintenance = {
     updatedAt: '2026-08-25',
     sources: [catalogSource, tencentPrestigeSource],
     related: [
-      guide('/blog/kaisa-prestige-chroma/', 'Kai\u2019Sa Prestige Chroma gallery', '卡莎臻彩原画图鉴'),
+      guide('/blog/kaisa-prestige-chroma/', 'Kai\u2019Sa Prestige Chroma gallery', '卡莎臻彩原画'),
       guide('/blog/champions-without-prestige-chroma/', 'Champions without Prestige Chroma splash art', '尚无臻彩原画的英雄'),
     ],
   },

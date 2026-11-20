@@ -93,6 +93,7 @@ gtag('js', new Date());
               {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
               <DownOutlined class="ant-dropdown-down-icon" />
             </a>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/prestige-chromas/')} aria-current={headerNavigation.current('/prestige-chromas/', '/chromas/') ?? headerNavigation.current('/prestige-chromas/')}><DomainIcon name="prestige-chromas" class="ant-dropdown-menu-item-icon" />{isZh ? '臻彩原画' : 'Prestige Chroma Splash Art'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/pbe-additions/')} aria-current={headerNavigation.current('/pbe-additions/')}><DomainIcon name="pbe-additions" class="ant-dropdown-menu-item-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/champions/')} aria-current={headerNavigation.current('/champions/')}><DomainIcon name="champions" class="ant-dropdown-menu-item-icon" />{isZh ? '英雄' : 'Champions'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skins/')} aria-current={headerNavigation.current('/skins/')}><DomainIcon name="skins" class="ant-dropdown-menu-item-icon" />{isZh ? '皮肤' : 'Skins'}</a></li>

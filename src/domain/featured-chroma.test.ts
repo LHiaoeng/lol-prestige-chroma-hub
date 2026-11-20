@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { selectFeaturedChroma } from './featured-chroma';
+import { selectFeaturedChroma, selectNewChromas } from './featured-chroma';
+
+describe('homepage new chromas', () => {
+  it('keeps every new entry in source order beyond a single batch', () => {
+    const newEntries = Array.from({ length: 27 }, (_, id) => ({ id, isNew: true }));
+    const entries = [{ id: 99, isNew: false }, ...newEntries, { id: 100, isNew: false }];
+    expect(selectNewChromas(entries)).toEqual(newEntries);
+  });
+
+  it('returns an empty list when there are no new entries', () => {
+    expect(selectNewChromas([{ id: 99, isNew: false }])).toEqual([]);
+    expect(selectNewChromas([])).toEqual([]);
+  });
+});
 
 describe('featured chroma selection', () => {
   it('selects the first new chroma', () => {

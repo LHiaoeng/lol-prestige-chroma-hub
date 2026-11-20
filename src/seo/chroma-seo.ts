@@ -45,7 +45,7 @@ export function createChromaSeo(chroma: Chroma, requestedLocale: Locale = 'en') 
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: isZh ? '首页' : 'Home', item: homeUrl },
           { '@type': 'ListItem', position: 2, name: isZh ? '英雄联盟' : 'League of Legends', item: new URL(localizedPath(locale, '/#home-tools-title'), SITE.origin).toString() },
-          { '@type': 'ListItem', position: 3, name: isZh ? '臻彩原画' : 'Prestige chromas', item: new URL(localizedPath(locale, '/#prestige-chroma-gallery'), SITE.origin).toString() },
+          { '@type': 'ListItem', position: 3, name: isZh ? '臻彩原画' : 'Prestige Chroma Splash Art', item: new URL(localizedPath(locale, '/prestige-chromas/'), SITE.origin).toString() },
           { '@type': 'ListItem', position: 4, name, item: canonical },
         ],
       },

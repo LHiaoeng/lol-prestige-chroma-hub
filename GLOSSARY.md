@@ -1,6 +1,6 @@
 # LoL Chroma Art
 
-LoL Chroma Art 是聚合《英雄联盟》《云顶之弈》和《英雄联盟手游》相关内容的网站。臻彩原画图鉴是本站的核心板块之一，不代表整站的全部内容。
+LoL Chroma Art 是聚合《英雄联盟》《云顶之弈》和《英雄联盟手游》相关内容的网站。臻彩原画板块是本站的核心板块之一，不代表整站的全部内容。
 
 ## 站点范围
 
@@ -50,8 +50,8 @@ _Avoid_: 用 LPL 代替 China Server、用国服代替职业联赛
 用于帮助中国大陆服以外玩家理解臻彩原画的对外解释概念，而不是中国大陆服内对该内容的正式称呼。它表示中国大陆服为臻彩提供的独立原画；“中国服专属”描述原画的提供范围，不表示对应炫彩一定只在中国大陆服提供。
 _Avoid_: 中国服专属炫彩原画、中文页面中用于替代“臻彩”的主称呼、中国服独占炫彩、中国限定皮肤
 
-**臻彩原画图鉴（Prestige Chroma Splash Art Archive）**:
-本站的核心板块之一，整理和展示中国大陆服臻彩原画及其关联资料；面向其他游戏地区玩家时可解释为 `China-Exclusive Prestige Chroma Splash Art Archive`。它不是全部炫彩、全部皮肤或玩家藏品的清单。
+**臻彩原画板块（Prestige Chroma Splash Art Section）**:
+本站的核心板块之一，整理和展示中国大陆服臻彩原画及其关联资料；面向其他游戏地区玩家时可解释为 `China-Exclusive Prestige Chroma Splash Art`。它不是全部炫彩、全部皮肤或玩家藏品的清单。
 _Avoid_: 臻彩皮肤站、全炫彩数据库
 
 ## CommunityDragon 数据
@@ -59,7 +59,7 @@ _Avoid_: 臻彩皮肤站、全炫彩数据库
 CommunityDragon 的资源读取规范见 [CommunityDragon 资源指南](docs/CD资源指南.md)。该指南统一说明 RAW URL、数据通道、本地化视图和路径转换，并分别记录英雄联盟与云顶之弈资源；本节只定义本站领域中的核心术语和边界。
 
 **静态图鉴内容（Static Archive Content）**:
-由本站仓库内受控数据在构建时生成、无需 CommunityDragon 可用也能完整阅读的首页、臻彩详情、博客和固定说明内容；它构成本站的长期内容与 SEO 主体。
+由本站仓库内受控数据在构建时生成、无需 CommunityDragon 可用也能完整阅读的首页、臻彩原画列表与详情、博客和固定说明内容；它构成本站的长期内容与 SEO 主体。
 _Avoid_: CommunityDragon 快照、动态资料、把客户端补充信息视为静态正文
 
 **运行时资料（Runtime Reference）**:

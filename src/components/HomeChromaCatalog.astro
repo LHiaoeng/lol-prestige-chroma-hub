@@ -1,20 +1,18 @@
 ---
 import ExportOutlined from './icons/ExportOutlined.astro';
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
-import Filters from './Filters.astro';
 import Alert from './Alert.astro';
-import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
-import { safeJsonLd } from '../domain/chroma';
+import { selectNewChromas } from '../domain/featured-chroma';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
+const additions = selectNewChromas(catalog);
 ---
 
-<section id="prestige-chroma-gallery" class="catalog-section home-catalog" aria-labelledby="catalog-heading">
+<section class="catalog-section home-catalog" aria-labelledby="catalog-heading">
   <Alert id="catalog-title" type="info" showIcon role="note">
     <h2 id="catalog-heading" slot="title">{isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}</h2>
     <span slot="description">{isZh ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。' : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.'}</span>
@@ -22,37 +20,16 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
       <ExportOutlined />
     </a>
   </Alert>
-  <Filters {catalog} {locale} />
-  <div class="status" data-status aria-live="polite" hidden></div>
-  <div class="chroma-grid" data-chroma-list>
-    {catalog.slice(0, 24).map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
+  <p><a class="catalog-all-link" href={localizedPath(locale, '/prestige-chromas/')}>{isZh ? '查看全部臻彩' : 'View all Prestige Chromas'}</a></p>
+  {additions.length === 0 && <p>{isZh ? '本期暂无新增臻彩' : 'No new Prestige Chromas this release.'}</p>}
+  <div class="chroma-grid">
+    {additions.map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
   </div>
-  <template data-chroma-card-template>
-    <article class="chroma-card">
-      <a href="/">
-        <div class="card-image">
-          <img src="/placeholder.svg" data-fallback="/placeholder.svg" data-placeholder="/placeholder.svg" alt="" width="960" height="540" loading="lazy" decoding="async" />
-          <img class="category-icon" src="/placeholder.svg" alt="" aria-hidden="true" />
-          <span class="new-badge">{isZh ? '新增' : 'NEW'}</span>
-        </div>
-        <div class="card-body">
-          <h2></h2>
-          <div class="card-tags"><span class="version-tag"></span></div>
-        </div>
-      </a>
-    </article>
-  </template>
-  {catalog.length === 0 && <div class="empty" data-initial-empty><h3>{isZh ? '资料库等待导入' : 'The archive is waiting for data'}</h3><p>{isZh ? '运行数据导入命令后，臻彩原画会在这里出现。' : 'Chroma splash arts will appear here after the data import runs.'}</p></div>}
-  <nav class="cn-pagination" data-pagination aria-label={isZh ? '分页' : 'Pagination'}></nav>
 </section>
-<script is:inline id="catalog-data" type="application/json" set:html={browserCatalogJson}></script>
-<script>
-  import '../catalog/browser-app';
-</script>
 
 <style is:global>
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
-  .home-catalog { scroll-margin-top: calc(var(--site-header-height) + var(--control-height) + var(--space-4)); }
+  .home-catalog .catalog-all-link { color: var(--gold); text-decoration: underline; text-underline-offset: .2em; }
   .home-catalog > .alert { margin-bottom: var(--space-3); }
   .home-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
   .home-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
@@ -62,7 +39,6 @@ const browserCatalogJson = safeJsonLd(toBrowserCatalog(catalog));
   .home-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
   .home-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .home-catalog .catalog-intro-link::before { transition: none; } }
-  .home-catalog .status:not([hidden]):not(.error) { padding: 8px 12px; margin: 12px 0; border: 0; }
   .home-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .home-catalog .card-body { padding: 12px; }
   .home-catalog .card-body h2 { margin: 0 0 8px; font-size: var(--font-size-body); line-height: var(--line-height-body); min-height: calc(var(--line-height-body) * 2); }

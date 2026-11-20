@@ -304,7 +304,7 @@ describe('blog article metadata', () => {
       slug: 'kaisa-prestige-chroma',
       href: '/blog/kaisa-prestige-chroma/',
       titleEn: 'Kai\u2019Sa Prestige Chroma Gallery',
-      titleZh: '卡莎臻彩原画图鉴',
+      titleZh: '卡莎臻彩原画',
       summaryEn: 'Browse Kai\u2019Sa prestige chroma artwork by skin, with names, colour palettes, and release details.',
       summaryZh: '按皮肤查看卡莎的臻彩原画，以及每款臻彩的名称、配色与获取信息。',
       coverUrl: '/img/blog/kaisa-prestige-chroma-cover.png',

@@ -274,7 +274,7 @@ Chroma Gold 是最终可见主色 `primary: #d7b56d`。普通暗色算法会把�
 
 采用 4px 间距基数和 4、8、16、24、32px 尺度；保留上游 Input 的 11px、Button 的 15px 内边距等组件原始尺寸。Button、Input/Select、Radio.Button 的公开尺寸为 `small`、`medium`、`large`，高度分别为 24、32、40px；主题另有内部 `controlHeightXS` 16px，不是第四个 `size` 选项。Card 只有 `small`、`medium` 两档。上游定义见 [SizeContext](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/config-provider/SizeContext.tsx)、[控件高度推导](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/theme/themes/shared/genControlHeight.ts)和 [Card](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/card/Card.tsx)。边框线宽使用 1px，强调线宽（含时间轴轨迹和焦点环）使用 2px。皮肤详情媒体轮播控制条按 Antdv Next 组件尺寸：Radio.Button 与下载图标按钮均使用默认 32px，并通过组件 `size` 属性控制；尺寸不随视口或触控类型放大。文字链接按 [WCAG 2.2 目标尺寸最低要求](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)检查尺寸或间距，正文行内链接不强制扩大到 44px。
 
-本站版心与横向边距继续通过 `--content-width` 和 `--page-gutter` 共享。首页直接呈现工具导航、筛选与原画目录；目录便于比较；详情突出完整作品和资料；博客维持连续阅读。原画展示面积、完整媒体比例和触控可用性是密度规则的明确例外，其余同类控件不逐页另定尺寸。
+本站版心与横向边距继续通过 `--content-width` 和 `--page-gutter` 共享。首页直接呈现工具导航与新增臻彩；独立臻彩原画列表提供筛选，便于比较；详情突出完整作品和资料；博客维持连续阅读。原画展示面积、完整媒体比例和触控可用性是密度规则的明确例外，其余同类控件不逐页另定尺寸。
 
 ## Elevation & Depth
 
@@ -328,7 +328,7 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 
 Header 使用80%不透明的暗色玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的暗色表面。右侧控件尺寸与组合见 [Header 用法](docs/frontend-design.md#组件用法)。
 
-博客使用响应式原画背景，767px以下读取中图；背景延伸到Header之后，使用svh适应移动浏览器栏。首页直接展开最新博客、工具导航和臻彩目录，不使用全屏 Hero。减少动态效果时关闭原画漂移和视差。返回顶部使用 [FloatButton.BackTop](src/components/back-to-top.md) 的默认圆形样式，滚动达到 400px 时显示，并适配安全区。
+博客使用响应式原画背景，767px以下读取中图；背景延伸到Header之后，使用svh适应移动浏览器栏。首页直接展开最新博客、工具导航和新增臻彩，不使用全屏 Hero。减少动态效果时关闭原画漂移和视差。返回顶部使用 [FloatButton.BackTop](src/components/back-to-top.md) 的默认圆形样式，滚动达到 400px 时显示，并适配安全区。
 
 英雄与皮肤资料保持可扫描的布局、明确的加载/缺失/失败/重试状态。英雄小头像与皮肤缩略图保持来源比例；手机皮肤卡片可保持两列，但长名称须可读。皮肤展签以名称和稀有度标识构成标题，长名称允许换行，背景故事与后续资料区对齐；完整原画与炫彩图片不因控件密度而被错误裁切。
 

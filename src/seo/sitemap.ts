@@ -45,6 +45,7 @@ function page(
 export function renderSitemap(): string {
   const crawlablePaths = [
     "/",
+    "/prestige-chromas/",
     "/about/",
     "/privacy/",
     "/blog/",

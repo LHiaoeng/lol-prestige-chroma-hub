@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PrestigeChromaCatalog from '../../components/PrestigeChromaCatalog.astro';
+import { resolveLocale, type Locale } from '../../i18n/config';
+import { createEntitySeo } from '../../seo/entity-seo';
+
+interface Props { locale?: Locale }
+const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
+const isZh = locale === 'zh-cn';
+const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
+const description = isZh
+  ? '浏览英雄联盟国服臻彩原画，按英雄、所属版本、分类和新增状态筛选。'
+  : 'Browse League of Legends China-server Prestige Chroma splash art by champion, patch, category, and new status.';
+const seo = createEntitySeo('prestige-chromas', undefined, heading, description, locale);
+---
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale} adPlacement="catalog-index">
+  <PrestigeChromaCatalog {locale} />
+</BaseLayout>

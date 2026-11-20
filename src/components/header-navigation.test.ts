@@ -10,6 +10,9 @@ it('renders four text buttons in the right-hand header controls', () => {
 
 describe('headerNavigationState', () => {
   it('marks the matching nested route in both locales', () => {
+    expect(headerNavigationState('/prestige-chromas/').browsePath).toBe('/prestige-chromas/');
+    expect(headerNavigationState('/zh-cn/prestige-chromas/').current('/prestige-chromas/')).toBe('page');
+    expect(headerNavigationState('/zh-cn/chromas/example/').current('/prestige-chromas/', '/chromas/')).toBe('location');
     expect(headerNavigationState('/skins/ahri/').browsePath).toBe('/skins/');
     expect(headerNavigationState('/zh-cn/champions/ahri/').browsePath).toBe('/champions/');
     expect(headerNavigationState('/zh-cn/champions/ahri/').current('/champions/')).toBe('location');

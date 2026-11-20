@@ -17,7 +17,7 @@ const firstChroma = catalog.reduce((lowest, item) => item.rank < lowest.rank ? i
 const jadeSwordChroma = catalog.find((item) => item.nameZh === '玉剑传说 无极 白虎');
 
 const title = isZh ? '关于 LoL Chroma Art' : 'About LoL Chroma Art';
-const description = isZh ? 'LoL Chroma Art 整理《英雄联盟》《云顶之弈》和《英雄联盟手游》的游戏资料、版本与活动内容。了解臻彩原画图鉴、收录范围和编辑原则。' : 'LoL Chroma Art covers League of Legends, Teamfight Tactics, and League of Legends: Wild Rift through game references and coverage of patches and events. Learn about our Prestige Chroma Splash Art Archive and editorial principles.';
+const description = isZh ? 'LoL Chroma Art 整理《英雄联盟》《云顶之弈》和《英雄联盟手游》的游戏资料、版本与活动内容。了解臻彩原画、收录范围和编辑原则。' : 'LoL Chroma Art covers League of Legends, Teamfight Tactics, and League of Legends: Wild Rift through game references and coverage of patches and events. Learn about our Prestige Chroma Splash Art and editorial principles.';
 const canonical = new URL(localizedPath(locale, '/about/'), SITE.origin).toString();
 const homeUrl = new URL(localizedPath(locale, '/'), SITE.origin).toString();
 const jsonLd = {
@@ -39,7 +39,7 @@ const jsonLd = {
   ]} />
   {!isZh && <article class="about-page">
     <h1>About LoL Chroma Art</h1>
-    <p>LoL Chroma Art brings together game references and articles about League of Legends, Teamfight Tactics, and League of Legends: Wild Rift. The Prestige Chroma Splash Art Archive is one of our core collections. The site is maintained by the LoL Chroma Art Editorial Team — independent fans, not Riot Games or Tencent.</p>
+    <p>LoL Chroma Art brings together game references and articles about League of Legends, Teamfight Tactics, and League of Legends: Wild Rift. The Prestige Chroma Splash Art is one of our core collections. The site is maintained by the LoL Chroma Art Editorial Team — independent fans, not Riot Games or Tencent.</p>
     <p class="editorial-meta"><span>Maintained by the LoL Chroma Art Editorial Team</span><span>Last reviewed: August 25, 2026</span></p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
@@ -120,7 +120,7 @@ const jsonLd = {
 
   {isZh && <article class="about-page">
     <h1>关于 LoL Chroma Art</h1>
-    <p>LoL Chroma Art 聚合《英雄联盟》《云顶之弈》和《英雄联盟手游》的游戏资料与文章，臻彩原画图鉴是本站的核心板块之一。本站由 LoL Chroma Art 编辑团队维护，我们是独立爱好者，不是 Riot Games 或腾讯。</p>
+    <p>LoL Chroma Art 聚合《英雄联盟》《云顶之弈》和《英雄联盟手游》的游戏资料与文章，臻彩原画是本站的核心板块之一。本站由 LoL Chroma Art 编辑团队维护，我们是独立爱好者，不是 Riot Games 或腾讯。</p>
     <p class="editorial-meta"><span>维护主体：LoL Chroma Art 编辑团队</span><span>最近核验：2026 年 8 月 25 日</span></p>
     <figure class="about-art">
       <img src={imageUrl(firstChroma.images.large)} data-fallback={sourceImageUrl('large', firstChroma.instanceId)} data-placeholder="/placeholder.svg" alt="" width="1920" height="1080" loading="eager" decoding="async" />

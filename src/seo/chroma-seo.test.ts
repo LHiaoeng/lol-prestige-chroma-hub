@@ -69,7 +69,7 @@ describe('chroma SEO', () => {
       itemListElement: [
         { position: 1, name: 'Home' },
         { position: 2, name: 'League of Legends', item: 'https://chromaart.lol/#home-tools-title' },
-        { position: 3, name: 'Prestige chromas', item: 'https://chromaart.lol/#prestige-chroma-gallery' },
+        { position: 3, name: 'Prestige Chroma Splash Art', item: 'https://chromaart.lol/prestige-chromas/' },
         { position: 4, name: chroma.nameEn, item: seo.canonical },
       ],
     });
@@ -88,7 +88,7 @@ describe('chroma SEO', () => {
       itemListElement: [
         { position: 1, name: '首页' },
         { position: 2, name: '英雄联盟', item: 'https://chromaart.lol/zh-cn/#home-tools-title' },
-        { position: 3, name: '臻彩原画', item: 'https://chromaart.lol/zh-cn/#prestige-chroma-gallery' },
+        { position: 3, name: '臻彩原画', item: 'https://chromaart.lol/zh-cn/prestige-chromas/' },
         { position: 4, name: chroma.nameZh, item: seo.canonical },
       ],
     });

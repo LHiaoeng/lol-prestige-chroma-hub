@@ -4,6 +4,8 @@ import { renderSitemap } from "./sitemap";
 describe("SEO sitemap", () => {
   it("renders stable pages and runtime directory shells without runtime entities", () => {
     const xml = renderSitemap();
+    expect(xml).toContain('<loc>https://chromaart.lol/prestige-chromas/</loc>');
+    expect(xml).toContain('<loc>https://chromaart.lol/zh-cn/prestige-chromas/</loc>');
     expect(xml).toContain(
       'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"',
     );

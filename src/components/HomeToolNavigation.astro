@@ -10,7 +10,7 @@ interface Props {
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
 const links = [
-  { key: 'prestige-chromas', href: '/', label: isZh ? '臻彩原画' : 'Prestige chromas', icon: true },
+  { key: 'prestige-chromas', href: '/', label: isZh ? '臻彩原画' : 'Prestige Chroma Splash Art', icon: true },
   { key: 'pbe-additions', href: '/pbe-additions/', label: isZh ? 'PBE 新增' : 'PBE additions', icon: true },
   { key: 'champions', href: '/champions/', label: isZh ? '英雄' : 'Champions', icon: true },
   { key: 'skins', href: '/skins/', label: isZh ? '皮肤' : 'Skins', icon: true },

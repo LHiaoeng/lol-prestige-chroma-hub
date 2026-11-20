@@ -96,9 +96,9 @@ describe("static site build", () => {
       '<meta property="og:locale:alternate" content="zh_CN">',
     );
     expect(home).toContain("application/ld+json");
-    expect(home).toContain("data-chroma-list");
-    expect(home).toContain('id="catalog-data"');
-    expect(home).toContain("data-chroma-card-template");
+    expect(home).not.toContain("data-chroma-list");
+    expect(home).not.toContain('id="catalog-data"');
+    expect(home).not.toContain("data-chroma-card-template");
     expect(home).not.toContain("/api/chromas");
     expect(home).not.toContain("prestige-chromas.json");
     expect(home).toContain(
@@ -563,9 +563,9 @@ describe("static site build", () => {
     );
   });
 
-  it("renders bilingual homepage navigation and the first catalog page", () => {
+  it("renders bilingual homepage navigation and all new prestige chromas", () => {
     for (const [prefix, labels] of [
-      ['', ['Prestige chromas', 'PBE additions', 'Champions', 'Skinlines', 'Universes']],
+      ['', ['Prestige Chroma Splash Art', 'PBE additions', 'Champions', 'Skinlines', 'Universes']],
       ['zh-cn', ['臻彩原画', 'PBE 新增', '英雄', '皮肤系列', '皮肤宇宙']],
     ] as const) {
       const home = readFileSync(join(dist, prefix, 'index.html'), 'utf8');
@@ -601,10 +601,32 @@ describe("static site build", () => {
       );
       expect(home).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
       expect(home).toContain(`aria-label="${prefix ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'}"`);
-      const list = home.slice(home.indexOf('data-chroma-list'), home.indexOf('<template data-chroma-card-template'));
-      expect(list.match(/class="chroma-card"/g)).toHaveLength(Math.min(catalog.length, 24));
-      expect(home).toContain('<details class="filter-disclosure" open>');
+      const cards = [...home.matchAll(/class="chroma-card"[^>]*>\s*<a href="([^"]+)"/g)].map(match => match[1]);
+      expect(cards).toEqual(catalog.filter(item => item.isNew).map(item => route(`chromas/${item.slug}/`)));
+      expect(home).not.toContain('data-filters');
+      expect(home).not.toContain('prestige-chroma-gallery');
+      expect(home).toContain(`href="${route('prestige-chromas/')}"`);
       expect(home).not.toContain('class="hero-section"');
+    }
+  });
+
+  it('renders bilingual prestige chroma lists with the complete trimmed browser catalog', () => {
+    for (const prefix of ['', 'zh-cn/']) {
+      const html = readFileSync(join(dist, prefix, 'prestige-chromas/index.html'), 'utf8');
+      expect(html).toContain(`https://chromaart.lol/${prefix}prestige-chromas/`);
+      expect(html).toContain('data-result-count');
+      expect(html).toContain('data-chroma-list');
+      expect(html).toContain('data-filters');
+      expect(html).not.toContain('data-pagination');
+      expect(html).not.toContain('prestige-chromas.json');
+      const embedded = html.match(/<script[^>]*id="catalog-data"[^>]*>([\s\S]*?)<\/script>/)?.[1];
+      const items = JSON.parse(embedded ?? '[]') as { slug: string; isNew: boolean }[];
+      expect(items.map(item => item.slug)).toEqual(catalog.map(item => item.slug));
+      expect(items.some(item => !item.isNew)).toBe(true);
+      expect(html).toContain(prefix ? '臻彩原画 | LoL Chroma Art' : 'Prestige Chroma Splash Art | LoL Chroma Art');
+      expect(html).not.toContain('臻彩原画图鉴');
+      const detail = readFileSync(join(dist, prefix, 'chromas', catalog[0].slug, 'index.html'), 'utf8');
+      expect(detail).toContain(`href="/${prefix}prestige-chromas/"`);
     }
   });
 

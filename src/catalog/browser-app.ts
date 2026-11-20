@@ -3,13 +3,11 @@ import { sourceImageUrl } from '../domain/chroma';
 import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
 import { chromaImageAlt } from '../seo/chroma-seo';
-import { buildPages } from '../components/pagination/pagination';
-import { createIcon } from '../components/icons/create-icon';
+import { localizedPath } from '../i18n/config';
 import {
   parseCatalogQuery,
   queryCatalog,
   type BrowserCatalogItem,
-  type CatalogResult,
 } from './browser-catalog';
 
 export interface CatalogBrowserEnvironment {
@@ -18,6 +16,9 @@ export interface CatalogBrowserEnvironment {
   location: Location;
   addEventListener: typeof globalThis.addEventListener;
   setTimeout: typeof globalThis.setTimeout;
+  requestAnimationFrame: typeof globalThis.requestAnimationFrame;
+  getComputedStyle: typeof globalThis.getComputedStyle;
+  innerHeight: number;
 }
 
 export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment): void {
@@ -26,9 +27,12 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
   const list = document.querySelector<HTMLElement>('[data-chroma-list]');
   const status = document.querySelector<HTMLElement>('[data-status]');
   const count = document.querySelector<HTMLElement>('[data-result-count]');
-  const pagination = document.querySelector<HTMLElement>('[data-pagination]');
   const template = document.querySelector<HTMLTemplateElement>('[data-chroma-card-template]');
   const catalogData = document.querySelector<HTMLScriptElement>('#catalog-data');
+  const locale = currentLanguage(document) === 'zh' ? 'zh-cn' : 'en';
+  let matches: BrowserCatalogItem[] = [];
+  let visible = 0;
+  let scheduled = false;
   const pagePath = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
 
   function createCard(item: BrowserCatalogItem): HTMLElement {
@@ -46,15 +50,14 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       throw new Error('Invalid catalog card template');
     }
 
-    link.href = `${pagePath}chromas/${encodeURIComponent(item.slug)}/`;
+    link.href = localizedPath(locale, `/chromas/${encodeURIComponent(item.slug)}/`);
     const language = currentLanguage(document);
     const itemName = localized(language, { en: item.nameEn, zh: item.nameZh });
-    const heroName = localized(language, { en: item.heroNameEn, zh: item.heroNameZh });
     link.setAttribute('aria-label', localized(language, { en: `View ${itemName} details`, zh: `查看 ${itemName} 详情` }));
     image.src = item.imageMedium;
     image.dataset.fallback = sourceImageUrl('medium', item.instanceId);
     image.dataset.placeholder = '/placeholder.svg';
-    image.alt = localized(language, { en: chromaImageAlt(item.nameEn), zh: `${heroName} ${itemName} 臻彩皮肤` });
+    image.alt = chromaImageAlt(itemName, locale);
     categoryIcon.src = item.imageTag;
     badge.hidden = !item.isNew;
     versionTag.textContent = item.gameVer;
@@ -79,109 +82,73 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     }
   }
 
-  function renderPagination(result: CatalogResult, focusCurrent: boolean): void {
-    if (!pagination) return;
-    const { page, pages } = result.pagination;
-    if (pages <= 1) {
-      pagination.replaceChildren();
-      return;
-    }
-    const language = currentLanguage(document);
-    const prevText = language === 'zh' ? '上一页' : 'Previous';
-    const nextText = language === 'zh' ? '下一页' : 'Next';
-    const list = document.createElement('ul');
-    list.className = 'cn-pagination-list';
-    let currentButton: HTMLButtonElement | null = null;
+  function appendBatch(): void {
+    if (!list || visible >= matches.length) return;
+    const tracks = environment.getComputedStyle(list).gridTemplateColumns;
+    const columns = Math.max(1, tracks.split(' ').filter(Boolean).length);
+    const end = Math.min(matches.length, Math.floor((visible + 24) / columns) * columns);
+    list.append(...matches.slice(visible, end).map(createCard));
+    visible = end;
+    bindImageFallbacks(list);
+    announce();
+  }
 
-    const addItem = (child: HTMLElement): void => {
-      const li = document.createElement('li');
-      li.className = 'cn-pagination-item';
-      li.append(child);
-      list.append(li);
-    };
+  function announce(): void {
+    if (!status) return;
+    status.className = matches.length ? 'status sr-only' : 'status';
+    status.hidden = false;
+    status.textContent = matches.length
+      ? localized(currentLanguage(document), {
+          en: `Showing ${visible} of ${matches.length} prestige chromas.`,
+          zh: `已显示 ${visible} / ${matches.length} 款臻彩。`,
+        })
+      : localized(currentLanguage(document), {
+          en: 'No prestige chromas match these filters. Clear the filters and try again.',
+          zh: '没有符合条件的臻彩。请清除筛选后重试。',
+        });
+  }
 
-    if (page > 1) {
-      const prev = document.createElement('button');
-      prev.type = 'button';
-      prev.className = 'cn-pagination-link cn-pagination-previous';
-      prev.dataset.page = String(page - 1);
-      prev.setAttribute('aria-label', prevText);
-      const label = document.createElement('span');
-      label.className = 'cn-pagination-text';
-      label.textContent = prevText;
-      prev.append(createIcon('LeftOutlined', document), label);
-      addItem(prev);
-    }
-
-    for (const entry of buildPages(page, pages)) {
-      if (entry === '...') {
-        const ellipsis = document.createElement('span');
-        ellipsis.className = 'cn-pagination-ellipsis';
-        ellipsis.setAttribute('aria-hidden', 'true');
-        ellipsis.textContent = '…';
-        addItem(ellipsis);
-        continue;
-      }
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.dataset.page = String(entry);
-      btn.textContent = String(entry);
-      btn.setAttribute('aria-label', `Page ${entry}`);
-      btn.className = `cn-pagination-link${entry === page ? ' is-active' : ''}`;
-      if (entry === page) {
-        btn.setAttribute('aria-current', 'page');
-        currentButton = btn;
-      }
-      addItem(btn);
-    }
-
-    if (page < pages) {
-      const next = document.createElement('button');
-      next.type = 'button';
-      next.className = 'cn-pagination-link cn-pagination-next';
-      next.dataset.page = String(page + 1);
-      next.setAttribute('aria-label', nextText);
-      const label = document.createElement('span');
-      label.className = 'cn-pagination-text';
-      label.textContent = nextText;
-      next.append(label, createIcon('RightOutlined', document));
-      addItem(next);
-    }
-
-    pagination.replaceChildren(list);
-    if (focusCurrent) currentButton?.focus();
+  function scheduleAppend(): void {
+    if (scheduled || visible >= matches.length) return;
+    scheduled = true;
+    environment.requestAnimationFrame(() => {
+      scheduled = false;
+      try {
+        if (list && list.getBoundingClientRect().bottom <= environment.innerHeight + 200) {
+          appendBatch();
+          scheduleAppend();
+        }
+      } catch { showError(); }
+    });
   }
 
   function render(
     items: BrowserCatalogItem[],
     params: URLSearchParams,
-    historyMode: 'push' | 'replace' | null,
-    focusPagination = false,
+    historyMode: 'push' | 'replace',
   ): void {
     if (!list || !status) throw new Error('Missing catalog page elements');
-    const result = queryCatalog(items, parseCatalogQuery(params));
-    list.replaceChildren(...result.items.map(createCard));
-    bindImageFallbacks(document);
-    const language = currentLanguage(document);
-    if (count) count.textContent = localized(language, { en: `${result.pagination.total} prestige chromas`, zh: `共 ${result.pagination.total} 款臻彩` });
-    status.className = 'status';
-    status.hidden = false;
-    const announcement = localized(language, {
-      en: `${result.pagination.total} prestige chromas, page ${result.pagination.page} of ${Math.max(result.pagination.pages, 1)}`,
-      zh: `共 ${result.pagination.total} 款臻彩，第 ${result.pagination.page} / ${Math.max(result.pagination.pages, 1)} 页`,
+    const query = parseCatalogQuery(params);
+    matches = queryCatalog(items, { ...query, page: 1, pageSize: Math.max(items.length, 1) }).items;
+    list.replaceChildren();
+    visible = 0;
+    appendBatch();
+    announce();
+    if (count) count.textContent = localized(currentLanguage(document), {
+      en: `${matches.length} prestige chromas`,
+      zh: `共 ${matches.length} 款臻彩`,
     });
-    status.textContent = result.items.length > 0 ? announcement : localized(language, {
-      en: `No prestige chromas match these filters. Clear the filters and try again. ${announcement}`,
-      zh: `没有符合条件的臻彩。请清除筛选后重试。${announcement}`,
-    });
-    renderPagination(result, focusPagination);
 
     const normalized = new URLSearchParams(params);
-    if (normalized.has('page')) normalized.set('page', String(result.pagination.page));
-    if (historyMode && (historyMode === 'push' || normalized.toString() !== params.toString())) {
-      const query = normalized.toString();
-      history[`${historyMode}State`]({}, '', query ? `${pagePath}?${query}` : pagePath);
+    normalized.delete('page');
+    normalized.delete('pageSize');
+    const search = normalized.toString();
+    if (historyMode === 'push' || search !== params.toString()) {
+      history[`${historyMode}State`]({}, '', search ? `${pagePath}?${search}` : pagePath);
     }
+    const toggle = document.querySelector<HTMLAnchorElement>('.language-toggle');
+    if (toggle) toggle.href = localizedPath(locale === 'en' ? 'zh-cn' : 'en', `${pagePath}${search ? `?${search}` : ''}`);
+    scheduleAppend();
   }
 
   function showError(): void {
@@ -206,7 +173,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
 
   function start(): void {
     bindImageFallbacks(document);
-    if (!form || !list || !status || !pagination || !template || !catalogData) {
+    if (!form || !list || !status || !template || !catalogData) {
       showError();
       return;
     }
@@ -224,17 +191,15 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       });
       form.addEventListener('reset', () => {
         environment.setTimeout(() => {
-          try { render(items, new URLSearchParams(), 'push'); } catch { showError(); }
+          const params = new URLSearchParams();
+          syncForm(params);
+          try { render(items, params, 'push'); } catch { showError(); }
         });
       });
-      pagination.addEventListener('click', (event) => {
-        const target = event.target;
-        const button = target instanceof HTMLElement ? target.closest<HTMLElement>('[data-page]') : null;
-        if (!button?.dataset.page) return;
-        const params = new URLSearchParams(location.search);
-        params.set('page', button.dataset.page);
-        try { render(items, params, 'push', true); } catch { showError(); }
-      });
+      environment.addEventListener('scroll', scheduleAppend, { passive: true });
+      environment.addEventListener('resize', scheduleAppend);
+      list.addEventListener('load', scheduleAppend, true);
+      list.addEventListener('error', scheduleAppend, true);
       environment.addEventListener('popstate', () => {
         const params = new URLSearchParams(location.search);
         syncForm(params);
@@ -255,5 +220,8 @@ if (typeof document !== 'undefined') {
     location,
     addEventListener: globalThis.addEventListener.bind(globalThis),
     setTimeout: globalThis.setTimeout.bind(globalThis),
+    requestAnimationFrame: globalThis.requestAnimationFrame.bind(globalThis),
+    getComputedStyle: globalThis.getComputedStyle.bind(globalThis),
+    get innerHeight() { return globalThis.innerHeight; },
   });
 }

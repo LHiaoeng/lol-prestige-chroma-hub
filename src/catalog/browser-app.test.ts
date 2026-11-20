@@ -21,6 +21,8 @@ class TestElement {
   alt = '';
   type = '';
   listeners = new Map<string, EventListener[]>();
+  bottom = 2000;
+  getBoundingClientRect() { return { bottom: this.bottom }; }
 
   constructor(readonly tagName: string, readonly ownerDocument: TestDocument) {}
 
@@ -143,7 +145,7 @@ function catalogItem(index: number): BrowserCatalogItem {
   };
 }
 
-function fixture(search = '', pathname = '/') {
+function fixture(search = '', pathname = '/prestige-chromas/', columns = 5, total = 53) {
   const document = new TestDocument();
   const form = new TestForm('form', document);
   form.dataset.filters = '';
@@ -157,9 +159,10 @@ function fixture(search = '', pathname = '/') {
   const list = new TestElement('div', document); list.dataset.chromaList = '';
   const status = new TestElement('div', document); status.dataset.status = ''; status.hidden = true;
   const count = new TestElement('p', document); count.dataset.resultCount = '';
+  const toggle = new TestElement('a', document); toggle.className = 'language-toggle';
   const pagination = new TestElement('nav', document); pagination.dataset.pagination = '';
   const data = new TestElement('script', document); data.setAttribute('id', 'catalog-data');
-  data.textContent = JSON.stringify([catalogItem(1), catalogItem(2), catalogItem(3)]);
+  data.textContent = JSON.stringify(Array.from({ length: total }, (_, index) => catalogItem(index + 1)));
   const template = new TestTemplate(document); template.dataset.chromaCardTemplate = '';
   const card = new TestElement('article', document); card.className = 'chroma-card';
   const link = new TestElement('a', document);
@@ -174,7 +177,7 @@ function fixture(search = '', pathname = '/') {
   const english = new TestElement('p', document); english.dataset.nameEn = '';
   body.append(versionTag, heading, english);
   link.append(imageWrap, body); card.append(link); template.content.append(card);
-  document.roots.push(form, list, status, count, pagination, template, data);
+  document.roots.push(form, list, status, count, toggle, pagination, template, data);
 
   const location = { search, pathname };
   const pushCalls: string[] = [];
@@ -185,14 +188,19 @@ function fixture(search = '', pathname = '/') {
     replaceState: (_state: unknown, _unused: string, url: string) => { replaceCalls.push(url); updateLocation(url); },
   };
   const listeners = new Map<string, EventListener>();
+  const frames: FrameRequestCallback[] = [];
+  const viewport = { columns };
   const environment = {
+    innerHeight: 800,
+    getComputedStyle: (() => ({ gridTemplateColumns: Array(viewport.columns).fill('180px').join(' ') })) as unknown as typeof globalThis.getComputedStyle,
+    requestAnimationFrame: ((callback: FrameRequestCallback) => { frames.push(callback); return frames.length; }) as typeof globalThis.requestAnimationFrame,
     document: document as unknown as Document,
     history: history as unknown as History,
     location: location as unknown as Location,
     addEventListener: ((type: string, listener: EventListener) => listeners.set(type, listener)) as typeof globalThis.addEventListener,
     setTimeout: ((callback: () => void) => { callback(); return 0; }) as unknown as typeof globalThis.setTimeout,
   };
-  return { document, form, list, status, count, pagination, location, pushCalls, replaceCalls, listeners, environment };
+  return { frames, viewport, document, form, list, status, count, toggle, pagination, location, pushCalls, replaceCalls, listeners, environment };
 }
 
 beforeEach(() => {
@@ -209,80 +217,84 @@ describe('catalog browser adapter', () => {
     expect(module.initializeCatalogBrowser).toBeTypeOf('function');
   });
 
-  it('normalizes a clamped initial page and keeps a visible page announcement', async () => {
-    const page = fixture('?page=99&pageSize=1');
+  it('renders whole rows and appends on scroll without replacing existing cards', async () => {
+    const page = fixture();
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+
+    expect(page.list.children).toHaveLength(20);
+    expect(page.count.textContent).toBe('共 53 款臻彩');
+    const first = page.list.children[0];
+    page.list.bottom = 900;
+    page.listeners.get('scroll')!(new Event('scroll'));
+    page.frames.shift()!(0);
+    expect(page.list.children).toHaveLength(40);
+    expect(page.list.children[0]).toBe(first);
+    page.frames.shift()!(0);
+    expect(page.list.children).toHaveLength(53);
+    expect(new Set(page.list.children.map(card => card.querySelector('a')?.href)).size).toBe(53);
+    expect(page.pushCalls).toEqual([]);
+  });
+
+  it('keeps visible cards across a column change and completes the new row', async () => {
+    const page = fixture('', '/prestige-chromas/', 5, 70);
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+    const first = page.list.children[0];
+    page.frames.shift()!(0);
+    page.viewport.columns = 7;
+    page.listeners.get('resize')!(new Event('resize'));
+    page.frames.shift()!(0);
+    expect(page.list.children).toHaveLength(20);
+    page.list.bottom = 900;
+    page.listeners.get('scroll')!(new Event('scroll'));
+    page.frames.shift()!(0);
+    expect(page.list.children).toHaveLength(42);
+    expect(page.list.children[0]).toBe(first);
+  });
+
+  it('resets the visible batch and form state when filters are cleared', async () => {
+    const page = fixture('?isNew=true', '/zh-cn/prestige-chromas/', 2);
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+    expect(page.list.children).toHaveLength(1);
+    expect(page.list.children[0].querySelector('a')?.href).toBe('/zh-cn/chromas/item-1/');
+    page.form.dispatch('reset');
+    expect(page.form.controls.get('isNew')?.value).toBe('');
+    expect(page.list.children).toHaveLength(24);
+    expect(page.count.textContent).toBe('共 53 款臻彩');
+    expect(page.pushCalls).toEqual(['/zh-cn/prestige-chromas/']);
+  });
+
+  it('fills a short viewport and stops scheduling after the final partial row', async () => {
+    const page = fixture('', '/prestige-chromas/', 2, 27);
+    page.list.bottom = 400;
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+    expect(page.list.children).toHaveLength(24);
+    page.frames.shift()!(0);
+    expect(page.list.children).toHaveLength(27);
+    expect(page.frames).toHaveLength(0);
+    expect(page.status.textContent).toBe('已显示 27 / 27 款臻彩。');
+  });
+
+  it('restores filters from history and reports empty results', async () => {
+    const page = fixture('?page=9&pageSize=1', '/prestige-chromas/');
     page.document.documentElement.dataset.language = 'en';
     const { initializeCatalogBrowser } = await import('./browser-app');
-
     initializeCatalogBrowser(page.environment);
-
-    expect(page.replaceCalls).toEqual(['/?page=3&pageSize=1']);
-    expect(page.location.search).toBe('?page=3&pageSize=1');
-    expect(page.list.children[0].querySelector('h2')?.textContent).toBe('Name 3');
-    expect(page.list.children[0].querySelector('img')?.alt).toBe('Name 3 China-Exclusive Chroma Splash Art');
-    expect(page.list.children[0].querySelector('.version-tag')?.textContent).toBe('26.13');
-    expect(page.list.children[0].querySelector('.category-icon')?.src).toBe('https://img.example/tag-3.png');
-    expect(page.list.children[0].textContent).not.toContain('英雄');
-    expect(page.status.hidden).toBe(false);
-    expect(page.status.textContent).toContain('3 prestige chromas');
-    expect(page.status.textContent).toContain('3 of 3');
-  });
-
-  it('uses shared icons for client-side pagination', async () => {
-    const page = fixture('?pageSize=1&page=2');
-    const { initializeCatalogBrowser } = await import('./browser-app');
-    initializeCatalogBrowser(page.environment);
-
-    const icons = page.pagination.querySelectorAll('svg');
-    expect(icons.map((icon) => icon.className)).toEqual([
-      'project-icon project-icon--ant', 'project-icon project-icon--ant',
-    ]);
-    expect(icons.every((icon) => icon.getAttribute('aria-hidden') === 'true')).toBe(true);
-  });
-
-  it('pushes submit/reset changes and normalizes a clamped popstate URL', async () => {
-    const page = fixture('?pageSize=1');
-    const { initializeCatalogBrowser } = await import('./browser-app');
-    initializeCatalogBrowser(page.environment);
-    page.form.controls.get('q')!.value = 'Name 2';
-
+    expect(page.replaceCalls).toEqual(['/prestige-chromas/']);
+    expect(page.list.children).toHaveLength(20);
+    page.form.controls.get('q')!.value = 'missing';
     page.form.dispatch('submit');
-    page.form.dispatch('reset');
-    page.location.search = '?page=99&pageSize=1&q=Name+2';
+    expect(page.list.children).toHaveLength(0);
+    expect(page.status.textContent).toContain('No prestige chromas match');
+    page.location.search = '?q=Name+53';
     page.listeners.get('popstate')!(new Event('popstate'));
-
-    expect(page.pushCalls).toEqual(['/?pageSize=1&q=Name+2&sort=rank_desc', '/']);
-    expect(page.replaceCalls.at(-1)).toBe('/?page=1&pageSize=1&q=Name+2');
-    expect(page.form.controls.get('q')?.value).toBe('Name 2');
-  });
-
-  it('focuses the new current-page button and announces the page after pagination', async () => {
-    const page = fixture('?pageSize=1');
-    const { initializeCatalogBrowser } = await import('./browser-app');
-    initializeCatalogBrowser(page.environment);
-    const pageTwo = page.pagination
-      .querySelectorAll('[data-page]')
-      .find((button) => button.dataset.page === '2')!;
-
-    pageTwo.dispatch('click', true);
-
-    expect(page.pushCalls).toEqual(['/?pageSize=1&page=2']);
-    expect(page.document.activeElement?.dataset.page).toBe('2');
-    expect(page.document.activeElement?.getAttribute('aria-current')).toBe('page');
-    expect(page.status.hidden).toBe(false);
-    expect(page.status.textContent).toContain('2 / 3');
-  });
-
-  it('keeps the Simplified Chinese pathname when updating filters', async () => {
-    const page = fixture('?pageSize=1', '/zh-cn/');
-    page.document.documentElement.dataset.language = 'zh';
-    const { initializeCatalogBrowser } = await import('./browser-app');
-    initializeCatalogBrowser(page.environment);
-
-    page.form.controls.get('q')!.value = '名称 2';
-    page.form.dispatch('submit');
-
-    expect(page.pushCalls).toEqual(['/zh-cn/?pageSize=1&q=%E5%90%8D%E7%A7%B0+2&sort=rank_desc']);
-    expect(page.list.children[0].querySelector('a')?.href).toContain('/zh-cn/chromas/');
+    expect(page.form.controls.get('q')?.value).toBe('Name 53');
+    expect(page.list.children).toHaveLength(1);
+    expect(page.list.children[0].querySelector('h2')?.textContent).toBe('Name 53');
+    expect(page.list.children[0].querySelector('img')?.alt).toBe('League of Legends Name 53 China-Server Chroma Splash Art');
+    expect(page.toggle.href).toBe('/zh-cn/prestige-chromas/?q=Name+53');
   });
 });

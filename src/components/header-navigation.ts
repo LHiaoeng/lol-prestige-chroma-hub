@@ -1,4 +1,4 @@
-const browsePaths = ['/pbe-additions/', '/champions/', '/skins/', '/skinlines/', '/universes/'] as const;
+const browsePaths = ['/prestige-chromas/', '/pbe-additions/', '/champions/', '/skins/', '/skinlines/', '/universes/'] as const;
 
 export function headerNavigationState(pathname: string) {
   const path = pathname.replace(/^\/zh-cn(?=\/)/, '');
