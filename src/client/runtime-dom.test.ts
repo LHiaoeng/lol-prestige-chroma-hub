@@ -895,6 +895,8 @@ describe("runtime DOM boundaries", () => {
     role!.value = "mage";
     role!.listeners.get("change")?.[0]?.();
 
+    expect(content.querySelector(".runtime-champion-grid")).not.toBeNull();
+    expect(content.querySelector(".ant-masonry")).toBeNull();
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(2);
     expect(content.querySelector(".runtime-champion-link")?.children).toHaveLength(
       2,
@@ -1029,6 +1031,8 @@ describe("runtime DOM boundaries", () => {
       { mode: "list", page: "skinlines", channel: "latest" },
     );
 
+    expect(content.querySelector(".runtime-grid")).not.toBeNull();
+    expect(content.querySelector(".ant-masonry")).toBeNull();
     expect(content.querySelector("a")?.href).toBe(
       "/skinlines/detail/?id=7&channel=latest",
     );
@@ -1086,6 +1090,8 @@ describe("runtime DOM boundaries", () => {
       { mode: "list", page: "universes", channel: "pbe" },
     );
 
+    expect(content.querySelector(".runtime-grid")).not.toBeNull();
+    expect(content.querySelector(".ant-masonry")).toBeNull();
     expect(content.querySelector(".ant-tree-child-tree")?.querySelector("a")?.textContent).toBe("Star Guardian");
     expect(content.querySelector(".runtime-universe-title")?.href).toBe("/universes/detail/?id=200");
   });

@@ -154,8 +154,8 @@ export function createRuntimeListRenderer(
       toolbar.append(sortLabel);
       const grid = document.createElement("div");
       grid.className = isChampionList
-        ? "ant-masonry runtime-grid runtime-champion-grid"
-        : "ant-masonry runtime-grid";
+        ? "runtime-grid runtime-champion-grid"
+        : "runtime-grid";
       const relationStatus =
         options.page === "universes"
           ? textNode(

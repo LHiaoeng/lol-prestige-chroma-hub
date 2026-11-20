@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = true } = Astro.props;
+const isReferenceList = layout === "champions" || layout === "skinlines" || layout === "universes";
 ---
 
 <div class="runtime-skeleton" aria-hidden="true">
@@ -102,7 +103,7 @@ const { filterCount = 0, itemCount = 6, layout = "generic", showDetailHeader = t
         </div>)}
       </div>
     </section>)}
-  </div> : layout === "skin-detail" || layout === "skinline-detail" || layout === "pbe" ? null : <div class:list={["ant-skeleton-grid", "ant-masonry", "runtime-skeleton-grid", { "runtime-skeleton-grid--champions": layout === "champions", "runtime-skeleton-grid--skins": layout === "skin-grid" || layout === "detail" }]}>
+  </div> : layout === "skin-detail" || layout === "skinline-detail" || layout === "pbe" ? null : <div class:list={["ant-skeleton-grid", isReferenceList ? "runtime-grid" : "ant-masonry runtime-skeleton-grid", { "runtime-champion-grid": layout === "champions", "runtime-skeleton-grid--skins": layout === "skin-grid" || layout === "detail" }]}>
     {Array.from({ length: itemCount }, (_, index) => <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--champion": layout === "champions", "runtime-skeleton-card--skinline": layout === "skinlines", "runtime-skeleton-card--universe": layout === "universes", "runtime-skeleton-card--skin": layout === "skin-grid" || layout === "detail" }]}>
       {layout === "skinlines" ? <>
         <div class="runtime-skeleton-skinline-title"><span class="runtime-skeleton-line runtime-skeleton-line--title"></span></div>
