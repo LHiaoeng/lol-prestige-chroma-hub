@@ -179,9 +179,10 @@ describe("TFT Arenas browser behavior", () => {
     const aliases = new Promise<readonly TftArena[]>((resolve) => { resolveAliases = resolve; });
     const page = fixture(({ locale }) => locale === "default" ? Promise.resolve([arena(7, "English Arena")]) : aliases);
     await vi.waitFor(() => expect(page.grid.children).toHaveLength(1));
-    page.search.value = "中文棋盘";
+    page.search.value = "中文棋盘 ";
     page.search.fire("input");
-    expect(page.h.url.searchParams.get("q")).toBe("中文棋盘");
+    await vi.waitFor(() => expect(page.h.url.searchParams.get("q")).toBe("中文棋盘"));
+    expect(page.search.value).toBe("中文棋盘 ");
     expect(page.grid.children[0]?.className).not.toContain("tft-arenas-card");
     resolveAliases([arena(7, "中文棋盘")]);
     await vi.waitFor(() => expect(page.grid.children[0]?.className).toContain("tft-arenas-card"));
@@ -212,6 +213,7 @@ describe("TFT Arenas browser behavior", () => {
     finishOldAlias([arena(1, "旧棋盘")]);
     page.search.value = "旧棋盘";
     page.search.fire("input");
+    await vi.waitFor(() => expect(page.h.url.searchParams.get("q")).toBe("旧棋盘"));
     expect(page.grid.textContent).not.toContain("Old Arena");
     expect(page.h.url.searchParams.get("channel")).toBe("latest");
     page.lifecycle.dispose();
@@ -231,6 +233,7 @@ describe("TFT Arenas browser behavior", () => {
     await vi.waitFor(() => expect(page.aliasNotice.hidden).toBe(true));
     page.search.value = "中文棋盘";
     page.search.fire("input");
+    await vi.waitFor(() => expect(page.h.url.searchParams.get("q")).toBe("中文棋盘"));
     expect(page.grid.textContent).toContain("English Arena");
     page.lifecycle.dispose();
   });

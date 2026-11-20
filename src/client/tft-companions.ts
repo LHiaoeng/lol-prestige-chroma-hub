@@ -1,3 +1,4 @@
+import { bindDebouncedSearch } from "./search-input";
 import {
   addTftCompanionSearchAliases,
   filterTftCompanions,
@@ -265,7 +266,6 @@ export function initTftCompanions(
   };
 
   const syncControls = () => {
-    search.value = state.search;
     companionType.value = state.companionType ?? "";
     species.value =
       state.speciesId === undefined ? "" : String(state.speciesId);
@@ -583,7 +583,6 @@ export function initTftCompanions(
     patch: Partial<
       Pick<
         TftCompanionState,
-        | "search"
         | "companionType"
         | "speciesId"
         | "TFTRarity"
@@ -593,7 +592,8 @@ export function initTftCompanions(
       >
     >,
   ) => {
-    state = { ...state, ...patch, invalid: [] };
+    cancelSearch();
+    state = { ...state, ...patch, search: search.value, invalid: [] };
     const url = formatTftCompanionUrl(history.url, state);
     if (url.href !== history.url.href) history.push(url);
     state = readTftCompanionUrlState(url);
@@ -602,9 +602,11 @@ export function initTftCompanions(
     status.textContent = "";
   };
 
+  const cancelSearch = bindDebouncedSearch(search, () => updateFilters({}));
   const lifecycle = new RuntimeChannelLifecycle({
     history,
     parse(url) {
+      cancelSearch();
       const target = readTftCompanionUrlState(url);
       return { status: "valid", channel: target.channel, target };
     },
@@ -724,6 +726,7 @@ export function initTftCompanions(
         };
         count.textContent = text.total(items.length);
         renderOptions();
+        search.value = state.search;
         syncControls();
         pbeSettingTooltip.hidden = !canComparePbe || context.channel !== "pbe";
         filterSkeleton.hidden = true;
@@ -779,9 +782,6 @@ export function initTftCompanions(
     },
   });
 
-  search.addEventListener("input", () =>
-    updateFilters({ search: search.value }),
-  );
   companionType.addEventListener("change", () =>
     updateFilters({
       companionType:
@@ -829,6 +829,7 @@ export function initTftCompanions(
         void lifecycle.navigate(
           formatTftCompanionUrl(history.url, {
             ...state,
+            search: search.value,
             channel,
             channelExplicit: true,
           }),

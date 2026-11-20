@@ -307,7 +307,10 @@ function createDomRuntimeView(
   return createRuntimeDomView(options) as DomRenderTestView;
 }
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
 
 describe("runtime DOM boundaries", () => {
   it("replaces the skin skeleton only once the first summary is ready", () => {
@@ -904,6 +907,7 @@ describe("runtime DOM boundaries", () => {
   });
 
   it("searches and sorts the champion list", () => {
+    vi.useFakeTimers();
     const document = new TestDocument();
     vi.stubGlobal("document", document);
     vi.stubGlobal("window", {
@@ -939,8 +943,14 @@ describe("runtime DOM boundaries", () => {
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(25);
 
     const search = content.querySelector("input")!;
+    search.value = "Champion 2";
+    search.listeners.get("input")?.[0]?.();
+    vi.advanceTimersByTime(150);
     search.value = "Champion 25";
     search.listeners.get("input")?.[0]?.();
+    vi.advanceTimersByTime(199);
+    expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(25);
+    vi.advanceTimersByTime(1);
 
     expect(content.querySelectorAll(".runtime-champion-card")).toHaveLength(1);
     expect(content.querySelector(".runtime-champion-link")?.href).toBe(

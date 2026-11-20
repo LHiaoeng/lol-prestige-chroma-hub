@@ -1,4 +1,5 @@
 import { bindImageFallbacks } from '../client/image-fallback';
+import { bindDebouncedSearch } from '../client/search-input';
 import { sourceImageUrl } from '../domain/chroma';
 import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
@@ -144,7 +145,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     normalized.delete('page');
     normalized.delete('pageSize');
     const search = normalized.toString();
-    if (historyMode === 'push' || search !== params.toString()) {
+    if (search !== new URLSearchParams(location.search).toString()) {
       history[`${historyMode}State`]({}, '', search ? `${pagePath}?${search}` : pagePath);
     }
     const toggle = document.querySelector<HTMLAnchorElement>('.language-toggle');
@@ -186,11 +187,20 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       syncForm(initial);
       render(items, initial, 'replace');
 
+      const applyFilters = () => {
+        try { render(items, formQuery(), 'push'); } catch { showError(); }
+      };
+      const search = form.elements.namedItem('q');
+      const cancelSearch = search instanceof HTMLInputElement
+        ? bindDebouncedSearch(search, applyFilters)
+        : undefined;
       form.addEventListener('submit', (event) => {
         event.preventDefault();
-        try { render(items, formQuery(), 'push'); } catch { showError(); }
+        cancelSearch?.();
+        applyFilters();
       });
       form.addEventListener('reset', () => {
+        cancelSearch?.();
         environment.setTimeout(() => {
           const params = new URLSearchParams();
           syncForm(params);
@@ -202,6 +212,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
       list.addEventListener('load', scheduleAppend, true);
       list.addEventListener('error', scheduleAppend, true);
       environment.addEventListener('popstate', () => {
+        cancelSearch?.();
         const params = new URLSearchParams(location.search);
         syncForm(params);
         try { render(items, params, 'replace'); } catch { showError(); }

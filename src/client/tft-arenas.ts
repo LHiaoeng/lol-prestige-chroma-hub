@@ -1,3 +1,4 @@
+import { bindDebouncedSearch } from "./search-input";
 import {
   addTftArenaSearchAliases,
   filterTftArenas,
@@ -129,7 +130,6 @@ export function initTftArenas(
     popoverCleanups.length = 0;
   };
   const syncControls = () => {
-    search.value = state.search;
     group.value = state.groupId === undefined ? "" : String(state.groupId);
     rarity.value = state.TFTRarity ?? "";
     sort.value = state.sort;
@@ -270,8 +270,9 @@ export function initTftArenas(
     pbeSetting.hidden = state.channel !== "pbe" || liveItems === undefined;
     renderMatches(false);
   };
-  const updateFilters = (patch: Partial<Pick<TftArenaUrlState, "search" | "groupId" | "TFTRarity" | "sort" | "onlyPbeAdditions">>) => {
-    state = { ...state, ...patch, invalid: [] };
+  const updateFilters = (patch: Partial<Pick<TftArenaUrlState, "groupId" | "TFTRarity" | "sort" | "onlyPbeAdditions">>) => {
+    cancelSearch();
+    state = { ...state, ...patch, search: search.value, invalid: [] };
     const url = formatTftArenaUrl(history.url, state);
     if (url.href !== history.url.href) history.push(url);
     state = readTftArenaUrlState(url);
@@ -279,9 +280,11 @@ export function initTftArenas(
     renderMatches(true);
     status.textContent = "";
   };
+  const cancelSearch = bindDebouncedSearch(search, () => updateFilters({}));
   const lifecycle = new RuntimeChannelLifecycle({
     history,
     parse(url) {
+      cancelSearch();
       const target = readTftArenaUrlState(url);
       return { status: "valid", channel: target.channel, target };
     },
@@ -322,6 +325,7 @@ export function initTftArenas(
         state = { ...state, invalid };
         count.textContent = t.total(baseItems.length);
         renderOptions();
+        search.value = state.search;
         syncControls();
         filterSkeleton.hidden = true;
         filters.hidden = baseItems.length === 0;
@@ -386,7 +390,6 @@ export function initTftArenas(
       },
     },
   });
-  search.addEventListener("input", () => updateFilters({ search: search.value }));
   group.addEventListener("change", () => updateFilters({ groupId: group.value ? Number(group.value) : undefined }));
   rarity.addEventListener("change", () => updateFilters({ TFTRarity: rarity.value && isTftCosmeticTier(rarity.value) ? rarity.value : undefined }));
   sort.addEventListener("change", () => { if (isTftArenaSort(sort.value)) updateFilters({ sort: sort.value }); });
@@ -401,7 +404,7 @@ export function initTftArenas(
     button.addEventListener("click", () => {
       const channel = button.dataset.runtimeChannel;
       if ((channel !== "pbe" && channel !== "latest") || channel === (pendingChannel ?? state.channel)) return;
-      void lifecycle.navigate(formatTftArenaUrl(history.url, { ...state, channel, channelExplicit: true, onlyPbeAdditions: channel === "pbe" && state.onlyPbeAdditions }));
+      void lifecycle.navigate(formatTftArenaUrl(history.url, { ...state, search: search.value, channel, channelExplicit: true, onlyPbeAdditions: channel === "pbe" && state.onlyPbeAdditions }));
     });
   });
   void lifecycle.start();

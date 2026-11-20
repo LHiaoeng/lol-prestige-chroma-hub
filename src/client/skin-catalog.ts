@@ -1,3 +1,4 @@
+import { bindDebouncedSearch } from "./search-input";
 import {
   catalogRarityKey,
   filterSkinCatalogItems,
@@ -827,8 +828,10 @@ export function initSkinCatalog(
     }
   };
   const update = (next: CatalogState) => {
-    state = next;
-    history.push(formatSkinCatalogUrl(history.url, next));
+    cancelSearch();
+    state = { ...next, search: search.value };
+    const url = formatSkinCatalogUrl(history.url, state);
+    if (url.href !== history.url.href) history.push(url);
     syncControls();
     if (committedChannel) refresh();
   };
@@ -838,6 +841,7 @@ export function initSkinCatalog(
     replace(url) { history.replace(url); },
     onPopState(listener) {
       return history.onPopState(() => {
+        cancelSearch();
         const parsed = readSkinCatalogUrlState(history.url);
         if (!pendingChannel && committedChannel && !parsed.invalid.length && parsed.channel === committedChannel) {
           const previousView = state.view;
@@ -849,9 +853,11 @@ export function initSkinCatalog(
       });
     },
   };
+  const cancelSearch = bindDebouncedSearch(search, () => update(state));
   const lifecycle = new RuntimeChannelLifecycle({
     history: lifecycleHistory,
     parse(url) {
+      cancelSearch();
       const parsed = readSkinCatalogUrlState(url);
       return parsed.invalid.length
         ? { status: "invalid", channel: parsed.channel, message: copy.invalid }
@@ -943,7 +949,6 @@ export function initSkinCatalog(
       },
     },
   });
-  search.addEventListener("input", () => update({ ...state, search: search.value }));
   classicOnly.addEventListener("change", () => update({ ...state, classicOnly: classicOnly.checked }));
   sort.addEventListener("change", () => update({ ...state, sort: sort.value as SkinCatalogSort }));
   rarities.addEventListener("click", (event) => {
@@ -963,6 +968,7 @@ export function initSkinCatalog(
       if ((channel !== "pbe" && channel !== "latest") || channel === committedChannel) return;
       void lifecycle.navigate(formatSkinCatalogUrl(history.url, {
         ...state,
+        search: search.value,
         channel,
         channelExplicit: true,
       }));

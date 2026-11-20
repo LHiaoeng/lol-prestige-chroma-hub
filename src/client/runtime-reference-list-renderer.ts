@@ -24,6 +24,7 @@ import { runtimeFailureMessage } from "./communitydragon-errors";
 import { createTree, type TreeNode } from "../components/Tree";
 import { createDomainIcon } from "../components/domain-icons";
 import { enhanceSelect } from "../components/select";
+import { bindDebouncedSearch } from "./search-input";
 
 export interface RuntimeListRendererOptions {
   readonly content: HTMLElement;
@@ -168,8 +169,8 @@ export function createRuntimeListRenderer(
           : undefined;
       if (relationStatus) relationStatus.hidden = true;
       universeListRelationStatusElement = relationStatus;
+      let query = "";
       const render = () => {
-        const query = search.value.trim().toLocaleLowerCase();
         const role = roleFilter?.value ?? "";
         const filtered = items
           .filter(
@@ -374,7 +375,9 @@ export function createRuntimeListRenderer(
               ? "没有匹配结果"
               : "No matching references";
       };
-      search.addEventListener("input", () => {
+      bindDebouncedSearch(search, () => {
+        if (grid.parentElement !== options.content) return;
+        query = search.value.trim().toLocaleLowerCase();
         render();
       });
       sort.addEventListener("change", () => {

@@ -210,7 +210,10 @@ beforeEach(() => {
   vi.stubGlobal('HTMLSelectElement', TestElement);
 });
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
 
 describe('catalog browser adapter', () => {
   it('exports an initializer without requiring browser globals during import', async () => {
@@ -287,12 +290,25 @@ describe('catalog browser adapter', () => {
     initializeCatalogBrowser(page.environment);
     expect(page.replaceCalls).toEqual(['/prestige-chromas/']);
     expect(page.list.children).toHaveLength(20);
-    page.form.controls.get('q')!.value = 'missing';
-    page.form.dispatch('submit');
+    vi.useFakeTimers();
+    const search = page.form.controls.get('q')!;
+    search.value = 'miss';
+    search.dispatch('input');
+    vi.advanceTimersByTime(150);
+    search.value = 'missing';
+    search.dispatch('input');
+    vi.advanceTimersByTime(199);
+    expect(page.pushCalls).toEqual([]);
+    vi.advanceTimersByTime(1);
+    expect(page.pushCalls).toEqual(['/prestige-chromas/?q=missing&sort=rank_desc']);
     expect(page.list.children).toHaveLength(0);
     expect(page.status.textContent).toContain('No prestige chromas match');
+    search.value = 'stale';
+    search.dispatch('input');
     page.location.search = '?q=Name+53';
     page.listeners.get('popstate')!(new Event('popstate'));
+    vi.advanceTimersByTime(200);
+    expect(page.pushCalls).toHaveLength(1);
     expect(page.form.controls.get('q')?.value).toBe('Name 53');
     expect(page.list.children).toHaveLength(1);
     expect(page.list.children[0].querySelector('h2')?.textContent).toBe('Name 53');

@@ -292,7 +292,10 @@ function fixture(
   return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, classicOnly, sort, viewSwitch, showFramedScreens, framedCount, showEmblems, onlyPbeAdditions, count, pbe, latest, status, content, results, grid, timeline, loadMoreFooter, loadMore, h, list, listEntities, controller };
 }
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
 
 describe("skin catalog browser behavior", () => {
   it("switches and restores timeline mode from URL without reloading the skin collection", async () => {
@@ -431,6 +434,7 @@ describe("skin catalog browser behavior", () => {
 
     page.search.value = "Universe Gamma";
     page.search.fire("input");
+    await vi.waitFor(() => expect(page.h.url.searchParams.get("q")).toBe("Universe Gamma"));
     await vi.waitFor(() => expect(page.grid.querySelectorAll(".skin-catalog-card")).toHaveLength(1));
     expect(page.listEntities.mock.calls.map(([kind]) => kind).sort()).toEqual(["skinlines", "universes"]);
   });
@@ -644,15 +648,30 @@ describe("skin catalog browser behavior", () => {
   it("combines search and multiple rarities, then restores the URL on popstate", async () => {
     const page = fixture();
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
+    vi.useFakeTimers();
+    const beforeSearch = page.h.changes.length;
+    page.search.value = "ah";
+    page.search.fire("input");
+    vi.advanceTimersByTime(150);
     page.search.value = "ahri";
     page.search.fire("input");
+    vi.advanceTimersByTime(199);
+    expect(page.h.changes).toHaveLength(beforeSearch);
+    vi.advanceTimersByTime(1);
+    expect(page.h.changes).toHaveLength(beforeSearch + 1);
     expect(page.count.textContent).toContain("2 / 3");
     page.rarities.querySelector('[data-catalog-rarity="key:kEpic"]')!.click();
     page.rarities.querySelector('[data-catalog-rarity="key:kMythic"]')!.click();
     expect(page.count.textContent).toContain("2 / 3");
     expect(page.h.url.searchParams.getAll("rarity")).toEqual(["key:kEpic", "key:kMythic"]);
+    page.search.value = "stale query";
+    page.search.fire("input");
     page.h.pop("https://chromaart.lol/skins/?q=Zed&view=cards");
-    await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 3"));
+    const afterPop = page.h.changes.length;
+    vi.advanceTimersByTime(200);
+    expect(page.h.changes).toHaveLength(afterPop);
+    expect(page.h.url.searchParams.get("q")).toBe("Zed");
+    expect(page.count.textContent).toContain("1 / 3");
     expect(page.search.value).toBe("Zed");
     expect(page.grid.querySelectorAll(".skin-catalog-card")).toHaveLength(1);
   });
