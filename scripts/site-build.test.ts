@@ -588,19 +588,17 @@ describe("static site build", () => {
       );
       expect(home).not.toContain('class="card__title"');
       expect(nav).not.toContain('help-link');
-      expect(home).toContain('id="catalog-title"');
-      expect(home).toContain(
+      expect(home).not.toContain('id="prestige-chroma-explanation"');
+      expect(home).not.toContain(
         prefix
           ? '什么是臻彩？'
           : 'What are Prestige Chromas?',
       );
-      expect(home).toContain(
+      expect(home).not.toContain(
         prefix
           ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。'
           : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.',
       );
-      expect(home).toContain(`href="${route('blog/what-are-prestige-chromas/')}"`);
-      expect(home).toContain(`aria-label="${prefix ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'}"`);
       const cards = [...home.matchAll(/class="chroma-card"[^>]*>\s*<a href="([^"]+)"/g)].map(match => match[1]);
       expect(cards).toEqual(catalog.filter(item => item.isNew).map(item => route(`chromas/${item.slug}/`)));
       expect(home).not.toContain('data-filters');
@@ -617,6 +615,14 @@ describe("static site build", () => {
       expect(html).toContain('data-result-count');
       expect(html).toContain('data-chroma-list');
       expect(html).toContain('data-filters');
+      expect(html).toContain('id="prestige-chroma-explanation"');
+      expect(html).toContain('data-alert-close');
+      expect(html).toContain(prefix ? '关闭臻彩说明' : 'Close Prestige Chroma explanation');
+      expect(html).toContain(prefix ? '什么是臻彩？' : 'What are Prestige Chromas?');
+      expect(html).toContain(prefix
+        ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。'
+        : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.');
+      expect(html).toContain(`href="/${prefix}blog/what-are-prestige-chromas/"`);
       expect(html).not.toContain('data-pagination');
       expect(html).not.toContain('prestige-chromas.json');
       const embedded = html.match(/<script[^>]*id="catalog-data"[^>]*>([\s\S]*?)<\/script>/)?.[1];

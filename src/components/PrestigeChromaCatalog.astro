@@ -3,6 +3,8 @@ import Breadcrumb from './Breadcrumb.astro';
 import Divider from './Divider.astro';
 import DomainIcon from './DomainIcon.astro';
 import Filters from './Filters.astro';
+import Alert from './Alert.astro';
+import ExportOutlined from './icons/ExportOutlined.astro';
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
@@ -26,6 +28,13 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
     <p data-result-count>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</p>
     <Divider />
   </header>
+  <Alert id="prestige-chroma-explanation" type="info" showIcon closable closeLabel={isZh ? '关闭臻彩说明' : 'Close Prestige Chroma explanation'} role="note">
+    <h2 slot="title">{isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}</h2>
+    <span slot="description">{isZh ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。' : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.'}</span>
+    <a class="catalog-intro-link" slot="action" href={localizedPath(locale, '/blog/what-are-prestige-chromas/')} aria-label={isZh ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'} title={isZh ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'}>
+      <ExportOutlined />
+    </a>
+  </Alert>
   <Filters {catalog} {locale} />
   <p class="status" data-status role="status" aria-live="polite" hidden></p>
   <div class="chroma-grid" data-chroma-list>
@@ -52,13 +61,22 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   import '../catalog/browser-app';
 </script>
 
-<style>
+<style is:global>
   .prestige-chroma-catalog h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); }
-  .prestige-chroma-catalog h1 :global(svg) { width: 1em; height: 1em; flex: none; }
-  [data-result-count] { margin: var(--space-2) 0 0; }
-  .prestige-chroma-catalog :global(.chroma-grid) { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-  .prestige-chroma-catalog :global(.card-body) { padding: 12px; }
+  .prestige-chroma-catalog h1 svg { width: 1em; height: 1em; flex: none; }
+  .prestige-chroma-catalog > .alert { margin-block: var(--space-3); }
+  .prestige-chroma-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
+  .prestige-chroma-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
+  .prestige-chroma-catalog .catalog-intro-link::before { position: absolute; inset: 10px; border: 1px solid var(--line-subtle); border-radius: var(--radius-control); background: transparent; content: ''; pointer-events: none; transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+  .prestige-chroma-catalog .catalog-intro-link svg { position: relative; width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .prestige-chroma-catalog .catalog-intro-link:hover { color: var(--gold-hover); }
+  .prestige-chroma-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
+  .prestige-chroma-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .prestige-chroma-catalog .catalog-intro-link::before { transition: none; } }
+  .prestige-chroma-catalog [data-result-count] { margin: var(--space-2) 0 0; }
+  .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .prestige-chroma-catalog .card-body { padding: 12px; }
   @media (max-width: 767px) {
-    .prestige-chroma-catalog :global(.chroma-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+    .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
   }
 </style>

@@ -1,7 +1,5 @@
 ---
-import ExportOutlined from './icons/ExportOutlined.astro';
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
-import Alert from './Alert.astro';
 import { catalog } from '../data/catalog';
 import { selectNewChromas } from '../domain/featured-chroma';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -12,15 +10,8 @@ const isZh = locale === 'zh-cn';
 const additions = selectNewChromas(catalog);
 ---
 
-<section class="catalog-section home-catalog" aria-labelledby="catalog-heading">
-  <Alert id="catalog-title" type="info" showIcon role="note">
-    <h2 id="catalog-heading" slot="title">{isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}</h2>
-    <span slot="description">{isZh ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。' : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.'}</span>
-    <a class="catalog-intro-link" slot="action" href={localizedPath(locale, '/blog/what-are-prestige-chromas/')} aria-label={isZh ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'} title={isZh ? '阅读什么是臻彩' : 'Read what Prestige Chromas are'}>
-      <ExportOutlined />
-    </a>
-  </Alert>
-  <p><a class="catalog-all-link" href={localizedPath(locale, '/prestige-chromas/')}>{isZh ? '查看全部臻彩' : 'View all Prestige Chromas'}</a></p>
+<section class="catalog-section home-catalog" aria-label={isZh ? '新增臻彩' : 'New Prestige Chromas'}>
+  <p class="catalog-all-action"><a class="button ant-btn-lg catalog-all-link" href={localizedPath(locale, '/prestige-chromas/')}>{isZh ? '查看全部臻彩' : 'View all Prestige Chromas'}</a></p>
   {additions.length === 0 && <p>{isZh ? '本期暂无新增臻彩' : 'No new Prestige Chromas this release.'}</p>}
   <div class="chroma-grid">
     {additions.map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
@@ -29,26 +20,12 @@ const additions = selectNewChromas(catalog);
 
 <style is:global>
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
-  .home-catalog .catalog-all-link { color: var(--gold); text-decoration: underline; text-underline-offset: .2em; }
-  .home-catalog > .alert { margin-bottom: var(--space-3); }
-  .home-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
-  .home-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
-  .home-catalog .catalog-intro-link::before { position: absolute; inset: 10px; border: 1px solid var(--line-subtle); border-radius: var(--radius-control); background: transparent; content: ''; pointer-events: none; transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
-  .home-catalog .catalog-intro-link svg { position: relative; width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-  .home-catalog .catalog-intro-link:hover { color: var(--gold-hover); }
-  .home-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
-  .home-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  @media (prefers-reduced-motion: reduce) { .home-catalog .catalog-intro-link::before { transition: none; } }
+  .home-catalog .catalog-all-action { display: flex; justify-content: center; margin: 0 0 var(--space-3); }
+  .home-catalog .catalog-all-link { padding-inline: var(--space-4); font-weight: 600; text-decoration: none; }
   .home-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .home-catalog .card-body { padding: 12px; }
   .home-catalog .card-body h2 { margin: 0 0 8px; font-size: var(--font-size-body); line-height: var(--line-height-body); min-height: calc(var(--line-height-body) * 2); }
   @media (max-width: 767px) {
-    .home-catalog .chroma-grid { grid-template-columns: 1fr; gap: 8px; }
-    .home-catalog .chroma-card > a { display: grid; grid-template-columns: 96px minmax(0, 1fr); min-height: 96px; }
-    .home-catalog .card-image { width: 96px; height: 96px; aspect-ratio: 1; }
-    .home-catalog .card-image .category-icon { bottom: 2px; transform: translateX(-50%) scale(.35); }
-    .home-catalog .new-badge { top: 4px; right: 4px; }
-    .home-catalog .card-body { display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 8px 12px; }
-    .home-catalog .card-body h2 { margin: 0; min-height: 0; }
+    .home-catalog .chroma-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   }
 </style>
