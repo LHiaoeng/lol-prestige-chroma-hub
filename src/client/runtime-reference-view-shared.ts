@@ -269,6 +269,14 @@ const historyMediaDescriptors = detailMediaDescriptors.filter(
     key === "animatedSplashUrl",
 );
 
+function markMediaLoading(resource: HTMLImageElement | HTMLVideoElement, readyEvent: "load" | "loadeddata"): void {
+  resource.setAttribute("aria-busy", "true");
+  const finish = () => resource.removeAttribute("aria-busy");
+  resource.addEventListener(readyEvent, finish, { once: true });
+  if (readyEvent === "loadeddata") resource.addEventListener("playing", finish, { once: true });
+  resource.addEventListener("error", finish, { once: true });
+}
+
 function appendMediaResource(
   parent: HTMLElement,
   url: string,
@@ -291,7 +299,7 @@ function appendMediaResource(
     descriptor.kind === "video"
       ? document.createElement("video")
       : document.createElement("img");
-  resource.src = url;
+  markMediaLoading(resource, descriptor.kind === "video" ? "loadeddata" : "load");
   if (descriptor.kind === "video") {
     resource.setAttribute("aria-label", alt);
     const video = resource as HTMLVideoElement;
@@ -306,6 +314,7 @@ function appendMediaResource(
     image.decoding = "async";
   }
   resource.addEventListener("error", () => resource.remove(), { once: true });
+  resource.src = url;
   trigger.appendChild(resource);
   trigger.appendChild(cover);
   figure.appendChild(trigger);
@@ -547,6 +556,7 @@ export function appendBorderModule(
     if (media.loadScreenUrl) {
       const art = document.createElement("img");
       art.className = "runtime-loadscreen-art";
+      markMediaLoading(art, "load");
       art.src = media.loadScreenUrl;
       art.alt = filename;
       art.setAttribute("aria-hidden", "true");
@@ -571,6 +581,7 @@ export function appendBorderModule(
     const border = document.createElement("img");
     border.className = "runtime-loadscreen-border";
     border.dataset.layer = String(group.layer);
+    markMediaLoading(border, "load");
     border.src = option.url;
     border.alt = filename;
     border.setAttribute("aria-hidden", "true");

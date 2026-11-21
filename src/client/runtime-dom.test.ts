@@ -432,6 +432,10 @@ describe("runtime DOM boundaries", () => {
     expect(slides[0]?.content.querySelector(".runtime-border-load-error")?.textContent).toBe(
       "Loading screen failed; showing transparent border only",
     );
+    expect(art?.getAttribute("aria-busy")).toBeNull();
+    expect(layers[0]?.getAttribute("aria-busy")).toBe("true");
+    layers[0]?.dispatchEvent(new Event("load"));
+    expect(layers[0]?.getAttribute("aria-busy")).toBeNull();
     expect(slides[0]?.downloadAvailable?.()).toBe(true);
   });
   it("shows only the PBE summary after a successful comparison", async () => {
@@ -1276,6 +1280,18 @@ describe("runtime DOM boundaries", () => {
   it("renders a skin detail with release-ordered skin navigation", async () => {
     const document = new TestDocument();
     vi.stubGlobal("document", document);
+    const releaseData = new TestElement("div");
+    releaseData.dataset.runtimeSkinReleases = JSON.stringify({ 103001: ["2011-12-14", "1.0.0.131", false] });
+    const releaseDate = new TestElement("span");
+    releaseDate.dataset.runtimeSkinReleaseDate = "";
+    const releaseTime = new TestElement("time");
+    releaseDate.append(releaseTime);
+    const releaseVersion = new TestElement("span");
+    releaseVersion.dataset.runtimeSkinReleaseVersion = "";
+    const releaseVersionValue = new TestElement("span");
+    releaseVersionValue.dataset.runtimeReleaseVersionValue = "";
+    releaseVersion.append(releaseVersionValue);
+    document.head.append(releaseData, releaseDate, releaseVersion);
     const championSlot = new TestElement("span");
     championSlot.dataset.runtimeSkinChampion = "";
     const championStat = new TestElement("span");
@@ -1374,6 +1390,11 @@ describe("runtime DOM boundaries", () => {
     );
     expect(championSlot.querySelector("a")?.href).toBe("/champions/detail/?id=103&channel=latest");
     expect(championSlot.querySelector("a")?.textContent).toBe("the Nine-Tailed Fox Ahri");
+    expect(releaseDate.hidden).toBe(false);
+    expect(releaseTime.textContent).toBe("2011-12-14");
+    expect(releaseTime.getAttribute("datetime")).toBe("2011-12-14");
+    expect(releaseVersion.hidden).toBe(false);
+    expect(releaseVersionValue.textContent).toBe("1.0.0.131");
     expect(content.querySelector(".runtime-skin-stages")).toBeNull();
     expect(content.querySelector(".runtime-lede")?.querySelector(".ant-typography-paragraph-text")?.textContent).toBe(
       "A dynasty-inspired skin.",
@@ -1527,6 +1548,14 @@ describe("runtime DOM boundaries", () => {
     );
 
     const mediaSection = content.querySelector(".runtime-skin-media");
+    const firstVideo = mediaSection?.querySelector("video");
+    const firstImage = mediaSection?.querySelector("img");
+    expect(firstVideo?.getAttribute("aria-busy")).toBe("true");
+    expect(firstImage?.getAttribute("aria-busy")).toBe("true");
+    firstVideo?.dispatchEvent(new Event("loadeddata"));
+    firstImage?.dispatchEvent(new Event("load"));
+    expect(firstVideo?.getAttribute("aria-busy")).toBeNull();
+    expect(firstImage?.getAttribute("aria-busy")).toBeNull();
     expect(mediaSection?.querySelectorAll(".runtime-media-item")).toHaveLength(
       5,
     );

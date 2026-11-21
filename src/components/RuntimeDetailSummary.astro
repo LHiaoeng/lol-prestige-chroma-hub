@@ -4,6 +4,7 @@ import SummaryActionsIcon from './icons/SummaryActionsIcon.astro';
 import type { Locale } from '../i18n/config';
 import Divider from './Divider.astro';
 import DomainIcon from './DomainIcon.astro';
+import Icon from './icons/Icon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Dropdown from './Dropdown.astro';
 
@@ -14,6 +15,7 @@ interface Props {
 
 const { locale, kind } = Astro.props;
 const isZh = locale === 'zh-cn';
+const skinSummaryPlaceholderWidths = isZh ? [4, 14, 8, 8, 10, 5, 6, 4] : [4, 20, 11, 11, 10, 5, 8, 5];
 ---
 
 {kind === 'chroma' ? <div class="runtime-detail-summary runtime-detail-summary--static" role="group" aria-label={isZh ? '臻彩摘要' : 'Chroma summary'}><slot /></div> : <div class:list={['runtime-source runtime-channel-row runtime-detail-summary', { 'runtime-detail-summary--skin': kind === 'skin' }]} data-runtime-source data-runtime-entity-detail-source={kind !== 'universe' ? 'true' : undefined} data-runtime-universe-detail-source={kind === 'universe' ? 'true' : undefined} data-runtime-summary-loading aria-label={isZh ? '资料版本' : 'Reference data channel'}>
@@ -30,6 +32,14 @@ const isZh = locale === 'zh-cn';
     <span class="runtime-entity-relation-summary" data-runtime-skin-universe-summary>
       <Divider type="vertical" />
       <span class="runtime-universe-stat"><DomainIcon name="universes" class="runtime-universe-stat-icon" tooltipDetail="" {locale} /><span class="runtime-skeleton-line runtime-skeleton-line--count runtime-universe-count-skeleton" aria-hidden="true" data-runtime-skin-universes></span></span>
+    </span>
+    <span class="runtime-entity-relation-summary" hidden data-runtime-skin-release-date>
+      <Divider type="vertical" />
+      <span class="runtime-universe-stat"><Icon name="release-date" class="runtime-universe-stat-icon" data-summary-icon-tooltip={isZh ? '上架时间' : 'Release date'} /><time></time><span data-runtime-release-reference hidden>（直营服参考）</span></span>
+    </span>
+    <span class="runtime-entity-relation-summary" hidden data-runtime-skin-release-version>
+      <Divider type="vertical" />
+      <span class="runtime-universe-stat"><Icon name="game-version" class="runtime-universe-stat-icon" data-summary-icon-tooltip={isZh ? '上架版本' : 'Release patch'} /><span data-runtime-release-version-value></span></span>
     </span>
     <span class="runtime-entity-relation-summary" hidden data-runtime-skin-chroma-summary>
       <Divider type="vertical" />
@@ -62,7 +72,15 @@ const isZh = locale === 'zh-cn';
       <a slot="trigger" role="button" tabindex="0" class="ant-dropdown-text-trigger"><SummaryActionsIcon class="runtime-channel-icon" data-summary-icon-tooltip={isZh ? '摘要扩展内容' : 'Summary actions'} /><span>{isZh ? '更多' : 'More'}</span><DownOutlined class="ant-dropdown-down-icon" /></a>
     </Dropdown>
   </div>}
-  <span class="runtime-skeleton-line runtime-summary-row-skeleton" data-runtime-summary-skeleton aria-hidden="true"></span>
+  {kind === 'skin' ? <div class="runtime-summary-row-skeleton runtime-skin-summary-skeleton" data-runtime-summary-skeleton aria-hidden="true">
+    {skinSummaryPlaceholderWidths.map((width, index) => <span class="runtime-entity-relation-summary">
+      {index > 0 && <Divider type="vertical" />}
+      <span class="runtime-universe-stat">
+        <span class="runtime-skeleton-media runtime-skin-summary-skeleton-icon"></span>
+        <span class="runtime-skeleton-line" style={{ width: `${width}ch` }}></span>
+      </span>
+    </span>)}
+  </div> : <span class="runtime-skeleton-line runtime-summary-row-skeleton" data-runtime-summary-skeleton aria-hidden="true"></span>}
 </div>}
 
 <script>
@@ -90,10 +108,13 @@ const isZh = locale === 'zh-cn';
   .runtime-detail-summary :global(.runtime-list-count) { font-size: inherit; }
   .runtime-detail-summary > :not(.runtime-summary-row-skeleton) { opacity: 1; transition: opacity var(--motion-mid) ease-out; }
   .runtime-detail-summary[data-runtime-summary-loading] > :not(.runtime-summary-row-skeleton) { visibility: hidden; opacity: 0; }
-  .runtime-detail-summary--skin[data-runtime-summary-loading] { min-height: var(--control-height); padding: 0; }
+  .runtime-source.runtime-detail-summary--skin { width: 100%; min-height: var(--control-height); margin: 0; padding: 0; gap: var(--space-2); }
   .runtime-detail-summary--skin[data-runtime-summary-loading] > :not(.runtime-summary-row-skeleton) { position: absolute; }
-  .runtime-summary-row-skeleton { position: absolute; top: calc((var(--control-height) - var(--font-size-title)) / 2); left: 0; width: min(720px, 82%); height: var(--font-size-title); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity var(--motion-mid) ease-out, visibility 0s linear var(--motion-mid); }
+  .runtime-summary-row-skeleton:not(.runtime-skin-summary-skeleton) { position: absolute; top: calc((var(--control-height) - var(--font-size-title)) / 2); left: 0; width: min(720px, 82%); height: var(--font-size-title); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity var(--motion-mid) ease-out, visibility 0s linear var(--motion-mid); }
   .runtime-detail-summary[data-runtime-summary-loading] > .runtime-summary-row-skeleton { opacity: 1; visibility: visible; transition-delay: 0s; }
+  .runtime-skin-summary-skeleton { display: none; }
+  .runtime-detail-summary[data-runtime-summary-loading] > .runtime-skin-summary-skeleton { display: flex; flex: 0 0 100%; flex-wrap: wrap; gap: inherit; pointer-events: none; }
+  .runtime-skin-summary-skeleton-icon { width: 1em; height: 1em; border-radius: 50%; }
   .runtime-universe-stat,
   .runtime-detail-summary :global(.detail-summary-item) { display: inline-flex; align-items: center; gap: var(--space-1); }
   .runtime-universe-stat { min-height: var(--control-height); flex-shrink: 0; white-space: nowrap; }
@@ -104,9 +125,8 @@ const isZh = locale === 'zh-cn';
   [data-runtime-skin-champion-summary] :global(.runtime-universe-stat) { min-width: 0; max-width: 100%; flex-shrink: 1; white-space: normal; }
   [data-runtime-skin-champion] { min-width: 0; overflow-wrap: anywhere; }
   .runtime-detail-summary :global(.runtime-universe-stat-icon) { width: 1em; height: 1em; flex: 0 0 auto; }
-  @media (max-width: 480px) {
-    .runtime-detail-summary--skin[data-runtime-summary-loading] { min-height: calc(2 * var(--control-height) + var(--space-2)); }
-  }
+  .runtime-detail-summary :global(.detail-summary-item > .ant-tooltip-trigger),
+  .runtime-detail-summary :global(.runtime-universe-stat > .ant-tooltip-trigger) { flex: 0 0 auto; }
   @media (prefers-reduced-motion: reduce) {
     .runtime-detail-summary > :not(.runtime-summary-row-skeleton),
     .runtime-summary-row-skeleton { transition: none; }

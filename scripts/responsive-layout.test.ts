@@ -5,9 +5,31 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('responsive layout contract', () => {
+  it('sizes the skin media frame and skeleton by content width at 16:9', () => {
+    const css = source('src/styles/global.css');
+    const frame = css.match(/\.runtime-media-carousel-viewport,\s*\.runtime-media-carousel-skeleton\s*\{([^}]+)\}/)?.[1];
+    expect(frame).toContain('width: 100%;');
+    expect(frame).toContain('aspect-ratio: 16 / 9');
+    expect(frame).not.toContain('max-height');
+  });
+
+  it('uses the same skin header spacing during loading and after render', () => {
+    const css = source('src/styles/global.css');
+    expect(css).toMatch(/\.runtime-entity-detail-summary \{[^}]*gap: var\(--space-3\)/);
+    expect(css).toContain('.runtime-detail--entity { gap: var(--space-3); }');
+    expect(css).toContain('.runtime-detail--entity:has(> .runtime-detail-summary--skin) > .runtime-lede { margin-block: 0; }');
+    expect(css).not.toContain('.runtime-entity-detail-summary--skin .runtime-entity-description-skeleton { margin-bottom:');
+    const summary = source('src/components/RuntimeDetailSummary.astro');
+    expect(summary).toMatch(/\.runtime-source\.runtime-detail-summary--skin \{[^}]*width: 100%;[^}]*margin: 0; padding: 0; gap: var\(--space-2\)/);
+    expect(summary).toContain('skinSummaryPlaceholderWidths.map');
+    expect(summary).toMatch(/\[data-runtime-summary-loading\] > \.runtime-skin-summary-skeleton \{[^}]*flex-wrap: wrap; gap: inherit/);
+    expect(summary).toContain("data-summary-icon-tooltip={isZh ? '上架时间' : 'Release date'}");
+    expect(summary).toMatch(/data-summary-icon-tooltip=\{isZh \? '上架版本' : 'Release patch'\} \/><span data-runtime-release-version-value>/);
+  });
+
   it('keeps search and category visible while moving mobile sort into a modal drawer', () => {
     const filters = source('src/components/Filters.astro');
-    expect(filters).toContain('<summary class="ant-btn ant-btn-default ant-btn-block">');
+    expect(filters).toContain('<dialog id="catalog-filter-drawer"');
     expect(filters).toContain('drawer.showModal()');
     expect(filters).toContain('body.append(fields)');
     expect(filters).toContain('fieldsHome.after(fields)');
@@ -18,7 +40,7 @@ describe('responsive layout contract', () => {
       expect(filters).toContain(`name="${name}"`);
     }
     const css = source('src/styles/global.css');
-    expect(css).toContain('.catalog-filter-trigger[hidden]{display:none}');
+    expect(css).toContain('.filters > :is(.catalog-filter-fields,.catalog-filter-actions){display:none}');
   });
 
   it('keeps the complete detail list visible on desktop and collapsible on mobile', () => {

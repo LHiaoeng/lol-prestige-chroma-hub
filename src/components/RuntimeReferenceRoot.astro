@@ -13,6 +13,8 @@ import TypographyParagraph from './TypographyParagraph.astro';
 import RuntimeDetailSummary from './RuntimeDetailSummary.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
+import { skinCatalogReleaseDate, skinCatalogReleaseVersion } from '../domain/skin-catalog';
+import releaseSnapshot from '../../data/skin-release-dates.json';
 
 interface Props {
   readonly page: 'champions' | 'skins' | 'skinlines' | 'universes' | 'pbe-additions';
@@ -39,7 +41,8 @@ const detailSkeletonLayout = page === 'skins' ? 'skin-detail' : page === 'skinli
 const skeletonLayout = mode === 'detail' ? detailSkeletonLayout : mode === 'list' ? listSkeletonLayout : 'pbe';
 const detailDescriptionLines = page === 'champions' ? 3 : 2;
 const skeletonFilterCount = mode !== 'list' ? 0 : page === 'champions' ? 3 : 2;
-const skeletonItemCount = mode === 'list' ? 24 : 6;
+const listSkeletonItemCount = 12;
+const skeletonItemCount = mode === 'list' ? listSkeletonItemCount : 6;
 const breadcrumbItems = [
   { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
   { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
@@ -58,6 +61,16 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
         colors: chroma.colors,
       },
     ])))
+  : undefined;
+const skinReleases = page === 'skins' && mode === 'detail'
+  ? (() => {
+      const dates = new Map(releaseSnapshot.skins.map((record) => [record.skinId, record] as const));
+      return JSON.stringify(Object.fromEntries(releaseSnapshot.skins.flatMap(({ skinId }) => {
+        const release = skinCatalogReleaseDate({ skinId }, runtimeLocale, dates);
+        const version = skinCatalogReleaseVersion({ skinId }, runtimeLocale, dates);
+        return release || version ? [[skinId, [release?.date, version, release?.source === 'global']]] : [];
+      })));
+    })()
   : undefined;
 ---
 
@@ -83,19 +96,20 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
 {mode === 'detail' && !showEntityDetailSummary && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}><RuntimeChannelSwitcher {locale} /></div>}
 <div class:list={['runtime-page', { 'runtime-page--detail': mode === 'detail', 'runtime-page--entity-detail': showEntityDetailSummary, 'runtime-page--universe-detail': showUniverseDetailSummary, 'runtime-page--compact-list-header': showCompactListHeader, 'runtime-page--universe-list': page === 'universes' && showCompactListHeader, 'runtime-page--pbe': mode === 'pbe' }]} data-runtime-page-shell data-runtime-loading>
   {mode !== 'detail' && <header>
-    <div class="runtime-page-header-skeleton" aria-hidden="true">
+    {!showCompactListHeader && <div class="runtime-page-header-skeleton" aria-hidden="true">
       <span class="runtime-skeleton-line runtime-skeleton-line--heading"></span>
-      {showCompactListHeader ? <div class="runtime-page-header-skeleton-meta">
-        <span class="runtime-skeleton-line runtime-skeleton-line--version"></span>
-        <span class="runtime-skeleton-line runtime-skeleton-line--divider"></span>
-        <span class="runtime-skeleton-line runtime-skeleton-line--count"></span>
-      </div> : <span class="runtime-skeleton-line runtime-skeleton-line--lede"></span>}
-    </div>
+      <span class="runtime-skeleton-line runtime-skeleton-line--lede"></span>
+    </div>}
     <h1>
       {(showCompactListHeader || mode === 'pbe') && <DomainIcon name={mode === 'pbe' ? 'pbe-additions' : listIcon} class="runtime-list-icon" />}
       {showCompactListHeader ? label : heading}
     </h1>
-    {showCompactListHeader && <div class="runtime-source runtime-channel-row" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+    {showCompactListHeader && <div class="runtime-source runtime-channel-row runtime-list-summary" data-runtime-source aria-label={isZh ? '资料版本' : 'Reference data channel'}>
+      <div class="runtime-page-header-skeleton-meta" aria-hidden="true">
+        <span class="runtime-skeleton-line runtime-skeleton-line--version"></span>
+        <span class="runtime-skeleton-line runtime-skeleton-line--divider"></span>
+        <span class="runtime-skeleton-line runtime-skeleton-line--count"></span>
+      </div>
       <RuntimeChannelSwitcher {locale} />
       <Divider type="vertical" />
       <span class="runtime-list-count" data-runtime-list-count hidden />
@@ -107,7 +121,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
     <Divider class={showCompactListHeader ? undefined : 'runtime-header-divider'} />
   </header>}
   <section class="runtime-section">
-    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} data-runtime-prestige-chroma-links={prestigeChromaLinks} aria-busy="true">
+    <div class="runtime-reference-root" data-runtime-page={page} data-runtime-locale={runtimeLocale} data-runtime-mode={mode} data-runtime-prestige-chroma-links={prestigeChromaLinks} data-runtime-skin-releases={skinReleases} aria-busy="true">
       <p data-runtime-status role="status" aria-live="polite">{isZh ? '正在加载游戏资料…' : 'Loading game reference…'}</p>
       {page === 'skins' && mode === 'detail' && <div class="runtime-skin-navigation" data-runtime-skin-navigation role="group" aria-label={isZh ? '切换皮肤' : 'Skin navigation'} hidden>
         <div class="runtime-skin-navigation-side runtime-skin-navigation-side--previous">
@@ -124,7 +138,7 @@ const prestigeChromaLinks = page === 'skins' && mode === 'detail'
         </div>
       </div>}
       <div data-runtime-content><Skeleton filterCount={skeletonFilterCount} itemCount={skeletonItemCount} layout={skeletonLayout} showDetailHeader={!showEntityDetailSummary} /></div>
-      <template data-runtime-skeleton-template="list"><Skeleton filterCount={page === 'champions' ? 3 : 2} itemCount={24} layout={listSkeletonLayout} /></template>
+      <template data-runtime-skeleton-template="list"><Skeleton filterCount={page === 'champions' ? 3 : 2} itemCount={listSkeletonItemCount} layout={listSkeletonLayout} /></template>
       <template data-runtime-skeleton-template="detail"><Skeleton itemCount={6} layout={detailSkeletonLayout} showDetailHeader={!showEntityDetailSummary} /></template>
       <template data-runtime-skeleton-template="pbe"><Skeleton itemCount={6} layout="pbe" /></template>
       <template data-runtime-supplement-skeleton-template="skinline"><Skeleton itemCount={6} layout="skin-grid" /></template>

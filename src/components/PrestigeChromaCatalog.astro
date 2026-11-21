@@ -6,6 +6,7 @@ import Filters from './Filters.astro';
 import Alert from './Alert.astro';
 import ExportOutlined from './icons/ExportOutlined.astro';
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
+import RuntimeDetailSummary from './RuntimeDetailSummary.astro';
 import { toBrowserCatalog } from '../catalog/browser-catalog';
 import { catalog } from '../data/catalog';
 import { safeJsonLd } from '../domain/chroma';
@@ -22,12 +23,17 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
   { title: heading },
 ]} />
-<section class="catalog-section prestige-chroma-catalog" aria-labelledby="prestige-chromas-title">
+<section class="runtime-page runtime-page--compact-list-header prestige-chroma-catalog" aria-labelledby="prestige-chromas-title">
   <header>
     <h1 id="prestige-chromas-title"><DomainIcon name="prestige-chromas" />{heading}</h1>
-    <p data-catalog-total>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</p>
-    <Divider />
+    <RuntimeDetailSummary {locale} kind="chroma">
+      <span class="detail-summary-item">
+        <DomainIcon name="prestige-chromas" />
+        <span class="runtime-list-count" data-catalog-total>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</span>
+      </span>
+    </RuntimeDetailSummary>
   </header>
+  <Divider />
   <Alert id="prestige-chroma-explanation" type="info" showIcon closable closeLabel={isZh ? '关闭臻彩说明' : 'Close Prestige Chroma explanation'} role="note">
     <h2 slot="title">{isZh ? '什么是臻彩？' : 'What are Prestige Chromas?'}</h2>
     <span slot="description">{isZh ? '臻彩是附属于已有皮肤的炫彩，在中国大陆服拥有特有的专属原画。' : 'Prestige chromas are chromas tied to existing skins, with exclusive splash art on the mainland China server.'}</span>
@@ -63,8 +69,6 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
 
 <style is:global>
   .prestige-chroma-catalog { container: prestige-chroma-catalog / inline-size; }
-  .prestige-chroma-catalog h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold); }
-  .prestige-chroma-catalog h1 svg { width: 1em; height: 1em; flex: none; }
   .prestige-chroma-catalog > .alert { margin-block: var(--space-3); }
   .prestige-chroma-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
   .prestige-chroma-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
@@ -74,7 +78,6 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   .prestige-chroma-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
   .prestige-chroma-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .prestige-chroma-catalog .catalog-intro-link::before { transition: none; } }
-  .prestige-chroma-catalog [data-catalog-total] { margin: var(--space-2) 0 0; }
   .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .prestige-chroma-catalog .card-body { padding: 12px; }
   /* Five tracks of 180px plus 12px gaps fit from 948px up to the sixth track at 1140px. */

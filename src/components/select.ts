@@ -167,8 +167,12 @@ export function enhanceSelect(
   list.appendChild(empty);
   root.append(...(prefix ? [prefix] : []), trigger, arrow);
   if (clearButton) root.appendChild(clearButton);
+  const sibling = source.nextElementSibling;
+  const preview = sibling?.matches("[data-select-preview]") ? sibling : undefined;
+  const sourceWasFocused = document.activeElement === source;
   source.hidden = true;
   source.insertAdjacentElement("afterend", root);
+  preview?.remove();
   document.body.appendChild(popup);
 
   const controller: SelectController = {
@@ -390,7 +394,9 @@ export function enhanceSelect(
     const target = event.target;
     if (!(target instanceof Element)) return;
     const item = target.closest<HTMLElement>("[role=option]");
-    if (item && !item.hasAttribute("aria-disabled")) controller.choose(Number(item.dataset.selectIndex));
+    if (!item || item.hasAttribute("aria-disabled")) return;
+    controller.choose(Number(item.dataset.selectIndex));
+    if (event.detail > 0 && root.closest("[data-select-blur-on-pick]")) input.blur();
   });
   search?.addEventListener("input", () => {
     trigger.classList.toggle("ant-select-content-has-search-value", !!search.value);
@@ -435,6 +441,7 @@ export function enhanceSelect(
   const observer = Observer ? new Observer(controller.refresh) : undefined;
   observer?.observe(source, { childList: true, subtree: true, attributes: true });
   controller.refresh();
+  if (sourceWasFocused) input.focus();
 }
 
 export function refreshSelect(source: HTMLSelectElement): void {

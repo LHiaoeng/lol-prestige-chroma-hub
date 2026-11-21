@@ -1,5 +1,6 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import DownOutlined from "./icons/DownOutlined.astro";
 
 export interface SelectOption {
   value: string;
@@ -48,8 +49,13 @@ const {
   ...attributes
 } = Astro.props;
 const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in item;
+const flatOptions = options.flatMap((item) => isGroup(item) ? item.options : [item]);
+const initialOption = flatOptions.find((option) => value !== undefined && option.value === value)
+  ?? options.flatMap((item) => isGroup(item) ? item.disabled ? [] : item.options : [item]).find((option) => !option.disabled);
+const initialLabel = initialOption && (initialOption.value !== "" || !placeholder) ? initialOption.label : undefined;
 ---
 
+<div class="ant-select-ssr" data-select-ssr>
 <select
   {...attributes}
   class:list={["ant-select-source", attributes.class]}
@@ -70,6 +76,24 @@ const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in
     ? <optgroup label={item.label}>{item.options.map((option) => <option value={option.value} disabled={option.disabled} selected={value !== undefined && option.value === value}>{option.label}</option>)}</optgroup>
     : <option value={item.value} disabled={item.disabled} selected={value !== undefined && item.value === value}>{item.label}</option>)}
 </select>
+<div
+  class:list={["ant-select", "ant-select-single", "ant-select-outlined", "ant-select-show-arrow", {
+    "ant-select-sm": size === "small",
+    "ant-select-lg": size === "large",
+    "ant-select-disabled": disabled,
+  }, attributes.class]}
+  data-select-preview
+  aria-hidden="true"
+>
+  {prefix && <span class="ant-select-prefix">{prefix}</span>}
+  <div class:list={["ant-select-content", { "ant-select-content-has-value": initialLabel !== undefined }]}>
+    {initialLabel !== undefined
+      ? <span class="ant-select-content-value">{initialLabel}</span>
+      : <div class="ant-select-placeholder">{placeholder}</div>}
+  </div>
+  <span class="ant-select-suffix"><DownOutlined /></span>
+</div>
+</div>
 
 <script>
   import { enhanceSelects } from "./select";

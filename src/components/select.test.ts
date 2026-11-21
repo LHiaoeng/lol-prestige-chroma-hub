@@ -10,6 +10,12 @@ const selectStyles = readFileSync(new URL("../styles/global.css", import.meta.ur
 const selectLogic = readFileSync(new URL("./select.ts", import.meta.url), "utf8");
 
 describe("Select component contract", () => {
+  it("renders the shared trigger appearance before browser enhancement", () => {
+    expect(selectComponent).toContain("data-select-preview");
+    expect(selectComponent).toContain("<DownOutlined />");
+    expect(selectLogic).toContain("preview?.remove()");
+  });
+
   it("requires an explicit opt-in to clearing", () => {
     expect(selectComponent).toMatch(/allowClear = false,/);
     expect(selectComponent).toContain('data-select-allow-clear={allowClear ? "" : undefined}');

@@ -26,11 +26,11 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
   <div class="catalog-filter-actions" data-filter-actions>
     <Button htmlType="reset">{isZh ? '清除' : 'Clear'}</Button>
   </div>
-  <Button class="catalog-filter-trigger" data-filter-open aria-haspopup="dialog" aria-controls="catalog-filter-drawer" hidden>
+  <Button class="catalog-filter-trigger" data-filter-open aria-haspopup="dialog" aria-controls="catalog-filter-drawer">
     {isZh ? '筛选' : 'Filter'}<span data-filter-active hidden></span>
   </Button>
   <p data-result-count>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</p>
-  <dialog id="catalog-filter-drawer" class="catalog-filter-drawer" aria-labelledby="catalog-filter-title">
+  <dialog id="catalog-filter-drawer" class="catalog-filter-drawer" aria-labelledby="catalog-filter-title" data-select-blur-on-pick>
     <div class="catalog-filter-drawer-header">
       <Button class="catalog-filter-drawer-close" data-filter-close aria-label={isZh ? '关闭筛选' : 'Close filters'}><CloseOutlined /></Button>
       <div>
@@ -59,26 +59,25 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
     const actionsHome = document.createComment('filter actions');
     fields.before(fieldsHome);
     actions.before(actionsHome);
-    const syncLayout = () => {
-      trigger.hidden = desktop.matches;
-      if (desktop.matches) {
-        drawer.close();
-        fieldsHome.after(fields);
-        actionsHome.after(actions);
-      } else {
-        body.append(fields);
-        footer.prepend(actions);
-      }
-    };
-    trigger.addEventListener('click', () => drawer.showModal());
+    trigger.addEventListener('click', () => {
+      body.append(fields);
+      footer.prepend(actions);
+      drawer.showModal();
+    });
+    drawer.addEventListener('close', () => {
+      if (drawer.open) return;
+      fieldsHome.after(fields);
+      actionsHome.after(actions);
+    });
     drawer.querySelectorAll('[data-filter-close]').forEach((button) => {
       button.addEventListener('click', () => drawer.close());
     });
     drawer.addEventListener('click', (event) => {
       if (event.target === drawer) drawer.close();
     });
-    desktop.addEventListener('change', syncLayout);
-    syncLayout();
+    desktop.addEventListener('change', () => {
+      if (desktop.matches && drawer.open) drawer.close();
+    });
   }
 </script>
 
@@ -135,7 +134,11 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
   .catalog-filter-drawer-close.ant-btn:hover { background: var(--fill); color: var(--text); }
   .catalog-filter-drawer-close.ant-btn:active { background: var(--hover-bg); }
   .catalog-filter-drawer-body { overflow: auto; padding: var(--space-4); }
-  .catalog-filter-drawer-body .catalog-filter-fields { display: grid; gap: var(--space-3); }
+  .catalog-filter-drawer-body .catalog-filter-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
   .catalog-filter-drawer-footer {
     justify-content: space-between;
     gap: var(--space-2);

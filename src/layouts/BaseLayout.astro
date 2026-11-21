@@ -81,6 +81,12 @@ gtag('js', new Date());
     <meta name="twitter:image" content={socialImage} />
     <title>{title}</title>
     {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
+    <noscript>
+      <style is:inline>
+        .ant-select-ssr > [data-select-preview] { display: none; }
+        .ant-select-ssr:has(> [data-select-preview]) > .ant-select-source { position: static; opacity: 1; }
+      </style>
+    </noscript>
   </head>
   <body>
     <header class="site-header">

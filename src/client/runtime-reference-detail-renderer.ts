@@ -202,6 +202,15 @@ export function createRuntimeDetailRenderer(
   );
   const skinChampionSummary = document.querySelector<HTMLElement>("[data-runtime-skin-champion-summary]");
   const skinChampionSlot = document.querySelector<HTMLElement>("[data-runtime-skin-champion]");
+  const skinReleasesData = document.querySelector<HTMLElement>("[data-runtime-skin-releases]")?.dataset.runtimeSkinReleases;
+  const skinReleases = skinReleasesData
+    ? JSON.parse(skinReleasesData) as Partial<Record<number, [string | null, string | null, boolean]>>
+    : {};
+  const skinReleaseDate = document.querySelector<HTMLElement>("[data-runtime-skin-release-date]");
+  const skinReleaseTime = skinReleaseDate?.querySelector<HTMLTimeElement>("time");
+  const skinReleaseReference = skinReleaseDate?.querySelector<HTMLElement>("[data-runtime-release-reference]");
+  const skinReleaseVersion = document.querySelector<HTMLElement>("[data-runtime-skin-release-version]");
+  const skinReleaseVersionValue = skinReleaseVersion?.querySelector<HTMLElement>("[data-runtime-release-version-value]");
   const skinChromaSummary = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-summary]");
   const skinChromaCount = document.querySelector<HTMLElement>("[data-runtime-skin-chroma-count]");
   const skinActionsSummary = document.querySelector<HTMLElement>("[data-runtime-skin-actions-summary]");
@@ -797,6 +806,16 @@ export function createRuntimeDetailRenderer(
         section.appendChild(grid);
         article.appendChild(section);
       } else if (item.kind === "skin") {
+        const [releaseDate, releaseVersion, isReferenceDate] = skinReleases[item.id] ?? [];
+        if (skinReleaseDate) skinReleaseDate.hidden = !releaseDate;
+        if (skinReleaseTime) {
+          skinReleaseTime.textContent = releaseDate ?? "";
+          if (releaseDate) skinReleaseTime.setAttribute("datetime", releaseDate);
+          else skinReleaseTime.removeAttribute("datetime");
+        }
+        if (skinReleaseReference) skinReleaseReference.hidden = !isReferenceDate;
+        if (skinReleaseVersion) skinReleaseVersion.hidden = !releaseVersion;
+        if (skinReleaseVersionValue) skinReleaseVersionValue.textContent = releaseVersion ?? "";
         if (skinChampionSummary) skinChampionSummary.hidden = false;
         if (skinChampionSlot) {
           skinChampionSlot.className = "";
@@ -1205,6 +1224,8 @@ export function createRuntimeDetailRenderer(
       if (entitySkinCount) setUniverseCount(entitySkinCount, "—");
       if (skinChromaSummary) skinChromaSummary.hidden = true;
       if (skinChampionSummary) skinChampionSummary.hidden = true;
+      if (skinReleaseDate) skinReleaseDate.hidden = true;
+      if (skinReleaseVersion) skinReleaseVersion.hidden = true;
       if (skinNavigationGroup) skinNavigationGroup.hidden = true;
       for (const { summary } of skinRelationSummaries)
         if (summary) summary.hidden = true;

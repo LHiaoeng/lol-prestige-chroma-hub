@@ -14,13 +14,15 @@
 
 筛选表单复用本站 Input、Select 和 Button 样式。「清除」使用默认描边按钮。名称搜索停输 200ms 后生效，回车立即生效；下拉选项变更立即应用当前表单并取消待执行的搜索。手机筛选区吸顶，常驻搜索与分类，其他筛选和排序通过底部抽屉展示。摘要显示全目录总数，筛选区在控件下方居中显示命中数，使用次要文字样式。手机端搜索、分类和筛选按钮同排，间隔 8px。本站当前没有共享 Drawer，抽屉参照 [Antdv Next Drawer 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/drawer/style/index.ts) 的遮罩与页头、内容、页脚结构，使用原生 `dialog.showModal()` 提供焦点和 Esc 行为。按钮、输入和下拉复用共享组件，Select 弹层挂载到打开的对话框内。宽屏仍直接展示同一组筛选字段。参照固定提交的 [Button 示例](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/button/demo/basic.vue)。
 
-脚本初始化前使用浏览器原生选择框。初始化后由共享 Select 接管样式、下拉和状态。筛选区仅设置网格、间距和响应式布局，控件沿用共享样式。参照固定提交的 [Select 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/select/style/index.ts)。
+移动端首屏通过媒体查询直接排出搜索、分类和筛选按钮。高级筛选项仅在打开抽屉时移动，关闭后回到原位置。共享 Select 在构建时输出与客户端一致的触发器结构、选项文本和下拉图标。浏览器完成增强后移除静态外观并接管交互。关闭 JavaScript 时显示可操作的原生选择框。参照固定提交的 [Select 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/select/style/index.ts)。
 
 筛选区直接调用共享 Input、Select 和 Button。Input 与 Select 使用默认尺寸和描边样式。Input 聚焦按上游描边变体使用主题色边框和 2px 浅色阴影，关闭额外 outline。「清除」使用默认描边 Button 和 `htmlType="reset"`。Select 与上游一致，默认关闭清空。筛选区对英雄、版本、分类和新增状态显式开启清空，前三项也开启选项搜索。抽屉触发器、清除和查看结果使用共享 Button。官方用法见 [Select](https://www.antdv-next.com/components/select-cn.md)、[Input](https://www.antdv-next.com/components/input-cn.md) 和 [Button](https://www.antdv-next.com/components/button-cn.md)。
 
 ## 验证记录
 
 底部抽屉采用上游默认尺寸 378px，页头内边距 16px × 24px，内容内边距 24px，页脚内边距 8px × 16px，起始侧关闭按钮为 24px。遮罩、分隔线和前景色映射到站内对应主题 Token。原生 `dialog` 适配当前未实现上游开合动效。
+
+抽屉内容使用两列字段布局，空间不足时可滚动。上游单选 Select 选中后关闭下拉并保留焦点。本站抽屉在点击或触摸选择后让 Select 失焦，键盘确认仍保留焦点。参照 [上游选项列表源码](https://github.com/antdv-next/vue-components/blob/next/packages/select/src/OptionList.tsx)。
 
 浏览器适配测试验证五列首批 20 张、两列首批 24 张、列数切换后的补行、短视口自动续载、筛选清除与历史恢复。构建测试验证双语路由、首页卡片选择、完整目录数据与面包屑。
 

@@ -63,7 +63,7 @@ export interface SkinCatalogUrlState {
 }
 
 export function skinCatalogReleaseDate(
-  item: RuntimeSkinReferenceItem,
+  item: Pick<RuntimeSkinReferenceItem, "skinId">,
   locale: CommunityDragonLocale,
   releaseDates: ReadonlyMap<number, SkinCatalogReleaseDate>,
 ): { readonly date: string; readonly source: "china" | "global" | "wiki" } | undefined {
@@ -76,7 +76,7 @@ export function skinCatalogReleaseDate(
 }
 
 export function skinCatalogReleaseVersion(
-  item: RuntimeSkinReferenceItem,
+  item: Pick<RuntimeSkinReferenceItem, "skinId">,
   locale: CommunityDragonLocale,
   releaseDates: ReadonlyMap<number, SkinCatalogReleaseDate>,
 ): string | undefined {

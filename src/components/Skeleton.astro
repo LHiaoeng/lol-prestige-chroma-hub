@@ -104,23 +104,39 @@ const isReferenceList = layout === "champions" || layout === "skinlines" || layo
       </div>
     </section>)}
   </div> : layout === "skin-detail" || layout === "skinline-detail" || layout === "pbe" ? null : <div class:list={["ant-skeleton-grid", isReferenceList ? "runtime-grid" : "ant-masonry runtime-skeleton-grid", { "runtime-champion-grid": layout === "champions", "runtime-skeleton-grid--skins": layout === "skin-grid" || layout === "detail" }]}>
-    {Array.from({ length: itemCount }, (_, index) => <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--champion": layout === "champions", "runtime-skeleton-card--skinline": layout === "skinlines", "runtime-skeleton-card--universe": layout === "universes", "runtime-skeleton-card--skin": layout === "skin-grid" || layout === "detail" }]}>
-      {layout === "skinlines" ? <>
-        <div class="runtime-skeleton-skinline-title"><span class="runtime-skeleton-line runtime-skeleton-line--title"></span></div>
-        <div class="runtime-skeleton-skinline-universes">
-          {Array.from({ length: index % 2 + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--chip"></span>)}
-        </div>
-      </> : <>
-        {(layout === "champions" || layout === "skin-grid" || layout === "detail") && <div class="runtime-skeleton-media"></div>}
-        <div class="runtime-skeleton-meta">
+    {Array.from({ length: itemCount }, (_, index) => layout === "champions" ? <div class="runtime-card runtime-champion-card">
+      <div class="runtime-card-link runtime-champion-link">
+        <div class="runtime-skeleton-media"></div>
+        <div class="runtime-champion-meta">
           <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
-          {(layout === "skin-grid" || layout === "detail")
-            ? <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>
-            : layout === "universes"
-              ? Array.from({ length: (index % 3) + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--tree"></span>)
-              : <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>}
+          <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>
         </div>
-      </>}
+      </div>
+    </div> : layout === "skinlines" ? <div class="runtime-card runtime-skinline-card">
+      <div class="runtime-card-link"><span class="runtime-skeleton-line runtime-skeleton-line--title"></span></div>
+      <div class="runtime-skinline-universes">
+        {Array.from({ length: index % 2 + 1 }, () => <span class="runtime-skeleton-line runtime-skeleton-line--chip"></span>)}
+      </div>
+    </div> : layout === "universes" ? <div class="runtime-card runtime-universe-card">
+      <div class="runtime-universe-meta">
+        <ul class="ant-tree">
+          <li class="ant-tree-node">
+            <div class="ant-tree-treenode">
+              <span class="ant-tree-icon runtime-skeleton-media"></span>
+              <span class="ant-tree-title runtime-universe-title"><span class="runtime-skeleton-line runtime-skeleton-line--title"></span></span>
+            </div>
+            <ul class="ant-tree-child-tree">
+              <li class="ant-tree-node"><div class="ant-tree-treenode"><span class="ant-tree-title"><span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span></span></div></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div> : <div class:list={["ant-skeleton-card", "runtime-skeleton-card", { "runtime-skeleton-card--skin": layout === "skin-grid" || layout === "detail" }]}>
+      {(layout === "skin-grid" || layout === "detail") && <div class="runtime-skeleton-media"></div>}
+      <div class="runtime-skeleton-meta">
+        <span class="runtime-skeleton-line runtime-skeleton-line--title"></span>
+        <span class="runtime-skeleton-line runtime-skeleton-line--secondary"></span>
+      </div>
     </div>)}
   </div>}
 </div>
