@@ -1,0 +1,18 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { ButtonSize } from './Button';
+
+interface Props extends Omit<HTMLAttributes<'button'>, 'type'> {
+  htmlType?: 'button' | 'submit' | 'reset';
+  size?: ButtonSize;
+  block?: boolean;
+}
+
+const { htmlType = 'button', size = 'medium', block = false, class: className, ...attributes } = Astro.props;
+---
+
+<button {...attributes} type={htmlType} class:list={[
+  'ant-btn', 'ant-btn-default',
+  { 'ant-btn-sm': size === 'small', 'ant-btn-lg': size === 'large', 'ant-btn-block': block },
+  className,
+]}><slot /></button>

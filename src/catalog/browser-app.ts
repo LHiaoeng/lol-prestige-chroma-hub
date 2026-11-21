@@ -1,5 +1,6 @@
 import { bindImageFallbacks } from '../client/image-fallback';
 import { bindDebouncedSearch } from '../client/search-input';
+import { refreshSelect } from '../components/select';
 import { sourceImageUrl } from '../domain/chroma';
 import { currentLanguage } from '../client/language';
 import { localized } from '../i18n';
@@ -28,6 +29,9 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
   const list = document.querySelector<HTMLElement>('[data-chroma-list]');
   const status = document.querySelector<HTMLElement>('[data-status]');
   const count = document.querySelector<HTMLElement>('[data-result-count]');
+  const drawerCount = form?.querySelector<HTMLElement>('[data-drawer-result-count]');
+  const drawerView = form?.querySelector<HTMLElement>('[data-filter-view]');
+  const activeFilters = form?.querySelector<HTMLElement>('[data-filter-active]');
   const template = document.querySelector<HTMLTemplateElement>('[data-chroma-card-template]');
   const catalogData = document.querySelector<HTMLScriptElement>('#catalog-data');
   const locale = currentLanguage(document) === 'zh' ? 'zh-cn' : 'en';
@@ -80,6 +84,7 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     for (const [name, value] of Object.entries(values)) {
       const control = form.elements.namedItem(name);
       if (control instanceof HTMLInputElement || control instanceof HTMLSelectElement) control.value = value;
+      if (control instanceof HTMLSelectElement) refreshSelect(control);
     }
   }
 
@@ -136,10 +141,21 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
     visible = 0;
     appendBatch();
     announce();
-    if (count) count.textContent = localized(currentLanguage(document), {
+    const resultCount = localized(currentLanguage(document), {
       en: `${matches.length} prestige chromas`,
       zh: `共 ${matches.length} 款臻彩`,
     });
+    if (count) count.textContent = resultCount;
+    if (drawerCount) drawerCount.textContent = resultCount;
+    if (drawerView) drawerView.textContent = localized(currentLanguage(document), {
+      en: `View ${matches.length} results`,
+      zh: `查看 ${matches.length} 款`,
+    });
+    if (activeFilters) {
+      const total = [query.hero, query.version, query.isNew].filter((value) => value !== undefined).length;
+      activeFilters.hidden = total === 0;
+      activeFilters.textContent = ` (${total})`;
+    }
 
     const normalized = new URLSearchParams(params);
     normalized.delete('page');
@@ -196,6 +212,11 @@ export function initializeCatalogBrowser(environment: CatalogBrowserEnvironment)
         : undefined;
       form.addEventListener('submit', (event) => {
         event.preventDefault();
+        cancelSearch?.();
+        applyFilters();
+      });
+      form.addEventListener('change', (event) => {
+        if (!(event.target instanceof HTMLSelectElement)) return;
         cancelSearch?.();
         applyFilters();
       });

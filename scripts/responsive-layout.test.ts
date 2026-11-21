@@ -5,17 +5,20 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('responsive layout contract', () => {
-  it('keeps catalog filters visible on desktop and collapsible on mobile', () => {
+  it('keeps search and category visible while moving mobile sort into a modal drawer', () => {
     const filters = source('src/components/Filters.astro');
-    expect(filters).toContain('<details class="filter-disclosure" open>');
-    expect(filters).toContain("toggleAttribute('open', desktop.matches)");
-    expect(filters).not.toContain('filter-shortcuts');
+    expect(filters).toContain('<summary class="ant-btn ant-btn-default ant-btn-block">');
+    expect(filters).toContain('drawer.showModal()');
+    expect(filters).toContain('body.append(fields)');
+    expect(filters).toContain('fieldsHome.after(fields)');
+    expect(filters).toContain('data-filter-view');
+    expect(filters).not.toContain('type="submit"');
+    expect(filters).toContain('<Button htmlType="reset">');
     for (const name of ['q', 'hero', 'version', 'category', 'isNew', 'sort']) {
       expect(filters).toContain(`name="${name}"`);
     }
     const css = source('src/styles/global.css');
-    expect(css).toContain('.filter-disclosure:not([open])>.filters,.filters{display:grid}');
-    expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.filter-disclosure:not\(\[open]\)>\.filters\{display:none}/);
+    expect(css).toContain('.catalog-filter-trigger[hidden]{display:none}');
   });
 
   it('keeps the complete detail list visible on desktop and collapsible on mobile', () => {
@@ -24,7 +27,6 @@ describe('responsive layout contract', () => {
     expect(detail).toContain('class="detail-preview-hint"');
     expect(detail).toContain('<details class="detail-info-disclosure" open>');
     expect(detail).toContain("matchMedia('(min-width: 768px)')");
-    expect(detail).toContain("toggleAttribute('open', desktop.matches)");
     expect(detail).toContain('class="sr-only detail-accessible-title"');
     expect(detail).toContain('.detail-info-disclosure:not([open])>.detail-info-body,.detail-info-body{display:block}');
     expect(detail).toMatch(/@media\(max-width:767px\)[\s\S]*?\.detail-info-disclosure:not\(\[open]\)>\.detail-info-body\{display:none}/);
@@ -66,7 +68,6 @@ describe('responsive layout contract', () => {
     expect(responsiveControlRules.join('\n')).not.toMatch(/(?:^|;)\s*(?:min-)?height\s*:/);
 
     expect(css).not.toContain('min-width:320px');
-    expect(css).not.toContain('.filter-shortcuts');
     expect(css).toMatch(/\.chroma-grid\{[^}]*grid-template-columns:repeat\(3/);
     expect(css).toMatch(/@media\(max-width:1023px\)[\s\S]*?\.chroma-grid\{grid-template-columns:repeat\(2/);
     expect(css).toMatch(/@media\(max-width:767px\)[\s\S]*?\.chroma-grid\{grid-template-columns:1fr/);

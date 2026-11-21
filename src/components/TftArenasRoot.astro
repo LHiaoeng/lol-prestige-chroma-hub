@@ -38,8 +38,8 @@ const title = isZh ? '棋盘' : 'Arenas';
   </div>
   <div class="tft-arenas-filters" data-arenas-filters hidden>
     <label class="tft-arenas-field"><span>{isZh ? '搜索棋盘' : 'Search Arenas'}</span><input class="cn-input" type="search" data-arenas-search autocomplete="off" placeholder={isZh ? '中英文名称或分组名称' : 'Name or group in either language'} /></label>
-    <label class="tft-arenas-field"><span>{isZh ? '分组' : 'Group'}</span><Select data-arenas-group="" showSearch options={[{ value: '', label: isZh ? '全部分组' : 'All groups' }]} /></label>
-    <label class="tft-arenas-field"><span>{isZh ? '等级' : 'Tier'}</span><Select data-arenas-rarity="" options={[{ value: '', label: isZh ? '全部等级' : 'All tiers' }]} /></label>
+    <label class="tft-arenas-field"><span>{isZh ? '分组' : 'Group'}</span><Select allowClear data-arenas-group="" showSearch options={[{ value: '', label: isZh ? '全部分组' : 'All groups' }]} /></label>
+    <label class="tft-arenas-field"><span>{isZh ? '等级' : 'Tier'}</span><Select allowClear data-arenas-rarity="" options={[{ value: '', label: isZh ? '全部等级' : 'All tiers' }]} /></label>
     <label class="tft-arenas-field"><span>{isZh ? '排序' : 'Sort'}</span><Select data-arenas-sort="" allowClear={false} options={[
       { value: 'default', label: isZh ? 'ID 降序' : 'ID descending' },
       { value: 'id_asc', label: isZh ? 'ID 升序' : 'ID ascending' },

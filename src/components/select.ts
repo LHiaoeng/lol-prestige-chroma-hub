@@ -330,6 +330,8 @@ export function enhanceSelect(
     if (source.disabled) return;
     openSelects.get(document)?.close();
     openSelects.set(document, controller);
+    const container = root.closest("dialog[open]") ?? document.body;
+    if (popup.parentElement !== container) container.appendChild(popup);
     popup.hidden = false;
     root.classList.add("ant-select-open");
     input.setAttribute("aria-expanded", "true");

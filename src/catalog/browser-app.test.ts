@@ -160,6 +160,10 @@ function fixture(search = '', pathname = '/prestige-chromas/', columns = 5, tota
   list.dataset.staticBatch = '';
   const status = new TestElement('div', document); status.dataset.status = ''; status.hidden = true;
   const count = new TestElement('p', document); count.dataset.resultCount = '';
+  const drawerCount = new TestElement('p', document); drawerCount.dataset.drawerResultCount = '';
+  const drawerView = new TestElement('button', document); drawerView.dataset.filterView = '';
+  const activeFilters = new TestElement('span', document); activeFilters.dataset.filterActive = '';
+  form.append(drawerCount, drawerView, activeFilters);
   const toggle = new TestElement('a', document); toggle.className = 'language-toggle';
   const pagination = new TestElement('nav', document); pagination.dataset.pagination = '';
   const data = new TestElement('script', document); data.setAttribute('id', 'catalog-data');
@@ -201,7 +205,7 @@ function fixture(search = '', pathname = '/prestige-chromas/', columns = 5, tota
     addEventListener: ((type: string, listener: EventListener) => listeners.set(type, listener)) as typeof globalThis.addEventListener,
     setTimeout: ((callback: () => void) => { callback(); return 0; }) as unknown as typeof globalThis.setTimeout,
   };
-  return { frames, viewport, document, form, list, status, count, toggle, pagination, location, pushCalls, replaceCalls, listeners, environment };
+  return { frames, viewport, document, form, list, status, count, drawerCount, drawerView, activeFilters, toggle, pagination, location, pushCalls, replaceCalls, listeners, environment };
 }
 
 beforeEach(() => {
@@ -281,6 +285,30 @@ describe('catalog browser adapter', () => {
     expect(page.list.children).toHaveLength(27);
     expect(page.frames).toHaveLength(0);
     expect(page.status.textContent).toBe('已显示 27 / 27 款臻彩。');
+  });
+
+  it('applies select changes immediately and cancels the pending search', async () => {
+    vi.useFakeTimers();
+    const page = fixture();
+    const { initializeCatalogBrowser } = await import('./browser-app');
+    initializeCatalogBrowser(page.environment);
+
+    const search = page.form.controls.get('q')!;
+    search.value = '名称 1';
+    search.dispatch('input');
+    const status = page.form.controls.get('isNew')!;
+    status.value = 'true';
+    status.dispatch('change', true);
+
+    expect(page.list.children).toHaveLength(1);
+    expect(page.list.children[0].querySelector('h2')?.textContent).toBe('名称 1');
+    expect(page.drawerCount.textContent).toBe('共 1 款臻彩');
+    expect(page.drawerView.textContent).toBe('查看 1 款');
+    expect(page.activeFilters.hidden).toBe(false);
+    expect(page.activeFilters.textContent.trim()).toBe('(1)');
+    expect(page.pushCalls).toHaveLength(1);
+    vi.advanceTimersByTime(200);
+    expect(page.pushCalls).toHaveLength(1);
   });
 
   it('restores filters from history and reports empty results', async () => {

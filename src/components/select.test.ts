@@ -10,9 +10,10 @@ const selectStyles = readFileSync(new URL("../styles/global.css", import.meta.ur
 const selectLogic = readFileSync(new URL("./select.ts", import.meta.url), "utf8");
 
 describe("Select component contract", () => {
-  it("enables clearing by default and preserves the explicit opt-out", () => {
-    expect(selectComponent).toMatch(/allowClear = true,/);
+  it("requires an explicit opt-in to clearing", () => {
+    expect(selectComponent).toMatch(/allowClear = false,/);
     expect(selectComponent).toContain('data-select-allow-clear={allowClear ? "" : undefined}');
+    expect(filterComponent).toContain('<Select allowClear name="hero"');
   });
 
   it("keeps required sort selects non-clearable", () => {

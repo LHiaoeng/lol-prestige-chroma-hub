@@ -25,7 +25,7 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
 <section class="catalog-section prestige-chroma-catalog" aria-labelledby="prestige-chromas-title">
   <header>
     <h1 id="prestige-chromas-title"><DomainIcon name="prestige-chromas" />{heading}</h1>
-    <p data-result-count>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</p>
+    <p data-catalog-total>{isZh ? `共 ${catalog.length} 款臻彩` : `${catalog.length} prestige chromas`}</p>
     <Divider />
   </header>
   <Alert id="prestige-chroma-explanation" type="info" showIcon closable closeLabel={isZh ? '关闭臻彩说明' : 'Close Prestige Chroma explanation'} role="note">
@@ -74,7 +74,7 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   .prestige-chroma-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
   .prestige-chroma-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .prestige-chroma-catalog .catalog-intro-link::before { transition: none; } }
-  .prestige-chroma-catalog [data-result-count] { margin: var(--space-2) 0 0; }
+  .prestige-chroma-catalog [data-catalog-total] { margin: var(--space-2) 0 0; }
   .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .prestige-chroma-catalog .card-body { padding: 12px; }
   /* Five tracks of 180px plus 12px gaps fit from 948px up to the sixth track at 1140px. */
