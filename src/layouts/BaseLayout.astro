@@ -52,7 +52,7 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
 <!doctype html>
 <html lang={currentLocale.htmlLang} data-language={isZh ? 'zh' : 'en'} data-language-ready data-ads-disabled={!ads ? '' : undefined}>
   <head>
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#141414" />
     <script is:inline>
       (() => {
         try {
@@ -65,7 +65,7 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
           document.documentElement.dataset.themePreference = preference;
           document.documentElement.dataset.theme = theme;
           document.documentElement.style.colorScheme = theme;
-          document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#ffffff' : '#000000';
+          document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#ffffff' : '#141414';
         } catch {
           document.documentElement.dataset.themePreference = 'dark';
           document.documentElement.dataset.theme = 'dark';

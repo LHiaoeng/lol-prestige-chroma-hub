@@ -24,7 +24,7 @@ function applyResolvedTheme(root: HTMLElement, theme: 'light' | 'dark'): void {
   root.dataset.theme = theme;
   root.style.colorScheme = theme;
   const themeColor = root.ownerDocument.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (themeColor) themeColor.content = theme === 'light' ? '#ffffff' : '#000000';
+  if (themeColor) themeColor.content = theme === 'light' ? '#ffffff' : '#141414';
 }
 
 function syncSelectedOption(document: Document, preference: ThemePreference): void {

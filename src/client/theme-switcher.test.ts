@@ -64,6 +64,7 @@ function setup() {
 
   return {
     root,
+    themeColor,
     options,
     storage,
     transitions,
@@ -88,11 +89,13 @@ describe('Header theme menu', () => {
     page.transitions[0].update();
 
     expect(page.root.dataset.theme).toBe('light');
+    expect(page.themeColor.content).toBe('#ffffff');
     expect(page.options.light.checked).toBe(true);
 
     page.click('dark', 0);
     expect(page.root.dataset.theme).toBe('dark');
     expect(page.options.dark.checked).toBe(true);
+    expect(page.themeColor.content).toBe('#141414');
     expect(page.transitions).toHaveLength(1);
   });
 
@@ -105,6 +108,7 @@ describe('Header theme menu', () => {
     expect(page.root.dataset.theme).toBe('dark');
     expect(page.root.style.colorScheme).toBe('dark');
     expect(page.options.dark.checked).toBe(true);
+    expect(page.themeColor.content).toBe('#141414');
     expect(page.options.light.checked).toBe(false);
     expect(page.storage.get('theme-mode')).toBe('dark');
     expect(page.transitions[0].skipTransition).toHaveBeenCalledOnce();
@@ -123,6 +127,7 @@ describe('Header theme menu', () => {
     page.system.matches = false;
     page.system.dispatchEvent(new Event('change'));
     expect(page.root.dataset.theme).toBe('light');
+    expect(page.themeColor.content).toBe('#ffffff');
     expect(page.options.system.checked).toBe(true);
     expect(page.transitions).toHaveLength(1);
   });

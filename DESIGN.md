@@ -24,7 +24,7 @@ colors:
   lime: '#A0D911'
   surface: '#141414'
   surface-container: '#1d1d1d'
-  surface-layout: '#000000'
+  surface-layout: '#141414'
   on-surface: rgba(255,255,255,0.85)
   on-surface-variant: rgba(255,255,255,0.65)
   on-surface-disabled: rgba(255,255,255,0.25)
@@ -256,7 +256,7 @@ components:
 
 ## Colors
 
-页面、内容容器和浮层分别使用 `surface-layout`（#000000）、`surface`（#141414）和 `surface-elevated`（#1f1f1f）。表头等弱化区域使用 `surface-container`（#1d1d1d），普通 Tag 使用 `surface-tag`（#272727），下拉菜单悬停使用 `surface-hover`（#313131）。这些是静态文件中的合成色：分别由白色4%叠在内容表面、白色8%叠在内容表面、白色8%叠在浮层表面得到。实现如果使用原始 rgba 填色，须保留相同底层；不可把其中一个合成色当作通用遮罩。
+暗色页面底色 `surface-layout` 使用 Antdv Next 官网的 #141414。内容容器 `surface` 为 #141414，浮层 `surface-elevated` 为 #1f1f1f。页面与卡片同色时由次级边框区分。浅色页面、内容容器和浮层均为 #ffffff。表头等弱化区域使用 `surface-container`（#1d1d1d），普通 Tag 使用 `surface-tag`（#272727），下拉菜单悬停使用 `surface-hover`（#313131）。这些是静态文件中的合成色：分别由白色4%叠在内容表面、白色8%叠在内容表面、白色8%叠在浮层表面得到。实现如果使用原始 rgba 填色，须保留相同底层；不可把其中一个合成色当作通用遮罩。
 
 主文本、次级文本、说明文本和禁用文本分别使用白色 85%、65%、45% 和 25% 的透明度。文字保留真实暗色 Token，避免用一个合成灰色覆盖不同底层。说明文字的对比度应在实际背景上复核；禁用色只用于确实不可操作的内容。
 
@@ -324,13 +324,13 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 
 Header 主题菜单提供独立的[快乐工作特效](src/components/theme.md#快乐工作特效)。默认关闭，开启后适用控件在激活时短暂缩放并散出品牌金与其色相变体粒子。系统要求减少动态效果时暂停播放，保留访客选择。
 
-浅色和暗色分别对照锁定提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248` 的 `defaultAlgorithm` 与 `darkAlgorithm` 输出。暗色保留既有的黑灰金主题。浅色使用白色页面与容器、Antdv Next 语义的主文本和状态色，以及为对比度调整后的金色前景。Token 集中在 [tokens.css](src/styles/tokens.css)；新增或调整颜色时同时核对主题菜单、组件状态和代表页面的计算样式。设计来源的 Vue 算法只用于离线核对，不作为本站运行时依赖。上游数值有更新时重新提取并比较差异。
+浅色和暗色分别对照锁定提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248` 的 `defaultAlgorithm` 与 `darkAlgorithm` 输出。页面底色对齐 [Antdv Next 官网首屏样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/index.html#L33-L37)，组件背景、文字和状态按各自消费的 Token 映射。浅色使用为对比度调整后的金色前景。首页和详情页原画蒙层、目录吸顶和折叠预览沿用共享样式，分别跟随生效主题。Token 集中在 [tokens.css](src/styles/tokens.css)；新增或调整颜色时同时核对主题菜单、组件状态和代表页面的计算样式。设计来源的 Vue 算法只用于离线核对，不作为本站运行时依赖。上游数值有更新时重新提取并比较差异。
 
 ### 站点品牌与页面契约
 
 品牌正式拼写为 `LoL Chroma Art`，SEO与正文均保持这一拼写。现有 Logo 中 `LoL CHROMA` 为金色，`ART` 为白色；占位图保留低对比水印，徽标约20%、字标约32%不透明度。广告品牌图保持5:1、600×120px且不超过150KB。
 
-Header 使用80%不透明的主题玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的表面。主题、语言、博客和游戏导航入口在中英文桌面与窄屏保持可用，主题入口位于最右侧。右侧控件尺寸与组合见 [Header 用法](docs/frontend-design.md#组件用法)。
+Header 使用 80% 不透明的主题容器色，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的表面。主题、语言、博客和游戏导航入口在中英文桌面与窄屏保持可用，主题入口位于最右侧。右侧控件尺寸与组合见 [Header 用法](docs/frontend-design.md#组件用法)。
 
 博客使用响应式原画背景，767px以下读取中图；背景延伸到Header之后，使用svh适应移动浏览器栏。首页直接展开最新博客、工具导航和新增臻彩，不使用全屏 Hero。减少动态效果时关闭原画漂移和视差。返回顶部使用 [FloatButton.BackTop](src/components/back-to-top.md) 的默认圆形样式，滚动达到 400px 时显示，并适配安全区。
 

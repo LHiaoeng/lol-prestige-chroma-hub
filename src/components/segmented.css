@@ -21,15 +21,15 @@
 .ant-segmented-thumb {
   position: absolute;
   inset: 0 auto 0 0;
-  visibility: hidden;
   pointer-events: none;
   border-radius: var(--radius-tag);
   background: var(--segmented-selected-bg, var(--panel2));
+  animation: ant-segmented-slide var(--motion-slow) var(--segmented-motion-ease) both;
 }
 
-.ant-segmented-ready .ant-segmented-thumb {
-  visibility: visible;
-  transition: transform var(--motion-slow) var(--segmented-motion-ease), width var(--motion-slow) var(--segmented-motion-ease);
+@keyframes ant-segmented-slide {
+  from { transform: translateX(var(--thumb-from-x)); width: var(--thumb-from-width); }
+  to { transform: translateX(var(--thumb-to-x)); width: var(--thumb-to-width); }
 }
 
 .ant-segmented-item {
@@ -50,6 +50,17 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.ant-segmented-item-input {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ant-segmented-item::after {
@@ -75,19 +86,24 @@
   opacity: 1;
 }
 .ant-segmented-thumb,
-.ant-segmented:not(.ant-segmented-ready) .ant-segmented-item:has(:checked:not(:disabled)) {
+.ant-segmented-item:has(:checked) {
   box-shadow: var(--segmented-selected-shadow);
+  background: var(--segmented-selected-bg, var(--panel2));
 }
 .ant-segmented-item:has(:checked:not(:disabled)) {
-  background: var(--segmented-selected-bg, var(--panel2));
   color: var(--segmented-selected-text, var(--text));
 }
-.ant-segmented-ready .ant-segmented-item:has(:checked:not(:disabled)) { background: transparent; }
-.ant-segmented:has(:checked:disabled) .ant-segmented-thumb { visibility: hidden; }
+.ant-segmented-thumb ~ .ant-segmented-item:has(:checked) {
+  background: transparent;
+  box-shadow: none;
+}
+.ant-segmented-thumb ~ .ant-segmented-item:not(:has(:checked, :disabled))::after {
+  background-color: transparent;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .ant-segmented, .ant-segmented-ready .ant-segmented-thumb,
-  .ant-segmented-item, .ant-segmented-item::after { transition: none; }
+  .ant-segmented-thumb { animation-duration: 0s; }
+  .ant-segmented, .ant-segmented-item, .ant-segmented-item::after { transition: none; }
 }
 
 .ant-segmented-item:has(:focus-visible) {
@@ -95,8 +111,4 @@
   outline: calc(3 * var(--line-width)) solid var(--segmented-focus-color, var(--gold-text));
   outline-offset: var(--line-width);
 }
-.ant-segmented-item:has(:disabled) { background: transparent; color: var(--disabled); cursor: not-allowed; }
-.ant-segmented-item:has(:checked:disabled) {
-  background: var(--segmented-selected-bg, var(--panel2));
-  box-shadow: var(--segmented-selected-shadow);
-}
+.ant-segmented-item:has(:disabled) { color: var(--disabled); cursor: not-allowed; }

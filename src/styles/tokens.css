@@ -1,6 +1,6 @@
 :root {
   color-scheme: dark;
-  --bg: #000000;
+  --bg: #141414;
   --panel: #141414;
   --panel2: #1f1f1f;
   --fill: #1d1d1d;
@@ -19,7 +19,7 @@
   --gold-border: #d7b56d;
   --gold-hover-border: #cebb8b;
   --gold-active-border: #937d4e;
-  --theme-option-indicator: #d7b56d;
+  --theme-option-indicator: var(--gold-text);
   --header-glass-sheen: linear-gradient(180deg, #ffffff17, transparent 54%);
   --header-glass-highlight: #ffffff1a;
   --header-condensed-highlight: #ffffff1f;
@@ -123,7 +123,6 @@
   --gold-border: #8a6b38;
   --gold-hover-border: #8a6b38;
   --gold-active-border: #8a6b38;
-  --theme-option-indicator: #8a6b38;
   --header-glass-sheen: linear-gradient(180deg, rgb(255 255 255 / 50%), transparent 54%);
   --header-glass-highlight: rgb(0 0 0 / 8%);
   --header-condensed-highlight: rgb(0 0 0 / 10%);
@@ -136,7 +135,7 @@
   --selected-bg: #fffdf0;
   --selected-hover-bg: #fff7dc;
   --line: #d9d9d9;
-  --line-subtle: #e8e8e8;
+  --line-subtle: #f0f0f0;
   --success: #237804;
   --success-bg: #f6ffed;
   --success-border: #b7eb8f;
@@ -150,8 +149,8 @@
   --info: #0958d9;
   --info-bg: #e6f4ff;
   --info-border: #91caff;
-  --spotlight: #e6f4ff;
-  --on-spotlight: #0958d9;
+  --spotlight: rgb(0 0 0 / 85%);
+  --on-spotlight: #ffffff;
   --mask: rgb(0 0 0 / 45%);
   --shadow-popup: 0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%), 0 9px 28px 8px rgb(0 0 0 / 5%);
   --shadow-card: 0 1px 2px -2px rgb(0 0 0 / 12%), 0 3px 6px 0 rgb(0 0 0 / 8%), 0 5px 12px 4px rgb(0 0 0 / 5%);

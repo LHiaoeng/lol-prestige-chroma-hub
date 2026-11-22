@@ -8,9 +8,12 @@
 | 菜单顺序为系统、浅色、暗色，图标依次为 Sync、Sun、Moon；当前偏好右侧显示 6px 蓝点 | 使用同一顺序和图标；选中外观由右侧 6px 圆点表达，按生效主题映射为品牌金或浅色主题的深金，并以 `aria-checked` 暴露当前偏好。整行沿用普通菜单项的悬停与焦点样式 |
 | 官网分别持久化偏好和当前亮暗状态；系统模式监听 `prefers-color-scheme`，主题改变同步根节点 data 属性和 `color-scheme` | `theme-mode` 存储 `system`、`light` 或 `dark`；根节点 `data-theme-preference` 保存选择，`data-theme` 标记生效主题。同源标签页监听 storage 事件。系统变化只影响 system 偏好 |
 | 官网默认偏好为 light，支持基于 View Transition 的点击位置圆形切换 | 本站默认 `dark`，沿用既有暗色基线。减少动态效果、键盘操作和系统／跨标签变化直接切换；有指针起点且浏览器支持时从点击处展开 |
+| 官网以 #141414 作为暗色页面首屏底色，Header 使用 80% 容器背景色 | 本站暗色页面 #141414，浅色页面 #ffffff，浏览器主题色与页面底色同步。Header 以容器背景色合成玻璃层。 |
 | 主题算法由 ConfigProvider 将 `defaultAlgorithm`、`darkAlgorithm` 和其他主题算法组合后推导 Token | 主题由离线核对后的 CSS 语义变量实现，不引入 Vue、ConfigProvider 或主题运行时。浅色使用 `#8a6b38` 作文字和焦点金，按钮填充仍用 `#d7b56d` |
 
 首屏同步脚本在页面绘制前从 localStorage 读取偏好，并根据系统设置解析生效主题。读写存储失败时本页仍可切换，默认暗色；存储清除或值无效时回退为暗色。主题颜色同时更新 `meta[name="theme-color"]`。按钮菜单通过共享 Dropdown 管理焦点、方向键与 Escape。
+
+卡片使用容器底色和次级边框。Dropdown 使用浮层底色，Tooltip 采用上游聚光底色和白字。原画蒙层和目录吸顶跟随页面底色，折叠卡片使用共享渐隐遮罩。
 
 浅色主题对比度复查将活动输入占位符、Select 分组标题和广告位标签从 `disabled`／`tertiary` 弱化色提升到 `muted`。它们是正常可读内容，不是不可用状态或装饰文案；在白色表面上保持至少 4.5:1 的文字对比度。
 

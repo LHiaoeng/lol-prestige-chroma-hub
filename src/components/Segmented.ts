@@ -15,33 +15,38 @@ export function createSegmented(config: SegmentedOptions) {
   const track = document.createElement("div");
   track.className = "ant-segmented-group";
   group.append(track);
-  const thumb = document.createElement("span");
-  thumb.className = "ant-segmented-thumb";
-  thumb.setAttribute("aria-hidden", "true");
-  track.append(thumb);
-
-  const syncThumb = () => {
-    const selected = track.querySelector<HTMLElement>(".ant-segmented-item:has(input:checked)");
-    if (!selected?.offsetWidth) return;
-    thumb.style.width = selected.offsetWidth + "px";
-    thumb.style.transform = "translateX(" + selected.offsetLeft + "px)";
-    group.classList.add("ant-segmented-ready");
-  };
-  const observer = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(syncThumb);
+  let selected: HTMLLabelElement | undefined;
+  let thumb: HTMLSpanElement | undefined;
 
   for (const option of config.options) {
     const item = document.createElement("label");
     item.className = "ant-segmented-item";
     const input = document.createElement("input");
     input.type = "radio";
-    input.className = "sr-only";
+    input.className = "ant-segmented-item-input";
     input.name = config.name;
     input.value = option.value;
     input.checked = option.value === config.value;
+    if (input.checked) selected = item;
     if (config.controls) input.setAttribute("aria-controls", config.controls);
     input.addEventListener("change", () => {
       if (!input.checked) return;
-      syncThumb();
+      thumb?.remove();
+      if (selected?.offsetWidth && item.offsetWidth) {
+        const motionThumb = document.createElement("span");
+        motionThumb.className = "ant-segmented-thumb";
+        motionThumb.setAttribute("aria-hidden", "true");
+        motionThumb.style.setProperty("--thumb-from-x", `${selected.offsetLeft}px`);
+        motionThumb.style.setProperty("--thumb-from-width", `${selected.offsetWidth}px`);
+        motionThumb.style.setProperty("--thumb-to-x", `${item.offsetLeft}px`);
+        motionThumb.style.setProperty("--thumb-to-width", `${item.offsetWidth}px`);
+        const removeThumb = () => motionThumb.remove();
+        motionThumb.addEventListener("animationend", removeThumb, { once: true });
+        motionThumb.addEventListener("animationcancel", removeThumb, { once: true });
+        track.prepend(motionThumb);
+        thumb = motionThumb;
+      }
+      selected = item;
       config.onChange(input.value);
     });
     const label = document.createElement("span");
@@ -49,7 +54,6 @@ export function createSegmented(config: SegmentedOptions) {
     label.textContent = option.label;
     item.append(input, label);
     track.append(item);
-    observer?.observe(item);
   }
   return group;
 }
