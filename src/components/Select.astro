@@ -10,7 +10,6 @@ export interface SelectOption {
 
 export interface SelectOptionGroup {
   label: string;
-  disabled?: boolean;
   options: SelectOption[];
 }
 
@@ -52,7 +51,7 @@ const {
 const isGroup = (item: OptionOrGroup): item is SelectOptionGroup => "options" in item;
 const flatOptions = options.flatMap((item) => isGroup(item) ? item.options : [item]);
 const initialOption = flatOptions.find((option) => value !== undefined && option.value === value)
-  ?? options.flatMap((item) => isGroup(item) ? item.disabled ? [] : item.options : [item]).find((option) => !option.disabled);
+  ?? flatOptions.find((option) => !option.disabled);
 const initialLabel = initialOption && (initialOption.value !== "" || !placeholder) ? initialOption.label : undefined;
 ---
 
@@ -74,7 +73,7 @@ const initialLabel = initialOption && (initialOption.value !== "" || !placeholde
   disabled={disabled}
 >
   {options.map((item) => isGroup(item)
-    ? <optgroup label={item.label} disabled={item.disabled}>{item.options.map((option) => <option value={option.value} disabled={option.disabled} selected={value !== undefined && option.value === value}>{option.label}</option>)}</optgroup>
+    ? <optgroup label={item.label}>{item.options.map((option) => <option value={option.value} disabled={option.disabled} selected={value !== undefined && option.value === value}>{option.label}</option>)}</optgroup>
     : <option value={item.value} disabled={item.disabled} selected={value !== undefined && item.value === value}>{item.label}</option>)}
 </select>
 <div

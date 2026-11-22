@@ -3,13 +3,6 @@ import { parseThemePreference, resolveTheme, type ThemePreference } from './them
 const storageKey = 'theme-mode';
 const controllers = new WeakSet<Document>();
 
-type ViewTransitionDocument = Document & {
-  startViewTransition?: (update: () => void) => {
-    ready: Promise<void>;
-    finished: Promise<void>;
-  };
-};
-
 function readPreference(root: HTMLElement): ThemePreference {
   if (root.dataset.themePreference) return parseThemePreference(root.dataset.themePreference);
   try {
@@ -40,38 +33,6 @@ function syncSelectedOption(document: Document, preference: ThemePreference): vo
   });
 }
 
-function applyWithTransition(
-  document: Document,
-  theme: 'light' | 'dark',
-  event?: MouseEvent,
-): void {
-  const root = document.documentElement;
-  if (root.dataset.theme === theme) return;
-
-  const transitionDocument = document as ViewTransitionDocument;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!event || event.detail === 0 || reducedMotion || !transitionDocument.startViewTransition) {
-    applyResolvedTheme(root, theme);
-    return;
-  }
-
-  const x = event.clientX;
-  const y = event.clientY;
-  const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-  try {
-    const transition = transitionDocument.startViewTransition(() => applyResolvedTheme(root, theme));
-    transition.ready.then(() => {
-      root.animate(
-        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
-        { duration: 400, easing: 'ease-out', pseudoElement: '::view-transition-new(root)' },
-      );
-    }).catch(() => {});
-    transition.finished.then(() => {}, () => {});
-  } catch {
-    applyResolvedTheme(root, theme);
-  }
-}
-
 export function bindThemeSwitcher(document: Document = globalThis.document): void {
   if (controllers.has(document)) return;
   controllers.add(document);
@@ -79,13 +40,53 @@ export function bindThemeSwitcher(document: Document = globalThis.document): voi
   const root = document.documentElement;
   const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
   let preference = readPreference(root);
+  let activeTransition: ViewTransition | undefined;
+
+  const applyCurrentTheme = (event?: MouseEvent) => {
+    // A skipped transition can still invoke its DOM update callback.
+    const previousTransition = activeTransition;
+    activeTransition = undefined;
+    previousTransition?.skipTransition();
+
+    const theme = resolveTheme(preference, systemTheme.matches);
+    if (root.dataset.theme === theme) return;
+
+    if (!event || event.detail === 0 || typeof document.startViewTransition !== 'function'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      applyResolvedTheme(root, theme);
+      return;
+    }
+
+    const x = event.clientX;
+    const y = event.clientY;
+    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    try {
+      const transition = document.startViewTransition(() => {
+        if (activeTransition === transition) applyResolvedTheme(root, theme);
+      });
+      activeTransition = transition;
+      transition.ready.then(() => {
+        if (activeTransition !== transition) return;
+        root.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+          { duration: 400, easing: 'ease-out', pseudoElement: '::view-transition-new(root)' },
+        );
+      }).catch(() => {});
+      const clearTransition = () => {
+        if (activeTransition === transition) activeTransition = undefined;
+      };
+      transition.finished.then(clearTransition, clearTransition);
+    } catch {
+      applyResolvedTheme(root, theme);
+    }
+  };
 
   const applyPreference = (nextPreference: ThemePreference, event?: MouseEvent) => {
     preference = nextPreference;
     root.dataset.themePreference = preference;
     syncSelectedOption(document, preference);
     persistPreference(preference);
-    applyWithTransition(document, resolveTheme(preference, systemTheme.matches), event);
+    applyCurrentTheme(event);
   };
 
   syncSelectedOption(document, preference);
@@ -102,7 +103,7 @@ export function bindThemeSwitcher(document: Document = globalThis.document): voi
   });
 
   systemTheme.addEventListener('change', () => {
-    if (preference === 'system') applyResolvedTheme(root, resolveTheme(preference, systemTheme.matches));
+    if (preference === 'system') applyCurrentTheme();
   });
 
   window.addEventListener('storage', (event) => {
@@ -110,6 +111,6 @@ export function bindThemeSwitcher(document: Document = globalThis.document): voi
     preference = parseThemePreference(event.key === null ? null : event.newValue);
     root.dataset.themePreference = preference;
     syncSelectedOption(document, preference);
-    applyResolvedTheme(root, resolveTheme(preference, systemTheme.matches));
+    applyCurrentTheme();
   });
 }

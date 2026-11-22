@@ -41,7 +41,7 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
     {Array.from({ length: 6 }, () => <span class="runtime-skeleton-line"></span>)}
     <span class="runtime-skeleton-line tft-companions-pbe-filter-skeleton"></span>
   </div>
-  <div class="tft-companions-filters tft-filterbar" data-tft-companions-filters hidden>
+  <div class="tft-companions-filters tft-filterbar catalog-sticky-filterbar" data-tft-companions-filters hidden>
     <label data-tft-filter-search class="tft-companions-field">
       <span>{isZh ? '搜索小小英雄' : 'Search Tacticians'}</span>
       <input class="cn-input" type="search" data-tft-companions-search autocomplete="off" placeholder={isZh ? '中英文名称或种类名称' : 'Name or species name in either language'} />

@@ -71,11 +71,8 @@ const { id, isZh, resultCount } = Astro.props;
 
 <style is:global>
   .tft-filterbar {
-    position: sticky;
-    top: var(--site-header-height);
-    z-index: 5;
+    margin-bottom: var(--space-3);
     padding-block: var(--space-2);
-    background: var(--bg);
   }
   .tft-filterbar > .tft-filter-trigger { display: none; }
   .tft-filter-drawer .catalog-filter-drawer-body {
@@ -105,6 +102,13 @@ const { id, isZh, resultCount } = Astro.props;
   .tft-pbe-filter:has(:checked) { background: var(--selected-bg); color: var(--gold-text); }
   .tft-pbe-filter:has(:focus-visible) { outline: var(--line-width-bold) solid var(--gold-text); }
   .tft-pbe-filter:has(:disabled) { color: var(--disabled); cursor: not-allowed; }
+  @media (min-width: 768px) {
+    .tft-filterbar:not([hidden]) {
+      row-gap: var(--space-2);
+      padding-block-end: var(--space-3);
+      border-bottom: var(--line-width) solid var(--line-subtle);
+    }
+  }
   @media (max-width: 767px) {
     .tft-filterbar:not([hidden]) {
       grid-template-columns: minmax(0, 1fr) auto;

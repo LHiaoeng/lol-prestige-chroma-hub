@@ -12,12 +12,16 @@
   inline-size: 1.25em;
   block-size: 1em;
   flex: none;
+  background: currentColor;
+  mask: url("/img/icons/tft-little-legends.svg") center / contain no-repeat;
 }
 .tft-companions-filter-skeleton,
 .tft-companions-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: var(--space-3);
+}
+.tft-companions-filter-skeleton {
   margin-bottom: var(--space-4);
 }
 .tft-companions-filter-skeleton > .runtime-skeleton-line {
@@ -124,14 +128,6 @@
   display: none !important;
 }
 
-@media (min-width: 768px) {
-  .tft-companions-filters {
-    padding-block-end: var(--space-3);
-    border-bottom: 1px solid var(--line-subtle);
-    margin-bottom: var(--space-3);
-  }
-}
-
 .tft-companions-select-filters {
   display: grid;
   grid-column: 1 / -1;
@@ -147,7 +143,6 @@
   .tft-companions-filters {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    row-gap: var(--space-3);
   }
   .tft-companions-filters > [data-tft-filter-search] > span {
     position: absolute;

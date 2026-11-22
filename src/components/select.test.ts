@@ -17,11 +17,6 @@ describe("Select component contract", () => {
     expect(selectLogic).toContain("preview?.remove()");
   });
 
-  it("preserves disabled option groups in the native select", () => {
-    expect(selectComponent).toContain("export interface SelectOptionGroup {");
-    expect(selectComponent).toContain("<optgroup label={item.label} disabled={item.disabled}>");
-  });
-
   it("requires an explicit opt-in to clearing", () => {
     expect(selectComponent).toMatch(/allowClear = false,/);
     expect(selectComponent).toContain('data-select-allow-clear={allowClear ? "" : undefined}');

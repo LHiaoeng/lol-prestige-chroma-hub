@@ -1,4 +1,5 @@
 .page-backdrop {
+  --backdrop-artwork-strength: 1;
   position: fixed;
   inset: 0;
   height: 100vh;
@@ -8,6 +9,8 @@
   background: var(--bg);
   pointer-events: none;
 }
+
+[data-theme="light"] .page-backdrop { --backdrop-artwork-strength: .54; }
 
 .page-backdrop--home { z-index: 0; }
 .page-backdrop--behind { z-index: -1; }
@@ -19,11 +22,13 @@
 .page-backdrop--detail::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg,#000000f2 0%,#000000a8 45%,#00000066 75%),linear-gradient(0deg,#000000 0%,transparent 52%,#00000070 100%);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--bg) 94.9%, transparent) 0%, color-mix(in srgb, var(--bg) 65.88%, transparent) 45%, color-mix(in srgb, var(--bg) 40%, transparent) 75%),
+    linear-gradient(0deg, var(--bg) 0%, transparent 52%, color-mix(in srgb, var(--bg) 43.92%, transparent) 100%);
   content: '';
 }
 
-.page-backdrop--detail img { object-position: center top; opacity: .52; filter: saturate(.85); }
+.page-backdrop--detail img { object-position: center top; opacity: calc(.52 * var(--backdrop-artwork-strength)); filter: saturate(.85); }
 
 .responsive-hero-backdrop {
   position: absolute;
@@ -39,7 +44,7 @@
   width: calc(100% + 24px);
   height: calc(100% + 24px);
   object-position: var(--backdrop-position);
-  opacity: var(--backdrop-opacity);
+  opacity: calc(var(--backdrop-opacity) * var(--backdrop-artwork-strength));
   transform: translate3d(var(--backdrop-x,0),var(--backdrop-y,0),0) scale(1.025);
   animation: backdrop-drift 18s ease-in-out infinite alternate;
   will-change: transform;
@@ -48,7 +53,9 @@
 .responsive-hero-backdrop .backdrop-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.7) 36%,rgba(0,0,0,.26) 66%,rgba(0,0,0,.07) 100%),linear-gradient(180deg,transparent 0%,transparent 54%,rgba(0,0,0,.42) 78%,var(--bg) 100%);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--bg) 94%, transparent) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 36%, color-mix(in srgb, var(--bg) 26%, transparent) 66%, color-mix(in srgb, var(--bg) 7%, transparent) 100%),
+    linear-gradient(180deg, transparent 0%, transparent 54%, color-mix(in srgb, var(--bg) 42%, transparent) 78%, var(--bg) 100%);
 }
 
 @keyframes backdrop-drift {
@@ -58,16 +65,31 @@
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .responsive-hero-backdrop img { animation: none; transform: none; }
-  .responsive-hero-backdrop .backdrop-overlay { background: linear-gradient(90deg,rgba(0,0,0,.84) 0%,rgba(0,0,0,.48) 55%,rgba(0,0,0,.18) 100%),linear-gradient(180deg,transparent 30%,rgba(0,0,0,.4) 68%,var(--bg) 100%); }
-  .page-backdrop--detail::after { background: linear-gradient(90deg,#000000e6 0%,#00000070 55%,#00000050 100%),linear-gradient(0deg,#000000 0%,transparent 56%,#00000066 100%); }
-  .page-backdrop--detail img { opacity: .46; }
+  .responsive-hero-backdrop .backdrop-overlay {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--bg) 84%, transparent) 0%, color-mix(in srgb, var(--bg) 48%, transparent) 55%, color-mix(in srgb, var(--bg) 18%, transparent) 100%),
+      linear-gradient(180deg, transparent 30%, color-mix(in srgb, var(--bg) 40%, transparent) 68%, var(--bg) 100%);
+  }
+  .page-backdrop--detail::after {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--bg) 90.2%, transparent) 0%, color-mix(in srgb, var(--bg) 43.92%, transparent) 55%, color-mix(in srgb, var(--bg) 31.37%, transparent) 100%),
+      linear-gradient(0deg, var(--bg) 0%, transparent 56%, color-mix(in srgb, var(--bg) 40%, transparent) 100%);
+  }
+  .page-backdrop--detail img { opacity: calc(.46 * var(--backdrop-artwork-strength)); }
 }
 
 @media (max-width: 767px) {
-  .responsive-hero-backdrop img { object-position: var(--backdrop-mobile-position); opacity: var(--backdrop-mobile-opacity); animation: none; transform: none; }
-  .responsive-hero-backdrop .backdrop-overlay { background: linear-gradient(90deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.15) 62%,rgba(0,0,0,.04) 100%),linear-gradient(180deg,transparent 0%,transparent 46%,rgba(0,0,0,.52) 72%,var(--bg) 100%); }
-  .page-backdrop--detail::after { background: linear-gradient(0deg,#000000 0%,#00000099 45%,#0000004d 100%); }
-  .page-backdrop--detail img { opacity: .42; }
+  [data-theme="light"] .page-backdrop { --backdrop-artwork-strength: .34; }
+  .responsive-hero-backdrop img { object-position: var(--backdrop-mobile-position); opacity: calc(var(--backdrop-mobile-opacity) * var(--backdrop-artwork-strength)); animation: none; transform: none; }
+  .responsive-hero-backdrop .backdrop-overlay {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--bg) 60%, transparent) 0%, color-mix(in srgb, var(--bg) 15%, transparent) 62%, color-mix(in srgb, var(--bg) 4%, transparent) 100%),
+      linear-gradient(180deg, transparent 0%, transparent 46%, color-mix(in srgb, var(--bg) 52%, transparent) 72%, var(--bg) 100%);
+  }
+  .page-backdrop--detail::after {
+    background: linear-gradient(0deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 45%, color-mix(in srgb, var(--bg) 30.2%, transparent) 100%);
+  }
+  .page-backdrop--detail img { opacity: calc(.42 * var(--backdrop-artwork-strength)); }
 }
 
 @media (prefers-reduced-motion: reduce) {

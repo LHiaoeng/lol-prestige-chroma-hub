@@ -1,10 +1,12 @@
 .tft-arenas > .ant-divider-horizontal { margin: var(--space-4) 0; }
 .tft-arenas > header h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold-text); }
-.tft-arenas > header h1 .tft-arenas-icon { inline-size: 1.27em; block-size: 1em; flex: none; }
+.tft-arenas > header h1 .tft-arenas-icon { inline-size: 1.27em; block-size: 1em; flex: none; background: currentColor; mask: url("/img/icons/tft-arenas.svg") center / contain no-repeat; }
 .tft-arenas-filter-skeleton, .tft-arenas-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: var(--space-3);
+}
+.tft-arenas-filter-skeleton {
   margin-bottom: var(--space-4);
 }
 .tft-arenas-filter-skeleton[hidden], .tft-arenas-filters[hidden], .tft-arenas-load-more-footer[hidden] { display: none; }
@@ -40,9 +42,6 @@
   .tft-arenas-filters {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    padding-block-end: var(--space-3);
-    border-bottom: 1px solid var(--line-subtle);
-    margin-bottom: var(--space-3);
   }
   .tft-arenas-filters > [data-tft-filter-search] > span {
     position: absolute;

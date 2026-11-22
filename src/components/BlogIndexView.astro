@@ -123,8 +123,8 @@ const ariaLabel = isZh ? '博客分页' : 'Blog pagination';
     .blog-heading { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; }
     .blog-heading > :global(.cn-breadcrumb) { width:100%; margin:calc(-1 * clamp(58px,7vw,88px)) 0 var(--space-3); }
     .blog-index { position:relative; z-index:1; width:min(var(--content-width),calc(100% - (var(--page-gutter) * 2))); margin-inline:auto; padding-top:clamp(32px,4vw,48px); }
-    .blog-heading h1 { font-size:var(--font-size-headline-lg); line-height:var(--line-height-headline-lg); margin:.28em 0 .32em; font-weight:600; overflow-wrap:anywhere; text-shadow:0 5px 30px #000b; }
-    .blog-heading>div>p:last-child { color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); margin:0; text-shadow:0 2px 18px #000; }
+    .blog-heading h1 { font-size:var(--font-size-headline-lg); line-height:var(--line-height-headline-lg); margin:.28em 0 .32em; font-weight:600; overflow-wrap:anywhere; text-shadow:0 5px 30px color-mix(in srgb,var(--bg) 73.33%,transparent); }
+    .blog-heading>div>p:last-child { color:var(--muted); font-size:var(--font-size-body); line-height:var(--line-height-body); margin:0; text-shadow:0 2px 18px var(--bg); }
     .post-list { display:grid; gap:24px; }
     .featured-post-link { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,1fr); min-height:360px; }
     .featured-post-art { min-width:0; overflow:hidden; background:var(--fill); }

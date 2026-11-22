@@ -989,7 +989,6 @@ describe("static site build", () => {
     expect(english).toContain('href="https://teamfighttactics.leagueoflegends.com/en-us/index/"');
     expect(english).toContain('Teamfight Tactics</a></li><li class="cn-breadcrumb-separator');
     expect(english.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
-    expect(english).toContain('src="/img/icons/tft-little-legends.svg"');
     expect(english).toContain("Tacticians</h1>");
     expect(english).toContain('data-little-legends-default-channel="pbe"');
     expect(english).toContain('data-runtime-spin data-spinning="false" aria-live="polite" aria-busy="false"');
@@ -1010,7 +1009,6 @@ describe("static site build", () => {
     expect(chinese).toContain('href="/zh-cn/tft/arenas/">棋盘</a>');
     expect(chinese).toContain('云顶之弈</a></li><li class="cn-breadcrumb-separator');
     expect(chinese.match(/data-domain-icon-name="teamfight-tactics"/g)).toHaveLength(2);
-    expect(chinese).toContain('src="/img/icons/tft-little-legends.svg"');
     expect(chinese).toContain("小小英雄</h1>");
     expect(chinese).toContain("全部稀有度");
     expect(chinese).toContain("<span>稀有度</span>");
@@ -1021,6 +1019,24 @@ describe("static site build", () => {
     expect(chinese).not.toContain('正在加载小小英雄资料');
     expect(chinese).toContain("请启用 JavaScript 以浏览小小英雄列表。");
     expect(chinese).toContain('"@type":"BreadcrumbList"');
+  });
+
+  it.each(["prestige-chromas", "skins", "tft/companions", "tft/arenas"])(
+    "uses the shared sticky filter bar on %s in both languages",
+    (directory) => {
+      for (const prefix of ["", "zh-cn"]) {
+        const html = readFileSync(join(dist, prefix, directory, "index.html"), "utf8");
+        expect(html).toMatch(/<(?:div|form)\b[^>]*class="[^"]*\bcatalog-sticky-filterbar\b/);
+      }
+    },
+  );
+
+  it.each(["companions", "arenas"])("renders decorative TFT heading icons for %s", (directory) => {
+    for (const prefix of ["", "zh-cn"]) {
+      const html = readFileSync(join(dist, prefix, "tft", directory, "index.html"), "utf8");
+      const heading = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1];
+      expect(heading).toContain(`<span class="tft-${directory}-icon" aria-hidden="true"></span>`);
+    }
   });
 
   it("describes the three-game blog in both languages and on paginated pages", () => {
