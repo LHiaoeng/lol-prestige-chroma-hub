@@ -39,6 +39,8 @@ it('offers a right-aligned bilingual theme menu with the three saved preferences
     'data-theme-option="dark"',
   ]);
   expect(menu).toContain('data-theme-option="dark" aria-checked="true"');
+  expect(menu).toMatch(/暗黑主题[\s\S]*?role="separator"[\s\S]*?role="menuitemcheckbox" data-ant-dropdown-item data-happy-work-toggle aria-checked="false"/);
+  expect(menu).toContain("isZh ? '快乐工作特效' : 'Happy Work Effect'");
   expect(layout.indexOf('data-theme-option="dark" aria-checked="true"'))
     .toBeLessThan(layout.indexOf('bindThemeSwitcher();'));
   expect(layout).toContain("localStorage.getItem('theme-mode')");

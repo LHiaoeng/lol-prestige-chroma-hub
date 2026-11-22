@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import '../styles/article.css';
 import '../styles/backgrounds.css';
+import '../components/happy-work-effect.css';
 import BackToTop from '../components/BackToTop.astro';
 import MediaViewer from '../components/MediaViewer.astro';
 import AdSlot from '../components/AdSlot.astro';
@@ -149,6 +150,8 @@ gtag('js', new Date());
           <li role="none"><button type="button" role="menuitemradio" data-ant-dropdown-item data-theme-option="system" aria-checked="false"><Icon name="SyncOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '跟随系统' : 'System'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
           <li role="none"><button type="button" role="menuitemradio" data-ant-dropdown-item data-theme-option="light" aria-checked="false"><Icon name="SunOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '浅色主题' : 'Light theme'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
           <li role="none"><button type="button" role="menuitemradio" data-ant-dropdown-item data-theme-option="dark" aria-checked="true"><Icon name="MoonOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '暗黑主题' : 'Dark theme'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
+          <li role="separator" class="theme-menu-separator"></li>
+          <li role="none"><button type="button" role="menuitemcheckbox" data-ant-dropdown-item data-happy-work-toggle aria-checked="false"><Icon name="SmileOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '快乐工作特效' : 'Happy Work Effect'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
         </Dropdown>
       </div>
     </header>
@@ -161,11 +164,13 @@ gtag('js', new Date());
       import { bindImageFallbacks } from '../client/image-fallback';
       import { bindHeaderGlass } from '../client/header-glass';
       import { bindThemeSwitcher } from '../client/theme-switcher';
+      import { bindHappyWorkEffect } from '../components/happy-work-effect';
       import { bindTypographyParagraphs } from '../components/Typography';
       import { bindCardTitleTooltips } from '../components/card-title';
       bindImageFallbacks();
       bindHeaderGlass();
       bindThemeSwitcher();
+      bindHappyWorkEffect();
       bindTypographyParagraphs();
       bindCardTitleTooltips();
     </script>
@@ -181,7 +186,8 @@ gtag('js', new Date());
       .header-controls .header-blog-link[aria-current] { color:var(--gold-text); }
       .theme-toggle > svg { width:16px; height:16px; }
       .theme-option-dot { width:6px; height:6px; flex:none; margin-inline-start:auto; border-radius:50%; background:var(--theme-option-indicator); opacity:0; }
-      [data-theme-option][aria-checked="true"] .theme-option-dot { opacity:1; }
+      [aria-checked="true"] > .theme-option-dot { opacity:1; }
+      .ant-dropdown-menu .theme-menu-separator { margin-block:4px; border-block-start:1px solid var(--line); }
       .browse-menu-label-short { display:none; }
       .tft-nav-label-short { display:none; }
       .language-toggle-mark { position:relative; width:1em; height:1em; }

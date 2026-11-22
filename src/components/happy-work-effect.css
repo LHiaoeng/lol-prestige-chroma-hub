@@ -1,0 +1,27 @@
+.happy-work-burst {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.happy-work-dot {
+  position: absolute;
+  left: var(--happy-x);
+  top: var(--happy-y);
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--happy-color, var(--gold));
+  opacity: 0;
+}
+
+.happy-work-dot--alternate {
+  /* Brand gold with its HSV hue rotated by -30 degrees. */
+  --happy-color: #d7806d;
+}
+
+.happy-work-dot--outline {
+  border: 1px solid var(--happy-color, var(--gold));
+  background: transparent;
+}

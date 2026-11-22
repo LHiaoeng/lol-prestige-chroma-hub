@@ -7,7 +7,7 @@
   border-radius: var(--radius-control);
   background: var(--segmented-track-bg, var(--bg));
   color: var(--segmented-text, var(--muted));
-  font: inherit;
+  font: var(--font-size-body) / var(--line-height-body) var(--font-ui);
   transition: all var(--motion-mid);
 }
 
@@ -46,7 +46,7 @@
   display: block;
   min-height: calc(var(--control-height) - 2 * var(--line-width-bold));
   line-height: calc(var(--control-height) - 2 * var(--line-width-bold));
-  padding-inline: calc(var(--space-3) - var(--line-width));
+  padding-inline: calc(12px - var(--line-width));
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -90,7 +90,11 @@
   .ant-segmented-item, .ant-segmented-item::after { transition: none; }
 }
 
-.ant-segmented-item:has(:focus-visible) { outline: var(--line-width-bold) solid var(--segmented-focus-color, var(--gold-text)); outline-offset: calc(-1 * var(--line-width-bold)); }
+.ant-segmented-item:has(:focus-visible) {
+  z-index: 1;
+  outline: calc(3 * var(--line-width)) solid var(--segmented-focus-color, var(--gold-text));
+  outline-offset: var(--line-width);
+}
 .ant-segmented-item:has(:disabled) { background: transparent; color: var(--disabled); cursor: not-allowed; }
 .ant-segmented-item:has(:checked:disabled) {
   background: var(--segmented-selected-bg, var(--panel2));

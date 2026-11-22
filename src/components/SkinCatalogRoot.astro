@@ -50,7 +50,9 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
     <label class="sr-only" for="skin-catalog-search">{isZh ? '搜索皮肤相关名称' : 'Search related names'}</label>
     <input class="cn-input" id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '皮肤、英雄、系列、宇宙、炫彩或徽章名称' : 'Skin, champion, skinline, universe, chroma, or emblem name'} />
     <div class="skin-catalog-mobile-view">
+      <label class="sr-only" for="skin-catalog-mobile-view">{isZh ? '视图' : 'View'}</label>
       <Select
+        id="skin-catalog-mobile-view"
         data-skin-mobile-view=""
         ariaLabel={isZh ? '视图' : 'View'}
         value="timeline"
@@ -79,28 +81,30 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
       <legend>{isZh ? '显示' : 'Display'}</legend>
       <label class="skin-catalog-framed-setting">
         <span data-catalog-framed-tooltip-trigger>
-          <input type="checkbox" data-catalog-framed-all aria-label={isZh ? '显示边框' : 'Show borders'} />
+          <input type="checkbox" data-happy-wave data-catalog-framed-all aria-label={isZh ? '显示边框' : 'Show borders'} />
           <span>{isZh ? '边框' : 'Borders'}</span>
         </span>
         <span class="skin-catalog-framed-count" data-catalog-framed-count></span>
       </label>
       {isZh && <label class="skin-catalog-emblems-setting">
-        <input type="checkbox" data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
+        <input type="checkbox" data-happy-wave data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
         <span>徽章</span>
       </label>}
       </fieldset>
       <div class="skin-catalog-filter-options" data-skin-filter-options>
       <label class="skin-catalog-classic-setting">
-        <input type="checkbox" data-catalog-classic aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
+        <input type="checkbox" data-happy-wave data-catalog-classic aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
         <span>{isZh ? '经典皮肤' : 'Classic skins'}</span>
       </label>
       <label class="skin-catalog-pbe-setting">
-        <input type="checkbox" data-catalog-pbe-only aria-label={isZh ? 'PBE 新增' : 'PBE additions'} />
+        <input type="checkbox" data-happy-wave data-catalog-pbe-only aria-label={isZh ? 'PBE 新增' : 'PBE additions'} />
         <span>{isZh ? 'PBE 新增' : 'PBE additions'}</span>
       </label>
       </div>
     </div>
+    <label class="sr-only" for="skin-catalog-sort">{isZh ? '排序方式' : 'Sort order'}</label>
     <Select
+      id="skin-catalog-sort"
       class="skin-catalog-sort"
       data-catalog-sort=""
       ariaLabel={isZh ? '排序方式' : 'Sort order'}

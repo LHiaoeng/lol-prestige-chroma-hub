@@ -10,6 +10,9 @@ LoL Chroma Art 是聚合《英雄联盟》《云顶之弈》和《英雄联盟�
 **生效主题（Resolved Theme）**:
 LoL Chroma Art 当前呈现的浅色或暗色配色。主题偏好为跟随系统时，由系统配色决定。
 
+**快乐工作特效（Happy Work Effect）**:
+访客可独立开启的控件操作反馈，表现为控件短暂缩放并散出主题色粒子。
+
 ## 站点范围
 
 **LoL Chroma Art**:

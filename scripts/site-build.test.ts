@@ -559,7 +559,7 @@ describe("static site build", () => {
     ]);
     expect(coverageArticle).toContain(".champion-list li{");
     expect(coverageArticle).not.toMatch(
-      /\.champion-list\[data-astro-cid-[^\]]+\] li\[data-astro-cid-/,
+      /\.champion-list\[data-astro-cid-[\w-]+] li\[data-astro-cid-/,
     );
   });
 

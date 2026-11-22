@@ -28,6 +28,7 @@ import RotateRightOutlined from '@ant-design/icons-svg/lib/asn/RotateRightOutlin
 import SearchOutlined from '@ant-design/icons-svg/lib/asn/SearchOutlined';
 import SoundOutlined from '@ant-design/icons-svg/lib/asn/SoundOutlined';
 import SunOutlined from '@ant-design/icons-svg/lib/asn/SunOutlined';
+import SmileOutlined from '@ant-design/icons-svg/lib/asn/SmileOutlined';
 import SwapOutlined from '@ant-design/icons-svg/lib/asn/SwapOutlined';
 import SyncOutlined from '@ant-design/icons-svg/lib/asn/SyncOutlined';
 import UpOutlined from '@ant-design/icons-svg/lib/asn/UpOutlined';
@@ -70,6 +71,7 @@ const ANT_ICONS = {
   SearchOutlined,
   SoundOutlined,
   SunOutlined,
+  SmileOutlined,
   SwapOutlined,
   SyncOutlined,
   UpOutlined,

@@ -19,3 +19,15 @@
 皮肤目录 PBE 标记在两套主题下都使用亮金文字与内侧焦点环，背景为原画上的黑色遮罩。遮罩覆盖白色原画区域时，亮金与遮罩仍有约 4.74:1 对比度。
 
 验证入口为实际页面 Header 菜单。逐项检查浅／暗系统首次访问、三种选择、刷新、跨页和语言切换、系统变化、同源跨标签同步、存储禁用、减少动态效果、窄屏，以及浅暗主题下菜单位置、指示点和焦点对比度。代表页面至少包括首页、臻彩目录与详情、运行时目录、TFT 目录和博客。
+
+## 快乐工作特效
+
+| 上游契约 | 本站实现与预期表现 |
+| --- | --- |
+| 官网菜单使用笑脸图标和开启圆点，偏好由 `happy-mode` 独立保存且默认关闭。[主题菜单](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/layouts/base/components/theme-btn.vue) · [偏好存储](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/composables/local-store.ts) | [BaseLayout](../layouts/BaseLayout.astro) 使用中英文菜单复选项、品牌金圆点及共享 Dropdown 焦点行为。[控制器](happy-work-effect.ts) 同步同源标签页，存储失败时当前页面仍可切换。 |
+| HappyProvider 为 Wave 提供额外点按反馈。控件缩放 450ms，最短边小于 20px 时散出 7 点，否则散出 10 点。[Wave](https://github.com/antdv-next/antdv-next/tree/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/_util/wave) · [快乐工作特效 1.0.1](https://cdn.jsdelivr.net/npm/@antdv-next/happy-work-theme@1.0.1/dist/index.mjs) | 原生控件激活监听覆盖有边框的 Button、Radio.Button、皮肤和 TFT 目录复选控件。标签以转发到输入控件的原生点击触发一次。皮肤目录粒子从复选框散出，TFT 目录使用可见的筛选标签。普通链接、禁用、忙碌、危险及错误状态跳过。 |
+| 粒子用主题主色及 HSV 色相旋转 -30° 的变体，约 600ms 后清理。关闭时恢复官网默认 Wave。[快乐工作特效 1.0.1](https://cdn.jsdelivr.net/npm/@antdv-next/happy-work-theme@1.0.1/dist/index.mjs) | [特效样式](happy-work-effect.css)使用品牌金及其对应变体，粒子时长 300ms，装饰层不接管点击。关闭时恢复本站当前交互反馈；系统要求减少动态效果、关闭开关或离开页面时取消正在播放的特效。 |
+
+回归检查覆盖独立偏好、存储、粒子数、缩放时长、清理和减少动态效果。实际动画、触屏和窄屏由维护者验收。
+
+缩放在相邻关键帧之间分别使用 `ease-in-out`。粒子按上游的内外边界散开，以宽高变化控制尺寸，描边粒子保留 1px 边框。Radio.Button 的缩放目标为单个选项的可见外框。 [上游动效 1.0.1](https://cdn.jsdelivr.net/npm/@antdv-next/happy-work-theme@1.0.1/dist/index.mjs) · [上游 Radio](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/radio/radio.tsx)

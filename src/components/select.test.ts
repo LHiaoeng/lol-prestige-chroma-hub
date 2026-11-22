@@ -25,12 +25,12 @@ describe("Select component contract", () => {
 
   it("keeps required sort selects non-clearable", () => {
     expect(filterComponent).toContain('<Select name="sort" allowClear={false}');
-    expect(skinCatalogComponent).toMatch(/data-catalog-sort=""[\s\S]*?allowClear=\{false\}/);
+    expect(skinCatalogComponent).toMatch(/data-catalog-sort=""[\s\S]*?allowClear=\{false}/);
     expect(companionsComponent).toContain('data-tft-companions-sort="" allowClear={false}');
   });
 
   it("maps the upstream clear affordance to the site tokens", () => {
-    const clearStyle = selectStyles.match(/\.ant-select-clear\{([^}]*)\}/)?.[1] ?? "";
+    const clearStyle = selectStyles.match(/\.ant-select-clear\{([^}]*)}/)?.[1] ?? "";
     expect(clearStyle).toContain("min-height:0");
     expect(clearStyle).toContain("inset-inline-start:auto");
     expect(clearStyle).toContain("color:var(--disabled)");

@@ -74,13 +74,14 @@ const hasOverflow = chromas.length > 6;
   .expandable-chroma-grid {
     --grid-gap: var(--space-3);
     --peek-height: 84px;
+    --row-height: 280px;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--grid-gap);
     position: relative;
   }
   .expandable-chroma-grid.has-overflow[data-expanded='false'] {
-    max-height: calc(var(--row-height, 280px) + var(--grid-gap) + var(--peek-height));
+    max-height: calc(var(--row-height) + var(--grid-gap) + var(--peek-height));
     overflow: hidden;
   }
   .expand-toggle {

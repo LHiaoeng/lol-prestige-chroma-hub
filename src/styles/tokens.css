@@ -88,6 +88,8 @@
   --shadow-popup: 0 6px 16px 0 rgba(255,255,255,.016), 0 3px 6px -4px rgba(255,255,255,.024), 0 9px 28px 8px rgba(255,255,255,.01);
   --shadow-card: 0 1px 2px -2px rgba(255,255,255,.032), 0 3px 6px 0 rgba(255,255,255,.024), 0 5px 12px 4px rgba(255,255,255,.018);
   --shadow-card-highlight: 0 2px 8px color-mix(in srgb, var(--gold) 24%, transparent);
+  --segmented-track-bg: var(--panel);
+  --segmented-selected-bg: #292929;
   --segmented-hover-bg: rgb(255 255 255 / 12%);
   --segmented-active-bg: rgb(255 255 255 / 18%);
   --segmented-selected-shadow: 0 1px 2px 0 rgb(255 255 255 / 1%),
@@ -154,6 +156,8 @@
   --shadow-popup: 0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%), 0 9px 28px 8px rgb(0 0 0 / 5%);
   --shadow-card: 0 1px 2px -2px rgb(0 0 0 / 12%), 0 3px 6px 0 rgb(0 0 0 / 8%), 0 5px 12px 4px rgb(0 0 0 / 5%);
   --segmented-hover-bg: rgb(0 0 0 / 6%);
-  --segmented-active-bg: rgb(0 0 0 / 10%);
-  --segmented-selected-shadow: 0 1px 2px 0 rgb(0 0 0 / 8%), 0 1px 6px -1px rgb(0 0 0 / 5%), 0 2px 4px 0 rgb(0 0 0 / 5%);
+  --segmented-track-bg: var(--fill);
+  --segmented-selected-bg: var(--panel2);
+  --segmented-active-bg: rgb(0 0 0 / 15%);
+  --segmented-selected-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%), 0 1px 6px -1px rgb(0 0 0 / 3%), 0 2px 4px 0 rgb(0 0 0 / 3%);
 }

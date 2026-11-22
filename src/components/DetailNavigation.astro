@@ -25,6 +25,7 @@ const Control = targets ? 'a' : 'button';
     return <div class:list={['runtime-skin-navigation-side', 'runtime-skin-navigation-side--' + direction]}>
       <Control
         class="ant-btn ant-btn-text runtime-skin-navigation-button"
+        data-happy-wave
         {...(target ? { href: target.href, rel: previous ? 'prev' : 'next' } : { type: 'button', disabled: true })}
         data-runtime-skin-navigation-previous={previous ? '' : undefined}
         data-runtime-skin-navigation-next={previous ? undefined : ''}
