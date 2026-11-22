@@ -95,8 +95,11 @@ const Control = targets ? 'a' : 'button';
   }
   @media (max-width: 1599px) {
     .runtime-page:has([data-runtime-skin-navigation]:not([hidden])),
-    main:has(> [data-runtime-skin-navigation]:not([hidden])) { padding-bottom: var(--runtime-skin-navigation-page-padding, calc(var(--space-5) * 3)); }
-    .runtime-skin-navigation { inset: auto auto max(calc(var(--float-button-bottom) + var(--control-height-lg) + var(--space-3)), var(--runtime-skin-navigation-footer-offset, 0px)) 50%; width: min(560px, calc(100vw - (var(--page-gutter) * 2))); display: flex; align-items: center; gap: var(--space-2); padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-popup); backdrop-filter: blur(12px); transform: translateX(-50%); }
+    main:has(> [data-runtime-skin-navigation]:not([hidden])) {
+      --runtime-skin-navigation-page-padding: calc(var(--space-5) * 3);
+      padding-bottom: var(--runtime-skin-navigation-page-padding);
+    }
+    .runtime-skin-navigation { --runtime-skin-navigation-footer-offset: 0px; inset: auto auto max(calc(var(--float-button-bottom) + var(--control-height-lg) + var(--space-3)), var(--runtime-skin-navigation-footer-offset)) 50%; width: min(560px, calc(100vw - (var(--page-gutter) * 2))); display: flex; align-items: center; gap: var(--space-2); padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: color-mix(in srgb, var(--panel) 94%, transparent); box-shadow: var(--shadow-popup); backdrop-filter: blur(12px); transform: translateX(-50%); }
     .runtime-skin-navigation[data-footer-occluded] { visibility: hidden; }
     .runtime-skin-navigation-side { position: static; top: auto; left: auto; right: auto; width: calc((100% - var(--space-2)) / 2); max-width: none; min-width: 0; transform: none; }
     .runtime-skin-navigation-side--previous { justify-content: flex-start; }

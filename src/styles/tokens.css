@@ -89,6 +89,10 @@
   --shadow-card: 0 1px 2px -2px rgba(255,255,255,.032), 0 3px 6px 0 rgba(255,255,255,.024), 0 5px 12px 4px rgba(255,255,255,.018);
   --shadow-card-highlight: 0 2px 8px color-mix(in srgb, var(--gold) 24%, transparent);
   --segmented-track-bg: var(--panel);
+  --segmented-text: var(--muted);
+  --segmented-hover-text: var(--text);
+  --segmented-selected-text: var(--text);
+  --segmented-focus-color: var(--gold-text);
   --segmented-selected-bg: #292929;
   --segmented-hover-bg: rgb(255 255 255 / 12%);
   --segmented-active-bg: rgb(255 255 255 / 18%);
@@ -98,7 +102,7 @@
   --motion-fast: .1s;
   --motion-mid: .2s;
   --motion-slow: .3s;
-  font-family: var(--font-ui);
+  font-family: var(--font-ui), sans-serif;
   font-size: 16px;
 }
 

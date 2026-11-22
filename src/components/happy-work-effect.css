@@ -1,4 +1,6 @@
 .happy-work-burst {
+  --happy-x: 0px;
+  --happy-y: 0px;
   position: fixed;
   inset: 0;
   z-index: 1080;

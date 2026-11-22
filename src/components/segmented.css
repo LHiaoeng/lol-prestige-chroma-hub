@@ -6,7 +6,7 @@
   border: 0;
   border-radius: var(--radius-control);
   background: var(--segmented-track-bg, var(--bg));
-  color: var(--segmented-text, var(--muted));
+  color: var(--segmented-text);
   font: var(--font-size-body) / var(--line-height-body) var(--font-ui);
   transition: all var(--motion-mid);
 }
@@ -19,6 +19,10 @@
 }
 
 .ant-segmented-thumb {
+  --thumb-from-x: 0px;
+  --thumb-from-width: 0px;
+  --thumb-to-x: 0px;
+  --thumb-to-width: 0px;
   position: absolute;
   inset: 0 auto 0 0;
   pointer-events: none;
@@ -75,7 +79,7 @@
 }
 
 .ant-segmented-item:not(:has(:checked, :disabled)):is(:hover, :active) {
-  color: var(--segmented-hover-text, var(--text));
+  color: var(--segmented-hover-text);
 }
 .ant-segmented-item:not(:has(:checked, :disabled)):hover::after {
   background: var(--segmented-hover-bg);
@@ -91,7 +95,7 @@
   background: var(--segmented-selected-bg, var(--panel2));
 }
 .ant-segmented-item:has(:checked:not(:disabled)) {
-  color: var(--segmented-selected-text, var(--text));
+  color: var(--segmented-selected-text);
 }
 .ant-segmented-thumb ~ .ant-segmented-item:has(:checked) {
   background: transparent;
@@ -108,7 +112,7 @@
 
 .ant-segmented-item:has(:focus-visible) {
   z-index: 1;
-  outline: calc(3 * var(--line-width)) solid var(--segmented-focus-color, var(--gold-text));
+  outline: calc(3 * var(--line-width)) solid var(--segmented-focus-color);
   outline-offset: var(--line-width);
 }
 .ant-segmented-item:has(:disabled) { color: var(--disabled); cursor: not-allowed; }

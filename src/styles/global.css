@@ -59,6 +59,8 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 @media(hover:hover) and (pointer:fine){:is(.card--hoverable,.chroma-card,.blog-chroma-card,.runtime-card,.runtime-skin-reference-card,.runtime-pbe-card,.skin-catalog-card,.guide-card,article.runtime-chroma-card):hover:not(:has(:is(.card--hoverable,.chroma-card,.blog-chroma-card,.runtime-card,.runtime-chroma-card,.runtime-skin-reference-card,.runtime-pbe-card,.skin-catalog-card,.guide-card,article.runtime-chroma-card):hover)){border-color:var(--gold-text);box-shadow:var(--shadow-card-highlight)}}
 :is(.chroma-card,.blog-chroma-card) > a:focus-visible{outline:none}
 :is(.skin-catalog-card,.guide-card){border-color:var(--line-subtle);box-shadow:var(--shadow-card);cursor:pointer;transition:border-color var(--motion-mid) ease,box-shadow var(--motion-mid) ease}
+/* Astro serves this file from public/img/backgrounds at the site root. */
+/*noinspection CssUnknownTarget */
 .card-image,.detail-image{aspect-ratio:16/9;padding:8px;background:var(--panel2) url('/img/backgrounds/chroma-card-background.jpg') center/cover no-repeat;overflow:hidden;position:relative}
 .card-image img,.detail-image img{display:block;width:100%;height:100%;object-fit:cover}
 .new-badge{position:absolute;top:12px;right:12px;padding:0 7px;border:1px solid var(--gold-border);border-radius:var(--radius-tag);background:var(--gold);color:var(--on-gold);font-size:var(--font-size-small);font-weight:400;line-height:var(--line-height-small)}
