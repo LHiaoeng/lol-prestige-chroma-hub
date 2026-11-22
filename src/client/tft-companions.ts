@@ -26,7 +26,7 @@ import type {
 import { setDomainIconTooltip } from "../components/domain-icons";
 import { tftCosmeticTierIconUrl, tftCosmeticTierLabel } from "../components/tft-cosmetic-tier";
 import { createPopover } from "../components/popover";
-import { createRadioButtonGroup } from "../components/RadioButtonGroup";
+import { createSegmented } from "../components/Segmented";
 import { createTooltip } from "../components/tooltip";
 import { enhanceSelect, refreshSelect } from "../components/select";
 import { createIcon } from "../components/icons/create-icon";
@@ -52,7 +52,6 @@ const copy = {
     total: (count: number) => `共 ${count} 个小小英雄资料项`,
     results: (count: number) => `找到 ${count} 个结果`,
     missingImage: "图片暂不可用",
-    pbeOnlyHelp: "只显示相较正式服新增的小小英雄。",
     pbeNew: "PBE 新增小小英雄",
     displayMode: "显示方式",
     cards: "卡片",
@@ -71,7 +70,6 @@ const copy = {
     total: (count: number) => `${count} Tactician cosmetics in this data channel`,
     results: (count: number) => `Found ${count} matches`,
     missingImage: "Artwork unavailable",
-    pbeOnlyHelp: "Show only Tacticians newly added on PBE compared with live.",
     pbeNew: "PBE addition",
     displayMode: "Display mode",
     cards: "Cards",
@@ -168,25 +166,6 @@ export function initTftCompanions(
   );
   const level = element<HTMLSelectElement>(root, "[data-tft-companions-level]");
   const sort = element<HTMLSelectElement>(root, "[data-tft-companions-sort]");
-  const pbeOnly = element<HTMLInputElement>(
-    root,
-    "[data-tft-companions-pbe-only]",
-  );
-  const pbeSetting = element<HTMLElement>(
-    root,
-    "[data-tft-companions-pbe-setting]",
-  );
-  const pbeSettingParent = pbeSetting.parentElement;
-  const pbeSettingNextSibling = pbeSetting.nextSibling;
-  const pbeSettingTooltip = createTooltip(pbeSetting, text.pbeOnlyHelp);
-  pbeSettingTooltip.classList.add("tft-companions-pbe-tooltip");
-  pbeSettingTooltip.tabIndex = -1;
-  const pbeSettingTooltipId =
-    pbeSettingTooltip.getAttribute("aria-describedby");
-  if (pbeSettingTooltipId)
-    pbeOnly.setAttribute("aria-describedby", pbeSettingTooltipId);
-  if (pbeSettingParent)
-    pbeSettingParent.insertBefore(pbeSettingTooltip, pbeSettingNextSibling);
   const popoverCleanups: (() => void)[] = [];
   const clearPopovers = () => {
     for (const cleanup of popoverCleanups) cleanup();
@@ -204,6 +183,8 @@ export function initTftCompanions(
     root,
     "[data-tft-companions-result-count]",
   );
+  const pbeOnly = element<HTMLInputElement>(root, "[data-tft-companions-pbe-only]");
+  const pbeSetting = element<HTMLElement>(root, "[data-tft-companions-pbe-setting]");
   const viewSwitcher = element<HTMLElement>(
     root,
     "[data-tft-companions-view-switch]",
@@ -271,6 +252,7 @@ export function initTftCompanions(
       state.speciesId === undefined ? "" : String(state.speciesId);
     rarity.value = state.TFTRarity ?? "";
     level.value = state.level === undefined ? "" : String(state.level);
+    pbeSetting.hidden = state.channel !== "pbe" || !canComparePbe;
     pbeOnly.checked = state.onlyPbeAdditions;
     sort.value = state.sort;
     [companionType, species, rarity, level, sort].forEach(refreshSelect);
@@ -363,11 +345,11 @@ export function initTftCompanions(
     );
     const rarityLabel = tftCosmeticTierLabel(item.TFTRarity, locale);
     const article = root.ownerDocument.createElement("article");
-    article.className = "runtime-card tft-companions-card";
+    article.className = "runtime-card tft-cosmetic-card";
     const media = root.ownerDocument.createElement("div");
-    media.className = "tft-companions-card-media";
+    media.className = "tft-cosmetic-card-media";
     const preview = root.ownerDocument.createElement("button");
-    preview.className = "runtime-media-preview-trigger tft-companions-card-preview";
+    preview.className = "runtime-media-preview-trigger tft-cosmetic-card-preview";
     preview.type = "button";
     preview.dataset.mediaPreviewTrigger = "";
     preview.dataset.previewKind = "image";
@@ -384,7 +366,7 @@ export function initTftCompanions(
     image.loading = "lazy";
     image.decoding = "async";
     const fallback = root.ownerDocument.createElement("span");
-    fallback.className = "tft-companions-card-image-fallback";
+    fallback.className = "tft-cosmetic-card-image-fallback";
     fallback.textContent = text.missingImage;
     fallback.hidden = true;
     image.addEventListener(
@@ -396,7 +378,7 @@ export function initTftCompanions(
       { once: true },
     );
     const previewCover = root.ownerDocument.createElement("span");
-    previewCover.className = "tft-companions-preview-cover";
+    previewCover.className = "tft-cosmetic-preview-cover";
     previewCover.setAttribute("aria-hidden", "true");
     previewCover.append(createIcon("EyeOutlined"));
     preview.append(image, previewCover);
@@ -411,9 +393,9 @@ export function initTftCompanions(
       media.append(tooltip);
     }
     const actions = root.ownerDocument.createElement("div");
-    actions.className = "tft-companions-card-actions";
+    actions.className = "tft-cosmetic-card-actions";
     const detailsButton = root.ownerDocument.createElement("button");
-    detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-companions-info-button";
+    detailsButton.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-cosmetic-info-button";
     detailsButton.type = "button";
     detailsButton.setAttribute("aria-label", text.details);
     const detailsIcon = createIcon("InfoCircleOutlined");
@@ -421,10 +403,10 @@ export function initTftCompanions(
     detailsIcon.setAttribute("height", "14");
     detailsButton.append(detailsIcon);
     const popoverDetails = root.ownerDocument.createElement("dl");
-    popoverDetails.className = "tft-companions-card-popover";
+    popoverDetails.className = "tft-cosmetic-card-popover";
     const appendDetail = (label: string, value: string) => {
       const row = root.ownerDocument.createElement("div");
-      row.className = "tft-companions-card-detail";
+      row.className = "tft-cosmetic-card-detail";
       const term = root.ownerDocument.createElement("dt");
       term.textContent = label;
       const description = root.ownerDocument.createElement("dd");
@@ -441,7 +423,7 @@ export function initTftCompanions(
     actions.append(detailsButton);
     media.append(actions);
     const details = root.ownerDocument.createElement("div");
-    details.className = "tft-companions-card-details";
+    details.className = "tft-cosmetic-card-details";
     const title = root.ownerDocument.createElement(grouped ? "h3" : "h2");
     title.className = "tft-companions-card-title";
     const rarityIcon = root.ownerDocument.createElement("img");
@@ -453,11 +435,11 @@ export function initTftCompanions(
     rarityTooltip.classList.add("tft-cosmetic-tier-tooltip");
     rarityTooltip.setAttribute("aria-label", rarityLabel);
     const titleText = root.ownerDocument.createElement("span");
-    titleText.className = "tft-companions-card-title-text";
+    titleText.className = "tft-cosmetic-card-title-text";
     titleText.textContent = displayName;
     const titleTooltipLabel = displayName;
     const titleTooltip = createTooltip(titleText, titleTooltipLabel);
-    titleTooltip.classList.add("tft-companions-card-title-tooltip");
+    titleTooltip.classList.add("tft-cosmetic-card-title-tooltip");
     titleTooltip.dataset.overflowOnly = "true";
     titleTooltip.setAttribute("aria-label", titleTooltipLabel);
     title.append(titleTooltip);
@@ -476,7 +458,6 @@ export function initTftCompanions(
       },
       locale,
     );
-    viewSwitcher.hidden = matches.length === 0;
     const nextBatchSize = getBatchSize();
     if (reset) {
       batchSize = nextBatchSize;
@@ -518,7 +499,7 @@ export function initTftCompanions(
         heading.textContent = group.name;
         section.setAttribute("aria-labelledby", heading.id);
         const groupGrid = root.ownerDocument.createElement("div");
-        groupGrid.className = "tft-companions-grid";
+        groupGrid.className = "tft-cosmetic-grid";
         section.append(heading, groupGrid);
         grid.append(section);
         visibleItems.forEach((item) => appendCard(item, groupGrid, true));
@@ -544,31 +525,21 @@ export function initTftCompanions(
     }
   };
 
-  viewSwitcher.replaceChildren(
-    createRadioButtonGroup({
-      buttonStyle: "solid",
-      name: "tft-companions-view",
-      idPrefix: "tft-companions-view",
-      value: "cards",
-      ariaLabel: text.displayMode,
-      options: [
-        {
-          label: text.cards,
-          value: "cards",
-          controls: "tft-companions-grid",
-        },
-        {
-          label: text.groupBySpecies,
-          value: "species",
-          controls: "tft-companions-grid",
-        },
-      ],
-      onChange(value) {
-        view = value === "species" ? "species" : "cards";
-        renderMatches(true);
-      },
-    }),
-  );
+  const segmented = createSegmented({
+    name: "tft-companions-view",
+    controls: "tft-companions-grid",
+    value: "cards",
+    ariaLabel: text.displayMode,
+    options: [
+      { label: text.cards, value: "cards" },
+      { label: text.groupBySpecies, value: "species" },
+    ],
+    onChange(value) {
+      view = value === "species" ? "species" : "cards";
+      renderMatches(true);
+    },
+  });
+  viewSwitcher.replaceChildren(segmented);
 
   window.addEventListener("resize", () => {
     if (
@@ -728,7 +699,6 @@ export function initTftCompanions(
         renderOptions();
         search.value = state.search;
         syncControls();
-        pbeSettingTooltip.hidden = !canComparePbe || context.channel !== "pbe";
         filterSkeleton.hidden = true;
         filters.hidden = items.length === 0;
         content.hidden = true;
@@ -809,9 +779,7 @@ export function initTftCompanions(
   sort.addEventListener("change", () => {
     if (isTftCompanionSort(sort.value)) updateFilters({ sort: sort.value });
   });
-  pbeOnly.addEventListener("change", () =>
-    updateFilters({ onlyPbeAdditions: pbeOnly.checked }),
-  );
+  pbeOnly.addEventListener("change", () => updateFilters({ onlyPbeAdditions: pbeOnly.checked }));
   loadMore.addEventListener("click", () => {
     shownCount = Math.min(matches.length, shownCount + batchSize);
     renderMatches(false);

@@ -409,7 +409,7 @@ export function readSkinCatalogUrlState(url: URL): SkinCatalogUrlState {
     invalid.push("rarity");
   return {
     search: url.searchParams.get("q") ?? "",
-    rarities: [...new Set(rawRarities.filter((value) => rarityParameter.test(value)))],
+    rarities: rawRarities.filter((value) => rarityParameter.test(value)).slice(0, 1),
     classicOnly: rawClassicOnly === "1",
     onlyPbeAdditions: rawPbeOnly === "1",
     sort: (view === "champion" || view === "skinline" || view === "universe") ||
@@ -434,9 +434,8 @@ export function formatSkinCatalogUrl(
   next.search = "";
   const search = state.search.trim();
   if (search) next.searchParams.set("q", search);
-  for (const rarity of new Set(state.rarities)) {
-    if (rarityParameter.test(rarity)) next.searchParams.append("rarity", rarity);
-  }
+  const rarity = state.rarities.find((value) => rarityParameter.test(value));
+  if (rarity) next.searchParams.set("rarity", rarity);
   if (state.classicOnly) next.searchParams.set("classicOnly", "1");
   if (state.onlyPbeAdditions) next.searchParams.set("pbeOnly", "1");
   if (state.sort !== "release_desc") next.searchParams.set("sort", state.sort);

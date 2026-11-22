@@ -58,6 +58,7 @@ import {
   type DomainIconName,
 } from "../components/domain-icons";
 import { createTooltip } from "../components/tooltip";
+import { adjacentDetailItem } from "../components/detail-navigation";
 import { createPopover } from "../components/popover";
 import { bindTypographyParagraphs, createParagraph, createTitle } from "../components/Typography";
 import { enhanceSelect } from "../components/select";
@@ -219,11 +220,10 @@ export function createRuntimeDetailRenderer(
   const skinNavigationPreviousName = skinNavigationGroup?.querySelector<HTMLElement>("[data-runtime-skin-navigation-previous-name]");
   const skinNavigationNext = skinNavigationGroup?.querySelector<HTMLButtonElement>("[data-runtime-skin-navigation-next]");
   const skinNavigationNextName = skinNavigationGroup?.querySelector<HTMLElement>("[data-runtime-skin-navigation-next-name]");
-  const navigateSkin = (delta: number): boolean => {
+  const navigateSkin = (delta: -1 | 1): boolean => {
     const current = skinNavigation;
-    const length = current?.items.length ?? 0;
-    if (!current || length < 2) return false;
-    const target = current.items[(current.index + delta + length) % length];
+    if (!current) return false;
+    const target = adjacentDetailItem(current.items, current.index, delta);
     if (!target) return false;
     const scrollY = window.scrollY;
     void options.getController().navigate(
@@ -246,7 +246,7 @@ export function createRuntimeDetailRenderer(
     if (!navigation) return;
     const updateControl = (delta: -1 | 1, button: HTMLButtonElement, name: HTMLElement, label: string): void => {
       const { index, items } = navigation;
-      const target = items.length > 1 ? items[(index + delta + items.length) % items.length] : undefined;
+      const target = adjacentDetailItem(items, index, delta);
       button.disabled = !target;
       button.setAttribute("aria-label", target ? `${label}: ${target.name}` : label);
       name.textContent = target?.name ?? "";

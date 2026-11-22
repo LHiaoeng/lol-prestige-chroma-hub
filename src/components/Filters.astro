@@ -2,6 +2,7 @@
 import type { Chroma } from '../domain/chroma';
 import { categoryName } from '../i18n';
 import { resolveLocale, type Locale } from '../i18n/config';
+import '../styles/catalog-filter-drawer.css';
 import Button from './Button.astro';
 import Input from './Input.astro';
 import Select from './Select.astro';
@@ -15,16 +16,18 @@ const versions = [...new Set(catalog.map((item) => item.gameVer))].sort((a, b) =
 const categories = [...new Map(catalog.map((item) => [item.categoryId, item.categoryName])).entries()];
 ---
 <form class="filters" data-filters role="search">
-  <label class="search-field"><span>{isZh ? '搜索名称' : 'Search'}</span><Input name="q" type="search" maxlength={64} ariaLabel={isZh ? '搜索臻彩名称' : 'Search prestige chroma names'} placeholder={isZh ? '搜索臻彩' : 'Search'} /></label>
+  <div class="catalog-filter-search-row">
+    <label class="search-field"><span class="sr-only">{isZh ? '搜索名称' : 'Search'}</span><Input name="q" type="search" maxlength={64} ariaLabel={isZh ? '搜索臻彩名称' : 'Search prestige chroma names'} placeholder={isZh ? '搜索臻彩' : 'Search'} /></label>
+    <div class="catalog-filter-actions" data-filter-actions>
+      <Button htmlType="reset">{isZh ? '清除' : 'Clear'}</Button>
+    </div>
+  </div>
+  <label data-filter-category><span>{isZh ? '分类' : 'Category'}</span><Select allowClear name="category" showSearch ariaLabel={isZh ? '分类' : 'Category'} options={[{ value: '', label: isZh ? '全部分类' : 'All categories' }, ...categories.map(([id]) => ({ value: String(id), label: categoryName(id, isZh ? 'zh' : 'en') }))]} /></label>
   <div class="catalog-filter-fields" data-filter-fields>
     <label><span>{isZh ? '英雄' : 'Champion'}</span><Select allowClear name="hero" showSearch options={[{ value: '', label: isZh ? '全部英雄' : 'All champions' }, ...heroes.map(([id, name]) => ({ value: String(id), label: isZh ? name.zh : name.en }))]} /></label>
     <label><span>{isZh ? '版本' : 'Patch'}</span><Select allowClear name="version" showSearch options={[{ value: '', label: isZh ? '全部版本' : 'All patches' }, ...versions.map((version) => ({ value: version, label: version }))]} /></label>
     <label><span>{isZh ? '排序' : 'Sort'}</span><Select name="sort" allowClear={false} ariaLabel={isZh ? '排序' : 'Sort'} options={[{ value: 'rank_desc', label: isZh ? '推荐优先' : 'Recommended' }, { value: 'rank_asc', label: isZh ? '推荐倒序' : 'Recommended (reverse)' }, { value: 'skin_desc', label: isZh ? '皮肤 ID 降序' : 'Skin ID descending' }, { value: 'skin_asc', label: isZh ? '皮肤 ID 升序' : 'Skin ID ascending' }, { value: 'version_desc', label: isZh ? '版本降序' : 'Patch descending' }]} /></label>
     <label><span>{isZh ? '新增状态' : 'Status'}</span><Select allowClear name="isNew" options={[{ value: '', label: isZh ? '全部' : 'All' }, { value: 'true', label: isZh ? '本期新增' : 'New' }, { value: 'false', label: isZh ? '非新增' : 'Archived' }]} /></label>
-  </div>
-  <label data-filter-category><span>{isZh ? '分类' : 'Category'}</span><Select allowClear name="category" showSearch ariaLabel={isZh ? '分类' : 'Category'} options={[{ value: '', label: isZh ? '全部分类' : 'All categories' }, ...categories.map(([id]) => ({ value: String(id), label: categoryName(id, isZh ? 'zh' : 'en') }))]} /></label>
-  <div class="catalog-filter-actions" data-filter-actions>
-    <Button htmlType="reset">{isZh ? '清除' : 'Clear'}</Button>
   </div>
   <Button class="catalog-filter-trigger" data-filter-open aria-haspopup="dialog" aria-controls="catalog-filter-drawer">
     {isZh ? '筛选' : 'Filter'}<span data-filter-active hidden></span>
@@ -82,68 +85,33 @@ const categories = [...new Map(catalog.map((item) => [item.categoryId, item.cate
 </script>
 
 <style>
-  .catalog-filter-drawer {
-    position: fixed;
-    inset: auto 0 0;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: none;
-    height: 378px;
-    max-height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: visible;
-    border: 0;
-    background: var(--panel2);
-    color: var(--text);
-    box-shadow: 0 -6px 16px 0 rgba(0, 0, 0, .08),
-      0 -3px 6px -4px rgba(0, 0, 0, .12),
-      0 -9px 28px 8px rgba(0, 0, 0, .05);
-  }
-  .catalog-filter-drawer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
-  .catalog-filter-drawer::backdrop { background: var(--mask); }
-  .catalog-filter-drawer-header, .catalog-filter-drawer-footer {
-    display: flex;
-    align-items: center;
-  }
-  .catalog-filter-drawer-header {
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--line-subtle);
-  }
-  .catalog-filter-drawer-header :is(h2, p) { margin: 0; }
-  .catalog-filter-drawer-header h2 {
-    font-size: var(--font-size-title);
-    line-height: var(--line-height-title);
-    font-weight: 600;
-  }
-  .catalog-filter-drawer-close.ant-btn {
-    align-self: center;
-    width: var(--control-height-sm);
-    height: var(--control-height-sm);
-    min-height: 0;
-    margin-inline-end: var(--space-2);
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-control);
-    background: transparent;
-    color: var(--tertiary);
-    font-size: var(--font-size-title);
-    line-height: 1;
-    transition: all var(--motion-mid);
-  }
-  .catalog-filter-drawer-close.ant-btn:hover { background: var(--fill); color: var(--text); }
-  .catalog-filter-drawer-close.ant-btn:active { background: var(--hover-bg); }
-  .catalog-filter-drawer-body { overflow: auto; padding: var(--space-4); }
-  .catalog-filter-drawer-body .catalog-filter-fields {
+  .catalog-filter-search-row > .search-field {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-3);
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
   }
-  .catalog-filter-drawer-footer {
-    justify-content: space-between;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border-top: 1px solid var(--line-subtle);
+  @media (max-width: 767px) {
+    .catalog-filter-search-row { display: contents; }
+    .catalog-filter-search-row > .catalog-filter-actions { display: none; }
   }
-  :global(html:has(.catalog-filter-drawer[open])) { overflow: hidden; }
+  @media (min-width: 768px) {
+    .filters[data-filters] {
+      position: sticky;
+      top: var(--site-header-height);
+      z-index: 5;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-2) var(--space-3);
+      padding-block: var(--space-2) var(--space-3);
+      margin-bottom: var(--space-3);
+      border-bottom: var(--line-width) solid var(--line-subtle);
+      background: var(--bg);
+    }
+    .catalog-filter-search-row {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-2);
+    }
+    .filters > [data-result-count] { text-align: center; }
+  }
 </style>

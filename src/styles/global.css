@@ -182,7 +182,21 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 .ant-select-dropdown-placement-topLeft{animation-name:ant-select-slide-down}
 @keyframes ant-select-slide-up{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ant-select-slide-down{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:translateY(0)}}
-@media(hover:none){.ant-select-allow-clear .ant-select-clear{opacity:1}}
+@media (hover: none) {
+  .ant-select-allow-clear .ant-select-clear {
+    position: static;
+    display: inline-grid;
+    flex: 0 0 var(--control-height-sm);
+    align-self: center;
+    place-items: center;
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    margin: 0;
+    color: var(--muted);
+    opacity: 1;
+  }
+  .ant-select-allow-clear:has(> .ant-select-clear:not([hidden])) > .ant-select-suffix { display: none; }
+}
 @media(prefers-reduced-motion:reduce){.ant-select,.ant-select-content-value,.ant-select-suffix,.ant-select-suffix svg,.ant-select-clear,.ant-select-item-option{transition:none}.ant-select-dropdown{animation:none}}
 .detail{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:40px;align-items:center}
 .detail-image{border:1px solid var(--line);box-shadow:var(--shadow-card)}
@@ -1727,8 +1741,7 @@ h5.ant-typography-title-5 { font-size: var(--font-size-title); line-height: var(
   .blog-chroma-card-name,
   .runtime-skin-reference-name,
   .skin-catalog-card-title-name,
-  .tft-companions-card-title-text,
-  .tft-arenas-card-body h2,
+  .tft-cosmetic-card-title-text,
   .runtime-pbe-card-name,
   .runtime-champion-name,
   .runtime-card-title,
@@ -1751,8 +1764,7 @@ h5.ant-typography-title-5 { font-size: var(--font-size-title); line-height: var(
 .runtime-chroma-name,
 .runtime-skin-reference-name,
 .skin-catalog-card-title-name,
-.tft-companions-card-title-text,
-.tft-arenas-card-body h2,
+.tft-cosmetic-card-title-text,
 .runtime-pbe-card-name,
 .runtime-champion-name,
 .runtime-card-title,
@@ -1771,8 +1783,7 @@ h5.ant-typography-title-5 { font-size: var(--font-size-title); line-height: var(
   .blog-chroma-card-name,
   .runtime-skin-reference-name,
   .skin-catalog-card-title-name,
-  .tft-companions-card-title-text,
-  .tft-arenas-card-body h2,
+  .tft-cosmetic-card-title-text,
   .runtime-pbe-card-name,
   .runtime-champion-name,
   .runtime-card-title,

@@ -154,7 +154,7 @@ function fixture(
   vi.stubGlobal("getComputedStyle", () => ({ gridTemplateColumns: Array(columns).fill("180px").join(" ") }));
   const runtime = { listTftArenas: list } as CommunityDragonRuntime;
   const lifecycle = initTftArenas(root as unknown as HTMLElement, runtime, h);
-  return { root, h, lifecycle, search, pbe, latest, status, grid, count, resultCount, loadMore, loadMoreFooter, pbeOnly, pbeSetting, aliasNotice, aliasRetry, compareNotice, compareRetry, filters, filterSkeleton, rarity };
+  return { root, h, lifecycle, search, pbe, latest, status, grid, count, resultCount, loadMore, loadMoreFooter, pbeSetting, pbeOnly, aliasNotice, aliasRetry, compareNotice, compareRetry, filters, filterSkeleton, rarity };
 }
 
 afterEach(() => vi.unstubAllGlobals());
@@ -196,7 +196,7 @@ describe("TFT Arenas browser behavior", () => {
     page.latest.click();
     await vi.waitFor(() => expect(page.root.querySelector(".tft-arenas-error")).not.toBeNull());
     expect(page.h.url.searchParams.get("channel")).toBe(null);
-    expect(page.grid.children[0]?.className).toContain("tft-arenas-card");
+    expect(page.grid.children[0]?.className).toContain("tft-cosmetic-card");
     page.lifecycle.dispose();
   });
 
@@ -229,6 +229,13 @@ describe("TFT Arenas browser behavior", () => {
     await vi.waitFor(() => expect(page.aliasNotice.hidden).toBe(false));
     await vi.waitFor(() => expect(page.grid.textContent).toContain("PBE addition"));
     expect(page.compareNotice.hidden).toBe(true);
+    expect(page.pbeSetting.hidden).toBe(false);
+    page.pbeOnly.checked = true;
+    page.pbeOnly.fire("change");
+    expect(page.h.url.searchParams.get("pbeOnly")).toBe("1");
+    page.pbeOnly.checked = false;
+    page.pbeOnly.fire("change");
+    expect(page.h.url.searchParams.has("pbeOnly")).toBe(false);
     page.aliasRetry.click();
     await vi.waitFor(() => expect(page.aliasNotice.hidden).toBe(true));
     page.search.value = "中文棋盘";

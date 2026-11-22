@@ -358,7 +358,7 @@ describe("skin catalog domain", () => {
     const state = readSkinCatalogUrlState(url);
     expect(state).toMatchObject({
       search: " Blue ",
-      rarities: ["key:kEpic", "unmarked"],
+      rarities: ["key:kEpic"],
       classicOnly: true,
       sort: "desc",
       view: "cards",
@@ -368,7 +368,7 @@ describe("skin catalog domain", () => {
     });
     expect(readSkinCatalogUrlState(formatSkinCatalogUrl(url, state))).toMatchObject({
       search: "Blue",
-      rarities: ["key:kEpic", "unmarked"],
+      rarities: ["key:kEpic"],
       classicOnly: true,
       sort: "desc",
       view: "cards",

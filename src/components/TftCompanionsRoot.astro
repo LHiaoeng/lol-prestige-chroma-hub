@@ -9,8 +9,11 @@ import LittleLegendsIcon from './LittleLegendsIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Skeleton from './Skeleton.astro';
 import Spin from './Spin.astro';
+import './segmented.css';
+import TftFilterDrawer from './TftFilterDrawer.astro';
 import Select from './Select.astro';
 import '../styles/tft-cosmetic-tier.css';
+import '../styles/tft-cosmetic-card.css';
 import '../styles/tft-companions.css';
 
 interface Props { locale: Locale }
@@ -38,45 +41,52 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
     {Array.from({ length: 6 }, () => <span class="runtime-skeleton-line"></span>)}
     <span class="runtime-skeleton-line tft-companions-pbe-filter-skeleton"></span>
   </div>
-  <div class="tft-companions-filters" data-tft-companions-filters hidden>
-    <label class="tft-companions-field">
+  <div class="tft-companions-filters tft-filterbar" data-tft-companions-filters hidden>
+    <label data-tft-filter-search class="tft-companions-field">
       <span>{isZh ? '搜索小小英雄' : 'Search Tacticians'}</span>
       <input class="cn-input" type="search" data-tft-companions-search autocomplete="off" placeholder={isZh ? '中英文名称或种类名称' : 'Name or species name in either language'} />
     </label>
-    <label class="tft-companions-field">
-      <span>{isZh ? '类别' : 'Type'}</span>
-      <Select allowClear class="tft-companions-select" data-tft-companions-type="" showSearch options={[{ value: '', label: isZh ? '全部类别' : 'All types' }]} />
-    </label>
-    <label class="tft-companions-field">
-      <span>{isZh ? '种类' : 'Species'}</span>
-      <Select allowClear class="tft-companions-select" data-tft-companions-species="" showSearch options={[{ value: '', label: isZh ? '全部种类' : 'All species' }]} />
-    </label>
-    <label class="tft-companions-field">
-      <span>{isZh ? '稀有度' : 'Rarity'}</span>
-      <Select allowClear class="tft-companions-select" data-tft-companions-rarity="" options={[{ value: '', label: isZh ? '全部稀有度' : 'All rarities' }]} />
-    </label>
-    <label class="tft-companions-field">
-      <span>{isZh ? '星级' : 'Stars'}</span>
-      <Select allowClear class="tft-companions-select" data-tft-companions-level="" options={[{ value: '', label: isZh ? '全部星级' : 'All stars' }]} />
-    </label>
-    <label class="tft-companions-field">
-      <span>{isZh ? '排序' : 'Sort'}</span>
-      <Select class="tft-companions-select" data-tft-companions-sort="" allowClear={false} showSearch options={[
-        { value: 'default', label: isZh ? '默认排序' : 'Default order' },
-        { value: 'rarity_desc', label: isZh ? '稀有度：高到低' : 'Rarity: high to low' },
-        { value: 'rarity_asc', label: isZh ? '稀有度：低到高' : 'Rarity: low to high' },
-        { value: 'type_desc', label: isZh ? '类别：高到低' : 'Type: high to low' },
-        { value: 'type_asc', label: isZh ? '类别：低到高' : 'Type: low to high' },
-        { value: 'name_asc', label: isZh ? '名称：升序' : 'Name: A to Z' },
-        { value: 'name_desc', label: isZh ? '名称：降序' : 'Name: Z to A' },
-        { value: 'stars_desc', label: isZh ? '星级：高到低' : 'Stars: high to low' },
-        { value: 'stars_asc', label: isZh ? '星级：低到高' : 'Stars: low to high' },
-      ]} />
-    </label>
-    <label class="tft-companions-pbe-setting" data-tft-companions-pbe-setting>
-      <input type="checkbox" data-tft-companions-pbe-only />
-      <span>{isZh ? 'PBE 新增' : 'PBE additions'}</span>
-    </label>
+    <div class="tft-companions-quick-controls">
+      <label class="tft-pbe-filter" data-tft-companions-pbe-setting hidden>
+        <input class="sr-only" type="checkbox" data-tft-companions-pbe-only />
+        <span>{isZh ? '仅看 PBE 新增' : 'PBE additions only'}</span>
+      </label>
+      <div class="tft-companions-view-switch" data-tft-companions-view-switch></div>
+    </div>
+    <div class="tft-companions-select-filters">
+      <label class="tft-companions-field">
+        <span>{isZh ? '类别' : 'Type'}</span>
+        <Select allowClear class="tft-companions-select" data-tft-companions-type="" showSearch options={[{ value: '', label: isZh ? '全部类别' : 'All types' }]} />
+      </label>
+      <label class="tft-companions-field">
+        <span>{isZh ? '种类' : 'Species'}</span>
+        <Select allowClear class="tft-companions-select" data-tft-companions-species="" showSearch options={[{ value: '', label: isZh ? '全部种类' : 'All species' }]} />
+      </label>
+      <label class="tft-companions-field">
+        <span>{isZh ? '稀有度' : 'Rarity'}</span>
+        <Select allowClear class="tft-companions-select" data-tft-companions-rarity="" options={[{ value: '', label: isZh ? '全部稀有度' : 'All rarities' }]} />
+      </label>
+      <label class="tft-companions-field">
+        <span>{isZh ? '星级' : 'Stars'}</span>
+        <Select allowClear class="tft-companions-select" data-tft-companions-level="" options={[{ value: '', label: isZh ? '全部星级' : 'All stars' }]} />
+      </label>
+      <label class="tft-companions-field">
+        <span>{isZh ? '排序' : 'Sort'}</span>
+        <Select class="tft-companions-select" data-tft-companions-sort="" allowClear={false} showSearch options={[
+          { value: 'default', label: isZh ? '默认排序' : 'Default order' },
+          { value: 'rarity_desc', label: isZh ? '稀有度：高到低' : 'Rarity: high to low' },
+          { value: 'rarity_asc', label: isZh ? '稀有度：低到高' : 'Rarity: low to high' },
+          { value: 'type_desc', label: isZh ? '类别：高到低' : 'Type: high to low' },
+          { value: 'type_asc', label: isZh ? '类别：低到高' : 'Type: low to high' },
+          { value: 'name_asc', label: isZh ? '名称：升序' : 'Name: A to Z' },
+          { value: 'name_desc', label: isZh ? '名称：降序' : 'Name: Z to A' },
+          { value: 'stars_desc', label: isZh ? '星级：高到低' : 'Stars: high to low' },
+          { value: 'stars_asc', label: isZh ? '星级：低到高' : 'Stars: low to high' },
+        ]} />
+      </label>
+    </div>
+    <TftFilterDrawer id="tft-companions-filter-drawer" {isZh} resultCount="[data-tft-companions-result-count]" />
+    <p class="runtime-list-count tft-companions-result-count" data-tft-filter-count data-tft-companions-result-count role="status" aria-live="polite"></p>
   </div>
   <p class="tft-companions-status" data-tft-companions-status role="status" aria-live="polite" aria-atomic="true"></p>
   <Spin rootClass="tft-companions-spinner" spinning={false}>
@@ -86,11 +96,7 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
       </div>
     </div>
     <div class="tft-companions-results" data-tft-companions-results role="region" aria-label={isZh ? '小小英雄列表' : 'Tacticians list'} hidden>
-      <div class="tft-companions-results-toolbar">
-        <p class="runtime-list-count" data-tft-companions-result-count role="status" aria-live="polite"></p>
-        <div class="tft-companions-view-switch" data-tft-companions-view-switch></div>
-      </div>
-      <div class="tft-companions-grid" id="tft-companions-grid" data-tft-companions-grid></div>
+      <div class="tft-cosmetic-grid" id="tft-companions-grid" data-tft-companions-grid></div>
       <div class="tft-companions-load-more-footer" data-tft-companions-load-more-footer hidden>
         <button class="ant-btn" type="button" data-tft-companions-load-more aria-controls="tft-companions-grid">{isZh ? '加载更多' : 'Load more'}</button>
       </div>

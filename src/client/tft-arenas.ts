@@ -119,7 +119,7 @@ export function initTftArenas(
     spinner.setAttribute("aria-busy", String(spinning));
   };
   const setControlsDisabled = (disabled: boolean) => {
-    for (const control of [search, group, rarity, sort, pbeOnly, loadMore]) control.disabled = disabled;
+    for (const control of [search, group, rarity, sort, loadMore, pbeOnly]) control.disabled = disabled;
   };
   const gridColumns = () => {
     const template = getComputedStyle(grid).gridTemplateColumns.trim();
@@ -133,7 +133,7 @@ export function initTftArenas(
     group.value = state.groupId === undefined ? "" : String(state.groupId);
     rarity.value = state.TFTRarity ?? "";
     sort.value = state.sort;
-    pbeOnly.checked = state.onlyPbeAdditions;
+    syncView();
     [group, rarity, sort].forEach(refreshSelect);
     root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel]").forEach((button) =>
       button.setAttribute("aria-checked", String(button.dataset.runtimeChannel === state.channel)),
@@ -168,11 +168,11 @@ export function initTftArenas(
     const doc = root.ownerDocument;
     const rarityLabel = tftCosmeticTierLabel(item.TFTRarity, locale);
     const article = doc.createElement("article");
-    article.className = "runtime-card tft-arenas-card";
+    article.className = "runtime-card tft-cosmetic-card tft-arenas-card";
     const media = doc.createElement("div");
-    media.className = "tft-arenas-card-media";
+    media.className = "tft-cosmetic-card-media";
     const preview = doc.createElement("button");
-    preview.className = "runtime-media-preview-trigger tft-arenas-card-preview";
+    preview.className = "runtime-media-preview-trigger tft-cosmetic-card-preview";
     preview.type = "button";
     preview.dataset.mediaPreviewTrigger = "";
     preview.dataset.previewKind = "image";
@@ -184,12 +184,12 @@ export function initTftArenas(
     image.loading = "lazy";
     image.decoding = "async";
     const fallback = doc.createElement("span");
-    fallback.className = "tft-arenas-image-fallback";
+    fallback.className = "tft-cosmetic-card-image-fallback";
     fallback.textContent = t.missingImage;
     fallback.hidden = true;
     image.addEventListener("error", () => { preview.hidden = true; fallback.hidden = false; }, { once: true });
     const cover = doc.createElement("span");
-    cover.className = "tft-arenas-preview-cover";
+    cover.className = "tft-cosmetic-preview-cover";
     cover.setAttribute("aria-hidden", "true");
     cover.append(createIcon("EyeOutlined"));
     preview.append(image, cover);
@@ -200,15 +200,18 @@ export function initTftArenas(
       badge.textContent = t.pbeNew;
       media.append(badge);
     }
+    const actions = doc.createElement("div");
+    actions.className = "tft-cosmetic-card-actions";
     const info = doc.createElement("button");
-    info.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-arenas-info-button";
+    info.className = "ant-btn ant-btn-sm ant-btn-icon-only tft-cosmetic-info-button";
     info.type = "button";
     info.setAttribute("aria-label", `${t.details}: ${item.name}`);
     info.append(createIcon("InfoCircleOutlined"));
     const details = doc.createElement("dl");
-    details.className = "tft-arenas-card-popover";
+    details.className = "tft-cosmetic-card-popover";
     const detail = (label: string, value: string) => {
       const row = doc.createElement("div");
+      row.className = "tft-cosmetic-card-detail";
       const dt = doc.createElement("dt");
       const dd = doc.createElement("dd");
       dt.textContent = label;
@@ -221,15 +224,20 @@ export function initTftArenas(
     detail(t.tier, rarityLabel);
     if (item.description?.trim()) detail(t.description, item.description.trim());
     popoverCleanups.push(createPopover(info, t.details, details));
-    media.append(info);
+    actions.append(info);
+    media.append(actions);
     const body = doc.createElement("div");
-    body.className = "tft-arenas-card-body";
+    body.className = "tft-cosmetic-card-details";
     const heading = doc.createElement("h2");
-    heading.textContent = item.name;
-    const tier = doc.createElement("span");
-    tier.className = "tft-arenas-card-tier";
-    tier.textContent = rarityLabel;
-    body.append(heading, tier);
+    const title = doc.createElement("span");
+    title.className = "tft-cosmetic-card-title-text";
+    title.textContent = item.name;
+    const titleTooltip = createTooltip(title, item.name);
+    titleTooltip.classList.add("tft-cosmetic-card-title-tooltip");
+    titleTooltip.dataset.overflowOnly = "true";
+    titleTooltip.setAttribute("aria-label", item.name);
+    heading.append(titleTooltip);
+    body.append(heading);
     const rarityIcon = doc.createElement("img");
     rarityIcon.className = "tft-cosmetic-tier-icon";
     rarityIcon.src = tftCosmeticTierIconUrl(item.TFTRarity, state.channel);
@@ -263,11 +271,15 @@ export function initTftArenas(
       grid.append(fragment);
     }
   };
+  const syncView = () => {
+    pbeSetting.hidden = state.channel !== "pbe" || liveItems === undefined;
+    pbeOnly.checked = state.onlyPbeAdditions;
+  };
   const recomputeItems = () => {
     const searchable = addTftArenaSearchAliases(baseItems, aliasItems ?? []);
     items = state.channel === "pbe" && liveItems
       ? markPbeTftArenaAdditions(searchable, liveItems) : searchable;
-    pbeSetting.hidden = state.channel !== "pbe" || liveItems === undefined;
+    syncView();
     renderMatches(false);
   };
   const updateFilters = (patch: Partial<Pick<TftArenaUrlState, "groupId" | "TFTRarity" | "sort" | "onlyPbeAdditions">>) => {
@@ -335,7 +347,7 @@ export function initTftArenas(
         setControlsDisabled(false);
         status.textContent = invalid.length ? t.invalid : "";
         items = baseItems;
-        pbeSetting.hidden = true;
+
         renderMatches(true);
         const loadAliases = async () => {
           aliasRetry.disabled = true;

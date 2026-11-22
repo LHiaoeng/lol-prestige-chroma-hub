@@ -6,10 +6,12 @@ import Alert from './Alert.astro';
 import Divider from './Divider.astro';
 import Empty from './Empty.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+import TftFilterDrawer from './TftFilterDrawer.astro';
 import Select from './Select.astro';
 import Skeleton from './Skeleton.astro';
 import Spin from './Spin.astro';
 import '../styles/tft-cosmetic-tier.css';
+import '../styles/tft-cosmetic-card.css';
 import '../styles/tft-arenas.css';
 
 interface Props { locale: Locale }
@@ -36,19 +38,26 @@ const title = isZh ? '棋盘' : 'Arenas';
   <div class="tft-arenas-filter-skeleton" data-arenas-filter-skeleton aria-hidden="true">
     {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
   </div>
-  <div class="tft-arenas-filters" data-arenas-filters hidden>
-    <label class="tft-arenas-field"><span>{isZh ? '搜索棋盘' : 'Search Arenas'}</span><input class="cn-input" type="search" data-arenas-search autocomplete="off" placeholder={isZh ? '中英文名称或分组名称' : 'Name or group in either language'} /></label>
-    <label class="tft-arenas-field"><span>{isZh ? '分组' : 'Group'}</span><Select allowClear data-arenas-group="" showSearch options={[{ value: '', label: isZh ? '全部分组' : 'All groups' }]} /></label>
-    <label class="tft-arenas-field"><span>{isZh ? '等级' : 'Tier'}</span><Select allowClear data-arenas-rarity="" options={[{ value: '', label: isZh ? '全部等级' : 'All tiers' }]} /></label>
-    <label class="tft-arenas-field"><span>{isZh ? '排序' : 'Sort'}</span><Select data-arenas-sort="" allowClear={false} options={[
-      { value: 'default', label: isZh ? 'ID 降序' : 'ID descending' },
-      { value: 'id_asc', label: isZh ? 'ID 升序' : 'ID ascending' },
-      { value: 'rarity_desc', label: isZh ? '等级：高到低' : 'Tier: high to low' },
-      { value: 'rarity_asc', label: isZh ? '等级：低到高' : 'Tier: low to high' },
-      { value: 'name_asc', label: isZh ? '名称：升序' : 'Name: A to Z' },
-      { value: 'name_desc', label: isZh ? '名称：降序' : 'Name: Z to A' },
-    ]} /></label>
-    <label class="tft-arenas-pbe-setting" data-arenas-pbe-setting hidden><input type="checkbox" data-arenas-pbe-only /><span>{isZh ? 'PBE 新增' : 'PBE additions'}</span></label>
+  <div class="tft-arenas-filters tft-filterbar" data-arenas-filters hidden>
+    <label data-tft-filter-search class="tft-arenas-field"><span>{isZh ? '搜索棋盘' : 'Search Arenas'}</span><input class="cn-input" type="search" data-arenas-search autocomplete="off" placeholder={isZh ? '中英文名称或分组名称' : 'Name or group in either language'} /></label>
+    <label class="tft-pbe-filter" data-arenas-pbe-setting hidden>
+      <input class="sr-only" type="checkbox" data-arenas-pbe-only />
+      <span>{isZh ? '仅看 PBE 新增' : 'PBE additions only'}</span>
+    </label>
+    <div class="tft-arenas-select-filters">
+      <label class="tft-arenas-field"><span>{isZh ? '分组' : 'Group'}</span><Select allowClear data-arenas-group="" showSearch options={[{ value: '', label: isZh ? '全部分组' : 'All groups' }]} /></label>
+      <label class="tft-arenas-field"><span>{isZh ? '等级' : 'Tier'}</span><Select allowClear data-arenas-rarity="" options={[{ value: '', label: isZh ? '全部等级' : 'All tiers' }]} /></label>
+      <label class="tft-arenas-field"><span>{isZh ? '排序' : 'Sort'}</span><Select data-arenas-sort="" allowClear={false} options={[
+        { value: 'default', label: isZh ? 'ID 降序' : 'ID descending' },
+        { value: 'id_asc', label: isZh ? 'ID 升序' : 'ID ascending' },
+        { value: 'rarity_desc', label: isZh ? '等级：高到低' : 'Tier: high to low' },
+        { value: 'rarity_asc', label: isZh ? '等级：低到高' : 'Tier: low to high' },
+        { value: 'name_asc', label: isZh ? '名称：升序' : 'Name: A to Z' },
+        { value: 'name_desc', label: isZh ? '名称：降序' : 'Name: Z to A' },
+      ]} /></label>
+    </div>
+    <TftFilterDrawer id="tft-arenas-filter-drawer" {isZh} resultCount="[data-arenas-result-count]" />
+    <p class="runtime-list-count tft-arenas-result-count" data-tft-filter-count data-arenas-result-count role="status" aria-live="polite"></p>
   </div>
   <p class="tft-arenas-status" data-arenas-status role="status" aria-live="polite" aria-atomic="true"></p>
   <div class="tft-arenas-aux" data-arenas-alias-notice role="status" hidden><span>{isZh ? '另一语言资料暂不可用；跨语言搜索已暂停。' : 'Other-language data is unavailable; cross-language search is paused.'}</span><button class="ant-btn" type="button" data-arenas-alias-retry>{isZh ? '重试语言资料' : 'Retry language data'}</button></div>
@@ -56,8 +65,7 @@ const title = isZh ? '棋盘' : 'Arenas';
   <Spin rootClass="tft-arenas-spinner" spinning={false}>
     <div data-arenas-content><div data-arenas-skeleton><Skeleton layout="skin-grid" itemCount={6} /></div></div>
     <div data-arenas-results role="region" aria-label={isZh ? '棋盘列表' : 'Arenas list'} hidden>
-      <p class="runtime-list-count" data-arenas-result-count role="status" aria-live="polite"></p>
-      <div class="tft-arenas-grid" id="tft-arenas-grid" data-arenas-grid></div>
+      <div class="tft-cosmetic-grid" id="tft-arenas-grid" data-arenas-grid></div>
       <div class="tft-arenas-load-more-footer" data-arenas-load-more-footer hidden><button class="ant-btn" type="button" data-arenas-load-more aria-controls="tft-arenas-grid">{isZh ? '加载更多' : 'Load more'}</button></div>
     </div>
   </Spin>

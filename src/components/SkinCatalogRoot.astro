@@ -7,6 +7,9 @@ import DomainIcon from './DomainIcon.astro';
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Empty from './Empty.astro';
 import Alert from './Alert.astro';
+import Button from './Button.astro';
+import CloseOutlined from './icons/CloseOutlined.astro';
+import '../styles/catalog-filter-drawer.css';
 import Select from './Select.astro';
 import '../styles/skin-catalog.css';
 import releaseSnapshot from '../../data/skin-release-dates.json';
@@ -42,16 +45,38 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
     <span class="runtime-skeleton-line"></span>
     <span class="runtime-skeleton-line"></span>
   </div>
+  <div class="skin-catalog-filterbar">
   <div class="skin-catalog-search" hidden>
-    <label for="skin-catalog-search">{isZh ? '搜索皮肤相关名称' : 'Search related names'}</label>
+    <label class="sr-only" for="skin-catalog-search">{isZh ? '搜索皮肤相关名称' : 'Search related names'}</label>
     <input class="cn-input" id="skin-catalog-search" type="search" data-catalog-search autocomplete="off" placeholder={isZh ? '皮肤、英雄、系列、宇宙、炫彩或徽章名称' : 'Skin, champion, skinline, universe, chroma, or emblem name'} />
+    <div class="skin-catalog-mobile-view">
+      <Select
+        data-skin-mobile-view=""
+        ariaLabel={isZh ? '视图' : 'View'}
+        value="timeline"
+        popupMatchSelectWidth={false}
+        options={[
+          { value: 'timeline', label: isZh ? '时间轴' : 'Timeline' },
+          { value: 'cards', label: isZh ? '卡片' : 'Cards' },
+          { value: 'champion', label: isZh ? '英雄' : 'Champion' },
+          { value: 'skinline', label: isZh ? '皮肤系列' : 'Skinline' },
+          { value: 'universe', label: isZh ? '宇宙' : 'Universe' },
+        ]}
+      />
+    </div>
+    <Button class="skin-catalog-filter-open" data-skin-filter-open aria-haspopup="dialog" aria-controls="skin-catalog-filter-drawer">{isZh ? '筛选' : 'Filter'}<span data-skin-filter-active></span></Button>
   </div>
+  <div class="skin-catalog-rarity-row">
   <fieldset class="skin-catalog-rarities" hidden>
     <legend>{isZh ? '稀有度' : 'Rarity'}</legend>
     <div class="skin-catalog-rarity-options" data-catalog-rarities></div>
   </fieldset>
+    <div class="skin-catalog-view-switch" data-catalog-view-switch></div>
+  </div>
   <div class="skin-catalog-toolbar" hidden>
     <div class="skin-catalog-display-settings">
+      <fieldset class="skin-catalog-filter-display" data-skin-display-group>
+      <legend>{isZh ? '显示' : 'Display'}</legend>
       <label class="skin-catalog-framed-setting">
         <span data-catalog-framed-tooltip-trigger>
           <input type="checkbox" data-catalog-framed-all aria-label={isZh ? '显示边框' : 'Show borders'} />
@@ -63,6 +88,8 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
         <input type="checkbox" data-catalog-emblems-all checked aria-label="显示皮肤徽章" />
         <span>徽章</span>
       </label>}
+      </fieldset>
+      <div class="skin-catalog-filter-options" data-skin-filter-options>
       <label class="skin-catalog-classic-setting">
         <input type="checkbox" data-catalog-classic aria-label={isZh ? '经典皮肤' : 'Classic skins'} />
         <span>{isZh ? '经典皮肤' : 'Classic skins'}</span>
@@ -71,8 +98,8 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
         <input type="checkbox" data-catalog-pbe-only aria-label={isZh ? 'PBE 新增' : 'PBE additions'} />
         <span>{isZh ? 'PBE 新增' : 'PBE additions'}</span>
       </label>
+      </div>
     </div>
-    <div class="skin-catalog-view-switch" data-catalog-view-switch></div>
     <Select
       class="skin-catalog-sort"
       data-catalog-sort=""
@@ -87,6 +114,21 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
       ]}
     />
   </div>
+  </div>
+  <dialog id="skin-catalog-filter-drawer" class="catalog-filter-drawer skin-catalog-filter-drawer" aria-labelledby="skin-catalog-filter-title" data-select-blur-on-pick>
+    <div class="catalog-filter-drawer-header">
+      <Button class="catalog-filter-drawer-close" data-skin-filter-close aria-label={isZh ? '关闭筛选' : 'Close filters'}><CloseOutlined /></Button>
+      <div>
+        <h2 id="skin-catalog-filter-title">{isZh ? '筛选' : 'Filters'}</h2>
+        <p data-skin-drawer-count role="status"></p>
+      </div>
+    </div>
+    <div class="catalog-filter-drawer-body" data-skin-drawer-body></div>
+    <div class="catalog-filter-drawer-footer">
+      <Button data-skin-filter-clear>{isZh ? '清除筛选' : 'Clear filters'}</Button>
+      <Button data-skin-filter-close data-skin-filter-view>{isZh ? '查看结果' : 'View results'}</Button>
+    </div>
+  </dialog>
   <p class="sr-only skin-catalog-status" data-catalog-status role="status" aria-live="polite"></p>
   <div data-catalog-content>
     <div class="skin-catalog-skeleton" aria-hidden="true">
@@ -111,5 +153,14 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
 <script>
   import { initSkinCatalog } from '../client/skin-catalog';
   const root = document.querySelector<HTMLElement>('[data-skin-catalog]');
-  if (root) initSkinCatalog(root);
+  if (root) {
+    initSkinCatalog(root);
+    const filterbar = root.querySelector<HTMLElement>('.skin-catalog-filterbar');
+    if (filterbar && typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => {
+        root.style.setProperty('--skin-catalog-filterbar-height', `${filterbar.offsetHeight}px`);
+      });
+      observer.observe(filterbar);
+    }
+  }
 </script>

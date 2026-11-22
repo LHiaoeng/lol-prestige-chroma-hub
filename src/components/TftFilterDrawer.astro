@@ -1,0 +1,118 @@
+---
+import Button from './Button.astro';
+import CloseOutlined from './icons/CloseOutlined.astro';
+import '../styles/catalog-filter-drawer.css';
+
+interface Props { id: string; isZh: boolean; resultCount: string }
+const { id, isZh, resultCount } = Astro.props;
+---
+
+<Button class="tft-filter-trigger" data-tft-filter-open aria-haspopup="dialog" aria-controls={id}>
+  {isZh ? '筛选' : 'Filter'}
+</Button>
+<dialog id={id} class="catalog-filter-drawer tft-filter-drawer" aria-labelledby={id + '-title'} data-tft-filter-drawer={resultCount} data-select-blur-on-pick>
+  <div class="catalog-filter-drawer-header">
+    <Button class="catalog-filter-drawer-close" data-tft-filter-close aria-label={isZh ? '关闭筛选' : 'Close filters'}><CloseOutlined /></Button>
+    <div>
+      <h2 id={id + '-title'}>{isZh ? '筛选' : 'Filters'}</h2>
+      <p data-tft-drawer-count role="status"></p>
+    </div>
+  </div>
+  <div class="catalog-filter-drawer-body" data-tft-drawer-body></div>
+  <div class="catalog-filter-drawer-footer">
+    <Button data-tft-filter-close>{isZh ? '查看结果' : 'View results'}</Button>
+  </div>
+</dialog>
+
+<script>
+  for (const drawer of document.querySelectorAll<HTMLDialogElement>('[data-tft-filter-drawer]')) {
+    const bar = drawer.parentElement;
+    const trigger = bar?.querySelector<HTMLButtonElement>('[data-tft-filter-open]');
+    const body = drawer.querySelector<HTMLElement>('[data-tft-drawer-body]');
+    const countSelector = drawer.dataset.tftFilterDrawer;
+    const count = countSelector ? bar?.parentElement?.querySelector(countSelector) : null;
+    const drawerCount = drawer.querySelector<HTMLElement>('[data-tft-drawer-count]');
+    if (!bar || !trigger || !body || !drawerCount) continue;
+
+    const desktop = window.matchMedia('(min-width: 768px)');
+    let fields: Element[] = [];
+    trigger.addEventListener('click', () => {
+      if (drawer.open) return;
+      fields = Array.from(bar.children).filter((field) =>
+        field !== drawer && field !== trigger && !field.matches('[data-tft-filter-search], [data-tft-filter-count]'),
+      );
+      body.append(...fields);
+      drawerCount.textContent = count?.textContent ?? '';
+      drawer.showModal();
+    });
+    drawer.addEventListener('close', () => {
+      if (drawer.open) return;
+      trigger.before(...fields);
+      fields = [];
+      if (!desktop.matches && !bar.hidden) trigger.focus({ preventScroll: true });
+    });
+    drawer.querySelectorAll('[data-tft-filter-close]').forEach((button) => {
+      button.addEventListener('click', () => drawer.close());
+    });
+    drawer.addEventListener('click', (event) => {
+      if (event.target === drawer) drawer.close();
+    });
+    desktop.addEventListener('change', () => {
+      if (desktop.matches && drawer.open) drawer.close();
+    });
+    new MutationObserver(() => {
+      if (bar.hidden && drawer.open) drawer.close();
+    }).observe(bar, { attributes: true, attributeFilter: ['hidden'] });
+    if (count) new MutationObserver(() => {
+      if (drawer.open) drawerCount.textContent = count.textContent;
+    }).observe(count, { childList: true, characterData: true, subtree: true });
+  }
+</script>
+
+<style is:global>
+  .tft-filterbar {
+    position: sticky;
+    top: var(--site-header-height);
+    z-index: 5;
+    padding-block: var(--space-2);
+    background: var(--bg);
+  }
+  .tft-filterbar > .tft-filter-trigger { display: none; }
+  .tft-filter-drawer .catalog-filter-drawer-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: var(--space-3);
+  }
+  .tft-filter-drawer .catalog-filter-drawer-footer {
+    justify-content: flex-end;
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+  }
+  .tft-pbe-filter {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    min-height: var(--control-height);
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--text);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .tft-pbe-filter[hidden] { display: none; }
+  .tft-pbe-filter:hover { background: var(--fill); }
+  .tft-pbe-filter:has(:checked) { background: var(--selected-bg); color: var(--gold); }
+  .tft-pbe-filter:has(:focus-visible) { outline: var(--line-width-bold) solid var(--gold); }
+  .tft-pbe-filter:has(:disabled) { color: var(--disabled); cursor: not-allowed; }
+  @media (max-width: 767px) {
+    .tft-filterbar:not([hidden]) {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .tft-filterbar > :not([data-tft-filter-search], [data-tft-filter-count], .tft-filter-trigger, dialog) { display: none; }
+    .tft-filterbar > .tft-filter-trigger { display: inline-flex; }
+    [data-tft-filter-search] > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  }
+</style>

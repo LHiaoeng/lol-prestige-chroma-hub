@@ -195,6 +195,15 @@ export function initSkinCatalog(
     if (id) input.setAttribute("aria-describedby", id);
     parent.insertBefore(tooltip, next);
   }
+  const drawer = root.querySelector<HTMLDialogElement>("#skin-catalog-filter-drawer");
+  const filterTrigger = root.querySelector<HTMLButtonElement>("[data-skin-filter-open]");
+  const mobileView = root.querySelector<HTMLSelectElement>("[data-skin-mobile-view]");
+  if (mobileView) enhanceSelect(mobileView);
+  const drawerCount = drawer?.querySelector<HTMLElement>("[data-skin-drawer-count]");
+  const drawerView = drawer?.querySelector<HTMLButtonElement>("[data-skin-filter-view]");
+  const filterActive = root.querySelector<HTMLElement>("[data-skin-filter-active]");
+  const clearFilters = drawer?.querySelector<HTMLButtonElement>("[data-skin-filter-clear]");
+  const toolbar = sort.closest<HTMLElement>(".skin-catalog-toolbar");
   const count = element<HTMLElement>(root, "[data-catalog-count]");
   const summary = element<HTMLElement>(root, "[data-catalog-summary]");
   const summarySkeleton = element<HTMLElement>(root, "[data-catalog-summary-skeleton]");
@@ -250,16 +259,55 @@ export function initSkinCatalog(
       { label: copy.skinline, value: "skinline", controls: "skin-catalog-timeline", tooltip: () => copy.skinlineHelp },
       { label: copy.universe, value: "universe", controls: "skin-catalog-timeline", tooltip: () => copy.universeHelp },
     ],
-    onChange(value) {
-      const view: SkinCatalogView = value === "timeline" || value === "champion" || value === "skinline" || value === "universe" ? value : "cards";
-      update({
-        ...state,
-        view,
-        sort: isGroupedView(view) || (view === "timeline" && !isReleaseSort(state.sort)) ? "release_desc" : state.sort,
-      });
-      results.scrollIntoView?.({ block: "start" });
-    },
+    onChange: changeView,
   }));
+  function changeView(value: string) {
+    const view: SkinCatalogView = value === "timeline" || value === "champion" || value === "skinline" || value === "universe" ? value : "cards";
+    update({
+      ...state,
+      view,
+      sort: isGroupedView(view) || (view === "timeline" && !isReleaseSort(state.sort)) ? "release_desc" : state.sort,
+    });
+    results.scrollIntoView?.({ block: "start" });
+  }
+  mobileView?.addEventListener("change", () => changeView(mobileView.value));
+  const drawerBody = drawer?.querySelector("[data-skin-drawer-body]");
+  if (drawer && drawerBody && filterTrigger) {
+    const fields = [
+      rarities.closest(".skin-catalog-rarities"),
+      root.querySelector("[data-skin-filter-options]"),
+      sort.closest(".ant-select-ssr"),
+      root.querySelector("[data-skin-display-group]"),
+    ].flatMap((field) => {
+      if (!field) return [];
+      const home = document.createComment("filter field");
+      field.before(home);
+      return [{ field, home }];
+    });
+    filterTrigger.addEventListener("click", () => {
+      if (drawer.open) return;
+      drawerBody.append(...fields.map(({ field }) => field));
+      drawer.showModal();
+    });
+    drawer.addEventListener("close", () => {
+      if (drawer.open) return;
+      for (const { field, home } of fields) home.after(field);
+      if (filterTrigger.getClientRects().length) filterTrigger.focus({ preventScroll: true });
+    });
+    drawer.querySelectorAll("[data-skin-filter-close]").forEach((button) => {
+      button.addEventListener("click", () => drawer.close());
+    });
+    drawer.addEventListener("click", (event) => {
+      if (event.target === drawer) drawer.close();
+    });
+    window.matchMedia("(min-width: 768px)").addEventListener("change", (event) => {
+      if (event.matches && drawer.open) drawer.close();
+    });
+    clearFilters?.addEventListener("click", () => {
+      search.value = "";
+      update({ ...state, search: "", rarities: [], classicOnly: false, onlyPbeAdditions: false });
+    });
+  }
   const popoverCleanups: (() => void)[] = [];
   const clearPopovers = () => {
     for (const cleanup of popoverCleanups) cleanup();
@@ -293,6 +341,9 @@ export function initSkinCatalog(
   };
   const setControlsDisabled = (disabled: boolean) => {
     search.disabled = disabled;
+    if (filterTrigger) filterTrigger.disabled = disabled;
+    if (mobileView) mobileView.disabled = disabled;
+    if (clearFilters) clearFilters.disabled = disabled;
     sort.disabled = disabled;
     classicOnly.disabled = disabled;
     loadMore.disabled = disabled;
@@ -304,7 +355,7 @@ export function initSkinCatalog(
       input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle("ant-radio-button-wrapper-disabled", disabled);
     });
     root.querySelector<HTMLElement>("[data-ant-dropdown-trigger]")?.setAttribute("aria-disabled", String(disabled));
-    root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel], [data-catalog-rarity]")
+    root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel], [data-catalog-rarities] input")
       .forEach((button) => { button.disabled = disabled; });
   };
   setControlsDisabled(true);
@@ -316,10 +367,10 @@ export function initSkinCatalog(
   const showFilters = (visible: boolean) => {
     const searchRow = search.closest<HTMLElement>(".skin-catalog-search");
     const rarityRow = rarities.closest<HTMLElement>(".skin-catalog-rarities");
-    const toolbar = sort.closest<HTMLElement>(".skin-catalog-toolbar");
     if (searchRow) searchRow.hidden = !visible;
     if (rarityRow) rarityRow.hidden = !visible;
     if (toolbar) toolbar.hidden = !visible;
+    if (!visible && drawer?.open) drawer.close();
   };
 
   const showMessage = (message: string, kind: "empty" | "error", retry?: () => void) => {
@@ -623,6 +674,7 @@ export function initSkinCatalog(
       } else {
         dateHeading.textContent = copy.timelinePbe;
       }
+      if (label.textContent) heading.append(label);
       heading.append(dateHeading);
       const content = document.createElement("div");
       content.className = "skin-catalog-timeline-content";
@@ -630,7 +682,6 @@ export function initSkinCatalog(
       entries.className = "skin-catalog-grid skin-catalog-timeline-entries";
       entries.append(...group.items.map((item) => timelineEntry(item, group.kind)));
       content.append(entries);
-      if (label.textContent) node.append(label);
       node.append(heading);
       node.append(content);
       timelineList.append(node);
@@ -713,6 +764,9 @@ export function initSkinCatalog(
       ? filtered.length
       : new Set(timelineGroups.flatMap((group) => group.items.map((item) => item.stableKey))).size;
     count.textContent = copy.count(shownItemCount, items.length);
+    if (drawerCount) drawerCount.textContent = count.textContent;
+    if (drawerView) drawerView.textContent = locale === "zh_cn"
+      ? "查看 " + shownItemCount + " 款" : "View " + shownItemCount + " results";
     syncFramedSetting();
     clearPopovers();
     grid.replaceChildren();
@@ -767,13 +821,19 @@ export function initSkinCatalog(
   });
   const syncControls = () => {
     search.value = state.search;
+    if (mobileView) {
+      mobileView.value = state.view;
+      refreshSelect(mobileView);
+    }
+    const activeFilters = state.rarities.length + Number(state.classicOnly) + Number(state.onlyPbeAdditions);
+    if (filterActive) filterActive.textContent = activeFilters ? " · " + activeFilters : "";
     sort.value = state.sort;
-    refreshSelect(sort);
     loadMore.setAttribute("aria-controls", state.view === "cards" ? "skin-catalog-grid" : "skin-catalog-timeline");
     sort.querySelectorAll<HTMLOptionElement>('option[value="asc"], option[value="desc"]')
       .forEach((option) => { option.hidden = state.view !== "cards"; });
     sort.querySelectorAll<HTMLOptionElement>('option[value="release_asc"]')
       .forEach((option) => { option.hidden = isGroupedView(state.view); });
+    refreshSelect(sort);
     viewSwitcher.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
       input.checked = input.value === state.view;
       input.closest<HTMLElement>(".ant-radio-button-wrapper")?.classList.toggle(
@@ -791,9 +851,9 @@ export function initSkinCatalog(
     element<HTMLElement>(root, "[data-runtime-channel-label]").textContent = label;
     const icon = root.querySelector<SVGSVGElement>(".domain-icon--reference");
     if (icon) setDomainIconTooltip(icon, "reference", label, locale);
-    rarities.querySelectorAll<HTMLButtonElement>("[data-catalog-rarity]").forEach((button) => {
-      const key = button.dataset.catalogRarity ?? "";
-      button.setAttribute("aria-pressed", String(key ? state.rarities.includes(key) : state.rarities.length === 0));
+    rarities.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
+      input.checked = input.value === (state.rarities[0] ?? "");
+      input.closest(".ant-radio-button-wrapper")?.classList.toggle("ant-radio-button-wrapper-checked", input.checked);
     });
     syncLanguageLink();
   };
@@ -806,26 +866,25 @@ export function initSkinCatalog(
         rank: key === UNMARKED_RARITY ? -1 : runtimeSkinRarityRank(item),
       });
     }
-    rarities.replaceChildren();
-    const all = document.createElement("button");
-    all.type = "button";
-    all.dataset.catalogRarity = "";
-    all.textContent = locale === "zh_cn" ? "全部" : "All";
-    all.setAttribute("aria-pressed", String(state.rarities.length === 0));
-    rarities.append(all);
     const ordered = [...available].sort(
       ([, left], [, right]) =>
         right.rank - left.rank ||
         left.label.localeCompare(right.label, locale === "zh_cn" ? "zh-CN" : "en"),
     );
-    for (const [key, { label }] of ordered) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.dataset.catalogRarity = key;
-      button.textContent = label;
-      button.setAttribute("aria-pressed", String(state.rarities.includes(key)));
-      rarities.append(button);
-    }
+    const group = createRadioButtonGroup({
+      name: "skin-catalog-rarity",
+      idPrefix: "skin-catalog-rarity",
+      ariaLabel: locale === "zh_cn" ? "稀有度" : "Rarity",
+      value: state.rarities[0] ?? "",
+      options: [
+        { value: "", label: locale === "zh_cn" ? "全部" : "All" },
+        ...ordered.map(([value, { label }]) => ({ value, label })),
+      ],
+      onChange(value) {
+        update({ ...state, rarities: value ? [value] : [] });
+      },
+    });
+    rarities.replaceChildren(group);
   };
   const update = (next: CatalogState) => {
     cancelSearch();
@@ -951,17 +1010,6 @@ export function initSkinCatalog(
   });
   classicOnly.addEventListener("change", () => update({ ...state, classicOnly: classicOnly.checked }));
   sort.addEventListener("change", () => update({ ...state, sort: sort.value as SkinCatalogSort }));
-  rarities.addEventListener("click", (event) => {
-    const button = (event.target as Element).closest<HTMLButtonElement>("[data-catalog-rarity]");
-    if (!button || !rarities.contains(button)) return;
-    const key = button.dataset.catalogRarity ?? "";
-    update({
-      ...state,
-      rarities: key
-        ? state.rarities.includes(key) ? state.rarities.filter((value) => value !== key) : [...state.rarities, key]
-        : [],
-    });
-  });
   root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel]").forEach((button) => {
     button.addEventListener("click", () => {
       const channel = button.dataset.runtimeChannel;

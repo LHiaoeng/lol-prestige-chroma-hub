@@ -38,7 +38,10 @@ describe("Select component contract", () => {
     expect(selectStyles).toContain(".ant-select-clear:hover,.ant-select-clear:focus-visible{color:var(--tertiary)}");
     expect(selectStyles).toContain(".ant-select-clear:focus-visible{border-radius:var(--radius-tag);outline:2px solid var(--gold);outline-offset:-1px}");
     expect(selectStyles).toContain(".ant-select-clear[hidden]{display:none!important}");
-    expect(selectStyles).toContain("@media(hover:none){.ant-select-allow-clear .ant-select-clear{opacity:1}}");
+    const touchStyle = selectStyles.match(/@media \(hover: none\) \{([\s\S]*?)@media\(prefers-reduced-motion/)?.[1] ?? "";
+    expect(touchStyle).toContain("position: static");
+    expect(touchStyle).toContain("width: var(--control-height-sm)");
+    expect(touchStyle).toContain(":has(> .ant-select-clear:not([hidden])) > .ant-select-suffix { display: none; }");
     expect(selectLogic).toContain("clearButton.hidden = !hasValue || source.disabled;");
   });
 });

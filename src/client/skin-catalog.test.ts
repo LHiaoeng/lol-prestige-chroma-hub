@@ -235,6 +235,7 @@ function fixture(
   root.append(toolbar);
   const classicOnly = add("input", "catalogClassic", toolbar);
   const sort = add("select", "catalogSort", toolbar);
+  const mobileView = add("select", "skinMobileView", toolbar);
   const viewSwitch = add("div", "catalogViewSwitch", toolbar);
   const borderSetting = document.createElement("label");
   borderSetting.className = "skin-catalog-framed-setting";
@@ -289,7 +290,7 @@ function fixture(
     : [{ kind: "universe" as const, id: 20, name: "Universe Gamma", skinlineIds: [10, 20] }]);
   const runtime = { listSkinCatalog: list, list: listEntities } as unknown as CommunityDragonRuntime;
   const controller = initSkinCatalog(root as unknown as HTMLElement, runtime, h);
-  return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, classicOnly, sort, viewSwitch, showFramedScreens, framedCount, showEmblems, onlyPbeAdditions, count, pbe, latest, status, content, results, grid, timeline, loadMoreFooter, loadMore, h, list, listEntities, controller };
+  return { document, root, summary, summarySkeleton, filterSkeleton, trigger, channelLabel, search, rarities, classicOnly, sort, viewSwitch, mobileView, showFramedScreens, framedCount, showEmblems, onlyPbeAdditions, count, pbe, latest, status, content, results, grid, timeline, loadMoreFooter, loadMore, h, list, listEntities, controller };
 }
 
 afterEach(() => {
@@ -342,6 +343,19 @@ describe("skin catalog browser behavior", () => {
     page.h.pop("https://chromaart.lol/skins/?q=Ahri&pbeOnly=1");
     expect(page.viewSwitch.querySelectorAll("input")[1].checked).toBe(true);
     expect(page.list).toHaveBeenCalledTimes(2);
+  });
+
+  it("synchronizes the mobile view selector with navigation and the desktop view control", async () => {
+    const page = fixture("https://chromaart.lol/skins/?view=cards&channel=latest");
+    await vi.waitFor(() => expect(page.count.hidden).toBe(false));
+    expect(page.mobileView.value).toBe("cards");
+    page.mobileView.value = "timeline";
+    page.mobileView.fire("change");
+    expect(page.timeline.hidden).toBe(false);
+    expect(page.viewSwitch.querySelectorAll("input")[1].checked).toBe(true);
+    page.h.pop("https://chromaart.lol/skins/?view=cards&channel=latest");
+    expect(page.mobileView.value).toBe("cards");
+    expect(page.grid.hidden).toBe(false);
   });
 
   it("opens direct timeline links and normalizes unsupported hero sorting to newest first", async () => {
@@ -465,7 +479,7 @@ describe("skin catalog browser behavior", () => {
     );
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     const nodes = page.timeline.querySelectorAll(".skin-catalog-timeline-node");
-    expect(nodes.map((node) => node.querySelector(".skin-catalog-timeline-label")?.textContent))
+    expect(nodes.map((node) => node.querySelector(".skin-catalog-timeline-heading")?.querySelector(".skin-catalog-timeline-label")?.textContent))
       .toEqual([undefined, undefined, "经典外观"]);
     expect(nodes.map((node) => node.querySelector(".skin-catalog-timeline-date-heading")?.textContent))
       .toEqual(["日期待确认", "2024年1月1日", "日期待确认"]);
@@ -645,7 +659,7 @@ describe("skin catalog browser behavior", () => {
     expect(value.querySelector("a")).toBeNull();
   });
 
-  it("combines search and multiple rarities, then restores the URL on popstate", async () => {
+  it("combines search and a single rarity, then restores the URL on popstate", async () => {
     const page = fixture();
     await vi.waitFor(() => expect(page.count.textContent).toContain("3 / 3"));
     vi.useFakeTimers();
@@ -660,10 +674,14 @@ describe("skin catalog browser behavior", () => {
     vi.advanceTimersByTime(1);
     expect(page.h.changes).toHaveLength(beforeSearch + 1);
     expect(page.count.textContent).toContain("2 / 3");
-    page.rarities.querySelector('[data-catalog-rarity="key:kEpic"]')!.click();
-    page.rarities.querySelector('[data-catalog-rarity="key:kMythic"]')!.click();
-    expect(page.count.textContent).toContain("2 / 3");
-    expect(page.h.url.searchParams.getAll("rarity")).toEqual(["key:kEpic", "key:kMythic"]);
+    const epic = page.rarities.querySelectorAll("input").find((input) => input.value === "key:kEpic")!;
+    epic.checked = true;
+    epic.fire("change");
+    const mythic = page.rarities.querySelectorAll("input").find((input) => input.value === "key:kMythic")!;
+    mythic.checked = true;
+    mythic.fire("change");
+    expect(page.count.textContent).toContain("1 / 3");
+    expect(page.h.url.searchParams.getAll("rarity")).toEqual(["key:kMythic"]);
     page.search.value = "stale query";
     page.search.fire("input");
     page.h.pop("https://chromaart.lol/skins/?q=Zed&view=cards");
@@ -737,10 +755,10 @@ describe("skin catalog browser behavior", () => {
       skins: [...raritySkins, skin(599, 1)], champions,
     })), 6, "zh_cn");
     await vi.waitFor(() => expect(page.count.textContent).toContain("12 / 12"));
-    expect(page.rarities.querySelectorAll("[data-catalog-rarity]").slice(1).map((button) => button.dataset.catalogRarity)).toEqual([
+    expect(page.rarities.querySelectorAll("input").slice(1).map((input) => input.value)).toEqual([
       "id:11", "id:10", "id:9", "id:8", "id:7", "id:5", "id:4", "id:3", "id:2", "id:1", "id:6", "unmarked",
     ]);
-    expect(page.rarities.querySelector('[data-catalog-rarity="unmarked"]')?.textContent).toBe("其他");
+    expect(page.rarities.querySelectorAll("label").at(-1)?.textContent).toBe("其他");
   });
 
   it("keeps old cards and URL after a failed channel switch, then retries", async () => {

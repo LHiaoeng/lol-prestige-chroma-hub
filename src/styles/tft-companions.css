@@ -38,25 +38,6 @@
 .tft-companions-field .ant-select {
   min-width: 0;
 }
-.tft-companions-pbe-tooltip.ant-tooltip-trigger {
-  display: inline-flex;
-  align-items: center;
-  align-self: end;
-}
-.tft-companions-pbe-setting {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-height);
-  color: var(--text);
-  cursor: pointer;
-}
-.tft-companions-pbe-setting input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  accent-color: var(--gold);
-}
 .tft-companions-status {
   margin: 0 0 var(--space-3);
   color: var(--muted);
@@ -64,6 +45,7 @@
 .tft-companions-status:empty {
   display: none;
 }
+.tft-companions-spinner { isolation: isolate; }
 .ant-spin.tft-companions-spinner > .ant-spin-section {
   position: sticky;
   top: 50vh;
@@ -73,33 +55,29 @@
   margin: 0 auto -20px;
   transform: translateY(-50%);
 }
-.tft-companions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
-  column-gap: var(--space-3);
-  row-gap: var(--space-4);
+.tft-companions .tft-companions-result-count {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: center;
 }
-.tft-companions-results-toolbar {
+.tft-companions-quick-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  align-self: end;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
 }
-.tft-companions-results-toolbar .runtime-list-count {
-  margin: 0;
+.tft-filter-drawer .tft-companions-quick-controls {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
 }
 .tft-companions-view-switch {
   display: flex;
   min-width: 0;
 }
-.tft-companions-view-switch .ant-radio-group {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
+.tft-filter-drawer .tft-companions-view-switch { justify-content: flex-start; }
 .tft-companions-species-group {
   display: grid;
   grid-column: 1 / -1;
@@ -122,87 +100,6 @@
   justify-items: start;
   gap: var(--space-3);
 }
-.runtime-card.tft-companions-card {
-  position: relative;
-  overflow: visible;
-  min-height: 0;
-  padding: 0;
-}
-.tft-companions-card-media {
-  position: relative;
-  display: grid;
-  aspect-ratio: 1;
-  place-items: center;
-  overflow: hidden;
-  border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
-  background: var(--panel2);
-}
-.tft-companions-card-preview {
-  position: relative;
-  display: block;
-  grid-area: 1 / 1;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-.tft-companions-preview-cover {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgb(0 0 0 / 30%);
-  color: #fff;
-  opacity: 0;
-  transition: opacity var(--motion-slow) ease;
-}
-.tft-companions-preview-cover svg {
-  width: 32px;
-  height: 32px;
-}
-.tft-companions-card-media:hover .tft-companions-preview-cover,
-.tft-companions-card-preview:focus-visible .tft-companions-preview-cover {
-  opacity: 1;
-}
-.tft-companions-card-actions {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  transition: opacity var(--motion-fast);
-}
-.tft-companions-card-actions .project-icon {
-  width: 14px;
-  height: 14px;
-}
-.tft-companions-info-button:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
-}
-.tft-companions-card-popover {
-  display: grid;
-  min-width: 220px;
-  max-width: calc(100vw - 48px);
-  gap: var(--space-2);
-  margin: 0;
-}
-.tft-companions-card-detail {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-3);
-}
-.tft-companions-card-detail dt {
-  color: var(--muted);
-}
-.tft-companions-card-detail dd {
-  min-width: 0;
-  margin: 0;
-  color: var(--text);
-  overflow-wrap: anywhere;
-}
 .tft-companions-pbe-marker.ant-tooltip-trigger {
   position: absolute;
   top: var(--space-2);
@@ -223,69 +120,40 @@
 .tft-companions-pbe-marker-label {
   font: inherit;
 }
-.tft-companions-card-media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.tft-companions-card-image-fallback {
-  grid-area: 1 / 1;
-  padding: var(--space-3);
-  color: var(--muted);
-  text-align: center;
-}
-.tft-companions-card-details {
-  min-width: 0;
-  padding: var(--space-3);
-  overflow-wrap: anywhere;
-}
-.tft-companions-card-details h2,
-.tft-companions-card-details h3 {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: var(--space-1);
-  margin: 0;
-  font-size: var(--font-size-title);
-}
-.tft-companions-card-title-tooltip.ant-tooltip-trigger {
-  display: block;
-  min-width: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.tft-companions-card-title-text {
-  display: block;
-  min-width: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.tft-companions-card-title-tooltip:focus-visible {
-  border-radius: var(--radius-control);
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
-}
 .tft-companions [hidden] {
   display: none !important;
 }
-@media (max-width: 767px) {
-  .tft-companions-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+@media (min-width: 768px) {
+  .tft-companions-filters {
+    padding-block-end: var(--space-3);
+    border-bottom: 1px solid var(--line-subtle);
+    margin-bottom: var(--space-3);
   }
 }
-@media (hover: hover) and (pointer: fine) {
-  .tft-companions-card-actions {
-    opacity: 0;
-    pointer-events: none;
+
+.tft-companions-select-filters {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+  gap: var(--space-3);
+}
+
+.tft-filter-drawer .tft-companions-select-filters {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .tft-companions-filters {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    row-gap: var(--space-3);
   }
-  .tft-companions-card:hover .tft-companions-card-actions,
-  .tft-companions-card:focus-within .tft-companions-card-actions {
-    opacity: 1;
-    pointer-events: auto;
+  .tft-companions-filters > [data-tft-filter-search] > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
