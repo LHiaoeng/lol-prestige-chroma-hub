@@ -49,10 +49,15 @@ export function bindMediaViewers(root: ParentNode = document): void {
   const status = dialog.querySelector<HTMLElement>("[data-media-viewer-status]");
   const message = dialog.querySelector<HTMLElement>("[data-media-viewer-message]");
   const retry = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-retry]");
+  const mode = dialog.querySelector<HTMLElement>("[data-media-viewer-mode]");
+  const imageMode = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-image]");
+  const videoMode = dialog.querySelector<HTMLButtonElement>("[data-media-viewer-video]");
   if (!content || !close || !previous || !next || !zoomIn || !zoomOut || !rotateLeft || !rotateRight || !flipX || !flipY || !count || !resetButton || !download || !player || !play || !seek || !time || !mute || !volume || !status || !message || !retry) return;
 
   dialog.dataset.viewerBound = "1";
   let items: PreviewTrigger[] = [];
+  let bounded = false;
+  let showVideo = false;
   let current = 0;
   let scale = MIN_SCALE;
   let panX = 0;
@@ -174,10 +179,15 @@ export function bindMediaViewers(root: ParentNode = document): void {
     displayedTrigger = trigger;
     showStatus("loading");
     const original = trigger.querySelector<HTMLImageElement | HTMLVideoElement>("img, video");
-    const kind = trigger.dataset.previewKind ?? (original?.tagName === "VIDEO" ? "video" : "image");
+    const triggerKind = trigger.dataset.previewKind ?? (original?.tagName === "VIDEO" ? "video" : "image");
+    const alternateImage = triggerKind === "video" ? trigger.dataset.previewImage : undefined;
+    const kind = alternateImage && !showVideo ? "image" : triggerKind;
+    if (mode) mode.hidden = !alternateImage;
+    imageMode?.setAttribute("aria-pressed", String(kind === "image"));
+    videoMode?.setAttribute("aria-pressed", String(kind === "video"));
     const resource = document.createElement(kind === "video" ? "video" : "img");
     resource.className = "ant-image-preview-media";
-    const src = trigger.dataset.previewSrc || original?.currentSrc || original?.src || "";
+    const src = (kind === "image" && alternateImage) || trigger.dataset.previewSrc || original?.currentSrc || original?.src || "";
     resource.addEventListener("error", () => {
       if (media() === resource && kind === "video") showStatus("error");
     });
@@ -188,12 +198,13 @@ export function bindMediaViewers(root: ParentNode = document): void {
       video.preload = "metadata";
       video.setAttribute("aria-label", trigger.getAttribute("aria-label") ?? "Video preview");
       const source = original?.tagName === "VIDEO" ? original as HTMLVideoElement : undefined;
-      const state = videoStates.get(trigger) ?? { time: source?.currentTime ?? 0, volume: source?.volume ?? 1, muted: source?.muted ?? false, rate: source?.playbackRate ?? 1, playing: source ? sourcePlayback.get(source) ?? false : false };
+      const autoplay = trigger.dataset.previewAutoplay !== undefined;
+      const state = videoStates.get(trigger) ?? { time: source?.currentTime ?? 0, volume: source?.volume ?? 1, muted: autoplay || (source?.muted ?? false), rate: source?.playbackRate ?? 1, playing: autoplay || (source ? sourcePlayback.get(source) ?? false : false) };
       videoStates.set(trigger, state);
       video.volume = state.volume;
       video.muted = state.muted;
       video.playbackRate = state.rate;
-      video.poster = source?.poster ?? "";
+      video.poster = trigger.dataset.previewPoster ?? source?.poster ?? "";
       video.loop = source?.loop ?? false;
       video.addEventListener("loadedmetadata", () => {
         if (media() !== video) return;
@@ -241,11 +252,15 @@ export function bindMediaViewers(root: ParentNode = document): void {
     const hasGroup = items.length > 1;
     previous.hidden = !hasGroup;
     next.hidden = !hasGroup;
+    previous.disabled = bounded && current === 0;
+    next.disabled = bounded && current === items.length - 1;
     count.hidden = !hasGroup;
     count.textContent = `${current + 1} / ${items.length}`;
   };
   const change = (offset: number): void => {
-    current = (current + offset + items.length) % items.length;
+    const index = current + offset;
+    if (!items.length || (bounded && (index < 0 || index >= items.length))) return;
+    current = (index + items.length) % items.length;
     render();
   };
   const zoom = (direction: -1 | 1, point?: Point): void => {
@@ -268,6 +283,8 @@ export function bindMediaViewers(root: ParentNode = document): void {
     if (!trigger) return;
     event.preventDefault();
     items = previewItems(trigger);
+    showVideo = false;
+    bounded = trigger.closest<HTMLElement>("[data-media-preview-group]")?.dataset.previewBounded !== undefined;
     current = Math.max(0, items.indexOf(trigger));
     activeTrigger = trigger;
     videoStates.clear();
@@ -284,6 +301,16 @@ export function bindMediaViewers(root: ParentNode = document): void {
     dialog.showModal();
   });
   close.addEventListener("click", () => dialog.close());
+  imageMode?.addEventListener("click", () => {
+    if (!showVideo) return;
+    showVideo = false;
+    render();
+  });
+  videoMode?.addEventListener("click", () => {
+    if (showVideo) return;
+    showVideo = true;
+    render();
+  });
   previous.addEventListener("click", () => change(-1));
   next.addEventListener("click", () => change(1));
   zoomIn.addEventListener("click", () => zoom(1));

@@ -1,0 +1,18 @@
+---
+import type { Locale } from '../i18n/config';
+import Divider from './Divider.astro';
+import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
+
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<div class="runtime-source runtime-channel-row runtime-list-summary" data-runtime-source aria-label={locale === 'zh-cn' ? '资料版本' : 'Reference data channel'}>
+  <div class="runtime-page-header-skeleton-meta" aria-hidden="true">
+    <span class="runtime-skeleton-line runtime-skeleton-line--version"></span>
+    <span class="runtime-skeleton-line runtime-skeleton-line--divider"></span>
+    <span class="runtime-skeleton-line runtime-skeleton-line--count"></span>
+  </div>
+  <RuntimeChannelSwitcher {locale} />
+  <Divider type="vertical" />
+  <span class="runtime-list-count" data-runtime-list-count hidden></span>
+</div>

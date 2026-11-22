@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { AD_SCRIPT_URLS, resolveAdProvider, type AdProvider } from '../src/domain/ad-policy';
+import { lolCosmeticCatalogs } from '../src/domain/lol-cosmetics';
 
 export const GOOGLE_TAG_SCRIPT = 'https://www.googletagmanager.com/gtm.js?id=GTM-N2XNGMV2';
 export const GOOGLE_TAG_INIT = "gtag('js', new Date());";
@@ -33,6 +34,7 @@ const AD_FREE_PATHS = new Set([
   '/about/', '/privacy/', '/editorial-policy/',
   '/champions/', '/skins/', '/skinlines/', '/universes/', '/pbe-additions/',
   '/tft/companions/', '/tft/arenas/',
+  ...lolCosmeticCatalogs.map(({ slug }) => `/${slug}/`),
 ]);
 
 export function auditBuild(root: string, adProvider: AdProvider = resolveAdProvider(process.env.AD_PROVIDER)): string[] {

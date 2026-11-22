@@ -563,6 +563,27 @@ describe("static site build", () => {
     );
   });
 
+  it('emits the eight League of Legends cosmetic directory shells', () => {
+    for (const prefix of ['', 'zh-cn/']) {
+      for (const slug of ['summoner-icons', 'emotes', 'ward-skins', 'nexus-finishers']) {
+        const route = `/${prefix}${slug}/`;
+        const alternate = prefix ? `/${slug}/` : `/zh-cn/${slug}/`;
+        const html = readFileSync(join(dist, route.slice(1), 'index.html'), 'utf8');
+        expect(html).toContain(`rel="canonical" href="https://chromaart.lol${route}"`);
+        expect(html).toContain(`href="https://chromaart.lol${alternate}"`);
+        expect(html).toContain(`href="${route}" aria-current="page"`);
+        expect(html).toContain('data-runtime-channel-label');
+        expect(html).toContain('data-runtime-list-count');
+        expect(html).toContain('data-compare-notice');
+        expect(html).toContain('data-pbe');
+        expect(html).not.toMatch(/<input\b[^>]*data-pbe[^>]*checked/);
+        expect(html).toContain('data-sort');
+        expect(html.includes('data-rarity-filter')).toBe(slug !== 'emotes');
+        expect(html.includes('data-cosmetic-view')).toBe(slug === 'summoner-icons');
+      }
+    }
+  });
+
   it("renders bilingual homepage navigation and all new prestige chromas", () => {
     for (const [prefix, labels] of [
       ['', ['Prestige Chroma Splash Art', 'PBE additions', 'Champions', 'Skinlines', 'Universes']],

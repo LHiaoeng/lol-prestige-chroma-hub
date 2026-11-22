@@ -122,11 +122,11 @@ const pbeModuleIcons: Record<RuntimePbeModuleKind, DomainIconName> = {
   skins: "skins",
   skinlines: "skinlines",
   universes: "universes",
-  icons: "pbe-additions",
-  emotes: "pbe-additions",
+  icons: "summoner-icons",
+  emotes: "emotes",
   chromas: "prestige-chromas",
   borders: "skins",
-  wards: "skins",
+  wards: "ward-skins",
   finishers: "pbe-additions",
 };
 const pbeModuleGroups: readonly (readonly RuntimePbeModuleKind[])[] = [

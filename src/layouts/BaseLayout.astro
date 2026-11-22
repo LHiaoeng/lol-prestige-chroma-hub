@@ -11,6 +11,7 @@ import DownOutlined from '../components/icons/DownOutlined.astro';
 import Icon from '../components/icons/Icon.astro';
 import Dropdown from '../components/Dropdown.astro';
 import { headerNavigationState } from '../components/header-navigation';
+import { lolCosmeticCatalogs } from '../domain/lol-cosmetics';
 import { safeJsonLd } from '../domain/chroma';
 import { resolveAdProvider, resolveAdSenseSlot, type AdPlacement } from '../domain/ad-policy';
 import { alternateUrls, localeConfig, localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -120,6 +121,10 @@ gtag('js', new Date());
               {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
               <DownOutlined class="ant-dropdown-down-icon" />
             </a>
+            {lolCosmeticCatalogs.map((catalog) => {
+              const path = `/${catalog.slug}/`;
+              return <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, path)} aria-current={headerNavigation.current(path)} data-lol-cosmetic-link><Icon name={catalog.slug === 'nexus-finishers' ? 'league-of-legends' : catalog.slug} class="ant-dropdown-menu-item-icon" />{catalog[locale]}</a></li>;
+            })}
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/pbe-additions/')} aria-current={headerNavigation.current('/pbe-additions/')}><DomainIcon name="pbe-additions" class="ant-dropdown-menu-item-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/prestige-chromas/')} aria-current={headerNavigation.current('/prestige-chromas/', '/chromas/') ?? headerNavigation.current('/prestige-chromas/')}><DomainIcon name="prestige-chromas" class="ant-dropdown-menu-item-icon" />{isZh ? '臻彩原画' : 'Prestige Chroma Splash Art'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/champions/')} aria-current={headerNavigation.current('/champions/')}><DomainIcon name="champions" class="ant-dropdown-menu-item-icon" />{isZh ? '英雄' : 'Champions'}</a></li>
@@ -167,12 +172,26 @@ gtag('js', new Date());
       import { bindHappyWorkEffect } from '../components/happy-work-effect';
       import { bindTypographyParagraphs } from '../components/Typography';
       import { bindCardTitleTooltips } from '../components/card-title';
+      import { inheritLolCosmeticChannel } from '../domain/lol-cosmetics';
       bindImageFallbacks();
       bindHeaderGlass();
       bindThemeSwitcher();
       bindHappyWorkEffect();
       bindTypographyParagraphs();
       bindCardTitleTooltips();
+      const browseMenu = document.getElementById('browse-nav');
+      const browsePopup = browseMenu?.parentElement;
+      if (browsePopup) {
+        const links = browsePopup.querySelectorAll<HTMLAnchorElement>('[data-lol-cosmetic-link]');
+        const syncChannel = () => {
+          const source = new URL(location.href);
+          links.forEach((link) => { link.href = inheritLolCosmeticChannel(link.href, source).href; });
+        };
+        syncChannel();
+        new MutationObserver(() => { if (!browsePopup.hidden) syncChannel(); })
+          .observe(browsePopup, { attributes: true, attributeFilter: ['hidden'] });
+        window.addEventListener('popstate', syncChannel);
+      }
     </script>
     <style is:global>
       html[data-language="zh"]:not([data-language-ready]) body { visibility: hidden; }

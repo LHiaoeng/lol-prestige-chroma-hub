@@ -1,8 +1,14 @@
+import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bindMediaViewers } from "./image-viewer";
 import { downloadMediaFile } from "./media-download";
 
 vi.mock("./media-download", () => ({ downloadMediaFile: vi.fn() }));
+
+it("allows pointer input on the preview mode controls inside the click-through footer", () => {
+  const css = readFileSync(new URL("../styles/global.css", import.meta.url), "utf8");
+  expect(css).toMatch(/\.ant-image-preview-mode:not\(\[hidden\]\)\s*\{[^}]*pointer-events:\s*auto/);
+});
 
 type Handler = (event: Record<string, unknown>) => void;
 
@@ -150,7 +156,7 @@ function setup(): { root: TestRoot; dialog: TestDialog; trigger: TestTrigger; co
     ["[data-media-viewer-flip-x]", new TestElement()],
     ["[data-media-viewer-flip-y]", new TestElement()],
     ["[data-media-viewer-count]", new TestElement()],
-    ...["reset", "download", "player", "play", "seek", "time", "mute", "volume", "status", "message", "retry"].map((name) => [`[data-media-viewer-${name}]`, new TestElement()] as const),
+    ...["reset", "download", "player", "play", "seek", "time", "mute", "volume", "status", "message", "retry", "mode", "image", "video"].map((name) => [`[data-media-viewer-${name}]`, new TestElement()] as const),
   ]);
   Object.assign(controls.get("[data-media-viewer-status]")!.dataset, { loading: "Loading media…", error: "Unable to load media" });
   Object.assign(controls.get("[data-media-viewer-play]")!.dataset, { play: "Play", pause: "Pause" });
@@ -315,6 +321,62 @@ describe("media viewer", () => {
     expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 2");
     controls.get("[data-media-viewer-next]")?.dispatch("click");
     expect(content.children[0]?.src).toBe("second.jpg");
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("2 / 2");
+  });
+
+  it("uses the large artwork as a poster and starts a video preview muted", () => {
+    const { root, trigger, content } = setup();
+    Object.assign(trigger.dataset, {
+      previewKind: "video",
+      previewSrc: "finisher.webm",
+      previewPoster: "finisher-splash.jpg",
+      previewAutoplay: "",
+    });
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    expect(content.children[0]).toMatchObject({
+      src: "finisher.webm", poster: "finisher-splash.jpg", muted: true, playCalls: 1,
+    });
+  });
+
+  it("opens dual-media previews on the large image and switches modes within the same album item", () => {
+    const { root, trigger, content, controls } = setup();
+    Object.assign(trigger.dataset, {
+      previewKind: "video", previewSrc: "finisher.webm", previewImage: "finisher.jpg",
+      previewPoster: "finisher.jpg", previewAutoplay: "",
+    });
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+    expect(content.children[0]?.src).toBe("finisher.jpg");
+    expect(controls.get("[data-media-viewer-mode]")?.hidden).toBe(false);
+    controls.get("[data-media-viewer-video]")?.dispatch("click");
+    expect(content.children[0]).toMatchObject({ src: "finisher.webm", muted: true, playCalls: 1 });
+    controls.get("[data-media-viewer-image]")?.dispatch("click");
+    expect(content.children[0]?.src).toBe("finisher.jpg");
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 1");
+  });
+
+  it("stops at both ends of a bounded album and skips unavailable images", () => {
+    const { root, trigger, content, controls } = setup();
+    const missing = new TestTrigger(new TestMedia("IMG"));
+    missing.disabled = true;
+    const last = new TestTrigger(new TestMedia("IMG"));
+    last.dataset.previewSrc = "last.jpg";
+    const group = new TestGroup([trigger, missing, last]);
+    group.dataset.previewBounded = "";
+    trigger.group = missing.group = last.group = group;
+    bindMediaViewers(root as unknown as ParentNode);
+    root.dispatch("click", { target: trigger });
+
+    const prev = controls.get("[data-media-viewer-prev]")!;
+    const next = controls.get("[data-media-viewer-next]")!;
+    expect(prev.disabled).toBe(true);
+    prev.dispatch("click");
+    expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("1 / 2");
+    next.dispatch("click");
+    expect(content.children[0]?.src).toBe("last.jpg");
+    expect(next.disabled).toBe(true);
+    next.dispatch("click");
     expect(controls.get("[data-media-viewer-count]")?.textContent).toBe("2 / 2");
   });
 

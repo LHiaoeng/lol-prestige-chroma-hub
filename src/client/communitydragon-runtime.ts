@@ -116,7 +116,7 @@ function abortError(): CommunityDragonRuntimeError {
 
 export function createCommunityDragonRuntime(
   fetcher: RuntimeFetcher = fetch,
-): CommunityDragonRuntime {
+) {
   const completed = new Map<string, unknown>();
   const inFlight = new Map<string, CacheEntry>();
 
@@ -672,10 +672,19 @@ export function createCommunityDragonRuntime(
     listTftArenas,
     listTftCompanions,
     listSkinCatalog,
+    listSummonerIconCollection,
+    listEmoteCollection,
+    listWardSkinCollection,
+    listNexusFinisherCollection,
     list,
     get,
     listSkinlineSkins,
     listUniverseSkins,
     getPbeAdditionsStream,
+  } satisfies CommunityDragonRuntime & {
+    listSummonerIconCollection: typeof listSummonerIconCollection;
+    listEmoteCollection: typeof listEmoteCollection;
+    listWardSkinCollection: typeof listWardSkinCollection;
+    listNexusFinisherCollection: typeof listNexusFinisherCollection;
   };
 }

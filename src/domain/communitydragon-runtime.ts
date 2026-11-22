@@ -193,6 +193,7 @@ export interface RuntimeSummonerIcon {
   readonly yearReleased?: number;
   readonly isLegacy?: boolean;
   readonly description?: string;
+  readonly rarity?: RuntimeRarity;
 }
 
 export interface RuntimeEmote {
@@ -217,6 +218,7 @@ export interface RuntimeWardSkin {
   readonly description?: string;
   readonly iconUrl?: string;
   readonly isLegacy?: boolean;
+  readonly rarity?: RuntimeRarity;
 }
 
 export interface RuntimeNexusFinisher {
@@ -224,6 +226,9 @@ export interface RuntimeNexusFinisher {
   readonly id: number;
   readonly name?: string;
   readonly iconUrl?: string;
+  readonly videoUrl?: string;
+  readonly splashUrl?: string;
+  readonly rarity?: RuntimeRarity;
 }
 
 export type RuntimeList = readonly (
@@ -269,6 +274,11 @@ const universeSchema = z
     skinlineIds: z.array(idSchema).optional(),
   })
   .passthrough();
+const collectibleRaritiesSchema = z.array(z.object({
+  region: z.string(),
+  rarity: z.number().int(),
+})).nullable().optional();
+
 const summonerIconSchema = z
   .object({
     id: z.number().int(),
@@ -276,6 +286,7 @@ const summonerIconSchema = z
     yearReleased: z.number().nullable().optional(),
     isLegacy: z.boolean().nullable().optional(),
     imagePath: z.string().nullable().optional(),
+    rarities: collectibleRaritiesSchema,
     descriptions: z
       .array(
         z
@@ -313,6 +324,7 @@ const wardSkinSchema = z
     name: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
     wardImagePath: z.string().nullable().optional(),
+    rarities: collectibleRaritiesSchema,
     isLegacy: z.boolean().nullable().optional(),
     regionalDescriptions: z
       .array(
@@ -333,6 +345,8 @@ const nexusFinisherSchema = z
     name: z.string().nullable().optional(),
     translatedName: z.string().nullable().optional(),
     iconPath: z.string().nullable().optional(),
+    videoPath: z.string().nullable().optional(),
+    splashPath: z.string().nullable().optional(),
   })
   .passthrough();
 const chromaSchema = z
@@ -1105,6 +1119,42 @@ function collectionItemIdFilter(
   return true;
 }
 
+const collectibleRarityTiers = {
+  1: ['Rare', '稀有', 'rare'],
+  2: ['Epic', '史诗', 'epic'],
+  3: ['Legendary', '传说', 'legendary'],
+  4: ['Mythic', '神话', 'mythic'],
+  5: ['Ultimate', '终极', 'ultimate'],
+  6: ['Exalted', '圣堂', 'exalted'],
+  7: ['Transcendent', '卓越', 'transcendent'],
+} as const satisfies Readonly<Record<number, readonly [string, string, string]>>;
+
+function collectibleRarity(
+  id: number | undefined,
+  options: ReturnType<typeof normalizeRuntimeOptions>,
+  kind: 'icon' | 'ward' | 'finisher',
+): RuntimeRarity | undefined {
+  if (!id || !Object.hasOwn(collectibleRarityTiers, id) || (kind === 'ward' && id > 5)) return;
+  const [en, zh, gem] = collectibleRarityTiers[id as keyof typeof collectibleRarityTiers];
+  const collections = 'plugins/rcp-fe-lol-collections/global/default/images';
+  const gemPath = kind === 'finisher' ? `${collections}/finisher/gems/exalted.png`
+    : id === 1 ? `${collections}/gems/rare.png`
+    : kind === 'ward' && id === 3 ? undefined
+    : `/lol-game-data/assets/v1/rarity-gem-icons/${gem}.png`;
+  return { id, label: options.locale === 'zh_cn' ? zh : en, iconUrl: asset(gemPath, options.channel) };
+}
+
+function regionalCollectibleRarity(
+  rarities: z.infer<typeof collectibleRaritiesSchema>,
+  options: ReturnType<typeof normalizeRuntimeOptions>,
+  kind: 'icon' | 'ward',
+): RuntimeRarity | undefined {
+  const region = options.locale === 'zh_cn' ? 'TENCENT' : 'riot';
+  const id = rarities?.find((entry) => entry.region === region)?.rarity
+    ?? rarities?.find((entry) => entry.region === 'riot')?.rarity;
+  return collectibleRarity(id, options, kind);
+}
+
 export function parseRuntimeSummonerIconCollection(
   value: unknown,
   input: RuntimeParseOptions,
@@ -1116,6 +1166,7 @@ export function parseRuntimeSummonerIconCollection(
       kind: "icon" as const,
       id: raw.id,
       title: text(raw.title),
+      rarity: regionalCollectibleRarity(raw.rarities, options, 'icon'),
       iconUrl: asset(text(raw.imagePath), options.channel),
       yearReleased:
         typeof raw.yearReleased === "number" && raw.yearReleased > 0
@@ -1178,6 +1229,7 @@ export function parseRuntimeWardSkinCollection(
           .map((entry) => text(entry.description))
           .find(Boolean),
       iconUrl: asset(text(raw.wardImagePath), options.channel),
+      rarity: regionalCollectibleRarity(raw.rarities, options, 'ward'),
       isLegacy: raw.isLegacy ?? undefined,
     }));
 }
@@ -1193,7 +1245,10 @@ export function parseRuntimeNexusFinisherCollection(
       kind: "finisher" as const,
       id: raw.itemId,
       name: text(raw.translatedName) ?? text(raw.name),
+      rarity: collectibleRarity(6, options, 'finisher'),
       iconUrl: asset(text(raw.iconPath), options.channel),
+      videoUrl: asset(text(raw.videoPath), options.channel),
+      splashUrl: asset(text(raw.splashPath), options.channel),
     }));
 }
 

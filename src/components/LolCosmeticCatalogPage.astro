@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { localizedPath, type Locale } from '../i18n/config';
+import { SITE } from '../seo/site';
+import type { LolCosmeticCatalog } from '../domain/lol-cosmetics';
+import Alert from './Alert.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import Button from './Button.astro';
+import Divider from './Divider.astro';
+import Icon from './icons/Icon.astro';
+import Empty from './Empty.astro';
+import Select from './Select.astro';
+import Skeleton from './Skeleton.astro';
+import RuntimeListSummary from './RuntimeListSummary.astro';
+import TftFilterDrawer from './TftFilterDrawer.astro';
+import '../styles/tft-arenas.css';
+import '../styles/tft-cosmetic-card.css';
+import '../styles/skin-catalog.css';
+import './segmented.css';
+
+const { catalog, locale } = Astro.props as { catalog: LolCosmeticCatalog; locale: Locale };
+const isZh = locale === 'zh-cn';
+const title = catalog[locale];
+const canonical = new URL(localizedPath(locale, '/' + catalog.slug + '/'), SITE.origin).href;
+const description = isZh ? '浏览英雄联盟' + title + '，查找正式服外观和 PBE 新增。' : 'Browse League of Legends ' + title + ' and discover PBE additions.';
+const filterLabel = catalog.slug === 'summoner-icons' ? (isZh ? '发行年份' : 'Release year') : (isZh ? '关联英雄' : 'Associated champion');
+const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'All years') : (isZh ? '全部英雄' : 'All champions');
+---
+<BaseLayout title={title} {description} {canonical} {locale} ads={false}>
+  <Breadcrumb {locale} items={[
+    { title: isZh ? '首页' : 'Home', href: localizedPath(locale, '/') },
+    { title: isZh ? '英雄联盟' : 'League of Legends', href: localizedPath(locale, '/#home-tools-title') },
+    { title },
+  ]} />
+  <section class="runtime-page runtime-page--compact-list-header tft-arenas lol-cosmetics" data-lol-cosmetics={catalog.slug} data-locale={locale} data-runtime-loading aria-labelledby="cosmetic-title">
+    <header>
+      <h1 id="cosmetic-title"><Icon name={catalog.slug === 'nexus-finishers' ? 'league-of-legends' : catalog.slug} />{title}</h1>
+      <RuntimeListSummary {locale} />
+    </header>
+    <Divider />
+    <div class="tft-arenas-filters tft-filterbar catalog-sticky-filterbar">
+      <label class="tft-arenas-field" data-tft-filter-search>
+        <span>{isZh ? '按名称搜索' : 'Search by name'}</span>
+        <input class="cn-input" type="search" data-query autocomplete="off" placeholder={isZh ? '按名称搜索' : 'Search by name'} />
+      </label>
+      <label class="tft-pbe-filter">
+        <input class="sr-only" type="checkbox" data-pbe />
+        <span>{isZh ? '仅看 PBE 新增' : 'PBE additions only'}</span>
+      </label>
+      <div class="tft-arenas-select-filters">
+        {(catalog.slug === 'summoner-icons' || catalog.slug === 'emotes') &&
+          <Select ariaLabel={filterLabel} data-category="" allowClear showSearch popupMatchSelectWidth={false} options={[{ value: '', label: allLabel }]} />
+        }
+        {catalog.slug !== 'emotes' &&
+          <Select ariaLabel={isZh ? '品质' : 'Rarity'} data-rarity-filter="" allowClear popupMatchSelectWidth={false} options={[{ value: '', label: isZh ? '全部品质' : 'All rarities' }]} />
+        }
+        <Select ariaLabel={isZh ? '排序' : 'Sort'} data-sort="" popupMatchSelectWidth={false} options={[
+          { value: 'newest', label: catalog.slug === 'summoner-icons' ? (isZh ? '从新到旧' : 'Newest first') : (isZh ? '从新到旧（ID 降序）' : 'Newest first (ID descending)') },
+          { value: 'oldest', label: catalog.slug === 'summoner-icons' ? (isZh ? '从旧到新' : 'Oldest first') : (isZh ? '从旧到新（ID 升序）' : 'Oldest first (ID ascending)') },
+        ]} />
+      </div>
+      {catalog.slug === 'summoner-icons' && <div data-cosmetic-view></div>}
+      <TftFilterDrawer id="cosmetic-filters" {isZh} resultCount="[data-tft-filter-count]" />
+      <p class="runtime-list-count tft-arenas-result-count" data-tft-filter-count role="status"></p>
+    </div>
+    <div data-skeleton><Skeleton layout="skin-grid" itemCount={12} /></div>
+    <div data-error hidden>
+      <Alert type="error" title={isZh ? '无法加载外观资料' : 'Unable to load cosmetics'} />
+      <Button data-retry>{isZh ? '重试' : 'Retry'}</Button>
+    </div>
+    <div class="tft-arenas-aux" data-compare-notice role="status" hidden>
+      <span>{isZh ? '正式服对照暂不可用，PBE 新增标签暂未显示。' : 'Live comparison is unavailable. PBE addition tags are paused.'}</span>
+      <Button data-compare-retry>{isZh ? '重试对照' : 'Retry comparison'}</Button>
+    </div>
+    <div data-empty hidden>
+      <Empty description="" />
+      <Button data-reset></Button>
+    </div>
+    <div class="tft-cosmetic-grid" id="cosmetic-grid" data-grid data-media-preview-group data-preview-bounded></div>
+    <div class="tft-arenas-load-more-footer" data-more-footer hidden>
+      <Button data-more aria-controls="cosmetic-grid">{isZh ? '加载更多' : 'Load more'}</Button>
+    </div>
+    <noscript><p>{isZh ? '请启用 JavaScript 以浏览外观目录。' : 'Enable JavaScript to browse cosmetics.'}</p></noscript>
+  </section>
+</BaseLayout>
+<script>
+  import { initLolCosmetics } from '../client/lol-cosmetics';
+  const root = document.querySelector<HTMLElement>('[data-lol-cosmetics]');
+  if (root) initLolCosmetics(root);
+</script>
+<style is:global>
+  .lol-cosmetics .cosmetic-missing-image { grid-area: 1 / 1; pointer-events: none; }
+  .lol-cosmetics :is(.tft-cosmetic-card-media img, .tft-cosmetic-card-preview)[hidden] { display: none; }
+  .lol-cosmetics .tft-cosmetic-card-media img { object-fit: contain; }
+  .cosmetic-hover-video {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+    background: var(--panel2);
+    pointer-events: none;
+  }
+  .lol-cosmetics .cosmetic-rarity-gem {
+    position: absolute;
+    inset-block-end: -12px;
+    inset-inline-start: 50%;
+    inline-size: 24px;
+    block-size: 24px;
+    object-fit: contain;
+    transform: translateX(-50%);
+  }
+  .lol-cosmetics .cosmetic-rarity-label { display: block; color: var(--gold-text); font-size: var(--font-size-small); }
+  .lol-cosmetics .cosmetic-rarity-label[hidden] { display: none; }
+  .cosmetic-detail-pbe {
+    display: inline-block;
+    padding-inline: var(--space-2);
+    color: var(--gold-text);
+    border: 1px solid var(--gold-border);
+    border-radius: var(--radius-tag);
+    font-size: var(--font-size-small);
+  }
+  .cosmetic-related-champions { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); }
+  .cosmetic-related-champions a { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--gold-text); }
+  .cosmetic-related-champions a:hover { text-decoration: underline; }
+  .cosmetic-related-champions .domain-icon { inline-size: 1em; block-size: 1em; flex: none; }
+  @media (max-width: 559px) {
+    .lol-cosmetics .cosmetic-rarity-gem { inset-block-end: -10px; inline-size: 20px; block-size: 20px; }
+  }
+  .lol-cosmetics .tft-arenas-select-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lol-cosmetics .tft-arenas-select-filters > .ant-select-ssr > :is(.ant-select, .ant-select-source) {
+    inline-size: 100%;
+  }
+  .lol-cosmetics .tft-filterbar:not([hidden]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .lol-cosmetics .tft-filterbar > [data-tft-filter-search] { flex: 1 1 10rem; }
+  .lol-cosmetics .tft-filterbar > [data-tft-filter-count] { flex: 0 0 100%; text-align: center; }
+  .lol-cosmetics .skin-catalog-timeline-heading {
+    top: calc(var(--site-header-height) + var(--cosmetic-filter-height, 0px));
+  }
+  .lol-cosmetics .skin-catalog-timeline-node {
+    padding-block-end: var(--space-4);
+  }
+  .lol-cosmetics .skin-catalog-timeline-node > .tft-cosmetic-grid {
+    margin-block-start: var(--space-2);
+  }
+  .lol-cosmetics .skin-catalog-timeline-node:last-child::before {
+    bottom: var(--space-4);
+  }
+  .lol-cosmetics .cosmetic-timeline--has-more > .skin-catalog-timeline-node:last-child::before {
+    bottom: 0;
+    border-left-style: dotted;
+  }
+  @media (min-width: 768px) {
+    .lol-cosmetics .tft-filterbar > .tft-arenas-select-filters { display: flex; flex: 0 1 auto; flex-wrap: wrap; }
+    .lol-cosmetics .tft-arenas-select-filters > .ant-select-ssr {
+      flex: none;
+      inline-size: 10rem;
+    }
+  }
+  @media (max-width: 767px) {
+    .lol-cosmetics .tft-filterbar > [data-tft-filter-search] { flex-basis: 6rem; }
+  }
+  .lol-cosmetics :is([data-error], [data-empty]) { text-align: center; }
+</style>

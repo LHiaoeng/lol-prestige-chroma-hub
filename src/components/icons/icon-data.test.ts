@@ -10,6 +10,12 @@ describe('iconData', () => {
     expect(icon.body).toContain('d="');
   });
 
+  it.each(['summoner-icons', 'emotes', 'ward-skins'] as const)('renders the %s category as a recolorable SVG', (name) => {
+    const icon = iconData(name);
+    expect(icon).toMatchObject({ viewBox: '0 0 20 20', custom: true });
+    expect(icon.body).toContain('fill="currentColor" stroke="none"');
+  });
+
   it('keeps domain and project-only glyphs in the shared registry', () => {
     expect(iconData('skins')).toMatchObject({ viewBox: '0 0 24 24', custom: true });
     expect(iconData('tft-companions').body).toContain('fill-rule="evenodd"');

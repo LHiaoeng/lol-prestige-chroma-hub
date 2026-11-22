@@ -1,0 +1,11 @@
+---
+import LolCosmeticCatalogPage from '../../../components/LolCosmeticCatalogPage.astro';
+import { lolCosmeticCatalogs, type LolCosmeticCatalog } from '../../../domain/lol-cosmetics';
+
+export function getStaticPaths() {
+  return lolCosmeticCatalogs.map((catalog) => ({ params: { lolCosmetic: catalog.slug }, props: { catalog } }));
+}
+
+const { catalog } = Astro.props as { catalog: LolCosmeticCatalog };
+---
+<LolCosmeticCatalogPage {catalog} locale="zh-cn" />

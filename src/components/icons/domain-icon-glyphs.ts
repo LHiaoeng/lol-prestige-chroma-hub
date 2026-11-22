@@ -1,4 +1,16 @@
 export const DOMAIN_ICONS = {
+  'summoner-icons': {
+    viewBox: '0 0 20 20',
+    body: '<path fill="currentColor" stroke="none" fill-rule="evenodd" d="M10 0a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 0 0-5 14.25v-.6a4.5 4.5 0 0 1 4.5-4.15h1a4.5 4.5 0 0 1 4.5 4.15v.6A8 8 0 0 0 10 2Zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>',
+  },
+  emotes: {
+    viewBox: '0 0 20 20',
+    body: '<path fill="currentColor" stroke="none" fill-rule="evenodd" d="M10 0a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM5.1 7.7l1.8-2.35a.5.5 0 0 1 .8 0l1.55 2.35H5.1Zm5.65 0 1.55-2.35a.5.5 0 0 1 .8 0l1.8 2.35h-4.15ZM5 11h10a5 5 0 0 1-10 0Z"/>',
+  },
+  'ward-skins': {
+    viewBox: '0 0 20 20',
+    body: '<path fill="currentColor" stroke="none" d="M6.3 2.1c0-.7.8-1.1 1.5-1.1h4.4c.7 0 1.5.4 1.5 1.1 0 2-2.1 3.7-3.7 5.2-1.6-1.5-3.7-3.2-3.7-5.2ZM0 4.8h4.3c1.1 0 3 2.1 3 3.6 0 1.3-1 2.8-2.6 3.1L2 9.8l2.2-1.6C1.6 8.2.4 6.9 0 4.8Zm20 0h-4.3c-1.1 0-3 2.1-3 3.6 0 1.3 1 2.8 2.6 3.1L18 9.8l-2.2-1.6c2.6 0 3.8-1.3 4.2-3.4ZM10 8c.8 0 1.4.7 1.4 1.5l.1 1.2 1.7 6.9V19H6.8v-1.4l1.7-6.9.1-1.2C8.6 8.7 9.2 8 10 8Z"/>',
+  },
   "prestige-chromas": '<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7 1.8 1.8 0 0 1 1-3.3H17a4 4 0 0 0 4-4c0-4-4-7-9-7Z"/><circle cx="7.5" cy="10" r=".7"/><circle cx="11" cy="7" r=".7"/><circle cx="16" cy="8" r=".7"/>',
   "game-version": '<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h4M8 2v4M16 2v4M8 18v4M16 18v4"/>',
   "pbe-additions": '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',

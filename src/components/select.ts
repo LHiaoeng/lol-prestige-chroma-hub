@@ -81,6 +81,16 @@ export function enhanceSelect(
   const document = source.ownerDocument;
   const view = document.defaultView;
   if (controllers.has(source) || !view) return;
+  const renderOptionIcon = (option: HTMLOptionElement): HTMLElement | undefined => {
+    const customIcon = optionIcon?.(option);
+    if (customIcon || !option.dataset.selectIconSrc) return customIcon;
+    const icon = document.createElement("img");
+    icon.className = "ant-select-option-icon";
+    icon.alt = "";
+    icon.addEventListener("error", () => icon.remove(), { once: true });
+    icon.src = option.dataset.selectIconSrc;
+    return icon;
+  };
   bindDocument(document);
   selectId += 1;
 
@@ -151,7 +161,6 @@ export function enhanceSelect(
   const popup = document.createElement("div");
   popup.className = "ant-select-dropdown";
   const matchPopupWidth = source.dataset.selectPopupMatchWidth !== "false";
-  popup.classList.toggle("ant-select-dropdown-content-width", !matchPopupWidth);
   popup.hidden = true;
   const list = document.createElement("div");
   list.className = "ant-select-dropdown-list";
@@ -244,7 +253,7 @@ export function enhanceSelect(
     const hasLabel = !!selected && (hasValue || !placeholder);
     label.replaceChildren();
     if (hasLabel) {
-      const icon = optionIcon?.(selected);
+      const icon = renderOptionIcon(selected);
       if (icon) label.append(icon);
       label.append(optionLabel(selected));
     }
@@ -281,7 +290,7 @@ export function enhanceSelect(
       if (option.selected) item.classList.add("ant-select-item-option-selected");
       const content = document.createElement("span");
       content.className = "ant-select-item-option-content";
-      const icon = optionIcon?.(option);
+      const icon = renderOptionIcon(option);
       if (icon) content.append(icon);
       content.append(optionLabel(option));
       const state = document.createElement("span");

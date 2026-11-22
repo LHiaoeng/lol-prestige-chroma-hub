@@ -36,6 +36,10 @@ const isZh = (Astro.props.locale ?? (Astro.currentLocale === 'zh-cn' ? 'zh-cn' :
     <RightOutlined />
   </button>
   <div class="ant-image-preview-footer">
+    <div class="ant-image-preview-mode" data-media-viewer-mode role="group" aria-label={isZh ? '预览方式' : 'Preview mode'} hidden>
+      <button type="button" data-media-viewer-image aria-pressed="true">{isZh ? '大图' : 'Image'}</button>
+      <button type="button" data-media-viewer-video aria-pressed="false">{isZh ? '视频' : 'Video'}</button>
+    </div>
     <div class="ant-image-preview-player" data-media-viewer-player role="group" aria-label={isZh ? '视频播放控制' : 'Video playback controls'} hidden>
       <button type="button" data-media-viewer-play data-play={isZh ? '播放' : 'Play'} data-pause={isZh ? '暂停' : 'Pause'} aria-label={isZh ? '播放' : 'Play'}>
         <CaretRightOutlined class="ant-image-preview-play-icon" />

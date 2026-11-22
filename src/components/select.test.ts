@@ -7,6 +7,12 @@ const filterComponent = readFileSync(new URL("./Filters.astro", import.meta.url)
 const skinCatalogComponent = readFileSync(new URL("./SkinCatalogRoot.astro", import.meta.url), "utf8");
 const companionsComponent = readFileSync(new URL("./TftCompanionsRoot.astro", import.meta.url), "utf8");
 const selectStyles = readFileSync(new URL("../styles/global.css", import.meta.url), "utf8");
+it("keeps dropdown options on one line and allows scrolling overflow", () => {
+  const rule = selectStyles.match(/\.ant-select-item-option-content\s*\{([^}]*)\}/)?.[1];
+  expect(rule).toContain("white-space:nowrap");
+  expect(selectStyles).toMatch(/\.ant-select-dropdown-list\s*\{[^}]*overflow:auto/);
+  expect(rule).not.toContain("text-overflow:ellipsis");
+});
 const adSlotComponent = readFileSync(new URL("./AdSlot.astro", import.meta.url), "utf8");
 const selectLogic = readFileSync(new URL("./select.ts", import.meta.url), "utf8");
 

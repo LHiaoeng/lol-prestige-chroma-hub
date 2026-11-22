@@ -1,4 +1,6 @@
-const browsePaths = ['/prestige-chromas/', '/pbe-additions/', '/champions/', '/skins/', '/skinlines/', '/universes/'] as const;
+import { lolCosmeticCatalogs } from '../domain/lol-cosmetics';
+
+const browsePaths = ['/prestige-chromas/', '/pbe-additions/', '/champions/', '/skins/', '/skinlines/', '/universes/', ...lolCosmeticCatalogs.map(({ slug }) => `/${slug}/`)];
 
 export function headerNavigationState(pathname: string) {
   const path = pathname.replace(/^\/zh-cn(?=\/)/, '');

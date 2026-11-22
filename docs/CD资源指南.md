@@ -162,11 +162,13 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 完整皮肤目录 | `skins.json` | 皮肤系列、皮肤宇宙和 PBE 新增页面按需读取；不作为其他运行时页面的默认依赖 |
 | 皮肤系列 | `skinlines.json` | 系列名称、描述和数字 ID |
 | 皮肤宇宙 | `universes.json` | 皮肤宇宙名称、描述、图片和皮肤系列关系 |
-| 召唤师图标 | `summoner-icons.json` | 图标标题、图片路径、发布年份和描述；PBE 新增页面读取 |
-| 表情 | `summoner-emotes.json` | 表情名称、图片路径和关联英雄标签；PBE 新增页面读取 |
+| 召唤师图标 | `summoner-icons.json` | 图标标题、图片路径、发行年份、描述和地区品质；外观目录和 PBE 新增页面读取 |
+| 表情 | `summoner-emotes.json` | 表情名称、图片路径和关联英雄标签；外观目录和 PBE 新增页面读取 |
 | 皮肤边框 | `skinborders.json` | 边框名称与图片路径（主键 `itemId`）；PBE 新增页面读取 |
-| 守卫皮肤 | `ward-skins.json` | 守卫名称、图片路径与描述（主键 `id`）；PBE 新增页面读取 |
-| 终结特效 | `nexusfinishers.json` | 终结特效本地化名称与图标（主键 `itemId`）；PBE 新增页面读取 |
+| 守卫皮肤 | `ward-skins.json` | 守卫名称、图片路径、描述和地区品质（主键 `id`）；外观目录和 PBE 新增页面读取 |
+| 终结特效 | `nexusfinishers.json` | 终结特效本地化名称、图标和 `videoPath`（主键 `itemId`）。目录按当前数据通道加载悬停视频，PBE 新增页读取图标 |
+
+召唤师图标和守卫皮肤的品质来自 `rarities[]`，按客户端收藏规则优先使用当前地区（中文 `TENCENT`，英文 `riot`），缺少地区记录时回退到 `riot`。等级为 0 时不显示品质。终结特效沿用客户端收藏中的 `kExalted`，表情目录暂不显示品质。 [客户端收藏模块](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.js) · [客户端品质映射](https://raw.communitydragon.org/latest/plugins/rcp-fe-common-libs/global/default/rcp-fe-common-libs.js)
 
 单个英雄详情：
 
@@ -298,6 +300,10 @@ PBE 客户端货币资源位于 [`plugins/rcp-fe-lol-static-assets/global/defaul
 | 召唤师图标 | [`summonericon.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/summonericon.png) |
 | 传送门宝箱 | [`portal_chest.png`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/portal_chest.png) |
 
+**终结特效分类标识**。Riot 将终结特效列为神话商城精选物品。客户端收藏导航的 `finishers` 项使用本地化文本 `collections_sub_nav_collectibles_finishers`，并使用通用的待查看提示。该导航模板没有引用终结特效分类图形，战利品的 `category_icons/` 也没有对应文件。 [Riot 神话商城说明](https://support.riotgames.com/zh-cn/league-of-legends/rewards/mythic-shop-and-mythic-essence-faq) · [客户端收藏模块](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.js) · [战利品分类目录](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/assets/category_icons/)
+
+客户端收藏模块为默认终结特效条目（`itemId=0`）指定 `BaseFinisher.png`。其用途是默认物品图。其他终结特效的物品图由 `nexusfinishers.json` 的 `iconPath` 提供。 [默认终结特效图](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/images/finisher/basefinisher.png) · [物品数据](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/nexusfinishers.json)
+
 ##### 皮肤预览栏
 
 图标位于 [`rcp-fe-lol-static-assets/global/default/images/skin-viewer/`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/)。在客户端样式中，皮肤系列对应 `.skinline .icon`，任务皮肤形态对应 `.quest-forms .icon`，显示或隐藏界面对应 `.toggle-ui .icon`。 [收藏模块样式](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.css)
@@ -359,7 +365,11 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 棋盘 | `tftmapskins.json` | 云顶棋盘目录 |
 | 传送门 | `tftzoomskins.json` | 云顶传送门目录 |
 | 小小英雄 | `companions.json` | 小小英雄资料集；`companionType` 标识具体类别 |
-| 稀有度等级 | `tftdisplaytags.json` | `TFTRarityDisplayTag` 提供等级名称、类型和宝石图标路径 |
+| 外观标签元数据 | `tftcontentdata.json` | 以内容 ID 查询外观自身的稀有度和功能标签 |
+| 标签显示定义 | `tftdisplaytags.json` | 提供功能、稀有度和内容类型标签的本地化名称与图标 |
+| 物品类型 | `lolinventorytype.json` | 注册表的 `gipJsonPath` 指向物品数据表，`gipItemId` 指定条目 ID 字段 |
+| 表情 | `summoner-emotes.json` | 与英雄联盟共用的 LCU 表情资料，含 `inventoryIcon` 和 `taggedChampionsIds` |
+| 货币 | `lolcurrency.json` | LCU 货币总表，包含 TFT 以外的货币 |
 
 棋盘目录按页面语言读取 `tftmapskins.json` 的 `default` 或 `zh_cn` 视图，并按 `pbe`／`latest` 通道拼接同通道的 `loadoutsIcon` 图片。条目按 `itemId` 保留，`groupId` 标识分组，显示等级使用 `TFTRarity`；不要改用来源 `rarity` 或 `IsWIP` 推断等级和 PBE 新增。
 
@@ -382,6 +392,8 @@ https://raw.communitydragon.org/{version}/cdragon/
 ```
 
 使用 CDragon 数据前，必须确认目标版本中实际存在对应文件和字段；不能把便利数据路径当成所有云顶资源的固定契约。
+
+例如 [`cdragon/tft/en_us.json`](https://raw.communitydragon.org/latest/cdragon/tft/en_us.json) 和 [`zh_cn.json`](https://raw.communitydragon.org/latest/cdragon/tft/zh_cn.json) 提供 `items`、`setData`、`sets`，与 LCU 外观数据表各有用途。[CommunityDragon Explore TFT](https://explore.communitydragon.org/tft/latest/) 是另一个资源入口。附件记录的 TFT 18.7.0 pin `tft-live-windows-rls-18.7.0-5964148` 不能直接用作 RAW LCU 版本路径，实测该路径下的 `tftcontentdata.json` 返回 404。
 
 ### 3.2 云顶资源目录与图片路径
 
@@ -489,6 +501,40 @@ https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/
 ```
 
 以上仅为路径模板示例；实际文件、字段和媒体可用性必须以目标版本响应为准。
+
+### 3.7 外观标签与内容 ID
+
+LCU 外观表的 `contentId` 对应 [`tftcontentdata.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftcontentdata.json) 记录中的 `id`。后者是数组，每个元素以 `CompanionData`、`TFTMapSkin` 等物品类型为外层键，内含 `id` 和 `contentData`。其中 `contentData.rarityTag` 对应 `rarityType`，`contentData.featureTags[].featureType` 对应 `featureType`。当前目录直接使用物品表的 `TFTRarity`。
+
+[`tftdisplaytags.json` 英文](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftdisplaytags.json)和[中文](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/tftdisplaytags.json)视图通过以下字段标识标签：
+
+| 外层键 | 匹配字段 | 已核对的标签 |
+| --- | --- | --- |
+| `TFTFeatureDisplayTag` | `featureType` | `kAfkPlatform` 底座、`kEvolvingArena` 可进化型棋盘、`kEvolvingBoom` 可进化型进攻特效、`kFinisherAnimation` 淘汰动画、`kIntroCutScene` 介绍过场动画、`kTransformation` 转变 |
+| `TFTRarityDisplayTag` | `rarityType` | 经典、传说、神话、至臻，见 3.3 |
+| `TFTContentDisplayTag` | `contentType` | `kArena` 棋盘、`kBoom` 进攻特效、`kCurrency` 货币、`kEmote` 表情、`kTactician` 小小英雄、`kZoom` 传送门 |
+
+2026-11-23 核对时，`latest` 有 5,064 条内容标签记录，包含小小英雄 2,040、进攻特效 356、棋盘 142、传送门 67、表情 2,452、TFT 货币 7 条。[`lolcurrency.json` 总表](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/lolcurrency.json)有 20 条。功能标签计数为小小英雄淘汰动画 110、底座 34、转变 1，棋盘介绍过场动画 37、可进化型棋盘 36，进攻特效可进化 2。同一条内容可有多个标签。这些数字随 `latest` 更新。
+
+### 3.8 小小英雄与其他外观的关联
+
+在已核对的 LCU 表中，`contentId` 用来查单个物品的标签。跨类型比较 `itemId` 时须带物品类型，例如棋盘和小小英雄表有 66 个重复编号。名称、主题词和文件名适合找候选，专属或赠送关系需有对应活动或商品资料支持。
+
+| 外观 | 可用线索 | 水晶玫瑰 小小格温 `68004` 示例 |
+| --- | --- | --- |
+| 表情 | `inventoryIcon` 中的物种、英雄与主题词。文件名中的数字位置会变动。可用 `taggedChampionsIds` 辅助查英雄，该字段使用英雄联盟英雄 ID，与小小英雄的 `speciesId` 各自独立 | `10052` 致胜眨眼、`10053` 没时间解释了快上玫瑰小车、`10139` 双手比心均带格温与水晶玫瑰主题。已从[腾讯活动页](https://lol.qq.com/act/a20261020crystalrosegwen/index.html)核对 `10052` 的专属赠送关系 |
+| 进攻特效 | 中文名可按小小英雄完整名称做最长前缀匹配，图标主题可辅助核对。已核对样本的 `groupId` 为 `0`、`groupName` 为空字符串 | `194003` 水晶玫瑰 小小格温 快刀剪乱，名称和图标主题均吻合 |
+| 传送门 | 名称和图标可能含英雄或主题。文件名前缀 `Portal1_` 和 `Portal2_` 都可能出现英雄名 | `35` 馥郁晶昙使用 `Portal1_CrystalRose`，对应同主题。`46` 丝缕缠流使用 `Portal1_Gwen`，`58` 神秘格温仪式使用 `Portal2_GwenMoment`，两者都有格温线索 |
+| 棋盘 | 棋盘名称或主题可提供候选，`groupId` 标识棋盘自身的分组 | `1020` 格温的剪剪尖尖塔以格温命名，名称对应英雄层级 |
+
+表情使用共用的 LCU 数据表，`inventoryIcon` 的 `/SummonerEmotes/TFT/` 子目录可用于识别 TFT 主题素材。表情出现在 TFT 标签表或目录中，只能说明数据归类。客户端装备和使用范围需按实际客户端或 Riot 说明确认。
+
+### 3.9 静态图、游戏内演出与模型
+
+- **大厅静态图**使用物品表的 `loadoutsIcon`，按 1.4 转为 RAW PNG 地址。传送门表另有 `largeLoadoutsIcon`。棋盘和小小英雄的图片目录见 3.2。
+- **淘汰演出**的配置可在 [`game/loadouts/companions/` 目录索引](https://raw.communitydragon.org/json/latest/game/loadouts/companions/)中查找，包含动画引用、相机、UI 和时间轴信息。与 `kFinisherAnimation` 标签分别统计，已核对时共有 109 个 `.cutscene.bin.json`，其中 106 个以 `_tier1.cutscene.bin.json` 结尾。参考[水晶玫瑰 小小格温演出配置](https://raw.communitydragon.org/latest/game/loadouts/companions/chibigwen_crystalrose_crystalrose_tier1.cutscene.bin.json)。
+- **游戏内模型**从 `game/` 的角色与皮肤配置定位。水晶玫瑰 小小格温的 [`skin4.bin.json`](https://raw.communitydragon.org/latest/game/data/characters/petchibigwen/skins/skin4.bin.json) 用 `skinMeshProperties.simpleSkin` 引用 [`.skn` 主网格](https://raw.communitydragon.org/latest/game/assets/characters/petchibigwen/themes/crystalrose/tier1/petchibigwen_crystalrose_tier1.skn)，可进一步查看 `materialOverride`、`initialSubmeshToHide` 与[动画配置](https://raw.communitydragon.org/latest/game/data/characters/petchibigwen/animations/crystalrose.bin)。棋盘可用 `tft_arenaskin_*` 查找角色资源，例如 [Noxus Ring](https://raw.communitydragon.org/latest/game/data/characters/tft_arenaskin_noxusring/tft_arenaskin_noxusring.bin)。
+- **网页预览**可直接显示 PNG。若源资源为 Bink 视频（`.bk2`），网页播放需另备浏览器支持的视频格式。静态 3D 预览可调研用 [LeagueToolkit](https://github.com/LeagueToolkit/LeagueToolkit) 将 `.skn` 转为 glTF/GLB，再由网页加载。已核对的 [RAW 导出清单](https://raw.communitydragon.org/latest/cdragon/files.exported.txt)有 15,592 个 `.skn`，没有列出 `.skl`、`.anm` 或 glTF/GLB。骨骼动画、实时材质和表情切换需要额外资源与渲染逻辑。附件报告的格温 GLB 包含 6 个 primitive、16,346 个顶点和 7 张内嵌贴图，该结果尚未在本站复现。源配置将 `Car` 列为默认隐藏，附件的导出结果却保留该子网格，复现时需确认筛选规则。
 
 ## 4. 官方来源与参考资料
 

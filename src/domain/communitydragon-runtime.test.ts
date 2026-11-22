@@ -29,6 +29,33 @@ import {
 } from "./skin-reference-projection";
 import { createCommunityDragonRuntime } from "../client/communitydragon-runtime";
 
+it("resolves the finisher hover video in the requested channel", () => {
+  const path = "/lol-game-data/assets/ASSETS/Loadouts/NexusFinishers/JinxFinisher/JinxFinisherVideo.webm";
+  const [finisher, withoutVideo] = parseRuntimeNexusFinisherCollection([
+    { itemId: 1, videoPath: path, splashPath: path.replace("Video.webm", "Splash.jpg") },
+    { itemId: 2 },
+  ], { locale: "zh_cn", channel: "pbe" });
+  expect(finisher?.videoUrl).toBe("https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/nexusfinishers/jinxfinisher/jinxfinishervideo.webm");
+  expect(finisher?.splashUrl).toBe("https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/nexusfinishers/jinxfinisher/jinxfinishersplash.jpg");
+  expect(withoutVideo?.videoUrl).toBeUndefined();
+});
+
+it("uses the collection rarity tier for the requested region and channel", () => {
+  const input = [{ id: 19, rarities: [{ region: "riot", rarity: 4 }, { region: "TENCENT", rarity: 2 }] }];
+  const en = { locale: "default", channel: "latest" } as const;
+  const cn = { locale: "zh_cn", channel: "pbe" } as const;
+  expect(parseRuntimeSummonerIconCollection(input, en)[0]?.rarity).toMatchObject({ id: 4, label: "Mythic" });
+  expect(parseRuntimeSummonerIconCollection(input, cn)[0]?.rarity).toMatchObject({
+    id: 2, label: "史诗", iconUrl: expect.stringContaining("/pbe/"),
+  });
+  expect(parseRuntimeWardSkinCollection([{ id: 19, rarities: [{ region: "riot", rarity: 1 }] }], cn)[0]?.rarity)
+    .toMatchObject({ id: 1, label: "稀有", iconUrl: expect.stringContaining("/images/gems/rare.png") });
+  expect(parseRuntimeWardSkinCollection([{ id: 19, rarities: [{ region: "riot", rarity: 4 }, { region: "TENCENT", rarity: 0 }] }], cn)[0]?.rarity)
+    .toBeUndefined();
+  expect(parseRuntimeNexusFinisherCollection([{ itemId: 6001 }], cn)[0]?.rarity)
+    .toMatchObject({ label: "圣堂", iconUrl: expect.stringContaining("/images/finisher/gems/exalted.png") });
+});
+
 const summary = (locale: CommunityDragonLocale, channel: RuntimeChannel) => [
   {
     id: 103,
@@ -1609,7 +1636,7 @@ describe("CommunityDragon runtime reference", () => {
       { locale: "default", channel: "pbe" },
     );
 
-    expect(finishers).toEqual([
+    expect(finishers.map(({ kind, id, name, iconUrl }) => ({ kind, id, name, iconUrl }))).toEqual([
       {
         kind: "finisher",
         id: 6001,

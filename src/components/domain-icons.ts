@@ -6,6 +6,9 @@ export { DOMAIN_ICONS };
 export type { DomainIconName };
 
 const DOMAIN_ICON_LABELS: Record<DomainIconName, { readonly zh: string; readonly en: string }> = {
+  "summoner-icons": { zh: "召唤师图标", en: "Summoner Icons" },
+  emotes: { zh: "表情", en: "Emotes" },
+  "ward-skins": { zh: "守卫皮肤", en: "Ward Skins" },
   "prestige-chromas": { zh: "臻彩", en: "Chromas" },
   "game-version": { zh: "游戏版本", en: "Patch" },
   "pbe-additions": { zh: "PBE 新增内容", en: "PBE additions" },

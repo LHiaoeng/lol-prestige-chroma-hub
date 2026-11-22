@@ -1,4 +1,5 @@
 import { SITE } from "./site";
+import { lolCosmeticCatalogs } from "../domain/lol-cosmetics";
 import { blogArticles } from "../blog/articles";
 import {
   SITE_LOCALES,
@@ -54,6 +55,7 @@ export function renderSitemap(): string {
     "/skinlines/",
     "/universes/",
     "/pbe-additions/",
+    ...lolCosmeticCatalogs.map(({ slug }) => `/${slug}/`),
     "/tft/companions/",
     "/tft/arenas/",
   ];
