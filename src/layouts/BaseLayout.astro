@@ -51,6 +51,27 @@ const headerNavigation = headerNavigationState(Astro.url.pathname);
 <!doctype html>
 <html lang={currentLocale.htmlLang} data-language={isZh ? 'zh' : 'en'} data-language-ready data-ads-disabled={!ads ? '' : undefined}>
   <head>
+    <meta name="theme-color" content="#000000" />
+    <script is:inline>
+      (() => {
+        try {
+          let preference = localStorage.getItem('theme-mode');
+          if (preference !== 'system' && preference !== 'light' && preference !== 'dark') preference = 'dark';
+          const prefersDark = preference === 'system'
+            && typeof window.matchMedia === 'function'
+            && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = preference === 'dark' || prefersDark ? 'dark' : 'light';
+          document.documentElement.dataset.themePreference = preference;
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#ffffff' : '#000000';
+        } catch {
+          document.documentElement.dataset.themePreference = 'dark';
+          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.style.colorScheme = 'dark';
+        }
+      })();
+    </script>
     <script is:inline async src="https://www.googletagmanager.com/gtm.js?id=GTM-N2XNGMV2"></script>
     <script is:inline>
 window.dataLayer = window.dataLayer || [];
@@ -61,7 +82,6 @@ gtag('js', new Date());
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     {Astro.props.noindex && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="theme-color" content="#000000" />
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     {canonical && <link rel="canonical" href={canonical} />}
     {alternates.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.url} />)}
@@ -122,6 +142,14 @@ gtag('js', new Date());
           <Icon name="FileTextOutlined" /> {isZh ? '博客' : 'Blog'}
         </a>
         {canonical && <a class="ant-btn ant-btn-variant-text ant-btn-icon-only language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
+        <Dropdown id="theme-preference" placement="bottomRight">
+          <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text ant-btn-icon-only theme-toggle" aria-label={isZh ? '主题' : 'Theme'} title={isZh ? '主题' : 'Theme'}>
+            <Icon name="theme-switch" style="fill:currentColor;stroke:none" />
+          </button>
+          <li role="none"><button type="button" role="menuitemradio" data-ant-dropdown-item data-theme-option="system" aria-checked="false"><Icon name="SyncOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '跟随系统' : 'System'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
+          <li role="none"><button type="button" role="menuitemradio" data-ant-dropdown-item data-theme-option="light" aria-checked="false"><Icon name="SunOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '浅色主题' : 'Light theme'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
+          <li role="none"><button type="button" role="menuitemradio" data-ant-dropdown-item data-theme-option="dark" aria-checked="true"><Icon name="MoonOutlined" class="ant-dropdown-menu-item-icon" />{isZh ? '暗黑主题' : 'Dark theme'}<span class="theme-option-dot" aria-hidden="true"></span></button></li>
+        </Dropdown>
       </div>
     </header>
     <main><slot /></main>
@@ -132,10 +160,12 @@ gtag('js', new Date());
     <script>
       import { bindImageFallbacks } from '../client/image-fallback';
       import { bindHeaderGlass } from '../client/header-glass';
+      import { bindThemeSwitcher } from '../client/theme-switcher';
       import { bindTypographyParagraphs } from '../components/Typography';
       import { bindCardTitleTooltips } from '../components/card-title';
       bindImageFallbacks();
       bindHeaderGlass();
+      bindThemeSwitcher();
       bindTypographyParagraphs();
       bindCardTitleTooltips();
     </script>
@@ -145,15 +175,18 @@ gtag('js', new Date());
       .brand { display: flex; align-items: center; gap: var(--space-2); }
       .brand img { display: block; width: 32px; height: 32px; flex: none; }
       .brand > .brand-text { color: var(--text); }
-      .site-header .brand-text { text-shadow: 0 1px 7px #000000d9; }
+      .site-header .brand-text { text-shadow: var(--header-brand-shadow); }
       .header-controls { display:flex; align-items:center; flex:0 0 auto; }
       .header-browse { display:flex; align-items:center; flex:0 0 auto; }
-      .header-controls .header-blog-link[aria-current] { color:var(--gold); }
+      .header-controls .header-blog-link[aria-current] { color:var(--gold-text); }
+      .theme-toggle > svg { width:16px; height:16px; }
+      .theme-option-dot { width:6px; height:6px; flex:none; margin-inline-start:auto; border-radius:50%; background:var(--theme-option-indicator); opacity:0; }
+      [data-theme-option][aria-checked="true"] .theme-option-dot { opacity:1; }
       .browse-menu-label-short { display:none; }
       .tft-nav-label-short { display:none; }
       .language-toggle-mark { position:relative; width:1em; height:1em; }
       .language-toggle-current, .language-toggle-next { position:absolute; border:1px solid currentColor; font-size:1em; line-height:1; }
-      .language-toggle-current { z-index:1; inset-block-start:0; inset-inline-start:0; border-color:var(--gold); background:var(--gold); color:var(--on-gold); transform:scale(.7); transform-origin:top left; }
+      .language-toggle-current { z-index:1; inset-block-start:0; inset-inline-start:0; border-color:var(--gold-border); background:var(--gold); color:var(--on-gold); transform:scale(.7); transform-origin:top left; }
       .language-toggle-next { inset-block-end:0; inset-inline-end:0; transform:scale(.5); transform-origin:bottom right; }
       @media (max-width: 767px) {
         .header-controls .ant-btn { min-height:var(--control-height-sm); height:var(--control-height-sm); padding-inline:7px; }
@@ -170,10 +203,10 @@ gtag('js', new Date());
         .brand > .brand-text { display:none; }
         .header-browse .ant-btn > span { display:none; }
       }
-      footer a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
-      footer a:hover { color:var(--gold-hover); }
-      footer a:active { color:var(--gold-active); }
-      footer a:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+      footer a { color: var(--gold-text); text-decoration: underline; text-underline-offset: 3px; }
+      footer a:hover { color:var(--gold-hover-text); }
+      footer a:active { color:var(--gold-active-text); }
+      footer a:focus-visible { outline:2px solid var(--gold-text); outline-offset:3px; }
       .footer-links { display: flex; justify-content: center; align-items: center; gap: var(--space-2); }
       .footer-separator { color: var(--tertiary); font-size: var(--font-size-body); line-height:var(--line-height-body); }
     </style>

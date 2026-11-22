@@ -8,8 +8,10 @@ const alertStyles = read("../src/components/Alert.astro");
 const tokens = read("../src/styles/tokens.css");
 
 function rule(source: string, selector: string): string {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const declarations = source.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1];
+  const declarations = Array.from(source.matchAll(/([^{}]+)\{([^{}]*)\}/g))
+    .filter(([, selectors]) => selectors.split(",").some((candidate) => candidate.trim() === selector))
+    .map(([, , values]) => values)
+    .join(";");
   expect(declarations, `missing CSS rule: ${selector}`).toBeDefined();
   return declarations ?? "";
 }

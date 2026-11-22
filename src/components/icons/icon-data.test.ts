@@ -15,6 +15,10 @@ describe('iconData', () => {
     expect(iconData('tft-companions').body).toContain('fill-rule="evenodd"');
     expect(iconData('tft-arenas').body).toContain('scale(.85714)');
     expect(iconData('summary-actions').body).toContain('stroke-width="1.8"');
+    expect(iconData('theme-switch').body).toContain('M7.02 3.635');
+    expect(iconData('MoonOutlined').custom).toBe(false);
+    expect(iconData('SunOutlined').custom).toBe(false);
+    expect(iconData('SyncOutlined').custom).toBe(false);
   });
 
   it('renders both Riot skinline masks in the shared theme color', () => {

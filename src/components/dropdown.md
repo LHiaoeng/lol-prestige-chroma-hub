@@ -1,6 +1,6 @@
 # Dropdown 对照与支持范围
 
-基准：[Antdv Next `839bec66` 的 Dropdown 实现](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/dropdown.tsx)、[Dropdown 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)、[Menu 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/menu/style/index.ts)及[中文文档](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/dropdown/index.zh-CN.md)。本站以 `DESIGN.md` 的暗金 Token 替换上游主题色。
+基准：[Antdv Next `839bec66` 的 Dropdown 实现](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/dropdown.tsx)、[Dropdown 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/dropdown/style/index.ts)、[Menu 样式](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/menu/style/index.ts)及[中文文档](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/docs/src/pages/components/dropdown/index.zh-CN.md)。本站按 `DESIGN.md` 的生效主题映射语义色与表面 Token。
 
 | 上游契约 | 本站落点与可观察结果 |
 | --- | --- |

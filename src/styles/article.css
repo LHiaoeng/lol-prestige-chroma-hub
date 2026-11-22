@@ -29,14 +29,14 @@
 .about-page .editorial-meta,
 .privacy-page .effective-date { color: var(--muted); font-size: var(--font-size-small); line-height: var(--line-height-small); }
 .blog-article .article-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
-.blog-article .kicker { color: var(--gold); }
+.blog-article .kicker { color: var(--gold-text); }
 
 .blog-article section,
 .about-page section,
 .privacy-page section { margin-top: var(--space-4); }
 .blog-article h2,
 .about-page h2,
-.privacy-page h2 { margin: 0 0 var(--space-3); color: var(--gold); font-size: var(--font-size-headline-md); font-weight: 600; line-height: var(--line-height-headline-md); }
+.privacy-page h2 { margin: 0 0 var(--space-3); color: var(--gold-text); font-size: var(--font-size-headline-md); font-weight: 600; line-height: var(--line-height-headline-md); }
 .blog-article h3,
 .about-page h3,
 .privacy-page h3 { margin: var(--space-4) 0 var(--space-2); color: var(--text); font-size: var(--font-size-headline-sm); font-weight: 600; line-height: var(--line-height-headline-sm); }
@@ -67,13 +67,13 @@
 
 .blog-article a,
 .about-page a,
-.privacy-page a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+.privacy-page a { color: var(--gold-text); text-decoration: underline; text-underline-offset: 3px; }
 .blog-article a:hover,
 .about-page a:hover,
-.privacy-page a:hover { color: var(--gold-hover); }
+.privacy-page a:hover { color: var(--gold-hover-text); }
 .blog-article a:focus-visible,
 .about-page a:focus-visible,
-.privacy-page a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.privacy-page a:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 3px; }
 
 .blog-article figure { margin: var(--space-4) 0 0; }
 .blog-article figure.article-hero { margin-top: 0; }
@@ -91,7 +91,7 @@
 .blog-article .official-sources strong { display: block; margin-bottom: var(--space-2); color: var(--text); font-size: var(--font-size-body); font-weight: 600; }
 .blog-article .official-sources ul { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); margin: 0; padding: 0; list-style: none; font-size: var(--font-size-body); line-height: var(--line-height-body); }
 .blog-article .official-sources li { margin: 0; }
-.blog-article .official-source-link { color: var(--gold); font-size: var(--font-size-body); }
+.blog-article .official-source-link { color: var(--gold-text); font-size: var(--font-size-body); }
 
 .blog-article table { width: 100%; margin: 0 0 var(--space-3); border-collapse: collapse; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); }
 .blog-article th,

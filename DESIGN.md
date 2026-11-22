@@ -244,7 +244,7 @@ components:
     item-padding: 5px 12px
 ---
 
-# LoL Chroma Art 夜间设计规范
+# LoL Chroma Art 主题设计规范
 
 ## Overview
 
@@ -260,9 +260,9 @@ components:
 
 主文本、次级文本、说明文本和禁用文本分别使用白色 85%、65%、45% 和 25% 的透明度。文字保留真实暗色 Token，避免用一个合成灰色覆盖不同底层。说明文字的对比度应在实际背景上复核；禁用色只用于确实不可操作的内容。
 
-Chroma Gold 是最终可见主色 `primary: #d7b56d`。普通暗色算法会把同值种子派生为 #ba9d60；本定制明确覆盖最终 `colorPrimary` 和 `colorPrimaryText`，其余主色色阶保持算法输出：悬停 #cebb8b、按下 #937d4e、选中背景 #4f442f、边框悬停 #6c5c3c。按钮三个状态均使用 `on-primary: #141414`，14px 文字的对比度分别约为 9.40、9.74、4.64，满足 WCAG AA。链接及其悬停/按下也使用这一主色色阶；不得直接沿用默认蓝色链接。
+Chroma Gold 的品牌种子为 `#d7b56d`。暗色模式覆盖最终 primary 与 `colorPrimaryText` 为此值，悬停、按下、选中背景与边框悬停沿用算法输出；浅色模式保留该色作为实色按钮填充，文字链接、焦点和边界使用同一色板第八阶 `#8a6b38`。按钮在两种主题下均用 `#141414` 深色文字。`--gold` 表示品牌填充色，`--gold-text`、`--gold-hover-text` 与 `--gold-active-text` 表示可读文字色，边框另用对应的 `--gold-*-border` Token。
 
-成功、警告、错误与信息保留官方暗色语义色及其背景、边框。Alert 正文用主文本，颜色与图标共同表达状态；不要把所有正文染成状态色。`blue` 到 `lime` 是上游预设色种子，供分类与可视化使用；其中 `gold` 是上游预设金色，本站品牌操作使用 `primary`，两者用途不同。
+成功、警告、错误与信息分别为暗色和浅色定义可读的语义前景、填充与边框。Alert 正文用主文本，颜色与图标共同表达状态；不要把所有正文染成状态色。`blue` 到 `lime` 是上游预设色种子，供分类与可视化使用；其中 `gold` 是上游预设金色，本站品牌操作使用 `primary`，两者用途不同。
 
 ## Typography
 
@@ -320,13 +320,15 @@ YAML 保留所有上游组件键和几何参数，并替换为真实暗色语义
 
 夜间 Token 的提取依据为 [Antdv Next 1.6.0 发布包](https://unpkg.com/antdv-next@1.6.0/dist/antd.js)中的 `theme.getDesignToken` 与 `theme.darkAlgorithm`。在暗色结果上仅覆盖最终 `colorPrimary`、`colorPrimaryText` 为 #d7b56d；链接映射到主色色阶。Button 的文字色只在组件级使用 #141414，保持 Tooltip 与其他反色组件的白字。没有对全局 `colorTextLightSolid` 做深色覆盖。主题源码见 [darkAlgorithm](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/theme/themes/dark/index.ts) 与 [Token 输出入口](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/theme/getDesignToken.ts)。
 
-本文件定义一套静态夜间主题。本站继续使用 Astro 与 CSS 变量；设计来源的 Vue 算法仅用于离线核对，页面不增加主题运行时。上游数值有更新时应重新提取、比较差异，再更新规范和消费者。
+本站通过 Header 主题菜单支持跟随系统、浅色和暗色。偏好默认 `dark`，保存在浏览器的 `theme-mode` 项中；根节点以 `data-theme` 标记生效主题，以 `data-theme-preference` 标记访客选择。首屏脚本在绘制前解析偏好，系统配色变化只影响跟随系统的访客，同源标签页通过 storage 事件同步。主题实现使用 Astro、原生 DOM、浏览器 API 和 CSS 变量，不引入 Vue。
+
+浅色和暗色分别对照锁定提交 `839bec66f18a78eeef5c6843b78ea4a54d73b248` 的 `defaultAlgorithm` 与 `darkAlgorithm` 输出。暗色保留既有的黑灰金主题。浅色使用白色页面与容器、Antdv Next 语义的主文本和状态色，以及为对比度调整后的金色前景。Token 集中在 [tokens.css](src/styles/tokens.css)；新增或调整颜色时同时核对主题菜单、组件状态和代表页面的计算样式。设计来源的 Vue 算法只用于离线核对，不作为本站运行时依赖。上游数值有更新时重新提取并比较差异。
 
 ### 站点品牌与页面契约
 
 品牌正式拼写为 `LoL Chroma Art`，SEO与正文均保持这一拼写。现有 Logo 中 `LoL CHROMA` 为金色，`ART` 为白色；占位图保留低对比水印，徽标约20%、字标约32%不透明度。广告品牌图保持5:1、600×120px且不超过150KB。
 
-Header 使用80%不透明的暗色玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的暗色表面。右侧控件尺寸与组合见 [Header 用法](docs/frontend-design.md#组件用法)。
+Header 使用80%不透明的主题玻璃表面，首屏与滚动后保持一致，轻微透出原画轮廓；模糊约4px、亮度不低于.95；不支持 backdrop-filter 时回退为近不透明的表面。主题、语言、博客和游戏导航入口在中英文桌面与窄屏保持可用，主题入口位于最右侧。右侧控件尺寸与组合见 [Header 用法](docs/frontend-design.md#组件用法)。
 
 博客使用响应式原画背景，767px以下读取中图；背景延伸到Header之后，使用svh适应移动浏览器栏。首页直接展开最新博客、工具导航和新增臻彩，不使用全屏 Hero。减少动态效果时关闭原画漂移和视差。返回顶部使用 [FloatButton.BackTop](src/components/back-to-top.md) 的默认圆形样式，滚动达到 400px 时显示，并适配安全区。
 

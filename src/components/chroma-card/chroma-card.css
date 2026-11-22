@@ -14,7 +14,7 @@ article.runtime-chroma-card {
   position: relative;
   overflow: visible;
 }
-article.runtime-chroma-card:focus { outline: 2px solid var(--gold); outline-offset: 2px; }
+article.runtime-chroma-card:focus { outline: 2px solid var(--gold-text); outline-offset: 2px; }
 .runtime-chroma-card-actions {
   position: absolute;
   top: var(--space-2);
@@ -26,8 +26,8 @@ article.runtime-chroma-card:focus { outline: 2px solid var(--gold); outline-offs
   transition: opacity var(--motion-fast);
 }
 .runtime-chroma-card-actions .project-icon { width: 14px; height: 14px; color: currentColor; }
-.runtime-chroma-image-toggle[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
-.runtime-chroma-card-actions .ant-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.runtime-chroma-image-toggle[aria-pressed="true"] { border-color: var(--gold-border); color: var(--gold-text); }
+.runtime-chroma-card-actions .ant-btn:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
 @media (hover: hover) and (pointer: fine) {
   .runtime-chroma-card-actions { opacity: 0; pointer-events: none; }
   .runtime-chroma-card:hover .runtime-chroma-card-actions,
@@ -35,7 +35,7 @@ article.runtime-chroma-card:focus { outline: 2px solid var(--gold); outline-offs
   .runtime-chroma-card-actions:has(.runtime-chroma-info-button[aria-expanded="true"]) { opacity: 1; pointer-events: auto; }
 }
 .runtime-chroma-link { display: block; color: var(--text); }
-.runtime-chroma-link:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.runtime-chroma-link:focus-visible { outline: 2px solid var(--gold-text); outline-offset: -2px; }
 .runtime-chroma-preview { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; cursor: zoom-in; }
 .runtime-chroma-media img {
   display: block;

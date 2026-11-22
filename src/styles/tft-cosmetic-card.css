@@ -89,7 +89,7 @@
 }
 .tft-cosmetic-card-title-tooltip:focus-visible {
   border-radius: var(--radius-control);
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--gold-text);
   outline-offset: 2px;
 }
 
@@ -117,7 +117,7 @@
   height: 14px;
 }
 .tft-cosmetic-info-button:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--gold-text);
   outline-offset: 2px;
 }
 .tft-cosmetic-card-popover {

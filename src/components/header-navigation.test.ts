@@ -2,10 +2,14 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { headerNavigationState } from './header-navigation';
 
-it('renders four text buttons in the right-hand header controls', () => {
+it('places the theme menu after the language toggle in the right-hand header controls', () => {
   const layout = readFileSync(new URL('../layouts/BaseLayout.astro', import.meta.url), 'utf8');
   const controls = layout.split('<div class="header-controls">')[1]?.split('</header>')[0];
-  expect(controls?.match(/class="ant-btn ant-btn-variant-text\b/g)).toHaveLength(4);
+  expect(controls?.match(/class="ant-btn ant-btn-variant-text\b/g)).toHaveLength(5);
+  expect(controls?.indexOf('class="ant-btn ant-btn-variant-text ant-btn-icon-only language-toggle"')).toBeGreaterThan(-1);
+  expect(controls?.indexOf('class="ant-btn ant-btn-variant-text ant-btn-icon-only theme-toggle"')).toBeGreaterThan(
+    controls?.indexOf('class="ant-btn ant-btn-variant-text ant-btn-icon-only language-toggle"') ?? -1,
+  );
 });
 
 describe('headerNavigationState', () => {

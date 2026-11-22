@@ -102,8 +102,8 @@ const { id, isZh, resultCount } = Astro.props;
   }
   .tft-pbe-filter[hidden] { display: none; }
   .tft-pbe-filter:hover { background: var(--fill); }
-  .tft-pbe-filter:has(:checked) { background: var(--selected-bg); color: var(--gold); }
-  .tft-pbe-filter:has(:focus-visible) { outline: var(--line-width-bold) solid var(--gold); }
+  .tft-pbe-filter:has(:checked) { background: var(--selected-bg); color: var(--gold-text); }
+  .tft-pbe-filter:has(:focus-visible) { outline: var(--line-width-bold) solid var(--gold-text); }
   .tft-pbe-filter:has(:disabled) { color: var(--disabled); cursor: not-allowed; }
   @media (max-width: 767px) {
     .tft-filterbar:not([hidden]) {

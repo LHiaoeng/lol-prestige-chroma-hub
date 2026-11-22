@@ -28,10 +28,10 @@ const blogCountLabel = isZh ? `（共 ${blogArticlesNewestFirst.length} 篇）` 
 <style>
   .latest-section { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin-inline: auto; padding-top: 32px; padding-bottom: 40px; }
   .heading-count { font-size:var(--font-size-small); font-weight:600; color: var(--muted); }
-  .see-all { flex: none; color: var(--gold); font-weight:600; }
+  .see-all { flex: none; color: var(--gold-text); font-weight:600; }
   .guide-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .guide-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); }
-  .guide-category { color: var(--gold); font-size:var(--font-size-small); font-weight:600; letter-spacing: .18em; text-transform: uppercase; }
+  .guide-category { color: var(--gold-text); font-size:var(--font-size-small); font-weight:600; letter-spacing: .18em; text-transform: uppercase; }
   .guide-card p, .guide-card h3 { margin: 0; }
   .guide-card h3 { font-family:var(--font-ui); font-size:var(--font-size-title); line-height: 1.35; overflow-wrap: anywhere; }
   .guide-card time { color: var(--muted); font-size:var(--font-size-small); margin-top: auto; }

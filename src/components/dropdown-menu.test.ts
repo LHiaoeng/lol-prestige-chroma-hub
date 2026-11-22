@@ -26,6 +26,26 @@ it("renders both header menus with icon-bearing menu items", () => {
   expect(tftMenu).toContain('<DomainIcon name="tft-arenas" class="ant-dropdown-menu-item-icon" />');
 });
 
+it('offers a right-aligned bilingual theme menu with the three saved preferences', () => {
+  const layout = readFileSync(new URL('../layouts/BaseLayout.astro', import.meta.url), 'utf8');
+  const menu = layout.split('<Dropdown id="theme-preference" placement="bottomRight">')[1]?.split('</Dropdown>')[0];
+  expect(menu).toBeDefined();
+  expect(menu).toContain('aria-label={isZh ? \'主题\' : \'Theme\'}');
+  expect(menu).toContain('name="theme-switch"');
+  expect(menu?.match(/role="menuitemradio"/g)).toHaveLength(3);
+  expect(menu?.match(/data-theme-option="(system|light|dark)"/g)).toEqual([
+    'data-theme-option="system"',
+    'data-theme-option="light"',
+    'data-theme-option="dark"',
+  ]);
+  expect(menu).toContain('data-theme-option="dark" aria-checked="true"');
+  expect(layout.indexOf('data-theme-option="dark" aria-checked="true"'))
+    .toBeLessThan(layout.indexOf('bindThemeSwitcher();'));
+  expect(layout).toContain("localStorage.getItem('theme-mode')");
+  expect(layout).toContain("preference !== 'system' && preference !== 'light' && preference !== 'dark'");
+  expect(layout).toContain('document.documentElement.dataset.theme = theme');
+});
+
 it("uses default activation with the text trigger for version and detail action menus", () => {
   for (const [path, menuCount] of [
     ["./RuntimeChannelSwitcher.astro", 1],

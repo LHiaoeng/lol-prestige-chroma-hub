@@ -90,7 +90,7 @@
   .ant-segmented-item, .ant-segmented-item::after { transition: none; }
 }
 
-.ant-segmented-item:has(:focus-visible) { outline: var(--line-width-bold) solid var(--segmented-focus-color, var(--gold)); outline-offset: calc(-1 * var(--line-width-bold)); }
+.ant-segmented-item:has(:focus-visible) { outline: var(--line-width-bold) solid var(--segmented-focus-color, var(--gold-text)); outline-offset: calc(-1 * var(--line-width-bold)); }
 .ant-segmented-item:has(:disabled) { background: transparent; color: var(--disabled); cursor: not-allowed; }
 .ant-segmented-item:has(:checked:disabled) {
   background: var(--segmented-selected-bg, var(--panel2));

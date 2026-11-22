@@ -162,21 +162,21 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   .detail{grid-template-columns:minmax(0,1fr);align-items:stretch;gap:var(--space-3);padding-bottom:0}
   .detail-media{min-width:0}
   .detail-title-row{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
-  .detail-display-title{display:flex;flex:1;align-items:center;gap:8px;min-width:0;margin:0;color:var(--gold);font-family:var(--font-ui);font-size:var(--font-size-display);line-height:var(--line-height-display);font-weight:600;overflow-wrap:anywhere}
+  .detail-display-title{display:flex;flex:1;align-items:center;gap:8px;min-width:0;margin:0;color:var(--gold-text);font-family:var(--font-ui);font-size:var(--font-size-display);line-height:var(--line-height-display);font-weight:600;overflow-wrap:anywhere}
   .detail-display-title :global(.color-wrap),.detail-display-title :global(.color-circle){width:1em;height:1em;flex:0 0 1em}
   .detail-category-name{cursor:help}
   :global(.category-icon-tooltip-image){display:block;width:auto;height:auto;max-width:min(240px,calc(100vw - (var(--page-gutter) * 2)));max-height:min(240px,65vh);object-fit:contain}
   .detail-lede{grid-column:1/-1}
   .detail-summary{grid-column:1/-1}
-  .detail-summary :global(dl){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;border:0;color:var(--gold);font-size:var(--font-size-title);line-height:var(--line-height-title)}
+  .detail-summary :global(dl){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;border:0;color:var(--gold-text);font-size:var(--font-size-title);line-height:var(--line-height-title)}
   .detail-summary :global(dl>div){display:flex;align-items:center;gap:0;padding:0;border:0}
   .detail-summary :global(dt){color:var(--muted);font-size:var(--font-size-small)}
-  .detail-summary :global(dd){display:inline-flex;align-items:center;gap:8px;margin:0;color:var(--gold)}
+  .detail-summary :global(dd){display:inline-flex;align-items:center;gap:8px;margin:0;color:var(--gold-text)}
   .detail-summary :global(.ant-divider-vertical){margin-inline:0;font-size:inherit}
   .detail-summary :global(.detail-summary-item){min-width:0;min-height:var(--control-height);overflow-wrap:anywhere}
   .detail-summary :global(.runtime-skin-actions-summary){display:inline-flex;align-items:center;gap:8px}
   .detail-artwork-section{display:grid;grid-column:1/-1;min-width:0;gap:var(--space-3)}
-  .detail-artwork-section h2,.detail-related :global(.section-heading h2){display:flex;align-items:center;gap:var(--space-2);margin:0;color:var(--gold);font-size:var(--font-size-headline-sm);line-height:var(--line-height-headline-sm);font-weight:600}
+  .detail-artwork-section h2,.detail-related :global(.section-heading h2){display:flex;align-items:center;gap:var(--space-2);margin:0;color:var(--gold-text);font-size:var(--font-size-headline-sm);line-height:var(--line-height-headline-sm);font-weight:600}
   .detail-artwork-section h2 :global(.domain-icon),.detail-related :global(.section-heading h2 .domain-icon){width:1em;height:1em;flex:0 0 auto}
   .detail-image{width:100%;height:auto;aspect-ratio:16/9;padding:0;border-radius:var(--radius-card);background:var(--panel2);box-shadow:none}
   .detail-image :global(.image-viewer),.detail-image :global(.viewer-trigger),.detail-image :global(.viewer-trigger picture){height:100%}
@@ -185,7 +185,7 @@ const championRuntimeUrl = runtimePath('/champions/detail/', { id: Number(chroma
   .detail-related :global(.detail-module-divider){margin:var(--space-4) 0}
   .detail-related :global(.related-group){margin:0}
   .detail-related :global(.section-heading){align-items:center;margin-bottom:var(--space-3)}
-  .detail-context-link{margin:16px 0 0;color:var(--muted);font-size:var(--font-size-body);line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+  .detail-context-link{margin:16px 0 0;color:var(--muted);font-size:var(--font-size-body);line-height:1.6;text-align:center}.detail-context-link a{color:var(--gold-text);text-decoration:underline;text-underline-offset:3px}
   :global(.detail-related-links){line-height:1.7}
   @media(max-width:1599px){
     :global(main:has(> [data-runtime-skin-navigation])) .detail-related{padding-bottom:0}

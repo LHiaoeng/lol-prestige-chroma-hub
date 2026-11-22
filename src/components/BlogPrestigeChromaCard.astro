@@ -46,14 +46,14 @@ const fallback = chroma ? sourceImageUrl('medium', chroma.instanceId) : undefine
 
 <style is:global>
   .blog-chroma-grid .blog-chroma-card--placeholder{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-card);overflow:hidden}
-  .blog-chroma-grid .blog-chroma-card.chroma-card:active{border-color:var(--gold-active)}
+  .blog-chroma-grid .blog-chroma-card.chroma-card:active{border-color:var(--gold-active-border)}
   .blog-chroma-grid .blog-chroma-card-link,.blog-chroma-grid .blog-chroma-card-placeholder{display:flex;min-height:100%;flex-direction:column;text-decoration:none;color:inherit}
   .blog-chroma-grid .blog-chroma-card-img-wrap{position:relative;width:100%;padding:8px;overflow:hidden;background:var(--fill) url('/img/backgrounds/chroma-card-background.jpg') center/cover no-repeat}
   .blog-chroma-grid .blog-chroma-card.chroma-card .blog-chroma-card-img-wrap{padding:0}
   .blog-chroma-grid .blog-chroma-card-img-wrap img{display:block;width:100%;height:auto}
   .blog-chroma-grid .blog-chroma-card-color{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:inline-flex;line-height:0;padding:3px;border:1px solid var(--line);border-radius:50%;background:var(--panel)}
   .blog-chroma-grid .blog-chroma-card-name{display:block;text-align:center;min-height:48px;padding:13px var(--space-2);font-size:var(--font-size-small);font-weight:600;line-height:var(--line-height-small);color:var(--text)}
-  .blog-chroma-grid .blog-chroma-card-name:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  .blog-chroma-grid .blog-chroma-card-name:focus-visible{outline:2px solid var(--gold-text);outline-offset:-2px}
   .blog-chroma-grid .blog-chroma-card-full-name > summary{display:list-item;cursor:pointer;list-style-position:inside}
   .blog-chroma-grid .blog-chroma-card-full-name-text{display:block;padding:0 var(--space-2) var(--space-2);color:var(--text);text-align:center;overflow-wrap:anywhere}
 </style>

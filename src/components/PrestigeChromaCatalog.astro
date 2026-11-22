@@ -71,12 +71,12 @@ const heading = isZh ? '臻彩原画' : 'Prestige Chroma Splash Art';
   .prestige-chroma-catalog { container: prestige-chroma-catalog / inline-size; }
   .prestige-chroma-catalog > .alert { margin-block: var(--space-3); }
   .prestige-chroma-catalog .alert__title h2 { margin: 0; font-size: inherit; line-height: inherit; }
-  .prestige-chroma-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold); }
+  .prestige-chroma-catalog .catalog-intro-link { position: relative; display: inline-flex; width: var(--control-height); height: var(--control-height); flex: none; align-items: center; justify-content: center; border-radius: var(--radius-control); color: var(--gold-text); }
   .prestige-chroma-catalog .catalog-intro-link::before { position: absolute; inset: 10px; border: 1px solid var(--line-subtle); border-radius: var(--radius-control); background: transparent; content: ''; pointer-events: none; transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
   .prestige-chroma-catalog .catalog-intro-link svg { position: relative; width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-  .prestige-chroma-catalog .catalog-intro-link:hover { color: var(--gold-hover); }
-  .prestige-chroma-catalog .catalog-intro-link:hover::before { border-color: var(--gold); background: var(--hover-bg); }
-  .prestige-chroma-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .prestige-chroma-catalog .catalog-intro-link:hover { color: var(--gold-hover-text); }
+  .prestige-chroma-catalog .catalog-intro-link:hover::before { border-color: var(--gold-border); background: var(--hover-bg); }
+  .prestige-chroma-catalog .catalog-intro-link:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .prestige-chroma-catalog .catalog-intro-link::before { transition: none; } }
   .prestige-chroma-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .prestige-chroma-catalog .card-body { padding: 12px; }

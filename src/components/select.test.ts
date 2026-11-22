@@ -7,6 +7,7 @@ const filterComponent = readFileSync(new URL("./Filters.astro", import.meta.url)
 const skinCatalogComponent = readFileSync(new URL("./SkinCatalogRoot.astro", import.meta.url), "utf8");
 const companionsComponent = readFileSync(new URL("./TftCompanionsRoot.astro", import.meta.url), "utf8");
 const selectStyles = readFileSync(new URL("../styles/global.css", import.meta.url), "utf8");
+const adSlotComponent = readFileSync(new URL("./AdSlot.astro", import.meta.url), "utf8");
 const selectLogic = readFileSync(new URL("./select.ts", import.meta.url), "utf8");
 
 describe("Select component contract", () => {
@@ -14,6 +15,11 @@ describe("Select component contract", () => {
     expect(selectComponent).toContain("data-select-preview");
     expect(selectComponent).toContain("<DownOutlined />");
     expect(selectLogic).toContain("preview?.remove()");
+  });
+
+  it("preserves disabled option groups in the native select", () => {
+    expect(selectComponent).toContain("export interface SelectOptionGroup {");
+    expect(selectComponent).toContain("<optgroup label={item.label} disabled={item.disabled}>");
   });
 
   it("requires an explicit opt-in to clearing", () => {
@@ -36,13 +42,20 @@ describe("Select component contract", () => {
     expect(clearStyle).toContain("line-height:1");
     expect(clearStyle).toContain("transition:color var(--motion-mid) ease,opacity var(--motion-mid) ease");
     expect(selectStyles).toContain(".ant-select-clear:hover,.ant-select-clear:focus-visible{color:var(--tertiary)}");
-    expect(selectStyles).toContain(".ant-select-clear:focus-visible{border-radius:var(--radius-tag);outline:2px solid var(--gold);outline-offset:-1px}");
+    expect(selectStyles).toContain(".ant-select-clear:focus-visible{border-radius:var(--radius-tag);outline:2px solid var(--gold-text);outline-offset:-1px}");
     expect(selectStyles).toContain(".ant-select-clear[hidden]{display:none!important}");
     const touchStyle = selectStyles.match(/@media \(hover: none\) \{([\s\S]*?)@media\(prefers-reduced-motion/)?.[1] ?? "";
     expect(touchStyle).toContain("position: static");
     expect(touchStyle).toContain("width: var(--control-height-sm)");
     expect(touchStyle).toContain(":has(> .ant-select-clear:not([hidden])) > .ant-select-suffix { display: none; }");
     expect(selectLogic).toContain("clearButton.hidden = !hasValue || source.disabled;");
+  });
+
+  it("keeps active placeholder and option-group text readable", () => {
+    expect(selectStyles).toContain(".cn-input::placeholder{color:var(--muted);opacity:1}");
+    expect(selectStyles).toMatch(/\.ant-select-placeholder\{[^}]*color:var\(--muted\)/);
+    expect(selectStyles).toContain(".ant-select-item-group{color:var(--muted);");
+    expect(adSlotComponent).toContain(".ad-label { display: block; margin-bottom: var(--space-2); color: var(--muted);");
   });
 });
 

@@ -104,13 +104,13 @@ const hasOverflow = chromas.length > 6;
     border: 1px solid var(--line);
     border-radius: var(--radius-control);
     background: var(--panel);
-    color: var(--gold);
+    color: var(--gold-text);
     cursor: pointer;
     transition: transform var(--motion-mid) ease, border-color var(--motion-fast) ease, background var(--motion-fast) ease;
   }
-  .expand-toggle:hover { border-color: var(--gold-hover); background: var(--hover-bg); }
-  .expand-toggle:active { border-color: var(--gold-active); background: var(--fill); }
-  .expand-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .expand-toggle:hover { border-color: var(--gold-hover-border); background: var(--hover-bg); }
+  .expand-toggle:active { border-color: var(--gold-active-border); background: var(--fill); }
+  .expand-toggle:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
   .expand-toggle svg { transition: transform var(--motion-mid) ease; }
   .expand-toggle.is-open svg {
     transform: rotate(180deg);

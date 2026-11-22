@@ -227,9 +227,9 @@ const tabId = (key: string) => encodeURIComponent(key);
   .card__tab-icon { display: inline-flex; width: 16px; height: 16px; flex: none; align-items: center; justify-content: center; margin-inline-end: var(--space-1); line-height: 0; }
   .card__tab-icon :global(svg) { display: block; width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .card__tab::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: transparent; content: ''; }
-  .card__tab:hover, .card__tab[aria-current="page"], .card__tab[aria-selected="true"] { color: var(--gold); }
-  .card__tab[aria-current="page"]::after, .card__tab[aria-selected="true"]::after { background: var(--gold); }
-  .card__tab:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .card__tab:hover, .card__tab[aria-current="page"], .card__tab[aria-selected="true"] { color: var(--gold-text); }
+  .card__tab[aria-current="page"]::after, .card__tab[aria-selected="true"]::after { background: var(--gold-border); }
+  .card__tab:focus-visible { outline: 2px solid var(--gold-text); outline-offset: -2px; }
   .card__tab-extra { display: inline-flex; min-height: var(--control-height-lg); flex: none; align-items: center; margin-inline-start: auto; color: var(--muted); }
   .card__cover :global(img) { display: block; width: 100%; }
   .card__body { padding: var(--space-4); }
