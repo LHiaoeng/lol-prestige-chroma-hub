@@ -1,5 +1,6 @@
 ---
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
+import ButtonLink from './ButtonLink.astro';
 import { catalog } from '../data/catalog';
 import { selectNewChromas } from '../domain/featured-chroma';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -11,7 +12,7 @@ const additions = selectNewChromas(catalog);
 ---
 
 <section class="catalog-section home-catalog" aria-label={isZh ? '新增臻彩' : 'New Prestige Chromas'}>
-  <p class="catalog-all-action"><a class="button ant-btn-lg catalog-all-link" href={localizedPath(locale, '/prestige-chromas/')}>{isZh ? '查看全部臻彩' : 'View all Prestige Chromas'}</a></p>
+  <p class="catalog-all-action"><ButtonLink variant="default" class="ant-btn-lg" data-happy-wave href={localizedPath(locale, '/prestige-chromas/')}>{isZh ? '查看全部臻彩' : 'View all Prestige Chromas'}</ButtonLink></p>
   {additions.length === 0 && <p>{isZh ? '本期暂无新增臻彩' : 'No new Prestige Chromas this release.'}</p>}
   <div class="chroma-grid">
     {additions.map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
@@ -21,7 +22,6 @@ const additions = selectNewChromas(catalog);
 <style is:global>
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
   .home-catalog .catalog-all-action { display: flex; justify-content: center; margin: 0 0 var(--space-3); }
-  .home-catalog .catalog-all-link { padding-inline: var(--space-4); font-weight: 600; text-decoration: none; }
   .home-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .home-catalog .card-body { padding: 12px; }
   .home-catalog .card-body h2 { margin: 0 0 8px; font-size: var(--font-size-body); line-height: var(--line-height-body); min-height: calc(var(--line-height-body) * 2); }
