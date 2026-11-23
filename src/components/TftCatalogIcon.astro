@@ -1,0 +1,28 @@
+---
+const assets = {
+  companions: "tft_icon_tactician.png",
+  arenas: "tft_icon_arena.png",
+  booms: "tft_icon_boom.png",
+  portals: "tft_icon_portal.png",
+} as const;
+
+interface Props {
+  catalog: keyof typeof assets;
+  class?: string;
+}
+
+const { catalog, class: className } = Astro.props;
+const icon = "https://raw.communitydragon.org/latest/game/assets/ux/tft/outofgame/contenttypeicons/" + assets[catalog];
+---
+<span class:list={["tft-catalog-icon", className]} style={`--tft-catalog-icon: url("${icon}")`} aria-hidden="true"></span>
+
+<style>
+  .tft-catalog-icon {
+    display: inline-block;
+    inline-size: 1em;
+    block-size: 1em;
+    flex: none;
+    background: currentColor;
+    mask: var(--tft-catalog-icon) center / contain no-repeat;
+  }
+</style>

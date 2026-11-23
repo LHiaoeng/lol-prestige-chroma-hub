@@ -166,9 +166,12 @@ https://raw.communitydragon.org/{version}/plugins/rcp-be-lol-game-data/global/{l
 | 表情 | `summoner-emotes.json` | 表情名称、图片路径和关联英雄标签；外观目录和 PBE 新增页面读取 |
 | 皮肤边框 | `skinborders.json` | 边框名称与图片路径（主键 `itemId`）；PBE 新增页面读取 |
 | 守卫皮肤 | `ward-skins.json` | 守卫名称、图片路径、描述和地区品质（主键 `id`）；外观目录和 PBE 新增页面读取 |
+| 守卫皮肤套装 | `ward-skin-sets.json` | 套装 `id`、`hidden`、本地化 `displayName`、`description` 及成员守卫 ID 数组 `wards` |
 | 终结特效 | `nexusfinishers.json` | 终结特效本地化名称、图标和 `videoPath`（主键 `itemId`）。目录按当前数据通道加载悬停视频，PBE 新增页读取图标 |
 
 召唤师图标和守卫皮肤的品质来自 `rarities[]`，按客户端收藏规则优先使用当前地区（中文 `TENCENT`，英文 `riot`），缺少地区记录时回退到 `riot`。等级为 0 时不显示品质。终结特效沿用客户端收藏中的 `kExalted`，表情目录暂不显示品质。 [客户端收藏模块](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.js) · [客户端品质映射](https://raw.communitydragon.org/latest/plugins/rcp-fe-common-libs/global/default/rcp-fe-common-libs.js)
+
+守卫皮肤收藏的「套装」来自独立的 `ward-skin-sets.json`。客户端将 `wards[]` 与守卫的 `id` 匹配，并用 `displayName` 分组。没有套装的条目使用客户端的默认无套装分组。正式服和 PBE 的 `default`、`zh_cn` 都可读取。已核对截图中的奥德赛（62）、胜利诸神（32）与荣誉（13）。 [中文正式服套装](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/ward-skin-sets.json) · [客户端关联逻辑](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.js)
 
 单个英雄详情：
 
@@ -304,6 +307,10 @@ PBE 客户端货币资源位于 [`plugins/rcp-fe-lol-static-assets/global/defaul
 
 客户端收藏模块为默认终结特效条目（`itemId=0`）指定 `BaseFinisher.png`。其用途是默认物品图。其他终结特效的物品图由 `nexusfinishers.json` 的 `iconPath` 提供。 [默认终结特效图](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/images/finisher/basefinisher.png) · [物品数据](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/nexusfinishers.json)
 
+**终结特效发行年份**。客户端收藏页从商城目录的 `releaseDate` 提取年份，公开的 `nexusfinishers.json` 无该字段。本站按客户端收藏截图核对物品图与 ID，记录客户端显示的分组：2024 年为 1，2025 年为 2、3、4、5，2026 年为 6、7。ID 5 在客户端显示为 2025 年，CD 正式服归档从 16.1 才含该物品。归档首次出现时间与收藏分组使用的字段不同。新条目年份未核实时放入「其它」，PBE 独有条目沿用「PBE 新增」专组。 [客户端收藏模块](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.js) · [16.1 归档](https://raw.communitydragon.org/16.1/plugins/rcp-be-lol-game-data/global/default/v1/nexusfinishers.json)
+
+战利品模块通过 `NEXUS_FINISHER` 判断物品类型，神话商城配方预览按 `itemId` 查找同一份终结特效资料里的 `videoPath`。商城模块将该类型映射到本地化名称。上述映射未提供专属分类图形。 [战利品模块](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-loot/global/default/rcp-fe-lol-loot.js) · [商城模块](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-store/global/default/rcp-fe-lol-store.js)
+
 ##### 皮肤预览栏
 
 图标位于 [`rcp-fe-lol-static-assets/global/default/images/skin-viewer/`](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/skin-viewer/)。在客户端样式中，皮肤系列对应 `.skinline .icon`，任务皮肤形态对应 `.quest-forms .icon`，显示或隐藏界面对应 `.toggle-ui .icon`。 [收藏模块样式](https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-collections/global/default/rcp-fe-lol-collections.css)
@@ -410,6 +417,8 @@ https://raw.communitydragon.org/{version}/cdragon/
 
 #### 云顶图标资源获取
 
+四个 TFT 目录的标题与导航使用 [CommunityDragon 客户端分类图标](https://raw.communitydragon.org/json/latest/game/assets/ux/tft/outofgame/contenttypeicons/)。小小英雄、棋盘、进攻特效和传送门分别对应 `tft_icon_tactician.png`、`tft_icon_arena.png`、`tft_icon_boom.png`、`tft_icon_portal.png`。另可查到 `tft_emote_icon.png`，语义为 TFT 表情。
+
 云顶图标按用途从 JSON 字段或客户端静态目录获取：单个小小英雄读取 `companions.json` 的 `loadoutsIcon`；稀有度图标见[稀有度等级](#33-稀有度等级)；统称和界面分类图标使用下方列出的已核验 RAW 相对路径。JSON 提供的路径按[通用路径转换规则](#14-路径转换规则)解析，静态目录则拼接目标版本与相对路径。JSON 和图标必须使用同一版本，不根据 ID、名称或相似文件名猜路径。
 
 ##### 小小英雄统称图标
@@ -504,7 +513,7 @@ https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/
 
 ### 3.7 外观标签与内容 ID
 
-LCU 外观表的 `contentId` 对应 [`tftcontentdata.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftcontentdata.json) 记录中的 `id`。后者是数组，每个元素以 `CompanionData`、`TFTMapSkin` 等物品类型为外层键，内含 `id` 和 `contentData`。其中 `contentData.rarityTag` 对应 `rarityType`，`contentData.featureTags[].featureType` 对应 `featureType`。当前目录直接使用物品表的 `TFTRarity`。
+LCU 外观表的 `contentId` 对应 [`tftcontentdata.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftcontentdata.json) 记录中的 `id`。后者是数组，每个元素以 `CompanionData`、`TFTMapSkin` 等物品类型为外层键，内含 `id` 和 `contentData`。其中 `contentData.rarityTag` 对应 `rarityType`，`contentData.featureTags[].featureType` 对应 `featureType`。当前目录直接使用物品表的 `TFTRarity`。小小英雄、棋盘、进攻特效和传送门按各自物品类型与 `contentId` 匹配功能标签，四类目录均用于筛选及详情浮层。
 
 TFT 进攻特效和传送门分别读取 [`tftdamageskins.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftdamageskins.json) 与 [`tftzoomskins.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftzoomskins.json)，两类表都提供 `contentId`、`itemId`、`name`、`description`、`TFTRarity` 和 `loadoutsIcon`。传送门另有 `largeLoadoutsIcon`，适合作为看图预览；字段缺失时回退到 `loadoutsIcon`。跨 `pbe` 与 `latest` 的新增对比只在同一物品表内按 `itemId` 进行，不能把两类物品的编号视为全局唯一。
 
@@ -521,6 +530,8 @@ TFT 进攻特效和传送门分别读取 [`tftdamageskins.json`](https://raw.com
 2026-11-23 核对时，`latest` 有 5,064 条内容标签记录，包含小小英雄 2,040、进攻特效 356、棋盘 142、传送门 67、表情 2,452、TFT 货币 7 条。[`lolcurrency.json` 总表](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/lolcurrency.json)有 20 条。功能标签计数为小小英雄淘汰动画 110、底座 34、转变 1，棋盘介绍过场动画 37、可进化型棋盘 36，进攻特效可进化 2。同一条内容可有多个标签。这些数字随 `latest` 更新。
 
 ### 3.8 小小英雄与其他外观的关联
+
+**装备可用性。** 客户端区分开发中（WIP）与禁止装备（Disabled）。现有公开目录的 `IsWIP` 字段和 `tftcontentdata.json` 的功能标签无法判定禁止装备状态。例如「第六天魔龙王 爆爆龙」的三个星级（`43028`、`43029`、`43030`）在客户端样例中显示为禁止装备，公开物品表中均为 `IsWIP=false`。如需提供「只看不可用」筛选，需要可与目录物品 ID 对照的禁用状态来源。[Riot 外观可用性说明](https://support.riotgames.com/zh-my/tft/store/tft-unreal-cosmetics-faq)
 
 在已核对的 LCU 表中，`contentId` 用来查单个物品的标签。跨类型比较 `itemId` 时须带物品类型，例如棋盘和小小英雄表有 66 个重复编号。名称、主题词和文件名适合找候选，专属或赠送关系需有对应活动或商品资料支持。
 

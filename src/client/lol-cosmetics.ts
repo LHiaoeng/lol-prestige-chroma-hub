@@ -3,7 +3,7 @@ import { createDomainIcon, setDomainIconTooltip } from '../components/domain-ico
 import { createIcon } from '../components/icons/create-icon';
 import { createPopover } from '../components/popover';
 import { createSegmented } from '../components/Segmented';
-import { cosmeticFilterValues, cosmeticLanguageUrl, cosmeticName, cosmeticRarity, filterLolCosmetics, orderSummonerIconTimeline, readLolCosmeticFilters, summonerIconTimelineKey, type LolCosmetic, type LolCosmeticCatalog } from '../domain/lol-cosmetics';
+import { cosmeticFilterValues, cosmeticLanguageUrl, cosmeticName, cosmeticRarity, filterLolCosmetics, orderCosmeticTimeline, readLolCosmeticFilters, cosmeticTimelineKey, orderWardView, wardSetIndex, wardViewGroup, type LolCosmetic, type LolCosmeticCatalog } from '../domain/lol-cosmetics';
 import { projectPbeIdDiff } from '../domain/pbe-additions';
 import { communityDragonChannelLabel } from '../domain/communitydragon-url';
 import type { RuntimeChannel } from '../domain/communitydragon-runtime';
@@ -30,6 +30,15 @@ export function initLolCosmetics(root: HTMLElement) {
   const raritySelect = root.querySelector<HTMLSelectElement>('[data-rarity-filter]');
   const sort = find<HTMLSelectElement>('[data-sort]');
   const viewSwitcher = root.querySelector<HTMLElement>('[data-cosmetic-view]');
+  const wardSetError = root.querySelector<HTMLElement>('[data-ward-set-error]');
+  const viewOptions = [
+    { value: 'cards', label: isZh ? '卡片' : 'Cards' },
+    ...(kind === 'ward-skins'
+      ? [{ value: 'sets', label: isZh ? '套装' : 'Sets' }, { value: 'rarity', label: isZh ? '品质' : 'Rarity' }]
+      : [{ value: 'timeline', label: isZh ? '时间轴' : 'Timeline' }]),
+  ];
+  let wardSets = wardSetIndex([]);
+  let wardSetsFailed = false;
   let view = 'cards';
   if (select) enhanceSelect(select);
   if (raritySelect) enhanceSelect(raritySelect);
@@ -44,8 +53,8 @@ export function initLolCosmetics(root: HTMLElement) {
   const grid = find('[data-grid]');
   let shown = 0;
   let timeline: HTMLOListElement | undefined;
-  let yearGrid: HTMLElement | undefined;
-  let yearKey: ReturnType<typeof summonerIconTimelineKey> | undefined;
+  let groupGrid: HTMLElement | undefined;
+  let groupKey: string | number | undefined;
   let loadObserver: IntersectionObserver | undefined;
   const more = find('[data-more-footer]');
   const skeleton = find('[data-skeleton]');
@@ -79,7 +88,7 @@ export function initLolCosmetics(root: HTMLElement) {
     for (const cleanup of cardCleanups.splice(0)) cleanup();
     grid.replaceChildren();
     shown = 0;
-    timeline = yearGrid = yearKey = undefined;
+    timeline = groupGrid = groupKey = undefined;
   }
 
   function card(item: LolCosmetic) {
@@ -129,11 +138,14 @@ export function initLolCosmetics(root: HTMLElement) {
       }, { once: true });
       icon.src = item.iconUrl;
     }
-    const cover = doc.createElement('span');
-    cover.className = 'tft-cosmetic-preview-cover';
-    cover.setAttribute('aria-hidden', 'true');
-    cover.append(createIcon('EyeOutlined'));
-    preview.append(icon, cover);
+    preview.append(icon);
+    if (item.kind !== 'ward') {
+      const cover = doc.createElement('span');
+      cover.className = 'tft-cosmetic-preview-cover';
+      cover.setAttribute('aria-hidden', 'true');
+      cover.append(createIcon('EyeOutlined'));
+      preview.append(cover);
+    }
     media.append(preview, fallbackImage);
     if (item.kind === 'finisher' && item.videoUrl) {
       const url = item.videoUrl;
@@ -215,7 +227,7 @@ export function initLolCosmetics(root: HTMLElement) {
     actions.append(info);
     media.append(actions);
     const details = doc.createElement('dl');
-    details.className = 'tft-cosmetic-card-popover';
+    details.className = 'tft-cosmetic-card-popover cosmetic-item-details';
     const detail = (label: string, value: string | HTMLElement | undefined, tagged = false) => {
       if (!value || (typeof value === 'string' && !value.trim())) return;
       const row = doc.createElement('div');
@@ -236,9 +248,22 @@ export function initLolCosmetics(root: HTMLElement) {
       row.append(term, description);
       details.append(row);
     };
-    detail(isZh ? '名称' : 'Name', name);
-    if (isAddition) detail(isZh ? '版本' : 'Version', 'PBE', true);
-    detail(isZh ? '品质' : 'Rarity', rarityLabel);
+    if (isAddition) detail(isZh ? '状态' : 'Status', 'PBE', true);
+    if (rarityLabel) {
+      const rarityValue = doc.createElement('span');
+      rarityValue.className = 'cosmetic-detail-rarity';
+      if (rarity.iconUrl) {
+        const gem = doc.createElement('img');
+        gem.src = rarity.iconUrl;
+        gem.alt = '';
+        gem.setAttribute('aria-hidden', 'true');
+        gem.loading = 'lazy';
+        gem.addEventListener('error', () => gem.remove(), { once: true });
+        rarityValue.append(gem);
+      }
+      rarityValue.append(doc.createTextNode(rarityLabel));
+      detail(isZh ? '品质' : 'Rarity', rarityValue);
+    }
     if (item.kind === 'icon' && item.yearReleased) detail(isZh ? '发行年份' : 'Release year', String(item.yearReleased));
     if (item.kind === 'emote' && item.taggedChampionIds.length) {
       const links = doc.createElement('span');
@@ -251,45 +276,54 @@ export function initLolCosmetics(root: HTMLElement) {
       }
       detail(isZh ? '关联英雄' : 'Associated champions', links);
     }
-    if ('description' in item) detail(isZh ? '描述' : 'Description', item.description);
-    cardCleanups.push(createPopover(info, detailsLabel, details));
+    if ('description' in item && item.description?.trim()) detail(isZh ? '描述' : 'Description', item.description.trim());
+    cardCleanups.push(createPopover(info, name, details));
     return article;
   }
 
-  function timelineGroup(item: LolCosmetic): HTMLElement {
-    const key = summonerIconTimelineKey(item, addedIds);
-    if (yearGrid && key === yearKey) return yearGrid;
+  function resultGroup(item: LolCosmetic): HTMLElement {
+    const wardGroup = view === 'sets' || view === 'rarity' ? wardViewGroup(item, view, wardSets) : undefined;
+    const key = wardGroup?.key ?? cosmeticTimelineKey(item, addedIds);
+    if (groupGrid && key === groupKey) return groupGrid;
     const node = doc.createElement('li');
-    node.className = 'skin-catalog-timeline-node';
+    node.className = `skin-catalog-timeline-node${key === 'pbe' ? ' skin-catalog-timeline-node--rail-process' : ''}`;
     const header = doc.createElement('div');
     header.className = 'skin-catalog-timeline-heading';
     const heading = doc.createElement('h2');
     heading.className = 'skin-catalog-timeline-date-heading';
-    if (typeof key === 'number') {
+    if (wardGroup) {
+      heading.textContent = wardGroup.label ?? (view === 'sets'
+        ? (isZh ? '未归入套装' : 'No set')
+        : (isZh ? '未标注品质' : 'Unrated'));
+    } else if (typeof key === 'number') {
       const time = doc.createElement('time');
       time.dateTime = String(key);
-      time.textContent = isZh ? `${key} 年` : String(key);
+      time.textContent = kind === 'nexus-finishers'
+        ? (isZh ? `已发布 ${key}` : `Released ${key}`)
+        : (isZh ? `${key} 年` : String(key));
       heading.append(time);
     } else {
-      heading.textContent = key === 'pbe' ? (isZh ? 'PBE 新增' : 'PBE additions') : (isZh ? '发行年份未标注' : 'Release year unavailable');
+      heading.textContent = key === 'pbe' ? (isZh ? 'PBE 新增' : 'PBE additions')
+        : kind === 'nexus-finishers' ? (isZh ? '其它' : 'Other')
+        : (isZh ? '发行年份未标注' : 'Release year unavailable');
     }
     header.append(heading);
-    yearGrid = doc.createElement('div');
-    yearGrid.className = 'tft-cosmetic-grid';
-    node.append(header, yearGrid);
+    groupGrid = doc.createElement('div');
+    groupGrid.className = 'tft-cosmetic-grid';
+    node.append(header, groupGrid);
     timeline!.append(node);
-    yearKey = key;
-    return yearGrid;
+    groupKey = key;
+    return groupGrid;
   }
 
   function appendBatch() {
     const next = filtered[shown];
     if (!next) { more.hidden = true; return; }
-    const target = timeline ? timelineGroup(next) : grid;
+    const target = timeline ? resultGroup(next) : grid;
     const columns = Math.max(1, getComputedStyle(target).gridTemplateColumns.split(' ').length);
     const limit = Math.max(columns, Math.floor(48 / columns) * columns);
     const batch = filtered.slice(shown, shown + limit - (target.childElementCount % columns));
-    for (const item of batch) (timeline ? timelineGroup(item) : grid).append(card(item));
+    for (const item of batch) (timeline ? resultGroup(item) : grid).append(card(item));
     shown += batch.length;
     more.hidden = shown >= filtered.length;
     if (timeline) {
@@ -304,11 +338,20 @@ export function initLolCosmetics(root: HTMLElement) {
     const direction = sort.value === 'oldest' ? 'oldest' : 'newest';
     filtered = filterLolCosmetics(items, search.value, category, language, direction, addedIds, rarityFilter);
     clearCards();
-    const showTimeline = view === 'timeline';
+    const wardView = view === 'sets' || view === 'rarity' ? view : undefined;
+    const failed = view === 'sets' && wardSetsFailed;
+    if (wardSetError) wardSetError.hidden = !failed;
+    if (failed) {
+      count.textContent = '';
+      empty.hidden = more.hidden = true;
+      return;
+    }
+    const showTimeline = view !== 'cards';
     grid.classList.toggle('tft-cosmetic-grid', !showTimeline);
     grid.classList.toggle('skin-catalog-timeline', showTimeline);
+    grid.classList.toggle('cosmetic-ward-groups', Boolean(wardView));
     if (showTimeline && filtered.length) {
-      filtered = orderSummonerIconTimeline(filtered, addedIds, direction);
+      filtered = wardView ? orderWardView(filtered, wardView, wardSets, language) : orderCosmeticTimeline(filtered, addedIds, direction);
       timeline = doc.createElement('ol');
       timeline.className = 'skin-catalog-timeline-list';
       grid.append(timeline);
@@ -335,18 +378,16 @@ export function initLolCosmetics(root: HTMLElement) {
     sort.value = state.sort;
     refreshSelect(sort);
     if (viewSwitcher) {
-      const next = new URLSearchParams(location.search).get('view') === 'timeline' ? 'timeline' : 'cards';
+      const requested = new URLSearchParams(location.search).get('view');
+      const next = viewOptions.find(({ value }) => value === requested)?.value ?? 'cards';
       if (next !== view || !viewSwitcher.firstChild) {
         view = next;
         viewSwitcher.replaceChildren(createSegmented({
-          name: 'summoner-icon-view',
+          name: 'cosmetic-view',
           controls: 'cosmetic-grid',
           value: view,
           ariaLabel: isZh ? '展示方式' : 'View',
-          options: [
-            { value: 'cards', label: isZh ? '卡片' : 'Cards' },
-            { value: 'timeline', label: isZh ? '时间轴' : 'Timeline' },
-          ],
+          options: viewOptions,
           onChange(value) {
             view = value;
             applySearch();
@@ -374,7 +415,7 @@ export function initLolCosmetics(root: HTMLElement) {
       category,
       rarity: rarityFilter,
       sort: sort.value === 'oldest' ? 'oldest' : '',
-      view: view === 'timeline' ? 'timeline' : '',
+      view: view === 'cards' ? '' : view,
     };
     for (const [key, value] of Object.entries(params)) {
       if (value) url.searchParams.set(key, value);
@@ -408,16 +449,20 @@ export function initLolCosmetics(root: HTMLElement) {
       refreshSelect(control);
     }
     clearCards();
+    if (wardSetError) wardSetError.hidden = true;
     try {
-      const [selected, live, champions] = await Promise.all([
+      const [selected, live, champions, sets] = await Promise.all([
         loadItems({ locale, channel: selectedChannel, signal }),
         selectedChannel === 'pbe' ? loadItems({ locale, channel: 'latest', signal }).catch((failure: unknown) => {
           if (additionsOnly) throw failure;
           return undefined;
         }) : undefined,
         kind === 'emotes' ? runtime.list('champions', { locale, channel: selectedChannel, signal }) : [],
+        kind === 'ward-skins' ? runtime.listWardSkinSets({ locale, channel: selectedChannel, signal }).catch(() => undefined) : [],
       ]);
       if (signal.aborted) return;
+      wardSets = wardSetIndex(sets ?? []);
+      wardSetsFailed = !sets;
       const added = live ? projectPbeIdDiff<LolCosmetic>(selected, live) : [];
       addedIds = new Set(added.map(({ id }) => id));
       items = additionsOnly ? added : selected;
@@ -493,6 +538,7 @@ export function initLolCosmetics(root: HTMLElement) {
     pbe.dispatchEvent(new Event('change'));
   }));
   find('[data-retry]').addEventListener('click', load);
+  wardSetError?.querySelector('[data-ward-set-retry]')?.addEventListener('click', load);
   find('[data-compare-retry]').addEventListener('click', load);
   reset.addEventListener('click', () => {
     if (pbe.checked && items.length === 0) {

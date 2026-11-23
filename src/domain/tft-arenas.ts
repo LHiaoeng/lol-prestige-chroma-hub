@@ -19,6 +19,7 @@ export type TftArenaSort = (typeof TFT_ARENA_SORTS)[number];
 
 export interface TftArena {
   readonly itemId: number;
+  readonly contentId?: string;
   readonly groupId: number;
   readonly isPbeAddition?: boolean;
   readonly name: string;
@@ -54,6 +55,7 @@ const nonNegativeSafeInteger = z
 const nonBlankText = z.string().refine((value) => value.trim().length > 0);
 const tftArenaSchema = z.object({
   itemId: positiveSafeInteger,
+  contentId: z.string().nullish(),
   groupId: nonNegativeSafeInteger,
   name: nonBlankText,
   groupName: nonBlankText,
@@ -93,6 +95,7 @@ export function projectTftArenas(
     }
     return {
       itemId: raw.itemId,
+      ...(raw.contentId ? { contentId: raw.contentId } : {}),
       groupId: raw.groupId,
       name: raw.name,
       groupName: raw.groupName,

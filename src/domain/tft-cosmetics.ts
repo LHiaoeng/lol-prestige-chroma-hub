@@ -8,6 +8,15 @@ import { TFT_COSMETIC_TIER_ORDER, type TftCosmeticTier } from "./tft-cosmetic-ti
 
 export type TftCosmeticCatalog = "booms" | "portals";
 
+const featureRecordTypes = {
+  booms: "TFTDamageSkin",
+  portals: "TFTZoomSkin",
+  companions: "CompanionData",
+  arenas: "TFTMapSkin",
+} as const;
+
+export type TftFeatureCatalog = keyof typeof featureRecordTypes;
+
 export interface TftCosmeticFeatureTag {
   readonly featureType: string;
   readonly name: string;
@@ -19,6 +28,7 @@ export interface TftCosmetic {
   readonly contentId: string;
   readonly isPbeAddition?: boolean;
   readonly name: string;
+  readonly level?: number;
   readonly TFTRarity: TftCosmeticTier;
   readonly imageUrl: string;
   readonly previewUrl: string;
@@ -27,6 +37,7 @@ export interface TftCosmetic {
 }
 
 export interface TftCosmeticFilters {
+  readonly level?: number;
   readonly search?: string;
   readonly TFTRarity?: TftCosmeticTier;
   readonly featureTypes?: readonly string[];
@@ -58,6 +69,7 @@ const baseItemSchema = z.object({
   TFTRarity: z.enum(TFT_COSMETIC_TIER_ORDER),
   loadoutsIcon: nonBlankText,
   largeLoadoutsIcon: nonBlankText.optional(),
+  level: z.unknown().optional(),
 });
 
 const featureReferenceSchema = z.object({
@@ -114,6 +126,9 @@ export function projectTftCosmetics(
       itemId: item.itemId,
       contentId: item.contentId,
       name: item.name,
+      ...(catalog === "booms" && typeof item.level === "number" && Number.isSafeInteger(item.level) && item.level > 0
+        ? { level: item.level }
+        : {}),
       TFTRarity: item.TFTRarity,
       imageUrl,
       previewUrl,
@@ -127,7 +142,7 @@ export function projectTftCosmetics(
 export function indexTftCosmeticFeatureTags(
   contentValue: unknown,
   displayValue: unknown,
-  catalog: TftCosmeticCatalog,
+  catalog: TftFeatureCatalog,
   channel: CommunityDragonChannel,
 ): ReadonlyMap<string, readonly TftCosmeticFeatureTag[]> {
   if (!Array.isArray(contentValue) || !Array.isArray(displayValue))
@@ -149,7 +164,7 @@ export function indexTftCosmeticFeatureTags(
   for (const entry of contentValue) {
     if (!entry || typeof entry !== "object") continue;
     const record = entry as Record<string, unknown>;
-    const content = catalog === "booms" ? record.TFTDamageSkin : record.TFTZoomSkin;
+    const content = record[featureRecordTypes[catalog]];
     const parsed = contentRecordSchema.safeParse(content);
     if (!parsed.success) continue;
     const tags = parsed.data.contentData.featureTags
@@ -243,6 +258,7 @@ export function filterTftCosmetics(
   return [...items]
     .filter((item) =>
       (!filters.onlyPbeAdditions || item.isPbeAddition === true) &&
+      (filters.level === undefined || item.level === filters.level) &&
       (!filters.TFTRarity || item.TFTRarity === filters.TFTRarity) &&
       (!selectedFeatures.size || item.featureTags.some(({ featureType }) => selectedFeatures.has(featureType))) &&
       (!query || [item.name, ...(item.searchAliases ?? [])].some((name) =>

@@ -6,7 +6,6 @@ import {
   markPbeTftCosmeticAdditions,
   type TftCosmetic,
   type TftCosmeticCatalog,
-  type TftCosmeticFeatureTag,
   type TftCosmeticSort,
   withTftCosmeticFeatureTags,
 } from "../domain/tft-cosmetics";
@@ -20,8 +19,7 @@ import type { CommunityDragonLocale, RuntimeChannel } from "../domain/communityd
 import { communityDragonChannelLabel } from "../domain/communitydragon-url";
 import { setDomainIconTooltip } from "../components/domain-icons";
 import { tftCosmeticTierIconUrl, tftCosmeticTierLabel } from "../components/tft-cosmetic-tier";
-import { createPopover } from "../components/popover";
-import { createSegmented } from "../components/Segmented";
+import { appendTftFeatureDetail, bindTftCardDetails, createTftFeatureFilter } from "../components/tft-feature-tags";
 import { createTooltip } from "../components/tooltip";
 import { createIcon } from "../components/icons/create-icon";
 import { enhanceSelect, refreshSelect } from "../components/select";
@@ -49,11 +47,10 @@ const copy = {
     results: (count: number) => "找到 " + count + " 个结果",
     name: "名称",
     rarity: "稀有度",
+    starLevel: "星级",
+    stars: (level: number) => level + " 星",
     features: "功能标签",
     details: "外观详情",
-    cards: "卡片",
-    list: "列表",
-    displayMode: "展示方式",
     missingImage: "图片暂不可用",
     preview: (name: string) => "打开大图：" + name,
     pbeNew: "PBE 新增",
@@ -67,11 +64,10 @@ const copy = {
     results: (count: number) => "Found " + count + " matches",
     name: "Name",
     rarity: "Rarity",
+    starLevel: "Stars",
+    stars: (level: number) => level + (level === 1 ? " star" : " stars"),
     features: "Features",
     details: "Cosmetic details",
-    cards: "Cards",
-    list: "List",
-    displayMode: "Display mode",
     missingImage: "Artwork unavailable",
     preview: (name: string) => "Open full-size image: " + name,
     pbeNew: "PBE addition",
@@ -114,12 +110,12 @@ export function initTftCosmeticCatalog(
   const filterSkeleton = element<HTMLElement>(root, "[data-cosmetics-filter-skeleton]");
   const search = element<HTMLInputElement>(root, "[data-cosmetics-search]");
   const rarity = element<HTMLSelectElement>(root, "[data-cosmetics-rarity]");
+  const level = root.querySelector<HTMLSelectElement>("[data-cosmetics-level]");
+  const levelField = root.querySelector<HTMLElement>("[data-cosmetics-level-field]");
   const sort = element<HTMLSelectElement>(root, "[data-cosmetics-sort]");
   const pbeOnly = element<HTMLInputElement>(root, "[data-cosmetics-pbe-only]");
   const pbeSetting = element<HTMLElement>(root, "[data-cosmetics-pbe-setting]");
-  const featureFilter = element<HTMLFieldSetElement>(root, "[data-cosmetics-feature-filter]");
-  const featureOptions = element<HTMLElement>(root, "[data-cosmetics-feature-options]");
-  const viewSwitcher = element<HTMLElement>(root, "[data-cosmetics-view-switch]");
+  const featureFilter = createTftFeatureFilter(root, (featureTypes) => updateFilters({ featureTypes }));
   const status = element<HTMLElement>(root, "[data-cosmetics-status]");
   const aliasNotice = element<HTMLElement>(root, "[data-cosmetics-alias-notice]");
   const aliasRetry = element<HTMLButtonElement>(root, "[data-cosmetics-alias-retry]");
@@ -137,7 +133,8 @@ export function initTftCosmeticCatalog(
   const errorTemplate = element<HTMLTemplateElement>(root, "[data-cosmetics-error-template]");
   const channelLabel = element<HTMLElement>(root, "[data-runtime-channel-label]");
   const loadingSkeleton = content.firstElementChild?.cloneNode(true);
-  [rarity, sort].forEach((select) => enhanceSelect(select));
+  const selects = level ? [rarity, level, sort] : [rarity, sort];
+  selects.forEach((select) => enhanceSelect(select));
   const listCosmetics = runtime.listTftCosmeticCatalog;
   const listFeatureTags = runtime.listTftCosmeticFeatureTags;
   if (!listCosmetics || !listFeatureTags)
@@ -159,33 +156,24 @@ export function initTftCosmeticCatalog(
     spinner.setAttribute("aria-busy", String(spinning));
   };
   const setControlsDisabled = (disabled: boolean) => {
-    [search, rarity, sort, pbeOnly, loadMore, aliasRetry, compareRetry].forEach((control) => {
+    [search, ...selects, pbeOnly, loadMore, aliasRetry, compareRetry].forEach((control) => {
       control.disabled = disabled;
     });
-    featureOptions.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
-      input.disabled = disabled;
-    });
+    featureFilter.disable(disabled);
   };
   const clearPopovers = () => {
     popoverCleanups.forEach((cleanup) => cleanup());
     popoverCleanups.length = 0;
   };
-  const selectedFeatures = () =>
-    Array.from(featureOptions.querySelectorAll<HTMLInputElement>("input:checked"))
-      .map((input) => input.value);
+  const selectedFeatures = featureFilter.selected;
 
   const syncControls = () => {
+    if (level) level.value = state.level === undefined ? "" : String(state.level);
     rarity.value = state.TFTRarity ?? "";
     sort.value = state.sort;
     pbeOnly.checked = state.onlyPbeAdditions;
-    grid.dataset.view = state.view;
-    [rarity, sort].forEach(refreshSelect);
-    viewSwitcher.querySelectorAll<HTMLInputElement>("input[type=radio]").forEach((input) => {
-      input.checked = input.value === state.view;
-    });
-    featureOptions.querySelectorAll<HTMLInputElement>("input").forEach((input) => {
-      input.checked = state.featureTypes.includes(input.value);
-    });
+    selects.forEach(refreshSelect);
+    featureFilter.sync(state.featureTypes);
     root.querySelectorAll<HTMLButtonElement>("[data-runtime-channel]").forEach((button) => {
       button.setAttribute("aria-checked", String(button.dataset.runtimeChannel === state.channel));
     });
@@ -207,30 +195,21 @@ export function initTftCosmeticCatalog(
       rarity.append(option);
     });
 
-    const featureByType = new Map<string, TftCosmeticFeatureTag>();
-    items.forEach((item) => item.featureTags.forEach((tag) => featureByType.set(tag.featureType, tag)));
-    featureOptions.replaceChildren();
-    const features = [...featureByType.values()].sort((left, right) =>
-      left.name.localeCompare(right.name, locale === "zh_cn" ? "zh-CN" : "en"),
-    );
-    features.forEach((feature) => {
-      const label = root.ownerDocument.createElement("label");
-      label.className = "tft-cosmetics-feature-option";
-      const checkbox = root.ownerDocument.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = feature.featureType;
-      checkbox.setAttribute("data-happy-wave", "label");
-      const icon = root.ownerDocument.createElement("img");
-      icon.src = feature.iconUrl;
-      icon.alt = "";
-      icon.setAttribute("aria-hidden", "true");
-      const name = root.ownerDocument.createElement("span");
-      name.textContent = feature.name;
-      label.append(checkbox, icon, name);
-      featureOptions.append(label);
-    });
-    featureFilter.hidden = features.length === 0;
-    [rarity, sort].forEach(refreshSelect);
+    if (level && levelField) {
+      const levels = [...new Set(items.flatMap((item) => item.level === undefined ? [] : [item.level]))]
+        .sort((left, right) => left - right);
+      while (level.options.length > 1) level.remove(1);
+      for (const stars of levels) {
+        const option = root.ownerDocument.createElement("option");
+        option.value = String(stars);
+        option.textContent = text.stars(stars);
+        level.append(option);
+      }
+      levelField.hidden = levels.length === 0;
+    }
+
+    featureFilter.render(items.map(({ featureTags }) => featureTags), locale === "zh_cn" ? "zh-CN" : "en");
+    selects.forEach(refreshSelect);
   };
 
   const appendCard = (item: TftCosmetic) => {
@@ -276,10 +255,8 @@ export function initTftCosmeticCatalog(
       media.append(tooltip);
     }
 
-    const details = doc.createElement("div");
-    details.className = "tft-cosmetic-card-popover";
     const detailList = doc.createElement("dl");
-    detailList.className = "tft-cosmetics-detail-list";
+    detailList.className = "tft-cosmetic-card-popover";
     const detail = (label: string, value: string) => {
       const row = doc.createElement("div");
       row.className = "tft-cosmetic-card-detail";
@@ -290,59 +267,30 @@ export function initTftCosmeticCatalog(
       row.append(term, description);
       detailList.append(row);
     };
-    const detailImage = doc.createElement("img");
-    detailImage.className = "tft-cosmetics-detail-image";
-    detailImage.src = item.imageUrl;
-    detailImage.alt = item.name;
-    detailImage.loading = "lazy";
-    detailImage.decoding = "async";
-    detailImage.addEventListener("error", () => { detailImage.hidden = true; }, { once: true });
-    const detailImageRow = doc.createElement("div");
-    detailImageRow.className = "tft-cosmetics-detail-image-row";
-    detailImageRow.append(detailImage);
-    details.append(detailImageRow);
+    const stars = item.level === undefined ? undefined : text.stars(item.level);
     detail(text.name, item.name);
+    if (stars !== undefined) detail(text.starLevel, stars);
     detail(text.rarity, rarityLabel);
-    if (item.featureTags.length) {
-      const row = doc.createElement("div");
-      row.className = "tft-cosmetic-card-detail";
-      const term = doc.createElement("dt");
-      term.textContent = text.features;
-      const description = doc.createElement("dd");
-      description.className = "tft-cosmetics-feature-list";
-      item.featureTags.forEach((feature) => {
-        const featureRow = doc.createElement("span");
-        featureRow.className = "tft-cosmetics-feature-detail";
-        const icon = doc.createElement("img");
-        icon.src = feature.iconUrl;
-        icon.alt = "";
-        icon.setAttribute("aria-hidden", "true");
-        const name = doc.createElement("span");
-        name.textContent = feature.name;
-        featureRow.append(icon, name);
-        description.append(featureRow);
-      });
-      row.append(term, description);
-      detailList.append(row);
-    }
-    details.append(detailList);
+    appendTftFeatureDetail(detailList, text.features, item.featureTags);
+    popoverCleanups.push(bindTftCardDetails(media, text.details, detailList));
 
     const body = doc.createElement("div");
     body.className = "tft-cosmetic-card-details";
     const heading = doc.createElement("h2");
-    const titleButton = doc.createElement("button");
-    titleButton.className = "tft-cosmetics-card-title-button";
-    titleButton.type = "button";
-    titleButton.setAttribute("aria-label", text.details + ": " + item.name);
     const title = doc.createElement("span");
     title.className = "tft-cosmetic-card-title-text";
     title.textContent = item.name;
-    titleButton.append(title);
-    const titleTooltip = createTooltip(titleButton, item.name);
+    const titleTooltip = createTooltip(title, item.name);
     titleTooltip.classList.add("tft-cosmetic-card-title-tooltip");
     titleTooltip.dataset.overflowOnly = "true";
     titleTooltip.setAttribute("aria-label", item.name);
     heading.append(titleTooltip);
+    if (stars !== undefined) {
+      const starLabel = doc.createElement("span");
+      starLabel.className = "tft-cosmetics-card-stars";
+      starLabel.textContent = stars;
+      heading.append(starLabel);
+    }
     body.append(heading);
 
     const rarityIcon = doc.createElement("img");
@@ -354,7 +302,6 @@ export function initTftCosmeticCatalog(
     rarityTooltip.classList.add("tft-cosmetic-tier-tooltip");
     rarityTooltip.setAttribute("aria-label", rarityLabel);
     article.append(media, rarityTooltip, body);
-    popoverCleanups.push(createPopover(titleButton, text.details, details));
     grid.append(article);
   };
 
@@ -364,7 +311,7 @@ export function initTftCosmeticCatalog(
       featureTypes: selectedFeatures(),
       onlyPbeAdditions: state.channel === "pbe" && canComparePbe && state.onlyPbeAdditions,
     }, locale);
-    const nextBatchSize = state.view === "list" ? 48 : getCosmeticBatchSize(grid);
+    const nextBatchSize = getCosmeticBatchSize(grid);
     if (reset) {
       batchSize = nextBatchSize;
       shownCount = Math.min(matches.length, batchSize);
@@ -389,7 +336,7 @@ export function initTftCosmeticCatalog(
   };
 
   const updateFilters = (
-    patch: Partial<Pick<TftCosmeticUrlState, "TFTRarity" | "sort" | "onlyPbeAdditions" | "featureTypes" | "view">>,
+    patch: Partial<Pick<TftCosmeticUrlState, "TFTRarity" | "level" | "sort" | "onlyPbeAdditions" | "featureTypes">>,
   ) => {
     cancelSearch();
     state = { ...state, ...patch, search: search.value, featureTypes: patch.featureTypes ?? selectedFeatures(), invalid: [] };
@@ -402,20 +349,6 @@ export function initTftCosmeticCatalog(
   };
 
   const cancelSearch = bindDebouncedSearch(search, () => updateFilters({}));
-  const segmented = createSegmented({
-    name: "tft-cosmetic-display-" + catalog,
-    controls: "tft-cosmetics-grid-" + catalog,
-    value: state.view,
-    ariaLabel: text.displayMode,
-    options: [
-      { label: text.cards, value: "cards" },
-      { label: text.list, value: "list" },
-    ],
-    onChange(value) {
-      if (value === "cards" || value === "list") updateFilters({ view: value });
-    },
-  });
-  viewSwitcher.replaceChildren(segmented);
   grid.id = "tft-cosmetics-grid-" + catalog;
 
   const lifecycle = new RuntimeChannelLifecycle({
@@ -479,6 +412,10 @@ export function initTftCosmeticCatalog(
         const rarityValue = context.target.TFTRarity && result.items.some((item) => item.TFTRarity === context.target.TFTRarity)
           ? context.target.TFTRarity
           : undefined;
+        const levelValue = level && result.items.some((item) => item.level === context.target.level)
+          ? context.target.level
+          : undefined;
+        if (context.target.level !== undefined && levelValue === undefined) invalid.push("level");
         const availableFeatures = new Set(result.items.flatMap((item) => item.featureTags.map(({ featureType }) => featureType)));
         const selectedFeatureTypes = context.target.featureTypes.filter((featureType) => availableFeatures.has(featureType));
         if (context.target.TFTRarity && rarityValue === undefined) invalid.push("TFTRarity");
@@ -486,6 +423,7 @@ export function initTftCosmeticCatalog(
         state = {
           ...context.target,
           TFTRarity: rarityValue,
+          level: levelValue,
           featureTypes: selectedFeatureTypes,
           channel: context.channel,
           invalid: [...new Set(invalid)],
@@ -549,11 +487,11 @@ export function initTftCosmeticCatalog(
   rarity.addEventListener("change", () => updateFilters({
     TFTRarity: rarity.value && isTftCosmeticTier(rarity.value) ? rarity.value : undefined,
   }));
+  level?.addEventListener("change", () => updateFilters({ level: level.value ? Number(level.value) : undefined }));
   sort.addEventListener("change", () => {
     if (isTftCosmeticSort(sort.value)) updateFilters({ sort: sort.value as TftCosmeticSort });
   });
   pbeOnly.addEventListener("change", () => updateFilters({ onlyPbeAdditions: pbeOnly.checked }));
-  featureOptions.addEventListener("change", () => updateFilters({ featureTypes: selectedFeatures() }));
   loadMore.addEventListener("click", () => {
     shownCount = Math.min(matches.length, shownCount + batchSize);
     renderMatches(false);

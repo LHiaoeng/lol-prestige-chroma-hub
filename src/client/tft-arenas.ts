@@ -1,3 +1,4 @@
+import { appendTftFeatureDetail, createTftFeatureFilter, type TftFeatureIndex } from "../components/tft-feature-tags";
 import { bindDebouncedSearch } from "./search-input";
 import {
   addTftArenaSearchAliases,
@@ -69,7 +70,7 @@ export function initTftArenas(
   root: HTMLElement,
   runtime: CommunityDragonRuntime = createCommunityDragonRuntime(),
   history: RuntimeChannelHistory = browserHistory(),
-): RuntimeChannelLifecycle<TftArenaUrlState, readonly TftArena[], ReturnType<typeof asCommunityDragonError>> {
+): RuntimeChannelLifecycle<TftArenaUrlState, { items: readonly TftArena[]; features?: TftFeatureIndex }, ReturnType<typeof asCommunityDragonError>> {
   const locale = root.dataset.arenasLocale as CommunityDragonLocale;
   if (locale !== "default" && locale !== "zh_cn") throw new Error("TFT Arenas locale is invalid");
   const t = copy[locale];
@@ -102,6 +103,11 @@ export function initTftArenas(
 
   let state = readTftArenaUrlState(history.url);
   let baseItems: readonly TftArena[] = [];
+  const featureFilter = createTftFeatureFilter(root, (featureTypes) => updateFilters({ featureTypes }));
+  let featureIndex: TftFeatureIndex = new Map();
+  const featuresFor = (item: { readonly contentId?: string }) => featureIndex.get(item.contentId ?? "") ?? [];
+  const matchesFeatures = (item: { readonly contentId?: string }) =>
+    !state.featureTypes?.length || featuresFor(item).some(({ featureType }) => state.featureTypes?.includes(featureType));
   let items: readonly TftArena[] = [];
   let matches: readonly TftArena[] = [];
   let aliasItems: readonly TftArena[] | undefined;
@@ -119,6 +125,7 @@ export function initTftArenas(
     spinner.setAttribute("aria-busy", String(spinning));
   };
   const setControlsDisabled = (disabled: boolean) => {
+    featureFilter.disable(disabled);
     for (const control of [search, group, rarity, sort, loadMore, pbeOnly]) control.disabled = disabled;
   };
   const gridColumns = () => {
@@ -130,6 +137,7 @@ export function initTftArenas(
     popoverCleanups.length = 0;
   };
   const syncControls = () => {
+    featureFilter.sync(state.featureTypes);
     group.value = state.groupId === undefined ? "" : String(state.groupId);
     rarity.value = state.TFTRarity ?? "";
     sort.value = state.sort;
@@ -223,6 +231,7 @@ export function initTftArenas(
     detail(t.group, item.groupName);
     detail(t.tier, rarityLabel);
     if (item.description?.trim()) detail(t.description, item.description.trim());
+    appendTftFeatureDetail(details, locale === "zh_cn" ? "功能标签" : "Features", featuresFor(item));
     popoverCleanups.push(createPopover(info, t.details, details));
     actions.append(info);
     media.append(actions);
@@ -250,7 +259,7 @@ export function initTftArenas(
     grid.append(article);
   };
   const renderMatches = (reset: boolean) => {
-    matches = filterTftArenas(items, { ...state, onlyPbeAdditions: state.channel === "pbe" && liveItems !== undefined && state.onlyPbeAdditions }, locale);
+    matches = filterTftArenas(items.filter(matchesFeatures), { ...state, onlyPbeAdditions: state.channel === "pbe" && liveItems !== undefined && state.onlyPbeAdditions }, locale);
     const nextColumns = gridColumns();
     if (reset) {
       columns = nextColumns;
@@ -282,7 +291,7 @@ export function initTftArenas(
     syncView();
     renderMatches(false);
   };
-  const updateFilters = (patch: Partial<Pick<TftArenaUrlState, "groupId" | "TFTRarity" | "sort" | "onlyPbeAdditions">>) => {
+  const updateFilters = (patch: Partial<Pick<TftArenaUrlState, "groupId" | "TFTRarity" | "sort" | "onlyPbeAdditions" | "featureTypes">>) => {
     cancelSearch();
     state = { ...state, ...patch, search: search.value, invalid: [] };
     const url = formatTftArenaUrl(history.url, state);
@@ -300,7 +309,14 @@ export function initTftArenas(
       const target = readTftArenaUrlState(url);
       return { status: "valid", channel: target.channel, target };
     },
-    load(target, signal) { return runtime.listTftArenas({ locale, channel: target.channel, signal }); },
+    async load(target, signal) {
+      const options = { locale, channel: target.channel, signal };
+      const [items, features] = await Promise.all([
+        runtime.listTftArenas(options),
+        runtime.listTftCosmeticFeatureTags?.("arenas", options).catch(() => undefined),
+      ]);
+      return { items, features };
+    },
     normalizeError: (error) => asCommunityDragonError(error, locale),
     isAborted: (error) => error.code === "aborted",
     view: {
@@ -326,7 +342,8 @@ export function initTftArenas(
         errorMessage = undefined;
         setSpinning(false);
         state = context.target;
-        baseItems = result;
+        baseItems = result.items;
+        featureIndex = result.features ?? new Map();
         aliasItems = undefined;
         liveItems = undefined;
         aliasNotice.hidden = true;
@@ -336,6 +353,8 @@ export function initTftArenas(
         if (state.TFTRarity !== undefined && !baseItems.some((item) => item.TFTRarity === state.TFTRarity)) { invalid.push("TFTRarity"); state = { ...state, TFTRarity: undefined }; }
         state = { ...state, invalid };
         count.textContent = t.total(baseItems.length);
+        const availableFeatures = featureFilter.render(baseItems.map(featuresFor), locale === "zh_cn" ? "zh-CN" : "en");
+        if (state.featureTypes) state = { ...state, featureTypes: state.featureTypes.filter((type) => availableFeatures.has(type)) };
         renderOptions();
         search.value = state.search;
         syncControls();

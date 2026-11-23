@@ -1,0 +1,21 @@
+.ant-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-inline: 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tag);
+  background: var(--tag-bg);
+  color: var(--text);
+  font-size: var(--font-size-small);
+  line-height: 20px;
+  white-space: nowrap;
+  transition: background var(--motion-mid), color var(--motion-mid);
+}
+
+.ant-tag img { width: 1em; height: 1em; object-fit: contain; }
+.ant-tag-checkable { border-color: transparent; background: transparent; cursor: pointer; }
+.ant-tag-checkable:hover { background: var(--selected-bg); color: var(--gold-text); }
+.ant-tag-checkable:has(:checked) { background: var(--gold); color: var(--on-gold); }
+.ant-tag-checkable:has(:focus-visible) { outline: 2px solid var(--gold-text); outline-offset: 2px; }
+.ant-tag-checkable:has(:disabled) { opacity: .55; cursor: not-allowed; }

@@ -1,6 +1,30 @@
 import { expect, it } from 'vitest';
-import { cosmeticLanguageUrl, filterLolCosmetics, inheritLolCosmeticChannel, orderSummonerIconTimeline, readLolCosmeticFilters, type LolCosmetic } from './lol-cosmetics';
+import { cosmeticLanguageUrl, cosmeticTimelineKey, filterLolCosmetics, inheritLolCosmeticChannel, orderCosmeticTimeline, orderWardView, readLolCosmeticFilters, wardSetIndex, wardViewGroup, type LolCosmetic } from './lol-cosmetics';
+import { parseRuntimeWardSkinSets } from './communitydragon-runtime';
 import { projectPbeIdDiff } from './pbe-additions';
+
+it('groups wards by stable set IDs or descending rarity and puts unclassified wards last', () => {
+  const sets = wardSetIndex(parseRuntimeWardSkinSets([
+    { id: 0, displayName: 'Rift', wards: [119] },
+    { id: 62, displayName: 'Odyssey', wards: [115, 117] },
+  ]));
+  const wards: LolCosmetic[] = [
+    { kind: 'ward', id: 1 },
+    { kind: 'ward', id: 119, rarity: { id: 2 } },
+    { kind: 'ward', id: 117, rarity: { id: 1 } },
+    { kind: 'ward', id: 115, rarity: { id: 4 } },
+  ];
+  expect(wardViewGroup(wards[1]!, 'sets', sets)).toMatchObject({ key: 'set-0', label: 'Rift' });
+  expect(orderWardView(wards, 'sets', sets, 'en').map(({ id }) => id)).toEqual([117, 115, 119, 1]);
+  expect(orderWardView(wards, 'rarity', sets, 'en').map(({ id }) => id)).toEqual([115, 119, 117, 1]);
+});
+
+it('groups finishers by the collection year and keeps unverified years separate', () => {
+  const items: LolCosmetic[] = [8, 7, 6, 5, 4, 3, 2, 1].map((id) => ({ kind: 'finisher', id }));
+  const additions = new Set([8]);
+  expect(items.map((item) => cosmeticTimelineKey(item, additions))).toEqual(['pbe', 2026, 2026, 2025, 2025, 2025, 2025, 2024]);
+  expect(orderCosmeticTimeline(items, new Set(), 'oldest').map(({ id }) => id)).toEqual([1, 5, 4, 3, 2, 7, 6, 8]);
+});
 
 it('orders the timeline by release year while preserving the input order within each year', () => {
   const icons: LolCosmetic[] = [
@@ -11,8 +35,8 @@ it('orders the timeline by release year while preserving the input order within 
     { kind: 'icon', id: 1, yearReleased: 2021 },
   ];
   const additions = new Set([1]);
-  expect(orderSummonerIconTimeline(icons, additions, 'newest').map(({ id }) => id)).toEqual([1, 5, 2, 3, 4]);
-  expect(orderSummonerIconTimeline(icons, additions, 'oldest').map(({ id }) => id)).toEqual([1, 3, 5, 2, 4]);
+  expect(orderCosmeticTimeline(icons, additions, 'newest').map(({ id }) => id)).toEqual([1, 5, 2, 3, 4]);
+  expect(orderCosmeticTimeline(icons, additions, 'oldest').map(({ id }) => id)).toEqual([1, 3, 5, 2, 4]);
 });
 
 it('keeps same-name cosmetics and applies the year filter including missing years', () => {

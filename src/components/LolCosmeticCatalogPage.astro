@@ -59,15 +59,20 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
           { value: 'oldest', label: catalog.slug === 'summoner-icons' ? (isZh ? '从旧到新' : 'Oldest first') : (isZh ? '从旧到新（ID 升序）' : 'Oldest first (ID ascending)') },
         ]} />
       </div>
-      {catalog.slug === 'summoner-icons' && <div data-cosmetic-view></div>}
+      {catalog.slug !== 'emotes' && <div data-cosmetic-view></div>}
       <TftFilterDrawer id="cosmetic-filters" {isZh} resultCount="[data-tft-filter-count]" />
-      <p class="runtime-list-count tft-arenas-result-count" data-tft-filter-count role="status"></p>
+      {catalog.slug !== 'summoner-icons' && <p class="runtime-list-count tft-arenas-result-count" data-tft-filter-count role="status"></p>}
     </div>
+    {catalog.slug === 'summoner-icons' && <p class="runtime-list-count tft-arenas-result-count" data-tft-filter-count role="status"></p>}
     <div data-skeleton><Skeleton layout="skin-grid" itemCount={12} /></div>
     <div data-error hidden>
       <Alert type="error" title={isZh ? '无法加载外观资料' : 'Unable to load cosmetics'} />
       <Button data-retry>{isZh ? '重试' : 'Retry'}</Button>
     </div>
+    {catalog.slug === 'ward-skins' && <div class="tft-arenas-aux" data-ward-set-error hidden>
+      <span role="status">{isZh ? '守卫套装资料加载失败。' : 'Unable to load ward skin sets.'}</span>
+      <Button data-ward-set-retry>{isZh ? '重试' : 'Retry'}</Button>
+    </div>}
     <div class="tft-arenas-aux" data-compare-notice role="status" hidden>
       <span>{isZh ? '正式服对照暂不可用，PBE 新增标签暂未显示。' : 'Live comparison is unavailable. PBE addition tags are paused.'}</span>
       <Button data-compare-retry>{isZh ? '重试对照' : 'Retry comparison'}</Button>
@@ -92,6 +97,13 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
   .lol-cosmetics .cosmetic-missing-image { grid-area: 1 / 1; pointer-events: none; }
   .lol-cosmetics :is(.tft-cosmetic-card-media img, .tft-cosmetic-card-preview)[hidden] { display: none; }
   .lol-cosmetics .tft-cosmetic-card-media img { object-fit: contain; }
+  [data-lol-cosmetics="ward-skins"] .tft-cosmetic-card-media {
+    background: var(--panel2) url('/img/backgrounds/chroma-card-background.jpg') center / cover no-repeat;
+  }
+  [data-lol-cosmetics="ward-skins"] .tft-cosmetic-card-preview,
+  [data-lol-cosmetics="ward-skins"] .tft-cosmetic-card-media img {
+    background: transparent;
+  }
   .cosmetic-hover-video {
     position: absolute;
     inset: 0;
@@ -120,6 +132,22 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
     border-radius: var(--radius-tag);
     font-size: var(--font-size-small);
   }
+  .tft-cosmetic-card-popover.cosmetic-item-details {
+    min-width: 0;
+    max-height: min(65vh, 28rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    gap: var(--space-1);
+  }
+  .cosmetic-item-details .tft-cosmetic-card-detail {
+    grid-template-columns: fit-content(5rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-2);
+  }
+  .cosmetic-item-details .tft-cosmetic-card-detail dt { overflow-wrap: anywhere; }
+  .ant-popover-container:has(> .ant-popover-content > .cosmetic-item-details) > .ant-popover-title { margin-bottom: var(--space-1); }
+  .cosmetic-detail-rarity { display: inline-flex; align-items: center; gap: var(--space-1); }
+  .cosmetic-detail-rarity img { display: block; width: 1rem; height: 1rem; flex: none; object-fit: contain; }
   .cosmetic-related-champions { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); }
   .cosmetic-related-champions a { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--gold-text); }
   .cosmetic-related-champions a:hover { text-decoration: underline; }
@@ -139,9 +167,14 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
   }
   .lol-cosmetics .tft-filterbar > [data-tft-filter-search] { flex: 1 1 10rem; }
   .lol-cosmetics .tft-filterbar > [data-tft-filter-count] { flex: 0 0 100%; text-align: center; }
+  .lol-cosmetics > [data-tft-filter-count] { margin: var(--space-2) 0; text-align: center; }
+  .lol-cosmetics > [data-tft-filter-count]:empty { display: none; }
   .lol-cosmetics .skin-catalog-timeline-heading {
     top: calc(var(--site-header-height) + var(--cosmetic-filter-height, 0px));
   }
+  .lol-cosmetics .cosmetic-ward-groups .skin-catalog-timeline-node { padding-inline-start: 0; }
+  .lol-cosmetics .cosmetic-ward-groups .skin-catalog-timeline-node::before,
+  .lol-cosmetics .cosmetic-ward-groups .skin-catalog-timeline-heading::before { content: none; }
   .lol-cosmetics .skin-catalog-timeline-node {
     padding-block-end: var(--space-4);
   }
@@ -153,7 +186,20 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
   }
   .lol-cosmetics .cosmetic-timeline--has-more > .skin-catalog-timeline-node:last-child::before {
     bottom: 0;
-    border-left-style: dotted;
+  }
+  @media (max-width: 767px) {
+    .lol-cosmetics .skin-catalog-timeline {
+      --skin-catalog-timeline-track-width: var(--space-2);
+      --skin-catalog-timeline-dot-size: calc(var(--control-height) / 4);
+      --skin-catalog-timeline-dot-offset: calc((var(--line-height-headline-sm) - var(--skin-catalog-timeline-dot-size)) / 2);
+    }
+    .lol-cosmetics .skin-catalog-timeline-node { padding-block-end: var(--space-3); }
+    .lol-cosmetics .skin-catalog-timeline-heading { column-gap: var(--space-2); }
+    .lol-cosmetics .skin-catalog-timeline-date-heading {
+      font-size: var(--font-size-headline-sm);
+      line-height: var(--line-height-headline-sm);
+    }
+    .lol-cosmetics .skin-catalog-timeline-node > .tft-cosmetic-grid { margin-block-start: var(--space-1); }
   }
   @media (min-width: 768px) {
     .lol-cosmetics .tft-filterbar > .tft-arenas-select-filters { display: flex; flex: 0 1 auto; flex-wrap: wrap; }
@@ -164,6 +210,15 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
   }
   @media (max-width: 767px) {
     .lol-cosmetics .tft-filterbar > [data-tft-filter-search] { flex-basis: 6rem; }
+    .lol-cosmetics:has(.skin-catalog-timeline) .catalog-sticky-filterbar::before {
+      position: absolute;
+      inset-block: 0;
+      inset-inline: calc(-1 * var(--space-2));
+      z-index: -1;
+      background: var(--bg);
+      pointer-events: none;
+      content: "";
+    }
   }
   .lol-cosmetics :is([data-error], [data-empty]) { text-align: center; }
 </style>

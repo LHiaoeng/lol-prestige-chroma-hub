@@ -7,61 +7,15 @@
   color: var(--gold-text);
 }
 .tft-cosmetics > header h1 > svg { width: 1em; height: 1em; flex: none; }
-.tft-cosmetics-filter-skeleton,
-.tft-cosmetics-filters {
+.tft-cosmetics-filter-skeleton {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: var(--space-3);
 }
 .tft-cosmetics-filter-skeleton { margin-bottom: var(--space-4); }
 .tft-cosmetics-filter-skeleton > .runtime-skeleton-line { width: 100%; height: var(--control-height); }
-.tft-cosmetics-filters[hidden],
 .tft-cosmetics-filter-skeleton[hidden],
-.tft-cosmetics-feature-filter[hidden],
 .tft-cosmetics-load-more-footer[hidden] { display: none; }
-.tft-cosmetics-field {
-  display: grid;
-  min-width: 0;
-  gap: var(--space-1);
-  color: var(--muted);
-  font-size: var(--font-size-body);
-}
-.tft-cosmetics-field .cn-input,
-.tft-cosmetics-field .ant-select { min-width: 0; }
-.tft-cosmetics-select-filters {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
-  gap: var(--space-3);
-}
-.tft-cosmetics-feature-filter {
-  display: grid;
-  grid-column: 1 / -1;
-  min-width: 0;
-  margin: 0;
-  padding: var(--space-2);
-  border: 1px solid var(--line-subtle);
-  border-radius: var(--radius-control);
-}
-.tft-cosmetics-feature-filter legend { padding-inline: var(--space-1); color: var(--muted); }
-.tft-cosmetics-feature-options { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.tft-cosmetics-feature-option {
-  display: inline-flex;
-  min-height: var(--control-height-sm);
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-tag);
-  color: var(--text);
-  cursor: pointer;
-}
-.tft-cosmetics-feature-option:hover { border-color: var(--gold-border); }
-.tft-cosmetics-feature-option:has(:checked) { border-color: var(--gold-border); background: var(--selected-bg); color: var(--gold-text); }
-.tft-cosmetics-feature-option:has(:focus-visible) { outline: 2px solid var(--gold-text); outline-offset: 2px; }
-.tft-cosmetics-feature-option input { accent-color: var(--gold); }
-.tft-cosmetics-feature-option img { width: 20px; height: 20px; flex: none; object-fit: contain; }
-.tft-cosmetics-view-switch { display: flex; min-width: 0; justify-self: end; }
 .tft-cosmetics-status { margin: 0 0 var(--space-3); color: var(--muted); }
 .tft-cosmetics-status:empty { display: none; }
 .tft-cosmetics-aux { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); color: var(--muted); }
@@ -79,29 +33,6 @@
 .tft-cosmetics .tft-cosmetics-result-count { grid-column: 1 / -1; margin: 0; text-align: center; }
 .tft-cosmetics-load-more-footer { display: flex; justify-content: center; margin-top: var(--space-3); }
 .tft-cosmetics-error { display: grid; justify-items: start; gap: var(--space-3); }
-.tft-cosmetics-card-title-button {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-.tft-cosmetics-card-title-button:hover { color: var(--gold-text); }
-.tft-cosmetics-card-title-button:focus-visible {
-  border-radius: var(--radius-control);
-  outline: 2px solid var(--gold-text);
-  outline-offset: 2px;
-}
-.tft-cosmetics-feature-detail { display: flex; align-items: center; gap: var(--space-2); }
-.tft-cosmetics-feature-detail img { width: 20px; height: 20px; flex: none; object-fit: contain; }
-.tft-cosmetics-detail-list { display: grid; gap: var(--space-2); margin: 0; }
-.tft-cosmetics-feature-list { display: grid; gap: var(--space-1); }
-.tft-cosmetics-detail-image-row { display: grid; place-items: center; }
-.tft-cosmetics-detail-image { display: block; width: 100%; max-height: min(40vh, 280px); object-fit: contain; border-radius: var(--radius-control); background: var(--panel2); }
 .tft-cosmetics-pbe-marker.ant-tooltip-trigger {
   position: absolute;
   top: var(--space-2);
@@ -120,49 +51,25 @@
   line-height: var(--line-height-small);
 }
 .tft-cosmetics [hidden] { display: none !important; }
-.tft-filter-drawer .tft-cosmetics-select-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.tft-filter-drawer .tft-cosmetics-feature-filter { grid-column: 1 / -1; }
-.tft-filter-drawer .tft-cosmetics-view-switch { grid-column: 1 / -1; justify-self: start; }
 
-.tft-cosmetics [data-cosmetics-grid][data-view="list"] { grid-template-columns: minmax(0, 1fr); }
-.tft-cosmetics [data-cosmetics-grid][data-view="list"] > .tft-cosmetic-card {
-  display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  align-items: center;
-  column-gap: var(--space-3);
-}
-.tft-cosmetics [data-cosmetics-grid][data-view="list"] .tft-cosmetic-card-media {
-  grid-row: 1 / span 2;
-  width: 120px;
-  border-radius: calc(var(--radius-card) - 1px) 0 0 calc(var(--radius-card) - 1px);
-}
-.tft-cosmetics [data-cosmetics-grid][data-view="list"] .tft-cosmetic-card-details { grid-column: 2; }
-.tft-cosmetics [data-cosmetics-grid][data-view="list"] .tft-cosmetic-tier-tooltip.ant-tooltip-trigger {
-  top: var(--space-1);
-  left: 120px;
-  width: 34px;
-  transform: translateX(-50%);
-}
+.tft-cosmetics .tft-companions-filters { row-gap: var(--space-2); }
+.tft-cosmetics-select-filters { gap: var(--space-2); }
+.tft-cosmetics-select-filters .tft-companions-field { gap: 2px; }
 
 @media (min-width: 768px) {
-  .tft-cosmetics-filters { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
-  .tft-cosmetics-filters > [data-tft-filter-search] > span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
+  .tft-cosmetics-select-filters {
+    grid-template-columns: repeat(auto-fit, minmax(0, 180px));
+  }
+  .tft-cosmetics .tft-feature-filter legend {
+    float: inline-start;
+    margin: 0 var(--space-2) 0 0;
+    line-height: 22px;
   }
 }
-@media (max-width: 767px) {
-  .tft-cosmetics-filters:not([hidden]) {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  .tft-cosmetics-filters > :not([data-tft-filter-search], [data-tft-filter-count], .tft-filter-trigger, dialog) { display: none; }
-  .tft-cosmetics-view-switch { justify-self: start; }
-  .tft-cosmetics [data-cosmetics-grid][data-view="list"] > .tft-cosmetic-card { grid-template-columns: 92px minmax(0, 1fr); }
-  .tft-cosmetics [data-cosmetics-grid][data-view="list"] .tft-cosmetic-card-media { width: 92px; }
-  .tft-cosmetics [data-cosmetics-grid][data-view="list"] .tft-cosmetic-tier-tooltip.ant-tooltip-trigger { left: 92px; }
+
+.tft-cosmetics-card-stars {
+  flex: none;
+  color: var(--muted);
+  font-size: var(--font-size-small);
+  white-space: nowrap;
 }

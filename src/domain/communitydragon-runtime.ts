@@ -339,6 +339,17 @@ const wardSkinSchema = z
       .optional(),
   })
   .passthrough();
+const wardSkinSetSchema = z.object({
+  id: z.number().int().nonnegative(),
+  displayName: z.string().trim().min(1),
+  wards: z.array(z.number().int().nonnegative()),
+});
+
+export type RuntimeWardSkinSet = z.infer<typeof wardSkinSetSchema>;
+
+export function parseRuntimeWardSkinSets(value: unknown): readonly RuntimeWardSkinSet[] {
+  return parseCollection(value, wardSkinSetSchema, "Ward skin set");
+}
 const nexusFinisherSchema = z
   .object({
     itemId: z.number().int(),

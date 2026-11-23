@@ -579,7 +579,7 @@ describe("static site build", () => {
         expect(html).not.toMatch(/<input\b[^>]*data-pbe[^>]*checked/);
         expect(html).toContain('data-sort');
         expect(html.includes('data-rarity-filter')).toBe(slug !== 'emotes');
-        expect(html.includes('data-cosmetic-view')).toBe(slug === 'summoner-icons');
+        expect(html.includes('data-cosmetic-view')).toBe(slug !== 'emotes');
       }
     }
   });

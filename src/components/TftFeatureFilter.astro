@@ -1,0 +1,9 @@
+---
+const { isZh } = Astro.props;
+import "./tft-feature-tags.css";
+import "./tag.css";
+---
+<fieldset class="tft-feature-filter" data-tft-feature-filter hidden>
+  <legend>{isZh ? "功能标签" : "Features"}</legend>
+  <div class="tft-feature-tags" data-tft-feature-options></div>
+</fieldset>

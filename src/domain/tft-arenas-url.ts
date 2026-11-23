@@ -1,3 +1,4 @@
+import { isFeatureType } from "./tft-cosmetics-url";
 import type { RuntimeChannel } from "./communitydragon-runtime";
 import {
   isTftArenaSort,
@@ -21,13 +22,14 @@ export interface TftArenaUrlState {
   readonly onlyPbeAdditions: boolean;
   readonly channel: RuntimeChannel;
   readonly channelExplicit: boolean;
+  readonly featureTypes?: readonly string[];
   readonly invalid: readonly TftArenaUrlParameter[];
 }
 
 export type TftArenaUrlStateInput = Pick<
   TftArenaUrlState,
   "search" | "groupId" | "TFTRarity" | "onlyPbeAdditions" | "channel"
-> & Partial<Pick<TftArenaUrlState, "sort" | "channelExplicit">>;
+> & Partial<Pick<TftArenaUrlState, "sort" | "channelExplicit" | "featureTypes">>;
 
 export function readTftArenaUrlState(url: URL): TftArenaUrlState {
   const query = url.searchParams.getAll("q");
@@ -59,6 +61,9 @@ export function readTftArenaUrlState(url: URL): TftArenaUrlState {
     onlyPbeAdditions: channel === "pbe" && pbeOnly.length === 1 && pbeOnly[0] === "1",
     channel,
     channelExplicit: channels.length === 1 && channels[0] === channel,
+    ...(url.searchParams.has("featureType") && {
+      featureTypes: [...new Set(url.searchParams.getAll("featureType").filter(isFeatureType))],
+    }),
     invalid,
   };
 }
@@ -66,6 +71,8 @@ export function readTftArenaUrlState(url: URL): TftArenaUrlState {
 export function formatTftArenaUrl(url: URL, state: TftArenaUrlStateInput): URL {
   const next = new URL(url);
   next.search = "";
+  for (const feature of new Set(state.featureTypes?.filter(isFeatureType)))
+    next.searchParams.append("featureType", feature);
   const query = state.search.trim();
   if (query) next.searchParams.set("q", query);
   if (Number.isSafeInteger(state.groupId) && (state.groupId ?? -1) >= 0)

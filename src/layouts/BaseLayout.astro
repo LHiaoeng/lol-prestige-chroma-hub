@@ -1,4 +1,5 @@
 ---
+import TftCatalogIcon from "../components/TftCatalogIcon.astro";
 import '../styles/global.css';
 import '../styles/article.css';
 import '../styles/backgrounds.css';
@@ -121,16 +122,16 @@ gtag('js', new Date());
               {isZh ? <span>英雄联盟</span> : <><span class="browse-menu-label-wide">League of Legends</span><span class="browse-menu-label-short" aria-hidden="true">LoL</span></>}
               <DownOutlined class="ant-dropdown-down-icon" />
             </a>
-            {lolCosmeticCatalogs.map((catalog) => {
-              const path = `/${catalog.slug}/`;
-              return <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, path)} aria-current={headerNavigation.current(path)} data-lol-cosmetic-link><Icon name={catalog.slug === 'nexus-finishers' ? 'league-of-legends' : catalog.slug} class="ant-dropdown-menu-item-icon" />{catalog[locale]}</a></li>;
-            })}
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/pbe-additions/')} aria-current={headerNavigation.current('/pbe-additions/')}><DomainIcon name="pbe-additions" class="ant-dropdown-menu-item-icon" />{isZh ? 'PBE 新增' : 'PBE additions'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/prestige-chromas/')} aria-current={headerNavigation.current('/prestige-chromas/', '/chromas/') ?? headerNavigation.current('/prestige-chromas/')}><DomainIcon name="prestige-chromas" class="ant-dropdown-menu-item-icon" />{isZh ? '臻彩原画' : 'Prestige Chroma Splash Art'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/champions/')} aria-current={headerNavigation.current('/champions/')}><DomainIcon name="champions" class="ant-dropdown-menu-item-icon" />{isZh ? '英雄' : 'Champions'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skins/')} aria-current={headerNavigation.current('/skins/')}><DomainIcon name="skins" class="ant-dropdown-menu-item-icon" />{isZh ? '皮肤' : 'Skins'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/skinlines/')} aria-current={headerNavigation.current('/skinlines/')}><DomainIcon name="skinlines" class="ant-dropdown-menu-item-icon" />{isZh ? '系列' : 'Skinlines'}</a></li>
             <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/universes/')} aria-current={headerNavigation.current('/universes/')}><DomainIcon name="universes" class="ant-dropdown-menu-item-icon" />{isZh ? '宇宙' : 'Universes'}</a></li>
+            {lolCosmeticCatalogs.map((catalog) => {
+              const path = `/${catalog.slug}/`;
+              return <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, path)} aria-current={headerNavigation.current(path)} data-lol-cosmetic-link><Icon name={catalog.slug === 'nexus-finishers' ? 'league-of-legends' : catalog.slug} class="ant-dropdown-menu-item-icon" />{catalog[locale]}</a></li>;
+            })}
           </Dropdown>
         </div>
         <div class="header-browse">
@@ -140,10 +141,10 @@ gtag('js', new Date());
               {isZh ? <span>云顶之弈</span> : <><span class="tft-nav-label-wide">Teamfight Tactics</span><span class="tft-nav-label-short" aria-hidden="true">TFT</span></>}
               <DownOutlined class="ant-dropdown-down-icon" />
             </a>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/companions/')} aria-current={headerNavigation.current('/tft/companions/')}><DomainIcon name="tft-companions" class="ant-dropdown-menu-item-icon" />{isZh ? '小小英雄' : 'Tacticians'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/arenas/')} aria-current={headerNavigation.current('/tft/arenas/')}><DomainIcon name="tft-arenas" class="ant-dropdown-menu-item-icon" />{isZh ? '棋盘' : 'Arenas'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/booms/')} aria-current={headerNavigation.current('/tft/booms/')}><DomainIcon name="teamfight-tactics" class="ant-dropdown-menu-item-icon" />{isZh ? '进攻特效' : 'Booms'}</a></li>
-            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/portals/')} aria-current={headerNavigation.current('/tft/portals/')}><DomainIcon name="teamfight-tactics" class="ant-dropdown-menu-item-icon" />{isZh ? '传送门' : 'Portals'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/companions/')} aria-current={headerNavigation.current('/tft/companions/')}><TftCatalogIcon catalog="companions" class="ant-dropdown-menu-item-icon" />{isZh ? '小小英雄' : 'Tacticians'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/arenas/')} aria-current={headerNavigation.current('/tft/arenas/')}><TftCatalogIcon catalog="arenas" class="ant-dropdown-menu-item-icon" />{isZh ? '棋盘' : 'Arenas'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/booms/')} aria-current={headerNavigation.current('/tft/booms/')}><TftCatalogIcon catalog="booms" class="ant-dropdown-menu-item-icon" />{isZh ? '进攻特效' : 'Booms'}</a></li>
+            <li role="none"><a role="menuitem" data-ant-dropdown-item href={localizedPath(locale, '/tft/portals/')} aria-current={headerNavigation.current('/tft/portals/')}><TftCatalogIcon catalog="portals" class="ant-dropdown-menu-item-icon" />{isZh ? '传送门' : 'Portals'}</a></li>
           </Dropdown>
         </div>
         <a class="ant-btn ant-btn-variant-text header-blog-link" href={localizedPath(locale, '/blog/')} aria-current={headerNavigation.current('/blog/')}>

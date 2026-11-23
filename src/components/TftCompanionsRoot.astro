@@ -5,11 +5,12 @@ import Alert from './Alert.astro';
 import Breadcrumb from './Breadcrumb.astro';
 import Divider from './Divider.astro';
 import Empty from './Empty.astro';
-import LittleLegendsIcon from './LittleLegendsIcon.astro';
+import TftCatalogIcon from "./TftCatalogIcon.astro";
 import RuntimeChannelSwitcher from './RuntimeChannelSwitcher.astro';
 import Skeleton from './Skeleton.astro';
 import Spin from './Spin.astro';
 import './segmented.css';
+import TftFeatureFilter from "./TftFeatureFilter.astro";
 import TftFilterDrawer from './TftFilterDrawer.astro';
 import Select from './Select.astro';
 import '../styles/tft-cosmetic-tier.css';
@@ -29,7 +30,7 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
 ]} />
 <section class="runtime-page runtime-page--compact-list-header tft-companions" data-tft-companions data-tft-companions-locale={isZh ? 'zh_cn' : 'default'} data-tft-companions-default-channel="pbe" aria-labelledby="tft-companions-title">
   <header>
-    <h1 id="tft-companions-title"><LittleLegendsIcon />{pageTitle}</h1>
+    <h1 id="tft-companions-title"><TftCatalogIcon catalog="companions" />{pageTitle}</h1>
     <div class="runtime-source runtime-channel-row" aria-label={isZh ? '资料版本' : 'Reference data channel'}>
       <RuntimeChannelSwitcher {locale} />
       <Divider type="vertical" />
@@ -85,6 +86,7 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
         ]} />
       </label>
     </div>
+    <TftFeatureFilter {isZh} />
     <TftFilterDrawer id="tft-companions-filter-drawer" {isZh} resultCount="[data-tft-companions-result-count]" />
     <p class="runtime-list-count tft-companions-result-count" data-tft-filter-count data-tft-companions-result-count role="status" aria-live="polite"></p>
   </div>

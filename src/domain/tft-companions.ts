@@ -38,6 +38,7 @@ export function isTftCompanionSort(value: string): value is TftCompanionSort {
 
 export interface TftCompanion {
   readonly itemId: number;
+  readonly contentId?: string;
   readonly isPbeAddition?: boolean;
   readonly companionType: TftCompanionType;
   readonly name: string;
@@ -137,6 +138,7 @@ const nonBlankText = z.string().refine((value) => value.trim().length > 0);
 const tftCompanionSchema = z.object({
   companionType: z.enum(TFT_COMPANION_TYPES),
   itemId: positiveSafeInteger,
+  contentId: z.string().nullish(),
   name: nonBlankText,
   speciesId: nonNegativeSafeInteger,
   speciesName: nonBlankText,
@@ -315,6 +317,7 @@ export function projectTftCompanions(
     return [
       {
         itemId: raw.itemId,
+        ...(raw.contentId ? { contentId: raw.contentId } : {}),
         companionType: raw.companionType,
         name: raw.name,
         speciesId: raw.speciesId,

@@ -1,19 +1,21 @@
 ---
+import TftCatalogIcon from "./TftCatalogIcon.astro";
 import type { Locale } from "../i18n/config";
 import { localizedPath } from "../i18n/config";
 import type { TftCosmeticCatalog } from "../domain/tft-cosmetics";
 import Alert from "./Alert.astro";
 import Breadcrumb from "./Breadcrumb.astro";
 import Divider from "./Divider.astro";
-import DomainIcon from "./DomainIcon.astro";
 import Empty from "./Empty.astro";
 import RuntimeChannelSwitcher from "./RuntimeChannelSwitcher.astro";
 import Select from "./Select.astro";
 import Skeleton from "./Skeleton.astro";
 import Spin from "./Spin.astro";
+import TftFeatureFilter from "./TftFeatureFilter.astro";
 import TftFilterDrawer from "./TftFilterDrawer.astro";
 import "../styles/tft-cosmetic-tier.css";
 import "../styles/tft-cosmetic-card.css";
+import "../styles/tft-companions.css";
 import "../styles/tft-cosmetics.css";
 
 interface Props {
@@ -42,7 +44,7 @@ const subject = isZh ? "云顶之弈" + title : "Teamfight Tactics " + title;
   aria-labelledby="tft-cosmetics-title"
 >
   <header>
-    <h1 id="tft-cosmetics-title"><DomainIcon name="teamfight-tactics" />{title}</h1>
+    <h1 id="tft-cosmetics-title"><TftCatalogIcon {catalog} />{title}</h1>
     <div class="runtime-source runtime-channel-row" aria-label={isZh ? "资料版本" : "Reference data channel"}>
       <RuntimeChannelSwitcher {locale} />
       <Divider type="vertical" />
@@ -53,23 +55,29 @@ const subject = isZh ? "云顶之弈" + title : "Teamfight Tactics " + title;
   <div class="tft-cosmetics-filter-skeleton" data-cosmetics-filter-skeleton aria-hidden="true">
     {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
   </div>
-  <div class="tft-cosmetics-filters tft-filterbar catalog-sticky-filterbar" data-cosmetics-filters hidden>
-    <label class="tft-cosmetics-field" data-tft-filter-search>
+  <div class="tft-companions-filters tft-filterbar catalog-sticky-filterbar" data-cosmetics-filters hidden>
+    <label class="tft-companions-field" data-tft-filter-search>
       <span>{isZh ? "搜索" + title : "Search " + title}</span>
       <input class="cn-input" type="search" data-cosmetics-search autocomplete="off" placeholder={isZh ? "中英文名称" : "Name in either language"} />
     </label>
-    <label class="tft-pbe-filter" data-cosmetics-pbe-setting hidden>
-      <input class="sr-only" type="checkbox" data-happy-wave="label" data-cosmetics-pbe-only />
-      <span>{isZh ? "仅看 PBE 新增" : "PBE additions only"}</span>
-    </label>
-    <div class="tft-cosmetics-select-filters">
-      <label class="tft-cosmetics-field">
+    <div class="tft-companions-quick-controls">
+      <label class="tft-pbe-filter" data-cosmetics-pbe-setting hidden>
+        <input class="sr-only" type="checkbox" data-happy-wave="label" data-cosmetics-pbe-only />
+        <span>{isZh ? "仅看 PBE 新增" : "PBE additions only"}</span>
+      </label>
+    </div>
+    <div class="tft-companions-select-filters tft-cosmetics-select-filters">
+      <label class="tft-companions-field">
         <span>{isZh ? "稀有度" : "Rarity"}</span>
         <Select allowClear data-cosmetics-rarity="" options={[{ value: "", label: isZh ? "全部稀有度" : "All rarities" }]} />
       </label>
-      <label class="tft-cosmetics-field">
+      {catalog === "booms" && <label class="tft-companions-field" data-cosmetics-level-field hidden>
+        <span>{isZh ? "星级" : "Stars"}</span>
+        <Select allowClear data-cosmetics-level="" options={[{ value: "", label: isZh ? "全部星级" : "All stars" }]} />
+      </label>}
+      <label class="tft-companions-field">
         <span>{isZh ? "排序" : "Sort"}</span>
-        <Select data-cosmetics-sort="" allowClear={false} options={[
+        <Select data-cosmetics-sort="" allowClear={false} showSearch options={[
           { value: "default", label: isZh ? "ID 降序" : "ID descending" },
           { value: "id_asc", label: isZh ? "ID 升序" : "ID ascending" },
           { value: "rarity_desc", label: isZh ? "稀有度：高到低" : "Rarity: high to low" },
@@ -79,11 +87,7 @@ const subject = isZh ? "云顶之弈" + title : "Teamfight Tactics " + title;
         ]} />
       </label>
     </div>
-    <fieldset class="tft-cosmetics-feature-filter" data-cosmetics-feature-filter hidden>
-      <legend>{isZh ? "功能标签" : "Features"}</legend>
-      <div class="tft-cosmetics-feature-options" data-cosmetics-feature-options></div>
-    </fieldset>
-    <div class="tft-cosmetics-view-switch" data-cosmetics-view-switch></div>
+    <TftFeatureFilter {isZh} />
     <TftFilterDrawer id={"tft-" + catalog + "-filter-drawer"} {isZh} resultCount="[data-cosmetics-result-count]" />
     <p class="runtime-list-count tft-cosmetics-result-count" data-tft-filter-count data-cosmetics-result-count role="status" aria-live="polite"></p>
   </div>

@@ -1,3 +1,4 @@
+import { appendTftFeatureDetail, createTftFeatureFilter, type TftFeatureIndex } from "../components/tft-feature-tags";
 import { bindDebouncedSearch } from "./search-input";
 import {
   addTftCompanionSearchAliases,
@@ -117,6 +118,7 @@ type TftCompanionState = TftCompanionUrlState;
 type TftCompanionView = "cards" | "species";
 type TftCompanionError = ReturnType<typeof asCommunityDragonError>;
 interface TftCompanionLoadResult {
+  readonly featureIndex: TftFeatureIndex;
   readonly items: readonly TftCompanion[];
   readonly canComparePbe: boolean;
 }
@@ -215,6 +217,11 @@ export function initTftCompanions(
     "[data-runtime-channel-label]",
   );
   let state = readTftCompanionUrlState(history.url);
+  const featureFilter = createTftFeatureFilter(root, (featureTypes) => updateFilters({ featureTypes }));
+  let featureIndex: TftFeatureIndex = new Map();
+  const featuresFor = (item: { readonly contentId?: string }) => featureIndex.get(item.contentId ?? "") ?? [];
+  const matchesFeatures = (item: { readonly contentId?: string }) =>
+    !state.featureTypes?.length || featuresFor(item).some(({ featureType }) => state.featureTypes?.includes(featureType));
   let items: readonly TftCompanion[] = [];
   let multiStarItemIds: ReadonlySet<number> = new Set();
   let canComparePbe = false;
@@ -226,6 +233,7 @@ export function initTftCompanions(
   let pendingChannel: RuntimeChannel | undefined;
 
   const setControlsDisabled = (disabled: boolean) => {
+    featureFilter.disable(disabled);
     search.disabled = disabled;
     companionType.disabled = disabled;
     species.disabled = disabled;
@@ -247,6 +255,7 @@ export function initTftCompanions(
   };
 
   const syncControls = () => {
+    featureFilter.sync(state.featureTypes);
     companionType.value = state.companionType ?? "";
     species.value =
       state.speciesId === undefined ? "" : String(state.speciesId);
@@ -419,6 +428,7 @@ export function initTftCompanions(
     appendDetail(text.species, item.speciesName);
     appendDetail(text.starLevel, String(item.level));
     appendDetail(text.rarity, rarityLabel);
+    appendTftFeatureDetail(popoverDetails, locale === "zh_cn" ? "功能标签" : "Features", featuresFor(item));
     popoverCleanups.push(createPopover(detailsButton, text.details, popoverDetails));
     actions.append(detailsButton);
     media.append(actions);
@@ -450,7 +460,7 @@ export function initTftCompanions(
 
   const renderMatches = (reset: boolean) => {
     matches = filterTftCompanions(
-      items,
+      items.filter(matchesFeatures),
       {
         ...state,
         onlyPbeAdditions:
@@ -560,6 +570,7 @@ export function initTftCompanions(
         | "level"
         | "sort"
         | "onlyPbeAdditions"
+        | "featureTypes"
       >
     >,
   ) => {
@@ -583,7 +594,7 @@ export function initTftCompanions(
     },
     async load(target, signal): Promise<TftCompanionLoadResult> {
       const aliasLocale = locale === "zh_cn" ? "default" : "zh_cn";
-      const [selectedItems, aliasItems, liveItems] = await Promise.all([
+      const [selectedItems, aliasItems, liveItems, features] = await Promise.all([
         runtime.listTftCompanions({ locale, channel: target.channel, signal }),
         runtime
           .listTftCompanions({
@@ -603,12 +614,14 @@ export function initTftCompanions(
                 return undefined;
               })
           : Promise.resolve(undefined),
+        runtime.listTftCosmeticFeatureTags?.("companions", { locale, channel: target.channel, signal }).catch(() => undefined),
       ]);
       const searchableItems = addTftCompanionSearchAliases(
         selectedItems,
         aliasItems ?? [],
       );
       return {
+        featureIndex: features ?? new Map(),
         items:
           target.channel === "pbe" && liveItems
             ? markPbeTftCompanionAdditions(searchableItems, liveItems)
@@ -642,6 +655,7 @@ export function initTftCompanions(
         errorMessage = undefined;
         setSpinning(false);
         items = result.items;
+        featureIndex = result.featureIndex;
         multiStarItemIds = getMultiStarTftCompanionItemIds(items);
         canComparePbe = result.canComparePbe;
         const invalid = [...context.target.invalid];
@@ -696,6 +710,8 @@ export function initTftCompanions(
           invalid: [...new Set(invalid)],
         };
         count.textContent = text.total(items.length);
+        const availableFeatures = featureFilter.render(items.map(featuresFor), locale === "zh_cn" ? "zh-CN" : "en");
+        if (state.featureTypes) state = { ...state, featureTypes: state.featureTypes.filter((type) => availableFeatures.has(type)) };
         renderOptions();
         search.value = state.search;
         syncControls();

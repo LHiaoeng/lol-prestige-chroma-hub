@@ -1,6 +1,5 @@
 .tft-arenas > .ant-divider-horizontal { margin: var(--space-4) 0; }
 .tft-arenas > header h1 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--gold-text); }
-.tft-arenas > header h1 .tft-arenas-icon { inline-size: 1.27em; block-size: 1em; flex: none; background: currentColor; mask: url("/img/icons/tft-arenas.svg") center / contain no-repeat; }
 .tft-arenas-filter-skeleton, .tft-arenas-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));

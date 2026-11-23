@@ -31,6 +31,7 @@ import {
   type TftCosmetic,
   type TftCosmeticCatalog,
   type TftCosmeticFeatureTag,
+  type TftFeatureCatalog,
 } from "../domain/tft-cosmetics";
 import {
   CommunityDragonRuntimeError,
@@ -43,6 +44,7 @@ import {
   parseRuntimeSkinCollection,
   parseRuntimeSummonerIconCollection,
   parseRuntimeWardSkinCollection,
+  parseRuntimeWardSkinSets,
   type CommunityDragonLocale,
   type RuntimeChannel,
   type RuntimeChampion,
@@ -80,7 +82,7 @@ export interface CommunityDragonRuntime {
     options: RuntimeRequestOptions,
   ): Promise<readonly TftCosmetic[]>;
   listTftCosmeticFeatureTags?(
-    catalog: TftCosmeticCatalog,
+    catalog: TftFeatureCatalog,
     options: RuntimeRequestOptions,
   ): Promise<ReadonlyMap<string, readonly TftCosmeticFeatureTag[]>>;
   listTftCompanions(
@@ -313,7 +315,7 @@ export function createCommunityDragonRuntime(
   }
 
   async function listTftCosmeticFeatureTags(
-    catalog: TftCosmeticCatalog,
+    catalog: TftFeatureCatalog,
     input: RuntimeRequestOptions,
   ): Promise<ReadonlyMap<string, readonly TftCosmeticFeatureTag[]>> {
     const options = validateOptions(input);
@@ -334,7 +336,7 @@ export function createCommunityDragonRuntime(
     };
     const [contents, displayTags] = await Promise.all([
       request(
-        options.channel + ":default:tft-content-data:" + catalog,
+        options.channel + ":default:tft-content-data",
         contentsUrl,
         options,
         parseArray,
@@ -511,6 +513,13 @@ export function createCommunityDragonRuntime(
     return request(key, url, options, (value) =>
       parseRuntimeWardSkinCollection(value, options),
     );
+  }
+
+  function listWardSkinSets(input: RuntimeRequestOptions) {
+    const options = validateOptions(input);
+    const url = communityDragonDataUrl("ward-skin-sets.json", options.locale, options.channel);
+    const key = `${options.channel}:${options.locale}:ward-skin-sets`;
+    return request(key, url, options, parseRuntimeWardSkinSets);
   }
 
   function listNexusFinisherCollection(
@@ -742,6 +751,7 @@ export function createCommunityDragonRuntime(
     listSummonerIconCollection,
     listEmoteCollection,
     listWardSkinCollection,
+    listWardSkinSets,
     listNexusFinisherCollection,
     list,
     get,
@@ -752,6 +762,7 @@ export function createCommunityDragonRuntime(
     listSummonerIconCollection: typeof listSummonerIconCollection;
     listEmoteCollection: typeof listEmoteCollection;
     listWardSkinCollection: typeof listWardSkinCollection;
+    listWardSkinSets: typeof listWardSkinSets;
     listNexusFinisherCollection: typeof listNexusFinisherCollection;
   };
 }

@@ -157,9 +157,44 @@ describe("TFT cosmetic catalog projection", () => {
     expect(filterTftCosmetics(baseItems, { search: "not found" }, "default")).toEqual([]);
   });
 
+  it("filters boom stars alongside rarity and preserves rows without levels", () => {
+    const rows = [
+      { ...damageSkin, itemId: 101, level: 2 },
+      { ...damageSkin, itemId: 102, level: 2, TFTRarity: "kStandard" },
+      { ...damageSkin, itemId: 103, level: 3 },
+      { ...damageSkin, itemId: 104 },
+    ];
+    const booms = projectTftCosmetics(rows, "booms", "pbe");
+    expect(booms).toHaveLength(4);
+    expect(filterTftCosmetics(booms, { level: 2, TFTRarity: "kMythic" }, "default").map((item) => item.itemId)).toEqual([101]);
+    expect(projectTftCosmetics(rows, "portals", "pbe").every((item) => item.level === undefined)).toBe(true);
+  });
+
   it("rejects malformed rows, invalid asset paths, and duplicate IDs within a catalog", () => {
     expect(() => projectTftCosmetics({}, "booms", "pbe")).toThrow("must be an array");
     expect(() => projectTftCosmetics([damageSkin, damageSkin], "booms", "pbe")).toThrow("duplicate itemId");
     expect(() => projectTftCosmetics([{ ...damageSkin, loadoutsIcon: "/../unsafe.png" }], "booms", "pbe")).toThrow("invalid image path");
+  });
+});
+
+describe("TFT feature metadata for existing catalogs", () => {
+  it.each([
+    ["companions", "CompanionData"],
+    ["arenas", "TFTMapSkin"],
+  ] as const)("joins %s by its own content record type", (catalog, recordType) => {
+    const contentData = { featureTags: [{ featureType: "kIntroCutScene" }] };
+    const features = indexTftCosmeticFeatureTags(
+      [
+        { [recordType]: { id: "matched", contentData } },
+        { TFTDamageSkin: { id: "unrelated", contentData } },
+      ],
+      [{ TFTFeatureDisplayTag: { featureType: "kIntroCutScene", name: "介绍过场动画", icon: "/lol-game-data/assets/ASSETS/Intro.png" } }],
+      catalog,
+      "pbe",
+    );
+    expect([...features.keys()]).toEqual(["matched"]);
+    expect(features.get("matched")).toEqual([
+      { featureType: "kIntroCutScene", name: "介绍过场动画", iconUrl: "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/intro.png" },
+    ]);
   });
 });

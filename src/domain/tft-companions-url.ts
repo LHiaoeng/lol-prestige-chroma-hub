@@ -1,3 +1,4 @@
+import { isFeatureType } from "./tft-cosmetics-url";
 import type { RuntimeChannel } from "./communitydragon-runtime";
 import {
   isTftCompanionType,
@@ -27,6 +28,7 @@ export interface TftCompanionUrlState {
   readonly onlyPbeAdditions: boolean;
   readonly channel: RuntimeChannel;
   readonly channelExplicit: boolean;
+  readonly featureTypes?: readonly string[];
   readonly invalid: readonly TftCompanionUrlParameter[];
 }
 
@@ -40,7 +42,7 @@ export type TftCompanionUrlStateInput = Pick<
   | "onlyPbeAdditions"
   | "channel"
 > &
-  Partial<Pick<TftCompanionUrlState, "channelExplicit" | "sort">>;
+  Partial<Pick<TftCompanionUrlState, "channelExplicit" | "sort" | "featureTypes">>;
 
 const positiveInteger = /^[1-9]\d*$/;
 const nonNegativeInteger = /^(?:0|[1-9]\d*)$/;
@@ -116,6 +118,9 @@ export function readTftCompanionUrlState(url: URL): TftCompanionUrlState {
     onlyPbeAdditions: rawPbeOnly.length === 1 && rawPbeOnly[0] === "1",
     channel,
     channelExplicit: rawChannel.length === 1 && rawChannel[0] === channel,
+    ...(url.searchParams.has("featureType") && {
+      featureTypes: [...new Set(url.searchParams.getAll("featureType").filter(isFeatureType))],
+    }),
     invalid,
   };
 }
@@ -126,6 +131,8 @@ export function formatTftCompanionUrl(
 ): URL {
   const next = new URL(url);
   next.search = "";
+  for (const feature of new Set(state.featureTypes?.filter(isFeatureType)))
+    next.searchParams.append("featureType", feature);
   const search = state.search.trim();
   if (search) next.searchParams.set("q", search);
   if (state.companionType && isTftCompanionType(state.companionType))

@@ -8,13 +8,6 @@
   margin: 0;
   color: var(--gold-text);
 }
-.tft-companions > header h1 .tft-companions-icon {
-  inline-size: 1.25em;
-  block-size: 1em;
-  flex: none;
-  background: currentColor;
-  mask: url("/img/icons/tft-little-legends.svg") center / contain no-repeat;
-}
 .tft-companions-filter-skeleton,
 .tft-companions-filters {
   display: grid;

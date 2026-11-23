@@ -1,4 +1,4 @@
-import type { RuntimeEmote, RuntimeNexusFinisher, RuntimeSummonerIcon, RuntimeWardSkin } from './communitydragon-runtime';
+import type { RuntimeEmote, RuntimeNexusFinisher, RuntimeSummonerIcon, RuntimeWardSkin, RuntimeWardSkinSet } from './communitydragon-runtime';
 import { readRuntimeUrlState } from './runtime-url-state';
 
 export const lolCosmeticCatalogs = [
@@ -12,14 +12,54 @@ export type LolCosmeticCatalog = typeof lolCosmeticCatalogs[number];
 export type LolCosmetic = RuntimeSummonerIcon | RuntimeEmote | RuntimeWardSkin | RuntimeNexusFinisher;
 export type LolCosmeticSort = 'newest' | 'oldest';
 
-export function summonerIconTimelineKey(item: LolCosmetic, additions: ReadonlySet<number>) {
+export function wardSetIndex(sets: readonly RuntimeWardSkinSet[]): ReadonlyMap<number, RuntimeWardSkinSet> {
+  return new Map(sets.flatMap((set) => set.wards.map((id) => [id, set] as const)));
+}
+
+export function wardViewGroup(
+  item: LolCosmetic,
+  view: 'sets' | 'rarity',
+  sets: ReadonlyMap<number, RuntimeWardSkinSet>,
+) {
+  if (view === 'sets') {
+    const set = sets.get(item.id);
+    return { key: set ? `set-${set.id}` : 'unknown', label: set?.displayName, rank: 0 };
+  }
+  const rarity = cosmeticRarity(item);
+  return { key: rarity?.id ? `rarity-${rarity.id}` : 'unknown', label: rarity?.label, rank: rarity?.id ?? 0 };
+}
+
+export function orderWardView(items: readonly LolCosmetic[], view: 'sets' | 'rarity', sets: ReadonlyMap<number, RuntimeWardSkinSet>, locale: string) {
+  return [...items].sort((left, right) => {
+    const a = wardViewGroup(left, view, sets);
+    const b = wardViewGroup(right, view, sets);
+    if (a.key === b.key) return 0;
+    if (a.key === 'unknown') return 1;
+    if (b.key === 'unknown') return -1;
+    return b.rank - a.rank || (a.label ?? '').localeCompare(b.label ?? '', locale) || a.key.localeCompare(b.key);
+  });
+}
+
+// The collection groups by catalog releaseDate. See the CD guide for the source and scope.
+const finisherReleaseYears: Readonly<Partial<Record<number, number>>> = {
+  1: 2024,
+  2: 2025,
+  3: 2025,
+  4: 2025,
+  5: 2025,
+  6: 2026,
+  7: 2026,
+};
+
+export function cosmeticTimelineKey(item: LolCosmetic, additions: ReadonlySet<number>) {
   if (additions.has(item.id)) return 'pbe';
+  if (item.kind === 'finisher') return finisherReleaseYears[item.id] ?? 'unknown';
   return item.kind === 'icon' && item.yearReleased ? item.yearReleased : 'unknown';
 }
 
-export function orderSummonerIconTimeline(items: readonly LolCosmetic[], additions: ReadonlySet<number>, sort: LolCosmeticSort) {
+export function orderCosmeticTimeline(items: readonly LolCosmetic[], additions: ReadonlySet<number>, sort: LolCosmeticSort) {
   const rank = (item: LolCosmetic) => {
-    const key = summonerIconTimelineKey(item, additions);
+    const key = cosmeticTimelineKey(item, additions);
     if (key === 'pbe') return -Infinity;
     if (key === 'unknown') return Infinity;
     return sort === 'oldest' ? key : -key;
