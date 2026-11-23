@@ -506,6 +506,10 @@ https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/
 
 LCU 外观表的 `contentId` 对应 [`tftcontentdata.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftcontentdata.json) 记录中的 `id`。后者是数组，每个元素以 `CompanionData`、`TFTMapSkin` 等物品类型为外层键，内含 `id` 和 `contentData`。其中 `contentData.rarityTag` 对应 `rarityType`，`contentData.featureTags[].featureType` 对应 `featureType`。当前目录直接使用物品表的 `TFTRarity`。
 
+TFT 进攻特效和传送门分别读取 [`tftdamageskins.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftdamageskins.json) 与 [`tftzoomskins.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftzoomskins.json)，两类表都提供 `contentId`、`itemId`、`name`、`description`、`TFTRarity` 和 `loadoutsIcon`。传送门另有 `largeLoadoutsIcon`，适合作为看图预览；字段缺失时回退到 `loadoutsIcon`。跨 `pbe` 与 `latest` 的新增对比只在同一物品表内按 `itemId` 进行，不能把两类物品的编号视为全局唯一。
+
+详情和功能标签筛选按 `contentId` 找到对应内容记录，在进攻特效目录读取 `TFTDamageSkin`，在传送门目录读取 `TFTZoomSkin`；再把 `contentData.featureTags[].featureType` 与当前语言 [`tftdisplaytags.json`](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftdisplaytags.json) 的 `TFTFeatureDisplayTag.featureType` 连接，显示该标签的 `name` 和 `icon`。标签元数据可选加载，失败时仍可使用基础目录资料。
+
 [`tftdisplaytags.json` 英文](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/tftdisplaytags.json)和[中文](https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/zh_cn/v1/tftdisplaytags.json)视图通过以下字段标识标签：
 
 | 外层键 | 匹配字段 | 已核对的标签 |

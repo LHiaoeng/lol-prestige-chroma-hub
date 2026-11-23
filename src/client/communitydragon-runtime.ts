@@ -26,6 +26,13 @@ import {
 } from "../domain/tft-companions";
 import { projectTftArenas, type TftArena } from "../domain/tft-arenas";
 import {
+  indexTftCosmeticFeatureTags,
+  projectTftCosmetics,
+  type TftCosmetic,
+  type TftCosmeticCatalog,
+  type TftCosmeticFeatureTag,
+} from "../domain/tft-cosmetics";
+import {
   CommunityDragonRuntimeError,
   normalizeRuntimeOptions,
   parseRuntimeEmoteCollection,
@@ -68,6 +75,14 @@ export interface RuntimeRequestOptions {
 
 export interface CommunityDragonRuntime {
   listTftArenas(options: RuntimeRequestOptions): Promise<readonly TftArena[]>;
+  listTftCosmeticCatalog?(
+    catalog: TftCosmeticCatalog,
+    options: RuntimeRequestOptions,
+  ): Promise<readonly TftCosmetic[]>;
+  listTftCosmeticFeatureTags?(
+    catalog: TftCosmeticCatalog,
+    options: RuntimeRequestOptions,
+  ): Promise<ReadonlyMap<string, readonly TftCosmeticFeatureTag[]>>;
   listTftCompanions(
     options: RuntimeRequestOptions,
   ): Promise<readonly TftCompanion[]>;
@@ -282,6 +297,56 @@ export function createCommunityDragonRuntime(
     const url = communityDragonDataUrl("tftmapskins.json", options.locale, options.channel);
     const key = `${options.channel}:${options.locale}:tft-arenas`;
     return request(key, url, options, (value) => projectTftArenas(value, options.channel));
+  }
+
+  function listTftCosmeticCatalog(
+    catalog: TftCosmeticCatalog,
+    input: RuntimeRequestOptions,
+  ): Promise<readonly TftCosmetic[]> {
+    const options = validateOptions(input);
+    const file = catalog === "booms" ? "tftdamageskins.json" : "tftzoomskins.json";
+    const url = communityDragonDataUrl(file, options.locale, options.channel);
+    const key = options.channel + ":" + options.locale + ":tft-cosmetics:" + catalog;
+    return request(key, url, options, (value) =>
+      projectTftCosmetics(value, catalog, options.channel),
+    );
+  }
+
+  async function listTftCosmeticFeatureTags(
+    catalog: TftCosmeticCatalog,
+    input: RuntimeRequestOptions,
+  ): Promise<ReadonlyMap<string, readonly TftCosmeticFeatureTag[]>> {
+    const options = validateOptions(input);
+    const contentsUrl = communityDragonDataUrl(
+      "tftcontentdata.json",
+      "default",
+      options.channel,
+    );
+    const displayTagsUrl = communityDragonDataUrl(
+      "tftdisplaytags.json",
+      options.locale,
+      options.channel,
+    );
+    const parseArray = (value: unknown) => {
+      if (!Array.isArray(value))
+        throw new Error("TFT metadata collection must be an array");
+      return value;
+    };
+    const [contents, displayTags] = await Promise.all([
+      request(
+        options.channel + ":default:tft-content-data:" + catalog,
+        contentsUrl,
+        options,
+        parseArray,
+      ),
+      request(
+        options.channel + ":" + options.locale + ":tft-display-tags",
+        displayTagsUrl,
+        options,
+        parseArray,
+      ),
+    ]);
+    return indexTftCosmeticFeatureTags(contents, displayTags, catalog, options.channel);
   }
 
   function get(
@@ -669,6 +734,8 @@ export function createCommunityDragonRuntime(
   }
 
   return {
+    listTftCosmeticCatalog,
+    listTftCosmeticFeatureTags,
     listTftArenas,
     listTftCompanions,
     listSkinCatalog,

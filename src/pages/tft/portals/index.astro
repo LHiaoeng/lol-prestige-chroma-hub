@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import TftCosmeticCatalogRoot from "../../../components/TftCosmeticCatalogRoot.astro";
+import { resolveLocale, type Locale } from "../../../i18n/config";
+import { createTftCosmeticSeo } from "../../../seo/tft-cosmetics-seo";
+
+const locale = (Astro.props.locale ?? resolveLocale(Astro.currentLocale)) as Locale;
+const seo = createTftCosmeticSeo(locale, "portals");
+---
+
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale} ads={false}>
+  <TftCosmeticCatalogRoot {locale} catalog="portals" />
+</BaseLayout>

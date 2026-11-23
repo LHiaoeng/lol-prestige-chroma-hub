@@ -1,0 +1,12 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import TftCosmeticCatalogRoot from "../../../../components/TftCosmeticCatalogRoot.astro";
+import { createTftCosmeticSeo } from "../../../../seo/tft-cosmetics-seo";
+
+const locale = "zh-cn";
+const seo = createTftCosmeticSeo(locale, "booms");
+---
+
+<BaseLayout title={seo.title} description={seo.description} canonical={seo.canonical} jsonLd={seo.jsonLd} {locale} ads={false}>
+  <TftCosmeticCatalogRoot {locale} catalog="booms" />
+</BaseLayout>

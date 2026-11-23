@@ -1,0 +1,122 @@
+---
+import type { Locale } from "../i18n/config";
+import { localizedPath } from "../i18n/config";
+import type { TftCosmeticCatalog } from "../domain/tft-cosmetics";
+import Alert from "./Alert.astro";
+import Breadcrumb from "./Breadcrumb.astro";
+import Divider from "./Divider.astro";
+import DomainIcon from "./DomainIcon.astro";
+import Empty from "./Empty.astro";
+import RuntimeChannelSwitcher from "./RuntimeChannelSwitcher.astro";
+import Select from "./Select.astro";
+import Skeleton from "./Skeleton.astro";
+import Spin from "./Spin.astro";
+import TftFilterDrawer from "./TftFilterDrawer.astro";
+import "../styles/tft-cosmetic-tier.css";
+import "../styles/tft-cosmetic-card.css";
+import "../styles/tft-cosmetics.css";
+
+interface Props {
+  readonly locale: Locale;
+  readonly catalog: TftCosmeticCatalog;
+}
+
+const { locale, catalog } = Astro.props;
+const isZh = locale === "zh-cn";
+const title = catalog === "booms"
+  ? isZh ? "进攻特效" : "Booms"
+  : isZh ? "传送门" : "Portals";
+const subject = isZh ? "云顶之弈" + title : "Teamfight Tactics " + title;
+---
+
+<Breadcrumb {locale} items={[
+  { title: isZh ? "首页" : "Home", href: localizedPath(locale, "/") },
+  { title: isZh ? "云顶之弈" : "Teamfight Tactics", href: "https://teamfighttactics.leagueoflegends.com/en-us/index/", icon: "teamfight-tactics" },
+  { title },
+]} />
+<section
+  class="runtime-page runtime-page--compact-list-header tft-cosmetics"
+  data-tft-cosmetics
+  data-cosmetics-catalog={catalog}
+  data-cosmetics-locale={isZh ? "zh_cn" : "default"}
+  aria-labelledby="tft-cosmetics-title"
+>
+  <header>
+    <h1 id="tft-cosmetics-title"><DomainIcon name="teamfight-tactics" />{title}</h1>
+    <div class="runtime-source runtime-channel-row" aria-label={isZh ? "资料版本" : "Reference data channel"}>
+      <RuntimeChannelSwitcher {locale} />
+      <Divider type="vertical" />
+      <span class="runtime-list-count" data-cosmetics-count></span>
+    </div>
+  </header>
+  <Divider />
+  <div class="tft-cosmetics-filter-skeleton" data-cosmetics-filter-skeleton aria-hidden="true">
+    {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
+  </div>
+  <div class="tft-cosmetics-filters tft-filterbar catalog-sticky-filterbar" data-cosmetics-filters hidden>
+    <label class="tft-cosmetics-field" data-tft-filter-search>
+      <span>{isZh ? "搜索" + title : "Search " + title}</span>
+      <input class="cn-input" type="search" data-cosmetics-search autocomplete="off" placeholder={isZh ? "中英文名称" : "Name in either language"} />
+    </label>
+    <label class="tft-pbe-filter" data-cosmetics-pbe-setting hidden>
+      <input class="sr-only" type="checkbox" data-happy-wave="label" data-cosmetics-pbe-only />
+      <span>{isZh ? "仅看 PBE 新增" : "PBE additions only"}</span>
+    </label>
+    <div class="tft-cosmetics-select-filters">
+      <label class="tft-cosmetics-field">
+        <span>{isZh ? "稀有度" : "Rarity"}</span>
+        <Select allowClear data-cosmetics-rarity="" options={[{ value: "", label: isZh ? "全部稀有度" : "All rarities" }]} />
+      </label>
+      <label class="tft-cosmetics-field">
+        <span>{isZh ? "排序" : "Sort"}</span>
+        <Select data-cosmetics-sort="" allowClear={false} options={[
+          { value: "default", label: isZh ? "ID 降序" : "ID descending" },
+          { value: "id_asc", label: isZh ? "ID 升序" : "ID ascending" },
+          { value: "rarity_desc", label: isZh ? "稀有度：高到低" : "Rarity: high to low" },
+          { value: "rarity_asc", label: isZh ? "稀有度：低到高" : "Rarity: low to high" },
+          { value: "name_asc", label: isZh ? "名称：升序" : "Name: A to Z" },
+          { value: "name_desc", label: isZh ? "名称：降序" : "Name: Z to A" },
+        ]} />
+      </label>
+    </div>
+    <fieldset class="tft-cosmetics-feature-filter" data-cosmetics-feature-filter hidden>
+      <legend>{isZh ? "功能标签" : "Features"}</legend>
+      <div class="tft-cosmetics-feature-options" data-cosmetics-feature-options></div>
+    </fieldset>
+    <div class="tft-cosmetics-view-switch" data-cosmetics-view-switch></div>
+    <TftFilterDrawer id={"tft-" + catalog + "-filter-drawer"} {isZh} resultCount="[data-cosmetics-result-count]" />
+    <p class="runtime-list-count tft-cosmetics-result-count" data-tft-filter-count data-cosmetics-result-count role="status" aria-live="polite"></p>
+  </div>
+  <p class="tft-cosmetics-status" data-cosmetics-status role="status" aria-live="polite" aria-atomic="true"></p>
+  <div class="tft-cosmetics-aux" data-cosmetics-alias-notice role="status" hidden>
+    <span>{isZh ? "另一语言资料暂不可用；跨语言搜索已暂停。" : "Other-language data is unavailable; cross-language search is paused."}</span>
+    <button class="ant-btn" type="button" data-cosmetics-alias-retry>{isZh ? "重试语言资料" : "Retry language data"}</button>
+  </div>
+  <div class="tft-cosmetics-aux" data-cosmetics-compare-notice role="status" hidden>
+    <span>{isZh ? "正式服对照暂不可用；PBE 新增筛选已暂停。" : "Live comparison is unavailable; PBE additions are paused."}</span>
+    <button class="ant-btn" type="button" data-cosmetics-compare-retry>{isZh ? "重试正式服对照" : "Retry live comparison"}</button>
+  </div>
+  <Spin rootClass="tft-cosmetics-spinner" spinning={false}>
+    <div data-cosmetics-content><div data-cosmetics-skeleton><Skeleton layout="skin-grid" itemCount={6} /></div></div>
+    <div data-cosmetics-results role="region" aria-label={subject} hidden>
+      <div class="tft-cosmetic-grid" data-cosmetics-grid></div>
+      <div class="tft-cosmetics-load-more-footer" data-cosmetics-load-more-footer hidden>
+        <button class="ant-btn" type="button" data-cosmetics-load-more>{isZh ? "加载更多" : "Load more"}</button>
+      </div>
+    </div>
+  </Spin>
+  <template data-cosmetics-empty-template><Empty description="" /></template>
+  <template data-cosmetics-error-template>
+    <div class="tft-cosmetics-error">
+      <Alert type="error" title={isZh ? "无法加载" + subject + "资料" : "Unable to load " + subject}>
+        <span slot="description" data-cosmetics-error-message></span>
+      </Alert>
+      <button class="ant-btn" type="button" data-cosmetics-retry>{isZh ? "重试" : "Retry"}</button>
+    </div>
+  </template>
+</section>
+
+<script>
+  import { initTftCosmeticCatalog } from "../client/tft-cosmetics";
+  document.querySelectorAll<HTMLElement>("[data-tft-cosmetics]").forEach((root) => initTftCosmeticCatalog(root));
+</script>

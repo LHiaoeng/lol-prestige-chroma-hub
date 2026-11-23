@@ -1354,6 +1354,76 @@ describe("CommunityDragon runtime reference", () => {
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/zh_cn/v1/tftmapskins.json");
   });
 
+  it("loads TFT cosmetic catalogs and optional feature metadata from their channel and locale", async () => {
+    const fetcher = vi.fn(async (input: string) => {
+      if (input.endsWith("/tftcontentdata.json"))
+        return jsonResponse([{
+          TFTDamageSkin: {
+            id: "boom-content",
+            contentData: { featureTags: [{ featureType: "kEvolvingBoom", type: "kFeature" }] },
+          },
+        }]);
+      if (input.endsWith("/tftdisplaytags.json"))
+        return jsonResponse([{
+          TFTFeatureDisplayTag: {
+            featureType: "kEvolvingBoom",
+            name: "可进化型进攻特效",
+            icon: "/lol-game-data/assets/ASSETS/UX/TFT/EvolvingBoom.png",
+          },
+        }]);
+      return jsonResponse([{
+        itemId: 194003,
+        contentId: "boom-content",
+        name: "水晶玫瑰 小小格温 快刀剪乱",
+        description: "",
+        TFTRarity: "kMythic",
+        loadoutsIcon: "/lol-game-data/assets/ASSETS/Loadouts/TFTDamageSkins/Boom_Gwen.png",
+      }]);
+    });
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    const [items, featureTags] = await Promise.all([
+      runtime.listTftCosmeticCatalog("booms", { locale: "zh_cn", channel: "pbe" }),
+      runtime.listTftCosmeticFeatureTags("booms", { locale: "zh_cn", channel: "pbe" }),
+    ]);
+
+    expect(items).toMatchObject([{ itemId: 194003, name: "水晶玫瑰 小小格温 快刀剪乱" }]);
+    expect(featureTags.get("boom-content")).toEqual([{
+      featureType: "kEvolvingBoom",
+      name: "可进化型进攻特效",
+      iconUrl: "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/assets/ux/tft/evolvingboom.png",
+    }]);
+    expect(fetcher.mock.calls.map(([url]) => url).sort()).toEqual([
+      "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/tftcontentdata.json",
+      "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/zh_cn/v1/tftdamageskins.json",
+      "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/zh_cn/v1/tftdisplaytags.json",
+    ]);
+  });
+
+  it("keeps basic TFT cosmetics available when the separate feature-tag request fails", async () => {
+    const fetcher = vi.fn(async (input: string) => {
+      if (input.endsWith("/tftdisplaytags.json"))
+        return new Response("offline", { status: 503 });
+      if (input.endsWith("/tftcontentdata.json")) return jsonResponse([]);
+      return jsonResponse([{
+        itemId: 194003,
+        contentId: "boom-content",
+        name: "Crystal Rose Gwen Boom",
+        TFTRarity: "kMythic",
+        loadoutsIcon: "/lol-game-data/assets/ASSETS/Loadouts/TFTDamageSkins/Boom_Gwen.png",
+      }]);
+    });
+    const runtime = createCommunityDragonRuntime(fetcher);
+
+    const [items, featureTags] = await Promise.all([
+      runtime.listTftCosmeticCatalog("booms", { locale: "default", channel: "pbe" }),
+      runtime.listTftCosmeticFeatureTags("booms", { locale: "default", channel: "pbe" }).catch(() => undefined),
+    ]);
+
+    expect(items).toMatchObject([{ itemId: 194003, name: "Crystal Rose Gwen Boom" }]);
+    expect(featureTags).toBeUndefined();
+  });
+
   it("rejects an invalid TFT companion source record through the runtime error boundary", async () => {
     const runtime = createCommunityDragonRuntime(
       vi.fn(async (_input: string) =>
