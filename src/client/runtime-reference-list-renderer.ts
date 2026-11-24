@@ -95,7 +95,7 @@ export function createRuntimeListRenderer(
       const controller = options.getController();
       const isChampionList = options.page === "champions";
       const toolbar = document.createElement("div");
-      toolbar.className = "runtime-toolbar";
+      toolbar.className = "runtime-toolbar catalog-sticky-filterbar";
       let roleFilter: HTMLSelectElement | undefined;
       const search = document.createElement("input");
       search.className = "cn-input";

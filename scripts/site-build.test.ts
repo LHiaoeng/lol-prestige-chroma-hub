@@ -619,11 +619,14 @@ describe("static site build", () => {
       }
       const tft = home.match(/<section\b[^>]*aria-labelledby="home-tft-title"[^>]*>([\s\S]*?)<\/section>/)?.[1];
       const tftCards = [...(tft ?? '').matchAll(/<a class="home-tft-card card--hoverable"[^>]*>([\s\S]*?)<\/a>/g)];
-      expect(tftCards).toHaveLength(2);
+      expect(tftCards).toHaveLength(4);
       for (const [card, path, title, caption, cover] of [
         [tftCards[0][0], 'tft/companions/', prefix ? '小小英雄' : 'Tacticians', prefix ? '小小阿狸' : 'Chibi Ahri', 'companions/tooltip_chibiahri_base_classic_tier1.png'],
         [tftCards[1][0], 'tft/arenas/', prefix ? '棋盘' : 'Arenas', prefix ? 'K/DA练习室' : 'K/DA Practice Room', 'tftmapskins/square_battlefield_lg_backstage_day.png'],
+        [tftCards[2][0], 'tft/booms/', prefix ? '进攻特效' : 'Booms', prefix ? '水晶玫瑰 小小格温 快刀剪乱' : 'Crystal Rose Snip Snip!', 'tftdamageskins/boom_gwen_crystalrose.png'],
+        [tftCards[3][0], 'tft/portals/', prefix ? '传送门' : 'Portals', prefix ? '馥郁晶昙' : 'Crystal Caress', 'tftzoomskins/portal1_crystalrose.png'],
       ]) {
+        expect(card).toContain('tft-catalog-icon');
         expect(card).toContain(`href="${route(path)}"`);
         expect(card).toContain(title);
         expect(card).toContain(caption);

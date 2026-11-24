@@ -38,7 +38,7 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
       <RuntimeListSummary {locale} />
     </header>
     <Divider />
-    <div class="tft-arenas-filters tft-filterbar catalog-sticky-filterbar catalog-sticky-filterbar--compact-mobile">
+    <div class="tft-arenas-filters tft-filterbar catalog-sticky-filterbar">
       <label class="tft-arenas-field" data-tft-filter-search>
         <span>{isZh ? '按名称搜索' : 'Search by name'}</span>
         <input class="cn-input" type="search" data-query autocomplete="off" placeholder={isZh ? '按名称搜索' : 'Search by name'} />

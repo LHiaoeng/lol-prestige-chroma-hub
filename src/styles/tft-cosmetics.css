@@ -52,11 +52,11 @@
 }
 .tft-cosmetics [hidden] { display: none !important; }
 
-.tft-cosmetics .tft-companions-filters { row-gap: var(--space-2); }
 .tft-cosmetics-select-filters { gap: var(--space-2); }
 .tft-cosmetics-select-filters .tft-companions-field { gap: 2px; }
 
 @media (min-width: 768px) {
+  .tft-cosmetics .tft-companions-filters { row-gap: var(--space-2); }
   .tft-cosmetics-select-filters {
     grid-template-columns: repeat(auto-fit, minmax(0, 180px));
   }

@@ -55,7 +55,7 @@ const subject = isZh ? "云顶之弈" + title : "Teamfight Tactics " + title;
   <div class="tft-cosmetics-filter-skeleton" data-cosmetics-filter-skeleton aria-hidden="true">
     {Array.from({ length: 5 }, () => <span class="runtime-skeleton-line"></span>)}
   </div>
-  <div class="tft-companions-filters tft-filterbar catalog-sticky-filterbar catalog-sticky-filterbar--compact-mobile" data-cosmetics-filters hidden>
+  <div class="tft-companions-filters tft-filterbar catalog-sticky-filterbar" data-cosmetics-filters hidden>
     <label class="tft-companions-field" data-tft-filter-search>
       <span>{isZh ? "搜索" + title : "Search " + title}</span>
       <input class="cn-input" type="search" data-cosmetics-search autocomplete="off" placeholder={isZh ? "中英文名称" : "Name in either language"} />

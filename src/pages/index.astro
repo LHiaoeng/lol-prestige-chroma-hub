@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeLatestBlog from '../components/HomeLatestBlog.astro';
 import HomeToolNavigation from '../components/HomeToolNavigation.astro';
 import HomeChromaCatalog from '../components/HomeChromaCatalog.astro';
+import TftCatalogIcon from '../components/TftCatalogIcon.astro';
 import DomainIcon from '../components/DomainIcon.astro';
 import Icon from '../components/icons/Icon.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
@@ -20,23 +21,37 @@ const isZh = locale === 'zh-cn';
 const { tagline, title, description, canonical, jsonLd } = createHomeSeo(locale);
 const backgroundChroma = selectFeaturedChroma(catalog);
 const socialImage = backgroundChroma ? imageUrl(backgroundChroma.images.large) : SITE.defaultImage;
-// Curated live records from companions.json (49001) and tftmapskins.json (114).
+// Curated live records: companion 49001, arena 114, boom 194003, portal 35.
 const tftCovers = [
   {
-    href: '/tft/companions/',
+    catalog: 'companions',
     title: isZh ? '小小英雄' : 'Tacticians',
     name: isZh ? '小小阿狸' : 'Chibi Ahri',
     asset: '/lol-game-data/assets/ASSETS/Loadouts/Companions/Tooltip_ChibiAhri_Base_Classic_Tier1.png',
     height: 344,
   },
   {
-    href: '/tft/arenas/',
+    catalog: 'arenas',
     title: isZh ? '棋盘' : 'Arenas',
     name: isZh ? 'K/DA练习室' : 'K/DA Practice Room',
     asset: '/lol-game-data/assets/ASSETS/Loadouts/TFTMapSkins/Square_Battlefield_Lg_Backstage_Day.png',
     height: 512,
   },
-];
+  {
+    catalog: 'booms',
+    title: isZh ? '进攻特效' : 'Booms',
+    name: isZh ? '水晶玫瑰 小小格温 快刀剪乱' : 'Crystal Rose Snip Snip!',
+    asset: '/lol-game-data/assets/ASSETS/Loadouts/TFTDamageSkins/Boom_Gwen_CrystalRose.png',
+    height: 512,
+  },
+  {
+    catalog: 'portals',
+    title: isZh ? '传送门' : 'Portals',
+    name: isZh ? '馥郁晶昙' : 'Crystal Caress',
+    asset: '/lol-game-data/assets/ASSETS/Loadouts/TFTZoomSkins/Portal1_CrystalRose.png',
+    height: 512,
+  },
+] as const;
 ---
 
 <BaseLayout {title} {description} {canonical} image={socialImage} {jsonLd} {locale} adPlacement="catalog-index">
@@ -60,11 +75,11 @@ const tftCovers = [
           <h2 id="home-tft-title"><DomainIcon name="teamfight-tactics" /> {isZh ? '云顶之弈' : 'Teamfight Tactics'}</h2>
         </div>
         <ul class="home-tft-links" role="list">
-          {tftCovers.map(({ href, title, name, asset, height }) => (
+          {tftCovers.map(({ catalog: tftCatalog, title, name, asset, height }) => (
             <li>
-              <a class="home-tft-card card--hoverable" href={localizedPath(locale, href)}>
+              <a class="home-tft-card card--hoverable" href={localizedPath(locale, `/tft/${tftCatalog}/`)}>
                 <div class="home-tft-card-body">
-                  <h3>{title} <Icon name="RightOutlined" /></h3>
+                  <h3><TftCatalogIcon catalog={tftCatalog} class="home-tft-category-icon" />{title} <Icon name="RightOutlined" /></h3>
                   <span>{name}</span>
                 </div>
                 <div class="home-tft-cover">
@@ -90,8 +105,9 @@ const tftCovers = [
   .home-tft-cover::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 16%; background: linear-gradient(to right, var(--panel), transparent); }
   .home-tft-card-body { display: grid; gap: var(--space-1); padding: var(--space-4); overflow-wrap: anywhere; }
   .home-tft-card-body h3 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); font-weight: 600; }
-  .home-tft-card-body :global(.project-icon) { color: var(--gold-text); }
-  .home-tft-card-body span { color: var(--muted); font-size: var(--font-size-small); }
+  .home-tft-card-body :global(.project-icon),
+  .home-tft-card-body h3 :global(.home-tft-category-icon) { color: var(--gold-text); }
+  .home-tft-card-body > span { color: var(--muted); font-size: var(--font-size-small); }
   @media (max-width: 767px) {
     .home-tft-links { grid-template-columns: minmax(0, 1fr); }
   }
