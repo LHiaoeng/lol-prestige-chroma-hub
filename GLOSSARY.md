@@ -13,6 +13,11 @@ LoL Chroma Art 当前呈现的浅色或暗色配色。主题偏好为跟随系�
 **快乐工作特效（Happy Work Effect）**:
 访客可独立开启的控件操作反馈，表现为控件短暂缩放并散出主题色粒子。
 
+## 站点语言
+
+**站点语言偏好（Site Language Preference）**:
+访客在 LoL Chroma Art 手动选择的首页默认语言，可选英文或简体中文。首次手动选择前，首页可参考浏览器语言偏好。
+
 ## 站点范围
 
 **LoL Chroma Art**:

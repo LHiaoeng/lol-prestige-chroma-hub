@@ -34,7 +34,7 @@ describe('Cloudflare static deployment configuration', () => {
     }
   });
 
-  it('serves dist as static Worker assets without runtime bindings', () => {
+  it('runs language selection only for the homepage and preference endpoint', () => {
     const wrangler = readJson('wrangler.jsonc');
 
     expect(wrangler.name).toBe('lol-prestige-chroma-hub');
@@ -42,8 +42,10 @@ describe('Cloudflare static deployment configuration', () => {
     expect(wrangler.assets).toEqual({
       directory: './dist',
       not_found_handling: '404-page',
+      binding: 'ASSETS',
+      run_worker_first: ['/', '/_language/'],
     });
-    expect(wrangler).not.toHaveProperty('main');
+    expect(wrangler.main).toBe('./src/worker.ts');
     expect(wrangler).not.toHaveProperty('d1_databases');
     expect(wrangler).not.toHaveProperty('vars');
   });
@@ -63,7 +65,7 @@ describe('Cloudflare static deployment configuration', () => {
     expect(packageJson.devDependencies).not.toHaveProperty('@cloudflare/workers-types');
   });
 
-  it('does not include Worker source or Worker globals in TypeScript', () => {
+  it('type-checks the Worker with the existing TypeScript source and globals', () => {
     const tsconfig = readJson('tsconfig.json');
     const compilerOptions = tsconfig.compilerOptions as Record<string, unknown>;
 

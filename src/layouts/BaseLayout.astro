@@ -16,6 +16,7 @@ import { lolCosmeticCatalogs } from '../domain/lol-cosmetics';
 import { safeJsonLd } from '../domain/chroma';
 import { resolveAdProvider, resolveAdSenseSlot, type AdPlacement } from '../domain/ad-policy';
 import { alternateUrls, localeConfig, localizedPath, resolveLocale, type Locale } from '../i18n/config';
+import { LANGUAGE_SWITCH_PATH } from '../i18n/language-preference';
 import { SITE } from '../seo/site';
 
 interface Props {
@@ -46,7 +47,8 @@ const alternateOgLocales = Object.entries(localeConfig)
   .filter(([key]) => key !== locale)
   .map(([, config]) => config.ogLocale);
 const otherLocale: Locale = isZh ? 'en' : 'zh-cn';
-const languageHref = localizedPath(otherLocale, `${Astro.url.pathname}${Astro.url.search}`);
+const hasLanguageWorker = import.meta.env.MODE !== 'development';
+const languageAction = hasLanguageWorker ? LANGUAGE_SWITCH_PATH : localizedPath(otherLocale, Astro.url.pathname);
 const socialImage = new URL(image, SITE.origin).toString();
 const jsonLdText = jsonLd ? safeJsonLd(jsonLd) : undefined;
 const headerNavigation = headerNavigationState(Astro.url.pathname);
@@ -150,7 +152,15 @@ gtag('js', new Date());
         <a class="ant-btn ant-btn-variant-text header-blog-link" href={localizedPath(locale, '/blog/')} aria-current={headerNavigation.current('/blog/')}>
           <Icon name="FileTextOutlined" /> {isZh ? '博客' : 'Blog'}
         </a>
-        {canonical && <a class="ant-btn ant-btn-variant-text ant-btn-icon-only language-toggle" href={languageHref} lang={localeConfig[otherLocale].htmlLang} hreflang={localeConfig[otherLocale].hreflang} aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}><span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span></a>}
+        {canonical && <form action={languageAction} method={hasLanguageWorker ? 'post' : 'get'} data-language-switch={hasLanguageWorker || undefined}>
+          {hasLanguageWorker ? <>
+            <input type="hidden" name="locale" value={otherLocale} />
+            <input type="hidden" name="from" value={Astro.url.pathname} />
+          </> : Array.from(Astro.url.searchParams, ([name, value]) => <input type="hidden" {name} {value} />)}
+          <button type="submit" class="ant-btn ant-btn-variant-text ant-btn-icon-only language-toggle" aria-label={isZh ? '切换到英文' : 'Switch to Simplified Chinese'} title={isZh ? '中文 / English' : 'English / 中文'}>
+            <span class="language-toggle-mark" aria-hidden="true"><span class="language-toggle-current">{isZh ? '中' : 'En'}</span><span class="language-toggle-next">{isZh ? 'En' : '中'}</span></span>
+          </button>
+        </form>}
         <Dropdown id="theme-preference" placement="bottomRight">
           <button slot="trigger" type="button" class="ant-btn ant-btn-variant-text ant-btn-icon-only theme-toggle" aria-label={isZh ? '主题' : 'Theme'} title={isZh ? '主题' : 'Theme'}>
             <Icon name="theme-switch" style="fill:currentColor;stroke:none" />
@@ -182,6 +192,9 @@ gtag('js', new Date());
       bindHappyWorkEffect();
       bindTypographyParagraphs();
       bindCardTitleTooltips();
+      document.querySelector<HTMLFormElement>('[data-language-switch]')?.addEventListener('formdata', ({ formData }) => {
+        formData.set('from', `${location.pathname}${location.search}${location.hash}`);
+      });
       const browseMenu = document.getElementById('browse-nav');
       const browsePopup = browseMenu?.parentElement;
       if (browsePopup) {

@@ -79,6 +79,13 @@ describe("static site build", () => {
     expect(existsSync(join(dist, "sitemap.xml"))).toBe(true);
     const home = readFileSync(join(dist, "index.html"), "utf8");
     expect(home).toContain('<html lang="en"');
+    for (const [prefix, pathname, locale] of [['', '/', 'zh-cn'], ['zh-cn', '/zh-cn/', 'en']]) {
+      const page = readFileSync(join(dist, prefix, 'index.html'), 'utf8');
+      const form = page.match(/<form action="\/_language\/" method="post"[^>]*>[\s\S]*?<\/form>/)?.[0];
+      expect(form).toContain(`name="locale" value="${locale}"`);
+      expect(form).toContain(`name="from" value="${pathname}"`);
+      expect(form).toContain('<button type="submit"');
+    }
     expect(home).toContain(
       '<link rel="canonical" href="https://chromaart.lol/">',
     );
@@ -1580,6 +1587,8 @@ describe("static site build", () => {
     expect(privacy).toContain("<title>Privacy Policy | LoL Chroma Art</title>");
     expect(privacy).toContain("LoL Chroma Art is a static, read-only site for game content.");
     expect(chinesePrivacy).toContain("LoL Chroma Art 是一个静态、只读的游戏内容站。");
+    expect(privacy).toContain('<code>site-language</code> cookie for one year');
+    expect(chinesePrivacy).toContain('<code>site-language</code> Cookie 将选择保存一年');
     expect(privacy).toContain("Adsterra currently provides display ads");
     expect(privacy).toContain("Google's information about partner sites");
     expect(privacy).toContain("Google AdSense");
@@ -1611,8 +1620,7 @@ describe("static site build", () => {
     const home = readFileSync(join(dist, "index.html"), "utf8");
     const header = home.match(/<header[\s\S]*?<\/header>/)?.[0] ?? "";
     const footer = home.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? "";
-    expect(header).toContain('href="/zh-cn/"');
-    expect(header).toContain('hreflang="zh-CN"');
+    expect(header).toContain('aria-label="Switch to Simplified Chinese"');
     expect(header).not.toContain('href="/about/"');
     expect(header).not.toContain('href="/privacy/"');
     expect(footer).toContain('href="/about/"');

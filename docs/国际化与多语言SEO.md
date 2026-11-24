@@ -9,7 +9,11 @@
 
 英文是默认语言，保留 `/`、`/blog/`、`/chromas/<slug>/` 等现有路径。简体中文使用 `/zh-cn/`、`/zh-cn/blog/` 和 `/zh-cn/chromas/<slug>/`。云顶之弈小小英雄列表使用 `/tft/companions/` 与 `/zh-cn/tft/companions/`。静态臻彩详情页保持可索引；CommunityDragon 运行时详情使用数字查询参数并由客户端设置 `noindex`，不生成实体 sitemap 条目。不要创建含义不明确的 `/zh/`。
 
-语言由 URL 决定。页面不会根据浏览器语言、IP、请求头或本地偏好自动跳转。Header 的语言入口是普通链接，禁用 JavaScript 后仍可使用。
+页面的正文语言由 URL 决定。直接或从外站打开 `/` 时，Cloudflare Worker 优先使用已保存的站点语言偏好，否则按 `Accept-Language` 的优先级匹配。匹配简体中文时，在返回 HTML 前以 `302` 跳到 `/zh-cn/` 并保留查询参数。缺少有效偏好时显示英文。请求带有同源导航信号时沿用站内链接指向的语言，来源未知时按直接访问处理。`/zh-cn/` 与所有内页直接按 URL 展示。
+
+页头的语言入口是原生提交按钮。Worker 接收同源表单，在 `site-language` Cookie 中保存手动选择一年，然后以 `303` 打开对应语言的页面。禁用 JavaScript 后仍可使用。清除站点 Cookie 后恢复浏览器判断。首页语言选择和手动切换的响应均使用 `Cache-Control: private, no-store`。
+
+页头按钮沿用文字型图标按钮的样式、尺寸、焦点反馈和双语可访问名称。生产构建使用原生 `type="submit"` 提交偏好。开发时，`pnpm dev` 直接打开对应页面。可通过 `pnpm build` 和 `pnpm preview --config wrangler.jsonc` 验证完整的 Worker 行为。[固定版本 Antdv Next Button 源码](https://github.com/antdv-next/antdv-next/blob/839bec66f18a78eeef5c6843b78ea4a54d73b248/packages/antdv-next/src/button/Button.tsx#L406)
 
 首页标题使用本地化的三款游戏内容聚合站标语和品牌名，页面描述突出臻彩原画、目录、版本与活动。站点结构化数据使用品牌名 LoL Chroma Art，不把标语或板块名称当作站点别名。
 
@@ -17,6 +21,7 @@
 
 - `astro.config.mjs`：Astro i18n 路由注册；
 - `src/i18n/config.ts`：locale 元数据、路径转换与 alternate URL；
+- `src/i18n/language-preference.ts` 和 `src/worker.ts`：浏览器语言匹配、首页跳转和手动切换；
 - `src/layouts/BaseLayout.astro`：`lang`、canonical、hreflang、Open Graph、全站唯一的 Google 代码与全局语言导航；
 - `src/pages/zh-cn/`：简体中文静态路由 wrapper；
 - `src/seo/chroma-seo.ts`：详情页本地化 SEO；
@@ -71,3 +76,5 @@ pnpm release:build
 ```
 
 发布前抽查英文与简体首页、博客列表、文章、静态臻彩详情、运行时目录壳、About、Privacy、404 与 sitemap，确认可索引页面 canonical 自引用、alternate 双向、运行时详情 `noindex`、站内链接保持当前语言，且构建产物不包含完整 `prestige-chromas.json`。
+
+用本地 Wrangler 验证中文浏览器的首页跳转、不带 `Accept-Language` 的英文首页、站内导航、手动选择优先级及普通内页。检查两种语言的页头在桌面、手机和禁用 JavaScript 时均可切换。

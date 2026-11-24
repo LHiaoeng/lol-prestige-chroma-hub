@@ -2,7 +2,7 @@
 
 ## 1. 部署模型
 
-本项目是静态 Astro 站点：构建时读取 `data/prestige-chromas.json`，输出 `dist/`，Cloudflare Worker 仅托管这些静态资产。推送 `main` 后由 Workers Builds 执行发布构建和 Wrangler 部署。
+本项目是静态 Astro 站点。构建时读取 `data/prestige-chromas.json`，输出 `dist/`。Cloudflare Worker 托管静态资产，并处理首页语言选择和页头手动切换。推送 `main` 后由 Workers Builds 执行发布构建和 Wrangler 部署。
 
 ```text
 管理后台 ──覆盖──> data/prestige-chromas.json ──Astro 构建──> dist/ ──Worker──> chromaart.lol
@@ -39,7 +39,7 @@ Deploy to Cloudflare 按钮只能读取公开仓库。只有将 `LHiaoeng/lol-pr
 | Build command | `pnpm release:build` |
 | Deploy command | `pnpm exec wrangler deploy` |
 
-不要配置 Secrets、环境变量或运行时 bindings。`wrangler.jsonc` 已声明静态目录 `./dist` 和自定义 404 行为。Workers Builds 的配置项说明见 [Cloudflare Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/)。
+`wrangler.jsonc` 声明静态目录 `./dist`、`ASSETS` 绑定、语言处理路由和自定义 404 行为。部署使用仓库配置。[Cloudflare Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/)
 
 首次部署成功后，打开 Worker 的 Deployments 页面，确认生产部署来自 `main`，构建和部署命令与上表一致。
 
