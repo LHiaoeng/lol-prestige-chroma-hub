@@ -38,7 +38,7 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
       <RuntimeListSummary {locale} />
     </header>
     <Divider />
-    <div class="tft-arenas-filters tft-filterbar catalog-sticky-filterbar">
+    <div class="tft-arenas-filters tft-filterbar catalog-sticky-filterbar catalog-sticky-filterbar--compact-mobile">
       <label class="tft-arenas-field" data-tft-filter-search>
         <span>{isZh ? '按名称搜索' : 'Search by name'}</span>
         <input class="cn-input" type="search" data-query autocomplete="off" placeholder={isZh ? '按名称搜索' : 'Search by name'} />
@@ -159,12 +159,6 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
   .lol-cosmetics .tft-arenas-select-filters > .ant-select-ssr > :is(.ant-select, .ant-select-source) {
     inline-size: 100%;
   }
-  .lol-cosmetics .tft-filterbar:not([hidden]) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2);
-  }
   .lol-cosmetics .tft-filterbar > [data-tft-filter-search] { flex: 1 1 10rem; }
   .lol-cosmetics .tft-filterbar > [data-tft-filter-count] { flex: 0 0 100%; text-align: center; }
   .lol-cosmetics > [data-tft-filter-count] { margin: var(--space-2) 0; text-align: center; }
@@ -202,22 +196,16 @@ const allLabel = catalog.slug === 'summoner-icons' ? (isZh ? '全部年份' : 'A
     .lol-cosmetics .skin-catalog-timeline-node > .tft-cosmetic-grid { margin-block-start: var(--space-1); }
   }
   @media (min-width: 768px) {
+    .lol-cosmetics .tft-filterbar:not([hidden]) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-2);
+    }
     .lol-cosmetics .tft-filterbar > .tft-arenas-select-filters { display: flex; flex: 0 1 auto; flex-wrap: wrap; }
     .lol-cosmetics .tft-arenas-select-filters > .ant-select-ssr {
       flex: none;
       inline-size: 10rem;
-    }
-  }
-  @media (max-width: 767px) {
-    .lol-cosmetics .tft-filterbar > [data-tft-filter-search] { flex-basis: 6rem; }
-    .lol-cosmetics:has(.skin-catalog-timeline) .catalog-sticky-filterbar::before {
-      position: absolute;
-      inset-block: 0;
-      inset-inline: calc(-1 * var(--space-2));
-      z-index: -1;
-      background: var(--bg);
-      pointer-events: none;
-      content: "";
     }
   }
   .lol-cosmetics :is([data-error], [data-empty]) { text-align: center; }
