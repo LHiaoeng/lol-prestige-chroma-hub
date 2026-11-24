@@ -150,9 +150,46 @@ const skinReleases = page === 'skins' && mode === 'detail'
   bindRuntimeLanguageToggle(document);
   bindRuntimeChannelLinks(document);
   const root = document.querySelector<HTMLElement>('[data-runtime-page]');
-  if (root) initRuntimeReference(root);
+  if (root) {
+    initRuntimeReference(root);
+    if (document.querySelector('[data-runtime-reference-backdrop]')) {
+      let frame: number | undefined;
+      const syncStickyToolbars = () => {
+        if (frame !== undefined) return;
+        frame = requestAnimationFrame(() => {
+          frame = undefined;
+          for (const toolbar of root.querySelectorAll<HTMLElement>('.runtime-toolbar.catalog-sticky-filterbar')) {
+            const top = Number.parseFloat(getComputedStyle(toolbar).top);
+            const pinned = Math.abs(toolbar.getBoundingClientRect().top - top) < 1;
+            toolbar.toggleAttribute('data-sticky-pinned', pinned);
+          }
+        });
+      };
+      window.addEventListener('scroll', syncStickyToolbars, { passive: true });
+      window.addEventListener('resize', syncStickyToolbars);
+      new MutationObserver(syncStickyToolbars).observe(root, { childList: true, subtree: true });
+      syncStickyToolbars();
+    }
+  }
 </script>
 
 <style is:global>
   main:has([data-runtime-reference-backdrop]) { position: relative; isolation: isolate; }
+  main:has([data-runtime-reference-backdrop]:not([hidden])) .runtime-toolbar.catalog-sticky-filterbar {
+    padding-block: var(--space-2);
+    background: transparent;
+  }
+  main:has([data-runtime-reference-backdrop]:not([hidden])) .runtime-toolbar.catalog-sticky-filterbar::before {
+    opacity: 0;
+    inset-inline: calc(-1 * var(--space-2));
+    border: var(--line-width) solid var(--line-subtle);
+    border-radius: var(--radius-card);
+    background: var(--panel);
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  main:has([data-runtime-reference-backdrop]:not([hidden])) .runtime-toolbar.catalog-sticky-filterbar[data-sticky-pinned]::before {
+    opacity: 1;
+  }
 </style>

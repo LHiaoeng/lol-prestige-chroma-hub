@@ -802,7 +802,7 @@ export function appendUniverseSkinGroups(
     return;
   }
   const controls = document.createElement("div");
-  controls.className = "runtime-toolbar runtime-universe-filters";
+  controls.className = "runtime-toolbar runtime-universe-filters catalog-sticky-filterbar";
   const skinlineSelect = document.createElement("select");
   skinlineSelect.className = "ant-select-source";
   skinlineSelect.dataset.selectShowSearch = "";

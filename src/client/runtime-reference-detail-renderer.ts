@@ -724,7 +724,7 @@ export function createRuntimeDetailRenderer(
         const section = document.createElement("section");
         section.setAttribute("aria-label", options.locale === "zh_cn" ? "英雄皮肤" : "Champion skins");
         const controls = document.createElement("div");
-        controls.className = "runtime-toolbar runtime-skin-reference-controls";
+        controls.className = "runtime-toolbar runtime-skin-reference-controls catalog-sticky-filterbar";
         const sortSelect = document.createElement("select");
         sortSelect.className = "ant-select-source";
         sortSelect.id = "runtime-champion-skins-sort";
@@ -1120,7 +1120,7 @@ export function createRuntimeDetailRenderer(
       if (!skinlineSkinsSlot) return;
       const previousSort = skinlineSkinsSlot.querySelector<HTMLSelectElement>("#runtime-skinline-skins-sort")?.value;
       const controls = document.createElement("div");
-      controls.className = "runtime-toolbar runtime-skin-reference-controls";
+      controls.className = "runtime-toolbar runtime-skin-reference-controls catalog-sticky-filterbar";
       let championNames = new Map<number, string>();
       const sortSelect = document.createElement("select");
       sortSelect.className = "ant-select-source";
