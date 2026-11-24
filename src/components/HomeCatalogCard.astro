@@ -1,0 +1,43 @@
+---
+import Icon from './icons/Icon.astro';
+
+interface Props {
+  href: string;
+  title: string;
+  cover?: string;
+  fallback?: string;
+  caption?: string;
+  height?: number;
+}
+
+const { href, title, cover, caption, fallback = '/placeholder.svg', height = 512 } = Astro.props;
+---
+
+<a class="home-catalog-card card--hoverable" {href}>
+  <div class="home-catalog-card-body">
+    <h3><slot name="icon" /><span>{title}</span><Icon name="RightOutlined" /></h3>
+    {caption && <span>{caption}</span>}
+  </div>
+  <div class="home-catalog-cover" aria-hidden="true">
+    {cover
+      ? <img src={cover} alt="" width="512" {height} loading="lazy" decoding="async" data-fallback={fallback} />
+      : <slot name="cover" />}
+  </div>
+</a>
+
+<style>
+  .home-catalog-card { display: grid; grid-template-columns: minmax(0, 1fr) min(44%, 192px); align-items: center; height: 100%; border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); box-shadow: var(--shadow-card); overflow: hidden; }
+  .home-catalog-cover { position: relative; display: grid; place-items: center; aspect-ratio: 1; background: var(--panel2); }
+  .home-catalog-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% center; }
+  .home-catalog-cover::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 16%; background: linear-gradient(to right, var(--panel), transparent); }
+  .home-catalog-cover :global(.home-catalog-cover-mark) { width: 40%; height: auto; color: var(--gold-text); }
+  .home-catalog-card-body { display: grid; gap: var(--space-1); padding: var(--space-4); overflow-wrap: anywhere; }
+  .home-catalog-card-body h3 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--text); font-size: var(--font-size-headline-sm); line-height: var(--line-height-headline-sm); font-weight: 600; }
+  .home-catalog-card-body h3 :global(:is(.project-icon, .tft-catalog-icon)) { flex: none; color: var(--gold-text); }
+  .home-catalog-card-body > span { color: var(--muted); font-size: var(--font-size-small); }
+
+  :global(.home-catalog-links) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  @media (max-width: 767px) {
+    :global(.home-catalog-links) { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

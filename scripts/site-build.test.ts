@@ -593,24 +593,45 @@ describe("static site build", () => {
 
   it("renders bilingual homepage navigation and all new prestige chromas", () => {
     for (const [prefix, labels] of [
-      ['', ['Prestige Chroma Splash Art', 'PBE additions', 'Champions', 'Skinlines', 'Universes']],
-      ['zh-cn', ['臻彩原画', 'PBE 新增', '英雄', '皮肤系列', '皮肤宇宙']],
+      ['', ['Prestige Chroma Splash Art', 'PBE additions', 'Champions', 'Skins', 'Skinlines', 'Universes', 'Summoner Icons', 'Emotes', 'Ward Skins', 'Nexus Finishers']],
+      ['zh-cn', ['臻彩原画', 'PBE 新增', '英雄', '皮肤', '皮肤系列', '皮肤宇宙', '召唤师图标', '表情', '守卫皮肤', '终结特效']],
     ] as const) {
       const home = readFileSync(join(dist, prefix, 'index.html'), 'utf8');
       const navStart = home.indexOf('<nav class="card__tabs"');
       expect(navStart).toBeGreaterThanOrEqual(0);
       const nav = home.slice(navStart, home.indexOf('</nav>', navStart));
       const route = (path: string) => `/${prefix ? `${prefix}/` : ''}${path}`;
-      const hrefs = ['/', '/pbe-additions/', '/champions/', '/skinlines/', '/universes/']
-        .map((path) => route(path.slice(1)));
-      let previous = -1;
+      const paths = [
+        'prestige-chromas/', 'pbe-additions/', 'champions/', 'skins/', 'skinlines/', 'universes/',
+        'summoner-icons/', 'emotes/', 'ward-skins/', 'nexus-finishers/',
+      ];
+      const tabs = [...nav.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+      expect(tabs.map((tab) => tab[1])).toEqual([route(''), ...paths.slice(1).map(route)]);
+      const mobileNav = home.match(/<nav class="home-tool-links"[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? '';
+      const mobileCards = [...mobileNav.matchAll(/<a class="home-catalog-card card--hoverable" href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+      expect(mobileCards.map((card) => card[1])).toEqual(paths.map(route));
       for (const [index, label] of labels.entries()) {
-        const position = nav.indexOf(`href="${hrefs[index]}"`);
-        expect(position).toBeGreaterThan(previous);
-        expect(nav).toContain(label);
-        previous = position;
+        expect(tabs[index][2]).toContain(label);
+        expect(mobileCards[index][2]).toContain(label);
       }
-      expect(nav).toContain('aria-current="page"');
+      expect(tabs[0][0]).toContain('aria-current="page"');
+      expect(home.indexOf('id="home-new-chromas"')).toBeGreaterThan(navStart);
+      expect(home.indexOf('id="home-new-chromas"')).toBeLessThan(home.indexOf(mobileNav));
+      const collapseTrigger = home.match(/<button\b[^>]*class="home-catalog-toggle"[^>]*>([\s\S]*?)<\/button>/);
+      expect(collapseTrigger?.[0]).toContain('aria-expanded="false"');
+      expect(collapseTrigger?.[0]).toContain('aria-controls="home-new-chromas-panel"');
+      expect(collapseTrigger?.[1]).toContain(prefix ? '新增臻彩' : 'New Prestige Chromas');
+      const header = home.match(/<div class="home-catalog-header"[^>]*>([\s\S]*?)<\/div>/)?.[1];
+      expect(header).toContain(`href="${route('prestige-chromas/')}"`);
+      expect(header).toContain('ant-btn ant-btn-color-primary ant-btn-variant-solid');
+      expect(header).toMatch(/class="home-catalog-title"[^>]*><svg\b[^>]*data-domain-icon-name="prestige-chromas"/);
+      expect(collapseTrigger?.[1]).toMatch(/class="home-catalog-label"[^>]*><svg\b[^>]*data-domain-icon-name="prestige-chromas"/);
+      expect(header).toMatch(/<a\b[^>]*ant-btn-variant-solid[^>]*>\s*<svg\b[^>]*aria-hidden="true"/);
+      expect(header).not.toContain('ant-btn-lg');
+      expect(collapseTrigger?.[0]).not.toContain('<a ');
+      expect(home).toContain('id="home-new-chromas-panel"');
+      expect(mobileCards[1][2]).toContain('home-catalog-cover-mark');
+      expect(mobileCards.slice(6).every((card) => /<img\b[^>]*loading="lazy"[^>]*data-fallback="\/placeholder.svg"/.test(card[2]))).toBe(true);
       const headings = [
         ['latest-title', prefix ? '博客' : 'Blog'],
         ['home-tools-title', prefix ? '英雄联盟' : 'League of Legends'],
@@ -624,8 +645,11 @@ describe("static site build", () => {
         expect(heading?.[1]).toContain(label);
         previousHeading = heading!.index!;
       }
+      const latestBlog = home.match(/<section\b[^>]*aria-labelledby="latest-title"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+      const blogLink = latestBlog?.match(/<a\b[^>]*class="ant-btn ant-btn-color-primary ant-btn-variant-solid"[^>]*>/)?.[0];
+      expect(blogLink).toContain(`href="${route('blog/')}"`);
       const tft = home.match(/<section\b[^>]*aria-labelledby="home-tft-title"[^>]*>([\s\S]*?)<\/section>/)?.[1];
-      const tftCards = [...(tft ?? '').matchAll(/<a class="home-tft-card card--hoverable"[^>]*>([\s\S]*?)<\/a>/g)];
+      const tftCards = [...(tft ?? '').matchAll(/<a class="home-catalog-card card--hoverable"[^>]*>([\s\S]*?)<\/a>/g)];
       expect(tftCards).toHaveLength(4);
       for (const [card, path, title, caption, cover] of [
         [tftCards[0][0], 'tft/companions/', prefix ? '小小英雄' : 'Tacticians', prefix ? '小小阿狸' : 'Chibi Ahri', 'companions/tooltip_chibiahri_base_classic_tier1.png'],

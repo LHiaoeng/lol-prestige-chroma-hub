@@ -1,6 +1,9 @@
 ---
 import PrestigeChromaCard from './PrestigeChromaCard.astro';
 import ButtonLink from './ButtonLink.astro';
+import DomainIcon from './DomainIcon.astro';
+import Icon from './icons/Icon.astro';
+import RightOutlined from './icons/RightOutlined.astro';
 import { catalog } from '../data/catalog';
 import { selectNewChromas } from '../domain/featured-chroma';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
@@ -8,24 +11,118 @@ import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 interface Props { locale?: Locale }
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
+const title = isZh ? '新增臻彩' : 'New Prestige Chromas';
 const additions = selectNewChromas(catalog);
 ---
 
-<section class="catalog-section home-catalog" aria-label={isZh ? '新增臻彩' : 'New Prestige Chromas'}>
-  <p class="catalog-all-action"><ButtonLink variant="default" class="ant-btn-lg" data-happy-wave href={localizedPath(locale, '/prestige-chromas/')}>{isZh ? '查看全部臻彩' : 'View all Prestige Chromas'}</ButtonLink></p>
-  {additions.length === 0 && <p>{isZh ? '本期暂无新增臻彩' : 'No new Prestige Chromas this release.'}</p>}
-  <div class="chroma-grid">
-    {additions.map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
+<section class="catalog-section home-catalog" aria-labelledby="home-new-chromas">
+  <div class="home-catalog-header">
+    <h3 id="home-new-chromas">
+      <span class="home-catalog-title"><DomainIcon name="prestige-chromas" /><span>{title}</span></span>
+      <button class="home-catalog-toggle" type="button" aria-expanded="false" aria-controls="home-new-chromas-panel">
+        <RightOutlined class="home-catalog-arrow" />
+        <span class="home-catalog-label"><DomainIcon name="prestige-chromas" /><span>{title}</span></span>
+      </button>
+    </h3>
+    <ButtonLink
+      variant="primary"
+      data-happy-wave
+      href={localizedPath(locale, '/prestige-chromas/')}
+      aria-label={isZh ? undefined : 'View all Prestige Chromas'}
+    >
+      <Icon name="BookOutlined" />
+      <span>{isZh ? '查看全部臻彩' : 'View all'}</span>
+    </ButtonLink>
+  </div>
+  <div class="home-catalog-panel" id="home-new-chromas-panel">
+    <div class="home-catalog-panel-body">
+      {additions.length === 0 && <p>{isZh ? '本期暂无新增臻彩' : 'No new Prestige Chromas this release.'}</p>}
+      <div class="chroma-grid">
+        {additions.map((chroma, index) => <PrestigeChromaCard {chroma} eager={index < 4} {locale} />)}
+      </div>
+    </div>
   </div>
 </section>
 
+<script>
+  const catalog = document.querySelector<HTMLElement>('.home-catalog');
+  const toggle = catalog?.querySelector<HTMLButtonElement>('.home-catalog-toggle');
+
+  if (catalog && toggle) {
+    toggle.addEventListener('click', () => {
+      toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+    });
+    catalog.dataset.collapseReady = '';
+  }
+</script>
+
 <style is:global>
   .catalog-section.home-catalog { width: auto; margin: 0; padding-bottom: 0; }
-  .home-catalog .catalog-all-action { display: flex; justify-content: center; margin: 0 0 var(--space-3); }
+  .home-catalog .home-catalog-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+  .home-catalog h3 { min-width: 0; margin: 0; font-size: var(--font-size-headline-sm); line-height: var(--line-height-headline-sm); }
+  .home-catalog :is(.home-catalog-title, .home-catalog-label) { display: flex; align-items: center; gap: var(--space-2); }
+  .home-catalog .home-catalog-toggle { display: none; }
   .home-catalog .chroma-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
   .home-catalog .card-body { padding: 12px; }
   .home-catalog .card-body h2 { margin: 0 0 8px; font-size: var(--font-size-body); line-height: var(--line-height-body); min-height: calc(var(--line-height-body) * 2); }
+
+  @container home-tools (width < 1200px) {
+    .home-catalog { border: var(--line-width) solid var(--line); border-radius: var(--radius-card); background: var(--fill); }
+    .home-catalog .home-catalog-header { margin: 0; padding-inline-end: var(--space-3); }
+    .home-catalog h3 { flex: 1; }
+    .home-catalog .home-catalog-title {
+      padding: 12px 0 12px var(--space-3);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+    }
+    .home-catalog[data-collapse-ready] .home-catalog-title { display: none; }
+    .home-catalog[data-collapse-ready] .home-catalog-toggle {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 12px 0 12px var(--space-3);
+      border: 0;
+      border-radius: var(--radius-card);
+      background: transparent;
+      color: var(--text);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      text-align: start;
+      cursor: pointer;
+    }
+    .home-catalog .home-catalog-toggle:focus-visible { outline: 2px solid var(--gold-text); outline-offset: -2px; }
+    .home-catalog .home-catalog-toggle .home-catalog-arrow { width: 12px; height: 12px; flex: none; transition: transform var(--motion-slow) ease; }
+    .home-catalog .home-catalog-toggle[aria-expanded="true"] .home-catalog-arrow { transform: rotate(90deg); }
+    .home-catalog .home-catalog-panel {
+      display: grid;
+      grid-template-rows: 1fr;
+      border-radius: 0 0 var(--radius-card) var(--radius-card);
+      background: var(--panel);
+    }
+    .home-catalog .home-catalog-panel-body {
+      min-height: 0;
+      overflow: clip;
+      border-radius: inherit;
+      box-shadow: inset 0 1px var(--line);
+    }
+    .home-catalog .home-catalog-panel-body > :is(.chroma-grid, p) { margin: var(--space-3); }
+    .home-catalog[data-collapse-ready] .home-catalog-panel {
+      transition: grid-template-rows var(--motion-slow) ease, opacity var(--motion-slow) ease, visibility var(--motion-slow);
+    }
+    .home-catalog[data-collapse-ready]:has(.home-catalog-toggle[aria-expanded="false"]) .home-catalog-panel {
+      grid-template-rows: 0fr;
+      opacity: 0;
+      visibility: hidden;
+      interactivity: inert;
+    }
+  }
+
   @media (max-width: 767px) {
     .home-catalog .chroma-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-catalog[data-collapse-ready] .home-catalog-panel, .home-catalog .home-catalog-toggle .home-catalog-arrow { transition: none; }
   }
 </style>

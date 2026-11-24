@@ -55,6 +55,11 @@ describe("shared component typography contract", () => {
     expectDeclarations(globalStyles, ".ant-image-preview-count", body);
   });
 
+  it("keeps Card Tabs overflow horizontal and the selected indicator inside the row", () => {
+    expectDeclarations(cardStyles, ".card__tabs", { "overflow-x": "auto", "overflow-y": "hidden" });
+    expectDeclarations(cardStyles, ".card__tab::after", { bottom: "0", height: "2px" });
+  });
+
   it("maps Card, Alert, and Typography titles to their documented roles", () => {
     expectDeclarations(cardStyles, ".card__title", {
       "font-size": "var(--font-size-title)",

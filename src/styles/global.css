@@ -1317,7 +1317,12 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-btn:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
 @media (hover:hover) and (pointer:fine) { .ant-btn:hover:not(:disabled) { border-color: var(--gold-border); color: var(--gold-text); } }
 .ant-btn:disabled { color: var(--disabled); cursor: not-allowed; }
-.ant-btn:is(.ant-btn-variant-text, .ant-btn-variant-link) { height: var(--control-height); gap: var(--space-1); padding: 0 15px; border-color: transparent; background: transparent; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); font-weight: 400; white-space: nowrap; text-decoration: none; user-select: none; touch-action: manipulation; transition: color var(--motion-mid) ease, background-color var(--motion-mid) ease; }
+.ant-btn:is(.ant-btn-variant-text, .ant-btn-variant-link, .ant-btn-variant-solid) { height: var(--control-height); gap: var(--space-1); padding: 0 15px; border-color: transparent; background: transparent; color: var(--text); font-size: var(--font-size-body); line-height: var(--line-height-body); font-weight: 400; white-space: nowrap; text-decoration: none; user-select: none; touch-action: manipulation; transition: color var(--motion-mid) ease, background-color var(--motion-mid) ease; }
+.ant-btn.ant-btn-color-primary.ant-btn-variant-solid { background: var(--gold); color: var(--on-gold); }
+@media (hover:hover) and (pointer:fine) {
+  .ant-btn.ant-btn-color-primary.ant-btn-variant-solid:hover { border-color: transparent; background: var(--gold-hover); }
+}
+.ant-btn.ant-btn-color-primary.ant-btn-variant-solid:active { border-color: transparent; background: var(--gold-active); }
 .ant-btn:is(.ant-btn-variant-text, .ant-btn-variant-link).ant-btn-icon-only { padding: 0; }
 .ant-btn.ant-btn-variant-link:hover { border-color: transparent; background: transparent; color: var(--gold-hover-text); }
 .ant-btn.ant-btn-variant-link:active { color: var(--gold-active-text); }

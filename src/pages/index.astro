@@ -2,10 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeLatestBlog from '../components/HomeLatestBlog.astro';
 import HomeToolNavigation from '../components/HomeToolNavigation.astro';
+import HomeCatalogCard from '../components/HomeCatalogCard.astro';
 import HomeChromaCatalog from '../components/HomeChromaCatalog.astro';
 import TftCatalogIcon from '../components/TftCatalogIcon.astro';
 import DomainIcon from '../components/DomainIcon.astro';
-import Icon from '../components/icons/Icon.astro';
 import ResponsiveHeroBackdrop from '../components/ResponsiveHeroBackdrop.astro';
 import { catalog } from '../data/catalog';
 import { imageUrl, sourceImageUrl } from '../domain/chroma';
@@ -74,18 +74,12 @@ const tftCovers = [
         <div class="section-heading">
           <h2 id="home-tft-title"><DomainIcon name="teamfight-tactics" /> {isZh ? '云顶之弈' : 'Teamfight Tactics'}</h2>
         </div>
-        <ul class="home-tft-links" role="list">
+        <ul class="home-catalog-links" role="list">
           {tftCovers.map(({ catalog: tftCatalog, title, name, asset, height }) => (
             <li>
-              <a class="home-tft-card card--hoverable" href={localizedPath(locale, `/tft/${tftCatalog}/`)}>
-                <div class="home-tft-card-body">
-                  <h3><TftCatalogIcon catalog={tftCatalog} class="home-tft-category-icon" />{title} <Icon name="RightOutlined" /></h3>
-                  <span>{name}</span>
-                </div>
-                <div class="home-tft-cover">
-                  <img src={communityDragonAssetUrl(asset, 'latest')} alt="" width="512" {height} loading="lazy" decoding="async" data-fallback="/placeholder.svg" />
-                </div>
-              </a>
+              <HomeCatalogCard href={localizedPath(locale, `/tft/${tftCatalog}/`)} {title} caption={name} cover={communityDragonAssetUrl(asset, 'latest')} {height}>
+                <TftCatalogIcon slot="icon" catalog={tftCatalog} />
+              </HomeCatalogCard>
             </li>
           ))}
         </ul>
@@ -98,17 +92,4 @@ const tftCovers = [
   .home-content { position:relative; z-index:1; }
   .home-content :global(.section-heading h2) { display: flex; align-items: center; gap: var(--space-2); color: var(--gold-text); }
   .home-tft { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin-inline: auto; padding-bottom: 40px; }
-  .home-tft-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
-  .home-tft-card { display: grid; grid-template-columns: minmax(0, 1fr) min(44%, 192px); align-items: center; height: 100%; border: 1px solid var(--line-subtle); border-radius: var(--radius-card); background: var(--panel); box-shadow: var(--shadow-card); overflow: hidden; }
-  .home-tft-cover { position: relative; aspect-ratio: 1; align-self: center; background: var(--panel2); }
-  .home-tft-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% center; }
-  .home-tft-cover::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 16%; background: linear-gradient(to right, var(--panel), transparent); }
-  .home-tft-card-body { display: grid; gap: var(--space-1); padding: var(--space-4); overflow-wrap: anywhere; }
-  .home-tft-card-body h3 { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--text); font-size: var(--font-size-headline-sm); line-height: var(--line-height-headline-sm); font-weight: 600; }
-  .home-tft-card-body :global(.project-icon),
-  .home-tft-card-body h3 :global(.home-tft-category-icon) { color: var(--gold-text); }
-  .home-tft-card-body > span { color: var(--muted); font-size: var(--font-size-small); }
-  @media (max-width: 767px) {
-    .home-tft-links { grid-template-columns: minmax(0, 1fr); }
-  }
 </style>

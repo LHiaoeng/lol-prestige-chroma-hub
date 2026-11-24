@@ -1,7 +1,14 @@
 ---
+import { catalog } from '../data/catalog';
+import { imageUrl, sourceImageUrl } from '../domain/chroma';
+import { communityDragonAssetUrl } from '../domain/communitydragon-url';
+import { selectFeaturedChroma } from '../domain/featured-chroma';
+import { lolCosmeticCatalogs } from '../domain/lol-cosmetics';
 import { localizedPath, resolveLocale, type Locale } from '../i18n/config';
 import Card from './Card.astro';
 import DomainIcon from './DomainIcon.astro';
+import type { DomainIconName } from './domain-icons';
+import HomeCatalogCard from './HomeCatalogCard.astro';
 import Icon from './icons/Icon.astro';
 
 interface Props {
@@ -10,28 +17,101 @@ interface Props {
 
 const locale = Astro.props.locale ?? resolveLocale(Astro.currentLocale);
 const isZh = locale === 'zh-cn';
-const links = [
-  { key: 'prestige-chromas', href: '/', label: isZh ? '臻彩原画' : 'Prestige Chroma Splash Art', icon: true },
-  { key: 'pbe-additions', href: '/pbe-additions/', label: isZh ? 'PBE 新增' : 'PBE additions', icon: true },
-  { key: 'champions', href: '/champions/', label: isZh ? '英雄' : 'Champions', icon: true },
-  { key: 'skins', href: '/skins/', label: isZh ? '皮肤' : 'Skins', icon: true },
-  { key: 'skinlines', href: '/skinlines/', label: isZh ? '皮肤系列' : 'Skinlines', icon: true },
-  { key: 'universes', href: '/universes/', label: isZh ? '皮肤宇宙' : 'Universes', icon: true },
+const navLabel = isZh ? '英雄联盟目录' : 'League of Legends catalogs';
+const featured = selectFeaturedChroma(catalog);
+const assetUrl = (path: string) => communityDragonAssetUrl(path, 'latest');
+const cosmeticCovers = {
+  'summoner-icons': {
+    cover: assetUrl('/lol-game-data/assets/v1/profile-icons/3018.jpg'),
+    caption: isZh ? '星之守护者 阿狸 图标' : 'Star Guardian Ahri Icon',
+  },
+  emotes: {
+    cover: assetUrl('/lol-game-data/assets/ASSETS/Loadouts/SummonerEmotes/TFT/10052_EM_Chibi_Gwen_CrystalRose_ScissorGesture_Inventory.png'),
+    caption: isZh ? '致胜眨眼' : 'Winning Wink',
+  },
+  'ward-skins': {
+    cover: assetUrl('/lol-game-data/assets/content/src/LeagueClient/WardSkinImages/wardHero_38.png'),
+    caption: isZh ? '地底世界魄罗守卫' : 'Underworld Poro Ward',
+  },
+  'nexus-finishers': {
+    cover: assetUrl('/lol-game-data/assets/ASSETS/Loadouts/NexusFinishers/SpiritBlossom/SpiritBlossomImage.png'),
+    caption: isZh ? '莲华绽灵 终结特效' : 'In Bloom',
+  },
+} as const;
+
+const links: {
+  key: string;
+  label: string;
+  icon: DomainIconName | 'league-of-legends';
+  cover?: string;
+  fallback?: string;
+  caption?: string;
+}[] = [
+  {
+    key: 'prestige-chromas',
+    label: isZh ? '臻彩原画' : 'Prestige Chroma Splash Art',
+    icon: 'prestige-chromas',
+    cover: featured && imageUrl(featured.images.medium),
+    fallback: featured && sourceImageUrl('medium', featured.instanceId),
+    caption: featured && (isZh ? featured.nameZh : featured.nameEn),
+  },
+  { key: 'pbe-additions', label: isZh ? 'PBE 新增' : 'PBE additions', icon: 'pbe-additions' },
+  {
+    key: 'champions',
+    label: isZh ? '英雄' : 'Champions',
+    icon: 'champions',
+    cover: assetUrl('/lol-game-data/assets/v1/champion-icons/103.png'),
+    caption: isZh ? '九尾妖狐' : 'Ahri',
+  },
+  {
+    key: 'skins',
+    label: isZh ? '皮肤' : 'Skins',
+    icon: 'skins',
+    cover: assetUrl('/lol-game-data/assets/ASSETS/Characters/Lux/Skins/Skin07/Images/lux_splash_tile_7.jpg'),
+    caption: isZh ? '大元素使 拉克丝' : 'Elementalist Lux',
+  },
+  {
+    key: 'skinlines',
+    label: isZh ? '皮肤系列' : 'Skinlines',
+    icon: 'skinlines',
+    cover: assetUrl('/lol-game-data/assets/ASSETS/Characters/Jinx/Skins/Skin04/Images/jinx_splash_tile_4.jpg'),
+    caption: isZh ? '星之守护者 金克丝' : 'Star Guardian Jinx',
+  },
+  {
+    key: 'universes',
+    label: isZh ? '皮肤宇宙' : 'Universes',
+    icon: 'universes',
+    cover: assetUrl('/lol-game-data/assets/ASSETS/Characters/Ahri/Skins/Skin27/Images/ahri_splash_tile_27.jpg'),
+    caption: isZh ? '灵魂莲华 阿狸' : 'Spirit Blossom Ahri',
+  },
+  ...lolCosmeticCatalogs.map(({ slug, [locale]: label }) => ({
+    key: slug,
+    label,
+    icon: slug === 'nexus-finishers' ? 'league-of-legends' as const : slug,
+    ...cosmeticCovers[slug],
+  })),
 ];
-const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.href) }));
+const items = links.map((link) => ({ ...link, href: localizedPath(locale, `/${link.key}/`) }));
+const tabs = items.map(({ key, label, href }) => ({
+  key,
+  label,
+  href: key === 'prestige-chromas' ? localizedPath(locale, '/') : href,
+  icon: true,
+}));
 ---
 
 <section class="home-tool-navigation" aria-labelledby="home-tools-title">
   <div class="section-heading"><h2 id="home-tools-title"><Icon name="league-of-legends" /> {isZh ? '英雄联盟' : 'League of Legends'}</h2></div>
   <Card
-    tabList={items}
+    className="home-tool-card"
+    tabList={tabs}
     tabBorderBeam={[
       'linear-gradient(to left, var(--gold) 0%, var(--magenta) 70%, transparent)',
       'linear-gradient(to left, var(--purple) 0%, var(--cyan) 70%, transparent)',
       'linear-gradient(to left, var(--cyan) 0%, var(--gold) 70%, transparent)',
     ]}
     activeTabKey="prestige-chromas"
-    tabsLabel={isZh ? '游戏资料导航' : 'Game reference navigation'}
+    tabsLabel={navLabel}
     size="medium"
   >
     <DomainIcon slot="tabIcon-prestige-chromas" name="prestige-chromas" />
@@ -40,16 +120,40 @@ const items = links.map((link) => ({ ...link, href: localizedPath(locale, link.h
     <DomainIcon slot="tabIcon-skins" name="skins" />
     <DomainIcon slot="tabIcon-skinlines" name="skinlines" />
     <DomainIcon slot="tabIcon-universes" name="universes" />
+    <DomainIcon slot="tabIcon-summoner-icons" name="summoner-icons" />
+    <DomainIcon slot="tabIcon-emotes" name="emotes" />
+    <DomainIcon slot="tabIcon-ward-skins" name="ward-skins" />
+    <Icon slot="tabIcon-nexus-finishers" name="league-of-legends" />
     <slot />
   </Card>
+  <nav class="home-tool-links" aria-label={navLabel}>
+    <ul class="home-catalog-links" role="list">
+      {items.map(({ href, label, icon, cover, caption, fallback }) => (
+        <li>
+          <HomeCatalogCard {href} title={label} {cover} {caption} {fallback}>
+            <Icon slot="icon" name={icon} />
+            <Icon slot="cover" name={icon} class="home-catalog-cover-mark" />
+          </HomeCatalogCard>
+        </li>
+      ))}
+    </ul>
+  </nav>
 </section>
 
 <style>
-  .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding-bottom: 40px; }
-  .home-tool-navigation :global(.card__header) { position: sticky; top: var(--site-header-height); z-index: 9; background: var(--panel); }
+  .home-tool-navigation { width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2))); margin: 0 auto; padding-bottom: 40px; container: home-tools / inline-size; }
   .home-tool-navigation h2 { scroll-margin-top: calc(var(--site-header-height) + var(--space-4)); }
-  .home-tool-navigation :global(.card__tabs) { flex-wrap: wrap; overflow: visible; }
-  @media (max-width: 767px) {
-    .home-tool-navigation :global(.card__tabs) { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
+  .home-tool-navigation :global(.home-tool-card > .card__header) { display: none; }
+  .home-tool-links { margin-top: var(--space-4); }
+
+  @container home-tools (width < 1200px) {
+    .home-tool-navigation :global(.home-tool-card) { border: 0; background: transparent; box-shadow: none; cursor: auto; }
+    .home-tool-navigation :global(.home-tool-card > .card__body) { padding: 0; }
+  }
+
+  @container home-tools (min-width: 1200px) {
+    .home-tool-navigation :global(.home-tool-card > .card__header) { display: block; position: sticky; top: var(--site-header-height); z-index: 9; background: var(--panel); }
+    .home-tool-navigation :global(.home-tool-card .card__tabs) { gap: var(--space-2); }
+    .home-tool-links { display: none; }
   }
 </style>
