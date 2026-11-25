@@ -379,7 +379,7 @@ export function initSkinCatalog(
     );
     const panel = template?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
     if (panel) {
-      const description = kind === "empty" ? panel.querySelector(".ant-empty-description") : panel.querySelector(".alert__content");
+      const description = kind === "empty" ? panel.querySelector(".ant-empty-description") : panel.querySelector("[data-catalog-error-description]");
       (description ?? panel).textContent = message;
       content.replaceChildren(panel);
     } else {
@@ -393,7 +393,13 @@ export function initSkinCatalog(
       button.type = "button";
       button.textContent = copy.retry;
       button.addEventListener("click", retry);
-      content.append(button);
+      const action = panel?.querySelector<HTMLElement>("[data-catalog-error-action]");
+      if (action) {
+        action.hidden = false;
+        action.append(button);
+      } else {
+        content.append(button);
+      }
     }
     content.hidden = false;
   };
@@ -418,10 +424,12 @@ export function initSkinCatalog(
     const media = document.createElement("span");
     media.className = "skin-catalog-card-media";
     const modes = loadingScreenModes(item);
+    const loadScreen = item.media.loadScreenVintageUrl ?? item.media.loadScreenUrl;
+    const splashes = [item.media.focusedSplashUrl, item.media.unfocusedSplashUrl]
+      .filter((url): url is string => Boolean(url));
     const imageUrl = modes
       ? isFramed(item.id) ? modes.framedUrl : modes.plainUrl
-      : item.media.loadScreenVintageUrl ?? item.media.loadScreenUrl ?? item.media.focusedSplashUrl ?? item.media.unfocusedSplashUrl;
-    const fallbackUrl = item.media.focusedSplashUrl ?? item.media.unfocusedSplashUrl;
+      : loadScreen ?? splashes[0];
     const showMissingImage = () => {
       media.className += " skin-catalog-card-media--missing";
       media.replaceChildren(document.createTextNode(copy.missing));
@@ -442,13 +450,20 @@ export function initSkinCatalog(
       const appendLoadScreen = (parent: HTMLElement, sourceUrl: string) => {
         const image = document.createElement("img");
         image.className = "skin-catalog-card-image";
-        image.src = sourceUrl;
+        const candidates = [...new Set([sourceUrl, ...splashes])];
+        let candidate = 0;
+        const setArtwork = (url: string, useSplash: boolean) => {
+          image.classList.toggle("skin-catalog-card-image--splash", useSplash);
+          image.src = url;
+          if (useSplash) media.style.setProperty("--catalog-backdrop", `url("${url}")`);
+        };
+        setArtwork(sourceUrl, !modes && !loadScreen);
         image.alt = "";
         image.loading = "lazy";
         image.addEventListener("error", () => {
-          if (fallbackUrl && image.src !== fallbackUrl) {
-            image.src = fallbackUrl;
-            media.style.setProperty("--catalog-backdrop", `url("${fallbackUrl}")`);
+          const next = candidates[++candidate];
+          if (next) {
+            setArtwork(next, true);
           } else {
             media.style.removeProperty("--catalog-backdrop");
             artworkModes.delete(item.id);
@@ -674,7 +689,15 @@ export function initSkinCatalog(
       } else {
         dateHeading.textContent = copy.timelinePbe;
       }
-      if (label.textContent) heading.append(label);
+      if (label.textContent) {
+        if (group.kind === "date" || group.kind === "unknown") {
+          const versionTag = document.createElement("span");
+          versionTag.className = "ant-tag";
+          versionTag.textContent = label.textContent;
+          label.replaceChildren(versionTag);
+        }
+        heading.append(label);
+      }
       heading.append(dateHeading);
       const content = document.createElement("div");
       content.className = "skin-catalog-timeline-content";

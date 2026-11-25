@@ -536,6 +536,29 @@ describe("skin catalog browser behavior", () => {
     expect(media.className).toContain("skin-catalog-card-media--missing");
   });
 
+  it("fills cards with splash art when the loading screen fails", async () => {
+    const item = {
+      ...skin(101, 1),
+      media: {
+        loadScreenUrl: "https://example.com/loading.jpg",
+        focusedSplashUrl: "https://example.com/focused.jpg",
+        unfocusedSplashUrl: "https://example.com/unfocused.jpg",
+      },
+    };
+    const page = fixture(
+      "https://chromaart.lol/skins/?view=timeline&channel=latest",
+      vi.fn(async () => ({ skins: [item], champions })),
+    );
+    await vi.waitFor(() => expect(page.count.textContent).toContain("1 / 1"));
+    const image = page.timeline.querySelector(".skin-catalog-card-image")!;
+    expect(image.className).not.toContain("skin-catalog-card-image--splash");
+    image.fire("error");
+    expect(image.src).toBe(item.media.focusedSplashUrl);
+    expect(image.className).toContain("skin-catalog-card-image--splash");
+    image.fire("error");
+    expect(image.src).toBe(item.media.unfocusedSplashUrl);
+  });
+
   it("loads timeline pages by complete date nodes and ends with 55 entries", async () => {
     const many = Array.from({ length: 55 }, (_, index) => skin(1000 + index, index % 2 ? 1 : 2));
     const releaseDateRows = many.map((item, index) => [

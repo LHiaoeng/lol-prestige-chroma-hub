@@ -85,6 +85,9 @@
   --content-width: 1240px;
   --page-gutter: 24px;
   --site-header-height: 72px;
+  --catalog-art-title-scrim: rgb(0 0 0 / 80%);
+  --catalog-art-title-text: #fff;
+  --catalog-art-badge-bg: rgb(0 0 0 / 72%);
   --shadow-popup: 0 6px 16px 0 rgba(255,255,255,.016), 0 3px 6px -4px rgba(255,255,255,.024), 0 9px 28px 8px rgba(255,255,255,.01);
   --shadow-card: 0 1px 2px -2px rgba(255,255,255,.032), 0 3px 6px 0 rgba(255,255,255,.024), 0 5px 12px 4px rgba(255,255,255,.018);
   --shadow-card-highlight: 0 2px 8px color-mix(in srgb, var(--gold) 24%, transparent);
@@ -156,6 +159,9 @@
   --spotlight: rgb(0 0 0 / 85%);
   --on-spotlight: #ffffff;
   --mask: rgb(0 0 0 / 45%);
+  --catalog-art-title-scrim: rgb(255 255 255 / 92%);
+  --catalog-art-title-text: #141414;
+  --catalog-art-badge-bg: rgb(255 255 255 / 92%);
   --shadow-popup: 0 6px 16px 0 rgb(0 0 0 / 8%), 0 3px 6px -4px rgb(0 0 0 / 12%), 0 9px 28px 8px rgb(0 0 0 / 5%);
   --shadow-card: 0 1px 2px -2px rgb(0 0 0 / 12%), 0 3px 6px 0 rgb(0 0 0 / 8%), 0 5px 12px 4px rgb(0 0 0 / 5%);
   --segmented-hover-bg: rgb(0 0 0 / 6%);

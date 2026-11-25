@@ -1,4 +1,5 @@
 ---
+import './tag.css';
 import type { Locale } from '../i18n/config';
 import { localizedPath } from '../i18n/config';
 import Breadcrumb from './Breadcrumb.astro';
@@ -35,7 +36,7 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
     </div>
     <div class="runtime-source runtime-channel-row skin-catalog-summary" data-catalog-summary aria-label={isZh ? '资料版本' : 'Reference data channel'} hidden>
       <RuntimeChannelSwitcher {locale} />
-      <Divider type="vertical" />
+      <Divider type="vertical" class="skin-catalog-count-divider" />
       <span class="runtime-list-count" data-catalog-count role="status" aria-live="polite" hidden></span>
     </div>
   </header>
@@ -143,7 +144,12 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
     </ol>
   </div>
   <template data-catalog-empty-template><Empty description="" /></template>
-  <template data-catalog-error-template><Alert type="error" title="" /></template>
+  <template data-catalog-error-template>
+    <Alert type="error" showIcon title={isZh ? '皮肤资料加载失败' : 'Could not load skin data'}>
+      <span slot="description" data-catalog-error-description></span>
+      <span slot="action" data-catalog-error-action hidden></span>
+    </Alert>
+  </template>
   <div class="skin-catalog-results" data-catalog-results role="region" aria-label={isZh ? '皮肤列表' : 'Skin list'} hidden>
     <div class="skin-catalog-grid" id="skin-catalog-grid" data-catalog-grid></div>
     <div class="skin-catalog-timeline" id="skin-catalog-timeline" data-catalog-timeline hidden></div>
