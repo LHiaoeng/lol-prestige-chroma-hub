@@ -415,6 +415,7 @@ footer .footer-links a{display:inline-flex;align-items:center;min-height:var(--c
 .ant-dropdown-text-trigger:hover { color: var(--gold-hover-text); }
 .ant-dropdown-text-trigger:active { color: var(--gold-active-text); }
 .ant-dropdown-text-trigger[aria-disabled="true"] { color: var(--disabled); cursor: not-allowed; }
+.runtime-channel-row > .ant-divider-vertical:has(+ .runtime-list-count:is(:empty, [hidden])) { display: none; }
 .runtime-channel-row .ant-dropdown-text-trigger { gap: var(--space-1); }
 .ant-dropdown-trigger > img { display: block; flex: none; }
 .ant-dropdown-trigger > .domain-icon { width: 1em; height: 1em; color: inherit; flex: none; }

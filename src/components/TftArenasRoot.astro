@@ -72,7 +72,12 @@ const title = isZh ? '棋盘' : 'Arenas';
     </div>
   </Spin>
   <template data-arenas-empty-template><Empty description="" /></template>
-  <template data-arenas-error-template><div class="tft-arenas-error"><Alert type="error" title={isZh ? '无法加载棋盘资料' : 'Unable to load Arenas'}><span slot="description" data-arenas-error-message></span></Alert><button class="ant-btn" type="button" data-arenas-retry>{isZh ? '重试' : 'Retry'}</button></div></template>
+  <template data-arenas-error-template>
+    <Alert type="error" showIcon title={isZh ? '无法加载棋盘资料' : 'Unable to load Arenas'}>
+      <span slot="description" data-arenas-error-message></span>
+      <button slot="action" class="ant-btn" type="button" data-arenas-retry>{isZh ? '重试' : 'Retry'}</button>
+    </Alert>
+  </template>
   <noscript><p>{isZh ? '请启用 JavaScript 以浏览棋盘目录。' : 'Enable JavaScript to browse Arenas.'}</p></noscript>
 </section>
 

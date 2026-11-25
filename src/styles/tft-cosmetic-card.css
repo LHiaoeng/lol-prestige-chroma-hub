@@ -153,3 +153,7 @@
     pointer-events: auto;
   }
 }
+
+.alert--error[data-alert]:has(+ :is([data-arenas-results], [data-tft-companions-results], [data-cosmetics-results]):not([hidden])) {
+  margin-block-end: var(--space-3);
+}

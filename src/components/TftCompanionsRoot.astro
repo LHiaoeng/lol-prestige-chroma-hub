@@ -106,12 +106,10 @@ const pageTitle = isZh ? '小小英雄' : 'Tacticians';
   </Spin>
   <template data-tft-companions-empty-template><Empty description="" /></template>
   <template data-tft-companions-error-template>
-    <div class="tft-companions-error">
-      <Alert type="error" title={isZh ? '无法加载小小英雄资料' : 'Unable to load Tacticians'}>
-        <span slot="description" data-tft-companions-error-message></span>
-      </Alert>
-      <button class="ant-btn" type="button" data-tft-companions-retry>{isZh ? '重试' : 'Retry'}</button>
-    </div>
+    <Alert type="error" showIcon title={isZh ? '无法加载小小英雄资料' : 'Unable to load Tacticians'}>
+      <span slot="description" data-tft-companions-error-message></span>
+      <button slot="action" class="ant-btn" type="button" data-tft-companions-retry>{isZh ? '重试' : 'Retry'}</button>
+    </Alert>
   </template>
   <noscript><p>{isZh ? '请启用 JavaScript 以浏览小小英雄列表。' : 'Enable JavaScript to browse Tacticians.'}</p></noscript>
 </section>

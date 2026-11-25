@@ -18,8 +18,6 @@
 .tft-arenas-aux[hidden] { display: none; }
 .ant-spin.tft-arenas-spinner > .ant-spin-section { position: sticky; top: 50vh; left: auto; z-index: 11; width: max-content; margin: 0 auto -20px; transform: translateY(-50%); }
 .tft-arenas-load-more-footer { display: flex; justify-content: center; margin-top: var(--space-3); }
-.tft-arenas-error { display: grid; justify-items: stretch; gap: var(--space-3); }
-.tft-arenas-error > button { justify-self: start; }
 .tft-arenas-pbe-marker { position: absolute; top: var(--space-2); left: var(--space-2); padding: 2px var(--space-2); border: 1px solid var(--gold-border); border-radius: var(--radius-tag); background: var(--panel); color: var(--gold-text); font-size: var(--font-size-small); }
 
 .tft-arenas-spinner { isolation: isolate; }

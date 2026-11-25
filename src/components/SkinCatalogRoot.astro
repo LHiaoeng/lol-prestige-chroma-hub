@@ -36,7 +36,7 @@ const releaseDates = JSON.stringify(releaseSnapshot.skins.map(({ skinId, globalR
     </div>
     <div class="runtime-source runtime-channel-row skin-catalog-summary" data-catalog-summary aria-label={isZh ? '资料版本' : 'Reference data channel'} hidden>
       <RuntimeChannelSwitcher {locale} />
-      <Divider type="vertical" class="skin-catalog-count-divider" />
+      <Divider type="vertical" />
       <span class="runtime-list-count" data-catalog-count role="status" aria-live="polite" hidden></span>
     </div>
   </header>

@@ -29,8 +29,7 @@ const { page, locale, label, heading, lede, mode } = Astro.props;
 const isZh = locale === 'zh-cn';
 const runtimeLocale = isZh ? 'zh_cn' : 'default';
 const listPath = page === 'pbe-additions' ? undefined : localizedPath(locale, `/${page}/`);
-const invalidReturnPage = page;
-const invalidReturnPath = localizedPath(locale, `/${invalidReturnPage}/`);
+const invalidReturnPath = localizedPath(locale, `/${page}/`);
 const invalidReturnLabel = label;
 const showCompactListHeader = mode === 'list';
 const showUniverseDetailSummary = page === 'universes' && mode === 'detail';
@@ -124,9 +123,9 @@ const skinReleases = page === 'skins' && mode === 'detail'
       <template data-runtime-empty-template><Empty description={isZh ? '没有匹配结果' : 'No matching references'} /></template>
       <template data-runtime-chroma-empty-template><Empty description={isZh ? '暂无炫彩' : 'No chroma artwork available'} /></template>
       <template data-runtime-alert-template>
-        <Alert type="error" showIcon>
+        <Alert type="error" showIcon title={isZh ? '资料加载失败' : 'Could not load game data'}>
           <span slot="description" data-runtime-alert-message></span>
-          <button slot="action" class="runtime-retry" type="button" data-runtime-alert-retry>{isZh ? '重试' : 'Retry'}</button>
+          <button slot="action" class="ant-btn runtime-retry" type="button" data-runtime-alert-retry>{isZh ? '重试' : 'Retry'}</button>
         </Alert>
       </template>
       <template data-runtime-invalid-template>

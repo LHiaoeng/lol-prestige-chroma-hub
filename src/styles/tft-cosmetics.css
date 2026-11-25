@@ -32,7 +32,6 @@
 }
 .tft-cosmetics .tft-cosmetics-result-count { grid-column: 1 / -1; margin: 0; text-align: center; }
 .tft-cosmetics-load-more-footer { display: flex; justify-content: center; margin-top: var(--space-3); }
-.tft-cosmetics-error { display: grid; justify-items: start; gap: var(--space-3); }
 .tft-cosmetics-pbe-marker.ant-tooltip-trigger {
   position: absolute;
   top: var(--space-2);

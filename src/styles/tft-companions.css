@@ -92,11 +92,6 @@
   justify-content: center;
   margin-top: var(--space-3);
 }
-.tft-companions-error {
-  display: grid;
-  justify-items: start;
-  gap: var(--space-3);
-}
 .tft-companions-pbe-marker.ant-tooltip-trigger {
   position: absolute;
   top: var(--space-2);

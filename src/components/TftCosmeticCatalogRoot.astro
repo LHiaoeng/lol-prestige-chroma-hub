@@ -111,12 +111,10 @@ const subject = isZh ? "云顶之弈" + title : "Teamfight Tactics " + title;
   </Spin>
   <template data-cosmetics-empty-template><Empty description="" /></template>
   <template data-cosmetics-error-template>
-    <div class="tft-cosmetics-error">
-      <Alert type="error" title={isZh ? "无法加载" + subject + "资料" : "Unable to load " + subject}>
-        <span slot="description" data-cosmetics-error-message></span>
-      </Alert>
-      <button class="ant-btn" type="button" data-cosmetics-retry>{isZh ? "重试" : "Retry"}</button>
-    </div>
+    <Alert type="error" showIcon title={isZh ? "无法加载" + subject + "资料" : "Unable to load " + subject}>
+      <span slot="description" data-cosmetics-error-message></span>
+      <button slot="action" class="ant-btn" type="button" data-cosmetics-retry>{isZh ? "重试" : "Retry"}</button>
+    </Alert>
   </template>
 </section>
 
